@@ -27,7 +27,7 @@ namespace Vodovoz.ViewWidgets
 			labelPrice.LabelProp = deliveryPriceNode.Price;
 			labelMinBottles.LabelProp = deliveryPriceNode.MinBottles;
 			ytextviewSchedule.Buffer.Text = deliveryPriceNode.Schedule;
-			yTxtWarehouses.Buffer.Text = deliveryPriceNode.WarehousesList;
+			yTxtWarehouses.Buffer.Text = deliveryPriceNode.GeographicGroups;
 			hboxTreeView.Visible = deliveryPriceNode.ByDistance;
 			label2.Visible = labelPrice.Visible = hbox5.Visible = deliveryPriceNode.WithPrice;
 			ytreeviewPrices.SetItemsSource<DeliveryPriceRow>(deliveryPriceNode.Prices);

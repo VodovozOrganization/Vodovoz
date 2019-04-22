@@ -207,7 +207,6 @@ namespace Vodovoz.Dialogs.Logistic
 			this.chkLoadDocument.CanFocus = true;
 			this.chkLoadDocument.Name = "chkLoadDocument";
 			this.chkLoadDocument.Label = global::Mono.Unix.Catalog.GetString("Документ погрузки");
-			this.chkLoadDocument.Active = true;
 			this.chkLoadDocument.DrawIndicator = true;
 			this.chkLoadDocument.UseUnderline = true;
 			this.vbox3.Add(this.chkLoadDocument);

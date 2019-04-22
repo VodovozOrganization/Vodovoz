@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
@@ -12,7 +13,7 @@ namespace Vodovoz.Repositories.Sale
 			return QueryOver.Of<ScheduleRestrictedDistrict>().Where(x => x.DistrictBorder != null);
 		}
 
-		public static IList<ScheduleRestrictedDistrict> AreaWithGeometry(IUnitOfWork uow)
+		public static IList<ScheduleRestrictedDistrict> AreasWithGeometry(IUnitOfWork uow)
 		{
 			return AreaWithGeometryQuery()
 							.GetExecutableQueryOver(uow.Session)

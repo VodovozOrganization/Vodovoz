@@ -1,16 +1,15 @@
 ﻿using System.Linq;
 using Gamma.Binding;
+using Gamma.GtkWidgets;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
+using QS.Project.Domain;
 using QSOrmProject;
+using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Representations;
 using Vodovoz.ViewModel;
-using Gamma.GtkWidgets;
-using QS.Project.Domain;
-using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -50,22 +49,17 @@ namespace Vodovoz
 			subdivisionsVM = new SubdivisionsVM(UoW, Entity);
 			repTreeChildSubdivisions.RepresentationModel = subdivisionsVM;
 			repTreeChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(subdivisionsVM.Result, x => x.Parent, x => x.Children);
-			//repTreeChildSubdivisions.ExpandAll();
 
-			var scheduleRestrictedDistrictVM = new ScheduleRestrictedDistrictVM(UoW);
-			repTreeDistricts.RepresentationModel = scheduleRestrictedDistrictVM;
-			repTreeDistricts.SetItemsSource<ScheduleRestrictedDistrict>(Entity.ObservableServicingDistricts);
-			repTreeDistricts.Selection.Changed += (sender, e) => {
-				selectedDistrict = repTreeDistricts.GetSelectedObject<ScheduleRestrictedDistrict>();
-				btnRemoveDistrict.Sensitive = selectedDistrict != null;
-			};
+			ySpecCmbGeographicGroup.ItemsList = UoW.Session.QueryOver<GeographicGroup>().List();
+			ySpecCmbGeographicGroup.Binding.AddBinding(Entity, e => e.GeographicGroup, w => w.SelectedItem).InitializeFromSource();
+			ySpecCmbGeographicGroup.ItemSelected += YSpecCmbGeographicGroup_ItemSelected;
+			SetControlsAccessibility();
 
 			ytreeviewDocuments.ColumnsConfig = ColumnsConfigFactory.Create<TypeOfEntity>()
 				.AddColumn("Документ").AddTextRenderer(x => x.CustomName)
 				.Finish();
 			ytreeviewDocuments.ItemsDataSource = Entity.ObservableDocumentTypes;
 
-			btnRemoveDistrict.Sensitive = selectedDistrict != null;
 			lblWarehouses.LineWrapMode = Pango.WrapMode.Word;
 			if(Entity.Id > 0)
 				lblWarehouses.Text = Entity.GetWarehousesNames(UoW);
@@ -74,29 +68,13 @@ namespace Vodovoz
 			vboxDocuments.Visible = QSMain.User.Admin;
 		}
 
-		protected void OnBtnAddDistrictClicked(object sender, System.EventArgs e)
+		void YSpecCmbGeographicGroup_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			var refWin = new ReferenceRepresentation(new ScheduleRestrictedDistrictVM(UoW)) {
-				Mode = OrmReferenceMode.MultiSelect,
-				ButtonMode = ReferenceButtonMode.None
-			};
-			refWin.ObjectSelected += RefWin_ObjectSelected;
-			TabParent.AddSlaveTab(this, refWin);
-		}
-
-		void RefWin_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
-		{
-			var districts = e.Selected.Select(o => o.VMNode as ScheduleRestrictedDistrict);
-			foreach(var d in districts) {
-				if(d != null && !Entity.ObservableServicingDistricts.Any(x => x == d))
-					Entity.ObservableServicingDistricts.Add(d);
-			}
-		}
-
-		protected void OnBtnRemoveDistrictClicked(object sender, System.EventArgs e)
-		{
-			if(selectedDistrict != null)
-				Entity.ObservableServicingDistricts.Remove(selectedDistrict);
+			SetControlsAccessibility();
+			if(Entity.ParentSubdivision != null || Entity.ChildSubdivisions.Any())
+				foreach(var s in Entity.ChildSubdivisions) {
+					s.GeographicGroup = Entity.GeographicGroup;
+				}
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
@@ -111,33 +89,33 @@ namespace Vodovoz
 			return true;
 		}
 
+		#endregion
+
 		protected void OnButtonAddDocumentClicked(object sender, System.EventArgs e)
 		{
-			var docTypesJournal = new OrmReference(typeof(TypeOfEntity), UoW);
-			docTypesJournal.Mode = OrmReferenceMode.Select;
+			var docTypesJournal = new OrmReference(typeof(TypeOfEntity), UoW) {
+				Mode = OrmReferenceMode.Select
+			};
 			docTypesJournal.ObjectSelected += DocTypesJournal_ObjectSelected;
 			TabParent.AddSlaveTab(this, docTypesJournal);
 		}
 
 		protected void OnButtonDeleteDocumentClicked(object sender, System.EventArgs e)
 		{
-			TypeOfEntity selectedObject = ytreeviewDocuments.GetSelectedObject() as TypeOfEntity;
-			if(selectedObject == null) {
-				return;
-			}
-			Entity.ObservableDocumentTypes.Remove(selectedObject);
+			if(ytreeviewDocuments.GetSelectedObject() is TypeOfEntity selectedObject)
+				Entity.ObservableDocumentTypes.Remove(selectedObject);
 		}
-
 
 		void DocTypesJournal_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			TypeOfEntity selectedObject = e.Subject as TypeOfEntity;
-			if(selectedObject == null) {
-				return;
-			}
-			Entity.ObservableDocumentTypes.Add(selectedObject);
+			if(e.Subject is TypeOfEntity selectedObject)
+				Entity.ObservableDocumentTypes.Add(selectedObject);
 		}
 
-		#endregion
+		void SetControlsAccessibility()
+		{
+			lblGeographicGroup.Visible = ySpecCmbGeographicGroup.Visible
+				= Entity.ParentSubdivision != null && Entity.ChildSubdivisions.Any();
+		}
 	}
 }

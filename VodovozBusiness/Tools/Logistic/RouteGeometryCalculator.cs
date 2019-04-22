@@ -10,14 +10,15 @@ using QSOsm.Spuntik;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Tools.Logistic
 {
 	/// <summary>
 	/// Класс позволяет получать расстояния между точками от внешнего провайдера и из кеша.
-	/// В отличии от класса <c>ExtDistanceCalculator</c> у него можно спрашивать сразу маршрут последовательный
-	/// маршрут, от точки А к Б потом к С, потом к Д. А так же этот класс кеширует не только время и растояния,
-	/// но и геометрию движения по дорожной сети.
+	/// В отличии от класса <see cref="Vodovoz.Tools.Logistic.ExtDistanceCalculator"/> у него
+	/// можно спрашивать сразу последовательный маршрут, от точки А к Б потом к С, потом к Д.
+	/// А так же этот класс кеширует не только время и растояния, но и геометрию движения по дорожной сети.
 	/// </summary>
 	public class RouteGeometryCalculator : IDistanceCalculator
 	{
@@ -73,37 +74,41 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Расстояние в метрах от базы до точки.
 		/// </summary>
-		public int DistanceFromBaseMeter(DeliveryPoint toDP)
+		public int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
+			var fromBaseHash = CachedDistance.GetHash(fromBase);
 			var toHash = CachedDistance.GetHash(toDP);
-			return DistanceMeter(CachedDistance.BaseHash, toHash);
+			return DistanceMeter(fromBaseHash, toHash);
 		}
 
 		/// <summary>
 		/// Возвращаем время от базы в секундах
 		/// </summary>
-		public int TimeFromBase(DeliveryPoint toDP)
+		public int TimeFromBase(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
+			var fromBaseHash = CachedDistance.GetHash(fromBase);
 			var toHash = CachedDistance.GetHash(toDP);
-			return TimeSec(CachedDistance.BaseHash, toHash);
+			return TimeSec(fromBaseHash, toHash);
 		}
 
 		/// <summary>
 		/// Возвращаем время до базы в секундах
 		/// </summary>
-		public int TimeToBase(DeliveryPoint fromDP)
+		public int TimeToBase(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return TimeSec(fromHash, CachedDistance.BaseHash);
+			var toBaseHash = CachedDistance.GetHash(toBase);
+			return TimeSec(fromHash, toBaseHash);
 		}
 
 		/// <summary>
 		/// Расстояние в метрах от точки до базы.
 		/// </summary>
-		public int DistanceToBaseMeter(DeliveryPoint fromDP)
+		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return DistanceMeter(fromHash, CachedDistance.BaseHash);
+			var toBaseHash = CachedDistance.GetHash(toBase);
+			return DistanceMeter(fromHash, toBaseHash);
 		}
 
 		private int DistanceMeter(long fromHash, long toHash)
