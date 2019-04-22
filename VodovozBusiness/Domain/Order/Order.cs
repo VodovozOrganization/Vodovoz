@@ -724,8 +724,10 @@ namespace Vodovoz.Domain.Orders
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<PromotionalSet> ObservablePromotionalSets {
 			get {
-				if(observablePromotionalSets == null)
+				if(observablePromotionalSets == null) {
 					observablePromotionalSets = new GenericObservableList<PromotionalSet>(PromotionalSets);
+					observablePromotionalSets.ElementRemoved += ObservablePromotionalSets_ElementRemoved;
+				}
 				return observablePromotionalSets;
 			}
 		}
@@ -1403,11 +1405,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual int GetTotalWater19LCount()
+		public virtual int GetTotalWater19LCount(bool doNotCountWaterFromPromoSets = false)
 		{
-			return ObservableOrderItems
-				.Where(x => x.Nomenclature.IsWater19L)
-				.Sum(x => x.Count);
+			var water19L = ObservableOrderItems.Where(x => x.Nomenclature.IsWater19L);
+			if(doNotCountWaterFromPromoSets)
+				water19L = water19L.Where(x => x.PromoSet == null);
+			return water19L.Sum(x => x.Count);
 		}
 
 		/// <summary>
@@ -1583,10 +1586,10 @@ namespace Vodovoz.Domain.Orders
 				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
 		}
 
-		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count, decimal discount = 0, DiscountReason reason = null)
+		public virtual OrderItem AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count, decimal discount = 0, DiscountReason reason = null, PromotionalSet proSet = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
-				return;
+				return null;
 
 			if(discount > 0 && reason == null)
 				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
@@ -1600,21 +1603,22 @@ namespace Vodovoz.Domain.Orders
 			} else if(wsa.HasFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
 				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == infuentialNomenclature?.Id).Price;
 			} else {
-				price = nomenclature.GetPrice(GetTotalWater19LCount());
+				price = nomenclature.GetPrice(proSet == null ? GetTotalWater19LCount() : count);
 			}
 
-			ObservableOrderItems.Add(
-				new OrderItem {
-					Order = this,
-					AdditionalAgreement = wsa,
-					Count = count,
-					Equipment = null,
-					Nomenclature = nomenclature,
-					Price = price,
-					DiscountForPreview = discount,
-					DiscountReason = reason
-				}
-			);
+			var oi = new OrderItem {
+				Order = this,
+				AdditionalAgreement = wsa,
+				Count = count,
+				Equipment = null,
+				Nomenclature = nomenclature,
+				Price = price,
+				DiscountForPreview = discount,
+				DiscountReason = reason,
+				PromoSet = proSet
+			};
+			ObservableOrderItems.Add(oi);
+			return oi;
 		}
 
 		public virtual bool CalculateDeliveryPrice()
@@ -1699,26 +1703,29 @@ namespace Vodovoz.Domain.Orders
 			//UpdateDocuments();
 		}
 
-		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
+		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null, PromotionalSet proSet = null)
 		{
+			OrderItem oi = null;
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.equipment://Оборудование
-					CreateSalesEquipmentAgreementAndAddEquipment(nomenclature, count, discount, discountReason);
+					CreateSalesEquipmentAgreementAndAddEquipment(nomenclature, count, discount, discountReason, proSet);
 					break;
 				case NomenclatureCategory.water:
-					CounterpartyContract contract = CreateWaterSalesAgreementAndAddWater(nomenclature, count, discount, discountReason);
+					var ag = CreateWaterSalesAgreementAndAddWater(nomenclature);
+					AddWaterForSale(nomenclature, ag, count, discount, discountReason, proSet);
 					break;
 				case NomenclatureCategory.master:
 					contract = CreateServiceContractAddMasterNomenclature(nomenclature);
 					break;
 				case NomenclatureCategory.deposit://Залог
 				default://rest
-					var oi = new OrderItem {
+					oi = new OrderItem {
 						Count = count,
 						DiscountForPreview = discount,
 						DiscountReason = discountReason,
 						Nomenclature = nomenclature,
-						Price = nomenclature.GetPrice(1)
+						Price = nomenclature.GetPrice(1),
+						PromoSet = proSet
 					};
 					AddItemWithNomenclatureForSale(oi);
 					break;
@@ -1735,9 +1742,22 @@ namespace Vodovoz.Domain.Orders
 			var discountReason = orderItem.DiscountReason;
 			if(discountReason != null) {
 				var proSet = ObservablePromotionalSets.FirstOrDefault(s => s.PromoSetName == discountReason);
-				if(proSet != null && !OrderItems.Any(i => i.DiscountReason == discountReason))
+				if(proSet != null && !OrderItems.Any(i => i.DiscountReason == discountReason && i.Discount > 0))
 					//если в заказе не осталось номенклатур с причиной скидки как в промо-наборе, то удаляем этот промо-набор
 					ObservablePromotionalSets.Remove(proSet);
+			}
+		}
+
+		void ObservablePromotionalSets_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			if(aObject is PromotionalSet proSet) {
+				foreach(OrderItem item in ObservableOrderItems)
+					if(item.PromoSet == proSet) {
+						item.IsUserPrice = false;
+						item.PromoSet = null;
+						item.DiscountReason = null;
+					}
+				RecalculateItemsPrice();
 			}
 		}
 
@@ -1788,62 +1808,51 @@ namespace Vodovoz.Domain.Orders
 		{
 			CounterpartyContract contract = null;
 			if(Contract == null) {
-				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
-				if(contract == null) {
-					contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
-					Contract = contract;
-					AddContractDocument(contract);
+				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				if(Contract == null) {
+					Contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
+					AddContractDocument(Contract);
 				}
-			} else {
-				contract = Contract;
 			}
 			AddMasterNomenclature(nomenclature, 1, 1);
-			return contract;
+			return Contract;
 		}
 
-		private CounterpartyContract CreateWaterSalesAgreementAndAddWater(Nomenclature nom, int count, decimal discount, DiscountReason reason)
+		private WaterSalesAgreement CreateWaterSalesAgreementAndAddWater(Nomenclature nom)
 		{
-			CounterpartyContract contract = Contract;
-			if(contract == null) {
-				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
-				Contract = contract;
-			}
+			if(Contract == null)
+				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 
-			WaterSalesAgreement ag = contract.GetWaterSalesAgreement(DeliveryPoint, nom);
+			WaterSalesAgreement ag = Contract.GetWaterSalesAgreement(DeliveryPoint, nom);
 			if(ag == null) {
 				ag = new WaterSalesAgreement {
-					Contract = contract,
-					AgreementNumber = AdditionalAgreement.GetNumberWithType(contract, AgreementType.WaterSales),
+					Contract = Contract,
+					AgreementNumber = AdditionalAgreement.GetNumberWithType(Contract, AgreementType.WaterSales),
 					DeliveryPoint = deliveryPoint,
 				};
 				if(DeliveryDate.HasValue)
 					ag.IssueDate = ag.StartDate = DeliveryDate.Value;
 				ag.FillFixedPricesFromDeliveryPoint(UoW);
 				UoW.Save(ag);
-				contract.AdditionalAgreements.Add(ag);
+				Contract.AdditionalAgreements.Add(ag);
 				CreateOrderAgreementDocument(ag);
 			}
-			AddWaterForSale(nom, ag, count, discount, reason);
-			return contract;
+			return ag;
 		}
 
-		void CreateSalesEquipmentAgreementAndAddEquipment(Nomenclature nom, int count, decimal discount, DiscountReason reason)
+		void CreateSalesEquipmentAgreementAndAddEquipment(Nomenclature nom, int count, decimal discount, DiscountReason reason, PromotionalSet proSet)
 		{
-			CounterpartyContract contract = null;
 			if(Contract == null) {
-				contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
-				if(contract == null) {
-					contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
-					Contract = contract;
-					AddContractDocument(contract);
+				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				if(Contract == null) {
+					Contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
+					AddContractDocument(Contract);
 				}
-			} else {
-				contract = Contract;
 			}
 
 			var ag = new SalesEquipmentAgreement {
-				Contract = contract,
-				AgreementNumber = AdditionalAgreement.GetNumberWithType(contract, AgreementType.EquipmentSales),
+				Contract = Contract,
+				AgreementNumber = AdditionalAgreement.GetNumberWithType(Contract, AgreementType.EquipmentSales),
 				DeliveryPoint = DeliveryPoint
 			};
 			if(DeliveryDate.HasValue)
@@ -1853,7 +1862,7 @@ namespace Vodovoz.Domain.Orders
 
 			UoW.Save(ag);
 			CreateOrderAgreementDocument(ag);
-			FillItemsFromAgreement(ag, count, discount, reason);
+			FillItemsFromAgreement(ag, count, discount, reason, proSet);
 			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType)
 										  .AdditionalAgreements
 										  .Add(ag);
@@ -2220,7 +2229,7 @@ namespace Vodovoz.Domain.Orders
 			return waterItemsCount - BottlesReturn ?? 0;
 		}
 
-		public virtual void FillItemsFromAgreement(AdditionalAgreement a, int count = -1, decimal discount = -1, DiscountReason reason = null)
+		public virtual void FillItemsFromAgreement(AdditionalAgreement a, int count = -1, decimal discount = -1, DiscountReason reason = null, PromotionalSet proSet = null)
 		{
 			if(a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
 				IList<PaidRentEquipment> paidRentEquipmentList;
@@ -2358,6 +2367,7 @@ namespace Vodovoz.Domain.Orders
 								IsDiscountInMoney = false,
 								DiscountForPreview = discount < 0 ? 0 : discount,
 								DiscountReason = reason,
+								PromoSet = proSet,
 								Equipment = null,
 								Nomenclature = equipment.Nomenclature,
 								Price = equipment.Price
@@ -2633,10 +2643,7 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Действия при закрытии заказа
 		/// </summary>
-		private void OnChangeStatusToOnLoading()
-		{
-			UpdateDocuments();
-		}
+		private void OnChangeStatusToOnLoading() => UpdateDocuments();
 
 		/// <summary>
 		/// Действия при закрытии заказа
@@ -2648,24 +2655,17 @@ namespace Vodovoz.Domain.Orders
 				UpdateDepositOperations(UoW);
 				SetActualCountToSelfDelivery();
 			}
-
 		}
 
 		/// <summary>
 		/// Действия при переводе заказа в ожидание оплаты
 		/// </summary>
-		private void OnChangeStatusToWaitingForPayment()
-		{
-			UpdateDocuments();
-		}
+		private void OnChangeStatusToWaitingForPayment() => UpdateDocuments();
 
 		/// <summary>
 		/// Действия при подтверждении заказа
 		/// </summary>
-		private void OnChangeStatusToAccepted()
-		{
-			UpdateDocuments();
-		}
+		private void OnChangeStatusToAccepted() => UpdateDocuments();
 
 		/// <summary>
 		/// Отправка самовывоза на погрузку
@@ -2876,11 +2876,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool CanEditOrder {
-			get {
-				return EditableOrderStatuses.Contains(OrderStatus);
-			}
-		}
+		public virtual bool CanEditOrder => EditableOrderStatuses.Contains(OrderStatus);
 
 		/// <summary>
 		/// Статусы из которых возможен переход заказа в подтвержденное состояние
@@ -2930,11 +2926,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool CanSetOrderAsEditable {
-			get {
-				return SetOrderAsEditableStatuses.Contains(OrderStatus);
-			}
-		}
+		public virtual bool CanSetOrderAsEditable => SetOrderAsEditableStatuses.Contains(OrderStatus);
 
 		public virtual bool IsFullyShippedSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument = null)
 		{
@@ -3053,7 +3045,8 @@ namespace Vodovoz.Domain.Orders
 
 
 		/// <summary>
-		/// Закрывает заказ с самовывозом если по всем документам самовывоза со склада все отгружено, и произведена оплата
+		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
+		/// склада все отгружено, и произведена оплата
 		/// </summary>
 		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument)
 		{

@@ -31016,14 +31016,14 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="Gtk.Button" id="buttonDelete1">
+                                  <widget class="Gtk.Button" id="btnDeleteOrderItem">
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
                                     <property name="Type">TextAndIcon</property>
                                     <property name="Icon">stock:gtk-delete Menu</property>
                                     <property name="Label" translatable="yes">Удалить</property>
                                     <property name="UseUnderline">True</property>
-                                    <signal name="Clicked" handler="OnButtonDelete1Clicked" />
+                                    <signal name="Clicked" handler="OnBtnDeleteOrderItemClicked" />
                                   </widget>
                                   <packing>
                                     <property name="Position">5</property>

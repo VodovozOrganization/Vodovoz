@@ -269,7 +269,7 @@ namespace Vodovoz
 			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"];
 
 			buttonViewDocument.Sensitive = false;
-			buttonDelete1.Sensitive = false;
+			btnDeleteOrderItem.Sensitive = false;
 			notebook1.ShowTabs = false;
 			notebook1.Page = 0;
 
@@ -423,7 +423,8 @@ namespace Vodovoz
 					.Digits(2)
 					.WidthChars(10)
 					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
-				.AddColumn("Скидка \nв рублях?").AddToggleRenderer(x => x.IsDiscountInMoney)
+				.AddColumn("Скидка \nв рублях?")
+					.AddToggleRenderer(x => x.IsDiscountInMoney)
 					.Editing()
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
@@ -441,6 +442,8 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.AgreementString)
 				.RowCells()
 					.XAlign(0.5f)
+					.AddSetter<CellRendererText>((c, n) => c.Editable = n.PromoSet == null)
+					.AddSetter<CellRendererToggle>((c, n) => c.Activatable = n.PromoSet == null)
 				.Finish();
 			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
@@ -1111,10 +1114,7 @@ namespace Vodovoz
 			if(!Entity.ObservablePromotionalSets.Contains(proSet)) {
 				if(!Entity.CanAddPromotionalSet(proSet, out string msg) && !MessageDialogHelper.RunQuestionWithTitleDialog("Повтор промо-набора", msg))
 					return;
-				if(proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any()) {
-					foreach(var proSetItem in proSet.PromotionalSetItems)
-						TryAddNomenclature(proSetItem.Nomenclature, proSetItem.Count, proSetItem.Discount, proSetItem.Discount > 0 ? proSet.PromoSetName : null);
-				}
+				TryAddNomenclature(proSet);
 				Entity.ObservablePromotionalSets.Add(proSet);
 			}
 		}
@@ -1149,6 +1149,36 @@ namespace Vodovoz
 			}
 
 			Entity.AddNomenclature(nomenclature, count, discount, discountReason);
+		}
+
+		void TryAddNomenclature(PromotionalSet proSet)
+		{
+			if(Entity.IsLoadedFrom1C)
+				return;
+
+			if(proSet != null && !proSet.IsArchive && proSet.PromotionalSetItems.Any())
+				foreach(var proSetItem in proSet.PromotionalSetItems) {
+					var nomenclature = proSetItem.Nomenclature;
+					if(Entity.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
+					   && nomenclature.Category == NomenclatureCategory.master) {
+						MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
+						return;
+					}
+
+					if(Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
+					   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
+						MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
+						return;
+					}
+
+					Entity.AddNomenclature(
+						proSetItem.Nomenclature,
+						proSetItem.Count,
+						proSetItem.Discount,
+						proSetItem.PromoSet.PromoSetName,
+						proSetItem.PromoSet
+					);
+				}
 		}
 
 		private void AddRentAgreement(OrderAgreementType type)
@@ -1397,14 +1427,14 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnButtonDelete1Clicked(object sender, EventArgs e)
+		protected void OnBtnDeleteOrderItemClicked(object sender, EventArgs e)
 		{
 			if(treeItems.GetSelectedObject() is OrderItem orderItem) {
 				RemoveOrderItem(orderItem);
 				Entity.TryToRemovePromotionalSet(orderItem);
 				//при удалении номенклатуры выделение снимается и при последующем удалении exception
 				//для исправления делаем кнопку удаления не активной, если объект не выделился в списке
-				buttonDelete1.Sensitive = treeItems.GetSelectedObject() != null;
+				btnDeleteOrderItem.Sensitive = treeItems.GetSelectedObject() != null;
 			}
 		}
 		#endregion
@@ -2114,7 +2144,7 @@ namespace Vodovoz
 				AgreementType.NonfreeRent,
 				AgreementType.EquipmentSales
 			};
-			buttonDelete1.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null
+			btnDeleteOrderItem.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null
 														   || deleteTypes.Contains((items[0] as OrderItem).AdditionalAgreement.Type)
 														  );
 		}
