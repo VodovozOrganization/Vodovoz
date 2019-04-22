@@ -30,6 +30,7 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.FreeRentEquipment)			 .Column ("free_rent_equipment_id").Cascade.All();
 			References (x => x.PaidRentEquipment)			 .Column ("paid_rent_equipment_id").Cascade.All();
 			References (x => x.DiscountReason)			 	 .Column ("discount_reason_id");
+			References (x => x.PromoSet)					 .Column ("promotional_set_id");
 		}
 	}
 }

@@ -21,7 +21,7 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.Id, "НомерДоверенности", PatternFieldType.FString);
 			AddField(x => x.Date.ToString("dd.MM.yyyy"), "ДатаДоверенности", PatternFieldType.FString);
 			AddField(x => x.ExpirationDate.ToString("dd.MM.yyyy"), "ДатаОкончания", PatternFieldType.FString);
-			AddField(x => x.TicketDate.Year == 1 ? "\t" : x.TicketDate.ToString("dd.MM.yyyy"), "ДатаНаряда", PatternFieldType.FString);
+			AddField(x => !x.TicketDate.HasValue ? "\t" : x.TicketDate.Value.ToString("dd.MM.yyyy"), "ДатаНаряда", PatternFieldType.FString);
 			AddField(x => x.TicketNumber ?? "\t", "НомерНаряда", PatternFieldType.FString);
 
 			AddField(x => x.Organization.Name, PatternFieldType.FString);

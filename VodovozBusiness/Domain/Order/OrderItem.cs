@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
 	[HistoryTrace]
-	public class OrderItem : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class OrderItem : PropertyChangedBase, IDomainObject
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -214,6 +214,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref paidRentEquipment, value, () => PaidRentEquipment);
 		}
 
+		PromotionalSet promoSet;
+		[Display(Name = "Добавлено из промо-набора")]
+		public virtual PromotionalSet PromoSet {
+			get => promoSet;
+			set => SetField(ref promoSet, value, () => PromoSet);
+		}
+
 		#endregion
 
 		#region Вычисляемые
@@ -398,7 +405,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void RecalculatePrice()
 		{
-			if(IsUserPrice)
+			if(IsUserPrice || PromoSet != null)
 				return;
 
 			Price = GetPriceByTotalCount();
@@ -408,9 +415,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(Nomenclature != null) {
 				if(Nomenclature.DependsOnNomenclature == null)
-					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount() : Count);
+					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
 				if(Nomenclature.IsWater19L)
-					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount() : Count);
+					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? Order.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
 			}
 			return 0m;
 		}
@@ -471,15 +478,6 @@ namespace Vodovoz.Domain.Orders
 			uow.Delete(this.PaidRentEquipment);
 			this.PaidRentEquipment = null;
 			uow.Save();
-		}
-
-		#endregion
-
-		#region IValidatableObject implementation
-
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			return null;
 		}
 
 		#endregion

@@ -6,6 +6,7 @@ using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz
 {
@@ -42,6 +43,22 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RepairAgreement> (id);
 			ConfigureDlg ();
+		}
+
+		public RepairAgreementDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
+		{
+			this.Build();
+			if(!option.NeedCreateNew) {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<RepairAgreement>(option.EntityId), baseUoW)
+					: UnitOfWorkFactory.CreateForRoot<RepairAgreement>(option.EntityId);
+			} else {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateWithNewChildRoot<RepairAgreement>(baseUoW)
+					: UnitOfWorkFactory.CreateWithNewRoot<RepairAgreement>();
+			}
+
+			ConfigureDlg();
 		}
 
 		private void ConfigureDlg ()

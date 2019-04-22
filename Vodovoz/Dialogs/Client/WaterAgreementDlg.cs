@@ -14,6 +14,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repositories.Client;
 using QS.Project.Repositories;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz
 {
@@ -64,6 +65,22 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<WaterSalesAgreement>(id);
+			ConfigureDlg();
+		}
+
+		public WaterAgreementDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
+		{
+			this.Build();
+			if(!option.NeedCreateNew) {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<WaterSalesAgreement>(option.EntityId), baseUoW)
+					: UnitOfWorkFactory.CreateForRoot<WaterSalesAgreement>(option.EntityId);
+			} else {
+				UoWGeneric = option.UseChildUoW
+					? UnitOfWorkFactory.CreateWithNewChildRoot<WaterSalesAgreement>(baseUoW)
+					: UnitOfWorkFactory.CreateWithNewRoot<WaterSalesAgreement>();
+			}
+
 			ConfigureDlg();
 		}
 
@@ -162,9 +179,7 @@ namespace Vodovoz
 			Nomenclature nomenclatureToAdd = e.Subject as Nomenclature;
 			decimal price = 0;
 			if(nomenclatureToAdd.DependsOnNomenclature != null) {
-				var fixPrice = Entity.FixedPrices
-									 .Where(p => p.Nomenclature.Id == nomenclatureToAdd.DependsOnNomenclature.Id)
-									 .FirstOrDefault();
+				var fixPrice = Entity.FixedPrices.FirstOrDefault(p => p.Nomenclature.Id == nomenclatureToAdd.DependsOnNomenclature.Id);
 				price = fixPrice == null ? 0 : fixPrice.Price;
 			}
 			Entity.AddFixedPrice(e.Subject as Nomenclature, price);

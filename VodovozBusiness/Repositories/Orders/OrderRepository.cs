@@ -19,9 +19,9 @@ namespace Vodovoz.Repositories.Orders
 	{
 		public static ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)
 		{
-			Vodovoz.Domain.Orders.Order order = null;
+			VodovozOrder order = null;
 
-			var reasons = uow.Session.QueryOver<VodovozOrder>(() => order)
+			var reasons = uow.Session.QueryOver(() => order)
 				.Select(Projections.Distinct(Projections.Property(() => order.SumDifferenceReason)))
 				.List<string>();
 
@@ -56,13 +56,13 @@ namespace Vodovoz.Repositories.Orders
 				.JoinAlias(o => o.DeliveryPoint, () => point)
 				.Where(o => o.DeliveryDate == date.Date && point.LogisticsArea.Id == area.Id
 				   && !o.SelfDelivery && o.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted)
-				.List<Vodovoz.Domain.Orders.Order>();
+				.List<VodovozOrder>();
 		}
 
 		public static VodovozOrder GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)
 		{
 			VodovozOrder orderAlias = null;
-			var queryResult = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
+			var queryResult = UoW.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.Client.Id == counterparty.Id)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
 				.OrderBy(() => orderAlias.Id).Desc
@@ -73,7 +73,7 @@ namespace Vodovoz.Repositories.Orders
 		public static IList<VodovozOrder> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty)
 		{
 			VodovozOrder orderAlias = null;
-			return UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
+			return UoW.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.Client.Id == counterparty.Id)
 				.Where(() => orderAlias.DeliveryDate >= DateTime.Today)
 				.Where(() => orderAlias.OrderStatus != OrderStatus.Closed
@@ -88,7 +88,7 @@ namespace Vodovoz.Repositories.Orders
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 
-			var export1cSubquerySum = QueryOver.Of<OrderItem>(() => orderItemAlias)
+			var export1cSubquerySum = QueryOver.Of(() => orderItemAlias)
 									   .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 									   .Select(Projections.Sum(
 										   Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
@@ -107,7 +107,7 @@ namespace Vodovoz.Repositories.Orders
 										  ))
 									   ;
 
-			var query = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
+			var query = UoW.Session.QueryOver(() => orderAlias)
 					  .Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c))
 					  .Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
 					  .Where(Subqueries.Le(0.01, export1cSubquerySum.DetachedCriteria));
@@ -124,7 +124,7 @@ namespace Vodovoz.Repositories.Orders
 		public static IList<VodovozOrder> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)
 		{
 			VodovozOrder orderAlias = null;
-			return UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
+			return UoW.Session.QueryOver(() => orderAlias)
 				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate).List();
 		}
 
@@ -145,7 +145,7 @@ namespace Vodovoz.Repositories.Orders
 		{
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			var _19LWatterQty = uow.Session.QueryOver<OrderItem>(() => orderItemAlias)
+			var _19LWatterQty = uow.Session.QueryOver(() => orderItemAlias)
 										  .Where(() => orderItemAlias.Order.Id == order.Id)
 										  .Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
 										  .Where(n => n.Category == NomenclatureCategory.water && n.TareVolume == TareVolume.Vol19L)
@@ -166,7 +166,7 @@ namespace Vodovoz.Repositories.Orders
 			Nomenclature nomenclatureAlias = null;
 			ClientEquipmentNode resultAlias = null;
 
-			var equipToClient = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
+			var equipToClient = uow.Session.QueryOver(() => orderEquipmentAlias)
 								   .Where(() => orderEquipmentAlias.Order.Id == order.Id)
 								   .Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 								   .Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
@@ -193,7 +193,7 @@ namespace Vodovoz.Repositories.Orders
 			Nomenclature nomenclatureAlias = null;
 			ClientEquipmentNode resultAlias = null;
 
-			var equipFromClient = uow.Session.QueryOver<OrderEquipment>(() => orderEquipmentAlias)
+			var equipFromClient = uow.Session.QueryOver(() => orderEquipmentAlias)
 								   .Where(() => orderEquipmentAlias.Order.Id == order.Id)
 			                       .Where(() => orderEquipmentAlias.Direction == Direction.PickUp)
 								   .Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
@@ -218,7 +218,7 @@ namespace Vodovoz.Repositories.Orders
 		public static IList<VodovozOrder> GetLatestOrdersForDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, int? count = null)
 		{
 			VodovozOrder orderAlias = null;
-			var queryResult = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
+			var queryResult = UoW.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
 				.OrderBy(() => orderAlias.Id).Desc;
 			if(count != null)
@@ -256,7 +256,7 @@ namespace Vodovoz.Repositories.Orders
 			return orderByDescending ? query.Desc().List() : query.Asc().List();
 		}
 
-		public static Domain.Orders.Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
+		public static VodovozOrder GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
 		{
 			var notSupportedStatuses = new OrderStatus[] {
 				OrderStatus.NewOrder,
@@ -264,7 +264,7 @@ namespace Vodovoz.Repositories.Orders
 				OrderStatus.NotDelivered
 			};
 
-			return uow.Session.QueryOver<Domain.Orders.Order>()
+			return uow.Session.QueryOver<VodovozOrder>()
 					  .WhereRestrictionOn(x => x.OrderStatus).Not.IsIn(notSupportedStatuses)
 					  .Where(x => x.DeliveryDate == date)
 					  .Where(x => x.DeliveryPoint.Id == deliveryPoint.Id)
@@ -292,7 +292,7 @@ namespace Vodovoz.Repositories.Orders
 			};
 		}
 
-		public static OrderStatus[] GetStatusesForActualCount(Domain.Orders.Order order)
+		public static OrderStatus[] GetStatusesForActualCount(VodovozOrder order)
 		{
 			if(order.SelfDelivery) {
 				return new OrderStatus[0];

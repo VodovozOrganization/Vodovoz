@@ -118,7 +118,7 @@ namespace Vodovoz.JournalViewers
 			if(taskFilter.StartActivePerionDate != null && taskFilter.EndActivePeriodDate != null)
 				tasksQuery = tasksQuery.Where((task) => task.EndActivePeriod >= taskFilter.StartActivePerionDate && task.EndActivePeriod <= taskFilter.EndActivePeriodDate);
 			else if(taskFilter.StartTaskCreateDate != null && taskFilter.EndTaskCreateDate != null)
-				tasksQuery = tasksQuery.Where((task) => task.CreationDate >= taskFilter.StartActivePerionDate && task.EndActivePeriod <= taskFilter.EndActivePeriodDate);
+				tasksQuery = tasksQuery.Where((task) => task.CreationDate >= taskFilter.StartTaskCreateDate && task.EndActivePeriod <= taskFilter.EndTaskCreateDate);
 
 			if(taskFilter.Employee != null)
 				tasksQuery = tasksQuery.Where((task) => task.AssignedEmployee.Id == taskFilter.Employee.Id);
