@@ -14,18 +14,24 @@ namespace Vodovoz.Tools.Logistic
 {
 	public static class DeliveryPriceCalculator
 	{
-		private static void Calculate() => throw new NotImplementedException();
-
 		static double fuelCost;
 		static double distance;
 		static DeliveryPoint deliveryPoint;
 
-		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude) => Calculate(latitude, longitude, null);
+		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude)
+		{
+			return Calculate(latitude, longitude, null);
+		}
 
-		public static DeliveryPriceNode Calculate(DeliveryPoint point, int? bottlesCount = null)
+		public static DeliveryPriceNode Calculate(DeliveryPoint point)
 		{
 			deliveryPoint = point;
-			return Calculate(deliveryPoint.Latitude, deliveryPoint.Longitude, bottlesCount);
+			return Calculate(deliveryPoint.Latitude, deliveryPoint.Longitude, null);
+		}
+
+		private static void Calculate()
+		{
+			throw new NotImplementedException();
 		}
 
 		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount)
@@ -44,7 +50,7 @@ namespace Vodovoz.Tools.Logistic
 				fuelCost = (double)fuel.Cost;
 
 				//Районы
-				districts = ScheduleRestrictionRepository.AreasWithGeometry(uow);
+				districts = ScheduleRestrictionRepository.AreaWithGeometry(uow);
 
 				//Координаты
 				if(latitude == null || longitude == null) {
@@ -54,17 +60,8 @@ namespace Vodovoz.Tools.Logistic
 
 				//Расчет растояния
 				if(deliveryPoint == null) {
-					var gg = GeographicGroupRepository.GeographicGroupByCoordinates(latitude, longitude, districts);
 					var route = new List<PointOnEarth>(2);
-					if(gg != null && gg.BaseCoordinatesExist)
-						route.Add(new PointOnEarth((double)gg.BaseLatitude, (double)gg.BaseLongitude));
-					else if(gg == null)
-						//если не найдена часть города, то расстояние считается до его центра
-						route.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
-					else {
-						result.ErrorMessage = string.Format("В подобранной части города не указаны координаты базы");
-						return result;
-					}
+					route.Add(new PointOnEarth(Constants.BaseLatitude, Constants.BaseLongitude));
 					route.Add(new PointOnEarth(latitude.Value, longitude.Value));
 					var osrmResult = OsrmMain.GetRoute(route, false, GeometryOverview.False);
 					if(osrmResult == null) {
@@ -93,7 +90,7 @@ namespace Vodovoz.Tools.Logistic
 				var point = new Point((double)latitude, (double)longitude);
 				var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
 				result.DistrictName = district?.DistrictName ?? string.Empty;
-				result.GeographicGroups = district != null ? string.Join(", ", district.GeographicGroups.Select(w => w.Name)) : "Неизвестно";
+				result.WarehousesList = district != null ? string.Join(", ", district.GeographicGroups.Select(w => w.Name)) : "Неизвестно";
 				result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
 				result.WithPrice = (
 					(district != null && district.PriceType != DistrictWaterPrice.ByDistance)
@@ -132,7 +129,7 @@ namespace Vodovoz.Tools.Logistic
 		public bool ByDistance { get; set; }
 		public bool WithPrice { get; set; }
 		public string DistrictName { get; set; }
-		public string GeographicGroups { get; set; }
+		public string WarehousesList { get; set; }
 
 		string errorMessage;
 		public string ErrorMessage {
@@ -158,7 +155,7 @@ namespace Vodovoz.Tools.Logistic
 			MinBottles = string.Empty;
 			Schedule = string.Empty;
 			DistrictName = string.Empty;
-			GeographicGroups = string.Empty;
+			WarehousesList = string.Empty;
 			Prices = new List<DeliveryPriceRow>();
 		}
 	}

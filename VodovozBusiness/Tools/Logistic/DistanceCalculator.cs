@@ -1,7 +1,6 @@
 ﻿using GMap.NET;
 using GMap.NET.MapProviders;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -11,28 +10,21 @@ namespace Vodovoz.Tools.Logistic
 	/// </summary>
 	public class DistanceCalculator : IDistanceCalculator
 	{
-		//public static PointLatLng BasePoint = new PointLatLng(Constants.BaseLatitude, Constants.BaseLongitude);
+		public static PointLatLng BasePoint = new PointLatLng(Constants.BaseLatitude, Constants.BaseLongitude);
 
 		public static double GetDistance(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
-			return GetDistance(fromDP.GmapPoint, toDP.GmapPoint);
+			return GMapProviders.EmptyProvider.Projection.GetDistance(fromDP.GmapPoint, toDP.GmapPoint);
 		}
 
-		public static double GetDistance(PointLatLng fromPoint, PointLatLng toPoint)
+		public static double GetDistanceFromBase(DeliveryPoint toDP)
 		{
-			return GMapProviders.EmptyProvider.Projection.GetDistance(fromPoint, toPoint);
+			return GMapProviders.EmptyProvider.Projection.GetDistance(BasePoint, toDP.GmapPoint);
 		}
 
-		public static double GetDistanceFromBase(GeographicGroup fromBase, DeliveryPoint toDP)
+		public static double GetDistanceToBase(DeliveryPoint fromDP)
 		{
-			var basePoint = new PointLatLng((double)fromBase.BaseLatitude.Value, (double)fromBase.BaseLongitude.Value);
-			return (int)GetDistance(basePoint, toDP.GmapPoint);
-		}
-
-		public static double GetDistanceToBase(DeliveryPoint fromDP, GeographicGroup toBase)
-		{
-			var basePoint = new PointLatLng((double)toBase.BaseLatitude.Value, (double)toBase.BaseLongitude.Value);
-			return (int)GetDistance(fromDP.GmapPoint, basePoint);
+			return GMapProviders.EmptyProvider.Projection.GetDistance(fromDP.GmapPoint, BasePoint);
 		}
 
 		public int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP)
@@ -40,14 +32,14 @@ namespace Vodovoz.Tools.Logistic
 			return (int)(GetDistance(fromDP, toDP) * 1000);
 		}
 
-		public int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP)
+		public int DistanceFromBaseMeter(DeliveryPoint toDP)
 		{
-			return (int)(GetDistanceFromBase(fromBase, toDP) * 1000);
+			return (int)(GetDistanceFromBase(toDP) * 1000);
 		}
 
-		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase)
+		public int DistanceToBaseMeter(DeliveryPoint fromDP)
 		{
-			return (int)(GetDistanceToBase(fromDP, toBase) * 1000);
+			return (int)(GetDistanceToBase(fromDP) * 1000);
 		}
 	}
 }

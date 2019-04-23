@@ -567,7 +567,6 @@
     <Compile Include="Domain\StoredResources\StoredResource.cs" />
     <Compile Include="HibernateMapping\StoredResourceMap.cs" />
     <Compile Include="Domain\StoredResources\StoredImageResource.cs" />
-    <Compile Include="Repositories\Sale\GeographicGroupRepository.cs" />
     <Compile Include="Tools\NullValueToZeroConverter.cs" />
     <Compile Include="Domain\Client\CallTask.cs" />
     <Compile Include="HibernateMapping\Counterparty\CallTaskMap.cs" />

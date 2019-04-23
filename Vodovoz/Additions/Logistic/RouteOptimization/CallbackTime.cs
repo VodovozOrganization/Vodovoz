@@ -12,16 +12,15 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	/// </para>
 	/// <para>
 	/// *Обратите внимание* при запросе пути от точки А к точке Б. Класс возвращает время в пути
-	/// от точки А к точке Б и время затраченое на разгрузку в точке А. То есть не очень интуитивно.
-	/// Сделано это потому что в измерении, учитывающем время, для точек хранится диапазон от времени приезда на адрес
+	/// от точки А к точке Б. И время затраченое на разгрузку в точке А. То есть не очень интуитивно.
+	/// Сделано это потому что в измерении учитивающем время, для точек хранится диапазно от времени приезда на адрес
 	/// до максимального времени минус стандартное время разгрузки. Данная схема позволяет в измерении указывать точно
-	/// разрешенное время приезда. Получается что мы берем время приезда на предыдущую точку (значение в измерении),
+	/// разрешенное время приезда. Получается что мы берем время приезда на предыдущую точку(значение в измерении),
 	/// к нему прибавляем время разгрузки на предыдущей точке <c>serviceTime</c> и прибавляем путь от предыдущей
 	/// точке к следующей(текущей). Получаем время приезда на текущую точку и можем сравнивать с разрешенным временем
 	/// приезда хранимом для точек в измерении.
 	/// </para>
-	/// <para> Возвращаемое время обрабатывается с помощью <see cref="Domain.Employees.Employee.TimeCorrection(long)"/>,
-	/// для корректировки на скорости водителя.
+	/// <para> Возвращаемое время обрабатывается с помощью <c>Trip.Driver.TimeCorrection()</c>, для корректировки на скорости водителя.
 	/// </para>
 	/// </remarks>
 	public class CallbackTime : NodeEvaluator2
@@ -53,9 +52,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			long serviceTime = 0, travelTime = 0;
 
 			if(second_index == 0)
-				travelTime = distanceCalculator.TimeToBaseSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].ShippingBase);
+				travelTime = distanceCalculator.TimeToBaseSec(Nodes[first_index - 1].Order.DeliveryPoint);
 			else if(first_index == 0)
-				travelTime = distanceCalculator.TimeFromBaseSec(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint);
+				travelTime = distanceCalculator.TimeFromBaseSec(Nodes[second_index - 1].Order.DeliveryPoint);
 			else
 				travelTime = distanceCalculator.TimeSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 

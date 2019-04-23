@@ -5,7 +5,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
@@ -15,7 +14,6 @@ namespace Vodovoz.Domain.Logistic
 		NominativePlural = "автомобили",
 		Nominative = "автомобиль")]
 	[EntityPermission]
-	[HistoryTrace]
 	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
 	{
 		#region Свойства`
@@ -245,7 +243,6 @@ namespace Vodovoz.Domain.Logistic
 				return observableGeographicGroups;
 			}
 		}
-
 		#endregion
 
 		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);

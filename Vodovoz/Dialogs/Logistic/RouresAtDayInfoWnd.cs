@@ -17,12 +17,6 @@ namespace Vodovoz.Dialogs.Logistic
 		void ConfigureWnd(){
 			var ms = new List<object[]> {
 				new object[] {
-					PointMarker.GetIconPixbuf("vodonos", PointMarkerShape.custom),
-					PointMarker.GetIconPixbuf("vodonos", PointMarkerShape.custom),
-					PointMarker.GetIconPixbuf("vodonos", PointMarkerShape.custom),
-					"База\\Склад погрузки-разгрузки"
-				},
-				new object[] {
 					PointMarker.GetIconPixbuf("red", PointMarkerShape.triangle),
 					PointMarker.GetIconPixbuf("orange", PointMarkerShape.triangle),
 					PointMarker.GetIconPixbuf("green", PointMarkerShape.triangle),
