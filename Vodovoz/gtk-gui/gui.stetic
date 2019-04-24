@@ -1560,6 +1560,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -29220,7 +29221,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -43038,7 +43038,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="997 462">
+  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1162 578">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -43446,7 +43446,7 @@ not tooltip</property>
           <widget class="Gtk.HPaned" id="hpaned3">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="Position">475</property>
+            <property name="Position">664</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
