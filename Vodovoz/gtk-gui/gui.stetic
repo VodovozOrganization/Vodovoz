@@ -36268,7 +36268,7 @@ not tooltip</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Type">TextOnly</property>
-                    <property name="Label" translatable="yes">GtkButton</property>
+                    <property name="Label" translatable="yes">Открыть доп. согл.</property>
                     <property name="UseUnderline">True</property>
                     <signal name="Clicked" handler="OnButtonWaterAgreementClicked" />
                   </widget>
