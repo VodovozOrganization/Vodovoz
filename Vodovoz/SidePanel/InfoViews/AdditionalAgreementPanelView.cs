@@ -13,6 +13,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -52,17 +53,16 @@ namespace Vodovoz.SidePanel.InfoViews
 		public void Refresh()
 		{
 			DeliveryPoint = (InfoProvider as IDeliveryPointInfoProvider)?.DeliveryPoint;
-			if (DeliveryPoint == null)
+			if(DeliveryPoint == null)
 				return;
 			var allEquipmentAtDeliveryPoint = EquipmentRepository.GetEquipmentAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			labelEquipmentCount.Text = allEquipmentAtDeliveryPoint.Count + " шт.";
-			var nextServiceText = "";		
+			var nextServiceText = "";
 			var equipmentsWithNextServiceDate = allEquipmentAtDeliveryPoint
-				.Where(eq => eq.NextServiceDate.HasValue);				
+				.Where(eq => eq.NextServiceDate.HasValue);
 			var eqWithMinDate = equipmentsWithNextServiceDate
-				.Aggregate<Equipment,Equipment,Equipment>(null,(minEq,eq)=>(minEq==null || (eq.NextServiceDate<minEq.NextServiceDate) ? eq : minEq),r=>r);
-			if (eqWithMinDate != null)
-			{
+				.Aggregate<Equipment, Equipment, Equipment>(null, (minEq, eq) => (minEq == null || (eq.NextServiceDate < minEq.NextServiceDate) ? eq : minEq), r => r);
+			if(eqWithMinDate != null) {
 				var nextServiceDate = eqWithMinDate.LastServiceDate.AddMonths(6);
 				var daysTillNextService = (nextServiceDate - DateTime.Today).Days;
 				nextServiceText = String.Format(
@@ -79,8 +79,8 @@ namespace Vodovoz.SidePanel.InfoViews
 				.OrderBy(a => a.EndDate);
 			vboxRent.Visible = dailyAgreements.Count() > 0;
 			var rentText = String.Join(
-				"\n", 
-				dailyAgreements.Select(a =>String.Format(
+				"\n",
+				dailyAgreements.Select(a => String.Format(
 					"{0} - A до {1}",
 					a.AgreementNumber,
 					a.EndDate.ToShortDateString()
@@ -94,7 +94,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			var bottlesThisMonth = DeliveryPointRepository.GetBottlesOrderedForPeriod(InfoProvider.UoW, DeliveryPoint, monthStart, monthEnd);
 			var bottlesLeftToOrder = requiredBottlesThisMonth - bottlesThisMonth;
 			var leftToOrderText = "";
-			if (bottlesLeftToOrder > 0)
+			if(bottlesLeftToOrder > 0)
 				leftToOrderText = String.Format(" (осталось: {0})", bottlesLeftToOrder);
 			labelBottlesPerMonth.Text = String.Format("{0} из {1}{2}", bottlesThisMonth, requiredBottlesThisMonth, leftToOrderText);
 
@@ -119,23 +119,23 @@ namespace Vodovoz.SidePanel.InfoViews
 			hboxNotFixedPriceInfo.Visible = fixedPricesList.Count == 0;
 
 			WaterAgreements = agreements.Where(a => a.Type == AgreementType.WaterSales).ToArray();
-
-			buttonWaterAgreement.Label = WaterAgreements.Length > 0 ? "Открыть доп. согл." : "Создать доп. согл.";
+			buttonWaterAgreement.Visible = WaterAgreements.Length > 0;
 		}
 
 		/// <summary>
 		/// Временный метод для обхода ошибки в I-1221. Хорошо бы придумать отдельный клас с genericами,
 		/// который бы содержал метод, обновляющий любые наши коллекции и поля внутри них.
 		/// </summary>
-		void RefreshList(){
+		void RefreshList()
+		{
 			var wsa = Contract.AdditionalAgreements
-			                  .Select(x => x.Self).OfType<WaterSalesAgreement>()
-			                  .Where(a => a.DeliveryPoint == DeliveryPoint)
-			                  .Where(a => !a.IsCancelled)
-			                  .FirstOrDefault();
+							  .Select(x => x.Self).OfType<WaterSalesAgreement>()
+							  .Where(a => a.DeliveryPoint == DeliveryPoint)
+							  .Where(a => !a.IsCancelled)
+							  .FirstOrDefault();
 			if(wsa == null) {
 				wsa = Contract.AdditionalAgreements
-				              .Select(x => x.Self).OfType<WaterSalesAgreement>()
+							  .Select(x => x.Self).OfType<WaterSalesAgreement>()
 							  .Where(a => a.DeliveryPoint == null)
 							  .Where(a => !a.IsCancelled)
 							  .FirstOrDefault();
@@ -151,24 +151,40 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		}
 
-		public bool VisibleOnPanel
-		{
-			get
-			{
+		public bool VisibleOnPanel {
+			get {
 				return DeliveryPoint != null;
 			}
 		}
 
 		public void OnCurrentObjectChanged(object changedObject)
-		{			
+		{
 			var deliveryPoint = changedObject as DeliveryPoint;
-			if (deliveryPoint!=null)
-			{
+			if(deliveryPoint != null) {
 				Refresh();
 			}
 		}
 
-		public IInfoProvider InfoProvider { get; set; }
+		private IInfoProvider infoProvider;
+		public IInfoProvider InfoProvider {
+			get => infoProvider;
+			set {
+				infoProvider = value;
+				if(infoProvider != null && infoProvider.UoW != null) {
+					infoProvider.UoW.SessionScopeEntitySaved += UoW_SessionScopeEntitySaved;
+				}
+			}
+		}
+
+		void UoW_SessionScopeEntitySaved(object sender, QS.DomainModel.Config.EntityUpdatedEventArgs e)
+		{
+			foreach(var item in e.UpdatedSubjects) {
+				if(item is WaterSalesAgreement) {
+					Refresh();
+				}
+			}
+		}
+
 
 		public CounterpartyContract Contract => (InfoProvider as IContractInfoProvider)?.Contract;
 
@@ -185,34 +201,28 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonWaterAgreementClicked(object sender, EventArgs e)
 		{
-			if(WaterAgreements.Length > 0)
-			{
+			if(WaterAgreements.Length > 0) {
 				foreach(var wa in WaterAgreements) {
 					if(wa.Contract.Id != Contract?.Id)
 						continue;
 					TDIMain.MainNotebook.OpenTab(
 						OrmMain.GenerateDialogHashName<WaterSalesAgreement>(wa.Id),
-						() => new WaterAgreementDlg(wa.Id)
+						() => new WaterAgreementDlg(InfoProvider.UoW, EntityOpenOption.Open(wa.Id, true))
 					);
 				}
 			}
-			else
-			{
-				if(Contract == null || DeliveryPoint == null)
-					return;
-				
-				var waDlg = new WaterAgreementDlg(Contract, DeliveryPoint);
-				TDIMain.MainNotebook.AddTab(waDlg);
-			}
 		}
 
-        #endregion
+		#endregion
 
-        public override void Destroy()
-        {
+		public override void Destroy()
+		{
+			if(infoProvider?.UoW != null) {
+				infoProvider.UoW.SessionScopeEntitySaved -= UoW_SessionScopeEntitySaved;
+			}
 			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric -= Handle_ObjectUpdatedGeneric;
 			base.Destroy();
-        }
-    }
+		}
+	}
 }
 

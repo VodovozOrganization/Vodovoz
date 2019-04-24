@@ -207,7 +207,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.buttonWaterAgreement.CanFocus = true;
 			this.buttonWaterAgreement.Name = "buttonWaterAgreement";
 			this.buttonWaterAgreement.UseUnderline = true;
-			this.buttonWaterAgreement.Label = global::Mono.Unix.Catalog.GetString("GtkButton");
+			this.buttonWaterAgreement.Label = global::Mono.Unix.Catalog.GetString("Открыть доп. согл.");
 			this.hboxNotFixedPriceInfo.Add(this.buttonWaterAgreement);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxNotFixedPriceInfo[this.buttonWaterAgreement]));
 			w15.Position = 1;
@@ -224,7 +224,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			w17.Expand = false;
 			w17.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.label4.Hide();
