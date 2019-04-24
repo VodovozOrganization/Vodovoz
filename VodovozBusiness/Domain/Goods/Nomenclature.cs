@@ -7,12 +7,12 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
+using QS.Project.Repositories;
 using QSBusinessCommon.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
-using QS.Project.Repositories;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -20,6 +20,7 @@ namespace Vodovoz.Domain.Goods
 		NominativePlural = "номенклатуры",
 		Nominative = "номенклатура")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class Nomenclature : BusinessObjectBase<Nomenclature>, IDomainObject, IValidatableObject
 	{
 		#region Свойства

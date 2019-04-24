@@ -4,6 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Data.Bindings.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Store
@@ -12,6 +13,7 @@ namespace Vodovoz.Domain.Store
 		NominativePlural = "склады",
 		Nominative = "склад")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class Warehouse : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public Warehouse() { }

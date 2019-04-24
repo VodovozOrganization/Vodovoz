@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using QSOsm;
 using QSOsm.Osrm;
@@ -10,6 +12,8 @@ using QSOsm.Spuntik;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -29,7 +33,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Сохраняем кеш в базу данных при накоплении указанного количетва подсчитанных расстояний.
 		/// </summary>
-		public static int SaveBy = 500;
+		public static int SaveBy = 5000;
 		/// <summary>
 		/// Количество потоков получеления расстояний от внешней службы.
 		/// </summary>
@@ -41,27 +45,28 @@ namespace Vodovoz.Tools.Logistic
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
 
 		Gtk.TextBuffer statisticBuffer;
-		int ProposeNeedCached = 0;
+		int proposeNeedCached = 0;
 		DateTime? startLoadTime;
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
 		long totalMeters, totalSec;
+		public bool Canceled { get; set; }
 
 		//Для работы с потоками
 		//FIXME рекомендую переписать работу с потоками на использование специализированных коллекций(очередей). Узанал о существовании после реализации.
 		// Поэтому код относящийся к потоку сильно не задокументирован. Его лучше переписать на более простой.
 		long[] hashes;
 		Dictionary<long, int> hashPos;
-		Thread[] Threads;
-		List<WayHash> inWorkWays = new List<WayHash>();
 		WayHash? waitDistance;
-		NextPos NextTheadsPos = new NextPos();
 
 		int unsavedItems = 0;
 
-		#if DEBUG
+		Task<int>[] tasks;
+		ConcurrentQueue<long> cQueue;
+
+#if DEBUG
 		CachedDistance[,] matrix;
 		public int[,] matrixcount;
-		#endif
+#endif
 		public DistanceProvider Provider;
 		public bool MultiThreadLoad = true;
 
@@ -79,44 +84,49 @@ namespace Vodovoz.Tools.Logistic
 			Provider = provider;
 			statisticBuffer = buffer;
 			MultiThreadLoad = multiThreadLoad;
-			hashes = points.Select(x => CachedDistance.GetHash(x))
-			                   .Concat(new[] {CachedDistance.BaseHash})
-			                   .Distinct().ToArray();
-			totalPoints = hashes.Length;
-			ProposeNeedCached = (hashes.Length * hashes.Length) - hashes.Length;
+			Canceled = false;
+			var basesHashes = GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW).Select(CachedDistance.GetHash);
+			hashes = points.Select(CachedDistance.GetHash)
+						   .Concat(basesHashes)
+						   .Distinct()
+						   .ToArray();
 
-			hashPos = hashes.Select((hash, index) => new { hash, index }).ToDictionary(x => x.hash, x => x.index);
-			#if DEBUG
+			cQueue = new ConcurrentQueue<long>(hashes);
+
+			totalPoints = hashes.Length;
+			proposeNeedCached = hashes.Length * (hashes.Length - 1);
+
+			hashPos = hashes.Select((hash, index) => new { hash, index })
+							.ToDictionary(x => x.hash, x => x.index);
+#if DEBUG
 			matrix = new CachedDistance[hashes.Length, hashes.Length];
 			matrixcount = new int[hashes.Length, hashes.Length];
-			#endif
+#endif
 			var fromDB = Repository.Logistics.CachedDistanceRepository.GetCache(UoW, hashes);
 			startCached = fromDB.Count;
-			foreach(var distance in fromDB)
-			{
-				#if DEBUG
+			foreach(var distance in fromDB) {
+#if DEBUG
 				matrix[hashPos[distance.FromGeoHash], hashPos[distance.ToGeoHash]] = distance;
-				#endif
+#endif
 				AddNewCacheDistance(distance);
 			}
 			UpdateText();
-			#if DEBUG
+#if DEBUG
 			StringBuilder matrixText = new StringBuilder(" ");
 			for(int x = 0; x < matrix.GetLength(1); x++)
 				matrixText.Append(x % 10);
 
-			for(int y = 0; y < matrix.GetLength(0); y++)
-			{
+			for(int y = 0; y < matrix.GetLength(0); y++) {
 				matrixText.Append("\n" + y % 10);
 				for(int x = 0; x < matrix.GetLength(1); x++)
 					matrixText.Append(matrix[y, x] != null ? 1 : 0);
 			}
 			logger.Debug(matrixText);
 
-			logger.Debug(String.Join(";", hashes.Select(point => CachedDistance.GetTextLonLat(point))));
+			logger.Debug(string.Join(";", hashes.Select(CachedDistance.GetTextLonLat)));
 #endif
 
-			if(MultiThreadLoad && fromDB.Count < ProposeNeedCached)
+			if(MultiThreadLoad && fromDB.Count < proposeNeedCached)
 				RunPreCalculation();
 			else
 				MultiThreadLoad = false;
@@ -128,73 +138,58 @@ namespace Vodovoz.Tools.Logistic
 		private void RunPreCalculation()
 		{
 			startLoadTime = DateTime.Now;
-			Threads = new Thread[ThreadCount];
-			foreach(var ix in Enumerable.Range(0, ThreadCount))
-			{
-				Threads[ix] = new Thread(DoBackground);
-				Threads[ix].Start();
+			tasks = new Task<int>[ThreadCount];
+			foreach(var ix in Enumerable.Range(0, ThreadCount)) {
+				tasks[ix] = new Task<int>(DoBackground);
+				tasks[ix].Start();
+			}
+
+			while(MultiThreadLoad) {
+				Gtk.Main.Iteration();
 			}
 		}
 
 		/// <summary>
 		/// Метод содержащий работу одного многопоточного воркера.
 		/// </summary>
-		/// <remarks>
-		/// В методе есть некоторое усложение. Воркеры по мимо того что они перебирают матрицу по порядку
-		/// еще должны иметь возможность выполнить одни из запросов вне очереди. Это именно та позиция которую
-		/// сейчас ожидает основной поток. Чтобы основной поток не останавливался, на долго, если ему понадобилась позиция
-		/// в конце матрицы.
-		/// </remarks>
-		private void DoBackground()
+		private int DoBackground()
 		{
-			while(true)
-			{
-				long fromHash, toHash;
-
-				lock(NextTheadsPos) {
-					if(NextTheadsPos.FromIx >= hashes.Length && waitDistance == null)
+			int result = 0;
+			while(cQueue.TryDequeue(out long fromHash)) {
+				if(waitDistance != null) {
+					long fromHash2 = waitDistance.Value.FromHash;
+					long toHash = waitDistance.Value.ToHash;
+					waitDistance = null;
+					if(!cache.ContainsKey(fromHash2) || !cache[fromHash2].ContainsKey(toHash))
+						LoadDistanceFromService(waitDistance.Value.FromHash, toHash);
+				}
+				foreach(var toHash in hashes) {
+					if(Canceled) {
+						MultiThreadLoad = false;
+						result = -1;
 						break;
-
-					if(waitDistance != null) {
-						fromHash = waitDistance.Value.FromHash;
-						toHash = waitDistance.Value.ToHash;
-						waitDistance = null;
-						logger.Debug("Обрабатываем вне очереди [{0},{1}] очередь на [{2},{3}]", hashPos[fromHash], hashPos[toHash], NextTheadsPos.FromIx, NextTheadsPos.ToIx);
 					}
-					else
-					{
-						fromHash = hashes[NextTheadsPos.FromIx];
-						toHash = hashes[NextTheadsPos.ToIx];
-						if(NextTheadsPos.ToIx >= hashes.Length - 1) {
-							NextTheadsPos.FromIx++;
-							NextTheadsPos.ToIx = 0;
-						} else
-							NextTheadsPos.ToIx++;
-					}
-					if(inWorkWays.Any(x => x.FromHash == fromHash && x.ToHash == toHash))
-						continue;
-					inWorkWays.Add(new WayHash(fromHash, toHash));
+					if(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash))
+						LoadDistanceFromService(fromHash, toHash);
+					result = 1;
 				}
-				if(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash))
-					LoadDistanceFromService(fromHash, toHash);
-
-				lock(NextTheadsPos)
-				{
-					inWorkWays.RemoveAll(x => x.FromHash == fromHash && x.ToHash == toHash);
-				}
+				Gtk.Application.Invoke(delegate {
+					UpdateText();
+				});
 			}
 
 			Gtk.Application.Invoke(delegate {
-				CheckAndDisableThreads();
+				CheckAndDisableTasks();
 			});
+			return result;
 		}
 
 		/// <summary>
-		/// Метод отключающий режим многопоточного скачивания, при завершении работы всех потоков.
+		/// Метод отключающий режим многопоточного скачивания, при завершении работы всех задач.
 		/// </summary>
-		private void CheckAndDisableThreads()
+		void CheckAndDisableTasks()
 		{
-			if(Threads.All(x => !x.IsAlive))
+			//if(tasks.All(x => x.Result == 1))
 				MultiThreadLoad = false;
 		}
 
@@ -224,19 +219,21 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Расстояние в метрах от базы до точки.
 		/// </summary>
-		public int DistanceFromBaseMeter(DeliveryPoint toDP)
+		public int DistanceFromBaseMeter(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
-			return DistanceMeter(CachedDistance.BaseHash, toHash);
+			var fromBaseHash = CachedDistance.GetHash(fromBase);
+			return DistanceMeter(fromBaseHash, toHash);
 		}
 
 		/// <summary>
 		/// Расстояние в метрах от точки до базы.
 		/// </summary>
-		public int DistanceToBaseMeter(DeliveryPoint fromDP)
+		public int DistanceToBaseMeter(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return DistanceMeter(fromHash, CachedDistance.BaseHash);
+			var toBaseHash = CachedDistance.GetHash(toBase);
+			return DistanceMeter(fromHash, toBaseHash);
 		}
 
 		/// <summary>
@@ -252,19 +249,21 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Время пути в секундах от базы до точки
 		/// </summary>
-		public int TimeFromBaseSec(DeliveryPoint toDP)
+		public int TimeFromBaseSec(GeographicGroup fromBase, DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
-			return TimeSec(CachedDistance.BaseHash, toHash);
+			var fromBaseHash = CachedDistance.GetHash(fromBase);
+			return TimeSec(fromBaseHash, toHash);
 		}
 
 		/// <summary>
 		/// Время пути в секундах от точки до базы.
 		/// </summary>
-		public int TimeToBaseSec(DeliveryPoint fromDP)
+		public int TimeToBaseSec(DeliveryPoint fromDP, GeographicGroup toBase)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);
-			return TimeSec(fromHash, CachedDistance.BaseHash);
+			var toBaseHash = CachedDistance.GetHash(toBase);
+			return TimeSec(fromHash, toBaseHash);
 		}
 
 		private int DistanceMeter(long fromHash, long toHash)
@@ -304,10 +303,9 @@ namespace Vodovoz.Tools.Logistic
 				logger.Warn("Повторный запрос дистанции с ошибкой расчета. Пропускаем...");
 				return null;
 			}
-			if(MultiThreadLoad && Threads.Any(x => x != null && x.IsAlive)) {
+			if(MultiThreadLoad) {
 				waitDistance = new WayHash(fromHash, toHash);
-				while(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash))
-				{
+				while(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash)) {
 					//Внутри вызывается QSMain.WaitRedraw();
 					UpdateText();
 					//Если по какой то причине, не получили расстояние. Не висим. Пробуем еще раз через сервис.
@@ -316,8 +314,7 @@ namespace Vodovoz.Tools.Logistic
 				}
 
 				return cache[fromHash][toHash];
-			} else
-			{
+			} else {
 				var result = LoadDistanceFromService(fromHash, toHash);
 				UpdateText();
 				return result;
@@ -326,11 +323,24 @@ namespace Vodovoz.Tools.Logistic
 
 		private CachedDistance LoadDistanceFromService(long fromHash, long toHash)
 		{
-			List<PointOnEarth> points = new List<PointOnEarth>();
-			points.Add(CachedDistance.GetPointOnEarth(fromHash));
-			points.Add(CachedDistance.GetPointOnEarth(toHash));
-			bool ok = false;
 			CachedDistance cachedValue = null;
+			if(fromHash == toHash) {
+				cachedValue = new CachedDistance {
+					DistanceMeters = 0,
+					TravelTimeSec = 0,
+					FromGeoHash = fromHash,
+					ToGeoHash = toHash
+				};
+				AddNewCacheDistance(cachedValue);
+				addedCached++;
+				return cachedValue;
+			}
+
+			List<PointOnEarth> points = new List<PointOnEarth> {
+				CachedDistance.GetPointOnEarth(fromHash),
+				CachedDistance.GetPointOnEarth(toHash)
+			};
+			bool ok = false;
 			if(Provider == DistanceProvider.Osrm) {
 				var result = OsrmMain.GetRoute(points, false, GeometryOverview.False);
 				ok = result?.Code == "Ok";
@@ -342,10 +352,10 @@ namespace Vodovoz.Tools.Logistic
 						ToGeoHash = toHash
 					};
 				}
-			} else{
+			} else {
 				var result = SputnikMain.GetRoute(points, false, false);
 				ok = result.Status == 0;
-				if(ok){
+				if(ok) {
 					cachedValue = new CachedDistance {
 						DistanceMeters = result.RouteSummary.TotalDistance,
 						TravelTimeSec = result.RouteSummary.TotalTimeSeconds,
@@ -353,9 +363,8 @@ namespace Vodovoz.Tools.Logistic
 						ToGeoHash = toHash
 					};
 				}
-			};
-			if(ok)
-			{
+			}
+			if(ok) {
 				lock(UoW) {
 					UoW.TrySave(cachedValue, false);
 					unsavedItems++;
@@ -392,12 +401,20 @@ namespace Vodovoz.Tools.Logistic
 
 			double remainTime = 0;
 			if(startLoadTime.HasValue)
-				remainTime = (DateTime.Now - startLoadTime.Value).Ticks * ((double)(ProposeNeedCached - totalCached) / addedCached);
-			statisticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nОсталось времени: {9:hh\\:mm\\:ss}\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
-											  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters / totalSec,
-											  (double)totalCached / ProposeNeedCached, ProposeNeedCached, unsavedItems,
-			                                     TimeSpan.FromTicks((long)remainTime)
-			                                 );
+				remainTime = (DateTime.Now - startLoadTime.Value).Ticks * ((double)(proposeNeedCached - totalCached) / addedCached);
+			statisticBuffer.Text = string.Format(
+													"Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nОсталось времени: {9:hh\\:mm\\:ss}\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
+													totalPoints,
+													startCached,
+													totalCached,
+													addedCached,
+													totalErrors,
+													(double)totalMeters / totalSec,
+													(double)totalCached / proposeNeedCached,
+													proposeNeedCached,
+													unsavedItems,
+													TimeSpan.FromTicks((long)remainTime)
+												);
 			QSMain.WaitRedraw(100);
 		}
 

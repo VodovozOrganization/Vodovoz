@@ -56,7 +56,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			//Возвращаем значение из кеша, иначе считаем.
 			if(resultsCache[first_index, second_index] == null)
 				resultsCache[first_index, second_index] = Calculate(first_index, second_index);
-			
+
 			return resultsCache[first_index, second_index].Value;
 		}
 
@@ -71,13 +71,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			//Такой запрос приходит обычно на точку склада, когда мы считаем больше 1 маршрута. 
 			if(first_index == second_index)
 				return 0;
-			
+
 			//Просто возвращаем расстояние до базы от точки на которой находимся.
 			if(second_index == 0) {
 #if DEBUG
 				SGoToBase[Trip]++;
 #endif
-				return distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint);
+				return distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[first_index - 1].ShippingBase);
 			}
 
 			bool fromExistRoute = false;
@@ -112,11 +112,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			// Если адрес из уже существующего маршрута, не учитываем приоритеты районов.
 			// Иначе добавляем штрафы за приоритеты по району.
-			if(!fromExistRoute)
-			{
+			if(!fromExistRoute) {
 				if(priorites.ContainsKey(area))
 					distance += priorites[area] * RouteOptimizer.DistrictPriorityPenalty;
-				else{
+				else {
 #if DEBUG
 					SUnlikeDistrictPenality[Trip]++;
 #endif
@@ -124,9 +123,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				}
 			}
 
+			bool isAddressFromForeignGeographicGroup = Nodes[second_index - 1].ShippingBase.Id != Trip.GeographicGroup.Id;
+			if(isAddressFromForeignGeographicGroup)
+				distance += RouteOptimizer.AddressFromForeignGeographicGroupPenalty;
+
 			//Возвращаем расстояние в метрах либо от базы до первого адреса, либо между адресами.
 			if(first_index == 0)
-				distance += distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].Order.DeliveryPoint);
+				distance += distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint);
 			else
 				distance += distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 
@@ -136,9 +139,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		private long GetSimpleDistance(int first_index, int second_index)
 		{
 			if(first_index == 0)//РАССТОЯНИЯ ПРЯМЫЕ без учета дорожной сети.
-				return (long)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
-			else
-				return (long)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+				return (long)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].ShippingBase, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+			return (long)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
 		}
 	}
 }
