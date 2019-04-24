@@ -386,7 +386,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
-					.AddSetter((c, node) => c.Editable = node.CanEditPrice())
+					.AddSetter((c, node) => c.Editable = node.CanEditPrice)
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
 						if(Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.WaitForPayment)//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
@@ -414,7 +414,8 @@ namespace Vodovoz
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.ActualSum))
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.DiscountForPreview).Editing(true)
+					.AddNumericRenderer(node => node.DiscountForPreview)
+					.AddSetter((c, n) => c.Editable = n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
 									? new Adjustment(0, 0, (double)n.Price * n.CurrentCount, 1, 100, 1)
@@ -425,13 +426,13 @@ namespace Vodovoz
 					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
 				.AddColumn("Скидка \nв рублях?")
 					.AddToggleRenderer(x => x.IsDiscountInMoney)
-					.Editing()
+					.AddSetter((c, n) => c.Activatable = n.PromoSet == null)
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(OrderRepository.GetDiscountReasons(UoW))
-					.AddSetter((c, n) => c.Editable = n.Discount > 0)
+					.AddSetter((c, n) => c.Editable = n.Discount > 0 && n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
 						? colorLightRed
@@ -442,8 +443,6 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.AgreementString)
 				.RowCells()
 					.XAlign(0.5f)
-					.AddSetter<CellRendererText>((c, n) => c.Editable = n.PromoSet == null)
-					.AddSetter<CellRendererToggle>((c, n) => c.Activatable = n.PromoSet == null)
 				.Finish();
 			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
@@ -2260,6 +2259,7 @@ namespace Vodovoz
 			tblOnRouteEditReason.Sensitive = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
+			yCmbPromoSets.Sensitive = Entity.DeliveryPoint != null && val;
 			buttonAddForSale.Sensitive = referenceContract.Sensitive = buttonAddMaster.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 		}

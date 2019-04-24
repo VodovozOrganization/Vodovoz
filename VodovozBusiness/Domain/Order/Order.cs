@@ -1444,7 +1444,7 @@ namespace Vodovoz.Domain.Orders
 												   .Where(x => !x.IsCancelled)
 												   .Select(x => x.Self)
 												   .OfType<WaterSalesAgreement>();
-			return waterSalesAgreementList.Any(x => x.DeliveryPoint == null || x.DeliveryPoint.Id == DeliveryPoint.Id);
+			return waterSalesAgreementList.Any(x => x.DeliveryPoint == null || (DeliveryPoint != null && x.DeliveryPoint.Id == DeliveryPoint.Id));
 		}
 
 		/// <summary>
