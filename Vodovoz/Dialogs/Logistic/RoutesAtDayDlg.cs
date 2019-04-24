@@ -915,7 +915,9 @@ namespace Vodovoz
 		{
 			var menu = new Menu();
 			foreach(var route in routesAtDay) {
-				var name = string.Format("МЛ №{0} - {1}", route.Id, route.Driver.ShortName);
+				var name = string.Format("№{0} - {1}", route.Id, route.Driver.ShortName);
+				if(route.GeographicGroups.Any())
+					name = string.Concat(name, " (", route.GeographicGroups.FirstOrDefault().Name, ')');
 				var item = new MenuItemId<RouteList>(name) {
 					ID = route
 				};

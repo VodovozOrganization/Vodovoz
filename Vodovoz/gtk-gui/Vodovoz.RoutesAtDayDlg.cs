@@ -377,7 +377,7 @@ namespace Vodovoz
 			this.hpaned3 = new global::Gtk.HPaned();
 			this.hpaned3.CanFocus = true;
 			this.hpaned3.Name = "hpaned3";
-			this.hpaned3.Position = 475;
+			this.hpaned3.Position = 664;
 			// Container child hpaned3.Gtk.Paned+PanedChild
 			this.vbox3 = new global::Gtk.VBox();
 			this.vbox3.Name = "vbox3";

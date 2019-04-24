@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using QSOsm;
@@ -22,7 +21,7 @@ namespace Vodovoz.Tools.Logistic
 	/// В конструктор класса можно передать список точек доставки, класс автоматически в фоновом
 	/// режим начнет рассчитывать матрицу расстояний между каждой точкой.
 	/// </summary>
-	public class ExtDistanceCalculator : IDistanceCalculator
+	public class ExtDistanceCalculator : IDistanceCalculator, IDisposable
 	{
 		#region Настройки
 		/// <summary>
@@ -37,7 +36,7 @@ namespace Vodovoz.Tools.Logistic
 		/// <summary>
 		/// Количество потоков получеления расстояний от внешней службы.
 		/// </summary>
-		public static int ThreadCount = 5;
+		public static int TasksCount = 5;
 		#endregion
 
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -68,7 +67,7 @@ namespace Vodovoz.Tools.Logistic
 		public int[,] matrixcount;
 #endif
 		public DistanceProvider Provider;
-		public bool MultiThreadLoad = true;
+		public bool MultiTaskLoad = true;
 
 		private Dictionary<long, Dictionary<long, CachedDistance>> cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
 
@@ -83,7 +82,7 @@ namespace Vodovoz.Tools.Logistic
 			UoW.Session.SetBatchSize(SaveBy);
 			Provider = provider;
 			statisticBuffer = buffer;
-			MultiThreadLoad = multiThreadLoad;
+			MultiTaskLoad = multiThreadLoad;
 			Canceled = false;
 			var basesHashes = GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW).Select(CachedDistance.GetHash);
 			hashes = points.Select(CachedDistance.GetHash)
@@ -126,10 +125,10 @@ namespace Vodovoz.Tools.Logistic
 			logger.Debug(string.Join(";", hashes.Select(CachedDistance.GetTextLonLat)));
 #endif
 
-			if(MultiThreadLoad && fromDB.Count < proposeNeedCached)
+			if(MultiTaskLoad && fromDB.Count < proposeNeedCached)
 				RunPreCalculation();
 			else
-				MultiThreadLoad = false;
+				MultiTaskLoad = false;
 		}
 
 		/// <summary>
@@ -138,13 +137,13 @@ namespace Vodovoz.Tools.Logistic
 		private void RunPreCalculation()
 		{
 			startLoadTime = DateTime.Now;
-			tasks = new Task<int>[ThreadCount];
-			foreach(var ix in Enumerable.Range(0, ThreadCount)) {
+			tasks = new Task<int>[TasksCount];
+			foreach(var ix in Enumerable.Range(0, TasksCount)) {
 				tasks[ix] = new Task<int>(DoBackground);
 				tasks[ix].Start();
 			}
 
-			while(MultiThreadLoad) {
+			while(MultiTaskLoad) {
 				Gtk.Main.Iteration();
 			}
 		}
@@ -165,7 +164,7 @@ namespace Vodovoz.Tools.Logistic
 				}
 				foreach(var toHash in hashes) {
 					if(Canceled) {
-						MultiThreadLoad = false;
+						MultiTaskLoad = false;
 						result = -1;
 						break;
 					}
@@ -190,7 +189,7 @@ namespace Vodovoz.Tools.Logistic
 		void CheckAndDisableTasks()
 		{
 			//if(tasks.All(x => x.Result == 1))
-				MultiThreadLoad = false;
+			MultiTaskLoad = false;
 		}
 
 		/// <summary>
@@ -303,7 +302,7 @@ namespace Vodovoz.Tools.Logistic
 				logger.Warn("Повторный запрос дистанции с ошибкой расчета. Пропускаем...");
 				return null;
 			}
-			if(MultiThreadLoad) {
+			if(MultiTaskLoad && tasks.Any(x => x != null && !x.IsCompleted)) {
 				waitDistance = new WayHash(fromHash, toHash);
 				while(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash)) {
 					//Внутри вызывается QSMain.WaitRedraw();
@@ -314,16 +313,16 @@ namespace Vodovoz.Tools.Logistic
 				}
 
 				return cache[fromHash][toHash];
-			} else {
-				var result = LoadDistanceFromService(fromHash, toHash);
-				UpdateText();
-				return result;
 			}
+			var result = LoadDistanceFromService(fromHash, toHash);
+			UpdateText();
+			return result;
 		}
 
 		private CachedDistance LoadDistanceFromService(long fromHash, long toHash)
 		{
 			CachedDistance cachedValue = null;
+			bool ok = false;
 			if(fromHash == toHash) {
 				cachedValue = new CachedDistance {
 					DistanceMeters = 0,
@@ -333,40 +332,41 @@ namespace Vodovoz.Tools.Logistic
 				};
 				AddNewCacheDistance(cachedValue);
 				addedCached++;
-				return cachedValue;
+				ok = true;
 			}
 
-			List<PointOnEarth> points = new List<PointOnEarth> {
-				CachedDistance.GetPointOnEarth(fromHash),
-				CachedDistance.GetPointOnEarth(toHash)
-			};
-			bool ok = false;
-			if(Provider == DistanceProvider.Osrm) {
-				var result = OsrmMain.GetRoute(points, false, GeometryOverview.False);
-				ok = result?.Code == "Ok";
-				if(ok && result.Routes.Any()) {
-					cachedValue = new CachedDistance {
-						DistanceMeters = result.Routes.First().TotalDistance,
-						TravelTimeSec = result.Routes.First().TotalTimeSeconds,
-						FromGeoHash = fromHash,
-						ToGeoHash = toHash
-					};
-				}
-			} else {
-				var result = SputnikMain.GetRoute(points, false, false);
-				ok = result.Status == 0;
-				if(ok) {
-					cachedValue = new CachedDistance {
-						DistanceMeters = result.RouteSummary.TotalDistance,
-						TravelTimeSec = result.RouteSummary.TotalTimeSeconds,
-						FromGeoHash = fromHash,
-						ToGeoHash = toHash
-					};
+			if(!ok) {
+				List<PointOnEarth> points = new List<PointOnEarth> {
+					CachedDistance.GetPointOnEarth(fromHash),
+					CachedDistance.GetPointOnEarth(toHash)
+				};
+				if(Provider == DistanceProvider.Osrm) {
+					var result = OsrmMain.GetRoute(points, false, GeometryOverview.False);
+					ok = result?.Code == "Ok";
+					if(ok && result.Routes.Any()) {
+						cachedValue = new CachedDistance {
+							DistanceMeters = result.Routes.First().TotalDistance,
+							TravelTimeSec = result.Routes.First().TotalTimeSeconds,
+							FromGeoHash = fromHash,
+							ToGeoHash = toHash
+						};
+					}
+				} else {
+					var result = SputnikMain.GetRoute(points, false, false);
+					ok = result.Status == 0;
+					if(ok) {
+						cachedValue = new CachedDistance {
+							DistanceMeters = result.RouteSummary.TotalDistance,
+							TravelTimeSec = result.RouteSummary.TotalTimeSeconds,
+							FromGeoHash = fromHash,
+							ToGeoHash = toHash
+						};
+					}
 				}
 			}
-			if(ok) {
+			if(MultiTaskLoad && ok) {
 				lock(UoW) {
-					UoW.TrySave(cachedValue, false);
+					UoW.TrySave(cachedValue as CachedDistance, false);
 					unsavedItems++;
 					if(unsavedItems >= SaveBy)
 						FlushCache();
@@ -416,6 +416,11 @@ namespace Vodovoz.Tools.Logistic
 													TimeSpan.FromTicks((long)remainTime)
 												);
 			QSMain.WaitRedraw(100);
+		}
+
+		public void Dispose()
+		{
+			UoW.Dispose();
 		}
 
 		private class NextPos
