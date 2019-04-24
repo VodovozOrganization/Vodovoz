@@ -336,7 +336,23 @@ namespace Vodovoz.Domain.Orders
 				if(Nomenclature.Id == int.Parse(MainSupport.BaseParameters.All["paid_delivery_nomenclature_id"]))
 					result = false;
 
+				if(PromoSet != null)
+					result = false;
+
 				return result;
+			}
+		}
+
+		public virtual bool CanEditPrice
+		{
+			get {
+				if(PromoSet != null) {
+					return false;
+				}
+				if(IsRentRenewal())
+					return true;
+
+				return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
 			}
 		}
 
@@ -359,14 +375,6 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		#region Методы
-
-		public virtual bool CanEditPrice()
-		{
-			if(IsRentRenewal())
-				return true;
-
-			return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
-		}
 
 		//FIXME Для предварительной реализации продления аренды пока не решили как она будет работать
 		private bool IsRentRenewal()
