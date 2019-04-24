@@ -1825,17 +1825,18 @@ namespace Vodovoz.Domain.Orders
 
 			WaterSalesAgreement ag = Contract.GetWaterSalesAgreement(DeliveryPoint, nom);
 			if(ag == null) {
-				ag = new WaterSalesAgreement {
-					Contract = Contract,
-					AgreementNumber = AdditionalAgreement.GetNumberWithType(Contract, AgreementType.WaterSales),
-					DeliveryPoint = deliveryPoint,
-				};
-				if(DeliveryDate.HasValue)
-					ag.IssueDate = ag.StartDate = DeliveryDate.Value;
-				ag.FillFixedPricesFromDeliveryPoint(UoW);
-				UoW.Save(ag);
-				Contract.AdditionalAgreements.Add(ag);
-				CreateOrderAgreementDocument(ag);
+				using(var childUoW = UnitOfWorkFactory.CreateWithNewChildRoot<WaterSalesAgreement>(UoW)) {
+					ag = childUoW.Root;
+					ag.Contract = Contract;
+					ag.AgreementNumber = AdditionalAgreement.GetNumberWithType(Contract, AgreementType.WaterSales);
+					ag.DeliveryPoint = DeliveryPoint;
+					if(DeliveryDate.HasValue)
+						ag.IssueDate = ag.StartDate = DeliveryDate.Value;
+					ag.FillFixedPricesFromDeliveryPoint(childUoW);
+					childUoW.Save(ag);
+					Contract.AdditionalAgreements.Add(ag);
+					CreateOrderAgreementDocument(ag);
+				}
 			}
 			return ag;
 		}
