@@ -1832,6 +1832,7 @@ namespace Vodovoz.Domain.Orders
 					ag.DeliveryPoint = DeliveryPoint;
 					if(DeliveryDate.HasValue)
 						ag.IssueDate = ag.StartDate = DeliveryDate.Value;
+					childUoW.Save(ag);//FIXME в childUoW каскадом не сохраняются фиксы!!! потому это тут и через строку
 					ag.FillFixedPricesFromDeliveryPoint(childUoW);
 					childUoW.Save(ag);
 					Contract.AdditionalAgreements.Add(ag);
