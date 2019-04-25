@@ -1739,12 +1739,11 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="orderItem">Позиция заказа</param>
 		public virtual void TryToRemovePromotionalSet(OrderItem orderItem)
 		{
-			var discountReason = orderItem.DiscountReason;
-			if(discountReason != null) {
-				var proSet = ObservablePromotionalSets.FirstOrDefault(s => s.PromoSetName == discountReason);
-				if(proSet != null && !OrderItems.Any(i => i.DiscountReason == discountReason && i.Discount > 0))
-					//если в заказе не осталось номенклатур с причиной скидки как в промо-наборе, то удаляем этот промо-набор
-					ObservablePromotionalSets.Remove(proSet);
+			var proSetFromOrderItem = orderItem.PromoSet;
+			if(proSetFromOrderItem != null) {
+				var proSetToRemove = ObservablePromotionalSets.FirstOrDefault(s => s == proSetFromOrderItem);
+				if(proSetToRemove != null && !OrderItems.Any(i => i.PromoSet == proSetToRemove && i.Discount > 0))
+					ObservablePromotionalSets.Remove(proSetToRemove);
 			}
 		}
 
@@ -1767,8 +1766,8 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		void ClearPromotionSets()
 		{
-			var oigrp = OrderItems.GroupBy(x => x.DiscountReason);
-			var rem = PromotionalSets.Where(s => !oigrp.Select(g => g.Key).Contains(s.PromoSetName)).ToArray();
+			var oigrp = OrderItems.GroupBy(x => x.PromoSet);
+			var rem = PromotionalSets.Where(s => !oigrp.Select(g => g.Key).Contains(s)).ToArray();
 			foreach(var r in rem) {
 				var ps = PromotionalSets.FirstOrDefault(s => s == r);
 				PromotionalSets.Remove(ps);

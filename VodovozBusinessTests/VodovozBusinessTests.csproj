@@ -107,6 +107,8 @@
     <Folder Include="Deletion\" />
     <Folder Include="Tools\" />
     <Folder Include="Tools\Orders\" />
+    <Folder Include="Domain\" />
+    <Folder Include="Domain\Orders\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
@@ -115,6 +117,7 @@
     <Compile Include="Deletion\ConfigTests.cs" />
     <Compile Include="ConfigureOneTime.cs" />
     <Compile Include="Tools\Orders\OrderStateKeyTests.cs" />
+    <Compile Include="Domain\Orders\OrderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
