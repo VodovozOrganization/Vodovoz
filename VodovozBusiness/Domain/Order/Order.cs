@@ -2364,9 +2364,9 @@ namespace Vodovoz.Domain.Orders
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = agreement,
-								Count = count < 0 ? equipment.Count : count,
+								Count = count > 0 ? count : equipment.Count,
 								IsDiscountInMoney = false,
-								DiscountForPreview = discount < 0 ? 0 : discount,
+								DiscountForPreview = discount > 0 ? discount : 0,
 								DiscountReason = reason,
 								PromoSet = proSet,
 								Equipment = null,
