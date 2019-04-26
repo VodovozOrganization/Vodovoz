@@ -828,7 +828,8 @@ namespace Vodovoz
 				.AddClearDependence<Expense>(x => x.TransferedBy);
 
 			DeleteConfig.AddHibernateDeleteInfo<CashTransferOperation>()
-				.AddDeleteCascadeDependence(item => item.CashTransferDocument);
+				.RequiredCascadeDeletion()
+				.AddDeleteDependence<IncomeCashTransferDocument>(item => item.CashTransferOperation);
 
 			#endregion
 
