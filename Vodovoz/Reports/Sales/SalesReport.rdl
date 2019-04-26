@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>122.2pt</Height>
+    <Height>144.0pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>24.05pt</Height>
@@ -433,7 +433,9 @@ FROM
 			OR order_status = 'OnTheWay'
 			OR order_status = 'Shipped'
 			OR order_status = 'UnloadingOnStock'
-			OR order_status = 'Closed')
+			OR order_status = 'Closed'
+            OR (order_status = 'WaitForPayment' AND self_delivery AND pay_after_shipment)
+         )
 			AND (delivery_date &gt;= @start_date
 			AND delivery_date &lt;= @end_date)
 			AND !orders.is_contract_closer
