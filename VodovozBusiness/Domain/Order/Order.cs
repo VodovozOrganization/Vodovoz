@@ -939,7 +939,7 @@ namespace Vodovoz.Domain.Orders
 			if(!IsLoadedFrom1C && ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.IsDisposableTare) &&
 			   //Если нет ни одного допсоглашения на воду подходящего на точку доставку в заказе 
 			   //(или без точки доставки если относится на все точки)
-			   !HaveActualWaterSaleAgreementByDeliveryPoint()) {
+			   !HasActualWaterSaleAgreementByDeliveryPoint()) {
 				yield return new ValidationResult("В заказе выбрана точка доставки для которой нет актуального дополнительного соглашения по доставке воды");
 			}
 
@@ -1434,7 +1434,7 @@ namespace Vodovoz.Domain.Orders
 				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 		}
 
-		public virtual bool HaveActualWaterSaleAgreementByDeliveryPoint()
+		public virtual bool HasActualWaterSaleAgreementByDeliveryPoint()
 		{
 			if(Contract == null) {
 				return false;

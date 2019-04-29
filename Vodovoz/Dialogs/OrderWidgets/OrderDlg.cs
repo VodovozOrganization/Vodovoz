@@ -1991,7 +1991,7 @@ namespace Vodovoz
 
 		bool HaveAgreementForDeliveryPoint()
 		{
-			bool a = Entity.HaveActualWaterSaleAgreementByDeliveryPoint();
+			bool a = Entity.HasActualWaterSaleAgreementByDeliveryPoint();
 			if(Entity.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare) &&
 			   !a) {
 				//У выбранной точки доставки нет соглашения о доставке воды, предлагаем создать.

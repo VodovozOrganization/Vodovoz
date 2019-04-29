@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
@@ -10,6 +11,7 @@ namespace Vodovoz.Repositories.Orders
 {
 	public static class PromotionalSetRepository
 	{
+		internal static Func<IUnitOfWork, VodovozOrder, bool, Dictionary<int, int[]>> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap;
 		/// <summary>
 		/// Возврат словаря, у которого ключ это <see cref="PromotionalSet.Id"/>,
 		/// а значение - массив с <see cref="VodovozOrder.Id"/>, для всех точек доставок
@@ -24,6 +26,9 @@ namespace Vodovoz.Repositories.Orders
 		/// игнорироваться заказ передаваемы в качестве параметра <paramref name="currOrder"/></param>
 		public static Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(IUnitOfWork uow, VodovozOrder currOrder, bool ignoreCurrentOrder = false)
 		{
+			if(GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap != null)
+				return GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap(uow, currOrder, ignoreCurrentOrder);
+
 			VodovozOrder ordersAlias = null;
 			PromotionalSet promotionalSetAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
