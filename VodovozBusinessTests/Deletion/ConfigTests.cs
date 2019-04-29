@@ -17,6 +17,12 @@ namespace VodovozBusinessTests.Deletion
 
 			AddIgnoredClass(typeof(QS.Project.Domain.UserBase), "Этот класс в общей библиотеке и пока никак не используется для удаления.");
 			AddIgnoredClass(typeof(Vodovoz.Domain.Logistic.TrackPoint), "Удалятся вместе треком засчет конфигурации базы. Показывать пользователю все удаляемые точки смысла нет.");
+			AddIgnoredClass(typeof(Vodovoz.Subdivision), "Один из основных классов программы. Удалятся не должен.");
+			AddIgnoredClass(typeof(Vodovoz.Domain.Orders.Order), "Один из основных классов программы. Удалятся не должен.");
+			AddIgnoredClass(typeof(Vodovoz.Domain.Employees.Employee), "Один из основных классов программы. Удалятся не должен.");
+			AddIgnoredClass(typeof(Vodovoz.Domain.Client.Counterparty), "Один из основных классов программы. Удалятся не должен.");
+			AddIgnoredClass(typeof(Vodovoz.Domain.Client.DeliveryPoint), "Один из основных классов программы. Удалятся не должен.");
+			AddIgnoredClass(typeof(Vodovoz.Domain.Store.Warehouse), "Один из основных классов программы. Удалятся не должен.");
 
 			//Технические классы пока нигде не удаляется через удаление.
 			AddIgnoredClass(typeof(Vodovoz.Domain.BaseParameter), "Технический клас пока нигде не удаляется через удаление.");
