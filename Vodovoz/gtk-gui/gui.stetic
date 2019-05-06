@@ -1139,6 +1139,12 @@
         <property name="ShortLabel" translatable="yes">Рекламные наборы</property>
         <signal name="Activated" handler="OnActionPromotionalSetsActivated" />
       </action>
+      <action id="ActionRLRegister">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Реестр МЛ</property>
+        <property name="ShortLabel" translatable="yes">Реестр МЛ</property>
+        <signal name="Activated" handler="OnActionOrderedByIdRoutesListRegisterActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -1292,6 +1298,7 @@
                       <node type="Menuitem" action="Action57" />
                       <node type="Menuitem" action="Action58" />
                       <node type="Menuitem" action="ActionTariffZoneDebtsReport" />
+                      <node type="Menuitem" action="ActionRLRegister" />
                     </node>
                     <node type="Menu" action="ActionLogistic">
                       <node type="Menuitem" action="ActionOrdersByDistrictsAndDeliverySchedules" />

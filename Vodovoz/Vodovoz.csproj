@@ -1720,6 +1720,9 @@
     <None Include="Reports\Store\StockMovementsAdvancedReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Bottles\RoutesListRegister.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

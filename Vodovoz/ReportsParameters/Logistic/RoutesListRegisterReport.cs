@@ -15,15 +15,18 @@ namespace Vodovoz.Reports.Logistic
 	{
 		GenericObservableList<GeographicGroup> geographicGroups;
 
+		bool orderById;
+
 		#region IOrmDialog implementation
 
 		public IUnitOfWork UoW { get; private set; }
 
 		#endregion
 
-		public RoutesListRegisterReport()
+		public RoutesListRegisterReport(bool orderById = false)
 		{
 			this.Build();
+			this.orderById = orderById;
 			ConfigureDlg();
 			Destroyed += (sender, e) => UoW.Dispose();
 		}
@@ -60,7 +63,7 @@ namespace Vodovoz.Reports.Logistic
 		private ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Identifier = "Logistic.RoutesListRegister",
+				Identifier = orderById ? "Bottles.RoutesListRegister" : "Logistic.RoutesListRegister" ,
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },

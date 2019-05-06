@@ -744,11 +744,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e)
+	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport(false);
+	protected void OnActionOrderedByIdRoutesListRegisterActivated(object sender, EventArgs e) => OpenRoutesListRegisterReport(true);
+
+	protected void OpenRoutesListRegisterReport(bool orderById)
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.Logistic.RoutesListRegisterReport>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.RoutesListRegisterReport())
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.Logistic.RoutesListRegisterReport(orderById))
 		);
 	}
 

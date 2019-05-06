@@ -118,7 +118,7 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
             <Value>=Parameters!geographic_groups</Value>
           </QueryParameter>
           <QueryParameter Name="order_by_id">
-            <Value>0</Value>
+            <Value>1</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -399,7 +399,7 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
         <Details>
           <TableRows>
             <TableRow>
-              <Height>15.2pt</Height>
+              <Height>19.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -688,203 +688,9 @@ ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
             </TableRow>
           </TableRows>
         </Footer>
-        <TableGroups>
-          <TableGroup>
-            <Grouping Name="Driver_group">
-              <Label>=Fields!driver_name.Value</Label>
-              <PageBreakAtStart>false</PageBreakAtStart>
-              <PageBreakAtEnd>false</PageBreakAtEnd>
-              <GroupExpressions>
-                <GroupExpression>={driver_id}</GroupExpression>
-              </GroupExpressions>
-            </Grouping>
-            <Header>
-              <RepeatOnNewPage>true</RepeatOnNewPage>
-              <TableRows>
-                <TableRow>
-                  <Height>17.6pt</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox16">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                            <TextAlign>Left</TextAlign>
-                            <PaddingLeft>10pt</PaddingLeft>
-                            <VerticalAlign>Middle</VerticalAlign>
-                          </Style>
-                          <Value>=Fields!driver_name.Value</Value>
-                        </Textbox>
-                      </ReportItems>
-                      <ColSpan>9</ColSpan>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Header>
-            <Footer>
-              <RepeatOnNewPage>false</RepeatOnNewPage>
-              <TableRows>
-                <TableRow>
-                  <Height>23.8pt</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox23">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Right</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                          </Style>
-                          <Value>Всего по водителю:</Value>
-                          <CanGrow>true</CanGrow>
-                        </Textbox>
-                      </ReportItems>
-                      <ColSpan>2</ColSpan>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox25">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                          </Style>
-                          <Value>=Countdistinct({date})</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox31">
-                          <Value>
-                          </Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox18">
-                          <Value>--//--</Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox27">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                          </Style>
-                          <Value>=Sum(Fields!address_count.Value)</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox28">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                          </Style>
-                          <Value>=Sum(Fields!water19_amount.Value)</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox29">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                          </Style>
-                          <Value>=Sum(Fields!water6_amount.Value)</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox22">
-                          <Value>
-                          </Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                            <TextAlign>Center</TextAlign>
-                            <VerticalAlign>Middle</VerticalAlign>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Footer>
-            <Sorting>
-              <SortBy>
-                <SortExpression>={driver_name}</SortExpression>
-                <Direction>Ascending</Direction>
-              </SortBy>
-            </Sorting>
-          </TableGroup>
-        </TableGroups>
       </Table>
     </ReportItems>
-    <Height>102.6pt</Height>
+    <Height>71.9pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
