@@ -78,8 +78,8 @@ namespace Vodovoz.ReportsParameters.Orders
 			this.yCpecCmbDiscountReason.Name = "yCpecCmbDiscountReason";
 			this.yCpecCmbDiscountReason.AddIfNotExist = false;
 			this.yCpecCmbDiscountReason.DefaultFirst = false;
-			this.yCpecCmbDiscountReason.ShowSpecialStateAll = false;
-			this.yCpecCmbDiscountReason.ShowSpecialStateNot = true;
+			this.yCpecCmbDiscountReason.ShowSpecialStateAll = true;
+			this.yCpecCmbDiscountReason.ShowSpecialStateNot = false;
 			this.table1.Add(this.yCpecCmbDiscountReason);
 			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.yCpecCmbDiscountReason]));
 			w5.TopAttach = ((uint)(1));

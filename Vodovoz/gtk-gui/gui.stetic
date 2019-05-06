@@ -75307,8 +75307,8 @@ not tooltip</property>
             <property name="Items" translatable="yes" />
             <property name="AddIfNotExist">False</property>
             <property name="DefaultFirst">False</property>
-            <property name="ShowSpecialStateAll">False</property>
-            <property name="ShowSpecialStateNot">True</property>
+            <property name="ShowSpecialStateAll">True</property>
+            <property name="ShowSpecialStateNot">False</property>
           </widget>
           <packing>
             <property name="TopAttach">1</property>
