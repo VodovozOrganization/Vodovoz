@@ -251,37 +251,7 @@ namespace Vodovoz.ViewModel
 			MenuItem menuItemRouteListSendToLoading = new MenuItem("Отправить МЛ на погрузку") {
 				Sensitive = selected.Any((x) => (x.VMNode as RouteListsVMNode).StatusEnum == RouteListStatus.Confirmed)
 			};
-			menuItemRouteListSendToLoading.Activated += (sender, e) => {
-				bool isSlaveTabActive = false;
-				var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-				var routeLists = UoW.Session.QueryOver<RouteList>()
-					.Where(x => x.Id.IsIn(routeListIds))
-					.List();
-				routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) => {
-					if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
-						MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
-						isSlaveTabActive = true;
-						return;
-					}
-					foreach(var address in routeList.Addresses) {
-						if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
-							address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading);
-					}
-
-					routeList.ChangeStatus(RouteListStatus.InLoading);
-					UoW.Save(routeList);
-				});
-
-				if(isSlaveTabActive)
-					return;
-
-				foreach(var rlNode in lastMenuSelected) {
-					var node = (rlNode.VMNode as RouteListsVMNode);
-					if(node != null)
-						node.StatusEnum = RouteListStatus.InLoading;
-				}
-				UoW.Commit();
-			};
+			menuItemRouteListSendToLoading.Activated += MenuItemRouteListSendToLoading_Activated;
 			popupMenu.Add(menuItemRouteListSendToLoading);
 
 			MenuItem menuItemRouteListKeepingDlg = new MenuItem("Открыть диалог ведения");
@@ -317,6 +287,45 @@ namespace Vodovoz.ViewModel
 			popupMenu.Add(menuItemRouteListFuelIssuingDlg);
 
 			return popupMenu;
+		}
+
+		void MenuItemRouteListSendToLoading_Activated(object sender, EventArgs e)
+		{
+			bool isSlaveTabActive = false;
+			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
+			var routeLists = UoW.Session.QueryOver<RouteList>()
+				.Where(x => x.Id.IsIn(routeListIds))
+				.List();
+
+			routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) => 
+			{
+				if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) 
+				{
+					MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
+					isSlaveTabActive = true;
+					return;
+				}
+
+				foreach(var address in routeList.Addresses) 
+				{
+					if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
+						address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading);
+				}
+
+				routeList.ChangeStatus(RouteListStatus.InLoading);
+				UoW.Save(routeList);
+			});
+
+			if(isSlaveTabActive)
+				return;
+
+			foreach(var rlNode in lastMenuSelected) 
+			{
+				var node = (rlNode.VMNode as RouteListsVMNode);
+				if(node != null)
+					node.StatusEnum = RouteListStatus.InLoading;
+			}
+			UoW.Commit();
 		}
 
 		void MenuItemRouteListOpenTrack_Activated(object sender, EventArgs e)

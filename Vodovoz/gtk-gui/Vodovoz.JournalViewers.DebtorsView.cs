@@ -22,6 +22,8 @@ namespace Vodovoz.JournalViewers
 
 		private global::QSOrmProject.RepresentationTreeView treeviewDebtors;
 
+		private global::Gtk.Button buttonOpenReport;
+
 		private global::Gtk.Button buttonCreateTask;
 
 		protected virtual void Build()
@@ -106,20 +108,35 @@ namespace Vodovoz.JournalViewers
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
 			w8.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.buttonOpenReport = new global::Gtk.Button();
+			this.buttonOpenReport.CanFocus = true;
+			this.buttonOpenReport.Name = "buttonOpenReport";
+			this.buttonOpenReport.UseUnderline = true;
+			this.buttonOpenReport.Label = global::Mono.Unix.Catalog.GetString("Акт по бутылям и залогам");
+			global::Gtk.Image w9 = new global::Gtk.Image();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-find", global::Gtk.IconSize.Menu);
+			this.buttonOpenReport.Image = w9;
+			this.vbox2.Add(this.buttonOpenReport);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonOpenReport]));
+			w10.PackType = ((global::Gtk.PackType)(1));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.buttonCreateTask = new global::Gtk.Button();
 			this.buttonCreateTask.CanFocus = true;
 			this.buttonCreateTask.Name = "buttonCreateTask";
 			this.buttonCreateTask.UseUnderline = true;
 			this.buttonCreateTask.Label = global::Mono.Unix.Catalog.GetString("Создать задачи");
-			global::Gtk.Image w9 = new global::Gtk.Image();
-			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.buttonCreateTask.Image = w9;
+			global::Gtk.Image w11 = new global::Gtk.Image();
+			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonCreateTask.Image = w11;
 			this.vbox2.Add(this.buttonCreateTask);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateTask]));
-			w10.PackType = ((global::Gtk.PackType)(1));
-			w10.Position = 2;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateTask]));
+			w12.PackType = ((global::Gtk.PackType)(1));
+			w12.Position = 3;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
@@ -129,7 +146,9 @@ namespace Vodovoz.JournalViewers
 			this.Hide();
 			this.buttonFilter.Clicked += new global::System.EventHandler(this.OnButtonFilterClicked);
 			this.searchentity1.TextChanged += new global::System.EventHandler(this.OnSearchentity1TextChanged);
+			this.treeviewDebtors.ButtonReleaseEvent += new global::Gtk.ButtonReleaseEventHandler(this.OnTreeviewDebtorsButtonReleaseEvent);
 			this.buttonCreateTask.Clicked += new global::System.EventHandler(this.OnButtonCreateTaskClicked);
+			this.buttonOpenReport.Clicked += new global::System.EventHandler(this.OnButtonOpenReportClicked);
 		}
 	}
 }

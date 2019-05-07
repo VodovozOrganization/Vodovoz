@@ -24,6 +24,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.StoredResources;
 
 namespace Vodovoz
 {
@@ -457,6 +458,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<WaterSalesAgreementFixedPrice>();
 
+			DeleteConfig.AddHibernateDeleteInfo<CallTask>();
+			
 			DeleteConfig.AddHibernateDeleteInfo<DocTemplate>()
 				.AddClearDependence<AdditionalAgreement>(x => x.DocumentTemplate)
 				.AddClearDependence<CounterpartyContract>(x => x.DocumentTemplate)
@@ -1001,6 +1004,13 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<ChangedEntity>()
 				.AddDeleteDependence<FieldChange>(x => x.Entity);
 			DeleteConfig.AddHibernateDeleteInfo<FieldChange>();
+
+			#endregion
+
+			#region stuff
+
+			DeleteConfig.AddHibernateDeleteInfo<StoredImageResource>();
+			DeleteConfig.AddHibernateDeleteInfo<StoredResource>();
 
 			#endregion
 

@@ -1762,7 +1762,7 @@ Sum(Fields!amount_unloaded_empty.Value, "NotClosed") - Sum(Fields!actual_count.V
     <DataSet Name="Closed">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>50</Timeout>
+        <Timeout>200</Timeout>
         <CommandText>select
 	employees.last_name,
 	route_lists.id,
@@ -1900,7 +1900,7 @@ group by
     <DataSet Name="NotClosed">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>50</Timeout>
+        <Timeout>200</Timeout>
         <CommandText>select
 	employees.last_name,
 	route_lists.id,
@@ -2038,7 +2038,7 @@ group by
     <DataSet Name="Total">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>50</Timeout>
+        <Timeout>200</Timeout>
         <CommandText>select
 	sum(ifnull(rla.count,0)) as count,
 	sum(ifnull(rla.actual_count,0)) as actual_count,

@@ -1113,8 +1113,6 @@
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.DebtorsView.cs" />
     <Compile Include="JournalFilters\BottleDebtorsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.BottleDebtorsFilter.cs" />
-    <Compile Include="JournalFilters\TaskFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalFilters.TaskFilter.cs" />
     <Compile Include="Dialogs\Cash\CashTransfer\IncomeCashTransferDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashTransfer.IncomeCashTransferDlg.cs" />
     <Compile Include="Dialogs\Cash\CashTransfer\IncomeCashTransferDocumentViewModel.cs" />
@@ -1136,6 +1134,9 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.TariffZoneDebts.cs" />
     <Compile Include="ReportsParameters\Store\StockMovementsAdvancedReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.StockMovementsAdvancedReport.cs" />
+    <Compile Include="Representations\CallTasksVM.cs" />
+    <Compile Include="JournalFilters\QueryFilterViews\CallTaskFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.QueryFilterViews.CallTaskFilterView.cs" />
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
     <Compile Include="Dialogs\OrderWidgets\PromotionalSetDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderWidgets.PromotionalSetDlg.cs" />

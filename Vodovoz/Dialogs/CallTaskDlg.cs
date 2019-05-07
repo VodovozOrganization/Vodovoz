@@ -1,7 +1,6 @@
 ﻿using System;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -13,39 +12,38 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.Dialogs
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CallTaskDlg : SingleUowTabBase
+	public partial class CallTaskDlg : EntityDialogBase<CallTask>
 	{
-		public bool SaveDlgState;
-		public CallTask Entity;
-
 		private string lastComment;
 		private Employee employee;
 
-		public CallTaskDlg(IUnitOfWork uow)
+		public CallTaskDlg()
 		{
 			this.Build();
-			UoW = uow;
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
 			TabName = "Новая задача";
-			Entity = new CallTask {
-				CreationDate = DateTime.Now,
-				TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(UoW) ,
-				EndActivePeriod = DateTime.Now.AddDays(1)
-			};
+			Entity.CreationDate = DateTime.Now;
+			Entity.TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.EndActivePeriod = DateTime.Now.AddDays(1);
 			createTaskButton.Sensitive = false;
 			ConfigureDlg();
 		}
 
-		public CallTaskDlg(IUnitOfWork uow ,CallTask callTask)
+		public CallTaskDlg(CallTask task) : this(task.Id) { }
+
+		public CallTaskDlg(int callTaskId)
 		{
 			this.Build();
-			UoW = uow;
-			Entity =callTask;
-			TabName = Entity.Client?.Name;
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
+			TabName = Entity.Counterparty?.Name;
+			labelCreator.Text = String.Format("Создатель : {0}", Entity.TaskCreator.ShortName);
 			ConfigureDlg();
 		}
 
 		private void ConfigureDlg()
 		{
+			comboboxImpotanceType.ItemsEnum = typeof(ImportanceDegreeType);
+			comboboxImpotanceType.Binding.AddBinding(Entity, s => s.ImportanceDegree, w => w.SelectedItemOrNull).InitializeFromSource();
 			TaskStateComboBox.ItemsEnum = typeof(CallTaskStatus);
 			TaskStateComboBox.Binding.AddBinding(Entity, s => s.TaskState, w => w.SelectedItemOrNull).InitializeFromSource();
 			IsTaskCompleteButton.Binding.AddBinding(Entity, s => s.IsTaskComplete, w => w.Active).InitializeFromSource();
@@ -70,32 +68,16 @@ namespace Vodovoz.Dialogs
 			UpdateAddressFields();
 		}
 
-		public bool Save()
-		{
-			var valid = new QSValidator<CallTask>(Entity);
-			valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel);
-			Entity.TaskCreator = employee;
-			if(valid.IsValid) {
-				if(Entity.Id > 0) {
-					UoW.Session.Merge(Entity);
-					UoW.Save(UoW.GetById<CallTask>(Entity.Id));
-				} else {
-					UoW.Save(Entity);
-				}
-				UoW.Commit();
-				SaveDlgState = true;
-				OnCloseTab(false);
-			}
-			return valid.IsValid;
-		}
-
 		private void UpdateAddressFields()
 		{
 			if(Entity.DeliveryPoint != null) 
 			{
-				yentryCounterparty.Text = Entity.Client?.Name;
+				yentryCounterparty.Text = Entity.Counterparty?.Name;
 				debtByAddressEntry.Text = BottlesRepository.GetBottlesAtDeliveryPoint(UoW, Entity.DeliveryPoint).ToString();
-				debtByClientEntry.Text = BottlesRepository.GetBottlesAtCounterparty(UoW, Entity.Client).ToString();
+
+				if(Entity.Counterparty != null)
+					debtByClientEntry.Text = BottlesRepository.GetBottlesAtCounterparty(UoW, Entity.Counterparty).ToString();
+
 				entryReserve.Text = Entity.DeliveryPoint.BottleReserv.ToString();
 				ClientPhonesview.Phones = Entity.DeliveryPoint.Phones;
 				ytextviewOldComments.Buffer.Text = CallTasksRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
@@ -109,10 +91,6 @@ namespace Vodovoz.Dialogs
 				ytextviewOldComments.Buffer.Text = Entity.Comment;
 			}
 		}
-
-		protected void OnButtonSaveClicked(object sender, EventArgs e) => Save();
-
-		protected void OnButtonCancelClicked(object sender, EventArgs e) => OnCloseTab(false);
 
 		protected void OnDeliveryPointYentryreferencevmChangedByUser(object sender, EventArgs e) => UpdateAddressFields();
 
@@ -147,22 +125,32 @@ namespace Vodovoz.Dialogs
 		{
 			if(Entity.DeliveryPoint == null)
 				return;
-			OrderDlg orderDlg = new OrderDlg();
-			TabParent.AddSlaveTab(this, orderDlg);
+			OrderDlg orderDlg = new OrderDlg(); //FIXME : Решить проблему с обнулением DeliveryPoint
+			orderDlg.Entity.Client = Entity.Counterparty;
+			orderDlg.Entity.UpdateBaseParametersForClient();
+			orderDlg.Entity.DeliveryPoint = Entity.DeliveryPoint;
+			TabParent.AddTab(orderDlg , this);
 		}
 
 		protected void OnCreateTaskButtonClicked(object sender, EventArgs e)
 		{
-			CallTask task = Entity.CreateNewTask();
-			CallTaskDlg newTask = new CallTaskDlg(UnitOfWorkFactory.CreateWithoutRoot(), task);
+			CallTaskDlg newTask = new CallTaskDlg();
 			OpenSlaveTab(newTask);
 		}
 
 		protected void OnYentryTareReturnChanged(object sender, EventArgs e)
 		{
-			if(Int32.TryParse(yentryTareReturn.Text, out int result)) {
+			if(Int32.TryParse(yentryTareReturn.Text, out int result))
 				Entity.TareReturn = result;
-			}
+		}
+
+		public override bool Save()
+		{
+			var valid = new QSValidator<CallTask>(UoWGeneric.Root);
+			if(valid.RunDlgIfNotValid((Gtk.Window)Toplevel))
+				return false;
+			UoWGeneric.Save();
+			return true;
 		}
 
 	}

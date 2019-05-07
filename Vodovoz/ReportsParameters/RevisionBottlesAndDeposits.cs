@@ -20,6 +20,12 @@ namespace Vodovoz.Reports
 			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(UoW);
 		}	
 
+		public void SetDeliveryPoint(DeliveryPoint deliveryPoint)
+		{
+			referenceCounterparty.Subject = deliveryPoint.Counterparty;
+			referenceDeliveryPoint.Subject = deliveryPoint;
+		}
+
 		#region IParametersWidget implementation
 
 		public string Title
@@ -36,10 +42,7 @@ namespace Vodovoz.Reports
 
 		void OnUpdate(bool hide = false)
 		{
-			if (LoadReport != null)
-			{
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		protected void OnButtonRunClicked(object sender, EventArgs e)

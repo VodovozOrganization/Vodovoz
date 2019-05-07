@@ -38,14 +38,19 @@ namespace VodovozBusinessTests.Employees
 			traineeMock.AddressRegistration.Returns("TestPassportSeria");
 			traineeMock.AddressCurrent.Returns("TestPassportSeria");
 			traineeMock.INN.Returns("TestPassportSeria");
+
 			var phones = new List<QSContacts.Phone>();
 			//TODO возможно здесь нужно сделать мок для Phone
-			phones.Add(new QSContacts.Phone() {
-				Name = "TestPhoneName"
-			});
+			phones.Add(new QSContacts.Phone { Name = "TestPhoneName" });
 			traineeMock.Phones.Returns(phones);
+
+			var documents = new List<EmployeeDocument>();
+			documents.Add(new EmployeeDocument { Id = 5, Name = "TestDoc" });
+			traineeMock.Documents.Returns(documents);
+
 			//TODO возможно здесь нужно сделать мок для Nationality
 			traineeMock.Nationality.Returns(new Nationality { Name = "TestNationality" });
+			traineeMock.Citizenship.Returns(new Citizenship { Name = "TestCitizenship" });
 			traineeMock.Photo.Returns(new byte[] { 1, 2, 3 });
 		}
 
@@ -56,6 +61,7 @@ namespace VodovozBusinessTests.Employees
 				new object[0]
 			) as Employee;
 			employeeMock.Phones.Returns(new List<QSContacts.Phone>());
+			employeeMock.Documents.Returns(new List<EmployeeDocument>());
 		}
 
 		void CreateUoWEmployeeMock()
@@ -116,6 +122,17 @@ namespace VodovozBusinessTests.Employees
 					output += nameof(traineeMock.Phones) + ", ";
 					break;
 				}
+			}
+			foreach(var item in traineeMock.Documents) {
+				if(!employeeMock.Documents.Contains(item)) {
+					result = false;
+					output += nameof(traineeMock.Documents) + ", ";
+					break;
+				}
+			}
+			if(traineeMock.Citizenship != employeeMock.Citizenship) {
+				result = false;
+				output += nameof(traineeMock.Citizenship) + ", ";
 			}
 			if(traineeMock.Nationality != employeeMock.Nationality) {
 				result = false;

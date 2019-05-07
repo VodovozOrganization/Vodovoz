@@ -2,31 +2,26 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QSContacts;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Client
 {
-	public class CallTask : PropertyChangedBase, ITask
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "задачи",
+		Nominative = "задача",
+		Prepositional = "задаче",
+		PrepositionalPlural = "задачах"
+	)]
+	public class CallTask : PropertyChangedBase, ITask , IValidatableObject
 	{
+		public virtual string Title {
+			get { return String.Format(" задача по обзвону : {0}", DeliveryPoint?.ShortAddress); }
+		}
+
 		public virtual int Id { get; set; }
 
-		public virtual int DebtByAddress { get; set; }
-
-		public virtual int DebtByClient { get; set; }
-
-		public virtual int ClientId { get { return Client != null ? Client.Id : -1; } }
-
-		public virtual string Phones { get {
-				string phones = null;
-				foreach(var phone in DeliveryPoint.Phones) {
-					if(phones == null)
-						phones = phone.Number;
-					else
-						phones += Environment.NewLine + phone.Number;
-				}
-				return phones;
-			}
-		}
+		public virtual IList<Phone> Phones { get { return DeliveryPoint.Phones; } }
 
 		string comment;
 		[Display(Name = "Комментарий")]
@@ -39,17 +34,31 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Aдрес клиента")]
 		public virtual DeliveryPoint DeliveryPoint {
 			get { return deliveryPoint; }
-			set { SetField(ref deliveryPoint, value, () => DeliveryPoint); }
+			set {   
+					SetField(ref deliveryPoint, value, () => DeliveryPoint);
+					Counterparty = deliveryPoint.Counterparty; 
+				}
 		}
 
+		Counterparty counterparty;
 		[Display(Name = "Клиент")]
-		public virtual Counterparty Client { get { return DeliveryPoint?.Counterparty; } set { } }
+		public virtual Counterparty Counterparty{
+			get { return counterparty; }
+			set { SetField(ref counterparty, value, () => Counterparty); }
+		}
 
 		CallTaskStatus taskState;
 		[Display(Name = "Статус")]
 		public virtual CallTaskStatus TaskState {
 			get { return taskState; }
 			set { SetField(ref taskState, value, () => TaskState); }
+		}
+
+		ImportanceDegreeType importanceDegree;
+		[Display(Name = "Срочность задачи")]
+		public virtual ImportanceDegreeType ImportanceDegree {
+			get { return importanceDegree; }
+			set { SetField(ref importanceDegree, value, () => ImportanceDegree); }
 		}
 
 		DateTime creationDate;
@@ -115,46 +124,15 @@ namespace Vodovoz.Domain.Client
 
 		public virtual CallTask CreateNewTask()
 		{
-			CallTask task = new CallTask {
+			CallTask task = new CallTask 
+			{
 				DeliveryPoint = DeliveryPoint,
+				Counterparty = Counterparty,
 				CreationDate = DateTime.Now,
 				EndActivePeriod = DateTime.Now.AddDays(1),
 				AssignedEmployee = AssignedEmployee
 			};
 			return task;
-		}
-
-		public virtual CallTask CreateCopy()
-		{
-			CallTask copy = new CallTask {
-				DeliveryPoint = DeliveryPoint,
-				AssignedEmployee = AssignedEmployee,
-				Comment = Comment,
-				CreationDate = CreationDate,
-				EndActivePeriod = EndActivePeriod,
-				DebtByAddress = DebtByAddress,
-				DebtByClient = DebtByClient,
-				Id = Id,
-				IsTaskComplete = IsTaskComplete,
-				TaskState = TaskState
-			};
-			return copy;
-		}
-
-		public virtual void LoadPreviousState(CallTask prevState)
-		{
-			if(prevState == null)
-				return;
-
-			DeliveryPoint = prevState.DeliveryPoint;
-			AssignedEmployee = prevState.AssignedEmployee;
-			Comment = prevState.Comment;
-			CreationDate = prevState.CreationDate;
-			EndActivePeriod = prevState.EndActivePeriod;
-			DebtByAddress = prevState.DebtByAddress;
-			DebtByClient = prevState.DebtByClient;
-			IsTaskComplete = prevState.IsTaskComplete;
-			TaskState = prevState.TaskState;
 		}
 	}
 
@@ -168,6 +146,14 @@ namespace Vodovoz.Domain.Client
 		DifficultClient
 	}
 
+	public enum ImportanceDegreeType
+	{
+		[Display(Name = "Нет")]
+		Nope,
+		[Display(Name = "Важно")]
+		Important
+	}
+
 	public class CallTaskStatusStringType : NHibernate.Type.EnumStringType
 	{
 		public CallTaskStatusStringType() : base(typeof(CallTaskStatus))
@@ -175,9 +161,16 @@ namespace Vodovoz.Domain.Client
 		}
 	}
 
+	public class ImportanceDegreeStringType : NHibernate.Type.EnumStringType
+	{
+		public ImportanceDegreeStringType() : base(typeof(ImportanceDegreeType))
+		{
+		}
+	}
+
 	public interface ITask : IDomainObject
 	{
-		Counterparty Client { get; set; }
+		Counterparty Counterparty { get; set; }
 
 		DeliveryPoint DeliveryPoint { get; set; }
 
@@ -197,6 +190,6 @@ namespace Vodovoz.Domain.Client
 
 		string Comment { get; set; }
 
-		string Phones { get; }
+		IList<Phone> Phones { get; }
 	}
 }

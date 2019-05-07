@@ -12,6 +12,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Repositories;
 using QSSupportLib;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -29,6 +30,7 @@ using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Repository.Store;
+using Vodovoz.Services;
 using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Domain.Orders
@@ -89,7 +91,6 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		Counterparty client;
-
 		[Display(Name = "Клиент")]
 		public virtual Counterparty Client {
 			get => client;
@@ -1621,6 +1622,44 @@ namespace Vodovoz.Domain.Orders
 			return oi;
 		}
 
+		public virtual void UpdateBaseParametersForClient()
+		{
+			if(Client == null)
+				return;
+			if( !(OrderStatus == OrderStatus.NewOrder) )
+				return;
+
+			DeliveryPoint = null;
+			DeliverySchedule = null;
+			Contract = null;
+			DocumentType = Client.DefaultDocumentType ?? DefaultDocumentType.upd;
+
+			if(!SelfDelivery && Client.DeliveryPoints?.Count == 1)
+				DeliveryPoint = Client.DeliveryPoints.FirstOrDefault();
+
+			PaymentType = Client.PaymentMethod;
+			ChangeOrderContract();
+		}
+
+		public virtual void SetProxyForOrder()
+		{
+			if(Client == null)
+				return;
+			if(!DeliveryDate.HasValue)
+				return;
+			if(Client.PersonType != PersonType.legal && PaymentType != PaymentType.cashless)
+				return;
+
+			bool isProxiesExist = Client.Proxies
+						.Where(p => p.IsActiveProxy(DeliveryDate.Value))
+						.Where(p => (p.DeliveryPoints == null
+									|| p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, DeliveryPoint)))
+							  ).Any();
+
+			if(isProxiesExist)
+				SignatureType = OrderSignatureType.ByProxy;
+		}
+
 		public virtual bool CalculateDeliveryPrice()
 		{
 			int paidDeliveryNomenclatureId = int.Parse(MainSupport.BaseParameters.All["paid_delivery_nomenclature_id"]);
@@ -1805,7 +1844,6 @@ namespace Vodovoz.Domain.Orders
 
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
 		{
-			CounterpartyContract contract = null;
 			if(Contract == null) {
 				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 				if(Contract == null) {
@@ -1985,16 +2023,18 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="documents">Список документов для удаления.</param>
 		public virtual List<OrderDocument> RemoveAdditionalDocuments(OrderDocument[] documents)
 		{
-			List<OrderDocument> thisOrderDocuments = null;
-			if(documents != null && documents.Any()) {
-				thisOrderDocuments = new List<OrderDocument>();
-				foreach(OrderDocument doc in documents) {
-					if(doc.Order != this)
-						ObservableOrderDocuments.Remove(doc);
-					else
-						thisOrderDocuments.Add(doc);
-				}
+			if(documents == null || !documents.Any())
+				return null;
+				
+			List<OrderDocument> thisOrderDocuments = new List<OrderDocument>();
+			foreach(OrderDocument doc in documents) 
+			{
+				if(doc.Order != this)
+					ObservableOrderDocuments.Remove(doc);
+				else
+					thisOrderDocuments.Add(doc);
 			}
+
 			return thisOrderDocuments;
 		}
 
@@ -2652,7 +2692,8 @@ namespace Vodovoz.Domain.Orders
 		private void OnChangeStatusToClosed()
 		{
 			SetDepositsActualCounts();
-			if(SelfDelivery) {
+			if(SelfDelivery) 
+			{
 				UpdateDepositOperations(UoW);
 				SetActualCountToSelfDelivery();
 			}
@@ -2688,12 +2729,9 @@ namespace Vodovoz.Domain.Orders
 				return;
 			if(!(OrderStatus == OrderStatus.Closed))
 				return;
-			if(!(OrderStatus == OrderStatus.DeliveryCanceled))
-				return;
 
-			foreach(var item in OrderItems) {
-				item.ActualCount = OrderStatus == OrderStatus.Closed ? item.Count : 0;
-			}
+			foreach(var item in OrderItems)
+				item.ActualCount = item.Count;
 		}
 
 		/// <summary>
@@ -2701,20 +2739,16 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual void SelfDeliveryAcceptCashlessPaid()
 		{
-			if(!SelfDelivery) {
+			if(!SelfDelivery)
 				return;
-			}
-			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard) {
+			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard) 
 				return;
-			}
+			if(OrderStatus != OrderStatus.WaitForPayment)
+				return;
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["accept_cashless_paid_selfdelivery"])
+				return;
 
-			if(OrderStatus == OrderStatus.WaitForPayment && UserPermissionRepository.CurrentUserPresetPermissions["accept_cashless_paid_selfdelivery"]) {
-				if(PayAfterShipment) {
-					ChangeStatus(OrderStatus.Closed);
-				} else {
-					ChangeStatus(OrderStatus.Accepted);
-				}
-			}
+			ChangeStatus(PayAfterShipment ? OrderStatus.Closed : OrderStatus.Accepted);
 		}
 
 		/// <summary>
@@ -2752,33 +2786,29 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		private void SelfDeliveryAcceptCashPaid(decimal incomeCash, decimal expenseCash)
 		{
-			if(!SelfDelivery) {
+			if(!SelfDelivery)
 				return;
-			}
-			if(PaymentType != PaymentType.cash && PaymentType != PaymentType.BeveragesWorld) {
+			if(PaymentType != PaymentType.cash && PaymentType != PaymentType.BeveragesWorld)
 				return;
-			}
-
-			bool isFullyPaid = (incomeCash - expenseCash) == OrderCashSum;
-
-			if(!isFullyPaid) {
+			if((incomeCash - expenseCash) != OrderCashSum)
 				return;
-			}
 
 			bool isFullyLoad = IsFullyShippedSelfDeliveryOrder(UoW);
 
-			if(OrderStatus == OrderStatus.WaitForPayment) {
+			if(OrderStatus == OrderStatus.WaitForPayment) 
+			{
 				if(isFullyLoad) {
 					ChangeStatus(OrderStatus.Closed);
-				} else {
-					ChangeStatus(OrderStatus.OnLoading);
+					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider());
 				}
+				else 
+					ChangeStatus(OrderStatus.OnLoading);
+
 				return;
 			}
 
-			if(OrderStatus == OrderStatus.OnLoading && isFullyLoad) {
+			if(OrderStatus == OrderStatus.OnLoading && isFullyLoad)
 				ChangeStatus(OrderStatus.Closed);
-			}
 		}
 
 		/// <summary>
@@ -2824,15 +2854,13 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		private void AcceptSelfDeliveryOrder()
 		{
-			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder) {
+			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder)
 				return;
-			}
 
-			if(PayAfterShipment || OrderTotalSum == 0) {
+			if(PayAfterShipment || OrderTotalSum == 0)
 				ChangeStatus(OrderStatus.Accepted);
-			} else {
+			else
 				ChangeStatus(OrderStatus.WaitForPayment);
-			}
 		}
 
 		/// <summary>
@@ -2840,7 +2868,7 @@ namespace Vodovoz.Domain.Orders
 		/// если заказ был создан только для залога.
 		/// Для отображения этих данных в отчете "Акт по бутылям и залогам"
 		/// </summary>
-		public virtual void SetDepositsActualCounts()
+		public virtual void SetDepositsActualCounts() //TODO : проверить актуальность метода
 		{
 			if(OrderItems.All(x => x.Nomenclature.Id == 157))
 				foreach(var oi in orderItems)
@@ -2854,9 +2882,8 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			if(CanSetOrderAsAccepted) {
+			if(CanSetOrderAsAccepted)
 				ChangeStatus(OrderStatus.Accepted);
-			}
 		}
 
 		/// <summary>
@@ -2902,13 +2929,11 @@ namespace Vodovoz.Domain.Orders
 		public virtual void EditOrder()
 		{
 			//Нельзя редактировать заказ с самовывозом
-			if(SelfDelivery) {
+			if(SelfDelivery)
 				return;
-			}
 
-			if(CanSetOrderAsEditable) {
+			if(CanSetOrderAsEditable)
 				ChangeStatus(OrderStatus.NewOrder);
-			}
 		}
 
 		/// <summary>
@@ -2952,10 +2977,12 @@ namespace Vodovoz.Domain.Orders
 			// Закрывает заказ и создает операцию движения бутылей если все товары в заказе отгружены
 			bool canCloseOrder = true;
 			var unloadedNoms = SelfDeliveryRepository.OrderNomenclaturesUnloaded(uow, this, closingDocument);
-			foreach(var nGrp in nomGrp) {
+			foreach(var nGrp in nomGrp) 
+			{
 				decimal totalCount = default(decimal);
 				if(unloadedNoms.ContainsKey(nGrp.Key))
 					totalCount += unloadedNoms[nGrp.Key];
+
 				if((int)totalCount != nGrp.Value)
 					canCloseOrder = false;
 			}
@@ -3049,15 +3076,14 @@ namespace Vodovoz.Domain.Orders
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
 		/// склада все отгружено, и произведена оплата
 		/// </summary>
-		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument)
+		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures , SelfDeliveryDocument closingDocument = null)
 		{
-			if(!IsFullyShippedSelfDeliveryOrder(uow, closingDocument) || OrderStatus != OrderStatus.OnLoading) {
+			if(!IsFullyShippedSelfDeliveryOrder(uow, closingDocument) || OrderStatus != OrderStatus.OnLoading)
 				return false;
-			}
 
-			var isFullyPaid = SelfDeliveryIsFullyPaid();
+			bool isFullyPaid = SelfDeliveryIsFullyPaid();
 
-			UpdateBottlesMovementOperationWithoutDelivery(UoW);
+			UpdateBottlesMovementOperationWithoutDelivery(UoW , standartNomenclatures);
 
 			switch(PaymentType) {
 				case PaymentType.cash:
@@ -3091,34 +3117,29 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Создание операций перемещения бутылей для заказов без доставки
 		/// </summary>
-		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow)
+		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures)
 		{
 			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
 			//не должны создаваться операции перемещения тары
 			if(IsContractCloser)
 				return;
 
-			if(RouteListItemRepository.HasRouteListItemsForOrder(uow, this)) {
+			if(RouteListItemRepository.HasRouteListItemsForOrder(uow, this))
 				return;
-			}
 
-			foreach(OrderItem item in OrderItems) {
+			foreach(OrderItem item in OrderItems)
 				item.ActualCount = item.Count;
-			}
 
 			int amountDelivered = OrderItems
 									.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 									.Sum(item => item.ActualCount.Value);
 
 			int forfeitCount = 0;
-			if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) {
-				if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) {
-					forfeitCount = OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
+			int forfeitId = standartNomenclatures.GetForfeitId();
+			forfeitCount = OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
 																	   .Select(arg => arg.ActualCount.Value).Sum();
-				}
-			}
 
-			if(amountDelivered != 0 || (ReturnedTare != 0 && ReturnedTare != null) || forfeitCount > 0) {
+			if(amountDelivered != 0 || ReturnedTare > 0 || forfeitCount > 0) {
 				if(BottlesMovementOperation == null) {
 					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
@@ -3371,7 +3392,7 @@ namespace Vodovoz.Domain.Orders
 			OnPropertyChanged(nameof(TotalSum));
 		}
 
-		void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
+		protected internal virtual void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(TotalSum));
 			UpdateDocuments();
@@ -3433,11 +3454,12 @@ namespace Vodovoz.Domain.Orders
 
 		#region Операции
 
-		public virtual void UpdateDepositOperations(IUnitOfWork uow)
+		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow)
 		{
 			var bottleRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Bottles).Sum(x => x.Total);
 			var equipmentRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
 			var operations = UpdateDepositOperations(uow, equipmentRefundDeposit, bottleRefundDeposit);
+			return operations;
 			operations.ForEach(x => uow.Save(x));
 		}
 

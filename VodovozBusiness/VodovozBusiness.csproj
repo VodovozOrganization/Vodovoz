@@ -608,6 +608,10 @@
     <Compile Include="HibernateMapping\Order\PromotionalSetMap.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetItemMap.cs" />
     <Compile Include="Repositories\Orders\PromotionalSetRepository.cs" />
+    <Compile Include="Filters\CallTaskFilter.cs" />
+    <Compile Include="Services\IStandartNomenclatures.cs" />
+    <Compile Include="Services\IImageProvider.cs" />
+    <Compile Include="Domain\Service\BaseParametersProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -646,6 +650,7 @@
     <Folder Include="HibernateMapping\Cash\Transfer\" />
     <Folder Include="ViewModelBased\" />
     <Folder Include="Filters\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

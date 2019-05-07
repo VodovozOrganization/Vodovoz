@@ -31,6 +31,7 @@ using QSProjectsLib;
 using QSReport;
 using QSSupportLib;
 using QSValidation;
+using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -49,6 +50,7 @@ using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Repository.Operations;
+using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModelBased;
@@ -696,7 +698,8 @@ namespace Vodovoz
 				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?")) {
 					return;
 				}
-				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW);
+				IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
+				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures);
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatus(OrderStatus.Closed);
@@ -1701,7 +1704,7 @@ namespace Vodovoz
 			} else {
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
 			}
-			SetProxyForOrder();
+			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 
 			SetSensitivityOfPaymentType();
@@ -1743,17 +1746,17 @@ namespace Vodovoz
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
 			if(Entity.DeliveryPoint != null) {
 				UpdateProxyInfo();
-				SetProxyForOrder();
+				Entity.SetProxyForOrder();
 			}
 		}
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
-			if(!HaveAgreementForDeliveryPoint()) {
+			if(!HaveAgreementForDeliveryPoint()) 
+			{
 				Order originalOrder = UoW.GetById<Order>(Entity.Id);
-				Entity.DeliveryPoint = originalOrder != null && originalOrder.DeliveryPoint != null ? originalOrder.DeliveryPoint : null;
+				Entity.DeliveryPoint = originalOrder?.DeliveryPoint;
 			}
-
 			CheckSameOrders();
 		}
 
@@ -1808,14 +1811,14 @@ namespace Vodovoz
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
 				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.BeveragesWorld);
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
-			SetProxyForOrder();
+			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 			UpdateUIState();
 		}
 
 		protected void OnPickerDeliveryDateDateChanged(object sender, EventArgs e)
 		{
-			SetProxyForOrder();
+			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 		}
 
@@ -1831,34 +1834,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
-		{
-			//Заполняем точку доставки если она одна.
-			if(Entity.Client != null && Entity.Client.DeliveryPoints != null
-				&& Entity.OrderStatus == OrderStatus.NewOrder && !Entity.SelfDelivery
-				&& Entity.Client.DeliveryPoints.Count == 1) {
-				Entity.DeliveryPoint = Entity.Client.DeliveryPoints[0];
-			} else {
-				Entity.DeliveryPoint = null;
-			}
-			//Устанавливаем тип документа
-			if(Entity.Client != null && Entity.Client.DefaultDocumentType != null) {
-				Entity.DocumentType = Entity.Client.DefaultDocumentType;
-			} else if(Entity.Client != null) {
-				Entity.DocumentType = DefaultDocumentType.upd;
-			}
-
-			//Очищаем время доставки
-			Entity.DeliverySchedule = null;
-
-			//Устанавливаем тип оплаты
-			if(Entity.Client != null) {
-				Entity.PaymentType = Entity.Client.PaymentMethod;
-				Entity.ChangeOrderContract();
-			} else {
-				Entity.Contract = null;
-			}
-		}
+		protected void OnReferenceClientChangedByUser(object sender, EventArgs e) => Entity.UpdateBaseParametersForClient();
 
 		protected void OnButtonCancelOrderClicked(object sender, EventArgs e)
 		{
@@ -1956,7 +1932,6 @@ namespace Vodovoz
 		protected void OnShown(object sender, EventArgs e)
 		{
 			//Скрывает журнал заказов при открытии заказа, чтобы все элементы умещались на экране
-
 			if(TabParent is TdiSliderTab slider)
 				slider.IsHideJournal = true;
 		}
@@ -2047,9 +2022,12 @@ namespace Vodovoz
 		public void OnTabAdded()
 		{
 			//если новый заказ и не создан из недовоза (templateOrder заполняется только из недовоза)
-			if(UoW.IsNew && templateOrder == null)
+			if(UoW.IsNew && templateOrder == null && Entity.Client == null) 
+			{
 				//открыть окно выбора контрагента
 				referenceClient.OpenSelectDialog();
+			}
+
 		}
 
 		public virtual bool HideItemFromDirectionReasonComboInEquipment(OrderEquipment node, DirectionReason item)
@@ -2383,18 +2361,6 @@ namespace Vodovoz
 		{
 			depositrefunditemsview.Visible = visibly ?? !depositrefunditemsview.Visible;
 			labelDeposit1.Visible = visibly ?? !labelDeposit1.Visible;
-		}
-
-		private void SetProxyForOrder()
-		{
-			if(Entity.Client != null
-			   && Entity.DeliveryDate.HasValue
-			   && (Entity.Client?.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)) {
-				var proxies = Entity.Client.Proxies.Where(p => p.IsActiveProxy(Entity.DeliveryDate.Value) && (p.DeliveryPoints == null || p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, Entity.DeliveryPoint))));
-				if(proxies.Any()) {
-					enumSignatureType.SelectedItem = OrderSignatureType.ByProxy;
-				}
-			}
 		}
 
 		private void SetDiscount()

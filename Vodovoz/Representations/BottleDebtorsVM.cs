@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
@@ -8,6 +9,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -17,7 +19,7 @@ using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Representations
 {
-	public class BottleDebtorsVM : RepresentationModelEntityBase<DeliveryPoint , BottleDebtorsVMNode>
+	public class BottleDebtorsVM : RepresentationModelEntityBase<DeliveryPoint, BottleDebtorsVMNode>
 	{
 		public BottleDebtorsFilter Filter {
 			get { return RepresentationFilter as BottleDebtorsFilter; }
@@ -49,7 +51,7 @@ namespace Vodovoz.Representations
 
 			var residueQuery = UoW.Session.QueryOver(() => residueAlias)
 			.Where(() => residueAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-			.Select((res) => res.Id) 
+			.Select((res) => res.Id)
 			.Take(1);
 
 			var bottleDebtByClientQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
@@ -70,6 +72,7 @@ namespace Vodovoz.Representations
 
 			var TaskExistQuery = UoW.Session.QueryOver(() => taskAlias)
 				.Where(x => x.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.And(() => taskAlias.IsTaskComplete == false)
 				.Select(x => x.Id)
 				.Take(1);
 
@@ -99,18 +102,16 @@ namespace Vodovoz.Representations
 				.OrderBy(x => x.Counterparty.Id).Desc
 				.List<BottleDebtorsVMNode>();
 
-			if(Filter.OPF != null)
-				debtorslist = debtorslist.Where((arg) => arg.OPF == Filter.OPF).ToList();
+
 			if(Filter.StartDate != null && Filter.EndDate != null)
-				debtorslist = debtorslist.Where((arg) => Filter.StartDate.Value <= arg.LastOrderDate && arg.LastOrderDate <= Filter.EndDate.Value ).ToList();
+				debtorslist = debtorslist.Where((arg) => Filter.StartDate.Value <= arg.LastOrderDate && arg.LastOrderDate <= Filter.EndDate.Value).ToList();
 			if(Filter.DebtFrom != null && Filter.DebtBy != null)
 				debtorslist = debtorslist.Where((arg) => Filter.DebtFrom.Value <= arg.DebtByAddress && arg.DebtByAddress <= Filter.DebtBy.Value).ToList();
 
 			SetItemsSource(debtorslist);
 		}
 
-
-		IColumnsConfig columnsConfig = FluentColumnsConfig<BottleDebtorsVMNode>.Create()
+		readonly IColumnsConfig columnsConfig = FluentColumnsConfig<BottleDebtorsVMNode>.Create()
 			.AddColumn("Номер").AddTextRenderer(x => x.AddressId.ToString())
 			.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
 			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName)
@@ -129,7 +130,7 @@ namespace Vodovoz.Representations
 
 		protected override bool NeedUpdateFunc(DeliveryPoint updatedSubject) => true;
 
-		public BottleDebtorsVM() 
+		public BottleDebtorsVM()
 		{
 			this.UoW = UnitOfWorkFactory.CreateWithoutRoot();
 		}
@@ -144,15 +145,66 @@ namespace Vodovoz.Representations
 			Filter = filter;
 		}
 
+		public override bool PopupMenuExist => true;
+
+		public override Menu GetPopupMenu(RepresentationSelectResult[] selected)
+		{
+			int deliveryPointId = selected.Select(x => x.EntityId).FirstOrDefault();
+			BottleDebtorsVMNode[] bottleDebtorsVMNode = selected.Select(x => x.VMNode).OfType<BottleDebtorsVMNode>().ToArray();
+
+			DeliveryPoint selectedDeliveryPoint = UoW.Session.QueryOver<DeliveryPoint>()
+							   .Where(x => x.Id == deliveryPointId)
+							   .List()
+							   .FirstOrDefault();
+			UoW.Session.Refresh(selectedDeliveryPoint);
+
+			Menu popupMenu = new Menu();
+
+			MenuItem menuItemOpenReportByCounterparty = new MenuItem("Акт по бутылям и залогам(по клиенту)");
+			menuItemOpenReportByCounterparty.Activated += (e, arg) => OpenReport(selectedDeliveryPoint.Counterparty.Id);
+			popupMenu.Add(menuItemOpenReportByCounterparty);
+
+			MenuItem menuItemOpenReportByDeliveryPoint = new MenuItem("Акт по бутылям и залогам(по точке доставки)");
+			menuItemOpenReportByDeliveryPoint.Activated += (e, arg) => OpenReport(selectedDeliveryPoint.Counterparty.Id, selectedDeliveryPoint.Id);
+			popupMenu.Add(menuItemOpenReportByDeliveryPoint);
+
+			MenuItem menuItemCreateTask = new MenuItem("Создать задачу");
+			menuItemCreateTask.Activated += (e, arg) => CreateTask(bottleDebtorsVMNode);
+			popupMenu.Add(menuItemCreateTask);
+
+			return popupMenu;
+		}
+
+		public void OpenReport(int counterpartyId, int deliveryPointId = -1)
+		{
+			var reportInfo = new QS.Report.ReportInfo {
+				Title = "Акт по бутылям-залогам",
+				Identifier = "Client.SummaryBottlesAndDeposits",
+				Parameters = new Dictionary<string, object>
+				{
+					{ "startDate", null },
+					{ "endDate", null },
+					{ "client_id", counterpartyId},
+					{ "delivery_point_id", deliveryPointId}
+				}
+			};
+
+			MainClass.MainWin.TdiMain.OpenTab(
+				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
+				() => new QSReport.ReportViewDlg(reportInfo));
+		}
+
 		public void CreateTask(BottleDebtorsVMNode[] bottleDebtors)
 		{
-			foreach(var item in bottleDebtors) 
-			{
+			foreach(var item in bottleDebtors) {
+				if(item == null)
+					continue;
 				CallTask task = new CallTask {
 					TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(UoW),
 					DeliveryPoint = UoW.GetById<DeliveryPoint>(item.AddressId),
+					Counterparty = UoW.GetById<Counterparty>(item.ClientId),
 					CreationDate = DateTime.Now,
-					EndActivePeriod = DateTime.Now.AddDays(1)
+					EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59)
 				};
 				UoW.Save(task);
 			}
@@ -163,23 +215,27 @@ namespace Vodovoz.Representations
 	public class BottleDebtorsVMNode
 	{
 		[UseForSearch]
+		[SearchHighlight]
 		public int AddressId { get; set; }
 
 		[UseForSearch]
+		[SearchHighlight]
 		public string AddressName { get; set; }
 
+		[UseForSearch]
 		public int ClientId { get; set; }
 
 		[UseForSearch]
+		[SearchHighlight]
 		public string ClientName { get; set; }
 
 		public PersonType OPF { get; set; }
 
-		public DateTime? LastOrderDate{ get; set; }
+		public DateTime? LastOrderDate { get; set; }
 
 		public int DebtByAddress { get; set; }
 
-		public int DebtByClient{ get; set; }
+		public int DebtByClient { get; set; }
 
 		public int Reserve { get; set; }
 
@@ -187,10 +243,10 @@ namespace Vodovoz.Representations
 
 		public bool IsResidue { get { return Residue != null; } }
 
-		public int? Residue { get; set; } //FIXME : костыль для проверки на наличие ввода остатков (заменить на IF NOT EXIST)
+		public int? Residue { get; set; }
 
 		public bool IsTaskExist { get { return ExistTask != null; } }
 
-		public int? ExistTask { get; set; } //FIXME : костыль для проверки на наличие созданной задачи (заменить на IF NOT EXIST)
+		public int? ExistTask { get; set; }
 	}
 }
