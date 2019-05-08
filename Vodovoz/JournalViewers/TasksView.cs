@@ -45,7 +45,7 @@ namespace Vodovoz.JournalViewers
 
 		public void UpdateStatistics()
 		{
-			var statistics = callTasksVM.GetStatistics();
+			var statistics = callTasksVM.GetStatistics(calltaskfilterview.Filter.Employee);
 
 			hboxStatistics.Children.OfType<Widget>().ToList().ForEach(x => x.Destroy());
 

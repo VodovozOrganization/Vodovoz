@@ -41,7 +41,7 @@ namespace Vodovoz.Representations
 			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName ?? String.Empty)
 			.AddColumn("Долг по адресу").AddTextRenderer(node => node.DebtByAddress.ToString()).XAlign(0.5f)
 			.AddColumn("Долг по клиенту").AddTextRenderer(node => node.DebtByClient.ToString()).XAlign(0.5f)
-			.AddColumn("Телефены").AddTextRenderer(node => node.Phones).WrapMode(Pango.WrapMode.WordChar)
+			.AddColumn("Телефены").AddTextRenderer(node => node.Phones == "+7" ? String.Empty : node.Phones ).WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployeeName ?? String.Empty)
 			.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
@@ -108,9 +108,10 @@ namespace Vodovoz.Representations
 				   .Select(() => callTaskAlias.IsTaskComplete).WithAlias(() => resultAlias.IsTaskComplete)
 				   .Select(() => callTaskAlias.TareReturn).WithAlias(() => resultAlias.TareReturn)
 				   .Select(Projections.SqlFunction(
-					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(?2 , ?1) SEPARATOR ?3 )"),
 					   NHibernateUtil.String,
 					   Projections.Property(() => phonesAlias.DigitsNumber),
+					   Projections.Constant("+7"),
 					   Projections.Constant("\n"))
 				   ).WithAlias(() => resultAlias.Phones)
 				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
@@ -124,9 +125,10 @@ namespace Vodovoz.Representations
 
 		}
 
-		public Dictionary<string, int> GetStatistics () //TODO : перенести в репозиторий + уростить вызов запросов 
+		public Dictionary<string, int> GetStatistics (Employee employee = null) //TODO : перенести в репозиторий + уростить вызов запросов 
 		{
 			var statisticsParam = new Dictionary<string, int>();
+
 			if(!(Filter is CallTaskFilter taskFilter)) 
 				return statisticsParam;
 
@@ -134,22 +136,19 @@ namespace Vodovoz.Representations
 			DateTime end = taskFilter.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
 			CallTask tasksAlias = null;
 
-			var callTaskQuery = UoW.Session.QueryOver(() => tasksAlias)
+			var baseQuery = UoW.Session.QueryOver(() => tasksAlias)
 				.Where(() => tasksAlias.CompleteDate >= start)
-				.And(() => tasksAlias.CompleteDate <= end)
-				.And(() => tasksAlias.TaskState == CallTaskStatus.Call);
+				.And(() => tasksAlias.CompleteDate <= end);
+			if(employee != null)
+				baseQuery.And(() => tasksAlias.AssignedEmployee.Id == employee.Id);
+
+			var callTaskQuery = baseQuery.And(() => tasksAlias.TaskState == CallTaskStatus.Call);
 			statisticsParam.Add("Звонков : ", callTaskQuery.RowCount() );
 
-			var difTaskQuery = UoW.Session.QueryOver(() => tasksAlias)
-				.Where(() => tasksAlias.CompleteDate >= start)
-				.And(() => tasksAlias.CompleteDate <= end)
-				.And(() => tasksAlias.TaskState == CallTaskStatus.DifficultClient);
+			var difTaskQuery = baseQuery.And(() => tasksAlias.TaskState == CallTaskStatus.DifficultClient);
 			statisticsParam.Add("Сложных клиентов : ", difTaskQuery.RowCount());
 
-			var jobTaskQuery = UoW.Session.QueryOver(() => tasksAlias)
-				.Where(() => tasksAlias.CompleteDate >= start)
-				.And(() => tasksAlias.CompleteDate <= end)
-				.And(() => tasksAlias.TaskState == CallTaskStatus.Task);
+			var jobTaskQuery = baseQuery.And(() => tasksAlias.TaskState == CallTaskStatus.Task);
 			statisticsParam.Add("Заданий : ", difTaskQuery.RowCount());
 
 			statisticsParam.Add("Кол-во задач : ", taskCount);
