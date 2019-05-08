@@ -26143,7 +26143,7 @@
                     <property name="MemberName" />
                     <property name="CanDefault">True</property>
                     <property name="CanFocus">True</property>
-                    <property name="Upper">1000000</property>
+                    <property name="Upper">99999999.99</property>
                     <property name="PageIncrement">1000</property>
                     <property name="StepIncrement">100</property>
                     <property name="ClimbRate">1</property>
@@ -26733,7 +26733,7 @@
                   <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinMoney">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Upper">1000000</property>
+                    <property name="Upper">99999999.99</property>
                     <property name="PageIncrement">1000</property>
                     <property name="StepIncrement">100</property>
                     <property name="ClimbRate">1</property>
