@@ -121,6 +121,7 @@
     <Compile Include="ConfigureOneTime.cs" />
     <Compile Include="Tools\Orders\OrderStateKeyTests.cs" />
     <Compile Include="Domain\Orders\OrderTests.cs" />
+    <Compile Include="Domain\Orders\OrderItemTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">

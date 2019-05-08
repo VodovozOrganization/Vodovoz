@@ -55,30 +55,30 @@ namespace Vodovoz.Domain.Orders
 		DateTime version;
 		[Display(Name = "Версия")]
 		public virtual DateTime Version {
-			get { return version; }
-			set { SetField(ref version, value, () => Version); }
+			get => version;
+			set => SetField(ref version, value, () => Version);
 		}
 
 		DateTime? createDate;
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate {
-			get { return createDate; }
-			set { SetField(ref createDate, value, () => CreateDate); }
+			get => createDate;
+			set => SetField(ref createDate, value, () => CreateDate);
 		}
 
 		bool isFirstOrder;
 		[Display(Name = "Первый заказ")]
 		public virtual bool IsFirstOrder {
-			get { return isFirstOrder; }
-			set { SetField(ref isFirstOrder, value, () => IsFirstOrder); }
+			get => isFirstOrder;
+			set => SetField(ref isFirstOrder, value, () => IsFirstOrder);
 		}
 
 		OrderStatus orderStatus;
 
 		[Display(Name = "Статус заказа")]
 		public virtual OrderStatus OrderStatus {
-			get { return orderStatus; }
-			set { SetField(ref orderStatus, value, () => OrderStatus); }
+			get => orderStatus;
+			set => SetField(ref orderStatus, value, () => OrderStatus);
 		}
 
 		Employee author;
@@ -86,8 +86,8 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Создатель заказа")]
 		[IgnoreHistoryTrace]
 		public virtual Employee Author {
-			get { return author; }
-			set { SetField(ref author, value, () => Author); }
+			get => author;
+			set => SetField(ref author, value, () => Author);
 		}
 
 		Counterparty client;
@@ -119,7 +119,7 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Точка доставки")]
 		public virtual DeliveryPoint DeliveryPoint {
-			get { return deliveryPoint; }
+			get => deliveryPoint;
 			set {
 				//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
 				if(OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)
@@ -143,8 +143,8 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Время доставки")]
 		public virtual DateTime? TimeDelivered {
-			get { return timeDelivered; }
-			set { SetField(ref timeDelivered, value, () => TimeDelivered); }
+			get => timeDelivered;
+			set => SetField(ref timeDelivered, value, () => TimeDelivered);
 		}
 
 
@@ -153,7 +153,7 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Дата доставки")]
 		[HistoryDateOnly]
 		public virtual DateTime? DeliveryDate {
-			get { return deliveryDate; }
+			get => deliveryDate;
 			set {
 				SetField(ref deliveryDate, value, () => DeliveryDate);
 				if(NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && value.HasValue) {
@@ -173,52 +173,50 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Дата счета")]
 		[HistoryDateOnly]
 		public virtual DateTime BillDate {
-			get { return billDate; }
-			set { SetField(ref billDate, value, () => BillDate); }
+			get => billDate;
+			set => SetField(ref billDate, value, () => BillDate);
 		}
 
 		DeliverySchedule deliverySchedule;
 
 		[Display(Name = "Время доставки")]
 		public virtual DeliverySchedule DeliverySchedule {
-			get { return deliverySchedule; }
-			set { SetField(ref deliverySchedule, value, () => DeliverySchedule); }
+			get => deliverySchedule;
+			set => SetField(ref deliverySchedule, value, () => DeliverySchedule);
 		}
 
 		private string deliverySchedule1c;
 
 		[Display(Name = "Время доставки из 1С")]
 		public virtual string DeliverySchedule1c {
-			get {
-				return string.IsNullOrWhiteSpace(deliverySchedule1c)
+			get => string.IsNullOrWhiteSpace(deliverySchedule1c)
 				  ? "Время доставки из 1С не загружено"
 				  : deliverySchedule1c;
-			}
-			set { SetField(ref deliverySchedule1c, value, () => DeliverySchedule1c); }
+			set => SetField(ref deliverySchedule1c, value, () => DeliverySchedule1c);
 		}
 
 		bool selfDelivery;
 
 		[Display(Name = "Самовывоз")]
 		public virtual bool SelfDelivery {
-			get { return selfDelivery; }
-			set { SetField(ref selfDelivery, value, () => SelfDelivery); }
+			get => selfDelivery;
+			set => SetField(ref selfDelivery, value, () => SelfDelivery);
 		}
 
 		bool payAfterShipment;
 
 		[Display(Name = "Оплата после отгрузки")]
 		public virtual bool PayAfterShipment {
-			get { return payAfterShipment; }
-			set { SetField(ref payAfterShipment, value, () => PayAfterShipment); }
+			get => payAfterShipment;
+			set => SetField(ref payAfterShipment, value, () => PayAfterShipment);
 		}
 
 		Employee loadAllowedBy;
 
 		[Display(Name = "Отгрузку разрешил")]
 		public virtual Employee LoadAllowedBy {
-			get { return loadAllowedBy; }
-			set { SetField(ref loadAllowedBy, value, () => LoadAllowedBy); }
+			get => loadAllowedBy;
+			set => SetField(ref loadAllowedBy, value, () => LoadAllowedBy);
 		}
 
 
@@ -226,48 +224,48 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Предыдущий заказ")]
 		public virtual Order PreviousOrder {
-			get { return previousOrder; }
-			set { SetField(ref previousOrder, value, () => PreviousOrder); }
+			get => previousOrder;
+			set => SetField(ref previousOrder, value, () => PreviousOrder);
 		}
 
 		int? bottlesReturn;
 
 		[Display(Name = "Бутылей на возврат")]
 		public virtual int? BottlesReturn {
-			get { return bottlesReturn; }
-			set { SetField(ref bottlesReturn, value, () => BottlesReturn); }
+			get => bottlesReturn;
+			set => SetField(ref bottlesReturn, value, () => BottlesReturn);
 		}
 
 		string comment;
 
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
-			get { return comment; }
-			set { SetField(ref comment, value, () => Comment); }
+			get => comment;
+			set => SetField(ref comment, value, () => Comment);
 		}
 
 		string commentLogist;
 
 		[Display(Name = "Комментарий логиста")]
 		public virtual string CommentLogist {
-			get { return commentLogist; }
-			set { SetField(ref commentLogist, value, () => CommentLogist); }
+			get => commentLogist;
+			set => SetField(ref commentLogist, value, () => CommentLogist);
 		}
 
 		string clientPhone;
 
 		[Display(Name = "Номер телефона")]
 		public virtual string ClientPhone {
-			get { return clientPhone; }
-			set { SetField(ref clientPhone, value, () => ClientPhone); }
+			get => clientPhone;
+			set => SetField(ref clientPhone, value, () => ClientPhone);
 		}
 
 		OrderSignatureType? signatureType;
 
 		[Display(Name = "Подписание документов")]
 		public virtual OrderSignatureType? SignatureType {
-			get { return signatureType; }
-			set { SetField(ref signatureType, value, () => SignatureType); }
+			get => signatureType;
+			set => SetField(ref signatureType, value, () => SignatureType);
 		}
 
 		private decimal extraMoney;
@@ -275,24 +273,24 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Доплата\\Переплата")]
 		[PropertyChangedAlso(nameof(OrderCashSum))]
 		public virtual decimal ExtraMoney {
-			get { return extraMoney; }
-			set { SetField(ref extraMoney, value, () => ExtraMoney); }
+			get => extraMoney;
+			set => SetField(ref extraMoney, value, () => ExtraMoney);
 		}
 
 		string sumDifferenceReason;
 
 		[Display(Name = "Причина переплаты/недоплаты")]
 		public virtual string SumDifferenceReason {
-			get { return sumDifferenceReason; }
-			set { SetField(ref sumDifferenceReason, value, () => SumDifferenceReason); }
+			get => sumDifferenceReason;
+			set => SetField(ref sumDifferenceReason, value, () => SumDifferenceReason);
 		}
 
 		bool shipped;
 
 		[Display(Name = "Отгружено по платежке")]
 		public virtual bool Shipped {
-			get { return shipped; }
-			set { SetField(ref shipped, value, () => Shipped); }
+			get => shipped;
+			set => SetField(ref shipped, value, () => Shipped);
 		}
 
 		PaymentType paymentType;
@@ -317,35 +315,29 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Договор")]
 		public virtual CounterpartyContract Contract {
-			get { return contract; }
-			set { SetField(ref contract, value, () => Contract); }
+			get => contract;
+			set => SetField(ref contract, value, () => Contract);
 		}
 
 		MoneyMovementOperation moneyMovementOperation;
 		[IgnoreHistoryTrace]
 		public virtual MoneyMovementOperation MoneyMovementOperation {
-			get { return moneyMovementOperation; }
-			set {
-				SetField(ref moneyMovementOperation, value, () => MoneyMovementOperation);
-			}
+			get => moneyMovementOperation;
+			set => SetField(ref moneyMovementOperation, value, () => MoneyMovementOperation);
 		}
 
 		BottlesMovementOperation bottlesMovementOperation;
 		[IgnoreHistoryTrace]
 		public virtual BottlesMovementOperation BottlesMovementOperation {
-			get {
-				return bottlesMovementOperation;
-			}
-			set {
-				SetField(ref bottlesMovementOperation, value, () => BottlesMovementOperation);
-			}
+			get => bottlesMovementOperation;
+			set => SetField(ref bottlesMovementOperation, value, () => BottlesMovementOperation);
 		}
 
 		IList<DepositOperation> depositOperations;
 
 		public virtual IList<DepositOperation> DepositOperations {
-			get { return depositOperations; }
-			set { SetField(ref depositOperations, value, () => DepositOperations); }
+			get => depositOperations;
+			set => SetField(ref depositOperations, value, () => DepositOperations);
 		}
 
 		bool collectBottles;
@@ -359,55 +351,55 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Тип безналичных документов")]
 		public virtual DefaultDocumentType? DocumentType {
-			get { return documentType; }
-			set { SetField(ref documentType, value, () => DocumentType); }
+			get => documentType;
+			set => SetField(ref documentType, value, () => DocumentType);
 		}
 
 		private string code1c;
 
 		[Display(Name = "Код 1С")]
 		public virtual string Code1c {
-			get { return code1c; }
-			set { SetField(ref code1c, value, () => Code1c); }
+			get => code1c;
+			set => SetField(ref code1c, value, () => Code1c);
 		}
 
 		private string address1c;
 
 		[Display(Name = "Адрес 1С")]
 		public virtual string Address1c {
-			get { return address1c; }
-			set { SetField(ref address1c, value, () => Address1c); }
+			get => address1c;
+			set => SetField(ref address1c, value, () => Address1c);
 		}
 
 		private string address1cCode;
 
 		[Display(Name = "Код адреса 1С")]
 		public virtual string Address1cCode {
-			get { return address1cCode; }
-			set { SetField(ref address1cCode, value, () => Address1cCode); }
+			get => address1cCode;
+			set => SetField(ref address1cCode, value, () => Address1cCode);
 		}
 
 		private string toClientText;
 
 		[Display(Name = "Оборудование к клиенту")]
 		public virtual string ToClientText {
-			get { return toClientText; }
-			set { SetField(ref toClientText, value, () => ToClientText); }
+			get => toClientText;
+			set => SetField(ref toClientText, value, () => ToClientText);
 		}
 
 		private string fromClientText;
 
 		[Display(Name = "Оборудование от клиента")]
 		public virtual string FromClientText {
-			get { return fromClientText; }
-			set { SetField(ref fromClientText, value, () => FromClientText); }
+			get => fromClientText;
+			set => SetField(ref fromClientText, value, () => FromClientText);
 		}
 
 		NonReturnReason tareNonReturnReason;
 		[Display(Name = "Причина несдачи тары")]
 		public virtual NonReturnReason TareNonReturnReason {
-			get { return tareNonReturnReason; }
-			set { SetField(ref tareNonReturnReason, value, () => TareNonReturnReason); }
+			get => tareNonReturnReason;
+			set => SetField(ref tareNonReturnReason, value, () => TareNonReturnReason);
 		}
 
 		[Display(Name = "Колонка МЛ от клиента")]
@@ -450,8 +442,8 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		[Display(Name = "Ежедневный номер")]
 		public virtual int? DailyNumber {
-			get { return dailyNumber; }
-			set { SetField(ref dailyNumber, value, () => DailyNumber); }
+			get => dailyNumber;
+			set => SetField(ref dailyNumber, value, () => DailyNumber);
 		}
 
 		Employee lastEditor;
@@ -459,8 +451,8 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Последний редактор")]
 		[IgnoreHistoryTrace]
 		public virtual Employee LastEditor {
-			get { return lastEditor; }
-			set { SetField(ref lastEditor, value, () => LastEditor); }
+			get => lastEditor;
+			set => SetField(ref lastEditor, value, () => LastEditor);
 		}
 
 		DateTime lastEditedTime;
@@ -468,8 +460,8 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Последние изменения")]
 		[IgnoreHistoryTrace]
 		public virtual DateTime LastEditedTime {
-			get { return lastEditedTime; }
-			set { SetField(ref lastEditedTime, value, () => LastEditedTime); }
+			get => lastEditedTime;
+			set => SetField(ref lastEditedTime, value, () => LastEditedTime);
 		}
 
 		string commentManager;
@@ -478,80 +470,102 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		[Display(Name = "Комментарий менеджера")]
 		public virtual string CommentManager {
-			get { return commentManager; }
-			set { SetField(ref commentManager, value, () => CommentManager); }
+			get => commentManager;
+			set => SetField(ref commentManager, value, () => CommentManager);
 		}
 
 		int? returnedTare;
 
 		[Display(Name = "Возвратная тара")]
 		public virtual int? ReturnedTare {
-			get { return returnedTare; }
-			set { SetField(ref returnedTare, value, () => ReturnedTare); }
+			get => returnedTare;
+			set => SetField(ref returnedTare, value, () => ReturnedTare);
 		}
 
 		string informationOnTara;
 
 		[Display(Name = "Информация о таре")]
 		public virtual string InformationOnTara {
-			get { return informationOnTara; }
-			set { SetField(ref informationOnTara, value, () => InformationOnTara); }
+			get => informationOnTara;
+			set => SetField(ref informationOnTara, value, () => InformationOnTara);
 		}
+
+		private bool isBottleStock;
+		[Display(Name = "Акция \"Бутыль\" ")]
+		public virtual bool IsBottleStock{
+			get => isBottleStock;
+			set => SetField(ref isBottleStock, value, () => IsBottleStock);
+		}
+
+		private int bottlesByStockCount;
+		[Display(Name = "Количество бутылей по акции")]
+		public virtual int BottlesByStockCount {
+			get => bottlesByStockCount;
+			set => SetField(ref bottlesByStockCount, value, () => BottlesByStockCount);
+		}
+
+		private int bottlesByStockActualCount;
+		[Display(Name = "Фактическое количество бутылей по акции")]
+		public virtual int BottlesByStockActualCount {
+			get => bottlesByStockActualCount;
+			set => SetField(ref bottlesByStockActualCount, value, () => BottlesByStockActualCount);
+		}
+
 
 		string onRouteEditReason;
 
 		[Display(Name = "Причина редактирования заказа")]
 		public virtual string OnRouteEditReason {
-			get { return onRouteEditReason; }
-			set { SetField(ref onRouteEditReason, value, () => OnRouteEditReason); }
+			get => onRouteEditReason;
+			set => SetField(ref onRouteEditReason, value, () => OnRouteEditReason);
 		}
 
 		DriverCallType driverCallType;
 
 		[Display(Name = "Водитель отзвонился")]
 		public virtual DriverCallType DriverCallType {
-			get { return driverCallType; }
-			set { SetField(ref driverCallType, value, () => DriverCallType); }
+			get => driverCallType;
+			set => SetField(ref driverCallType, value, () => DriverCallType);
 		}
 
 		int? driverCallId;
 
 		[Display(Name = "Номер звонка водителя")]
 		public virtual int? DriverCallId {
-			get { return driverCallId; }
-			set { SetField(ref driverCallId, value, () => DriverCallId); }
+			get => driverCallId;
+			set => SetField(ref driverCallId, value, () => DriverCallId);
 		}
 
 		bool isService;
 
 		[Display(Name = "Сервисное обслуживание")]
 		public virtual bool IsService {
-			get { return isService; }
-			set { SetField(ref isService, value, () => IsService); }
+			get => isService;
+			set => SetField(ref isService, value, () => IsService);
 		}
 
 		int? trifle;
 
 		[Display(Name = "Сдача")]
 		public virtual int? Trifle {
-			get { return trifle; }
-			set { SetField(ref trifle, value, () => Trifle); }
+			get => trifle;
+			set => SetField(ref trifle, value, () => Trifle);
 		}
 
 		private int? onlineOrder;
 
 		[Display(Name = "Номер онлайн заказа")]
 		public virtual int? OnlineOrder {
-			get { return onlineOrder; }
-			set { SetField(ref onlineOrder, value, () => OnlineOrder); }
+			get => onlineOrder;
+			set => SetField(ref onlineOrder, value, () => OnlineOrder);
 		}
 
 		private bool isContractCloser;
 
 		[Display(Name = "Заказ - закрывашка по контракту?")]
 		public virtual bool IsContractCloser {
-			get { return isContractCloser; }
-			set { SetField(ref isContractCloser, value, () => IsContractCloser); }
+			get => isContractCloser;
+			set => SetField(ref isContractCloser, value, () => IsContractCloser);
 		}
 
 		bool isTareNonReturnReasonChangedByUser;
@@ -559,7 +573,7 @@ namespace Vodovoz.Domain.Orders
 		[IgnoreHistoryTrace]
 		public virtual bool IsTareNonReturnReasonChangedByUser {
 			get => isTareNonReturnReasonChangedByUser;
-			set { SetField(ref isTareNonReturnReasonChangedByUser, value, () => IsTareNonReturnReasonChangedByUser); }
+			set => SetField(ref isTareNonReturnReasonChangedByUser, value, () => IsTareNonReturnReasonChangedByUser);
 		}
 
 		bool hasCommentForDriver;
@@ -592,6 +606,20 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref addCertificates, value, () => AddCertificates);
 		}
 
+		bool actionBottleUsed;
+		[Display(Name = "Акция \"Бутыль\"")]
+		public virtual bool ActionBottleUsed {
+			get => actionBottleUsed;
+			set => SetField(ref actionBottleUsed, value, () => ActionBottleUsed);
+		}
+
+		int tareFromClientByActionBottle;
+		[Display(Name = "Тара по акции \"Бутыль\" от клиента")]
+		public virtual int TareFromClientByActionBottle {
+			get => tareFromClientByActionBottle;
+			set => SetField(ref tareFromClientByActionBottle, value, () => TareFromClientByActionBottle);
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()
@@ -605,8 +633,8 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Залоги заказа")]
 		public virtual IList<OrderDepositItem> OrderDepositItems {
-			get { return orderDepositItems; }
-			set { SetField(ref orderDepositItems, value, () => OrderDepositItems); }
+			get => orderDepositItems;
+			set => SetField(ref orderDepositItems, value, () => OrderDepositItems);
 		}
 
 		GenericObservableList<OrderDepositItem> observableOrderDepositItems;
@@ -625,8 +653,8 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Документы заказа")]
 		public virtual IList<OrderDocument> OrderDocuments {
-			get { return orderDocuments; }
-			set { SetField(ref orderDocuments, value, () => OrderDocuments); }
+			get => orderDocuments;
+			set => SetField(ref orderDocuments, value, () => OrderDocuments);
 		}
 
 		GenericObservableList<OrderDocument> observableOrderDocuments;
@@ -643,8 +671,8 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Строки заказа")]
 		public virtual IList<OrderItem> OrderItems {
-			get { return orderItems; }
-			set { SetField(ref orderItems, value, () => OrderItems); }
+			get => orderItems;
+			set => SetField(ref orderItems, value, () => OrderItems);
 		}
 
 		GenericObservableList<OrderItem> observableOrderItems;
@@ -664,8 +692,8 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Список оборудования")]
 		public virtual IList<OrderEquipment> OrderEquipments {
-			get { return orderEquipments; }
-			set { SetField(ref orderEquipments, value, () => OrderEquipments); }
+			get => orderEquipments;
+			set => SetField(ref orderEquipments, value, () => OrderEquipments);
 		}
 
 		GenericObservableList<OrderEquipment> observableOrderEquipments;
@@ -682,8 +710,8 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Список заявок на сервис")]
 		public virtual IList<ServiceClaim> InitialOrderService {
-			get { return initialOrderService; }
-			set { SetField(ref initialOrderService, value, () => InitialOrderService); }
+			get => initialOrderService;
+			set => SetField(ref initialOrderService, value, () => InitialOrderService);
 		}
 
 		GenericObservableList<ServiceClaim> observableInitialOrderService;
@@ -700,8 +728,8 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Список заявок на сервис")]
 		public virtual IList<ServiceClaim> FinalOrderService {
-			get { return finalOrderService; }
-			set { SetField(ref finalOrderService, value, () => FinalOrderService); }
+			get => finalOrderService;
+			set => SetField(ref finalOrderService, value, () => FinalOrderService);
 		}
 
 		GenericObservableList<ServiceClaim> observableFinalOrderService;
@@ -1134,6 +1162,35 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
+		/// <summary>
+		/// Рассчитывает скидки в товарах по акции "Бутыль"
+		/// </summary>
+		public virtual void CalculateBottlesStockDiscounts(IStandartDiscountsService standartDiscountsService, bool byActualCount = false)
+		{
+			if(standartDiscountsService == null) {
+				throw new ArgumentNullException(nameof(standartDiscountsService));
+			}
+			var reasonId = standartDiscountsService.GetDiscountForStockBottle();
+			DiscountReason discountReasonStockBottle = UoW.GetById<DiscountReason>(reasonId);
+			if(discountReasonStockBottle == null) {
+				throw new InvalidProgramException($"Не возможно найти причину скидки для акции Бутыль (id:{reasonId})");
+			}
+
+			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
+			decimal discountForStock = 0m;
+
+			if(bottlesByStock > 0) {
+				discountForStock = 10m;
+			}
+			if(bottlesByStock > TotalDeliveredBottles) {
+				discountForStock = 20m;
+			}
+
+			foreach(OrderItem item in ObservableOrderItems) {
+				item.SetDiscountByStock(discountReasonStockBottle, discountForStock);
+			}
+		}
+
 		public virtual QSContacts.Email GetEmailAddressForBill()
 		{
 			return Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
@@ -1164,6 +1221,13 @@ namespace Vodovoz.Domain.Orders
 						TareNonReturnReason = reasons.FirstOrDefault(x => x.Name.ToUpper() == "ПЕРВЫЙ ЗАКАЗ");
 				}
 			}
+		}
+
+		public virtual void ClearStockBottles(IStandartDiscountsService standartDiscountsService)
+		{
+			BottlesByStockCount = 0;
+			BottlesByStockActualCount = 0;
+			CalculateBottlesStockDiscounts(standartDiscountsService);
 		}
 
 		public virtual void AddContractDocument(CounterpartyContract contract)
@@ -1281,7 +1345,6 @@ namespace Vodovoz.Domain.Orders
 				//Обновляем цены на воду в заказе по доп соглашению.
 				UpdatePrices(actualWaterAgreement);
 			}
-
 		}
 
 		/// <summary>
@@ -1614,7 +1677,7 @@ namespace Vodovoz.Domain.Orders
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = price,
-				DiscountForPreview = discount,
+				DiscountSetter = discount,
 				DiscountReason = reason,
 				PromoSet = proSet
 			};
@@ -1760,7 +1823,7 @@ namespace Vodovoz.Domain.Orders
 				default://rest
 					oi = new OrderItem {
 						Count = count,
-						DiscountForPreview = discount,
+						DiscountSetter = discount,
 						DiscountReason = discountReason,
 						Nomenclature = nomenclature,
 						Price = nomenclature.GetPrice(1),
@@ -2406,7 +2469,7 @@ namespace Vodovoz.Domain.Orders
 								AdditionalAgreement = agreement,
 								Count = count > 0 ? count : equipment.Count,
 								IsDiscountInMoney = false,
-								DiscountForPreview = discount > 0 ? discount : 0,
+								DiscountSetter = discount > 0 ? discount : 0,
 								DiscountReason = reason,
 								PromoSet = proSet,
 								Equipment = null,
@@ -3366,10 +3429,41 @@ namespace Vodovoz.Domain.Orders
 				discount = 100 * discount / sum;
 			}
 			foreach(OrderItem item in ObservableOrderItems) {
-				item.DiscountForPreview = unit == DiscountUnits.money ? discount * item.Price * item.CurrentCount / 100 : discount;
+				item.DiscountSetter = unit == DiscountUnits.money ? discount * item.Price * item.CurrentCount / 100 : discount;
 				item.DiscountReason = reason;
 			}
 		}
+
+		#endregion
+
+		#region Акции
+
+		/// <summary>
+		/// Можем применить акцию "Бутыль"?
+		/// </summary>
+		public virtual bool CanAddStockBottle()
+		{
+			bool result = Client != null && OrderRepository.GetFirstRealOrderForClient(UoW, Client) == null;
+			if(result) {
+				BottlesReturn = 0;
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Добавочная скидка по акции "Бутыль"
+		/// </summary>
+		/// <returns>добавочный % к основной скидке</returns>
+		public virtual decimal GetAdditionalDiscountByActionBottle()
+		{
+			var btls19LInOrder = GetTotalWater19LCount();
+			if(TareFromClientByActionBottle > 0 && TareFromClientByActionBottle <= btls19LInOrder)
+				return 10;
+			if(TareFromClientByActionBottle > btls19LInOrder)
+				return 20;
+			return 0;
+		}
+
 		#endregion
 
 		#region	Внутренние функции

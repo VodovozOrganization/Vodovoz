@@ -707,6 +707,34 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="BottleStock">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    IFNULL(bottles_by_stock_actual_count , 0 ) AS bottle_by_stock ,
+    orders.id AS order_id
+FROM 
+    orders
+WHERE
+    orders.client_id = @client_id
+    AND orders.is_bottle_stock</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="bottle_by_stock">
+          <DataField>bottle_by_stock</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>18.9pt</Height>
@@ -2008,8 +2036,8 @@ ____________(                        )
         <Width>130.88pt</Width>
         <Value>=Sum({bottles_deposit}, 'Data')</Value>
         <ZIndex>1</ZIndex>
-        <Left>222.1pt</Left>
-        <Top>163.2pt</Top>
+        <Left>222.10pt</Left>
+        <Top>163.20pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2054,7 +2082,7 @@ ____________(                        )
         <Value>Оборудование клиента у нас:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>207.3pt</Top>
+        <Top>219.3pt</Top>
         <Style>
           <TextAlign>Right</TextAlign>
           <BorderStyle />
@@ -2069,7 +2097,7 @@ ____________(                        )
         <Value>Наше оборудование у клиента:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>230.0pt</Top>
+        <Top>242.0pt</Top>
         <Style>
           <TextAlign>Right</TextAlign>
           <BorderStyle />
@@ -2084,7 +2112,7 @@ ____________(                        )
         <Value>=First({we_have_clients_equip}, 'StoredEquipments')</Value>
         <ZIndex>1</ZIndex>
         <Left>220.7pt</Left>
-        <Top>207.3pt</Top>
+        <Top>219.3pt</Top>
         <Style>
           <TextAlign>Left</TextAlign>
           <BorderStyle />
@@ -2111,6 +2139,43 @@ ____________(                        )
         </Style>
         <CanGrow>true</CanGrow>
         <CanShrink>false</CanShrink>
+      </Textbox>
+      <Textbox Name="Textbox63" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>222.50pt</Width>
+        <Value>Бутылей по акции "Бутыль" получено :</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.8pt</Left>
+        <Top>191.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
+        </Style>
+        <Visibility >
+          <Hidden>=!{?show_stock_bottle}</Hidden>
+        </Visibility>
+      </Textbox>
+      <Textbox Name="Textbox64" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>130.88pt</Width>
+        <Value>=First({bottle_by_stock}, 'BottleStock')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>223.1pt</Left>
+        <Top>191.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
+          <FontWeight>Bold</FontWeight>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+        <Visibility >
+          <Hidden>=!{?show_stock_bottle}</Hidden>
+        </Visibility>
       </Textbox>
     </ReportItems>
     <Height>452.0pt</Height>
@@ -2139,6 +2204,15 @@ ____________(                        )
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="client_id">
       <DataType>Integer</DataType>
@@ -2192,14 +2266,17 @@ ____________(                        )
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="show_stock_bottle">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>true</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

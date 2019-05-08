@@ -31,6 +31,7 @@ using QSProjectsLib;
 using QSReport;
 using QSSupportLib;
 using QSValidation;
+using QSWidgetLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain;
@@ -53,6 +54,7 @@ using Vodovoz.Repository.Operations;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.Tools;
 using Vodovoz.ViewModelBased;
 
 namespace Vodovoz
@@ -227,8 +229,13 @@ namespace Vodovoz
 			checkPayAfterLoad.Binding.AddBinding(Entity, s => s.PayAfterShipment, w => w.Active).InitializeFromSource();
 			checkDelivered.Binding.AddBinding(Entity, s => s.Shipped, w => w.Active).InitializeFromSource();
 			ylabelloadAllowed.Binding.AddFuncBinding(Entity, s => s.LoadAllowedBy != null ? s.LoadAllowedBy.ShortName : "", w => w.Text).InitializeFromSource();
-			entryBottlesToReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			entryBottlesToReturn.ValidationMode = ValidationType.numeric;
 			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+
+			entryBottlesToReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
+			yChkActionBottle.Toggled += YChkActionBottle_Toggled;
+			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount , w => w.Text , new IntToStringValuableConverter()).InitializeFromSource();
 
 			if(Entity.OrderStatus == OrderStatus.Closed) {
 				entryTareReturned.Text = BottlesRepository.GetEmptyBottlesFromClientByOrder(UoW, Entity).ToString();
@@ -354,9 +361,19 @@ namespace Vodovoz
 
 			UpdateUIState();
 
+			yChkActionBottle.Toggled += (sender, e) => ControlsActionBottleAccessibility();
+
 			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
 			HasChanges = true;
 			UoW.CanCheckIfDirty = false;
+		}
+
+		void ControlsActionBottleAccessibility()
+		{
+			bool canAddAction = Entity.CanAddStockBottle();
+			hboxBottlesByStock.Visible = canAddAction;
+			hboxReturnTare.Visible = !canAddAction;
+			yEntTareActBtlFromClient.Sensitive = yChkActionBottle.Active;
 		}
 
 		private void ConfigureTrees()
@@ -416,7 +433,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.ActualSum))
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.DiscountForPreview)
+					.AddNumericRenderer(node => node.ManualChangingDiscount)
 					.AddSetter((c, n) => c.Editable = n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
@@ -1122,6 +1139,12 @@ namespace Vodovoz
 		}
 
 		#endregion
+
+		void YChkActionBottle_Toggled(object sender, EventArgs e)
+		{
+			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
+			Entity.ClearStockBottles(standartDiscountsService);
+		}
 
 		void NomenclatureForSaleSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
@@ -1834,7 +1857,13 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnReferenceClientChangedByUser(object sender, EventArgs e) => Entity.UpdateBaseParametersForClient();
+		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
+		{			
+			Entity.UpdateBaseParametersForClient();
+
+			//Проверяем возможность добавления Акции "Бутыль"
+			ControlsActionBottleAccessibility();
+		}
 
 		protected void OnButtonCancelOrderClicked(object sender, EventArgs e)
 		{
@@ -1917,9 +1946,8 @@ namespace Vodovoz
 
 		protected void OnEntryBottlesReturnChanged(object sender, EventArgs e)
 		{
-			if(int.TryParse(entryBottlesToReturn.Text, out int result)) {
-				Entity.BottlesReturn = result;
-			}
+			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
+			Entity.CalculateBottlesStockDiscounts(standartDiscountsService);
 		}
 
 		protected void OnEntryTrifleChanged(object sender, EventArgs e)
@@ -2240,6 +2268,7 @@ namespace Vodovoz
 			yCmbPromoSets.Sensitive = Entity.DeliveryPoint != null && val;
 			buttonAddForSale.Sensitive = referenceContract.Sensitive = buttonAddMaster.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
+			ControlsActionBottleAccessibility();
 		}
 
 		void ChangeOrderEditable(bool val)
@@ -2468,5 +2497,6 @@ namespace Vodovoz
 				checkPayAfterLoad.Active = false;
 			}
 		}
+
 	}
 }

@@ -8,7 +8,7 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Core.DataService
 {
-	public class BaseParametersProvider : IStandartNomenclatures , IImageProvider
+	public class BaseParametersProvider : IStandartNomenclatures , IImageProvider, IStandartDiscountsService
 	{
 
 		public int GetForfeitId()
@@ -31,6 +31,14 @@ namespace Vodovoz.Core.DataService
 				throw new InvalidProgramException("В параметрах базы не настроен индикатор важности задачи для CRM (crm_importance_indicator_id).");
 			}
 			return int.Parse(MainSupport.BaseParameters.All["crm_importance_indicator_id"]);
+		}
+
+		public int GetDiscountForStockBottle()
+		{
+			if(!MainSupport.BaseParameters.All.ContainsKey("причина_скидки_для_акции_Бутыль")) {
+				throw new InvalidProgramException("В параметрах базы не настроен параметр основания скидки для акции Бутыль (причина_скидки_для_акции_Бутыль).");
+			}
+			return int.Parse(MainSupport.BaseParameters.All["причина_скидки_для_акции_Бутыль"]);
 		}
 	}
 }

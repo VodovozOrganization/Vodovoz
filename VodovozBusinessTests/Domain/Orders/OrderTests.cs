@@ -12,6 +12,8 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Goods;
+using System.Collections;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
 
@@ -468,6 +470,135 @@ namespace VodovozBusinessTests.Domain.Orders
 		}
 		#endregion Рекламные наборы
 
+		#region Акции
+
+		[Test(Description = "Если в заказе не указан контрагент, то возвращаем false")]
+		public void CanAddActionBottle_IfNoCounterpartyInOrder_ReturnsTrue()
+		{
+			// arrange
+			Order orderUnderTest = new Order();
+
+			// act
+			var res = orderUnderTest.CanAddStockBottle();
+
+			// assert
+			Assert.That(res, Is.False);
+		}
+
+		[Test(Description = "Если в заказе контрагент без первичного заказа, то возвращаем true")]
+		public void CanAddActionBottle_IfCounterpartyWithoutFirstOrder_ReturnsTrue()
+		{
+			// arrange
+			var client = Substitute.For<Counterparty>();
+			client.FirstOrder.ReturnsNull();
+
+			Order orderUnderTest = new Order { Client = client };
+			OrderRepository.GetFirstRealOrderForClientTestGap = (uow, c) => null;
+
+			// act
+			var res = orderUnderTest.CanAddStockBottle();
+
+			// assert
+			Assert.That(res, Is.True);
+		}
+
+		static IEnumerable AllOrderStatusesForActionBottleAndResults()
+		{
+			yield return new object[] { OrderStatus.Accepted, false };
+			yield return new object[] { OrderStatus.Canceled, true };
+			yield return new object[] { OrderStatus.Closed, false};
+			yield return new object[] { OrderStatus.DeliveryCanceled, true };
+			yield return new object[] { OrderStatus.InTravelList, false };
+			yield return new object[] { OrderStatus.NewOrder, true };
+			yield return new object[] { OrderStatus.NotDelivered, true };
+			yield return new object[] { OrderStatus.OnLoading, false };
+			yield return new object[] { OrderStatus.OnTheWay, false };
+			yield return new object[] { OrderStatus.Shipped, false };
+			yield return new object[] { OrderStatus.UnloadingOnStock, false };
+			yield return new object[] { OrderStatus.WaitForPayment, false };
+		}
+
+		[TestCaseSource(nameof(AllOrderStatusesForActionBottleAndResults))]
+		[Test(Description = "Если в заказе контрагент с первичным заказом и статус заказа как в AllOrderStatusesForActionBottleAndResults(), возвращаем результат из AllOrderStatusesForActionBottleAndResults()")]
+		public void CanAddActionBottle_IfCounterpartyWithReferenceToFirstOrderAndStatusOfTheFirstOrderIsTestStatus_ReturnsResult(OrderStatus testStatus, bool result)
+		{
+			// arrange
+			var firstOrder = Substitute.For<Order>();
+			firstOrder.OrderStatus.Returns(testStatus);
+			var client = Substitute.For<Counterparty>();
+			client.FirstOrder.Returns(firstOrder);
+
+			Order orderUnderTest = new Order { Client = client };
+			OrderRepository.GetFirstRealOrderForClientTestGap = (uow, c) => null;
+
+			// act
+			var res = orderUnderTest.CanAddStockBottle();
+
+			// assert
+			Assert.That(res, Is.EqualTo(result));
+		}
+
+		[Test(Description = "Если в заказе контрагент с первичным заказом и статус этого заказа не подходящий, но в репозитории нашёлся заказ с подходящим статусом, возвращаем false")]
+		public void CanAddActionBottle_IfCounterpartyWithReferenceToFirstOrderButTheFirstOrderNotInValidStatusAndFoundOrderWithValidSatusInRepository_ReturnsFalse()
+		{
+			// arrange
+			var firstOrder = Substitute.For<Order>();
+			firstOrder.OrderStatus.Returns(OrderStatus.NewOrder);
+			var client = Substitute.For<Counterparty>();
+			client.FirstOrder.Returns(firstOrder);
+
+			Order orderUnderTest = new Order { Client = client };
+			OrderRepository.GetFirstRealOrderForClientTestGap = (uow, c) => new Order();
+
+			// act
+			var res = orderUnderTest.CanAddStockBottle();
+
+			// assert
+			Assert.That(res, Is.False);
+		}
+
+		static IEnumerable GetAdditionalDiscountByActionBottle()
+		{
+			yield return new object[] { 0, 0m };
+			yield return new object[] { 1, 10m };
+			yield return new object[] { 3, 10m };
+			yield return new object[] { 4, 20m };
+		}
+
+		[TestCaseSource(nameof(GetAdditionalDiscountByActionBottle))]
+		public void GetAdditionalDiscountByActionBottleTest(int cnt, decimal result)
+		{
+			// arrange
+			Nomenclature nomenclatureMock0 = Substitute.For<Nomenclature>();
+			nomenclatureMock0.IsWater19L.Returns(true);
+			OrderItem orderItemMock0 = Substitute.For<OrderItem>();
+			orderItemMock0.Nomenclature.Returns(nomenclatureMock0);
+			orderItemMock0.Count.Returns(2);
+
+			Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
+			nomenclatureMock1.IsWater19L.Returns(true);
+			OrderItem orderItemMock1 = Substitute.For<OrderItem>();
+			orderItemMock1.Nomenclature.Returns(nomenclatureMock1);
+			orderItemMock1.Count.Returns(1);
+
+			Order orderUnderTest = new Order {
+				OrderItems = new List<OrderItem> {
+					orderItemMock0,
+					orderItemMock1
+				},
+				TareFromClientByActionBottle = cnt
+			};
+			OrderRepository.GetFirstRealOrderForClientTestGap = (uow, c) => new Order();
+
+			// act
+			var res = orderUnderTest.GetAdditionalDiscountByActionBottle();
+
+			// assert
+			Assert.That(res, Is.EqualTo(result));
+		}
+
+		#endregion
+		
 		#region UpdateOperationTests
 
 		[Test(Description = "Проверка создания операции перемещения бутылей в заказе с неустойками")]

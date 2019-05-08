@@ -8,6 +8,7 @@ using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repositories.Orders;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -178,6 +179,14 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private decimal discountByStock;
+		[Display(Name = "Скидка по акции")]
+		public virtual decimal DiscountByStock {
+			get => discountByStock;
+			set => SetField(ref discountByStock, value, () => DiscountByStock);
+		}
+
+
 		decimal? valueAddedTax;
 		[Display(Name = "НДС на момент создания заказа")]
 		public virtual decimal? ValueAddedTax {
@@ -283,7 +292,18 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsDelivered => ReturnedCount == 0;
 
-		public virtual decimal DiscountForPreview {
+		public virtual decimal ManualChangingDiscount {
+			get => IsDiscountInMoney ? DiscountMoney : Discount;
+			set { 
+				CalculateAndSetDiscount(value);
+				if(DiscountByStock != 0) {
+					discountByStock = 0;
+					DiscountReason = null;
+				}
+			}
+		}
+
+		public virtual decimal DiscountSetter {
 			get => IsDiscountInMoney ? DiscountMoney : Discount;
 			set => CalculateAndSetDiscount(value);
 		}
@@ -298,7 +318,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			CalculateAndSetDiscount(DiscountForPreview);
+			CalculateAndSetDiscount(DiscountSetter);
 		}
 
 		private void CalculateAndSetDiscount(decimal value)
@@ -309,6 +329,46 @@ namespace Vodovoz.Domain.Orders
 			} else {
 				Discount = value > 100 ? 100 : value;
 				DiscountMoney = Price * CurrentCount * Discount / 100;
+			}
+		}
+
+		private decimal GetPercentDiscount()
+		{
+			if(IsDiscountInMoney) {
+				return ((100 * DiscountMoney) / (Price * CurrentCount));
+			}
+
+			return Discount;
+		}
+
+		public void SetDiscountByStock(DiscountReason discountReasonForStockBottle, decimal discountPercent)
+		{
+			//ограничение на значения только от 0 до 100
+			discountPercent = discountPercent > 100 ? 100 : discountPercent < 0 ? 0 : discountPercent;
+
+			var existingPercent = GetPercentDiscount();
+			if(existingPercent == 100 && DiscountByStock == 0) {
+				return;
+			}
+
+			decimal originalExistingPercent = existingPercent - DiscountByStock;
+
+			decimal resultDiscount = originalExistingPercent + discountPercent;
+			resultDiscount = resultDiscount > 100 ? 100 : resultDiscount < 0 ? 0 : resultDiscount;
+
+			//на сколько избыточна добавляемая скидка (значение отрицательное)
+			decimal discountExcess = (originalExistingPercent + discountPercent > 100) ? (100 - (originalExistingPercent + discountPercent)) : 0;
+			decimal realDiscountByStock = discountPercent + discountExcess;
+
+
+			Discount = resultDiscount;
+			DiscountMoney = Price * CurrentCount * Discount / 100;
+			DiscountByStock = realDiscountByStock;
+
+			if(Discount == 0) {
+				DiscountReason = null;
+			} else if(DiscountReason == null) {
+				DiscountReason = discountReasonForStockBottle;
 			}
 		}
 

@@ -5,12 +5,15 @@ using QS.Dialog;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
+using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Reports
 {
 	public partial class RevisionBottlesAndDeposits : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set;}
+
+		public bool ShowStockBottle { get; set; }
 
 		public RevisionBottlesAndDeposits()
 		{
@@ -60,6 +63,7 @@ namespace Vodovoz.Reports
 					{ "endDate", dateperiodpicker1.EndDateOrNull },
 					{ "client_id", referenceCounterparty.GetSubject<Counterparty>().Id},
 					{ "delivery_point_id", referenceDeliveryPoint.Subject == null ? -1 : referenceDeliveryPoint.GetSubject<DeliveryPoint>().Id},
+					{ "show_stock_bottle", ShowStockBottle }
 				}
 			};
 		}			
@@ -78,6 +82,8 @@ namespace Vodovoz.Reports
 		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
 		{
 			ValidateParameters();
+			ShowStockBottle = OrderRepository.IsBottleStockExists(UoW, referenceCounterparty.GetSubject<Counterparty>());
+
 			if(referenceCounterparty.Subject == null)
 			{
 				referenceDeliveryPoint.Subject = null;

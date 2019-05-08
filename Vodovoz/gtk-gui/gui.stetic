@@ -1567,7 +1567,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -31055,10 +31054,71 @@
                                 <property name="MemberName" />
                                 <property name="Spacing">6</property>
                                 <child>
-                                  <widget class="Gtk.Label" id="label7">
+                                  <widget class="Gtk.HBox" id="hboxReturnTare">
                                     <property name="MemberName" />
-                                    <property name="Xalign">1</property>
-                                    <property name="LabelProp" translatable="yes">Планируемая тара:</property>
+                                    <property name="Spacing">6</property>
+                                    <child>
+                                      <widget class="Gtk.Label" id="label7">
+                                        <property name="MemberName" />
+                                        <property name="Xalign">1</property>
+                                        <property name="LabelProp" translatable="yes">Планируемая тара:</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="Position">0</property>
+                                        <property name="AutoSize">True</property>
+                                        <property name="Expand">False</property>
+                                        <property name="Fill">False</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="Gamma.Widgets.yValidatedEntry" id="entryBottlesToReturn">
+                                        <property name="MemberName" />
+                                        <property name="CanFocus">True</property>
+                                        <property name="IsEditable">True</property>
+                                        <property name="WidthChars">4</property>
+                                        <property name="InvisibleChar">●</property>
+                                        <signal name="Changed" handler="OnEntryBottlesReturnChanged" />
+                                      </widget>
+                                      <packing>
+                                        <property name="Position">1</property>
+                                        <property name="AutoSize">True</property>
+                                        <property name="Expand">False</property>
+                                        <property name="Fill">False</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="Gtk.Label" id="lblTareReturned">
+                                        <property name="MemberName" />
+                                        <property name="Visible">False</property>
+                                        <property name="Xalign">1</property>
+                                        <property name="LabelProp" translatable="yes">Фактически возвращённая тара:</property>
+                                        <property name="UseMarkup">True</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="Position">2</property>
+                                        <property name="AutoSize">True</property>
+                                        <property name="Expand">False</property>
+                                        <property name="Fill">False</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="Gamma.Widgets.yValidatedEntry" id="entryTareReturned">
+                                        <property name="MemberName" />
+                                        <property name="Visible">False</property>
+                                        <property name="Sensitive">False</property>
+                                        <property name="CanFocus">True</property>
+                                        <property name="IsEditable">True</property>
+                                        <property name="WidthChars">4</property>
+                                        <property name="InvisibleChar">●</property>
+                                        <signal name="Changed" handler="OnEntryBottlesReturnChanged" />
+                                      </widget>
+                                      <packing>
+                                        <property name="Position">3</property>
+                                        <property name="AutoSize">True</property>
+                                        <property name="Expand">False</property>
+                                        <property name="Fill">False</property>
+                                      </packing>
+                                    </child>
                                   </widget>
                                   <packing>
                                     <property name="Position">0</property>
@@ -31068,13 +31128,8 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="Gamma.Widgets.yValidatedEntry" id="entryBottlesToReturn">
+                                  <widget class="Gtk.VSeparator" id="vseparatorDiscont1">
                                     <property name="MemberName" />
-                                    <property name="CanFocus">True</property>
-                                    <property name="IsEditable">True</property>
-                                    <property name="WidthChars">4</property>
-                                    <property name="InvisibleChar">●</property>
-                                    <signal name="Changed" handler="OnEntryBottlesReturnChanged" />
                                   </widget>
                                   <packing>
                                     <property name="Position">1</property>
@@ -31084,33 +31139,57 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="Gtk.Label" id="lblTareReturned">
+                                  <widget class="Gtk.HBox" id="hboxBottlesByStock">
                                     <property name="MemberName" />
-                                    <property name="Visible">False</property>
-                                    <property name="Xalign">1</property>
-                                    <property name="LabelProp" translatable="yes">Фактически возвращённая тара:</property>
-                                    <property name="UseMarkup">True</property>
+                                    <property name="Spacing">6</property>
+                                    <child>
+                                      <widget class="Gamma.GtkWidgets.yCheckButton" id="yChkActionBottle">
+                                        <property name="MemberName" />
+                                        <property name="CanFocus">True</property>
+                                        <property name="Label" translatable="yes">Акция "Бутыль"</property>
+                                        <property name="DrawIndicator">True</property>
+                                        <property name="HasLabel">True</property>
+                                        <property name="UseUnderline">True</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="Position">0</property>
+                                        <property name="AutoSize">True</property>
+                                        <property name="Expand">False</property>
+                                        <property name="Fill">False</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="Gtk.Label" id="lblActionBtlTareFromClient">
+                                        <property name="MemberName" />
+                                        <property name="Xalign">1</property>
+                                        <property name="LabelProp" translatable="yes">Тара от клиента по акции:</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="Position">1</property>
+                                        <property name="AutoSize">True</property>
+                                        <property name="Expand">False</property>
+                                        <property name="Fill">False</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="Gamma.Widgets.yValidatedEntry" id="yEntTareActBtlFromClient">
+                                        <property name="MemberName" />
+                                        <property name="CanFocus">True</property>
+                                        <property name="IsEditable">True</property>
+                                        <property name="WidthChars">4</property>
+                                        <property name="InvisibleChar">●</property>
+                                        <signal name="Changed" handler="OnEntryBottlesReturnChanged" />
+                                      </widget>
+                                      <packing>
+                                        <property name="Position">2</property>
+                                        <property name="AutoSize">True</property>
+                                        <property name="Expand">False</property>
+                                        <property name="Fill">False</property>
+                                      </packing>
+                                    </child>
                                   </widget>
                                   <packing>
                                     <property name="Position">2</property>
-                                    <property name="AutoSize">True</property>
-                                    <property name="Expand">False</property>
-                                    <property name="Fill">False</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="Gamma.Widgets.yValidatedEntry" id="entryTareReturned">
-                                    <property name="MemberName" />
-                                    <property name="Visible">False</property>
-                                    <property name="Sensitive">False</property>
-                                    <property name="CanFocus">True</property>
-                                    <property name="IsEditable">True</property>
-                                    <property name="WidthChars">4</property>
-                                    <property name="InvisibleChar">●</property>
-                                    <signal name="Changed" handler="OnEntryBottlesReturnChanged" />
-                                  </widget>
-                                  <packing>
-                                    <property name="Position">3</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -31121,7 +31200,7 @@
                                     <property name="MemberName" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">4</property>
+                                    <property name="Position">3</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -31133,7 +31212,7 @@
                                     <property name="LabelProp" translatable="yes">Скидка на все:</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">5</property>
+                                    <property name="Position">4</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -31151,7 +31230,7 @@
                                     <signal name="ItemSelected" handler="OnYcomboboxReasonItemSelected" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">6</property>
+                                    <property name="Position">5</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -31166,7 +31245,7 @@
                                     <signal name="EnumItemSelected" handler="OnEnumDiscountUnitEnumItemSelected" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">7</property>
+                                    <property name="Position">6</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -31186,7 +31265,7 @@
                                     <signal name="ValueChanged" handler="OnSpinDiscountValueChanged" />
                                   </widget>
                                   <packing>
-                                    <property name="Position">8</property>
+                                    <property name="Position">7</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -33425,6 +33504,81 @@
           </packing>
         </child>
         <child>
+          <widget class="Gtk.HBox" id="hboxBottlesByStock">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="labelBottlesTyStockCount">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Бутылей по акции план:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonBottlesByStockCount">
+                <property name="MemberName" />
+                <property name="Sensitive">False</property>
+                <property name="CanFocus">True</property>
+                <property name="Upper">10000000</property>
+                <property name="PageIncrement">10</property>
+                <property name="StepIncrement">1</property>
+                <property name="ClimbRate">1</property>
+                <property name="Numeric">True</property>
+                <property name="ValueAsDecimal">0</property>
+                <property name="ValueAsInt">0</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="labelBottlesTyStockActualCount">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">факт:</property>
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonBottlesByStockActualCount">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Upper">10000000</property>
+                <property name="PageIncrement">10</property>
+                <property name="StepIncrement">1</property>
+                <property name="ClimbRate">1</property>
+                <property name="Numeric">True</property>
+                <property name="ValueAsDecimal">0</property>
+                <property name="ValueAsInt">0</property>
+              </widget>
+              <packing>
+                <property name="Position">3</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
           <widget class="Gtk.Frame" id="frame1">
             <property name="MemberName" />
             <property name="ShadowType">None</property>
@@ -33520,7 +33674,7 @@
             </child>
           </widget>
           <packing>
-            <property name="Position">1</property>
+            <property name="Position">2</property>
             <property name="AutoSize">False</property>
           </packing>
         </child>
@@ -33564,7 +33718,7 @@
             </child>
           </widget>
           <packing>
-            <property name="Position">2</property>
+            <property name="Position">3</property>
             <property name="AutoSize">False</property>
           </packing>
         </child>
@@ -33608,7 +33762,7 @@
             </child>
           </widget>
           <packing>
-            <property name="Position">3</property>
+            <property name="Position">4</property>
             <property name="AutoSize">False</property>
           </packing>
         </child>
@@ -71258,6 +71412,7 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Изменить задачи</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
