@@ -34,11 +34,11 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private global::Gtk.Label labelDriver;
 
-		private global::QS.RepresentationModel.GtkUI.RepresentationEntry entryDriver;
+		private global::QS.Widgets.GtkUI.RepresentationEntry entryDriver;
 
 		private global::Gtk.Label labelCar;
 
-		private global::QS.RepresentationModel.GtkUI.RepresentationEntry entryCar;
+		private global::QS.Widgets.GtkUI.RepresentationEntry entryCar;
 
 		private global::Gtk.HBox hboxTransferInfo;
 
@@ -251,7 +251,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			w16.Expand = false;
 			w16.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.entryDriver = new global::QS.RepresentationModel.GtkUI.RepresentationEntry();
+			this.entryDriver = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.entryDriver.Events = ((global::Gdk.EventMask)(256));
 			this.entryDriver.Name = "entryDriver";
 			this.hbox2.Add(this.entryDriver);
@@ -268,7 +268,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.entryCar = new global::QS.RepresentationModel.GtkUI.RepresentationEntry();
+			this.entryCar = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.entryCar.Events = ((global::Gdk.EventMask)(256));
 			this.entryCar.Name = "entryCar";
 			this.hbox2.Add(this.entryCar);

@@ -72337,7 +72337,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="QS.RepresentationModel.GtkUI.RepresentationEntry" id="entryDriver">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -72360,7 +72360,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="QS.RepresentationModel.GtkUI.RepresentationEntry" id="entryCar">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryCar">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -73157,7 +73157,7 @@ not tooltip</property>
         <property name="RowSpacing">6</property>
         <property name="ColumnSpacing">6</property>
         <child>
-          <widget class="QS.RepresentationModel.GtkUI.RepresentationEntry" id="entryEmployee">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryEmployee">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -73167,8 +73167,9 @@ not tooltip</property>
             <property name="LeftAttach">1</property>
             <property name="RightAttach">2</property>
             <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">True</property>
+            <property name="XExpand">False</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -73177,7 +73178,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="QS.RepresentationModel.GtkUI.RepresentationEntry" id="entryExpenseCategory">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryExpenseCategory">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -73197,7 +73198,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="QS.RepresentationModel.GtkUI.RepresentationEntry" id="entryIncomeCategory">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryIncomeCategory">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -73304,7 +73305,7 @@ not tooltip</property>
           <packing>
             <property name="LeftAttach">1</property>
             <property name="RightAttach">2</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">True</property>
             <property name="XFill">True</property>
@@ -73334,7 +73335,7 @@ not tooltip</property>
           <placeholder />
         </child>
         <child>
-          <widget class="QS.RepresentationModel.GtkUI.RepresentationEntry" id="entryEmployee">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryEmployee">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -73344,8 +73345,9 @@ not tooltip</property>
             <property name="LeftAttach">1</property>
             <property name="RightAttach">2</property>
             <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">True</property>
+            <property name="XExpand">False</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -73354,7 +73356,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="QS.RepresentationModel.GtkUI.RepresentationEntry" id="entryExpenseCategory">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryExpenseCategory">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -73439,7 +73441,7 @@ not tooltip</property>
           <packing>
             <property name="LeftAttach">1</property>
             <property name="RightAttach">2</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">True</property>
             <property name="XFill">True</property>
@@ -74549,7 +74551,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="QS.RepresentationModel.GtkUI.RepresentationEntry" id="entryDriver">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -74572,7 +74574,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="QS.RepresentationModel.GtkUI.RepresentationEntry" id="entryCar">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryCar">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
