@@ -13,7 +13,6 @@ using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Tools;
 using Vodovoz.ViewModelBased;
 
 namespace Vodovoz.Representations
@@ -51,7 +50,6 @@ namespace Vodovoz.Representations
 
 				.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
 				.Finish();
-
 		}
 
 		private void RegisterIncomeTransfer()

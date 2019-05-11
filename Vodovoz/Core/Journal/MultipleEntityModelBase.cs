@@ -9,10 +9,8 @@ using QS.Permissions;
 using QS.Project.Repositories;
 using QS.RepresentationModel;
 using QS.Tdi;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using System.ComponentModel;
-using QS.DomainModel.Config;
 
 namespace Vodovoz.Core.Journal
 {
@@ -176,7 +174,7 @@ namespace Vodovoz.Core.Journal
 				}
 				if(!registeredTypes.Contains(type)) {
 					registeredTypes.Add(type);
-					SubscribeType(type);
+					SubscribeOnChanges();
 				}
 			}
 
@@ -204,42 +202,22 @@ namespace Vodovoz.Core.Journal
 		/// <summary>
 		/// Создает новый базовый клас и подписывается на обновления указанных типов, при этом конструкторе необходима реализация NeedUpdateFunc (object updatedSubject);
 		/// </summary>
-		private void SubscribeType(Type type)
+		private void SubscribeOnChanges()
 		{
-			var map = OrmMain.GetObjectDescription(type);
-			if(map != null) {
-				map.ObjectUpdated += OnExternalUpdateCommon;
-			} else {
-				logger.Warn("Невозможно подписаться на обновления класа {0}. Не найден класс маппинга.", type);
-			}
-
-			IEntityConfig entityConfig = DomainConfiguration.GetEntityConfig(type);
-			if(entityConfig != null) {
-				entityConfig.EntityUpdated += EntityConfig_EntityUpdated;;
-			} else {
-				logger.Warn("Невозможно подписаться на обновления класа {0}. Не найден класс маппинга.", type);
-			}
+			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.UnsubscribeAll(this);
+			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.WatchMany(OnEntitiesUpdated, registeredTypes.ToArray());
 		}
 
-		private void OnExternalUpdateCommon(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
+		private void OnEntitiesUpdated(QS.DomainModel.NotifyChange.EntityChangeEvent[] changeEvents)
 		{
-			OnEntitiesUpdated(e.UpdatedSubjects);
-		}
-
-		void EntityConfig_EntityUpdated(object sender, EntityUpdatedEventArgs e)
-		{
-			OnEntitiesUpdated(e.UpdatedSubjects);
-		}
-
-		private void OnEntitiesUpdated(object[] updatedEntities)
-		{
+			//FIXME Нужно фиксить! Это решение всего лишь скрывает проблему. Нужно находить утечку памяти и исправлять ее, а не фиксить падения.
 			if(!UoW.IsAlive) {
 				logger.Warn("Получена нотификация о внешнем обновлении данные в {0}, в тот момент когда сессия уже закрыта. Возможно RepresentationModel, осталась в памяти при закрытой сессии.",
 					this);
 				return;
 			}
 
-			if(updatedEntities.Any(NeedUpdateFunc)) {
+			if(changeEvents.Select(x => x.Entity).Any(NeedUpdateFunc)) {
 				UpdateNodes();
 			}
 		}
@@ -247,19 +225,7 @@ namespace Vodovoz.Core.Journal
 		public void Destroy()
 		{
 			logger.Debug("{0} called Destroy()", this.GetType());
-
-			foreach(var type in registeredTypes) {
-				var map = OrmMain.GetObjectDescription(type);
-				if(map != null)
-					map.ObjectUpdated -= OnExternalUpdateCommon;
-			}
-
-			foreach(var type in registeredTypes) {
-				IEntityConfig entityConfig = DomainConfiguration.GetEntityConfig(type);
-				if(entityConfig != null) {
-					entityConfig.EntityUpdated -= EntityConfig_EntityUpdated;
-				}
-			}
+			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.UnsubscribeAll(this);
 		}
 	}
 
