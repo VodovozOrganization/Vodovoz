@@ -606,13 +606,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref addCertificates, value, () => AddCertificates);
 		}
 
-		bool actionBottleUsed;
-		[Display(Name = "Акция \"Бутыль\"")]
-		public virtual bool ActionBottleUsed {
-			get => actionBottleUsed;
-			set => SetField(ref actionBottleUsed, value, () => ActionBottleUsed);
-		}
-
 		int tareFromClientByActionBottle;
 		[Display(Name = "Тара по акции \"Бутыль\" от клиента")]
 		public virtual int TareFromClientByActionBottle {
@@ -1223,10 +1216,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void ClearStockBottles(IStandartDiscountsService standartDiscountsService)
+		public virtual void RecalculateStockBottles(IStandartDiscountsService standartDiscountsService)
 		{
-			BottlesByStockCount = 0;
-			BottlesByStockActualCount = 0;
+			if(!IsBottleStock) {
+				BottlesByStockCount = 0;
+				BottlesByStockActualCount = 0;
+			}
 			CalculateBottlesStockDiscounts(standartDiscountsService);
 		}
 
@@ -3448,20 +3443,6 @@ namespace Vodovoz.Domain.Orders
 				BottlesReturn = 0;
 			}
 			return result;
-		}
-
-		/// <summary>
-		/// Добавочная скидка по акции "Бутыль"
-		/// </summary>
-		/// <returns>добавочный % к основной скидке</returns>
-		public virtual decimal GetAdditionalDiscountByActionBottle()
-		{
-			var btls19LInOrder = GetTotalWater19LCount();
-			if(TareFromClientByActionBottle > 0 && TareFromClientByActionBottle <= btls19LInOrder)
-				return 10;
-			if(TareFromClientByActionBottle > btls19LInOrder)
-				return 20;
-			return 0;
 		}
 
 		#endregion

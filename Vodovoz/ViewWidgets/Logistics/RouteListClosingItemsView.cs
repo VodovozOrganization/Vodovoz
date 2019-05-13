@@ -172,6 +172,8 @@ namespace Vodovoz
 						.AddSetter((cell, node) => cell.Editable = ( node.IsDelivered() && !node.Order.IsBottleStock ) )
 						.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
 						.AddSetter(EmptyBottleCellSetter)
+				.AddColumn("Бутылей по\n акции").HeaderAlignment(0.5f).EnterToNextCell()
+					.AddNumericRenderer(node => node.Order.BottlesByStockActualCount)
 				.AddColumn("Залоги за\n бутыли").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.BottleDepositsCollected)
 				.AddColumn("Залоги за\n оборудование").HeaderAlignment(0.5f).EnterToNextCell()

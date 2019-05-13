@@ -370,10 +370,10 @@ namespace Vodovoz
 
 		void ControlsActionBottleAccessibility()
 		{
-			bool canAddAction = Entity.CanAddStockBottle();
+			bool canAddAction = Entity.CanAddStockBottle() || Entity.IsBottleStock;
 			hboxBottlesByStock.Visible = canAddAction;
 			hboxReturnTare.Visible = !canAddAction;
-			yEntTareActBtlFromClient.Sensitive = yChkActionBottle.Active;
+			yEntTareActBtlFromClient.Sensitive = canAddAction;
 		}
 
 		private void ConfigureTrees()
@@ -1143,7 +1143,7 @@ namespace Vodovoz
 		void YChkActionBottle_Toggled(object sender, EventArgs e)
 		{
 			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
-			Entity.ClearStockBottles(standartDiscountsService);
+			Entity.RecalculateStockBottles(standartDiscountsService);
 		}
 
 		void NomenclatureForSaleSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
