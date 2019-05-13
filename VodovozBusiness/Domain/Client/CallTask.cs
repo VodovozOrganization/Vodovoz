@@ -129,7 +129,7 @@ namespace Vodovoz.Domain.Client
 				DeliveryPoint = DeliveryPoint,
 				Counterparty = Counterparty,
 				CreationDate = DateTime.Now,
-				EndActivePeriod = DateTime.Now.AddDays(1),
+				EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59),
 				AssignedEmployee = AssignedEmployee
 			};
 			return task;

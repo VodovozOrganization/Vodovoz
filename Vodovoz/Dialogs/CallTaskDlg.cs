@@ -56,6 +56,7 @@ namespace Vodovoz.Dialogs
 			EmployeesVM employeeVM = new EmployeesVM();
 			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
 			EmployeeyEntryreferencevm.RepresentationModel = employeeVM;
+
 			EmployeeyEntryreferencevm.Binding.AddBinding(Entity, s => s.AssignedEmployee, w => w.Subject).InitializeFromSource();
 
 			deliveryPointYentryreferencevm.RepresentationModel = new DeliveryPointsVM();
@@ -125,7 +126,7 @@ namespace Vodovoz.Dialogs
 		{
 			if(Entity.DeliveryPoint == null)
 				return;
-			OrderDlg orderDlg = new OrderDlg(); //FIXME : Решить проблему с обнулением DeliveryPoint
+			OrderDlg orderDlg = new OrderDlg();
 			orderDlg.Entity.Client = Entity.Counterparty;
 			orderDlg.Entity.UpdateBaseParametersForClient();
 			orderDlg.Entity.DeliveryPoint = Entity.DeliveryPoint;
