@@ -1179,7 +1179,10 @@ namespace Vodovoz.Domain.Orders
 				discountForStock = 20m;
 			}
 
-			foreach(OrderItem item in ObservableOrderItems) {
+			foreach(OrderItem item in ObservableOrderItems
+				.Where(x => x.Nomenclature.Category == NomenclatureCategory.water)
+				.Where(x => !x.Nomenclature.IsDisposableTare)
+				.Where(x => x.Nomenclature.TareVolume == TareVolume.Vol19L)) {
 				item.SetDiscountByStock(discountReasonStockBottle, discountForStock);
 			}
 		}
