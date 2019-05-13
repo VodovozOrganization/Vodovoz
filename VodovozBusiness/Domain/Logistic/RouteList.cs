@@ -460,7 +460,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal ByTerminalTotal {
 			get {
 				decimal terminalSum = 0;
-				Addresses.Where((arg) => arg.Order.PaymentType == PaymentType.CourierByCard).ForEach((item) => terminalSum += item.Order.ActualTotalSum);
+				foreach(var item in Addresses.Where((arg) => arg.Order.PaymentType == PaymentType.CourierByCard))
+					terminalSum += item.Order.ActualTotalSum;
 				return terminalSum;
 			}
 		}
