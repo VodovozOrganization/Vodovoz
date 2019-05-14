@@ -69,7 +69,7 @@ namespace Vodovoz.Dialogs
 			UpdateAddressFields();
 		}
 
-		private void UpdateAddressFields()
+		public void UpdateAddressFields()
 		{
 			if(Entity.DeliveryPoint != null) 
 			{
@@ -136,7 +136,9 @@ namespace Vodovoz.Dialogs
 		protected void OnCreateTaskButtonClicked(object sender, EventArgs e)
 		{
 			CallTaskDlg newTask = new CallTaskDlg();
-			OpenSlaveTab(newTask);
+			newTask.Entity.CopyTask(Entity);
+			newTask.UpdateAddressFields();
+			TabParent.AddTab(newTask,this);
 		}
 
 		protected void OnYentryTareReturnChanged(object sender, EventArgs e)
