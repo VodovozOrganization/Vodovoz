@@ -36,7 +36,7 @@ namespace Vodovoz.Dialogs
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
 			TabName = Entity.Counterparty?.Name;
-			labelCreator.Text = String.Format("Создатель : {0}", Entity.TaskCreator.ShortName);
+			labelCreator.Text = String.Format("Создатель : {0}", Entity.TaskCreator?.ShortName);
 			ConfigureDlg();
 		}
 

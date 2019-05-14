@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QSContacts;
 using Vodovoz.Domain.Employees;
 
@@ -13,6 +14,7 @@ namespace Vodovoz.Domain.Client
 		Prepositional = "задаче",
 		PrepositionalPlural = "задачах"
 	)]
+	[EntityPermission]
 	public class CallTask : PropertyChangedBase, ITask , IValidatableObject
 	{
 		public virtual string Title {
