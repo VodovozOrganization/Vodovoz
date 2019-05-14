@@ -930,7 +930,7 @@ namespace Vodovoz.Domain.Logistic
 				track.CalculateDistanceToBase();
 				UoW.Save(track);
 			}
-			//FirstFillClosing();
+			FirstFillClosing();
 			UoW.Save(this);
 		}
 
