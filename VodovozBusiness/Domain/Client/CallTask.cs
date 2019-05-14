@@ -136,6 +136,15 @@ namespace Vodovoz.Domain.Client
 			};
 			return task;
 		}
+
+		public virtual void CopyTask(CallTask callTask)
+		{
+			DeliveryPoint = callTask.DeliveryPoint;
+			Counterparty = callTask.Counterparty;
+			CreationDate = DateTime.Now;
+			EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+			AssignedEmployee = callTask.AssignedEmployee;
+		}
 	}
 
 	public enum CallTaskStatus

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Representations;
@@ -63,8 +64,12 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnButtonOpenReportClicked(object sender, EventArgs e)
 		{
-			BottleDebtorsVMNode selectedNode = treeviewDebtors.GetSelectedObjects()?[0] as BottleDebtorsVMNode;
-			bottleDebtorVM.OpenReport(selectedNode.ClientId, selectedNode.AddressId);
+			var selected = treeviewDebtors.GetSelectedObjects().FirstOrDefault();
+
+			if(selected is BottleDebtorsVMNode selectedNode) 
+				bottleDebtorVM.OpenReport(selectedNode.ClientId, selectedNode.AddressId);
+			else
+				MessageDialogHelper.RunInfoDialog("Необходимо выбрать точку доставки");
 		}
 	}
 }
