@@ -2,59 +2,67 @@
 
 namespace Vodovoz.Domain
 {
-	public class Wages{
-		public static Rates GetDriverRates(DateTime route_date, bool withForwarder=false){
-			var r = new Rates();
-			r.PhoneServiceCompensationRate = 2;
-			r.FullBottleRate = route_date < new DateTime(2017, 9, 18) ? (withForwarder ? 10 : 15) : (withForwarder ? 15 : 20);
-			r.SmallBottleRate = route_date < new DateTime(2017, 9, 18) ? (withForwarder ? 10 : 15) : (withForwarder ? 15 : 20);
-			r.EmptyBottleRate = 5;
-			r.CoolerRate = withForwarder ? 20 : 30;
-			r.PaymentPerAddress = 50;
-			r.LargeOrderFullBottleRate = withForwarder ? 7 : 9;
-			r.LargeOrderEmptyBottleRate = 1;
-			r.LargeOrderMinimumBottles = 100;
-			r.SmallFullBottleRate = withForwarder ? 2 : 3;
-			r.ContractCancelationRate = withForwarder ? 20 : 30;
+	public class Wages
+	{
+		public static Rates GetDriverRates(DateTime route_date, bool withForwarder = false)
+		{
+			var r = new Rates {
+				PhoneServiceCompensationRate = route_date < new DateTime(2019, 5, 14) ? 2 : 0,
+				FullBottleRate = route_date < new DateTime(2017, 9, 18) ? (withForwarder ? 10 : 15) : (withForwarder ? 15 : 20),
+				SmallBottleRate = route_date < new DateTime(2017, 9, 18) ? (withForwarder ? 10 : 15) : (withForwarder ? 15 : 20),
+				EmptyBottleRate = 5,
+				CoolerRate = withForwarder ? 20 : 30,
+				PaymentPerAddress = route_date < new DateTime(2019, 5, 14) ? 50 : 52,
+				LargeOrderFullBottleRate = withForwarder ? 7 : 9,
+				LargeOrderEmptyBottleRate = 1,
+				LargeOrderMinimumBottles = 100,
+				SmallFullBottleRate = withForwarder ? 2 : 3,
+				ContractCancelationRate = withForwarder ? 20 : 30
+			};
 			r.PaymentWithRast = r.PaymentPerAddress + r.FullBottleRate * 2;
 			return r;
 		}
 
-		public static Rates GetDriverRatesWithOurCar(DateTime route_date){
-			var r = new Rates();
-			r.PhoneServiceCompensationRate = 2;
-			r.FullBottleRate = route_date < new DateTime(2017, 8, 8) ? 7 : 10;
-			r.SmallBottleRate = route_date < new DateTime(2017, 8, 8) ? 7 : 10;
-			r.EmptyBottleRate = 5;
-			r.CoolerRate = 14;
-			r.PaymentPerAddress = 30;
-			r.LargeOrderFullBottleRate = 4;
-			r.LargeOrderEmptyBottleRate = 1;
-			r.LargeOrderMinimumBottles = 100;
-			r.SmallFullBottleRate = (decimal)7 / 5;
-			r.ContractCancelationRate = 14;
+		public static Rates GetDriverRatesWithOurCar(DateTime route_date)
+		{
+			var r = new Rates {
+				PhoneServiceCompensationRate = route_date < new DateTime(2019, 5, 14) ? 2 : 0,
+				FullBottleRate = route_date < new DateTime(2017, 8, 8) ? 7 : 10,
+				SmallBottleRate = route_date < new DateTime(2017, 8, 8) ? 7 : 10,
+				EmptyBottleRate = 5,
+				CoolerRate = 14,
+				PaymentPerAddress = route_date < new DateTime(2019, 5, 14) ? 30 : 32,
+				LargeOrderFullBottleRate = 4,
+				LargeOrderEmptyBottleRate = 1,
+				LargeOrderMinimumBottles = 100,
+				SmallFullBottleRate = (decimal)7 / 5,
+				ContractCancelationRate = 14
+			};
 			r.PaymentWithRast = r.PaymentPerAddress + r.FullBottleRate * 2;
 			return r;
 		}
 
-		public static Rates GetForwarderRates(){
-			var r = new Rates();
-			r.PhoneServiceCompensationRate = 0;
-			r.FullBottleRate = 5;
-			r.SmallBottleRate = 5;
-			r.EmptyBottleRate = 5;
-			r.CoolerRate = 10;
-			r.PaymentPerAddress = 0;
-			r.LargeOrderFullBottleRate = 4;
-			r.LargeOrderEmptyBottleRate = 1;
-			r.SmallFullBottleRate = 1;
-			r.LargeOrderMinimumBottles = 100;
-			r.ContractCancelationRate = 10;
+		public static Rates GetForwarderRates()
+		{
+			var r = new Rates {
+				PhoneServiceCompensationRate = 0,
+				FullBottleRate = 5,
+				SmallBottleRate = 5,
+				EmptyBottleRate = 5,
+				CoolerRate = 10,
+				PaymentPerAddress = 0,
+				LargeOrderFullBottleRate = 4,
+				LargeOrderEmptyBottleRate = 1,
+				SmallFullBottleRate = 1,
+				LargeOrderMinimumBottles = 100,
+				ContractCancelationRate = 10
+			};
 			r.PaymentWithRast = r.FullBottleRate * 2;
 			return r;
 		}
 
-		public class Rates{
+		public class Rates
+		{
 			public decimal PhoneServiceCompensationRate;
 			public decimal FullBottleRate;
 			public decimal SmallBottleRate;
@@ -71,6 +79,6 @@ namespace Vodovoz.Domain
 			/// </summary>
 			public decimal PaymentWithRast;
 		}
-	}		
+	}
 }
 

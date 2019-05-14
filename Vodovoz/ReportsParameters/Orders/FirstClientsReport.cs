@@ -30,7 +30,7 @@ namespace Vodovoz.ReportsParameters.Orders
 
 		#region IParametersWidget implementation
 
-		public string Title => "Отчет по не полностью погруженным МЛ";
+		public string Title => "Отчет по первичным клиентам";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 

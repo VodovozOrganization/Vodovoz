@@ -16,203 +16,206 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
-        <CommandText>select
+        <CommandText>SELECT
 	docs.doc_id,
 	docs.doc_date,
 	docs.doc_payment_type,
-	ifnull(docs.delivery_point_id, '0') AS delivery_point_id,
+	IFNULL(docs.delivery_point_id, '0') AS delivery_point_id,
 	docs.delivery_point_address,
 	docs.doc_name,
 	docs.doc_status,
-	case
+	CASE
 #sum if it's residue
-		when docs.doc_name = 'Ввод остатков' then
-			(select 
+		WHEN docs.doc_name = 'Ввод остатков' THEN
+			(SELECT 
 				debt
-			from
+			FROM
 				doc_residue
-			left join
+			LEFT JOIN
 				money_movement_operations ON money_movement_operations.id = doc_residue.money_movement_operation_id
-			where
+			WHERE
 				doc_residue.id = docs.doc_id)
 #sum if it's order
-		when docs.doc_name = 'Заказ' then
-			(select 
-				ROUND(sum(order_items.price * IFNULL(order_items.actual_count, 0) - order_items.discount_money))
-			from
+		WHEN docs.doc_name = 'Заказ' THEN
+			(SELECT 
+				ROUND(SUM(order_items.price * IFNULL(order_items.actual_count, 0) - order_items.discount_money))
+			FROM
 				order_items
-			where
+			WHERE
 				order_items.order_id = docs.doc_id)
-	end as sum,
-	if(docs.doc_name = 'Заказ',
+	END AS sum,
+	IF(docs.doc_name = 'Заказ',
 		forfeits.forfeit,
-		null) as forfeit,
-	if(docs.doc_name = 'Заказ',
+		NULL) AS forfeit,
+	IF(docs.doc_name = 'Заказ',
 		forfeits.forfeitCount,
-		null) as forfeitCount,
-	if(docs.doc_name = 'Заказ',
-		ifnull(bottles_movement_operations.delivered, if(docs.doc_status = 'Closed',0,null)),
-		ifnull(bottles_movement_operations.delivered, 0)
+		NULL) AS forfeitCount,
+    IF(docs.doc_name = 'Заказ',
+		empty_bottles.bottles_count,
+		NULL) AS empty_bottles_count,    
+	IF(docs.doc_name = 'Заказ',
+		IFNULL(bottles_movement_operations.delivered, IF(docs.doc_status = 'Closed',0,NULL)),
+		IFNULL(bottles_movement_operations.delivered, 0)
 	) AS delivered,
-	if(docs.doc_name = 'Заказ',
-		ifnull(bottles_movement_operations.returned, if(docs.doc_status = 'Closed',0,null)),
-		ifnull(bottles_movement_operations.returned, 0)
+	IF(docs.doc_name = 'Заказ',
+		IFNULL(bottles_movement_operations.returned, IF(docs.doc_status = 'Closed',0,NULL)),
+		IFNULL(bottles_movement_operations.returned, 0)
 	) AS returned,
-	case
+	CASE
 #bottles deposit if it's residue
-		when docs.doc_name = 'Ввод остатков' then
-			(select
+		WHEN docs.doc_name = 'Ввод остатков' THEN
+			(SELECT
 				deposit_residue_bottles
-			from
+			FROM
 				doc_residue
-			where
+			WHERE
 				doc_residue.id = docs.doc_id)
 #bottles deposit if it's order
-		when docs.doc_name = 'Заказ' then
-			(ifnull((select 
-				sum(deposit_operations.received_deposit - deposit_operations.refund_deposit)
-			from
+		WHEN docs.doc_name = 'Заказ' THEN
+			(IFNULL((SELECT 
+				SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
+			FROM
 				deposit_operations
-			where
+			WHERE
 				deposit_operations.order_id = docs.doc_id
-				and deposit_operations.deposit_type = 'Bottles'), if(docs.doc_status = 'Closed',0,null)))
+				AND deposit_operations.deposit_type = 'Bottles'), IF(docs.doc_status = 'Closed',0,NULL)))
 #bottles deposit if it's transfer
-		else
-			(select
-				case
-					when docs.doc_payment_type = 'out' then
-						sum(out_bd_op.received_deposit - out_bd_op.refund_deposit)
-					when docs.doc_payment_type = 'inc' then
-						sum(inc_bd_op.received_deposit - inc_bd_op.refund_deposit)
-				end
-			from
+		ELSE
+			(SELECT
+				CASE
+					WHEN docs.doc_payment_type = 'out' THEN
+						SUM(out_bd_op.received_deposit - out_bd_op.refund_deposit)
+					WHEN docs.doc_payment_type = 'inc' THEN
+						SUM(inc_bd_op.received_deposit - inc_bd_op.refund_deposit)
+				END
+			FROM
 				transfer_operations
-			left join
-				deposit_operations as out_bd_op on out_bd_op.id = transfer_operations.outgoing_bottle_deposit_operation
-			left join
-				deposit_operations as inc_bd_op on inc_bd_op.id = transfer_operations.incoming_bottle_deposit_operation
-			where
-				(out_bd_op.deposit_type = 'Bottles' or inc_bd_op.deposit_type = 'Bottles')
-				and transfer_operations.id = docs.doc_id)
-	end as bottles_deposit,
-		case
+			LEFT JOIN
+				deposit_operations AS out_bd_op ON out_bd_op.id = transfer_operations.outgoing_bottle_deposit_operation
+			LEFT JOIN
+				deposit_operations AS inc_bd_op ON inc_bd_op.id = transfer_operations.incoming_bottle_deposit_operation
+			WHERE
+				(out_bd_op.deposit_type = 'Bottles' OR inc_bd_op.deposit_type = 'Bottles')
+				AND transfer_operations.id = docs.doc_id)
+	END AS bottles_deposit,
+		CASE
 #equipment deposit if it's residue
-		when docs.doc_name = 'Ввод остатков' then
-			(select
+		WHEN docs.doc_name = 'Ввод остатков' THEN
+			(SELECT
 				deposit_residue_equipment
-			from
+			FROM
 				doc_residue
-			where
+			WHERE
 				doc_residue.id = docs.doc_id)
 #equipment deposit if its order
-		when docs.doc_name = 'Заказ' then
-			ifnull((select 
-				sum(deposit_operations.received_deposit - deposit_operations.refund_deposit)
-			from
+		WHEN docs.doc_name = 'Заказ' THEN
+			IFNULL((SELECT 
+				SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
+			FROM
 				deposit_operations
-			where
+			WHERE
 				deposit_operations.order_id = docs.doc_id
-				and deposit_operations.deposit_type = 'Equipment'), if(docs.doc_status = 'Closed',0,null))
+				AND deposit_operations.deposit_type = 'Equipment'), IF(docs.doc_status = 'Closed',0,NULL))
 #equipment deposit if it's transfer
-		else
-			(select
-				case
-					when docs.doc_payment_type = 'out' then
-						sum(out_ed_op.received_deposit - out_ed_op.refund_deposit)
-					when docs.doc_payment_type = 'inc' then
-						sum(inc_ed_op.received_deposit - inc_ed_op.refund_deposit)
-				end
-			from
+		ELSE
+			(SELECT
+				CASE
+					WHEN docs.doc_payment_type = 'out' THEN
+						SUM(out_ed_op.received_deposit - out_ed_op.refund_deposit)
+					WHEN docs.doc_payment_type = 'inc' THEN
+						SUM(inc_ed_op.received_deposit - inc_ed_op.refund_deposit)
+				END
+			FROM
 				transfer_operations
-			left join
-				deposit_operations as out_ed_op on out_ed_op.id = transfer_operations.outgoing_equipment_deposit_operation
-			left join
-				deposit_operations as inc_ed_op on inc_ed_op.id = transfer_operations.incoming_equipment_deposit_operation
-			where
-				(out_ed_op.deposit_type = 'Equipment' or inc_ed_op.deposit_type = 'Equipment')
-				and transfer_operations.id = docs.doc_id)
-	end as equipment_deposit,
+			LEFT JOIN
+				deposit_operations AS out_ed_op ON out_ed_op.id = transfer_operations.outgoing_equipment_deposit_operation
+			LEFT JOIN
+				deposit_operations AS inc_ed_op ON inc_ed_op.id = transfer_operations.incoming_equipment_deposit_operation
+			WHERE
+				(out_ed_op.deposit_type = 'Equipment' OR inc_ed_op.deposit_type = 'Equipment')
+				AND transfer_operations.id = docs.doc_id)
+	END AS equipment_deposit,
 
-		if(docs.doc_name = 'Заказ',
+		IF(docs.doc_name = 'Заказ',
 			#Если в заказе оборудование записано в старом виде (строки) то выводим только его
-			if(docs.to_client_text IS NOT NULL,
+			IF(docs.to_client_text IS NOT NULL,
 					#IF TRUE #старое поле со списком оборудования в виде строки
 					docs.to_client_text,
 					#IF FALSE #новый список оборудования
-					(select 
-						group_concat(
-							concat(
+					(SELECT 
+						GROUP_CONCAT(
+							CONCAT(
 								nomenclature.name, ' ',
-								case
-									when order_equipment.own_type = 'Rent' then '(Аренда)'
-									when order_equipment.own_type = 'Client' then '(Собст. клиента)'
-									when order_equipment.own_type = 'Duty' then '(Дежурный)'
-									else ''
-								end, ' - ',
+								CASE
+									WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
+									WHEN order_equipment.own_type = 'Client' THEN '(Собст. клиента)'
+									WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
+									ELSE ''
+								END, ' - ',
 								ROUND(amount),
 								'шт')
-							separator ',\n')
-					from
+							SEPARATOR ',\n')
+					FROM
 						counterparty_movement_operations
-					left join
-						order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
-					left join
-						nomenclature on nomenclature.id = order_equipment.nomenclature_id
-					where
+					LEFT JOIN
+						order_equipment ON order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
+					LEFT JOIN
+						nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+					WHERE
 						order_equipment.order_id = docs.doc_id
-						and order_equipment.direction = 'Deliver'
-						and nomenclature.category = 'equipment'
+						AND order_equipment.direction = 'Deliver'
+						AND nomenclature.category = 'equipment'
 					)
 			),
-			null
-		) as equipment_to_client,
+			NULL
+		) AS equipment_to_client,
 		
-		if(docs.doc_name = 'Заказ',
+		IF(docs.doc_name = 'Заказ',
 			#Если в заказе оборудование записано в старом виде (строки) то выводим только его
-			if(docs.from_client_text IS NOT NULL,
+			IF(docs.from_client_text IS NOT NULL,
 				#IF TRUE #старое поле со списком оборудования в виде строки
 				docs.from_client_text,
 				#IF FALSE #новый список оборудования
 				(
 				TRIM(',\n' FROM CONCAT(
-						(select 
+						(SELECT 
 							IF(
-								group_concat(
-									concat(
+								GROUP_CONCAT(
+									CONCAT(
 										nomenclature.name, ' ',
-										case
-											when order_equipment.own_type = 'Rent' then '(Аренда)'
-											when order_equipment.own_type = 'Client' then '(Собст. клиента)'
-											when order_equipment.own_type = 'Duty' then '(Дежурный)'
-											else ''
-										end, ' - ',
+										CASE
+											WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
+											WHEN order_equipment.own_type = 'Client' THEN '(Собст. клиента)'
+											WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
+											ELSE ''
+										END, ' - ',
 										ROUND(amount),
 										'шт')
-									separator ',\n') IS NULL,
+									SEPARATOR ',\n') IS NULL,
 									'',
-									group_concat(
-										concat(
+									GROUP_CONCAT(
+										CONCAT(
 											nomenclature.name, ' ',
-											case
-												when order_equipment.own_type = 'Rent' then '(Аренда)'
-												when order_equipment.own_type = 'Client' then '(Собст. клиента)'
-												when order_equipment.own_type = 'Duty' then '(Дежурный)'
-												else ''
-											end, ' - ',
+											CASE
+												WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
+												WHEN order_equipment.own_type = 'Client' THEN '(Собст. клиента)'
+												WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
+												ELSE ''
+											END, ' - ',
 											ROUND(amount),
 											'шт')
-										separator ',\n')
+										SEPARATOR ',\n')
 								) AS eq
-						from
+						FROM
 							counterparty_movement_operations
-						left join
-							order_equipment on order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
-						left join
-							nomenclature on nomenclature.id = order_equipment.nomenclature_id
-						where
+						LEFT JOIN
+							order_equipment ON order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
+						LEFT JOIN
+							nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+						WHERE
 							order_equipment.order_id = docs.doc_id
-							and order_equipment.direction = 'PickUp'
-							and nomenclature.category NOT IN('water','bottle','master')
+							AND order_equipment.direction = 'PickUp'
+							AND nomenclature.category NOT IN('water','bottle','master')
 #equipment from client from store_self_delivery_document
 						),
 						',\n',
@@ -247,126 +250,134 @@
 				)
 				
 			),
-			null
-		) as equipment_from_client
-from
+			NULL
+		) AS equipment_from_client
+FROM
 #subselect orders
-	(select 
-		orders.id as doc_id,
+	(SELECT 
+		orders.id AS doc_id,
 		orders.bottles_movement_operation_id,
-		orders.delivery_date as doc_date,
-		orders.payment_type as doc_payment_type,
-		delivery_points.id as delivery_point_id,
-		delivery_points.compiled_address as delivery_point_address,
-		'Заказ' as doc_name,
-		orders.order_status as doc_status,
-		orders.client_id as doc_client_id,
-		orders.to_client_text as to_client_text,
-		orders.from_client_text as from_client_text
-	from
+		orders.delivery_date AS doc_date,
+		orders.payment_type AS doc_payment_type,
+		delivery_points.id AS delivery_point_id,
+		delivery_points.compiled_address AS delivery_point_address,
+		'Заказ' AS doc_name,
+		orders.order_status AS doc_status,
+		orders.client_id AS doc_client_id,
+		orders.to_client_text AS to_client_text,
+		orders.from_client_text AS from_client_text
+	FROM
 		orders
-	left join
-		delivery_points on delivery_points.id = orders.delivery_point_id
-	where
-		not (orders.order_status = 'Canceled' 
-			or orders.order_status = 'DeliveryCanceled'
-			or orders.order_status = 'NorDelivered')
+	LEFT JOIN
+		delivery_points ON delivery_points.id = orders.delivery_point_id
+	WHERE
+		NOT (orders.order_status = 'Canceled' 
+			OR orders.order_status = 'DeliveryCanceled'
+			OR orders.order_status = 'NorDelivered')
 #subselect doc_residue
-	union select
-		doc_residue.id as doc_id,
+	UNION SELECT
+		doc_residue.id AS doc_id,
 		doc_residue.bottles_movement_operation_id,
-		doc_residue.date as doc_date,
-		doc_residue.debt_payment_type as doc_payment_type,
-		doc_residue.delivery_point_id as delivery_point_id,
-		delivery_points.compiled_address as delivery_point_address,
-		'Ввод остатков' as doc_name,
-		'' as doc_status, 
-		doc_residue.client_id as doc_client_id,
-		'' as to_client_text,
-		'' as from_client_text
-	from
+		doc_residue.date AS doc_date,
+		doc_residue.debt_payment_type AS doc_payment_type,
+		doc_residue.delivery_point_id AS delivery_point_id,
+		delivery_points.compiled_address AS delivery_point_address,
+		'Ввод остатков' AS doc_name,
+		'' AS doc_status, 
+		doc_residue.client_id AS doc_client_id,
+		'' AS to_client_text,
+		'' AS from_client_text
+	FROM
 		doc_residue
-	left join
-		delivery_points on delivery_points.id = doc_residue.delivery_point_id
+	LEFT JOIN
+		delivery_points ON delivery_points.id = doc_residue.delivery_point_id
 #subselect transfer_operations: transfer from client
-	union select
-		transfer_operations.id as doc_id,
-		transfer_operations.outgoing_bottle_operation as bottles_movement_operation_id,
-		transfer_operations.operation_time as doc_date,
-		'out' as doc_payment_type,  #crutch
-		transfer_operations.from_delivery_point_id as delivery_point_id,
-		out_delivery_point.compiled_address as delivery_point_address,
-		concat(
+	UNION SELECT
+		transfer_operations.id AS doc_id,
+		transfer_operations.outgoing_bottle_operation AS bottles_movement_operation_id,
+		transfer_operations.operation_time AS doc_date,
+		'out' AS doc_payment_type,  #crutch
+		transfer_operations.from_delivery_point_id AS delivery_point_id,
+		out_delivery_point.compiled_address AS delivery_point_address,
+		CONCAT(
 			'Перенесено клиенту ',
 			inc_counterparty.name,
 			' по адресу ',
-			inc_delivery_point.compiled_address) as doc_name,
-		'' as doc_status, 
-		transfer_operations.from_client_id as doc_client_id,
-		'' as to_client_text,
-		'' as from_client_text
-	from
+			inc_delivery_point.compiled_address) AS doc_name,
+		'' AS doc_status, 
+		transfer_operations.from_client_id AS doc_client_id,
+		'' AS to_client_text,
+		'' AS from_client_text
+	FROM
 		transfer_operations
-	left join
-		delivery_points as out_delivery_point on out_delivery_point.id = transfer_operations.from_delivery_point_id
-	left join
-		delivery_points as inc_delivery_point on inc_delivery_point.id = transfer_operations.to_delivery_point_id
-	left join
-		counterparty as inc_counterparty on inc_counterparty.id = transfer_operations.to_client_id
+	LEFT JOIN
+		delivery_points AS out_delivery_point ON out_delivery_point.id = transfer_operations.from_delivery_point_id
+	LEFT JOIN
+		delivery_points AS inc_delivery_point ON inc_delivery_point.id = transfer_operations.to_delivery_point_id
+	LEFT JOIN
+		counterparty AS inc_counterparty ON inc_counterparty.id = transfer_operations.to_client_id
 #subselect transfer_operations: transfer to client
-	union select
-		transfer_operations.id as transfer_operation_id,
-		transfer_operations.incoming_bottle_operation as bottles_movement_operation_id,
-		transfer_operations.operation_time as doc_date,
-		'inc' as payment_type, #crutch
-		transfer_operations.to_delivery_point_id as delivery_point_id,
-		inc_delivery_point.compiled_address as delivery_point_address,
-		concat(
+	UNION SELECT
+		transfer_operations.id AS transfer_operation_id,
+		transfer_operations.incoming_bottle_operation AS bottles_movement_operation_id,
+		transfer_operations.operation_time AS doc_date,
+		'inc' AS payment_type, #crutch
+		transfer_operations.to_delivery_point_id AS delivery_point_id,
+		inc_delivery_point.compiled_address AS delivery_point_address,
+		CONCAT(
 			'Перенесено от клиента ',
 			out_counterparty.name,
 			' с адреса ',
-			out_delivery_point.compiled_address) as doc_name,
-		'' as doc_status, 
-		transfer_operations.to_client_id as doc_client_id,
-		'' as to_client_text,
-		'' as from_client_text
-	from
+			out_delivery_point.compiled_address) AS doc_name,
+		'' AS doc_status, 
+		transfer_operations.to_client_id AS doc_client_id,
+		'' AS to_client_text,
+		'' AS from_client_text
+	FROM
 		transfer_operations
-	left join
-		delivery_points as inc_delivery_point on inc_delivery_point.id = transfer_operations.to_delivery_point_id
-	left join
-		delivery_points as out_delivery_point on out_delivery_point.id = transfer_operations.from_delivery_point_id
-	left join
-		counterparty as out_counterparty on out_counterparty.id = transfer_operations.from_client_id
-	) as docs
-left join
-	bottles_movement_operations on docs.bottles_movement_operation_id = bottles_movement_operations.id
-left join
-	(select 
-		order_items.order_id as order_id,
-		sum(order_items.price * IFNULL(order_items.actual_count, 0)) as forfeit,
-		sum(IFNULL(order_items.actual_count, 0)) as forfeitCount
-	from
+	LEFT JOIN
+		delivery_points AS inc_delivery_point ON inc_delivery_point.id = transfer_operations.to_delivery_point_id
+	LEFT JOIN
+		delivery_points AS out_delivery_point ON out_delivery_point.id = transfer_operations.from_delivery_point_id
+	LEFT JOIN
+		counterparty AS out_counterparty ON out_counterparty.id = transfer_operations.from_client_id
+	) AS docs
+LEFT JOIN
+	bottles_movement_operations ON docs.bottles_movement_operation_id = bottles_movement_operations.id
+LEFT JOIN
+	(SELECT 
+		order_items.order_id AS order_id,
+		SUM(order_items.price * IFNULL(order_items.actual_count, 0)) AS forfeit,
+		SUM(IFNULL(order_items.actual_count, 0)) AS forfeitCount
+	FROM
 		order_items
-	where
-		order_items.nomenclature_id in 
-			(select
+	WHERE
+		order_items.nomenclature_id IN 
+			(SELECT
 				str_value
-			from
+			FROM
 				base_parameters
-			where
-				base_parameters.name = 'forfeit_nomenclature_id'
-				OR  base_parameters.name = 'forfeit1с_nomenclature_id')
-	group by order_items.order_id) as forfeits on forfeits.order_id = docs.doc_id
-where
+			WHERE
+				base_parameters.name = 'forfeit_nomenclature_id')
+	GROUP BY order_items.order_id) AS forfeits ON forfeits.order_id = docs.doc_id
+LEFT JOIN
+	(SELECT 
+		order_items.order_id AS order_id,
+		SUM(IFNULL(order_items.actual_count, 0)) AS bottles_count
+	FROM
+		order_items
+	WHERE
+		order_items.nomenclature_id IN ( 38, 78, 38, 831, 1043, 332, 87, 505, 1045, 304, 1044, 1149, 589, 592, 72)
+	GROUP BY order_items.order_id) AS empty_bottles ON empty_bottles.order_id = docs.doc_id    
+WHERE
 	docs.doc_client_id = @client_id
-	and (@delivery_point_id = -1
-		or docs.delivery_point_id = @delivery_point_id)
-	and (@startDate = ''
-		or docs.doc_date &gt;= @startDate)
-	and (@endDate = ''
-		or docs.doc_date &lt;= @endDate)
-order by docs.doc_date;</CommandText>
+	AND (@delivery_point_id = -1
+		OR docs.delivery_point_id = @delivery_point_id)
+	AND (@startDate = ''
+		OR docs.doc_date &gt;= @startDate)
+	AND (@endDate = ''
+		OR docs.doc_date &lt;= @endDate)
+ORDER BY docs.doc_date;</CommandText>
         <QueryParameters>
           <QueryParameter Name="client_id">
             <Value>=Parameters!client_id</Value>
@@ -442,6 +453,10 @@ order by docs.doc_date;</CommandText>
         <Field Name="equipment_from_client">
           <DataField>equipment_from_client</DataField>
           <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="empty_bottles_count">
+          <DataField>empty_bottles_count</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -692,6 +707,34 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="BottleStock">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    IFNULL(bottles_by_stock_actual_count , 0 ) AS bottle_by_stock ,
+    orders.id AS order_id
+FROM 
+    orders
+WHERE
+    orders.client_id = @client_id
+    AND orders.is_bottle_stock</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="bottle_by_stock">
+          <DataField>bottle_by_stock</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>18.9pt</Height>
@@ -742,25 +785,28 @@ WHERE
             <Width>44.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.0pt</Width>
+            <Width>46.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.6pt</Width>
+            <Width>38.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.1pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>43.8pt</Width>
+          </TableColumn>
+          <TableColumn>
             <Width>53.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>124.6pt</Width>
+            <Width>110.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>130.9pt</Width>
+            <Width>111.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>52.5pt</Width>
@@ -901,6 +947,22 @@ WHERE
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>Др. бутыли</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox9">
                       <Value>Залоги за бутыли</Value>
                       <Style>
@@ -978,7 +1040,7 @@ WHERE
                   <Height>12pt</Height>
                   <TableCells>
                     <TableCell>
-                      <ColSpan>12</ColSpan>
+                      <ColSpan>13</ColSpan>
                       <ReportItems>
                         <Textbox Name="Textbox11">
                           <Value>=Fields!delivery_point_address.Value</Value>
@@ -1106,6 +1168,23 @@ WHERE
                       <ReportItems>
                         <Textbox Name="Textbox45">
                           <Value>=Sum({forfeitCount})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Right</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox61">
+                          <Value>=Sum({empty_bottles_count})</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1289,6 +1368,24 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox48">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Right</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox62">
                           <Value>
                           </Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1518,6 +1615,22 @@ WHERE
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>={empty_bottles_count}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="bottles_deposit">
                       <Value>=Fields!bottles_deposit.Value</Value>
                       <CanGrow>false</CanGrow>
@@ -1694,6 +1807,23 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox44">
                       <Value>=Sum({forfeitCount})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>=Sum({empty_bottles_count})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1906,8 +2036,8 @@ ____________(                        )
         <Width>130.88pt</Width>
         <Value>=Sum({bottles_deposit}, 'Data')</Value>
         <ZIndex>1</ZIndex>
-        <Left>222.1pt</Left>
-        <Top>163.2pt</Top>
+        <Left>222.10pt</Left>
+        <Top>163.20pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1952,7 +2082,7 @@ ____________(                        )
         <Value>Оборудование клиента у нас:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>207.3pt</Top>
+        <Top>219.3pt</Top>
         <Style>
           <TextAlign>Right</TextAlign>
           <BorderStyle />
@@ -1967,7 +2097,7 @@ ____________(                        )
         <Value>Наше оборудование у клиента:</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>230.0pt</Top>
+        <Top>242.0pt</Top>
         <Style>
           <TextAlign>Right</TextAlign>
           <BorderStyle />
@@ -1982,7 +2112,7 @@ ____________(                        )
         <Value>=First({we_have_clients_equip}, 'StoredEquipments')</Value>
         <ZIndex>1</ZIndex>
         <Left>220.7pt</Left>
-        <Top>207.3pt</Top>
+        <Top>219.3pt</Top>
         <Style>
           <TextAlign>Left</TextAlign>
           <BorderStyle />
@@ -1998,8 +2128,8 @@ ____________(                        )
         <Width>484.24pt</Width>
         <Value>=First({client_have_ours_equip}, 'StoredEquipments')</Value>
         <ZIndex>1</ZIndex>
-        <Left>220.7pt</Left>
-        <Top>230.0pt</Top>
+        <Left>220.70pt</Left>
+        <Top>230.00pt</Top>
         <Style>
           <TextAlign>Left</TextAlign>
           <BorderStyle />
@@ -2009,6 +2139,43 @@ ____________(                        )
         </Style>
         <CanGrow>true</CanGrow>
         <CanShrink>false</CanShrink>
+      </Textbox>
+      <Textbox Name="Textbox63" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>222.50pt</Width>
+        <Value>Бутылей по акции "Бутыль" получено :</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.8pt</Left>
+        <Top>191.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
+        </Style>
+        <Visibility >
+          <Hidden>=!{?show_stock_bottle}</Hidden>
+        </Visibility>
+      </Textbox>
+      <Textbox Name="Textbox64" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>130.88pt</Width>
+        <Value>=First({bottle_by_stock}, 'BottleStock')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>223.1pt</Left>
+        <Top>191.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Left</TextAlign>
+          <FontWeight>Bold</FontWeight>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+        <Visibility >
+          <Hidden>=!{?show_stock_bottle}</Hidden>
+        </Visibility>
       </Textbox>
     </ReportItems>
     <Height>452.0pt</Height>
@@ -2037,6 +2204,15 @@ ____________(                        )
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="client_id">
       <DataType>Integer</DataType>
@@ -2090,14 +2266,17 @@ ____________(                        )
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="show_stock_bottle">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>true</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

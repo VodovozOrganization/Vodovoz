@@ -1,14 +1,10 @@
-﻿using System;
-using QS.DomainModel.UoW;
-using QS.RepresentationModel;
+﻿using QS.DomainModel.UoW;
 using QS.RepresentationModel.GtkUI;
 using QS.Tools;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Filters;
 using Vodovoz.ViewModel;
 using Gamma.Utilities;
-using Gamma.Widgets;
-using QS.DomainModel.Config;
 using QS.Dialog.GtkUI;
 
 namespace Vodovoz.JournalFilters.QueryFilterViews

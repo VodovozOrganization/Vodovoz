@@ -11,6 +11,7 @@ using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -18,6 +19,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repositories.Orders;
+using Vodovoz.Services;
 
 namespace Vodovoz
 {
@@ -219,7 +221,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.DiscountForPrewiev).Editing(true)
+					.AddNumericRenderer(node => node.ManualChangingDiscount).Editing(true)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
 									? new Adjustment(0, 0, (double)n.Price * n.ActualCount, 1, 100, 1)
@@ -253,10 +255,18 @@ namespace Vodovoz
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(routeListItem.Order, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
+			routeListItem.Order.ObservableOrderItems.ListContentChanged += (sender, e) => {
+				UpdateItemsList();
+			};
+
 			routeListItem.Order.ObservableOrderItems.ElementAdded += (aList, aIdx) => ActualCountsOfOrderItemsFromNullToZero();
 			routeListItem.Order.ObservableOrderEquipments.ElementAdded += (aList, aIdx) => ActualCountsOfOrderEqupmentFromNullToZero();
 			routeListItem.Order.ObservableOrderDepositItems.ElementAdded += (aList, aIdx) => ActualCountsOfOrderDepositsFromNullToZero();
 
+			yspinbuttonBottlesByStockCount.Binding.AddBinding(routeListItem.Order, e => e.BottlesByStockCount, w => w.ValueAsInt).InitializeFromSource();
+			yspinbuttonBottlesByStockActualCount.Binding.AddBinding(routeListItem.Order, e => e.BottlesByStockActualCount, w => w.ValueAsInt).InitializeFromSource();
+			yspinbuttonBottlesByStockActualCount.Changed += OnYspinbuttonBottlesByStockActualCountChanged;
+			hboxBottlesByStock.Visible = routeListItem.Order.IsBottleStock;
 			OnlineOrderVisible();
 		}
 
@@ -428,6 +438,12 @@ namespace Vodovoz
 		{
 			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (routeListItem.Order.PaymentType == PaymentType.ByCard);
 		}
+
+		protected void OnYspinbuttonBottlesByStockActualCountChanged(object sender, EventArgs e)
+		{
+			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
+			routeListItem.Order.CalculateBottlesStockDiscounts(standartDiscountsService, true);
+		}
 	}
 
 	public class OrderItemReturnsNode
@@ -542,19 +558,35 @@ namespace Vodovoz
 			}
 		}
 
-		public decimal DiscountForPrewiev {
+		public decimal ManualChangingDiscount {
 			get {
 				if(IsEquipment)
-					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountForPreview : 0;
-				return orderItem.DiscountForPreview;
+					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.ManualChangingDiscount : 0;
+				return orderItem.ManualChangingDiscount;
 			}
 
 			set {
 				if(IsEquipment) {
 					if(orderEquipment.OrderItem != null)
-						orderEquipment.OrderItem.DiscountForPreview = value;
+						orderEquipment.OrderItem.ManualChangingDiscount = value;
 				} else
-					orderItem.DiscountForPreview = value;
+					orderItem.ManualChangingDiscount = value;
+			}
+		}
+
+		public decimal DiscountSetter {
+			get {
+				if(IsEquipment)
+					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.DiscountSetter : 0;
+				return orderItem.DiscountSetter;
+			}
+
+			set {
+				if(IsEquipment) {
+					if(orderEquipment.OrderItem != null)
+						orderEquipment.OrderItem.DiscountSetter = value;
+				} else
+					orderItem.DiscountSetter = value;
 			}
 		}
 

@@ -21,8 +21,14 @@ namespace Vodovoz.Repository.Logistics
 				      .SingleOrDefault ();
 		}
 
+
+		internal static Func<VodovozOrder,bool> HasRouteListItemsForOrderTestGap;
+
 		public static bool HasRouteListItemsForOrder(IUnitOfWork uow, VodovozOrder order)
 		{
+			if(HasRouteListItemsForOrderTestGap != null)
+				return HasRouteListItemsForOrderTestGap(order);
+
 			return uow.Session.QueryOver<RouteListItem>()
 					  .Where(x => x.Order.Id == order.Id)
 					  .Select(Projections.Count<RouteListItem>(x => x.Id))

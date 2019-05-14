@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>81.3pt</Height>
+    <Height>114.6pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>24.04pt</Height>
@@ -41,28 +41,48 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>59.1pt</Width>
+            <Width>40.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>180.5pt</Width>
+            <Width>71.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>188.5pt</Width>
+            <Width>28.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>97.4pt</Width>
+            <Width>94.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>110.0pt</Width>
+            <Width>107.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>154.5pt</Width>
+            <Width>45.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>34.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>102.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>68.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>60.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>80.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>60.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -107,7 +127,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>Наименование клиента</Value>
+                      <Value>Клиент</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -123,9 +143,81 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>ОПФ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox6">
                       <Value>Адрес доставки</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>Номенклатуры</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>Форма оплаты</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>Часть города</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -175,8 +267,42 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Откуда клиент</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox19">
                       <Value>Комментарий к заказу</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>Автор заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -198,7 +324,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>13.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -248,6 +374,24 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>={person_type}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -265,6 +409,56 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>={nomenclatures}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>={payment_type}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>={geographic_group}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -298,10 +492,28 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>={came_from}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -317,10 +529,28 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop >10pt</PaddingTop>
-                        <PaddingBottom >10pt</PaddingBottom>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>={order_creator}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -331,6 +561,20 @@
         <Left>0.0pt</Left>
         <Top>28.9pt</Top>
       </Table>
+      <Textbox Name="TextboxStats">
+        <Height>25.53pt</Height>
+        <Width>816.08pt</Width>
+        <Value>=First( {stats} , "Stats" )</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>73.50pt</Top>
+        <CanGrow>true</CanGrow>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -360,42 +604,74 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	o.id AS order_id,
-	o.delivery_date AS delivery_date,
-	c.full_name AS client_name,
-	dp.compiled_address_short AS address_of_delivery,
-	IFNULL(
-		GROUP_CONCAT(
-			DISTINCT
-			CONCAT(dp_ph.number, ' ', IFNULL(dp_ph.name,''))
-			SEPARATOR '\n'
-		),
-		GROUP_CONCAT(
-			DISTINCT
-			CONCAT(c_ph.number, ' ', IFNULL(c_ph.name,''))
-			SEPARATOR '\n'
-		)
-	) AS phone,
-	#GROUP_CONCAT(DISTINCT d.name SEPARATOR ', ') AS discount,
-	(
-		SELECT GROUP_CONCAT(DISTINCT d.name SEPARATOR ', ')
-		FROM order_items i
-		JOIN discount_reasons d ON i.discount_reason_id = d.id
-		WHERE i.order_id = o.id
-	) AS discount,
-	o.comment AS comment
-FROM orders o
-JOIN order_items i ON o.id = i.order_id
-JOIN discount_reasons d ON i.discount_reason_id = d.id
-JOIN counterparty c ON o.id = c.first_order_id
-JOIN delivery_points dp ON dp.id = o.delivery_point_id
-LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
-LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
-WHERE o.delivery_date BETWEEN @start_date AND @end_date
-AND (@discount_id = 0 OR d.id = @discount_id)
+    o.id AS order_id,
+    o.delivery_date AS delivery_date,
+    c.name AS client_name,
+    CASE c.person_type
+        WHEN 'natural' THEN 'ФЛ'
+        WHEN 'legal' THEN 'ЮЛ'
+        else c.person_type
+    END AS person_type,    
+    dp.compiled_address_short AS address_of_delivery,
+    GROUP_CONCAT(DISTINCT nomenclature.name SEPARATOR ', ') AS nomenclatures,
+    o.sum_to_receive ,
+    CASE o.payment_type 
+        WHEN 'cash' THEN 'НАЛ'
+        WHEN 'cashless' THEN 'БЕЗНАЛ'
+        WHEN 'ByCard' THEN 'ПО КАРТЕ'
+        WHEN 'CourierByCard' THEN 'ПО КАРТЕ КУРЬЕРУ'
+        ELSE o.payment_type
+    END AS payment_type,
+    gg.name as geographic_group,
+    IFNULL(
+        GROUP_CONCAT(
+            DISTINCT
+            CONCAT(dp_ph.number, ' ', IFNULL(dp_ph.name,''))
+            SEPARATOR '\n'
+        ),
+        GROUP_CONCAT(
+            DISTINCT
+            CONCAT(c_ph.number, ' ', IFNULL(c_ph.name,''))
+            SEPARATOR '\n'
+        )
+    ) AS phone,
+    #GROUP_CONCAT(DISTINCT d.name SEPARATOR ', ') AS discount,
+    (
+        SELECT GROUP_CONCAT(DISTINCT d.name SEPARATOR ', ')
+        FROM order_items i
+        JOIN discount_reasons d ON i.discount_reason_id = d.id
+        WHERE i.order_id = o.id
+    ) AS discount,
+    cc.name as came_from ,
+    o.comment AS comment ,
+    CONCAT_WS('',
+            CONCAT(e.last_name, ' '),
+            IF(e.name = '',
+                '',
+                CONCAT(LEFT(e.name, 1), '.')),
+            IF(e.patronymic = '',
+                '',
+                CONCAT(LEFT(e.patronymic, 1), '.'))) AS order_creator
+FROM 
+    orders o
+    JOIN order_items i ON o.id = i.order_id
+    JOIN nomenclature ON nomenclature.id = i.nomenclature_id
+    JOIN discount_reasons d ON i.discount_reason_id = d.id
+    JOIN counterparty c ON o.id = c.first_order_id
+    JOIN delivery_points dp ON dp.id = o.delivery_point_id
+    LEFT JOIN employees e ON e.id = o.author_employee_id
+    LEFT JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
+    LEFT JOIN schedule_restricted_districts schrd ON schrd.id = dp.schedule_restricted_district_id
+    LEFT JOIN geographic_groups_to_entities gg_to_e ON gg_to_e.district_id = schrd.id
+    LEFT JOIN geographic_groups gg ON gg_to_e .geographic_group_id = gg.id
+    LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
+    LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
+WHERE 
+    o.delivery_date BETWEEN @start_date AND @end_date
+    AND (@discount_id = 0 OR d.id = @discount_id)
 GROUP BY o.id DESC
 ;</CommandText>
         <QueryParameters>
@@ -410,7 +686,7 @@ GROUP BY o.id DESC
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -438,6 +714,75 @@ GROUP BY o.id DESC
         <Field Name="comment">
           <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="person_type">
+          <DataField>person_type</DataField>
+        </Field>
+        <Field Name="nomenclatures">
+          <DataField>nomenclatures</DataField>
+        </Field>
+        <Field Name="sum_to_receive">
+          <DataField>sum_to_receive</DataField>
+        </Field>
+        <Field Name="payment_type">
+          <DataField>payment_type</DataField>
+        </Field>
+        <Field Name="geographic_group">
+          <DataField>geographic_group</DataField>
+        </Field>
+        <Field Name="came_from">
+          <DataField>came_from</DataField>
+        </Field>
+        <Field Name="order_creator">
+          <DataField>order_creator</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Stats">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    GROUP_CONCAT(concat_ws(': ' ,stats.came_from ,stats.orders_count ) SEPARATOR ' | ') as stats
+FROM    
+(
+    SELECT
+        COUNT(DISTINCT i.order_id)  as orders_count,
+        cc.name as came_from
+    FROM 
+        orders o
+        JOIN order_items i ON o.id = i.order_id
+        JOIN nomenclature ON nomenclature.id = i.nomenclature_id
+        JOIN discount_reasons d ON i.discount_reason_id = d.id
+        JOIN counterparty c ON o.id = c.first_order_id
+        JOIN delivery_points dp ON dp.id = o.delivery_point_id
+        JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
+        LEFT JOIN employees e ON e.id = o.author_employee_id
+        LEFT JOIN schedule_restricted_districts schrd ON schrd.id = dp.schedule_restricted_district_id
+        LEFT JOIN geographic_groups_to_entities gg_to_e ON gg_to_e.district_id = schrd.id
+        LEFT JOIN geographic_groups gg ON gg_to_e .geographic_group_id = gg.id
+        LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
+        LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
+    WHERE 
+        o.delivery_date BETWEEN @start_date AND @end_date
+        AND (@discount_id = 0 OR d.id = @discount_id)
+    GROUP BY cc.id DESC 
+) as stats
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="discount_id">
+            <Value>={?discount_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="stats">
+          <DataField>stats</DataField>
         </Field>
       </Fields>
     </DataSet>

@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.IO;
+using Gdk;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.StoredResources
@@ -14,7 +15,7 @@ namespace Vodovoz.Domain.StoredResources
 	{
 	
 		[Display(Name = "Изображение")]
-		public virtual Image Image {
+		public virtual System.Drawing.Image Image {
 			get { return GetImageFromBinary(); }
 			set { SetBinaryFromImage(value);}
 		}
@@ -24,20 +25,20 @@ namespace Vodovoz.Domain.StoredResources
 			this.Type = ResoureceType.Image;
 		}
 
-		private Image GetImageFromBinary()
+		private System.Drawing.Image GetImageFromBinary()
 		{
-			Image resImage; 
+			System.Drawing.Image resImage; 
 			if(BinaryFile == null) {
 				return null;
 			}
 
 			using(var ms = new MemoryStream(BinaryFile)) {
-				resImage = Image.FromStream(ms);
+				resImage = System.Drawing.Image.FromStream(ms);
 			}
 			return resImage;
 		}
 
-		private void SetBinaryFromImage(Image image)
+		private void SetBinaryFromImage(System.Drawing.Image image)
 		{
 			if(image == null) {
 				return;
@@ -46,6 +47,15 @@ namespace Vodovoz.Domain.StoredResources
 				Image.Save(ms, Image.RawFormat);
 				BinaryFile = ms.ToArray();
 			}
+		}
+
+		public virtual Pixbuf GetPixbufImg()
+		{
+			Pixbuf pix;
+			using(var ms = new MemoryStream(BinaryFile)) {
+				pix = new Pixbuf(ms);
+			}
+			return pix;
 		}
 	}
 }

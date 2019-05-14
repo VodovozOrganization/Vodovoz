@@ -86,6 +86,10 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
+			if(spinBottles.Value == 0f && spinDepositsBottles.Value == 0f && spinDepositsEquipment.Value == 0f) {
+				MessageDialogHelper.RunErrorDialog("Вы ничего не указали для перемещения.");
+				return false;
+			}
 
 			messages.AddRange(Entity.SaveOperations(UoWGeneric, (int)spinBottles.Value, (decimal)spinDepositsBottles.Value, (decimal)spinDepositsEquipment.Value));
 

@@ -1,6 +1,7 @@
-﻿using System.Linq;
-using QSBanks;
+﻿using System;
+using System.Linq;
 using QS.DomainModel.UoW;
+using QSBanks;
 using QSSupportLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -13,8 +14,12 @@ namespace Vodovoz.Repository
 		public const string CashOrganization = "cash_organization_id";
 		public const string CashlessOrganization = "cashless_organization_id";
 
+		internal static Func<IUnitOfWork, PersonType, PaymentType, Organization> GetOrganizationByPaymentTypeTestGap;
 		public static Organization GetOrganizationByPaymentType(IUnitOfWork uow, PersonType personType, PaymentType paymentType)
 		{
+			if(GetOrganizationByPaymentTypeTestGap != null)
+				return GetOrganizationByPaymentTypeTestGap(uow, personType, paymentType);
+
 			var contractType = DocTemplateRepository.GetContractTypeForPaymentType(personType, paymentType);
 
 			DocTemplate template =

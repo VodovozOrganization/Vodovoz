@@ -486,7 +486,7 @@ namespace Vodovoz
 		void CalculateTotal()
 		{
 			var items = routeListAddressesView.Items.Where(item => item.IsDelivered());
-			bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
+			bottlesReturnedTotal = items.Sum(item => item.BottlesReturned + item.Order.BottlesByStockActualCount);
 			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems)
 										.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 										.Sum(item => item.ActualCount ?? 0);
@@ -587,7 +587,7 @@ namespace Vodovoz
 			var hasItemsDiscrepancies = routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0);
 			bool hasFine = Entity.BottleFine != null;
 			var items = Entity.Addresses.Where(item => item.IsDelivered());
-			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
+			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned + item.Order.BottlesByStockActualCount);
 			var hasTotalBottlesDiscrepancy = bottlesReturnedToWarehouse != bottlesReturnedTotal;
 			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies) || Entity.DifferencesConfirmed;
 		}

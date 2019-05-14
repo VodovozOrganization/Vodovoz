@@ -16,6 +16,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.Config;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Cash;
+using QS.DomainModel.NotifyChange;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
@@ -99,19 +100,14 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private void ConfigEntityUpdateSubscribes()
 		{
-			IEntityConfig routelistEntityConfig = DomainConfiguration.GetEntityConfig(typeof(RouteList));
-			routelistEntityConfig.EntityUpdated += RoutelistEntityConfig_EntityUpdated;
-
-			IEntityConfig incomeCategoryEntityConfig = DomainConfiguration.GetEntityConfig(typeof(IncomeCategory));
-			incomeCategoryEntityConfig.EntityUpdated += IncomeCategoryEntityConfig_EntityUpdated;
-
-			IEntityConfig expenseCategoryEntityConfig = DomainConfiguration.GetEntityConfig(typeof(ExpenseCategory));
-			expenseCategoryEntityConfig.EntityUpdated += ExpenseCategoryEntityConfig_EntityUpdated; ;
+			NotifyConfiguration.Instance.WatchMany<RouteList>(RoutelistEntityConfig_EntityUpdated);
+			NotifyConfiguration.Instance.WatchMany<IncomeCategory>(IncomeCategoryEntityConfig_EntityUpdated);
+			NotifyConfiguration.Instance.WatchMany<ExpenseCategory>(ExpenseCategoryEntityConfig_EntityUpdated);
 		}
 
-		private void RoutelistEntityConfig_EntityUpdated(object sender, EntityUpdatedEventArgs e)
+		private void RoutelistEntityConfig_EntityUpdated(EntityChangeEvent[] changeEvents)
 		{
-			foreach(var updatedItem in e.UpdatedSubjects) {
+			foreach(var updatedItem in changeEvents.Select(x => x.Entity)) {
 				RouteList updatedRouteList = updatedItem as RouteList;
 				if(updatedRouteList != null) {
 					var foundRouteList = Entity.CashTransferDocumentIncomeItems
@@ -126,9 +122,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			}
 		}
 
-		private void IncomeCategoryEntityConfig_EntityUpdated(object sender, EntityUpdatedEventArgs e)
+		private void IncomeCategoryEntityConfig_EntityUpdated(EntityChangeEvent[] changeEvents)
 		{
-			foreach(var updatedItem in e.UpdatedSubjects) {
+			foreach(var updatedItem in changeEvents.Select(x => x.Entity)) {
 				IncomeCategory updatedIncomeCategory = updatedItem as IncomeCategory;
 				//Если хотябы одна необходимая статья обновилась можем обнлять весь список.
 				if(updatedIncomeCategory != null && updatedIncomeCategory.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeTransferDocument) {
@@ -138,9 +134,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			}
 		}
 
-		private void ExpenseCategoryEntityConfig_EntityUpdated(object sender, EntityUpdatedEventArgs e)
+		private void ExpenseCategoryEntityConfig_EntityUpdated(EntityChangeEvent[] changeEvents)
 		{
-			foreach(var updatedItem in e.UpdatedSubjects) {
+			foreach(var updatedItem in changeEvents.Select(x => x.Entity)) {
 				ExpenseCategory updatedExpenseCategory = updatedItem as ExpenseCategory;
 				//Если хотябы одна необходимая статья обновилась можем обнлять весь список.
 				if(updatedExpenseCategory != null && updatedExpenseCategory.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseTransferDocument) {

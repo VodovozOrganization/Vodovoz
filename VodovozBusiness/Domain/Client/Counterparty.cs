@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
@@ -21,12 +20,15 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Client
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "контрагенты",
-		Nominative = "контрагент",
-		Accusative = "контрагента",
-		Genitive = "контрагента"
-	)]
+	[
+		Appellative(
+			Gender = GrammaticalGender.Masculine,
+			NominativePlural = "контрагенты",
+			Nominative = "контрагент",
+			Accusative = "контрагента",
+			Genitive = "контрагента"
+		)
+	]
 	[HistoryTrace]
 	[EntityPermission]
 	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IValidatableObject
@@ -40,16 +42,16 @@ namespace Vodovoz.Domain.Client
 
 		[Display(Name = "Договоры")]
 		public virtual IList<CounterpartyContract> CounterpartyContracts {
-			get { return counterpartyContracts; }
-			set { SetField(ref counterpartyContracts, value, () => CounterpartyContracts); }
+			get => counterpartyContracts;
+			set => SetField(ref counterpartyContracts, value, () => CounterpartyContracts);
 		}
 
 		private IList<DeliveryPoint> deliveryPoints = new List<DeliveryPoint>();
 
 		[Display(Name = "Точки доставки")]
 		public virtual IList<DeliveryPoint> DeliveryPoints {
-			get { return deliveryPoints; }
-			set { SetField(ref deliveryPoints, value, () => DeliveryPoints); }
+			get => deliveryPoints;
+			set => SetField(ref deliveryPoints, value, () => DeliveryPoints);
 		}
 
 		GenericObservableList<DeliveryPoint> observableDeliveryPoints;
@@ -66,8 +68,8 @@ namespace Vodovoz.Domain.Client
 
 		[Display(Name = "Теги")]
 		public virtual IList<Tag> Tags {
-			get { return tags; }
-			set { SetField(ref tags, value, () => Tags); }
+			get => tags;
+			set => SetField(ref tags, value, () => Tags);
 		}
 
 		GenericObservableList<Tag> observableTags;
@@ -84,16 +86,16 @@ namespace Vodovoz.Domain.Client
 
 		[Display(Name = "Контактные лица")]
 		public virtual IList<Contact> Contacts {
-			get { return contact; }
-			set { SetField(ref contact, value, () => Contacts); }
+			get => contact;
+			set => SetField(ref contact, value, () => Contacts);
 		}
 
 		private IList<Proxy> proxies;
 
 		[Display(Name = "Доверенности")]
 		public virtual IList<Proxy> Proxies {
-			get { return proxies; }
-			set { SetField(ref proxies, value, () => Proxies); }
+			get => proxies;
+			set => SetField(ref proxies, value, () => Proxies);
 		}
 
 		public virtual int Id { get; set; }
@@ -102,8 +104,8 @@ namespace Vodovoz.Domain.Client
 
 		[Display(Name = "Максимальный кредит")]
 		public virtual decimal MaxCredit {
-			get { return maxCredit; }
-			set { SetField(ref maxCredit, value, () => MaxCredit); }
+			get => maxCredit;
+			set => SetField(ref maxCredit, value, () => MaxCredit);
 		}
 
 		string name;
@@ -111,13 +113,10 @@ namespace Vodovoz.Domain.Client
 		[Required(ErrorMessage = "Название контрагента должно быть заполнено.")]
 		[Display(Name = "Название")]
 		public virtual string Name {
-			get { return name; }
+			get => name;
 			set {
-				if(SetField(ref name, value, () => Name)) {
-					if(PersonType == PersonType.natural) {
-						FullName = Name;
-					}
-				}
+				if(SetField(ref name, value, () => Name) && PersonType == PersonType.natural)
+					FullName = Name;
 			}
 		}
 
@@ -126,16 +125,16 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Форма собственности")]
 		[StringLength(10)]
 		public virtual string TypeOfOwnership {
-			get { return typeOfOwnership; }
-			set { SetField(ref typeOfOwnership, value, () => TypeOfOwnership); }
+			get => typeOfOwnership;
+			set => SetField(ref typeOfOwnership, value, () => TypeOfOwnership);
 		}
 
 		string fullName;
 
 		[Display(Name = "Полное название")]
 		public virtual string FullName {
-			get { return fullName; }
-			set { SetField(ref fullName, value, () => FullName); }
+			get => fullName;
+			set => SetField(ref fullName, value, () => FullName);
 		}
 
 		/// <summary>
@@ -144,55 +143,55 @@ namespace Vodovoz.Domain.Client
 		int vodovozInternalId;
 		[Display(Name = "Внутренний номер контрагента")]
 		public virtual int VodovozInternalId {
-			get { return vodovozInternalId; }
-			set { SetField(ref vodovozInternalId, value, () => VodovozInternalId); }
+			get => vodovozInternalId;
+			set => SetField(ref vodovozInternalId, value, () => VodovozInternalId);
 		}
 
 		string code1c;
 
 		public virtual string Code1c {
-			get { return code1c; }
-			set { SetField(ref code1c, value, () => Code1c); }
+			get => code1c;
+			set => SetField(ref code1c, value, () => Code1c);
 		}
 
 		string comment;
 
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
-			get { return comment; }
-			set { SetField(ref comment, value, () => Comment); }
+			get => comment;
+			set => SetField(ref comment, value, () => Comment);
 		}
 
 		string iNN;
 
 		[Display(Name = "ИНН")]
 		public virtual string INN {
-			get { return iNN; }
-			set { SetField(ref iNN, value, () => INN); }
+			get => iNN;
+			set => SetField(ref iNN, value, () => INN);
 		}
 
 		string kPP;
 
 		[Display(Name = "КПП")]
 		public virtual string KPP {
-			get { return kPP; }
-			set { SetField(ref kPP, value, () => KPP); }
+			get => kPP;
+			set => SetField(ref kPP, value, () => KPP);
 		}
 
 		string jurAddress;
 
 		[Display(Name = "Юридический адрес")]
 		public virtual string JurAddress {
-			get { return jurAddress; }
-			set { SetField(ref jurAddress, value, () => JurAddress); }
+			get => jurAddress;
+			set => SetField(ref jurAddress, value, () => JurAddress);
 		}
 
 		string address;
 
 		[Display(Name = "Фактический адрес")]
 		public virtual string Address {
-			get { return address; }
-			set { SetField(ref address, value, () => Address); }
+			get => address;
+			set => SetField(ref address, value, () => Address);
 		}
 
 		PaymentType paymentMethod;
@@ -214,56 +213,56 @@ namespace Vodovoz.Domain.Client
 
 		[Display(Name = "Форма контрагента")]
 		public virtual PersonType PersonType {
-			get { return personType; }
-			set { SetField(ref personType, value, () => PersonType); }
+			get => personType;
+			set => SetField(ref personType, value, () => PersonType);
 		}
 
 		ExpenseCategory defaultExpenseCategory;
 
 		[Display(Name = "Расход по-умолчанию")]
 		public virtual ExpenseCategory DefaultExpenseCategory {
-			get { return defaultExpenseCategory; }
-			set { SetField(ref defaultExpenseCategory, value, () => DefaultExpenseCategory); }
+			get => defaultExpenseCategory;
+			set => SetField(ref defaultExpenseCategory, value, () => DefaultExpenseCategory);
 		}
 
 		Counterparty mainCounterparty;
 
 		[Display(Name = "Головная организация")]
 		public virtual Counterparty MainCounterparty {
-			get { return mainCounterparty; }
-			set { SetField(ref mainCounterparty, value, () => MainCounterparty); }
+			get => mainCounterparty;
+			set => SetField(ref mainCounterparty, value, () => MainCounterparty);
 		}
 
 		Counterparty previousCounterparty;
 
 		[Display(Name = "Предыдущий контрагент")]
 		public virtual Counterparty PreviousCounterparty {
-			get { return previousCounterparty; }
-			set { SetField(ref previousCounterparty, value, () => PreviousCounterparty); }
+			get => previousCounterparty;
+			set => SetField(ref previousCounterparty, value, () => PreviousCounterparty);
 		}
 
 		bool isArchive;
 
 		[Display(Name = "Архивный")]
 		public virtual bool IsArchive {
-			get { return isArchive; }
-			set { SetField(ref isArchive, value, () => IsArchive); }
+			get => isArchive;
+			set => SetField(ref isArchive, value, () => IsArchive);
 		}
 
 		IList<Phone> phones;
 
 		[Display(Name = "Телефоны")]
 		public virtual IList<Phone> Phones {
-			get { return phones; }
-			set { SetField(ref phones, value, () => Phones); }
+			get => phones;
+			set => SetField(ref phones, value, () => Phones);
 		}
 
 		string ringUpPhone;
 
 		[Display(Name = "Телефон для обзвона")]
 		public virtual string RingUpPhone {
-			get { return ringUpPhone; }
-			set { SetField(ref ringUpPhone, value, () => RingUpPhone); }
+			get => ringUpPhone;
+			set => SetField(ref ringUpPhone, value, () => RingUpPhone);
 		}
 
 
@@ -271,162 +270,162 @@ namespace Vodovoz.Domain.Client
 
 		[Display(Name = "E-mail адреса")]
 		public virtual IList<Email> Emails {
-			get { return emails; }
-			set { SetField(ref emails, value, () => Emails); }
+			get => emails;
+			set => SetField(ref emails, value, () => Emails);
 		}
 
 		Employee accountant;
 
 		[Display(Name = "Бухгалтер")]
 		public virtual Employee Accountant {
-			get { return accountant; }
-			set { SetField(ref accountant, value, () => Accountant); }
+			get => accountant;
+			set => SetField(ref accountant, value, () => Accountant);
 		}
 
 		Employee salesManager;
 
 		[Display(Name = "Менеджер по продажам")]
 		public virtual Employee SalesManager {
-			get { return salesManager; }
-			set { SetField(ref salesManager, value, () => SalesManager); }
+			get => salesManager;
+			set => SetField(ref salesManager, value, () => SalesManager);
 		}
 
 		Employee bottlesManager;
 
 		[Display(Name = "Менеджер по бутылям")]
 		public virtual Employee BottlesManager {
-			get { return bottlesManager; }
-			set { SetField(ref bottlesManager, value, () => BottlesManager); }
+			get => bottlesManager;
+			set => SetField(ref bottlesManager, value, () => BottlesManager);
 		}
 
 		Contact mainContact;
 
 		[Display(Name = "Главное контактное лицо")]
 		public virtual Contact MainContact {
-			get { return mainContact; }
-			set { SetField(ref mainContact, value, () => MainContact); }
+			get => mainContact;
+			set => SetField(ref mainContact, value, () => MainContact);
 		}
 
 		Contact financialContact;
 
 		[Display(Name = "Контакт по финансовым вопросам")]
 		public virtual Contact FinancialContact {
-			get { return financialContact; }
-			set { SetField(ref financialContact, value, () => FinancialContact); }
+			get => financialContact;
+			set => SetField(ref financialContact, value, () => FinancialContact);
 		}
 
 		DefaultDocumentType? defaultDocumentType;
 
 		[Display(Name = "Тип безналичных документов по-умолчанию")]
 		public virtual DefaultDocumentType? DefaultDocumentType {
-			get { return defaultDocumentType; }
-			set { SetField(ref defaultDocumentType, value, () => DefaultDocumentType); }
+			get => defaultDocumentType;
+			set => SetField(ref defaultDocumentType, value, () => DefaultDocumentType);
 		}
 
 		private bool newBottlesNeeded;
 
 		[Display(Name = "Новая необоротная тара")]
 		public virtual bool NewBottlesNeeded {
-			get { return newBottlesNeeded; }
-			set { SetField(ref newBottlesNeeded, value, () => NewBottlesNeeded); }
+			get => newBottlesNeeded;
+			set => SetField(ref newBottlesNeeded, value, () => NewBottlesNeeded);
 		}
 
 		string signatoryFIO;
 
 		[Display(Name = "ФИО подписанта")]
 		public virtual string SignatoryFIO {
-			get { return signatoryFIO; }
-			set { SetField(ref signatoryFIO, value, () => SignatoryFIO); }
+			get => signatoryFIO;
+			set => SetField(ref signatoryFIO, value, () => SignatoryFIO);
 		}
 
 		string signatoryPost;
 
 		[Display(Name = "Должность подписанта")]
 		public virtual string SignatoryPost {
-			get { return signatoryPost; }
-			set { SetField(ref signatoryPost, value, () => SignatoryPost); }
+			get => signatoryPost;
+			set => SetField(ref signatoryPost, value, () => SignatoryPost);
 		}
 
 		string signatoryBaseOf;
 
 		[Display(Name = "На основании")]
 		public virtual string SignatoryBaseOf {
-			get { return signatoryBaseOf; }
-			set { SetField(ref signatoryBaseOf, value, () => SignatoryBaseOf); }
+			get => signatoryBaseOf;
+			set => SetField(ref signatoryBaseOf, value, () => SignatoryBaseOf);
 		}
 
 		string phoneFrom1c;
 
 		[Display(Name = "Телефон")]
 		public virtual string PhoneFrom1c {
-			get { return phoneFrom1c; }
-			set { SetField(ref phoneFrom1c, value, () => PhoneFrom1c); }
+			get => phoneFrom1c;
+			set => SetField(ref phoneFrom1c, value, () => PhoneFrom1c);
 		}
 
 		ClientCameFrom cameFrom;
 
 		[Display(Name = "Откуда клиент")]
 		public virtual ClientCameFrom CameFrom {
-			get { return cameFrom; }
-			set { SetField(ref cameFrom, value, () => CameFrom); }
+			get => cameFrom;
+			set => SetField(ref cameFrom, value, () => CameFrom);
 		}
 
 		Order firstOrder;
 
 		[Display(Name = "Первый заказ")]
 		public virtual Order FirstOrder {
-			get { return firstOrder; }
-			set { SetField(ref firstOrder, value, () => FirstOrder); }
+			get => firstOrder;
+			set => SetField(ref firstOrder, value, () => FirstOrder);
 		}
 
 		bool useSpecialDocFields;
 
 		[Display(Name = "Особая печать документов ")]
 		public virtual bool UseSpecialDocFields {
-			get { return useSpecialDocFields; }
-			set { SetField(ref useSpecialDocFields, value, () => UseSpecialDocFields); }
+			get => useSpecialDocFields;
+			set => SetField(ref useSpecialDocFields, value, () => UseSpecialDocFields);
 		}
 
 		string contractNumber;
 		[Display(Name = "Особый номер договора")]
 		public virtual string SpecialContractNumber {
-			get { return contractNumber; }
-			set { SetField(ref contractNumber, value, () => SpecialContractNumber); }
+			get => contractNumber;
+			set => SetField(ref contractNumber, value, () => SpecialContractNumber);
 		}
 
 		string specialKPP;
 		[Display(Name = "Особый КПП")]
 		public virtual string SpecialKPP {
-			get { return specialKPP; }
-			set { SetField(ref specialKPP, value, () => SpecialKPP); }
+			get => specialKPP;
+			set => SetField(ref specialKPP, value, () => SpecialKPP);
 		}
 
 		string cargoReceiver;
 		[Display(Name = "Грузополучатель")]
 		public virtual string CargoReceiver {
-			get { return cargoReceiver; }
-			set { SetField(ref cargoReceiver, value, () => CargoReceiver); }
+			get => cargoReceiver;
+			set => SetField(ref cargoReceiver, value, () => CargoReceiver);
 		}
 
 		string customer;
 		[Display(Name = "Особый покупатель")]
 		public virtual string SpecialCustomer {
-			get { return customer; }
-			set { SetField(ref customer, value, () => SpecialCustomer); }
+			get => customer;
+			set => SetField(ref customer, value, () => SpecialCustomer);
 		}
 
 		string govContract;
 		[Display(Name = "Идентификатор государственного контракта")]
 		public virtual string GovContract {
-			get { return govContract; }
-			set { SetField(ref govContract, value, () => GovContract); }
+			get => govContract;
+			set => SetField(ref govContract, value, () => GovContract);
 		}
 
 		string deliveryAddress;
 		[Display(Name = "Особый адрес доставки")]
 		public virtual string SpecialDeliveryAddress {
-			get { return deliveryAddress; }
-			set { SetField(ref deliveryAddress, value, () => SpecialDeliveryAddress); }
+			get => deliveryAddress;
+			set => SetField(ref deliveryAddress, value, () => SpecialDeliveryAddress);
 		}
 
 		ChequeResponse? needCheque;
@@ -472,13 +471,13 @@ namespace Vodovoz.Domain.Client
 
 		public Counterparty()
 		{
-			Name = String.Empty;
-			FullName = String.Empty;
-			Comment = String.Empty;
-			INN = String.Empty;
-			KPP = String.Empty;
-			JurAddress = String.Empty;
-			PhoneFrom1c = String.Empty;
+			Name = string.Empty;
+			FullName = string.Empty;
+			Comment = string.Empty;
+			INN = string.Empty;
+			KPP = string.Empty;
+			JurAddress = string.Empty;
+			PhoneFrom1c = string.Empty;
 		}
 
 		#region IValidatableObject implementation
@@ -513,10 +512,10 @@ namespace Vodovoz.Domain.Client
 				if(INN.Length != 12 && INN.Length != 0 && TypeOfOwnership == "ИП")
 					yield return new ValidationResult("Длина ИНН для ИП должна равнятся 12-ти.",
 						new[] { this.GetPropertyName(o => o.INN) });
-				if(String.IsNullOrWhiteSpace(KPP) && TypeOfOwnership != "ИП")
+				if(string.IsNullOrWhiteSpace(KPP) && TypeOfOwnership != "ИП")
 					yield return new ValidationResult("Для организации необходимо заполнить КПП.",
 						new[] { this.GetPropertyName(o => o.KPP) });
-				if(String.IsNullOrWhiteSpace(INN))
+				if(string.IsNullOrWhiteSpace(INN))
 					yield return new ValidationResult("Для организации необходимо заполнить ИНН.",
 						new[] { this.GetPropertyName(o => o.INN) });
 				if(!Regex.IsMatch(KPP, "^[0-9]*$") && TypeOfOwnership != "ИП")
@@ -532,29 +531,29 @@ namespace Vodovoz.Domain.Client
 					.Select(c => c.Id.ToString()).ToList();
 				if(unclosedContracts.Count > 0)
 					yield return new ValidationResult(
-						String.Format("Вы не можете сдать контрагента в архив с открытыми договорами: {0}", String.Join(", ", unclosedContracts)),
+						string.Format("Вы не можете сдать контрагента в архив с открытыми договорами: {0}", string.Join(", ", unclosedContracts)),
 						new[] { this.GetPropertyName(o => o.CounterpartyContracts) });
 
 				var balance = Repository.Operations.MoneyRepository.GetCounterpartyDebt(UoW, this);
 				if(balance != 0)
 					yield return new ValidationResult(
-						String.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}", CurrencyWorks.GetShortCurrencyString(balance)));
+						string.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}", CurrencyWorks.GetShortCurrencyString(balance)));
 
 				var activeOrders = OrderRepository.GetCurrentOrders(UoW, this);
 				if(activeOrders.Count > 0)
 					yield return new ValidationResult(
-						String.Format("Вы не можете сдать контрагента в архив с незакрытыми заказами: {0}", String.Join(", ", activeOrders.Select(o => o.Id.ToString()))),
+						string.Format("Вы не можете сдать контрагента в архив с незакрытыми заказами: {0}", string.Join(", ", activeOrders.Select(o => o.Id.ToString()))),
 						new[] { this.GetPropertyName(o => o.CounterpartyContracts) });
 
 				var deposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, this, null);
 				if(balance != 0)
 					yield return new ValidationResult(
-						String.Format("Вы не можете сдать контрагента в архив так как у него есть невозвращенные залоги: {0}", CurrencyWorks.GetShortCurrencyString(deposit)));
+						string.Format("Вы не можете сдать контрагента в архив так как у него есть невозвращенные залоги: {0}", CurrencyWorks.GetShortCurrencyString(deposit)));
 
 				var bottles = Repository.Operations.BottlesRepository.GetBottlesAtCounterparty(UoW, this);
 				if(balance != 0)
 					yield return new ValidationResult(
-						String.Format("Вы не можете сдать контрагента в архив так как он не вернул {0} бутылей", bottles));
+						string.Format("Вы не можете сдать контрагента в архив так как он не вернул {0} бутылей", bottles));
 
 			}
 
@@ -587,10 +586,10 @@ namespace Vodovoz.Domain.Client
 
 	public enum DefaultDocumentType
 	{
-		[ItemTitleAttribute("УПД")]
+		[ItemTitle("УПД")]
 		[Display(Name = "УПД")]
 		upd,
-		[ItemTitleAttribute("ТОРГ-12 + Счет-Фактура")]
+		[ItemTitle("ТОРГ-12 + Счет-Фактура")]
 		[Display(Name = "ТОРГ-12 + Счет-Фактура")]
 		torg12
 	}

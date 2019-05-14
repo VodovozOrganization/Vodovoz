@@ -11,6 +11,7 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -224,10 +225,10 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual bool FullyShiped(IUnitOfWork uow)
+		public virtual bool FullyShiped(IUnitOfWork uow , IStandartNomenclatures standartNomenclatures)
 		{
 			//Проверка текущего документа
-			return Order.TryCloseSelfDeliveryOrder(uow, this);
+			return Order.TryCloseSelfDeliveryOrder(uow, standartNomenclatures, this );
 		}
 
 		#endregion

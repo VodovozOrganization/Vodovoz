@@ -93,11 +93,11 @@ namespace Vodovoz.Repositories.Orders
 									   .Select(Projections.Sum(
 										   Projections.SqlFunction(new VarArgsSQLFunction("", " * ", ""),
 																   NHibernateUtil.Decimal,
-				                                                   Projections.Conditional(
-					                                                   Restrictions.IsNotNull(Projections.Property<OrderItem>(x => x.ActualCount)),
-					                                                   Projections.Property<OrderItem>(x => x.ActualCount),
-					                                                   Projections.Property<OrderItem>(x => x.Count)
-					                                                  ),
+																   Projections.Conditional(
+																	   Restrictions.IsNotNull(Projections.Property<OrderItem>(x => x.ActualCount)),
+																	   Projections.Property<OrderItem>(x => x.ActualCount),
+																	   Projections.Property<OrderItem>(x => x.Count)
+																	  ),
 																   Projections.Property<OrderItem>(x => x.Price),
 																   Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( 1 - ?1 / 100 )"),
 																						   NHibernateUtil.Decimal,
@@ -135,6 +135,31 @@ namespace Vodovoz.Repositories.Orders
 				.List<VodovozOrder>();
 		}
 
+		internal static Func<IUnitOfWork, Counterparty, VodovozOrder> GetFirstRealOrderForClientTestGap;
+		/// <summary>
+		/// Первый заказ контрагента, который можно считать выполненым.
+		/// </summary>
+		/// <returns>Первый заказ</returns>
+		/// <param name="uow">UoW</param>
+		/// <param name="counterparty">Контрагент</param>
+		public static VodovozOrder GetFirstRealOrderForClient(IUnitOfWork uow, Counterparty counterparty)
+		{
+			if(counterparty?.FirstOrder != null && GetValidStatusesToUseActionBottle().Contains(counterparty.FirstOrder.OrderStatus))
+				return counterparty.FirstOrder;
+
+			if(GetFirstRealOrderForClientTestGap != null)
+				return GetFirstRealOrderForClientTestGap(uow, counterparty);
+
+			var query = uow.Session.QueryOver<VodovozOrder>()
+						   .Where(o => o.Id > 0)
+						   .Where(o => o.Client == counterparty)
+						   .Where(o => o.OrderStatus.IsIn(GetValidStatusesToUseActionBottle()))
+						   .OrderBy(o => o.DeliveryDate).Asc
+						   .Take(1)
+						   ;
+			return query.List().FirstOrDefault();
+		}
+
 		/// <summary>
 		/// Кол-во 19л. воды в заказе
 		/// </summary>
@@ -170,14 +195,14 @@ namespace Vodovoz.Repositories.Orders
 								   .Where(() => orderEquipmentAlias.Order.Id == order.Id)
 								   .Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 								   .Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
-			                       .SelectList(list => list
-			                                   .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
-			                                   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-			                                   .Select(() => nomenclatureAlias.ShortName).WithAlias(() => resultAlias.ShortName)
-			                                   .Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.Count)
+								   .SelectList(list => list
+											   .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
+											   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+											   .Select(() => nomenclatureAlias.ShortName).WithAlias(() => resultAlias.ShortName)
+											   .Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.Count)
 									  )
-			                       .TransformUsing(Transformers.AliasToBean<ClientEquipmentNode>())
-			                       .List<ClientEquipmentNode>();
+								   .TransformUsing(Transformers.AliasToBean<ClientEquipmentNode>())
+								   .List<ClientEquipmentNode>();
 			return equipToClient;
 		}
 
@@ -195,16 +220,16 @@ namespace Vodovoz.Repositories.Orders
 
 			var equipFromClient = uow.Session.QueryOver(() => orderEquipmentAlias)
 								   .Where(() => orderEquipmentAlias.Order.Id == order.Id)
-			                       .Where(() => orderEquipmentAlias.Direction == Direction.PickUp)
+								   .Where(() => orderEquipmentAlias.Direction == Direction.PickUp)
 								   .Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
-			                       .SelectList(list => list
-			                                   .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
-			                                   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-			                                   .Select(() => nomenclatureAlias.ShortName).WithAlias(() => resultAlias.ShortName)
-			                                   .Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.Count)
+								   .SelectList(list => list
+											   .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
+											   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+											   .Select(() => nomenclatureAlias.ShortName).WithAlias(() => resultAlias.ShortName)
+											   .Select(() => orderEquipmentAlias.Count).WithAlias(() => resultAlias.Count)
 									  )
-			                       .TransformUsing(Transformers.AliasToBean<ClientEquipmentNode>())
-			                       .List<ClientEquipmentNode>();
+								   .TransformUsing(Transformers.AliasToBean<ClientEquipmentNode>())
+								   .List<ClientEquipmentNode>();
 			return equipFromClient;
 		}
 
@@ -271,6 +296,16 @@ namespace Vodovoz.Repositories.Orders
 					  .List().FirstOrDefault();
 		}
 
+		public static bool IsBottleStockExists(IUnitOfWork uow, Counterparty counterparty)
+		{
+			var stockBottleOrder = uow.Session.QueryOver<VodovozOrder>()
+				.Where(x => x.IsBottleStock)
+				.And(x => x.Client.Id == counterparty.Id)
+				.Take(1)
+				.SingleOrDefault();
+
+			return stockBottleOrder != null;
+		}
 
 		public static OrderStatus[] GetOnClosingOrderStatuses()
 		{
@@ -318,6 +353,21 @@ namespace Vodovoz.Repositories.Orders
 				OrderStatus.WaitForPayment
 			};
 		}
+
+		public static OrderStatus[] GetValidStatusesToUseActionBottle()
+		{
+			return new OrderStatus[]{
+				OrderStatus.Accepted,
+				OrderStatus.Closed,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.WaitForPayment
+			};
+		}
+
 	}
 
 	public class ClientEquipmentNode

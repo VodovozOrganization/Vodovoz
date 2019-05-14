@@ -31,6 +31,8 @@ using QSProjectsLib;
 using QSReport;
 using QSSupportLib;
 using QSValidation;
+using QSWidgetLib;
+using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -49,8 +51,10 @@ using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Repository.Operations;
+using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.Tools;
 using Vodovoz.ViewModelBased;
 
 namespace Vodovoz
@@ -225,8 +229,13 @@ namespace Vodovoz
 			checkPayAfterLoad.Binding.AddBinding(Entity, s => s.PayAfterShipment, w => w.Active).InitializeFromSource();
 			checkDelivered.Binding.AddBinding(Entity, s => s.Shipped, w => w.Active).InitializeFromSource();
 			ylabelloadAllowed.Binding.AddFuncBinding(Entity, s => s.LoadAllowedBy != null ? s.LoadAllowedBy.ShortName : "", w => w.Text).InitializeFromSource();
-			entryBottlesToReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			entryBottlesToReturn.ValidationMode = ValidationType.numeric;
 			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+
+			entryBottlesToReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
+			yChkActionBottle.Toggled += YChkActionBottle_Toggled;
+			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount , w => w.Text , new IntToStringValuableConverter()).InitializeFromSource();
 
 			if(Entity.OrderStatus == OrderStatus.Closed) {
 				entryTareReturned.Text = BottlesRepository.GetEmptyBottlesFromClientByOrder(UoW, Entity).ToString();
@@ -352,9 +361,19 @@ namespace Vodovoz
 
 			UpdateUIState();
 
+			yChkActionBottle.Toggled += (sender, e) => ControlsActionBottleAccessibility();
+
 			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
 			HasChanges = true;
 			UoW.CanCheckIfDirty = false;
+		}
+
+		void ControlsActionBottleAccessibility()
+		{
+			bool canAddAction = Entity.CanAddStockBottle() || Entity.IsBottleStock;
+			hboxBottlesByStock.Visible = canAddAction;
+			hboxReturnTare.Visible = !canAddAction;
+			yEntTareActBtlFromClient.Sensitive = canAddAction;
 		}
 
 		private void ConfigureTrees()
@@ -414,7 +433,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.ActualSum))
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.DiscountForPreview)
+					.AddNumericRenderer(node => node.ManualChangingDiscount)
 					.AddSetter((c, n) => c.Editable = n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
@@ -696,7 +715,8 @@ namespace Vodovoz
 				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?")) {
 					return;
 				}
-				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW);
+				IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
+				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures);
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatus(OrderStatus.Closed);
@@ -1119,6 +1139,12 @@ namespace Vodovoz
 		}
 
 		#endregion
+
+		void YChkActionBottle_Toggled(object sender, EventArgs e)
+		{
+			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
+			Entity.RecalculateStockBottles(standartDiscountsService);
+		}
 
 		void NomenclatureForSaleSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
@@ -1701,7 +1727,7 @@ namespace Vodovoz
 			} else {
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
 			}
-			SetProxyForOrder();
+			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 
 			SetSensitivityOfPaymentType();
@@ -1743,17 +1769,17 @@ namespace Vodovoz
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
 			if(Entity.DeliveryPoint != null) {
 				UpdateProxyInfo();
-				SetProxyForOrder();
+				Entity.SetProxyForOrder();
 			}
 		}
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
-			if(!HaveAgreementForDeliveryPoint()) {
+			if(!HaveAgreementForDeliveryPoint()) 
+			{
 				Order originalOrder = UoW.GetById<Order>(Entity.Id);
-				Entity.DeliveryPoint = originalOrder != null && originalOrder.DeliveryPoint != null ? originalOrder.DeliveryPoint : null;
+				Entity.DeliveryPoint = originalOrder?.DeliveryPoint;
 			}
-
 			CheckSameOrders();
 		}
 
@@ -1808,14 +1834,14 @@ namespace Vodovoz
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
 				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.BeveragesWorld);
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
-			SetProxyForOrder();
+			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 			UpdateUIState();
 		}
 
 		protected void OnPickerDeliveryDateDateChanged(object sender, EventArgs e)
 		{
-			SetProxyForOrder();
+			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
 		}
 
@@ -1832,32 +1858,11 @@ namespace Vodovoz
 		}
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
-		{
-			//Заполняем точку доставки если она одна.
-			if(Entity.Client != null && Entity.Client.DeliveryPoints != null
-				&& Entity.OrderStatus == OrderStatus.NewOrder && !Entity.SelfDelivery
-				&& Entity.Client.DeliveryPoints.Count == 1) {
-				Entity.DeliveryPoint = Entity.Client.DeliveryPoints[0];
-			} else {
-				Entity.DeliveryPoint = null;
-			}
-			//Устанавливаем тип документа
-			if(Entity.Client != null && Entity.Client.DefaultDocumentType != null) {
-				Entity.DocumentType = Entity.Client.DefaultDocumentType;
-			} else if(Entity.Client != null) {
-				Entity.DocumentType = DefaultDocumentType.upd;
-			}
+		{			
+			Entity.UpdateBaseParametersForClient();
 
-			//Очищаем время доставки
-			Entity.DeliverySchedule = null;
-
-			//Устанавливаем тип оплаты
-			if(Entity.Client != null) {
-				Entity.PaymentType = Entity.Client.PaymentMethod;
-				Entity.ChangeOrderContract();
-			} else {
-				Entity.Contract = null;
-			}
+			//Проверяем возможность добавления Акции "Бутыль"
+			ControlsActionBottleAccessibility();
 		}
 
 		protected void OnButtonCancelOrderClicked(object sender, EventArgs e)
@@ -1941,9 +1946,8 @@ namespace Vodovoz
 
 		protected void OnEntryBottlesReturnChanged(object sender, EventArgs e)
 		{
-			if(int.TryParse(entryBottlesToReturn.Text, out int result)) {
-				Entity.BottlesReturn = result;
-			}
+			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
+			Entity.CalculateBottlesStockDiscounts(standartDiscountsService);
 		}
 
 		protected void OnEntryTrifleChanged(object sender, EventArgs e)
@@ -1956,7 +1960,6 @@ namespace Vodovoz
 		protected void OnShown(object sender, EventArgs e)
 		{
 			//Скрывает журнал заказов при открытии заказа, чтобы все элементы умещались на экране
-
 			if(TabParent is TdiSliderTab slider)
 				slider.IsHideJournal = true;
 		}
@@ -1991,7 +1994,7 @@ namespace Vodovoz
 
 		bool HaveAgreementForDeliveryPoint()
 		{
-			bool a = Entity.HaveActualWaterSaleAgreementByDeliveryPoint();
+			bool a = Entity.HasActualWaterSaleAgreementByDeliveryPoint();
 			if(Entity.ObservableOrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare) &&
 			   !a) {
 				//У выбранной точки доставки нет соглашения о доставке воды, предлагаем создать.
@@ -2047,9 +2050,12 @@ namespace Vodovoz
 		public void OnTabAdded()
 		{
 			//если новый заказ и не создан из недовоза (templateOrder заполняется только из недовоза)
-			if(UoW.IsNew && templateOrder == null)
+			if(UoW.IsNew && templateOrder == null && Entity.Client == null) 
+			{
 				//открыть окно выбора контрагента
 				referenceClient.OpenSelectDialog();
+			}
+
 		}
 
 		public virtual bool HideItemFromDirectionReasonComboInEquipment(OrderEquipment node, DirectionReason item)
@@ -2262,6 +2268,7 @@ namespace Vodovoz
 			yCmbPromoSets.Sensitive = Entity.DeliveryPoint != null && val;
 			buttonAddForSale.Sensitive = referenceContract.Sensitive = buttonAddMaster.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
+			ControlsActionBottleAccessibility();
 		}
 
 		void ChangeOrderEditable(bool val)
@@ -2385,18 +2392,6 @@ namespace Vodovoz
 			labelDeposit1.Visible = visibly ?? !labelDeposit1.Visible;
 		}
 
-		private void SetProxyForOrder()
-		{
-			if(Entity.Client != null
-			   && Entity.DeliveryDate.HasValue
-			   && (Entity.Client?.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)) {
-				var proxies = Entity.Client.Proxies.Where(p => p.IsActiveProxy(Entity.DeliveryDate.Value) && (p.DeliveryPoints == null || p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, Entity.DeliveryPoint))));
-				if(proxies.Any()) {
-					enumSignatureType.SelectedItem = OrderSignatureType.ByProxy;
-				}
-			}
-		}
-
 		private void SetDiscount()
 		{
 			DiscountReason reason = (ycomboboxReason.SelectedItem as DiscountReason);
@@ -2502,5 +2497,6 @@ namespace Vodovoz
 				checkPayAfterLoad.Active = false;
 			}
 		}
+
 	}
 }

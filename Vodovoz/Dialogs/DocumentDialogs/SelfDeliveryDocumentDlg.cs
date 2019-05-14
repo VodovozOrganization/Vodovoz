@@ -15,6 +15,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
+using Vodovoz.Core.DataService;
+using Vodovoz.Services;
 
 namespace Vodovoz
 {
@@ -169,12 +171,16 @@ namespace Vodovoz
 			foreach(GoodsReceptionVMNode item in GoodsReceptionList) {
 				Entity.UpdateReturnedOperation(UoW, item.NomenclatureId, item.Amount);
 			}
-			if(Entity.FullyShiped(UoW))
+			
+			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
+			if(Entity.FullyShiped(UoW , standartNomenclatures))
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 
 			logger.Info("Сохраняем документ самовывоза...");
 			UoWGeneric.Save();
-			OrmMain.NotifyObjectUpdated(new object[] { Entity.Order });
+			//FIXME Необходимо проверить правильность этого кода, так как если заказ именялся то уведомление на его придет и без кода.
+			//А если в каком то месте нужно получать уведомления об изменениях текущего объекта, то логично чтобы этот объект на него и подписался.
+			//OrmMain.NotifyObjectUpdated(new object[] { Entity.Order });
 			logger.Info("Ok.");
 			return true;
 		}

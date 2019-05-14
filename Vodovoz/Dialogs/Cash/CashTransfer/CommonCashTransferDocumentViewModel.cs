@@ -1,21 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
-using QS.RepresentationModel.GtkUI;
-using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModelBased;
-using Vodovoz.JournalFilters.QueryFilterViews;
-using NHibernate.Criterion;
-using QS.DomainModel.Config;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Cash;
+using QS.DomainModel.NotifyChange;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
@@ -97,16 +90,13 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private void ConfigEntityUpdateSubscribes()
 		{
-			IEntityConfig incomeCategoryEntityConfig = DomainConfiguration.GetEntityConfig(typeof(IncomeCategory));
-			incomeCategoryEntityConfig.EntityUpdated += IncomeCategoryEntityConfig_EntityUpdated;
-
-			IEntityConfig expenseCategoryEntityConfig = DomainConfiguration.GetEntityConfig(typeof(ExpenseCategory));
-			expenseCategoryEntityConfig.EntityUpdated += ExpenseCategoryEntityConfig_EntityUpdated; ;
+			NotifyConfiguration.Instance.WatchMany<IncomeCategory>(IncomeCategoryEntityConfig_EntityUpdated);
+			NotifyConfiguration.Instance.WatchMany<ExpenseCategory>(ExpenseCategoryEntityConfig_EntityUpdated);
 		}
 
-		private void IncomeCategoryEntityConfig_EntityUpdated(object sender, EntityUpdatedEventArgs e)
+		private void IncomeCategoryEntityConfig_EntityUpdated(EntityChangeEvent[] changeEvents)
 		{
-			foreach(var updatedItem in e.UpdatedSubjects) {
+			foreach(var updatedItem in changeEvents.Select(x => x.Entity)) {
 				IncomeCategory updatedIncomeCategory = updatedItem as IncomeCategory;
 				//Если хотябы одна необходимая статья обновилась можем обнлять весь список.
 				if(updatedIncomeCategory != null && updatedIncomeCategory.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeTransferDocument) {
@@ -116,9 +106,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			}
 		}
 
-		private void ExpenseCategoryEntityConfig_EntityUpdated(object sender, EntityUpdatedEventArgs e)
+		private void ExpenseCategoryEntityConfig_EntityUpdated(EntityChangeEvent[] changeEvents)
 		{
-			foreach(var updatedItem in e.UpdatedSubjects) {
+			foreach(var updatedItem in changeEvents.Select(x => x.Entity)) {
 				ExpenseCategory updatedExpenseCategory = updatedItem as ExpenseCategory;
 				//Если хотябы одна необходимая статья обновилась можем обнлять весь список.
 				if(updatedExpenseCategory != null && updatedExpenseCategory.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseTransferDocument) {
