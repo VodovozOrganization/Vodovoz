@@ -43,6 +43,12 @@ namespace Vodovoz.Filters
 			set => SetField(ref hideCompleted, value, () => HideCompleted);
 		}
 
+		private bool showOnlyWihoutEmployee = true;
+		public bool ShowOnlyWihoutEmployee {
+			get => showOnlyWihoutEmployee;
+			set => SetField(ref showOnlyWihoutEmployee, value, () => ShowOnlyWihoutEmployee);
+		}
+
 		public void SetDatePeriod(DateTime startPeriod, DateTime endPeriod)
 		{
 			StartDate = startPeriod;
@@ -71,6 +77,8 @@ namespace Vodovoz.Filters
 
 			if(Employee != null) 
 				result = Restrictions.And(result, Restrictions.Where<CallTask>(x => x.AssignedEmployee == Employee));
+			else if(ShowOnlyWihoutEmployee)
+				result = Restrictions.And(result, Restrictions.Where<CallTask>(x => x.AssignedEmployee == null));
 
 			if(HideCompleted)
 				result = Restrictions.And(result, Restrictions.Where<CallTask>(x => !x.IsTaskComplete));

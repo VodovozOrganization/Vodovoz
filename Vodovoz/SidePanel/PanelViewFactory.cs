@@ -23,6 +23,8 @@ namespace Vodovoz.SidePanel
 					return new UndeliveredOrdersPanelView();
 				case PanelViewType.EmailsPanelView:
 					return new EmailsPanelView();
+				case PanelViewType.CallTaskPanelView:
+					return new CallTaskPanelView();
 				default:
 					throw new NotSupportedException();
 			}
@@ -42,7 +44,8 @@ namespace Vodovoz.SidePanel
 		AdditionalAgreementPanelView,
 		DeliveryPricePanelView,
 		UndeliveredOrdersPanelView,
-		EmailsPanelView
+		EmailsPanelView,
+		CallTaskPanelView
 	}
 }
 

@@ -1567,6 +1567,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -70603,7 +70604,7 @@ not tooltip</property>
                     <child>
                       <widget class="Gtk.Table" id="table1">
                         <property name="MemberName" />
-                        <property name="NRows">12</property>
+                        <property name="NRows">13</property>
                         <property name="NColumns">2</property>
                         <property name="RowSpacing">10</property>
                         <property name="ColumnSpacing">6</property>
@@ -70611,7 +70612,7 @@ not tooltip</property>
                           <placeholder />
                         </child>
                         <child>
-                          <widget class="QSContacts.PhonesView" id="ClientPhonesview">
+                          <widget class="QSContacts.PhonesView" id="ClientPhonesView">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                             <property name="IsReadOnly">False</property>
@@ -70643,8 +70644,8 @@ not tooltip</property>
                             <property name="DefaultFirst">False</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">10</property>
-                            <property name="BottomAttach">11</property>
+                            <property name="TopAttach">11</property>
+                            <property name="BottomAttach">12</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
@@ -70668,8 +70669,8 @@ not tooltip</property>
                             <property name="AutoSeparation">False</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">7</property>
-                            <property name="BottomAttach">8</property>
+                            <property name="TopAttach">8</property>
+                            <property name="BottomAttach">9</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
@@ -70685,6 +70686,29 @@ not tooltip</property>
                         </child>
                         <child>
                           <widget class="Gtk.Entry" id="debtByAddressEntry">
+                            <property name="MemberName" />
+                            <property name="CanFocus">True</property>
+                            <property name="IsEditable">False</property>
+                            <property name="InvisibleChar">•</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">6</property>
+                            <property name="BottomAttach">7</property>
+                            <property name="LeftAttach">1</property>
+                            <property name="RightAttach">2</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gamma.GtkWidgets.yEntry" id="debtByClientEntry">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">False</property>
@@ -70707,11 +70731,10 @@ not tooltip</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.GtkWidgets.yEntry" id="debtByClientEntry">
+                          <widget class="QSContacts.PhonesView" id="DeliveryPointPhonesview">
                             <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="IsEditable">False</property>
-                            <property name="InvisibleChar">•</property>
+                            <property name="Events">ButtonPressMask</property>
+                            <property name="IsReadOnly">False</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">4</property>
@@ -70754,8 +70777,8 @@ not tooltip</property>
                             <property name="Events">ButtonPressMask</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">8</property>
-                            <property name="BottomAttach">9</property>
+                            <property name="TopAttach">9</property>
+                            <property name="BottomAttach">10</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
@@ -70803,8 +70826,8 @@ not tooltip</property>
                             <property name="UseUnderline">True</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">11</property>
-                            <property name="BottomAttach">12</property>
+                            <property name="TopAttach">12</property>
+                            <property name="BottomAttach">13</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
@@ -70862,8 +70885,8 @@ not tooltip</property>
                             <property name="LabelProp" translatable="yes">Тара на забор :</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">9</property>
-                            <property name="BottomAttach">10</property>
+                            <property name="TopAttach">10</property>
+                            <property name="BottomAttach">11</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -70881,8 +70904,27 @@ not tooltip</property>
                             <property name="LabelProp" translatable="yes">Срочность задачи</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">10</property>
-                            <property name="BottomAttach">11</property>
+                            <property name="TopAttach">11</property>
+                            <property name="BottomAttach">12</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gtk.Label" id="label14">
+                            <property name="MemberName" />
+                            <property name="LabelProp" translatable="yes">Телефон( Точка доставки ) :</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">4</property>
+                            <property name="BottomAttach">5</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -70912,32 +70954,13 @@ not tooltip</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.Label" id="label3">
-                            <property name="MemberName" />
-                            <property name="LabelProp" translatable="yes">Телефон:</property>
-                          </widget>
-                          <packing>
-                            <property name="TopAttach">3</property>
-                            <property name="BottomAttach">4</property>
-                            <property name="AutoSize">True</property>
-                            <property name="XOptions">Fill</property>
-                            <property name="YOptions">Fill</property>
-                            <property name="XExpand">False</property>
-                            <property name="XFill">True</property>
-                            <property name="XShrink">False</property>
-                            <property name="YExpand">False</property>
-                            <property name="YFill">True</property>
-                            <property name="YShrink">False</property>
-                          </packing>
-                        </child>
-                        <child>
                           <widget class="Gtk.Label" id="label4">
                             <property name="MemberName" />
                             <property name="LabelProp" translatable="yes">Долг по клиенту</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">4</property>
-                            <property name="BottomAttach">5</property>
+                            <property name="TopAttach">5</property>
+                            <property name="BottomAttach">6</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -70955,8 +70978,8 @@ not tooltip</property>
                             <property name="LabelProp" translatable="yes">Долг по адресу</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">5</property>
-                            <property name="BottomAttach">6</property>
+                            <property name="TopAttach">6</property>
+                            <property name="BottomAttach">7</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -70974,8 +70997,8 @@ not tooltip</property>
                             <property name="LabelProp" translatable="yes">Выполнить до</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">7</property>
-                            <property name="BottomAttach">8</property>
+                            <property name="TopAttach">8</property>
+                            <property name="BottomAttach">9</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -70993,8 +71016,8 @@ not tooltip</property>
                             <property name="LabelProp" translatable="yes">Статус задачи</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">6</property>
-                            <property name="BottomAttach">7</property>
+                            <property name="TopAttach">7</property>
+                            <property name="BottomAttach">8</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -71012,8 +71035,27 @@ not tooltip</property>
                             <property name="LabelProp" translatable="yes">Закреплено за</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">8</property>
-                            <property name="BottomAttach">9</property>
+                            <property name="TopAttach">9</property>
+                            <property name="BottomAttach">10</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gtk.Label" id="labelClientPhone">
+                            <property name="MemberName" />
+                            <property name="LabelProp" translatable="yes">Телефон( Клиент ) :</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">3</property>
+                            <property name="BottomAttach">4</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -71036,8 +71078,8 @@ not tooltip</property>
                             <property name="DefaultFirst">False</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">6</property>
-                            <property name="BottomAttach">7</property>
+                            <property name="TopAttach">7</property>
+                            <property name="BottomAttach">8</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
@@ -71084,8 +71126,8 @@ not tooltip</property>
                             <signal name="Changed" handler="OnYentryTareReturnChanged" />
                           </widget>
                           <packing>
-                            <property name="TopAttach">9</property>
-                            <property name="BottomAttach">10</property>
+                            <property name="TopAttach">10</property>
+                            <property name="BottomAttach">11</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
@@ -72032,7 +72074,6 @@ not tooltip</property>
         <child>
           <widget class="Gamma.Widgets.yEnumComboBox" id="yenumcomboboxOPF">
             <property name="MemberName" />
-            <property name="Sensitive">False</property>
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
             <property name="ShowSpecialStateAll">False</property>
@@ -76210,7 +76251,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.JournalFilters.QueryFilterViews.CallTaskFilterView" design-size="486 113">
+  <widget class="Gtk.Bin" id="Vodovoz.JournalFilters.QueryFilterViews.CallTaskFilterView" design-size="514 113">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -76239,9 +76280,39 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="ChangedByUser" handler="OnEntryreferencevmEmployeeChangedByUser" />
+                <signal name="Changed" handler="OnEntryreferencevmEmployeeChanged" />
               </widget>
               <packing>
                 <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.GtkWidgets.yCheckButton" id="showWithoutCheckButton">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Только задачи без ответственного</property>
+                <property name="Active">True</property>
+                <property name="DrawIndicator">True</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Toggled" handler="OnShowWithoutCheckButtonToggled" />
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VSeparator" id="vseparator1">
+                <property name="MemberName" />
+              </widget>
+              <packing>
+                <property name="Position">3</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -76259,7 +76330,7 @@ not tooltip</property>
                 <signal name="Toggled" handler="OnCheckbuttonHideCompletedToggled" />
               </widget>
               <packing>
-                <property name="Position">2</property>
+                <property name="Position">4</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -76400,6 +76471,66 @@ not tooltip</property>
                 <property name="Fill">False</property>
               </packing>
             </child>
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.SidePanel.InfoViews.CallTaskPanelView" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox2">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.Label" id="label1">
+            <property name="MemberName" />
+            <property name="Xalign">0.02</property>
+            <property name="LabelProp" translatable="yes">&lt;b&gt;Постановка задачи:&lt;/b&gt;</property>
+            <property name="UseMarkup">True</property>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+            <property name="MemberName" />
+            <property name="ShadowType">In</property>
+            <child>
+              <widget class="Gamma.GtkWidgets.yTextView" id="ytextview">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="ShowScrollbars">True</property>
+                <property name="Text" translatable="yes" />
+                <property name="WrapMode">WordChar</property>
+              </widget>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonCreateTask">
+            <property name="MemberName" />
+            <property name="Sensitive">False</property>
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Создать задачу</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonCreateTaskClicked" />
           </widget>
           <packing>
             <property name="Position">2</property>

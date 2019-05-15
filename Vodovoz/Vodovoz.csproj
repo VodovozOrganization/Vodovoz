@@ -1143,6 +1143,9 @@
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
     <Compile Include="Dialogs\OrderWidgets\PromotionalSetDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderWidgets.PromotionalSetDlg.cs" />
+    <Compile Include="SidePanel\InfoViews\CallTaskPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CallTaskPanelView.cs" />
+    <Compile Include="SidePanel\InfoProviders\ICallTaskProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

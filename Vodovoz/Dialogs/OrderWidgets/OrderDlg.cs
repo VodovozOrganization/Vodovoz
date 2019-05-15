@@ -64,7 +64,8 @@ namespace Vodovoz
 		IDeliveryPointInfoProvider,
 		IContractInfoProvider,
 		ITdiTabAddedNotifier,
-		IEmailsInfoProvider
+		IEmailsInfoProvider ,
+		ICallTaskProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -81,7 +82,8 @@ namespace Vodovoz
 					PanelViewType.CounterpartyView,
 					PanelViewType.DeliveryPricePanelView,
 					PanelViewType.DeliveryPointView,
-					PanelViewType.EmailsPanelView
+					PanelViewType.EmailsPanelView,
+					PanelViewType.CallTaskPanelView
 				};
 			}
 		}
@@ -93,6 +95,8 @@ namespace Vodovoz
 		public CounterpartyContract Contract => Entity.Contract;
 
 		public bool CanHaveEmails => Entity.Id != 0;
+
+		public Order Order => Entity;
 
 		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? EmailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
 

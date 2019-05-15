@@ -167,7 +167,8 @@ namespace Vodovoz.Representations
 			Menu popupMenu = new Menu();
 			MenuItem menuItemOpenReportByCounterparty = new MenuItem("Отметить как важное");
 			Action<CallTask> action = (task) => task.ImportanceDegree = ImportanceDegreeType.Important;
-			menuItemOpenReportByCounterparty.Activated += (e, arg) => {
+			menuItemOpenReportByCounterparty.Activated += (e, arg) => 
+			{
 				ChangeEnitity(action, callTaskNode ,false);
 				callTaskNode.ToList().ForEach(obj => obj.ImportanceDegree = ImportanceDegreeType.Important);
 			};
