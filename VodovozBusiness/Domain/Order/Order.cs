@@ -1172,7 +1172,7 @@ namespace Vodovoz.Domain.Orders
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
 			decimal discountForStock = 0m;
 
-			if(bottlesByStock > 0) {
+			if(bottlesByStock == TotalDeliveredBottles) {
 				discountForStock = 10m;
 			}
 			if(bottlesByStock > TotalDeliveredBottles) {
