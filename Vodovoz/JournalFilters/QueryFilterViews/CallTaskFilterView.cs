@@ -13,6 +13,8 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 	{
 		public CallTaskFilter Filter { get; set; }
 
+		public override IQueryFilter GetQueryFilter() => Filter;
+
 		public CallTaskFilterView()
 		{
 			this.Build();
@@ -29,9 +31,11 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			showWithoutCheckButton.Binding.AddBinding(Filter, x => x.ShowOnlyWihoutEmployee, w => w.Active).InitializeFromSource();
 			entryreferencevmEmployee.Binding.AddBinding(Filter, x => x.Employee, w => w.Subject).InitializeFromSource();
 			dateperiodpickerDateFilter.Binding.AddBinding(Filter, x => x.EndDate, w => w.EndDateOrNull).InitializeFromSource();
+			yenumcomboboxSortingParam.ItemsEnum = typeof(SortingParamType);
+			yenumcomboboxSortingDirection.ItemsEnum = typeof(SortingDirectionType);
+			yenumcomboboxSortingParam.Binding.AddBinding(Filter, x => x.SortingParam, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboboxSortingDirection.Binding.AddBinding(Filter, x => x.SortingDirection, w => w.SelectedItem).InitializeFromSource();
 		}
-
-		public override IQueryFilter GetQueryFilter() => Filter;
 
 		private void ChangeFilter(DateTime startDate , DateTime endDate)
 		{
@@ -66,11 +70,14 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 
 		protected void OnButtonNextWeekClicked(object sender, EventArgs e) => ChangeFilter(1);
 
+		protected void OnYenumcomboboxSortingDirectionChangedByUser(object sender, EventArgs e) => Refilter();
+
+		protected void OnYenumcomboboxSortingParamChangedByUser(object sender, EventArgs e) => Refilter();
+
 		protected void OnEntryreferencevmEmployeeChanged(object sender, EventArgs e)
 		{
 			showWithoutCheckButton.Visible = Filter.Employee == null;
 		}
 		#endregion EventHeandelers
-
 	}
 }

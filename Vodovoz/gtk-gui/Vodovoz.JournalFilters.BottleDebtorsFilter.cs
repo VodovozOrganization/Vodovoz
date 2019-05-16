@@ -141,9 +141,8 @@ namespace Vodovoz.JournalFilters
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yenumcomboboxOPF = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumcomboboxOPF.Sensitive = false;
 			this.yenumcomboboxOPF.Name = "yenumcomboboxOPF";
-			this.yenumcomboboxOPF.ShowSpecialStateAll = false;
+			this.yenumcomboboxOPF.ShowSpecialStateAll = true;
 			this.yenumcomboboxOPF.ShowSpecialStateNot = false;
 			this.yenumcomboboxOPF.UseShortTitle = false;
 			this.yenumcomboboxOPF.DefaultFirst = false;

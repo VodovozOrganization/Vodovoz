@@ -14,11 +14,9 @@ using QS.Utilities.Text;
 using QSContacts;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters;
 using Vodovoz.Services;
 
@@ -87,10 +85,10 @@ namespace Vodovoz.Representations
 								Projections.Sum(() => bottlesMovementAlias.Returned),
 								Projections.Sum(() => bottlesMovementAlias.Delivered) }
 				));
-				
+
 			var tasks = tasksQuery
 			.JoinAlias(() => callTaskAlias.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.JoinAlias(() => deliveryPointAlias.Phones , () => phonesAlias , NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			.JoinAlias(() => deliveryPointAlias.Phones, () => phonesAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 			.JoinAlias(() => callTaskAlias.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 			.JoinAlias(() => callTaskAlias.AssignedEmployee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 			.SelectList(list => list
@@ -117,15 +115,54 @@ namespace Vodovoz.Representations
 				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
 				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
 				)
-			.OrderBy(x => x.Counterparty.Id).Desc()
 			.TransformUsing(Transformers.AliasToBean<CallTaskVMNode>())
 			.List<CallTaskVMNode>();
 			taskCount = tasks.Count;
+			tasks = SortResult(tasks).ToList();
 			SetItemsSource(tasks);
-
 		}
 
-		public Dictionary<string, int> GetStatistics (Employee employee = null) //TODO : перенести в репозиторий + уростить вызов запросов 
+		private IEnumerable<CallTaskVMNode> SortResult(IEnumerable<CallTaskVMNode> tasks)
+		{
+			IEnumerable<CallTaskVMNode> result; 
+			switch((Filter as CallTaskFilter).SortingParam) 
+			{
+				case SortingParamType.DebtByAddress:
+					result = tasks.OrderBy(x => x.DebtByAddress);
+					break;
+				case SortingParamType.DebtByClient:
+					result = tasks.OrderBy(x => x.DebtByClient);
+					break;
+				case SortingParamType.AssignedEmployee:
+					result = tasks.OrderBy(x => x.AssignedEmployeeName);
+					break;
+				case SortingParamType.Client:
+					result = tasks.OrderBy(x => x.ClientName);
+					break;
+				case SortingParamType.Deadline:
+					result = tasks.OrderBy(x => x.Deadline);
+					break;
+				case SortingParamType.DeliveryPoint:
+					result = tasks.OrderBy(x => x.AddressName);
+					break;
+				case SortingParamType.Id:
+					result = tasks.OrderBy(x => x.Id);
+					break;
+				case SortingParamType.ImportanceDegree:
+					result = tasks.OrderBy(x => x.ImportanceDegree);
+					break;
+				case SortingParamType.Status:
+					result = tasks.OrderBy(x => x.TaskStatus);
+					break;
+				default:
+					throw new NotImplementedException();
+			}
+			if((Filter as CallTaskFilter).SortingDirection == SortingDirectionType.FromBiggerToSmaller)
+				result = result.Reverse();
+			return result;
+		}
+
+		public Dictionary<string, int> GetStatistics (Employee employee = null)
 		{
 			var statisticsParam = new Dictionary<string, int>();
 

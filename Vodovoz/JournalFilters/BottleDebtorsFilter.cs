@@ -52,10 +52,7 @@ namespace Vodovoz.JournalFilters
 
 		public PersonType? OPF{
 			get { return yenumcomboboxOPF.SelectedItem as PersonType?; }
-			set {
-				yenumcomboboxOPF.SelectedItem = value;
-				yenumcomboboxOPF.Sensitive = false;
-			}
+			set { yenumcomboboxOPF.SelectedItem = value; }
 		}
 
 		public int? DebtFrom {
