@@ -3194,10 +3194,9 @@ namespace Vodovoz.Domain.Orders
 			int amountDelivered = OrderItems
 									.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 									.Sum(item => item.ActualCount.Value);
-
-			int forfeitCount = 0;
+									
 			int forfeitId = standartNomenclatures.GetForfeitId();
-			forfeitCount = OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
+			int forfeitCount = OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
 																	   .Select(arg => arg.ActualCount.Value).Sum();
 
 			if(amountDelivered != 0 || ReturnedTare > 0 || forfeitCount > 0) {

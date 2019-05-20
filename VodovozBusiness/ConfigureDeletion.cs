@@ -594,8 +594,8 @@ namespace Vodovoz
 			#region Order
 
 			//основной класс. не удаляем. в тестах настроен игнор.
-			/*DeleteConfig.AddHibernateDeleteInfo<Order>()
-						.AddDeleteDependence<OrderItem>(item => item.Order)
+			DeleteConfig.AddHibernateDeleteInfo<Order>(); //FIXME : Костыль пока не будет нормального механизма блокировки 
+			/*			.AddDeleteDependence<OrderItem>(item => item.Order)
 						.AddDeleteDependence<OrderEquipment>(x => x.Order)
 						.AddDeleteDependence<OrderDocument>(item => item.Order)
 						.AddDeleteDependence<OrderDepositItem>(item => item.Order)
