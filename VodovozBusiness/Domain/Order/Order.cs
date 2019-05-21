@@ -300,10 +300,12 @@ namespace Vodovoz.Domain.Orders
 			get => paymentType;
 			set {
 				if(value != paymentType && SetField(ref paymentType, value, () => PaymentType)) {
-					if(PaymentType != PaymentType.cash)
-						NeedCheque = null;
-					else
-						NeedCheque = Client?.NeedCheque ?? ChequeResponse.Unknown;
+					if(!NeedCheque.HasValue) {
+						if(PaymentType != PaymentType.cash || PaymentType != PaymentType.BeveragesWorld)
+							NeedCheque = null;
+						else
+							NeedCheque = Client?.NeedCheque ?? ChequeResponse.Unknown;
+					}
 					//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
 					if(Client != null && OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
 						OnChangePaymentType();
@@ -890,7 +892,7 @@ namespace Vodovoz.Domain.Orders
 							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
 					);
 
-					if(PaymentType == PaymentType.cash && (!NeedCheque.HasValue || NeedCheque.Value == ChequeResponse.Unknown))
+					if((PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && (!NeedCheque.HasValue || NeedCheque.Value == ChequeResponse.Unknown))
 						yield return new ValidationResult(
 							"Укажите, нужно ли напечатать чек клиенту",
 							new[] { this.GetPropertyName(o => o.NeedCheque) }
