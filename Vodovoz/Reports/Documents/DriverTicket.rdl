@@ -19,7 +19,7 @@
 	orders.id AS order_id,
 	orders.delivery_date AS order_date,
 	orders.self_delivery AS self_delivery,
-	orders.bottles_return AS bottles_return,
+	IF(is_bottle_stock, orders.bottles_by_stock_count, orders.bottles_return) AS bottles_return,
 	orders.sum_to_receive AS total,
 	orders.comment AS order_comment,
 	orders.comment_logist AS comment_for_logist,
