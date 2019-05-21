@@ -177,8 +177,9 @@ namespace Vodovoz.Repository
 		public static IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs)
 		{
 			return uow.Session.QueryOver<Nomenclature>()
-						 .Where(n => n.MobileCatalog.IsIn(catalogs))
-						 .List();
+							  .Where(n => !n.IsArchive)
+							  .Where(n => n.MobileCatalog.IsIn(catalogs))
+							  .List();
 		}
 
 		/// <summary>
