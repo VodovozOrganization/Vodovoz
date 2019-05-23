@@ -123,7 +123,6 @@
     <Compile Include="Tools\Orders\OrderStateKeyTests.cs" />
     <Compile Include="Domain\Orders\OrderTests.cs" />
     <Compile Include="Domain\Orders\OrderItemTests.cs" />
-    <Compile Include="Domain\RouteList\RouteListTests.cs" />
     <Compile Include="Domain\RouteList\RouteListItemTests.cs" />
   </ItemGroup>
   <ItemGroup>
