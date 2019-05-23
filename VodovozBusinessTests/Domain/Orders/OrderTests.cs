@@ -18,7 +18,7 @@ using Vodovoz.Services;
 
 namespace VodovozBusinessTests.Domain.Orders
 {
-	[TestFixture()]
+	[TestFixture]
 	public class OrderTests
 	{
 		[TearDown]
@@ -29,45 +29,41 @@ namespace VodovozBusinessTests.Domain.Orders
 			RouteListItemRepository.HasRouteListItemsForOrderTestGap = null;
 		}
 
-		#region OrderCreations
+		#region OrderItemsPacks
 
-		private Order CreateTestOrderWithForfeitAndBottles()
+		private static IEnumerable<OrderItem> ForfeitWaterAndEmptyBottles(int waterCount, int forfeitCount, int emptyBottlesCount = 0)
 		{
-			Order testOrder = new Order {
-				OrderItems = new List<OrderItem>(),
-				DeliveryDate = DateTime.Now
-			};
-
 			Nomenclature forfeitNomenclature = Substitute.For<Nomenclature>();
+			forfeitNomenclature.Category.Returns(NomenclatureCategory.bottle);
 			forfeitNomenclature.Id.Returns(33);
-			OrderItem forfeitOrderItem = new OrderItem {
-				Nomenclature = forfeitNomenclature,
-				Count = 3
-			};
-			testOrder.OrderItems.Add(forfeitOrderItem);
 
 			Nomenclature emptyBottleNomenclature = Substitute.For<Nomenclature>();
-			forfeitNomenclature.Category.Returns(NomenclatureCategory.bottle);
-			OrderItem emptyBottleOrderItem = new OrderItem {
-				Nomenclature = emptyBottleNomenclature,
-				Count = 5
-			};
-			testOrder.OrderItems.Add(emptyBottleOrderItem);
+			emptyBottleNomenclature.Category.Returns(NomenclatureCategory.bottle);
 
-			Nomenclature waterNomenclature = new Nomenclature {
-				Category = NomenclatureCategory.water,
-				TareVolume = TareVolume.Vol19L,
-				IsDisposableTare = false
-			};
-			OrderItem waterOrderItem = new OrderItem {
-				Nomenclature = waterNomenclature,
-				Count = 1
-			};
-			testOrder.OrderItems.Add(waterOrderItem);
+			Nomenclature waterNomenclature = Substitute.For<Nomenclature>();
+			waterNomenclature.Category.Returns(NomenclatureCategory.water);
+			waterNomenclature.IsDisposableTare.Returns(false);
 
-
-			return testOrder;
+			yield return new OrderItem { Nomenclature = forfeitNomenclature, Count = forfeitCount };
+			yield return new OrderItem { Nomenclature = emptyBottleNomenclature, Count = emptyBottlesCount};
+			yield return new OrderItem { Nomenclature = waterNomenclature, Count = waterCount };
 		}
+
+		private static IEnumerable<OrderItem> OrderItemsWithPriceAndCount(params (int,int)[] countAndPrice)
+		{
+			foreach(var i in countAndPrice)
+			{
+				yield return new OrderItem 
+				{
+					ActualCount = i.Item1,
+					Price = i.Item2
+				};
+			}
+		}
+
+		#endregion OrderItemsPacks
+
+		#region OrderCreations
 
 		private Order CreateTestOrderWithEquipmentRefundAndRecivedDeposit()
 		{
@@ -143,32 +139,6 @@ namespace VodovozBusinessTests.Domain.Orders
 			DeliveryPoint testDeliveryPoint = new DeliveryPoint();
 			testDeliveryPoint.Id = 45;
 			testClient.DeliveryPoints.Add(testDeliveryPoint);
-
-			return testOrder;
-		}
-
-		private Order CreateTestOrderWithOrderItems()
-		{
-			Order testOrder = new Order();
-			testOrder.OrderItems = new List<OrderItem>();
-
-			Nomenclature forfeitNomenclature = Substitute.For<Nomenclature>();
-			forfeitNomenclature.Category.Returns(x => NomenclatureCategory.service);
-			OrderItem forfeitOrderItem = new OrderItem {
-				Nomenclature = forfeitNomenclature,
-				ActualCount = 2,
-				Price = 1000
-			};
-			testOrder.OrderItems.Add(forfeitOrderItem);
-
-			Nomenclature waterNomenclature = Substitute.For<Nomenclature>();
-			waterNomenclature.Category.Returns(x => NomenclatureCategory.bottle);
-			OrderItem waterOrderItem = new OrderItem {
-				Nomenclature = waterNomenclature,
-				ActualCount = 10,
-				Price = 50
-			};
-			testOrder.OrderItems.Add(waterOrderItem);
 
 			return testOrder;
 		}
@@ -559,14 +529,25 @@ namespace VodovozBusinessTests.Domain.Orders
 		#endregion
 		
 		#region UpdateOperationTests
-
-		[Test(Description = "Проверка создания операции перемещения бутылей в заказе с неустойками")]
-		public void Check_Bottle_Movement_Operation_Update_Without_Delivery()
+		static IEnumerable WaterForfeitBottleOrderItems()
+		{
+			yield return new object[] { ForfeitWaterAndEmptyBottles(10, 10).ToList(), 10, 10 };
+			yield return new object[] { ForfeitWaterAndEmptyBottles(7, 5).ToList(), 7, 5 };
+			yield return new object[] { ForfeitWaterAndEmptyBottles(0, 2).ToList(), 0, 2 };
+			yield return new object[] { ForfeitWaterAndEmptyBottles(3, 0).ToList(), 3, 0 };
+			yield return new object[] { ForfeitWaterAndEmptyBottles(11 , 11 , 11).ToList(), 11, 11 };
+		}
+		[TestCaseSource(nameof(WaterForfeitBottleOrderItems))]
+		[Test(Description = "Проверка создания операции перемещения бутылей")]
+		public void Check_Bottle_Movement_Operation_Update_Without_Delivery(List<OrderItem> orderItems, int delivered, int returned)
 		{
 			// arrange
-			Order testOrder = CreateTestOrderWithForfeitAndBottles();
+			Order testOrder = new Order();
+			testOrder.DeliveryDate = DateTime.Now;
+			testOrder.OrderItems = orderItems;
 			RouteListItemRepository.HasRouteListItemsForOrderTestGap = (order) => false;
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+
 			var standartNom = Substitute.For<IStandartNomenclatures>();
 			standartNom.GetForfeitId().Returns(33);
 
@@ -574,8 +555,8 @@ namespace VodovozBusinessTests.Domain.Orders
 			testOrder.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNom);
 
 			// assert
-			Assert.AreEqual(3, testOrder.BottlesMovementOperation.Returned);
-			Assert.AreEqual(1, testOrder.BottlesMovementOperation.Delivered);
+			Assert.AreEqual(returned, testOrder.BottlesMovementOperation.Returned);
+			Assert.AreEqual(delivered, testOrder.BottlesMovementOperation.Delivered);
 		}
 
 		[Test(Description = "Проверка созднания DepositOperation для оборудования")]
@@ -623,37 +604,54 @@ namespace VodovozBusinessTests.Domain.Orders
 
 		#region OrderItemsDiscountTests
 
+		private static IEnumerable OrderItemsAndDiscountInMoney()
+		{
+			yield return new object[] { OrderItemsWithPriceAndCount((5, 100), (1, 1000), (7, 300)).ToList(), new List<double> { 50, 100, 210 }, 360m };
+			yield return new object[] { OrderItemsWithPriceAndCount((1, 100), (10, 200), (7, 5000)).ToList(), new List<double> { 10, 200, 3500 }, 3710m };
+			yield return new object[] { OrderItemsWithPriceAndCount((8, 800), (5, 435), (5, 700)).ToList(), new List<double> { 640, 217.5 , 350 }, 1207.5m};
+		}
+		[TestCaseSource(nameof(OrderItemsAndDiscountInMoney))]
 		[Test(Description = "Проверка расчета скидки( в рублях )")]
-		public void Check_Money_Discount_For_OrderItems()
+		public void Check_Money_Discount_For_OrderItems(List<OrderItem> OrderItems,List<double> discountForOrderItems, decimal discountInMoney)
 		{
 			// arrange
-			Order testOrder = CreateTestOrderWithOrderItems();
+			Order testOrder = new Order();
+			testOrder.OrderItems = OrderItems;
 			testOrder.ObservableOrderItems.ListContentChanged -= testOrder.ObservableOrderItems_ListContentChanged;
-			testOrder.OrderItems.ToList().ForEach(x => x.IsDiscountInMoney = true); //FIXME : костыль из-за метода Order.CalculateAndSetDiscount()
+			testOrder.OrderItems.ToList().ForEach(x => x.IsDiscountInMoney = true);
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
 
 			// act
-			testOrder.SetDiscount(discountReason, 500m, DiscountUnits.money);
+			testOrder.SetDiscount(discountReason, discountInMoney, DiscountUnits.money);
 
 			// assert
-			Assert.AreEqual(400m, testOrder.OrderItems[0].DiscountMoney);
-			Assert.AreEqual(100m, testOrder.OrderItems[1].DiscountMoney);
+			for(int i = 0; i < OrderItems.Count; i++) 
+				Assert.AreEqual(discountForOrderItems[i], testOrder.OrderItems[i].DiscountMoney);
 		}
 
+
+		static IEnumerable OrderItemsAndDiscountInPercent()
+		{
+			yield return new object[] { OrderItemsWithPriceAndCount((5, 100), (1, 1000), (7, 300)).ToList(), new List<double> { 50, 100, 210 }, 10 };
+			yield return new object[] { OrderItemsWithPriceAndCount((1, 100), (10, 200), (7, 5000)).ToList(), new List<double> { 50, 1000, 17500 }, 50};
+			yield return new object[] { OrderItemsWithPriceAndCount((8, 800), (5, 435), (5, 700)).ToList(), new List<double> { 6400, 2175, 3500 }, 110};
+		}
+		[TestCaseSource(nameof(OrderItemsAndDiscountInPercent))]
 		[Test(Description = "Проверка расчета скидки( в процентах )")]
-		public void Check_Perscnt_Discount_For_OrderItems()
+		public void Check_Percent_Discount_For_OrderItems(List<OrderItem> OrderItems, List<double> discountForOrderItems, int discountInPercent)
 		{
 			// arrange
-			Order testOrder = CreateTestOrderWithOrderItems();
+			Order testOrder = new Order();
+			testOrder.OrderItems = OrderItems;
 			testOrder.ObservableOrderItems.ListContentChanged -= testOrder.ObservableOrderItems_ListContentChanged;
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
 
 			// act
-			testOrder.SetDiscount(discountReason, 20m, DiscountUnits.percent);
+			testOrder.SetDiscount(discountReason, discountInPercent, DiscountUnits.percent);
 
 			// assert
-			Assert.AreEqual(400m, testOrder.OrderItems[0].DiscountMoney);
-			Assert.AreEqual(100m, testOrder.OrderItems[1].DiscountMoney);
+			for(int i = 0; i < OrderItems.Count; i++)
+				Assert.AreEqual(discountForOrderItems[i], testOrder.OrderItems[i].DiscountMoney);
 		}
 
 		#endregion
