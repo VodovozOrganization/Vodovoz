@@ -1,21 +1,18 @@
 ﻿using System;
-using Vodovoz.Representations;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
-using Vodovoz.Repositories.HumanResources;
-using QS.Dialog.Gtk;
-using QS.Dialog.GtkUI;
-using Gamma.Binding;
-using Gamma.GtkWidgets;
-using System.ServiceModel.Configuration;
-using Vodovoz.Domain.Permissions;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Repositories.Permissions;
-using QS.Project.Repositories;
 using System.Linq;
-using QSOrmProject.Domain;
-using QS.Widgets.Gtk;
+using Gamma.Binding;
+using Gamma.GtkWidgets;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
+using QS.Project.Domain;
+using QS.Project.Repositories;
+using QS.Widgets.GtkUI;
+using Vodovoz.Domain.Permissions;
+using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repositories.Permissions;
+using Vodovoz.Representations;
 
 namespace Vodovoz.Core.Permissions
 {

@@ -11,7 +11,7 @@ using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Repositories;
-using QS.Widgets.Gtk;
+using QS.Widgets.GtkUI;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
