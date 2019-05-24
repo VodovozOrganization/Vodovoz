@@ -18,6 +18,7 @@ using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
+using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Dialogs;
@@ -106,7 +107,7 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
-			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric -= WaterSalesAgreement_ObjectUpdatedGeneric;
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
 			base.Destroy();
 		}
 
@@ -236,7 +237,7 @@ namespace Vodovoz
 			entryBottlesToReturn.ValidationMode = ValidationType.numeric;
 			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			entryBottlesToReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			entryBottlesToReturn.ValidationMode = ValidationType.numeric;
 			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
 			yChkActionBottle.Toggled += YChkActionBottle_Toggled;
 			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount , w => w.Text , new IntToStringValuableConverter()).InitializeFromSource();
@@ -246,7 +247,7 @@ namespace Vodovoz
 				entryTareReturned.Visible = lblTareReturned.Visible = true;
 			}
 
-			entryTrifle.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			entryTrifle.ValidationMode = ValidationType.numeric;
 			entryTrifle.Binding.AddBinding(Entity, e => e.Trifle, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			referenceContract.Binding.AddBinding(Entity, e => e.Contract, w => w.Subject).InitializeFromSource();
@@ -255,7 +256,7 @@ namespace Vodovoz
 
 			txtOnRouteEditReason.Binding.AddBinding(Entity, e => e.OnRouteEditReason, w => w.Buffer.Text).InitializeFromSource();
 
-			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			entryOnlineOrder.ValidationMode = ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
@@ -353,7 +354,7 @@ namespace Vodovoz
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 
-			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += WaterSalesAgreement_ObjectUpdatedGeneric;
+			NotifyConfiguration.Instance.WatchMany<WaterSalesAgreement>(WaterSalesAgreement_ObjectUpdatedGeneric);
 			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
 			SetDiscountEditable();
 			SetDiscountUnitEditable();
@@ -516,8 +517,8 @@ namespace Vodovoz
 		/// </summary>
 		public void ConfigureButtonActions()
 		{
-			menubuttonActions.MenuAllocation = QSWidgetLib.ButtonMenuAllocation.Top;
-			menubuttonActions.MenuAlignment = QSWidgetLib.ButtonMenuAlignment.Right;
+			menubuttonActions.MenuAllocation = ButtonMenuAllocation.Top;
+			menubuttonActions.MenuAlignment = ButtonMenuAlignment.Right;
 			Menu menu = new Menu();
 
 			menuItemCloseOrder = new MenuItem("Закрыть без доставки");
@@ -551,9 +552,9 @@ namespace Vodovoz
 			labelTaraComments.Visible = GtkScrolledWindowTaraComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
 		}
 
-		void WaterSalesAgreement_ObjectUpdatedGeneric(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<WaterSalesAgreement> e)
+		void WaterSalesAgreement_ObjectUpdatedGeneric(EntityChangeEvent[] changeEvents)
 		{
-			foreach(var ad in e.UpdatedSubjects) {
+			foreach(var ad in changeEvents.Select(x => x.GetEntity<WaterSalesAgreement>())) {
 				foreach(var item in Entity.OrderItems) {
 					if(item.AdditionalAgreement?.Id == ad.Id)
 						UoW.Session.Refresh(item.AdditionalAgreement);

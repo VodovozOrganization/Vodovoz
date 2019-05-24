@@ -1567,7 +1567,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -8318,7 +8317,7 @@
                           <widget class="Gtk.Label" id="label9">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
-                            <property name="LabelProp" translatable="yes">Внутренний номер контрагента:</property>
+                            <property name="LabelProp" translatable="yes">Внутренний номер:</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">1</property>
@@ -12231,6 +12230,31 @@
                                   </packing>
                                 </child>
                                 <child>
+                                  <widget class="Gamma.GtkWidgets.yLabel" id="lblIdCaption">
+                                    <property name="MemberName" />
+                                    <property name="Xalign">1</property>
+                                    <property name="LabelProp" translatable="yes">Код:</property>
+                                    <property name="Wrap">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">1</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gamma.GtkWidgets.yLabel" id="lblId">
+                                    <property name="MemberName" />
+                                    <property name="Xalign">0</property>
+                                    <property name="Wrap">True</property>
+                                    <property name="Selectable">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">2</property>
+                                    <property name="AutoSize">False</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <widget class="Gamma.GtkWidgets.yCheckButton" id="ycheckOsmFixed">
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
@@ -12240,7 +12264,7 @@
                                     <property name="UseUnderline">True</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">1</property>
+                                    <property name="Position">3</property>
                                     <property name="AutoSize">True</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -12256,7 +12280,7 @@
                                     <property name="UseUnderline">True</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">2</property>
+                                    <property name="Position">4</property>
                                     <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
@@ -76539,7 +76563,6 @@ not tooltip</property>
         <child>
           <widget class="Gtk.Label" id="label1">
             <property name="MemberName" />
-            <property name="Xalign">0.02</property>
             <property name="LabelProp" translatable="yes">&lt;b&gt;Постановка задачи:&lt;/b&gt;</property>
             <property name="UseMarkup">True</property>
           </widget>
