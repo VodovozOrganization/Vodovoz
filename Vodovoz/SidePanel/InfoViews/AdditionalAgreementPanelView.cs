@@ -4,16 +4,18 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using NHibernate.Proxy;
 using NHibernate.Util;
+using QS.Dialog.Gtk;
 using QS.Helpers;
 using QS.Tdi.Gtk;
+using QS.Utilities;
 using QSOrmProject;
-using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModelBased;
+using QS.DomainModel.NotifyChange;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -38,15 +40,15 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelRent.LineWrapMode = Pango.WrapMode.WordChar;
 			labelEquipmentCount.LineWrapMode = Pango.WrapMode.WordChar;
 
-			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric += Handle_ObjectUpdatedGeneric;
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<WaterSalesAgreement>(UpdateCriteria);
 		}
 
-		void Handle_ObjectUpdatedGeneric(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<WaterSalesAgreement> e)
+		void UpdateCriteria(EntityChangeEvent[] e)
 		{
-			if(e.UpdatedSubjects.Where(x => x.DeliveryPoint != null).Any(x => x.DeliveryPoint.Id == DeliveryPoint.Id))
+			var wsaList = e.Select(l => l.GetEntity<WaterSalesAgreement>());
+			if(wsaList.Any(a => a.DeliveryPoint?.Id == DeliveryPoint.Id))
 				Refresh();
 		}
-
 
 		#region IPanelView implementation
 
@@ -65,11 +67,11 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(eqWithMinDate != null) {
 				var nextServiceDate = eqWithMinDate.LastServiceDate.AddMonths(6);
 				var daysTillNextService = (nextServiceDate - DateTime.Today).Days;
-				nextServiceText = String.Format(
+				nextServiceText = string.Format(
 					"{0} (осталось {1} {2})",
 					nextServiceDate.ToShortDateString(),
 					daysTillNextService,
-					RusNumber.Case(daysTillNextService, "день", "дня", "дней")
+					NumberToTextRus.Case(daysTillNextService, "день", "дня", "дней")
 				);
 			}
 			labelNextService.Text = nextServiceText;
@@ -77,10 +79,10 @@ namespace Vodovoz.SidePanel.InfoViews
 			var dailyAgreements = agreements
 				.OfType<DailyRentAgreement>()
 				.OrderBy(a => a.EndDate);
-			vboxRent.Visible = dailyAgreements.Count() > 0;
-			var rentText = String.Join(
+			vboxRent.Visible = dailyAgreements.Any();
+			var rentText = string.Join(
 				"\n",
-				dailyAgreements.Select(a => String.Format(
+				dailyAgreements.Select(a => string.Format(
 					"{0} - A до {1}",
 					a.AgreementNumber,
 					a.EndDate.ToShortDateString()
@@ -95,8 +97,8 @@ namespace Vodovoz.SidePanel.InfoViews
 			var bottlesLeftToOrder = requiredBottlesThisMonth - bottlesThisMonth;
 			var leftToOrderText = "";
 			if(bottlesLeftToOrder > 0)
-				leftToOrderText = String.Format(" (осталось: {0})", bottlesLeftToOrder);
-			labelBottlesPerMonth.Text = String.Format("{0} из {1}{2}", bottlesThisMonth, requiredBottlesThisMonth, leftToOrderText);
+				leftToOrderText = string.Format(" (осталось: {0})", bottlesLeftToOrder);
+			labelBottlesPerMonth.Text = string.Format("{0} из {1}{2}", bottlesThisMonth, requiredBottlesThisMonth, leftToOrderText);
 
 			/*Отключено из-за ошибки. Задачи I-1221 и I-1020
 			if(fixedPricesList != null)
@@ -108,18 +110,19 @@ namespace Vodovoz.SidePanel.InfoViews
 			}
 
 			ytreeviewFixedPrices.ColumnsConfig = ColumnsConfigFactory.Create<WaterSalesAgreementFixedPrice>()
-				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
+				.AddColumn("Номенклатура")
+					.AddTextRenderer(x => x.Nomenclature.ShortOrFullName)
 				.AddColumn("Цена")
-				.AddTextRenderer(x => String.Format("{0}р.", x.Price))
+					.AddTextRenderer(x => string.Format("{0}р.", x.Price))
 				.Finish();
 
 			ytreeviewFixedPrices.SetItemsSource(fixedPricesList);
 
-			ytreeviewFixedPrices.Visible = fixedPricesList.Count > 0;
-			hboxNotFixedPriceInfo.Visible = fixedPricesList.Count == 0;
+			ytreeviewFixedPrices.Visible = fixedPricesList.Any();
+			hboxNotFixedPriceInfo.Visible = !fixedPricesList.Any();
 
 			WaterAgreements = agreements.Where(a => a.Type == AgreementType.WaterSales).ToArray();
-			buttonWaterAgreement.Visible = WaterAgreements.Length > 0;
+			buttonWaterAgreement.Visible = WaterAgreements.Any();
 		}
 
 		/// <summary>
@@ -130,16 +133,12 @@ namespace Vodovoz.SidePanel.InfoViews
 		{
 			var wsa = Contract.AdditionalAgreements
 							  .Select(x => x.Self).OfType<WaterSalesAgreement>()
-							  .Where(a => a.DeliveryPoint == DeliveryPoint)
-							  .Where(a => !a.IsCancelled)
-							  .FirstOrDefault();
-			if(wsa == null) {
+							  .FirstOrDefault(a => a.DeliveryPoint == DeliveryPoint && !a.IsCancelled);
+			if(wsa == null)
 				wsa = Contract.AdditionalAgreements
 							  .Select(x => x.Self).OfType<WaterSalesAgreement>()
-							  .Where(a => a.DeliveryPoint == null)
-							  .Where(a => !a.IsCancelled)
-							  .FirstOrDefault();
-			}
+							  .FirstOrDefault(a => a.DeliveryPoint == null && !a.IsCancelled);
+
 			if(wsa == null) {
 				fixedPricesList = new List<WaterSalesAgreementFixedPrice>();
 				return;
@@ -148,21 +147,14 @@ namespace Vodovoz.SidePanel.InfoViews
 			wsa.ReloadListFromDB(InfoProvider.UoW.Session, x => x.FixedPrices);
 
 			fixedPricesList = wsa.FixedPrices;
-
 		}
 
-		public bool VisibleOnPanel {
-			get {
-				return DeliveryPoint != null;
-			}
-		}
+		public bool VisibleOnPanel => DeliveryPoint != null;
 
 		public void OnCurrentObjectChanged(object changedObject)
 		{
-			var deliveryPoint = changedObject as DeliveryPoint;
-			if(deliveryPoint != null) {
+			if(changedObject is DeliveryPoint deliveryPoint)
 				Refresh();
-			}
 		}
 
 		private IInfoProvider infoProvider;
@@ -179,9 +171,8 @@ namespace Vodovoz.SidePanel.InfoViews
 		void UoW_SessionScopeEntitySaved(object sender, QS.DomainModel.Config.EntityUpdatedEventArgs e)
 		{
 			foreach(var item in e.UpdatedSubjects) {
-				if(item is WaterSalesAgreement) {
+				if(item is WaterSalesAgreement)
 					Refresh();
-				}
 			}
 		}
 
@@ -194,7 +185,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			var type = NHibernateProxyHelper.GuessClass(selectedPrice.AdditionalAgreement);
 			var dialog = OrmMain.CreateObjectDialog(type, selectedPrice.AdditionalAgreement.Id);
 			TDIMain.MainNotebook.OpenTab(
-				OrmMain.GenerateDialogHashName(type, selectedPrice.AdditionalAgreement.Id),
+				DialogHelper.GenerateDialogHashName(type, selectedPrice.AdditionalAgreement.Id),
 				() => dialog
 			);
 		}
@@ -206,7 +197,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					if(wa.Contract.Id != Contract?.Id)
 						continue;
 					TDIMain.MainNotebook.OpenTab(
-						OrmMain.GenerateDialogHashName<WaterSalesAgreement>(wa.Id),
+						DialogHelper.GenerateDialogHashName<WaterSalesAgreement>(wa.Id),
 						() => new WaterAgreementDlg(InfoProvider.UoW, EntityOpenOption.Open(wa.Id, true))
 					);
 				}
@@ -217,10 +208,10 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public override void Destroy()
 		{
-			if(infoProvider?.UoW != null) {
+			if(infoProvider?.UoW != null)
 				infoProvider.UoW.SessionScopeEntitySaved -= UoW_SessionScopeEntitySaved;
-			}
-			OrmMain.GetObjectDescription<WaterSalesAgreement>().ObjectUpdatedGeneric -= Handle_ObjectUpdatedGeneric;
+
+			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.UnsubscribeAll(this);
 			base.Destroy();
 		}
 	}
