@@ -354,7 +354,7 @@ namespace Vodovoz
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 
-			NotifyConfiguration.Instance.WatchMany<WaterSalesAgreement>(WaterSalesAgreement_ObjectUpdatedGeneric);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<WaterSalesAgreement>(WaterSalesAgreement_ObjectUpdatedGeneric);
 			ToggleVisibilityOfDeposits(Entity.ObservableOrderDepositItems.Any());
 			SetDiscountEditable();
 			SetDiscountUnitEditable();
