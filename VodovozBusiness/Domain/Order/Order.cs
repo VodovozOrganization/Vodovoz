@@ -1367,8 +1367,11 @@ namespace Vodovoz.Domain.Orders
 						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
 						break;
 				}
-				uowAggr.Save();
-				uowAggr.Dispose();
+				try {
+					uowAggr.Save();
+				} finally {
+					uowAggr.Dispose();
+				}
 			}
 
 			var agreements = UoW.Session.QueryOver<AdditionalAgreement>()
@@ -1703,13 +1706,16 @@ namespace Vodovoz.Domain.Orders
 			if(Client.PersonType != PersonType.legal && PaymentType != PaymentType.cashless)
 				return;
 
-			bool isProxiesExist = Client.Proxies
-						.Where(p => p.IsActiveProxy(DeliveryDate.Value))
-						.Where(p => (p.DeliveryPoints == null
-									|| p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, DeliveryPoint)))
-							  ).Any();
+			bool existProxies = Client.Proxies
+									  .Any(
+										p => p.IsActiveProxy(DeliveryDate.Value)
+										&& (
+												p.DeliveryPoints == null || p.DeliveryPoints
+																			 .Any(x => DomainHelper.EqualDomainObjects(x, DeliveryPoint))
+										   )
+									  );
 
-			if(isProxiesExist)
+			if(existProxies)
 				SignatureType = OrderSignatureType.ByProxy;
 		}
 
@@ -1803,7 +1809,7 @@ namespace Vodovoz.Domain.Orders
 					CreateSalesEquipmentAgreementAndAddEquipment(nomenclature, count, discount, discountReason, proSet);
 					break;
 				case NomenclatureCategory.water:
-					var ag = CreateWaterSalesAgreementAndAddWater(nomenclature);
+					var ag = CreateWaterSalesAgreement(nomenclature);
 					AddWaterForSale(nomenclature, ag, count, discount, discountReason, proSet);
 					break;
 				case NomenclatureCategory.master:
@@ -1908,28 +1914,19 @@ namespace Vodovoz.Domain.Orders
 			return Contract;
 		}
 
-		private WaterSalesAgreement CreateWaterSalesAgreementAndAddWater(Nomenclature nom)
+		private WaterSalesAgreement CreateWaterSalesAgreement(Nomenclature nom)
 		{
 			if(Contract == null)
 				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 
-			WaterSalesAgreement ag = Contract.GetWaterSalesAgreement(DeliveryPoint, nom);
-			if(ag == null) {
-				using(var childUoW = UnitOfWorkFactory.CreateWithNewChildRoot<WaterSalesAgreement>(UoW)) {
-					ag = childUoW.Root;
-					ag.Contract = Contract;
-					ag.AgreementNumber = AdditionalAgreement.GetNumberWithType(Contract, AgreementType.WaterSales);
-					ag.DeliveryPoint = DeliveryPoint;
-					if(DeliveryDate.HasValue)
-						ag.IssueDate = ag.StartDate = DeliveryDate.Value;
-					childUoW.Save(ag);//FIXME в childUoW каскадом не сохраняются фиксы!!! потому это тут и через строку
-					ag.FillFixedPricesFromDeliveryPoint(childUoW);
-					childUoW.Save(ag);
-					Contract.AdditionalAgreements.Add(ag);
-					CreateOrderAgreementDocument(ag);
-				}
+			UoW.Session.Refresh(Contract);
+			WaterSalesAgreement wsa = Contract.GetWaterSalesAgreement(DeliveryPoint, nom);
+			if(wsa == null) {
+				wsa = ClientDocumentsRepository.CreateDefaultWaterAgreement(UoW, DeliveryPoint, DeliveryDate, Contract);
+				Contract.AdditionalAgreements.Add(wsa);
+				CreateOrderAgreementDocument(wsa);
 			}
-			return ag;
+			return wsa;
 		}
 
 		void CreateSalesEquipmentAgreementAndAddEquipment(Nomenclature nom, int count, decimal discount, DiscountReason reason, PromotionalSet proSet)
