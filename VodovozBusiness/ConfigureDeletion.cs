@@ -201,7 +201,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<Trainee>();
 
 			//основной класс. не удаляем. в тестах настроен игнор.
-			/*DeleteConfig.AddHibernateDeleteInfo<Employee>()
+			DeleteConfig.AddHibernateDeleteInfo<Employee>()
 				.AddDeleteDependenceFromCollection(item => item.Phones)
 				.AddDeleteDependenceFromCollection(item => item.Accounts)
 				.AddDeleteDependence<Income>(item => item.Casher)
@@ -261,7 +261,7 @@ namespace Vodovoz
 				.AddClearDependence<Residue>(x => x.LastEditAuthor)
 				.AddClearDependence<Subdivision>(x => x.Chief)
 				.AddClearDependence<ChatMessage>(x => x.Sender)
-				.AddClearDependence<Employee>(x => x.DefaultForwarder);*/
+				.AddClearDependence<Employee>(x => x.DefaultForwarder);
 
 			DeleteConfig.AddDeleteInfo(
 				new DeleteInfo {
@@ -318,7 +318,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<FineTemplate>();
 
 			//основной класс. не удаляем. в тестах настроен игнор.
-			/*DeleteConfig.AddHibernateDeleteInfo<Subdivision>()
+			DeleteConfig.AddHibernateDeleteInfo<Subdivision>()
 						.AddClearDependence<Subdivision>(item => item.ParentSubdivision)
 						.AddClearDependence<Employee>(item => item.Subdivision)
 						.AddClearDependence<Warehouse>(item => item.OwningSubdivision)
@@ -333,7 +333,7 @@ namespace Vodovoz
 						.AddDeleteDependence<CashTransferDocumentBase>(item => item.CashSubdivisionTo)
 						.AddDeleteDependence<CashTransferDocumentBase>(item => item.CashSubdivisionFrom)
 						.AddDeleteDependence<AdvanceReport>(item => item.RelatedToSubdivision)
-						;*/
+						;
 
 			DeleteConfig.AddHibernateDeleteInfo<EmployeeContract>();
 			DeleteConfig.AddHibernateDeleteInfo<EmployeeDocument>()
@@ -356,7 +356,7 @@ namespace Vodovoz
 			#region NearCounterparty
 
 			//основной класс. не удаляем. в тестах настроен игнор.
-			/*DeleteConfig.AddHibernateDeleteInfo<Counterparty>()
+			DeleteConfig.AddHibernateDeleteInfo<Counterparty>()
 				.AddDeleteDependenceFromCollection(item => item.Phones)
 				.AddDeleteDependenceFromCollection(item => item.Emails)
 				.AddDeleteDependenceFromCollection(item => item.Accounts)
@@ -383,7 +383,7 @@ namespace Vodovoz
 				.AddDeleteDependence<Residue>(x => x.Customer)
 				.AddClearDependence<Counterparty>(item => item.MainCounterparty)
 				.AddClearDependence<Counterparty>(x => x.PreviousCounterparty)
-				.AddClearDependence<Equipment>(x => x.AssignedToClient);*/
+				.AddClearDependence<Equipment>(x => x.AssignedToClient);
 
 
 			DeleteConfig.AddHibernateDeleteInfo<Contact>()
@@ -431,7 +431,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<SalesEquipment>();
 
 			//основной класс. не удаляем. в тестах настроен игнор.
-			/*DeleteConfig.AddHibernateDeleteInfo<DeliveryPoint>()
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryPoint>()
 				.AddDeleteDependence<AdditionalAgreement>(item => item.DeliveryPoint)
 				.AddDeleteDependence<BottlesMovementOperation>(item => item.DeliveryPoint)
 				.AddDeleteDependence<TransferOperationDocument>(item => item.FromDeliveryPoint)
@@ -446,7 +446,7 @@ namespace Vodovoz
 				.AddDeleteDependence<Residue>(x => x.DeliveryPoint)
 				.AddRemoveFromDependence<Proxy>(item => item.DeliveryPoints)
 				.AddRemoveFromDependence<Contact>(x => x.DeliveryPoints)
-				.AddClearDependence<ServiceClaim>(x => x.DeliveryPoint);*/
+				.AddClearDependence<ServiceClaim>(x => x.DeliveryPoint);
 
 			DeleteConfig.AddHibernateDeleteInfo<TransferOperationDocument>()
 				.AddDeleteCascadeDependence(item => item.IncBottlesOperation)
@@ -594,8 +594,8 @@ namespace Vodovoz
 			#region Order
 
 			//основной класс. не удаляем. в тестах настроен игнор.
-			DeleteConfig.AddHibernateDeleteInfo<Order>(); //FIXME : Костыль пока не будет нормального механизма блокировки 
-			/*			.AddDeleteDependence<OrderItem>(item => item.Order)
+			DeleteConfig.AddHibernateDeleteInfo<Order>() //FIXME : Костыль пока не будет нормального механизма блокировки 
+						.AddDeleteDependence<OrderItem>(item => item.Order)
 						.AddDeleteDependence<OrderEquipment>(x => x.Order)
 						.AddDeleteDependence<OrderDocument>(item => item.Order)
 						.AddDeleteDependence<OrderDepositItem>(item => item.Order)
@@ -617,7 +617,7 @@ namespace Vodovoz
 						.AddClearDependence<Expense>(x => x.Order)
 						.AddClearDependence<M2ProxyDocument>(x => x.Order)
 						.AddClearDependence<Counterparty>(x => x.FirstOrder)
-						;*/
+						;
 
 			DeleteConfig.AddHibernateDeleteInfo<OrderItem>()
 				.AddDeleteDependence<OrderEquipment>(item => item.OrderItem)
@@ -717,7 +717,7 @@ namespace Vodovoz
 			#region Склад
 
 			//основной класс. не удаляем. в тестах настроен игнор.
-			/*DeleteConfig.AddHibernateDeleteInfo<Warehouse>()
+			DeleteConfig.AddHibernateDeleteInfo<Warehouse>()
 				.AddDeleteDependence<IncomingInvoice>(item => item.Warehouse)
 				.AddDeleteDependence<CarLoadDocument>(x => x.Warehouse)
 				.AddDeleteDependence<CarUnloadDocument>(x => x.Warehouse)
@@ -732,7 +732,7 @@ namespace Vodovoz
 				.AddDeleteDependence<ShiftChangeWarehouseDocument>(x => x.Warehouse)
 				.AddDeleteDependence<RegradingOfGoodsDocument>(x => x.Warehouse)
 				.AddDeleteDependence<SelfDeliveryDocument>(x => x.Warehouse)
-				.AddClearDependence<UserSettings>(x => x.DefaultWarehouse);*/
+				.AddClearDependence<UserSettings>(x => x.DefaultWarehouse);
 
 			DeleteConfig.AddHibernateDeleteInfo<IncomingInvoice>()
 				.AddDeleteDependence<IncomingInvoiceItem>(x => x.Document);
