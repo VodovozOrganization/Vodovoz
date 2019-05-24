@@ -29192,7 +29192,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="997 688">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="1155 688">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <signal name="Shown" handler="OnShown" />
@@ -29252,6 +29252,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -31102,7 +31103,6 @@
                                         <property name="IsEditable">True</property>
                                         <property name="WidthChars">4</property>
                                         <property name="InvisibleChar">●</property>
-                                        <signal name="Changed" handler="OnEntryBottlesReturnChanged" />
                                       </widget>
                                       <packing>
                                         <property name="Position">1</property>
@@ -31135,7 +31135,6 @@
                                         <property name="IsEditable">True</property>
                                         <property name="WidthChars">4</property>
                                         <property name="InvisibleChar">●</property>
-                                        <signal name="Changed" handler="OnEntryBottlesReturnChanged" />
                                       </widget>
                                       <packing>
                                         <property name="Position">3</property>
@@ -31203,7 +31202,6 @@
                                         <property name="IsEditable">True</property>
                                         <property name="WidthChars">4</property>
                                         <property name="InvisibleChar">●</property>
-                                        <signal name="Changed" handler="OnEntryBottlesReturnChanged" />
                                       </widget>
                                       <packing>
                                         <property name="Position">2</property>

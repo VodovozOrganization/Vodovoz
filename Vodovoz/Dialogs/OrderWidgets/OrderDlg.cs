@@ -241,6 +241,7 @@ namespace Vodovoz
 			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
 			yChkActionBottle.Toggled += YChkActionBottle_Toggled;
 			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount , w => w.Text , new IntToStringValuableConverter()).InitializeFromSource();
+			yEntTareActBtlFromClient.Changed += OnYEntTareActBtlFromClientChanged;
 
 			if(Entity.OrderStatus == OrderStatus.Closed) {
 				entryTareReturned.Text = BottlesRepository.GetEmptyBottlesFromClientByOrder(UoW, Entity).ToString();
@@ -1949,7 +1950,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnEntryBottlesReturnChanged(object sender, EventArgs e)
+		protected void OnYEntTareActBtlFromClientChanged(object sender, EventArgs e)
 		{
 			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
 			Entity.CalculateBottlesStockDiscounts(standartDiscountsService);
