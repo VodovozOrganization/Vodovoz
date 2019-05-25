@@ -471,7 +471,9 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Tag>();
 
-			DeleteConfig.AddHibernateDeleteInfo<DeliveryPointCategory>();
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryPointCategory>()
+				.AddClearDependence<DeliveryPoint>(x => x.Category)
+				;
 
 			#endregion
 

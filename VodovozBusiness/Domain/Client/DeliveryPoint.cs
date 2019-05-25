@@ -92,9 +92,7 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref entrance, value, () => Entrance);
 		}
 
-		public virtual string Title {
-			get { return string.IsNullOrWhiteSpace(CompiledAddress) ? "АДРЕС ПУСТОЙ" : CompiledAddress; }
-		}
+		public virtual string Title => string.IsNullOrWhiteSpace(CompiledAddress) ? "АДРЕС ПУСТОЙ" : CompiledAddress;
 
 		[Display(Name = "Полный адрес")]
 		public virtual string CompiledAddress {
@@ -496,6 +494,18 @@ namespace Vodovoz.Domain.Client
 		public virtual bool AddCertificatesAlways {
 			get => addCertificatesAlways;
 			set => SetField(ref addCertificatesAlways, value, () => AddCertificatesAlways);
+		}
+
+		DeliveryPointCategory category;
+		[Required(ErrorMessage = "Выберите категорию точки доставки")]
+		[Display(Name = "Категория точки доставки")]
+		public virtual DeliveryPointCategory Category {
+			get => category;
+			set {
+				if(value != null && value.IsArchive)
+					value = null;
+				SetField(ref category, value, () => Category);
+			}
 		}
 
 		#endregion

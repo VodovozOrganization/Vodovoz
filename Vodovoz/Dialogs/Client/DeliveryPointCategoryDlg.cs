@@ -1,5 +1,6 @@
 ﻿using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QSValidation;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Dialogs.Client
@@ -24,18 +25,22 @@ namespace Vodovoz.Dialogs.Client
 
 		void ConfigureDlg()
 		{
-			SetArchive();
+			SetAccessibility();
 			entName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			chkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 		}
 
-		void SetArchive()
+		void SetAccessibility()
 		{
+			chkIsArchive.Visible = Entity.Id > 0;
 			entName.Sensitive = chkIsArchive.Sensitive = !Entity.IsArchive;
 		}
 
 		public override bool Save()
 		{
+			var valid = new QSValidator<DeliveryPointCategory>(Entity);
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+				return false;
 			UoWGeneric.Save();
 			return true;
 		}

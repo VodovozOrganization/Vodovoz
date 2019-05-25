@@ -6,8 +6,8 @@ using QS.HistoryLog;
 namespace Vodovoz.Domain.Client
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "категории объекта",
-		Nominative = "категория объекта"
+		NominativePlural = "категории точки доставки",
+		Nominative = "категория точки доставки"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
@@ -29,7 +29,7 @@ namespace Vodovoz.Domain.Client
 
 		bool isArchive;
 		[Display(Name = "Архивная")]
-		public virtual bool IsArchive{
+		public virtual bool IsArchive {
 			get => isArchive;
 			set => SetField(ref isArchive, value, () => IsArchive);
 		}

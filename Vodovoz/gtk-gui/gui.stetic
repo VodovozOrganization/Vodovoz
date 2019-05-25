@@ -11875,6 +11875,7 @@
                     <property name="Visible">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Информация</property>
+                    <property name="Active">True</property>
                     <property name="DrawIndicator">False</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -11973,9 +11974,6 @@
                             <property name="RowSpacing">6</property>
                             <property name="ColumnSpacing">6</property>
                             <property name="BorderWidth">6</property>
-                            <child>
-                              <placeholder />
-                            </child>
                             <child>
                               <placeholder />
                             </child>
@@ -12450,6 +12448,21 @@
                                 <property name="MemberName" />
                                 <property name="Spacing">6</property>
                                 <child>
+                                  <widget class="Gamma.Widgets.ySpecComboBox" id="ySpecCmbCategory">
+                                    <property name="MemberName" />
+                                    <property name="IsTextCombo">False</property>
+                                    <property name="Items" translatable="yes" />
+                                    <property name="AddIfNotExist">False</property>
+                                    <property name="DefaultFirst">False</property>
+                                    <property name="ShowSpecialStateAll">False</property>
+                                    <property name="ShowSpecialStateNot">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">0</property>
+                                    <property name="AutoSize">False</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <widget class="Gamma.Widgets.yEnumComboBox" id="yenumEntranceType">
                                     <property name="MemberName" />
                                     <property name="IsTextCombo">False</property>
@@ -12460,10 +12473,8 @@
                                     <property name="DefaultFirst">False</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">0</property>
-                                    <property name="AutoSize">True</property>
-                                    <property name="Expand">False</property>
-                                    <property name="Fill">False</property>
+                                    <property name="Position">1</property>
+                                    <property name="AutoSize">False</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -12474,10 +12485,8 @@
                                     <property name="InvisibleChar">•</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">1</property>
-                                    <property name="AutoSize">True</property>
-                                    <property name="Expand">False</property>
-                                    <property name="Fill">False</property>
+                                    <property name="Position">2</property>
+                                    <property name="AutoSize">False</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -12491,20 +12500,19 @@
                                     <property name="DefaultFirst">False</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">2</property>
-                                    <property name="AutoSize">True</property>
-                                    <property name="Expand">False</property>
-                                    <property name="Fill">False</property>
+                                    <property name="Position">3</property>
+                                    <property name="AutoSize">False</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <widget class="Gtk.Label" id="label3">
                                     <property name="MemberName" />
+                                    <property name="Xalign">1</property>
                                     <property name="LabelProp" translatable="yes">№:</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">3</property>
-                                    <property name="AutoSize">True</property>
+                                    <property name="Position">4</property>
+                                    <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
                                   </packing>
@@ -12518,7 +12526,7 @@
                                     <property name="InvisibleChar">●</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">4</property>
+                                    <property name="Position">5</property>
                                     <property name="AutoSize">False</property>
                                   </packing>
                                 </child>
@@ -12529,8 +12537,8 @@
                                     <property name="LabelProp" translatable="yes">Этаж:</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">5</property>
-                                    <property name="AutoSize">True</property>
+                                    <property name="Position">6</property>
+                                    <property name="AutoSize">False</property>
                                     <property name="Expand">False</property>
                                     <property name="Fill">False</property>
                                   </packing>
@@ -12543,10 +12551,8 @@
                                     <property name="InvisibleChar">•</property>
                                   </widget>
                                   <packing>
-                                    <property name="Position">6</property>
-                                    <property name="AutoSize">True</property>
-                                    <property name="Expand">False</property>
-                                    <property name="Fill">False</property>
+                                    <property name="Position">7</property>
+                                    <property name="AutoSize">False</property>
                                   </packing>
                                 </child>
                               </widget>
@@ -12816,6 +12822,26 @@
                               <packing>
                                 <property name="TopAttach">6</property>
                                 <property name="BottomAttach">7</property>
+                                <property name="AutoSize">True</property>
+                                <property name="XOptions">Fill</property>
+                                <property name="YOptions">Fill</property>
+                                <property name="XExpand">False</property>
+                                <property name="XFill">True</property>
+                                <property name="XShrink">False</property>
+                                <property name="YExpand">False</property>
+                                <property name="YFill">True</property>
+                                <property name="YShrink">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Label" id="lblCategory">
+                                <property name="MemberName" />
+                                <property name="Xalign">1</property>
+                                <property name="LabelProp" translatable="yes">Категория:</property>
+                              </widget>
+                              <packing>
+                                <property name="TopAttach">5</property>
+                                <property name="BottomAttach">6</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -29259,7 +29285,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -76729,7 +76754,7 @@ not tooltip</property>
               <widget class="Gtk.Label" id="lblName">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Фамилия:</property>
+                <property name="LabelProp" translatable="yes">Название:</property>
               </widget>
               <packing>
                 <property name="AutoSize">True</property>

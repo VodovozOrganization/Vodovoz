@@ -101,7 +101,7 @@ namespace Vodovoz.Dialogs.Client
 			this.lblName = new global::Gtk.Label();
 			this.lblName.Name = "lblName";
 			this.lblName.Xalign = 1F;
-			this.lblName.LabelProp = global::Mono.Unix.Catalog.GetString("Фамилия:");
+			this.lblName.LabelProp = global::Mono.Unix.Catalog.GetString("Название:");
 			this.table1.Add(this.lblName);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.lblName]));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));

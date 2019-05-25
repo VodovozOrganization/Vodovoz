@@ -97,6 +97,9 @@ namespace Vodovoz
 			phonesview1.PhonesList = Entity.ObservablePhones;
 			ShowResidue();
 
+			ySpecCmbCategory.ItemsList = UoW.Session.QueryOver<DeliveryPointCategory>().Where(c => !c.IsArchive).List().OrderBy(c => c.Name);
+			ySpecCmbCategory.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
+
 			comboRoomType.ItemsEnum = typeof(RoomType);
 			comboRoomType.Binding.AddBinding(Entity, entity => entity.RoomType, widget => widget.SelectedItem)
 				.InitializeFromSource();
