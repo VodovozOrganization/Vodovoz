@@ -999,6 +999,7 @@ namespace Vodovoz
 			#endregion
 
 			DeleteConfig.AddHibernateDeleteInfo<PaymentFromTinkoff>();
+			DeleteConfig.AddHibernateDeleteInfo<OrderIdProviderForMobileApp>();
 
 			#region Журнал изменений
 			//Добавлено чтобы было, вдруг понадобится ослеживать зависимости. Сейчас это не надо для реального удаления.
