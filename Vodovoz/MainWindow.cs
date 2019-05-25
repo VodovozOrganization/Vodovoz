@@ -1241,4 +1241,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new OrmReference(typeof(PromotionalSet))
 		);
 	}
+
+	protected void OnActionDeliveryPointCategoryActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<DeliveryPointCategory>(),
+			() => new OrmReference(typeof(DeliveryPointCategory))
+		);
+	}
 }

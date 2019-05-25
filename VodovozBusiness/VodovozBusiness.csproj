@@ -616,6 +616,8 @@
     <Compile Include="Services\IStandartDiscountsService.cs" />
     <Compile Include="Domain\Payments\OrderIdProviderForMobileApp.cs" />
     <Compile Include="HibernateMapping\Payments\OrderIdProviderForMobileAppMap.cs" />
+    <Compile Include="Domain\Client\DeliveryPointCategory.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DeliveryPointCategoryMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

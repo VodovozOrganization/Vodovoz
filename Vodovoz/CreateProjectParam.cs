@@ -316,6 +316,12 @@ namespace Vodovoz
 				   .SearchColumn("Гос. номер", x => x.RegistrationNumber)
 				   .SearchColumn("Водитель", x => x.Driver != null ? x.Driver.FullName : string.Empty)
 				   .End();
+			OrmMain.AddObjectDescription<DeliveryPointCategory>().Dialog<DeliveryPointCategoryDlg>().DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.Name)
+				   .Column("В архиве?", x => x.IsArchive ? "Да" : "Нет")
+				   .OrderAsc(x => x.Name)
+				   .End();
 
 			#endregion
 
