@@ -21,6 +21,7 @@ namespace Vodovoz.Domain.Client
 
 		string name;
 		[Display(Name = "Название категории")]
+		[Required(ErrorMessage = "Название категории должно быть заполнено")]
 		public virtual string Name {
 			get => name;
 			set => SetField(ref name, value, () => Name);

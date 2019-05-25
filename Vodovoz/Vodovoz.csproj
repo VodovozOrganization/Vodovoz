@@ -1146,6 +1146,8 @@
     <Compile Include="SidePanel\InfoViews\CallTaskPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CallTaskPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICallTaskProvider.cs" />
+    <Compile Include="Dialogs\Client\DeliveryPointCategoryDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.DeliveryPointCategoryDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

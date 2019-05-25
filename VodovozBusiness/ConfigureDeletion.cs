@@ -471,6 +471,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Tag>();
 
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryPointCategory>();
+
 			#endregion
 
 			#region Logistics
