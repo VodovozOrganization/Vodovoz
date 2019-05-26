@@ -224,7 +224,7 @@ namespace Vodovoz
 			OrmMain.AddObjectDescription<SelfDeliveryDocument>().Dialog<SelfDeliveryDocumentDlg>();
 			OrmMain.AddObjectDescription<CarLoadDocument>().Dialog<CarLoadDocumentDlg>();
 			OrmMain.AddObjectDescription<CarUnloadDocument>().Dialog<CarUnloadDocumentDlg>();
-   			#endregion
+			#endregion
 
 			#region Goods
 			OrmMain.AddObjectDescription<Nomenclature>().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).Column("Тип", x => x.CategoryString).End();
@@ -268,11 +268,11 @@ namespace Vodovoz
 				   .OrderAsc(x => x.CustomName)
 				   .End();
 			OrmMain.AddObjectDescription<Employee>().Dialog<EmployeeDlg>().DefaultTableView()
-			       .Column("Код", x => x.Id.ToString())
-			       .SearchColumn("Ф.И.О.", x => x.FullName)
-			       .Column("Категория", x => x.Category.GetEnumTitle())
-			       .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
-			       .End();
+				   .Column("Код", x => x.Id.ToString())
+				   .SearchColumn("Ф.И.О.", x => x.FullName)
+				   .Column("Категория", x => x.Category.GetEnumTitle())
+				   .OrderAsc(x => x.LastName).OrderAsc(x => x.Name).OrderAsc(x => x.Patronymic)
+				   .End();
 			OrmMain.AddObjectDescription<Trainee>().Dialog<TraineeDlg>().DefaultTableView()
 				   .Column("Код", x => x.Id.ToString())
 				   .SearchColumn("Ф.И.О.", x => x.FullName)
@@ -322,7 +322,10 @@ namespace Vodovoz
 				   .Column("В архиве?", x => x.IsArchive ? "Да" : "Нет")
 				   .OrderAsc(x => x.Name)
 				   .End();
-
+			OrmMain.AddObjectDescription<CounterpartyActivityKind>().Dialog<CounterpartyActivityKindDlg>().DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.Name)
+				   .End();
 			#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());

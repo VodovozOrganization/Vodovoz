@@ -475,6 +475,8 @@ namespace Vodovoz
 				.AddClearDependence<DeliveryPoint>(x => x.Category)
 				;
 
+			DeleteConfig.AddHibernateDeleteInfo<CounterpartyActivityKind>();
+
 			#endregion
 
 			#region Logistics
