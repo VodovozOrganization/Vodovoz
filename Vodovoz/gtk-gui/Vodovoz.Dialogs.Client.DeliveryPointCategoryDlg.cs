@@ -76,7 +76,7 @@ namespace Vodovoz.Dialogs.Client
 			this.chkIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkIsArchive.CanFocus = true;
 			this.chkIsArchive.Name = "chkIsArchive";
-			this.chkIsArchive.Label = global::Mono.Unix.Catalog.GetString("Архивная");
+			this.chkIsArchive.Label = global::Mono.Unix.Catalog.GetString("Архивный");
 			this.chkIsArchive.DrawIndicator = true;
 			this.chkIsArchive.UseUnderline = true;
 			this.table1.Add(this.chkIsArchive);

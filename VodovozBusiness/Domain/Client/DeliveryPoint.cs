@@ -497,8 +497,8 @@ namespace Vodovoz.Domain.Client
 		}
 
 		DeliveryPointCategory category;
-		[Required(ErrorMessage = "Выберите категорию точки доставки")]
-		[Display(Name = "Категория точки доставки")]
+		[Required(ErrorMessage = "Укажите тип объекта")]
+		[Display(Name = "Тип объекта")]
 		public virtual DeliveryPointCategory Category {
 			get => category;
 			set {

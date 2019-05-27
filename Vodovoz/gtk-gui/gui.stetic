@@ -1147,8 +1147,8 @@
       </action>
       <action id="ActionDeliveryPointCategory">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Категории точек доставки</property>
-        <property name="ShortLabel" translatable="yes">Категории точек доставки</property>
+        <property name="Label" translatable="yes">Типы объектов в точках доставки</property>
+        <property name="ShortLabel" translatable="yes">Типы объектов в точках доставки</property>
         <signal name="Activated" handler="OnActionDeliveryPointCategoryActivated" />
       </action>
       <action id="ActionCounterpartyActivityKinds">
@@ -12851,7 +12851,7 @@
                               <widget class="Gtk.Label" id="lblCategory">
                                 <property name="MemberName" />
                                 <property name="Xalign">1</property>
-                                <property name="LabelProp" translatable="yes">Категория:</property>
+                                <property name="LabelProp" translatable="yes">Тип объекта:</property>
                               </widget>
                               <packing>
                                 <property name="TopAttach">5</property>
@@ -76656,7 +76656,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Client.DeliveryPointCategoryDlg" design-size="300 95">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Client.DeliveryPointCategoryDlg" design-size="234 95">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -76724,7 +76724,7 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yCheckButton" id="chkIsArchive">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Label" translatable="yes">Архивная</property>
+                <property name="Label" translatable="yes">Архивный</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -76955,7 +76955,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Bottles.ClientsByDeliveryPointCategoryAndActivityKindsReport" design-size="364 655">
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Bottles.ClientsByDeliveryPointCategoryAndActivityKindsReport" design-size="281 374">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -77021,7 +77021,7 @@ not tooltip</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="lblDeliverypointCategory">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Категория точки доставки:</property>
+                <property name="LabelProp" translatable="yes">Тип объекта:</property>
               </widget>
               <packing>
                 <property name="TopAttach">1</property>

@@ -862,7 +862,7 @@ namespace Vodovoz
 			this.lblCategory = new global::Gtk.Label();
 			this.lblCategory.Name = "lblCategory";
 			this.lblCategory.Xalign = 1F;
-			this.lblCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категория:");
+			this.lblCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Тип объекта:");
 			this.datatable1.Add(this.lblCategory);
 			global::Gtk.Table.TableChild w65 = ((global::Gtk.Table.TableChild)(this.datatable1[this.lblCategory]));
 			w65.TopAttach = ((uint)(5));

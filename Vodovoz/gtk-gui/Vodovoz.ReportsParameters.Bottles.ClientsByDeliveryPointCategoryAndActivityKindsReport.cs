@@ -86,7 +86,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.lblDeliverypointCategory = new global::Gamma.GtkWidgets.yLabel();
 			this.lblDeliverypointCategory.Name = "lblDeliverypointCategory";
 			this.lblDeliverypointCategory.Xalign = 1F;
-			this.lblDeliverypointCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категория точки доставки:");
+			this.lblDeliverypointCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Тип объекта:");
 			this.table1.Add(this.lblDeliverypointCategory);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.lblDeliverypointCategory]));
 			w3.TopAttach = ((uint)(1));

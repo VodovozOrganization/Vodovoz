@@ -6,8 +6,8 @@ using QS.HistoryLog;
 namespace Vodovoz.Domain.Client
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "категории точки доставки",
-		Nominative = "категория точки доставки"
+		NominativePlural = "типы объекта",
+		Nominative = "тип объекта"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
@@ -20,15 +20,15 @@ namespace Vodovoz.Domain.Client
 		public virtual int Id { get; set; }
 
 		string name;
-		[Display(Name = "Название категории")]
-		[Required(ErrorMessage = "Название категории должно быть заполнено")]
+		[Display(Name = "Название типа объекта")]
+		[Required(ErrorMessage = "Название типа объекта должно быть указано")]
 		public virtual string Name {
 			get => name;
 			set => SetField(ref name, value, () => Name);
 		}
 
 		bool isArchive;
-		[Display(Name = "Архивная")]
+		[Display(Name = "Архивный")]
 		public virtual bool IsArchive {
 			get => isArchive;
 			set => SetField(ref isArchive, value, () => IsArchive);
