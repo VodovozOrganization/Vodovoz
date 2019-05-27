@@ -13,126 +13,130 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    orders.id AS OrderId,
-	orders.comment as Comment,
-	CASE
-		WHEN orders.order_status = 'NewOrder' THEN 'Новый'
-		WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
-		WHEN orders.order_status = 'Accepted' THEN 'Принят'
-		WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
-		WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'
-		WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
-		WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
-		WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
-		WHEN orders.order_status = 'Closed' THEN 'Закрыт'
-		WHEN orders.order_status = 'Canceled' THEN 'Отменён'
-		WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
-		WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'
-		ELSE ''
-	END AS Status,
-	DATE_FORMAT(orders.create_date, '%r') AS CreationDate,
-	orders.bottles_return AS TareReturn,
-	CONCAT_WS('',
-			CONCAT(employees.last_name, ' '),
-			IF(employees.name = '',
-				'',
-				CONCAT(LEFT(employees.name, 1), '.')),
-			IF(employees.patronymic = '',
-				'',
-				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS Employee,
-	delivery_points.compiled_address AS Address,
-	SUM(order_items.count) AS BottleCount,
-	counterparty.name AS ClientName
-FROM
-	orders
-		LEFT JOIN
-	employees ON employees.id = orders.author_employee_id
-		LEFT JOIN
-	delivery_points ON delivery_points.id = orders.delivery_point_id
-		LEFT JOIN
-	counterparty ON counterparty.id = orders.client_id
-		LEFT JOIN
-	order_items ON order_items.order_id = orders.id
-		LEFT JOIN
-	nomenclature ON nomenclature.id = order_items.nomenclature_id
-WHERE
-	nomenclature.category = 'water'
-		AND nomenclature.tare_volume = 'Vol19L'
-		AND DATE(orders.create_date) = DATE(@date)
-GROUP BY orders.id</CommandText>
+        <CommandText>SELECT
+	dp.compiled_address_short AS address,
+	c.name AS counertparty_name,
+	CASE o.payment_type 
+		WHEN 'cash' THEN 'Наличная'
+		WHEN 'cashless' THEN 'Безналичная'
+		WHEN 'ByCard' THEN 'По карте'
+		WHEN 'CourierByCard' THEN 'По карте курьеру'
+		WHEN 'barter' THEN 'Бартер'
+		WHEN 'BeveragesWorld' THEN 'Мир напитков'
+		WHEN 'ContractDoc' THEN 'Контрактная документация'
+		ELSE o.payment_type
+	END AS payment_type,
+	IFNULL(cat.name, '{не указано}') AS delivery_point_category,
+	(
+		SELECT MAX(delivery_date)
+		FROM orders
+		WHERE client_id = c.id AND order_status = 'Closed'
+	) AS last_order_date,
+	(
+		SELECT SUM(IFNULL(delivered, 0)) - SUM(IFNULL(returned, 0))
+		FROM bottles_movement_operations
+		WHERE delivery_point_id = dp.id
+		GROUP BY delivery_point_id
+	) AS delivery_point_debt,
+	(
+		SELECT SUM(delivered) - SUM(returned)
+		FROM bottles_movement_operations
+		WHERE counterparty_id = c.id
+		GROUP BY counterparty_id
+	) AS counerparty_debt,
+	IF(dp.have_residue, 'Да', 'Нет') AS has_residue
+FROM orders o
+LEFT JOIN delivery_points dp ON o.delivery_point_id = dp.id
+LEFT JOIN counterparty c ON o.client_id = c.id
+LEFT JOIN delivery_point_categories cat ON dp.delivery_point_category_id = cat.id
+
+WHERE o.delivery_date BETWEEN @start_date AND @end_date
+AND o.order_status = 'Closed'
+AND (@payment_type = 'ALL' OR o.payment_type = @payment_type)
+AND (@category_id = 0 OR cat.id = @category_id)
+#AND (@substrings = 'ALL' OR o.comment LIKE(CONCAT('%', @substrings, '%')))
+;</CommandText>
         <QueryParameters>
-          <QueryParameter Name="date">
-            <Value>=Parameters!date</Value>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="category_id">
+            <Value>=Parameters!category_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="payment_type">
+            <Value>=Parameters!payment_type</Value>
+          </QueryParameter>
+          <QueryParameter Name="substrings">
+            <Value>=Parameters!substrings</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
-        <Field Name="CreationTime">
-          <DataField>CreationDate</DataField>
+      <Fields>
+        <Field Name="address">
+          <DataField>address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="TareCount">
-          <DataField>TareReturn</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="CreatorName">
-          <DataField>Employee</DataField>
+        <Field Name="counertparty_name">
+          <DataField>counertparty_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="ClientAddress">
-          <DataField>Address</DataField>
+        <Field Name="payment_type">
+          <DataField>payment_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="ClientName">
-          <DataField>ClientName</DataField>
+        <Field Name="delivery_point_category">
+          <DataField>delivery_point_category</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="BottleCount">
-          <DataField>BottleCount</DataField>
-          <TypeName>System.String</TypeName>
+        <Field Name="last_order_date">
+          <DataField>last_order_date</DataField>
+          <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="OrderId">
-          <DataField>OrderId</DataField>
-          <TypeName>System.Int32</TypeName>
+        <Field Name="delivery_point_debt">
+          <DataField>delivery_point_debt</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="Status">
-          <DataField>Status</DataField>
-          <TypeName>System.String</TypeName>
+        <Field Name="counerparty_debt">
+          <DataField>counerparty_debt</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="Comment">
-          <DataField>Comment</DataField>
-          <TypeName>System.String</TypeName>
+        <Field Name="has_residue">
+          <DataField>has_residue</DataField>
+          <TypeName>System.Boolean</TypeName>
         </Field>
       </Fields>
     </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>32.2pt</Height>
+    <Height>21.7pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Height>23.31pt</Height>
-        <Width>499.12pt</Width>
-        <Value>="Отчет по дате создания заказа на "  +  Format(Convert.ToDateTime({?date}), "dd.MM.yyyy")</Value>
+        <Height>17.31pt</Height>
+        <Width>806.79pt</Width>
+        <Value>="Клиенты по типам объетов и видам деятельности "  +  Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>97.7pt</Left>
-        <Top>3.3pt</Top>
+        <Left>0.00pt</Left>
+        <Top>0.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
           <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>169.4pt</Height>
+    <Height>68.6pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -145,43 +149,43 @@ GROUP BY orders.id</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>61.4pt</Width>
+            <Width>28.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.8pt</Width>
+            <Width>211.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>206.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>117.8pt</Width>
+            <Width>71.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>137.0pt</Width>
+            <Width>84.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.4pt</Width>
+            <Width>64.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.5pt</Width>
+            <Width>52.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.0pt</Width>
+            <Width>53.7pt</Width>
           </TableColumn>
-          <TableColumn >
-            <Width>193.6pt</Width>
+          <TableColumn>
+            <Width>35.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>50.8pt</Height>
+              <Height>48.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>Время создания</Value>
-                      <Style>
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -189,6 +193,7 @@ GROUP BY orders.id</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -196,7 +201,7 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>Номер заказа</Value>
+                      <Value>Адрес доставки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -205,6 +210,7 @@ GROUP BY orders.id</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -212,8 +218,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>Создатель</Value>
-                      <Style>
+                      <Value>Наименование клиента</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -221,6 +227,7 @@ GROUP BY orders.id</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -228,8 +235,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>Клиент</Value>
-                      <Style>
+                      <Value>Форма оплаты</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -237,6 +244,7 @@ GROUP BY orders.id</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -244,8 +252,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>Адрес</Value>
-                      <Style>
+                      <Value>Тип объекта</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -253,6 +261,7 @@ GROUP BY orders.id</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -260,8 +269,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Кол-во полных 19л бут.</Value>
-                      <Style>
+                      <Value>Дата последнего заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -269,6 +278,7 @@ GROUP BY orders.id</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -276,8 +286,8 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>Кол-во пустых 19л бут. (план)</Value>
-                      <Style>
+                      <Value>Долг по адресу, бут.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -285,6 +295,7 @@ GROUP BY orders.id</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -292,7 +303,7 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>Статус заказа</Value>
+                      <Value>Общий долг клиента, бут.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -301,14 +312,15 @@ GROUP BY orders.id</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
-                      <Value>Комментарий</Value>
+                      <Value>Ввод остатков</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -317,6 +329,7 @@ GROUP BY orders.id</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -329,17 +342,20 @@ GROUP BY orders.id</CommandText>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>60.1pt</Height>
+              <Height>15.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>=Fields!CreationTime.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -347,67 +363,84 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>={OrderId}</Value>
+                      <Value>={address}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>=Fields!CreatorName.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                      <Value>={counertparty_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>=Fields!ClientName.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                      <Value>={payment_type}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>=Fields!ClientAddress.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                      <Value>={delivery_point_category}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>=Fields!BottleCount.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                      <Value>={last_order_date}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -415,12 +448,15 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Fields!TareCount.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                      <Value>=Iif(Fields!delivery_point_debt.IsMissing, 0, {delivery_point_debt})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -428,27 +464,31 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>={Status}</Value>
+                      <Value>=Iif(Fields!counerparty_debt.IsMissing, 0, {counerparty_debt})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>={Comment}</Value>
+                      <Value>={has_residue}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -458,7 +498,7 @@ GROUP BY orders.id</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>15.9pt</Top>
+        <Top>2.4pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -483,23 +523,14 @@ GROUP BY orders.id</CommandText>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
-    <ReportParameter Name="date">
+  <ReportParameters>
+    <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2018-07-31</Value>
+          <Value>2019-04-20</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -508,5 +539,66 @@ GROUP BY orders.id</CommandText>
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2019-06-01</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="category_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="payment_type">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ALL</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="substrings">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>ALL</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>
