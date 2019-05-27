@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -39,10 +40,18 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonCreateTaskClicked(object sender, EventArgs e)
 		{
+			if(Order.DeliveryPoint == null) {
+				MessageDialogHelper.RunInfoDialog("Необходимо выбрать точку доставки");
+				return;
+			}
+			if(String.IsNullOrEmpty(ytextview.Buffer.Text)) {
+				MessageDialogHelper.RunInfoDialog("Необходимо оставить комментарий");
+				return;
+			}
+
 			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<CallTask>("Кнопка «Создать задачу» на панели \"Постановка задачи\"")) 
 			{
-				uow.Root.DeliveryPoint = Order?.DeliveryPoint;
-				uow.Root.Counterparty = Order?.Client;
+				uow.Root.DeliveryPoint = Order.DeliveryPoint;
 				uow.Root.CreationDate = DateTime.Now;
 				uow.Root.TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(InfoProvider.UoW);
 				uow.Root.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59);

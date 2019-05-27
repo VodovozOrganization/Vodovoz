@@ -40,7 +40,7 @@ namespace Vodovoz.Domain.Client
 			get { return deliveryPoint; }
 			set {   
 					SetField(ref deliveryPoint, value, () => DeliveryPoint);
-					Counterparty = deliveryPoint.Counterparty; 
+					Counterparty = deliveryPoint?.Counterparty;
 				}
 		}
 
