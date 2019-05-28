@@ -139,6 +139,7 @@ namespace Vodovoz
 			ychkAlwaysFreeDelivery.Binding.AddBinding(Entity, e => e.AlwaysFreeDelivery, w => w.Active).InitializeFromSource();
 			ychkAlwaysFreeDelivery.Visible = UserPermissionRepository.CurrentUserPresetPermissions["can_set_free_delivery"];
 			lblCounterparty.LabelProp = Entity.Counterparty.FullName;
+			lblId.LabelProp = Entity.Id.ToString();
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding(Entity,
 				entity => entity.CoordinatesExist

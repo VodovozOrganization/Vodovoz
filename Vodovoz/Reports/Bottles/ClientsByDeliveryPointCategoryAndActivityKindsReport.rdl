@@ -15,6 +15,7 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
 	dp.compiled_address_short AS address,
 	c.name AS counertparty_name,
@@ -56,7 +57,13 @@ WHERE o.delivery_date BETWEEN @start_date AND @end_date
 AND o.order_status = 'Closed'
 AND (@payment_type = 'ALL' OR o.payment_type = @payment_type)
 AND (@category_id = 0 OR cat.id = @category_id)
-#AND (@substrings = 'ALL' OR o.comment LIKE(CONCAT('%', @substrings, '%')))
+AND (
+	'ALL' IN(@substrings)
+	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), o.comment)
+	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), c.full_name)
+	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), dp.address_1c)
+	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), dp.address_addition)
+)
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -120,7 +127,7 @@ AND (@category_id = 0 OR cat.id = @category_id)
       <Textbox Name="Textbox1">
         <Height>17.31pt</Height>
         <Width>806.79pt</Width>
-        <Value>="Клиенты по типам объетов и видам деятельности "  +  Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")</Value>
+        <Value>="Клиенты по типам объектов и видам деятельности " + Iif({?start_date} = {?end_date}, 'за ' + Format(CDate({?start_date}), "dd.MM.yyyy"), 'с ' + Format(CDate({?start_date}), "dd.MM.yyyy") + ' по ' + Format(CDate({?end_date}), "dd.MM.yyyy"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
@@ -592,7 +599,7 @@ AND (@category_id = 0 OR cat.id = @category_id)
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
