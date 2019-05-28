@@ -3,6 +3,7 @@ using System.Linq;
 using Gtk;
 using QS.Deletion;
 using QS.Dialog.Gtk;
+using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -21,6 +22,7 @@ namespace Vodovoz.JournalViewers
 		public TasksView()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			this.TabName = "Журнал задач для обзвона";
 			ConfigureDlg();
 		}
