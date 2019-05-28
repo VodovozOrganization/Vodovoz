@@ -2224,9 +2224,6 @@ namespace Vodovoz
 			this.buttonAddForSale.Clicked += new global::System.EventHandler(this.OnButtonAddForSaleClicked);
 			this.buttonAddMaster.Clicked += new global::System.EventHandler(this.OnButtonAddMasterClicked);
 			this.btnDeleteOrderItem.Clicked += new global::System.EventHandler(this.OnBtnDeleteOrderItemClicked);
-			this.entryBottlesToReturn.Changed += new global::System.EventHandler(this.OnEntryBottlesReturnChanged);
-			this.entryTareReturned.Changed += new global::System.EventHandler(this.OnEntryBottlesReturnChanged);
-			this.yEntTareActBtlFromClient.Changed += new global::System.EventHandler(this.OnEntryBottlesReturnChanged);
 			this.ycomboboxReason.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYcomboboxReasonItemSelected);
 			this.enumDiscountUnit.EnumItemSelected += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs>(this.OnEnumDiscountUnitEnumItemSelected);
 			this.spinDiscount.ValueChanged += new global::System.EventHandler(this.OnSpinDiscountValueChanged);

@@ -12,6 +12,10 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 
 		private global::Gamma.Widgets.yEntryReferenceVM entryreferencevmEmployee;
 
+		private global::Gamma.GtkWidgets.yCheckButton showWithoutCheckButton;
+
+		private global::Gtk.VSeparator vseparator1;
+
 		private global::Gamma.GtkWidgets.yCheckButton checkbuttonHideCompleted;
 
 		private global::Gtk.HBox hbox3;
@@ -19,6 +23,12 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 		private global::Gamma.Widgets.yEnumComboBox comboboxDateType;
 
 		private global::Gamma.Widgets.yDatePeriodPicker dateperiodpickerDateFilter;
+
+		private global::Gtk.VSeparator vseparator2;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxSortingDirection;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxSortingParam;
 
 		private global::Gtk.HBox hbox2;
 
@@ -65,6 +75,27 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
+			this.showWithoutCheckButton = new global::Gamma.GtkWidgets.yCheckButton();
+			this.showWithoutCheckButton.CanFocus = true;
+			this.showWithoutCheckButton.Name = "showWithoutCheckButton";
+			this.showWithoutCheckButton.Label = global::Mono.Unix.Catalog.GetString("Только задачи без ответственного");
+			this.showWithoutCheckButton.Active = true;
+			this.showWithoutCheckButton.DrawIndicator = true;
+			this.showWithoutCheckButton.UseUnderline = true;
+			this.hbox4.Add(this.showWithoutCheckButton);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.showWithoutCheckButton]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.hbox4.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vseparator1]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child hbox4.Gtk.Box+BoxChild
 			this.checkbuttonHideCompleted = new global::Gamma.GtkWidgets.yCheckButton();
 			this.checkbuttonHideCompleted.CanFocus = true;
 			this.checkbuttonHideCompleted.Name = "checkbuttonHideCompleted";
@@ -73,15 +104,15 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			this.checkbuttonHideCompleted.DrawIndicator = true;
 			this.checkbuttonHideCompleted.UseUnderline = true;
 			this.hbox4.Add(this.checkbuttonHideCompleted);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.checkbuttonHideCompleted]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.checkbuttonHideCompleted]));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.vboxFilter.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxFilter[this.hbox4]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vboxFilter[this.hbox4]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child vboxFilter.Gtk.Box+BoxChild
 			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
@@ -94,10 +125,10 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			this.comboboxDateType.UseShortTitle = false;
 			this.comboboxDateType.DefaultFirst = false;
 			this.hbox3.Add(this.comboboxDateType);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.comboboxDateType]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.comboboxDateType]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.dateperiodpickerDateFilter = new global::Gamma.Widgets.yDatePeriodPicker();
 			this.dateperiodpickerDateFilter.Events = ((global::Gdk.EventMask)(256));
@@ -105,13 +136,45 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			this.dateperiodpickerDateFilter.StartDate = new global::System.DateTime(0);
 			this.dateperiodpickerDateFilter.EndDate = new global::System.DateTime(0);
 			this.hbox3.Add(this.dateperiodpickerDateFilter);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.dateperiodpickerDateFilter]));
-			w6.Position = 1;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.dateperiodpickerDateFilter]));
+			w8.Position = 1;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.vseparator2 = new global::Gtk.VSeparator();
+			this.vseparator2.Name = "vseparator2";
+			this.hbox3.Add(this.vseparator2);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.vseparator2]));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.yenumcomboboxSortingDirection = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboboxSortingDirection.Name = "yenumcomboboxSortingDirection";
+			this.yenumcomboboxSortingDirection.ShowSpecialStateAll = false;
+			this.yenumcomboboxSortingDirection.ShowSpecialStateNot = false;
+			this.yenumcomboboxSortingDirection.UseShortTitle = false;
+			this.yenumcomboboxSortingDirection.DefaultFirst = false;
+			this.hbox3.Add(this.yenumcomboboxSortingDirection);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yenumcomboboxSortingDirection]));
+			w10.Position = 3;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.yenumcomboboxSortingParam = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboboxSortingParam.Name = "yenumcomboboxSortingParam";
+			this.yenumcomboboxSortingParam.ShowSpecialStateAll = false;
+			this.yenumcomboboxSortingParam.ShowSpecialStateNot = false;
+			this.yenumcomboboxSortingParam.UseShortTitle = false;
+			this.yenumcomboboxSortingParam.DefaultFirst = false;
+			this.hbox3.Add(this.yenumcomboboxSortingParam);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yenumcomboboxSortingParam]));
+			w11.Position = 4;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.vboxFilter.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxFilter[this.hbox3]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxFilter[this.hbox3]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vboxFilter.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox();
 			this.hbox2.Name = "hbox2";
@@ -123,10 +186,10 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			this.buttonExpired.UseUnderline = true;
 			this.buttonExpired.Label = global::Mono.Unix.Catalog.GetString("Просрочено");
 			this.hbox2.Add(this.buttonExpired);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonExpired]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonExpired]));
+			w13.Position = 0;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.buttonToday = new global::Gtk.Button();
 			this.buttonToday.CanFocus = true;
@@ -134,10 +197,10 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			this.buttonToday.UseUnderline = true;
 			this.buttonToday.Label = global::Mono.Unix.Catalog.GetString("Сегодня");
 			this.hbox2.Add(this.buttonToday);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonToday]));
-			w9.Position = 1;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonToday]));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.buttonTomorrow = new global::Gtk.Button();
 			this.buttonTomorrow.CanFocus = true;
@@ -145,10 +208,10 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			this.buttonTomorrow.UseUnderline = true;
 			this.buttonTomorrow.Label = global::Mono.Unix.Catalog.GetString("Завтра");
 			this.hbox2.Add(this.buttonTomorrow);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonTomorrow]));
-			w10.Position = 2;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonTomorrow]));
+			w15.Position = 2;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.buttonThisWeek = new global::Gtk.Button();
 			this.buttonThisWeek.CanFocus = true;
@@ -156,10 +219,10 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			this.buttonThisWeek.UseUnderline = true;
 			this.buttonThisWeek.Label = global::Mono.Unix.Catalog.GetString("На этой неделе");
 			this.hbox2.Add(this.buttonThisWeek);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonThisWeek]));
-			w11.Position = 3;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonThisWeek]));
+			w16.Position = 3;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.buttonNextWeek = new global::Gtk.Button();
 			this.buttonNextWeek.CanFocus = true;
@@ -167,15 +230,15 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			this.buttonNextWeek.UseUnderline = true;
 			this.buttonNextWeek.Label = global::Mono.Unix.Catalog.GetString("На следующей неделе");
 			this.hbox2.Add(this.buttonNextWeek);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonNextWeek]));
-			w12.Position = 4;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonNextWeek]));
+			w17.Position = 4;
+			w17.Expand = false;
+			w17.Fill = false;
 			this.vboxFilter.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxFilter[this.hbox2]));
-			w13.Position = 2;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxFilter[this.hbox2]));
+			w18.Position = 2;
+			w18.Expand = false;
+			w18.Fill = false;
 			this.Add(this.vboxFilter);
 			if ((this.Child != null))
 			{
@@ -184,9 +247,13 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			this.vboxFilter.Hide();
 			this.Hide();
 			this.entryreferencevmEmployee.ChangedByUser += new global::System.EventHandler(this.OnEntryreferencevmEmployeeChangedByUser);
+			this.entryreferencevmEmployee.Changed += new global::System.EventHandler(this.OnEntryreferencevmEmployeeChanged);
+			this.showWithoutCheckButton.Toggled += new global::System.EventHandler(this.OnShowWithoutCheckButtonToggled);
 			this.checkbuttonHideCompleted.Toggled += new global::System.EventHandler(this.OnCheckbuttonHideCompletedToggled);
 			this.comboboxDateType.ChangedByUser += new global::System.EventHandler(this.OnComboboxDateTypeChangedByUser);
 			this.dateperiodpickerDateFilter.PeriodChangedByUser += new global::System.EventHandler(this.OnDateperiodpickerDateFilterPeriodChangedByUser);
+			this.yenumcomboboxSortingDirection.ChangedByUser += new global::System.EventHandler(this.OnYenumcomboboxSortingDirectionChangedByUser);
+			this.yenumcomboboxSortingParam.ChangedByUser += new global::System.EventHandler(this.OnYenumcomboboxSortingParamChangedByUser);
 			this.buttonExpired.Clicked += new global::System.EventHandler(this.OnButtonExpiredClicked);
 			this.buttonToday.Clicked += new global::System.EventHandler(this.OnButtonTodayClicked);
 			this.buttonTomorrow.Clicked += new global::System.EventHandler(this.OnButtonTomorrowClicked);

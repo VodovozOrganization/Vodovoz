@@ -63,8 +63,12 @@ namespace Vodovoz.Dialogs
 			deliveryPointYentryreferencevm.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
 			employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			ClientPhonesview.UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			ClientPhonesview.IsReadOnly = true;
+
+			ClientPhonesView.UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			ClientPhonesView.IsReadOnly = true;
+
+			DeliveryPointPhonesview.UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			DeliveryPointPhonesview.IsReadOnly = true;
 
 			UpdateAddressFields();
 		}
@@ -80,7 +84,8 @@ namespace Vodovoz.Dialogs
 					debtByClientEntry.Text = BottlesRepository.GetBottlesAtCounterparty(UoW, Entity.Counterparty).ToString();
 
 				entryReserve.Text = Entity.DeliveryPoint.BottleReserv.ToString();
-				ClientPhonesview.Phones = Entity.DeliveryPoint.Phones;
+				DeliveryPointPhonesview.Phones = Entity.DeliveryPoint.Phones;
+				ClientPhonesView.Phones = Entity.Counterparty?.Phones;
 				ytextviewOldComments.Buffer.Text = CallTasksRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
 			} 
 			else 
@@ -88,7 +93,7 @@ namespace Vodovoz.Dialogs
 				debtByAddressEntry.Text = String.Empty;
 				debtByClientEntry.Text = String.Empty;
 				entryReserve.Text = String.Empty;
-				ClientPhonesview.Phones = null;
+				ClientPhonesView.Phones = null;
 				ytextviewOldComments.Buffer.Text = Entity.Comment;
 			}
 		}
@@ -114,10 +119,7 @@ namespace Vodovoz.Dialogs
 		{
 			if(String.IsNullOrEmpty(textviewLastComment.Buffer.Text))
 				return;
-			lastComment = textviewLastComment.Buffer.Text;
-			lastComment = lastComment.Insert(0, employee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": ");
-			ytextviewComments.Buffer.Text += lastComment;
-			ytextviewComments.Buffer.Text += Environment.NewLine;
+			Entity.AddComment(UoW, textviewLastComment.Buffer.Text,out lastComment);
 			textviewLastComment.Buffer.Text = String.Empty;
 		}
 		#endregion

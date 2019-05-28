@@ -614,6 +614,12 @@
     <Compile Include="Services\IImageProvider.cs" />
     <Compile Include="Domain\Service\BaseParametersProvider.cs" />
     <Compile Include="Services\IStandartDiscountsService.cs" />
+    <Compile Include="Domain\Payments\OrderIdProviderForMobileApp.cs" />
+    <Compile Include="HibernateMapping\Payments\OrderIdProviderForMobileAppMap.cs" />
+    <Compile Include="Domain\Client\DeliveryPointCategory.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DeliveryPointCategoryMap.cs" />
+    <Compile Include="Domain\Client\CounterpartyActivityKind.cs" />
+    <Compile Include="HibernateMapping\Counterparty\CounterpartyActivityKindMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

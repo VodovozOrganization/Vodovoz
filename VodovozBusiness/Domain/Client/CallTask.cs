@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QSContacts;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Domain.Client
 {
@@ -38,7 +40,7 @@ namespace Vodovoz.Domain.Client
 			get { return deliveryPoint; }
 			set {   
 					SetField(ref deliveryPoint, value, () => DeliveryPoint);
-					Counterparty = deliveryPoint.Counterparty; 
+					Counterparty = deliveryPoint?.Counterparty;
 				}
 		}
 
@@ -145,6 +147,21 @@ namespace Vodovoz.Domain.Client
 			EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
 			AssignedEmployee = callTask.AssignedEmployee;
 		}
+
+		public virtual void AddComment(IUnitOfWork UoW , string comment , out string lastComment)
+		{
+			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			comment = comment.Insert(0, employee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": ");
+			lastComment = comment;
+			Comment += comment;
+			Comment += Environment.NewLine; 
+		}
+
+		public virtual void AddComment(IUnitOfWork UoW, string comment)
+		{
+			AddComment(UoW, comment, out string lastComment);
+		}
+
 	}
 
 	public enum CallTaskStatus

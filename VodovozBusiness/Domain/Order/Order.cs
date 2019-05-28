@@ -828,14 +828,6 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
-					//В случае, если редактируется заказ "В пути", то должен быть оставлен комментарий, поясняющий причину редактирования.
-					//Если заказ "В пути" редактируется больше одного раза, то комментарий должен отличаться от предыдущего.
-					var order = UnitOfWorkFactory.CreateWithoutRoot($"Валидация заказа").GetById<Order>(Id);
-					if(OrderStatus == OrderStatus.OnTheWay &&
-					   (order == null && OnRouteEditReason == null
-						|| order != null && order.OnRouteEditReason == OnRouteEditReason))
-						yield return new ValidationResult("При изменении заказа в статусе 'В пути' необходимо указывать причину редактирования",
-														  new[] { this.GetPropertyName(o => o.OnRouteEditReason) });
 					// Проверка соответствия цен в заказе ценам в номенклатуре
 					string priceResult = "В заказе неверно указаны цены на следующие товары:\n";
 					List<string> incorrectPriceItems = new List<string>();
@@ -1377,8 +1369,11 @@ namespace Vodovoz.Domain.Orders
 						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
 						break;
 				}
-				uowAggr.Save();
-				uowAggr.Dispose();
+				try {
+					uowAggr.Save();
+				} finally {
+					uowAggr.Dispose();
+				}
 			}
 
 			var agreements = UoW.Session.QueryOver<AdditionalAgreement>()
@@ -1713,13 +1708,16 @@ namespace Vodovoz.Domain.Orders
 			if(Client.PersonType != PersonType.legal && PaymentType != PaymentType.cashless)
 				return;
 
-			bool isProxiesExist = Client.Proxies
-						.Where(p => p.IsActiveProxy(DeliveryDate.Value))
-						.Where(p => (p.DeliveryPoints == null
-									|| p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, DeliveryPoint)))
-							  ).Any();
+			bool existProxies = Client.Proxies
+									  .Any(
+										p => p.IsActiveProxy(DeliveryDate.Value)
+										&& (
+												p.DeliveryPoints == null || p.DeliveryPoints
+																			 .Any(x => DomainHelper.EqualDomainObjects(x, DeliveryPoint))
+										   )
+									  );
 
-			if(isProxiesExist)
+			if(existProxies)
 				SignatureType = OrderSignatureType.ByProxy;
 		}
 
@@ -1813,7 +1811,7 @@ namespace Vodovoz.Domain.Orders
 					CreateSalesEquipmentAgreementAndAddEquipment(nomenclature, count, discount, discountReason, proSet);
 					break;
 				case NomenclatureCategory.water:
-					var ag = CreateWaterSalesAgreementAndAddWater(nomenclature);
+					var ag = CreateWaterSalesAgreement(nomenclature);
 					AddWaterForSale(nomenclature, ag, count, discount, discountReason, proSet);
 					break;
 				case NomenclatureCategory.master:
@@ -1918,28 +1916,19 @@ namespace Vodovoz.Domain.Orders
 			return Contract;
 		}
 
-		private WaterSalesAgreement CreateWaterSalesAgreementAndAddWater(Nomenclature nom)
+		private WaterSalesAgreement CreateWaterSalesAgreement(Nomenclature nom)
 		{
 			if(Contract == null)
 				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 
-			WaterSalesAgreement ag = Contract.GetWaterSalesAgreement(DeliveryPoint, nom);
-			if(ag == null) {
-				using(var childUoW = UnitOfWorkFactory.CreateWithNewChildRoot<WaterSalesAgreement>(UoW)) {
-					ag = childUoW.Root;
-					ag.Contract = Contract;
-					ag.AgreementNumber = AdditionalAgreement.GetNumberWithType(Contract, AgreementType.WaterSales);
-					ag.DeliveryPoint = DeliveryPoint;
-					if(DeliveryDate.HasValue)
-						ag.IssueDate = ag.StartDate = DeliveryDate.Value;
-					childUoW.Save(ag);//FIXME в childUoW каскадом не сохраняются фиксы!!! потому это тут и через строку
-					ag.FillFixedPricesFromDeliveryPoint(childUoW);
-					childUoW.Save(ag);
-					Contract.AdditionalAgreements.Add(ag);
-					CreateOrderAgreementDocument(ag);
-				}
+			UoW.Session.Refresh(Contract);
+			WaterSalesAgreement wsa = Contract.GetWaterSalesAgreement(DeliveryPoint, nom);
+			if(wsa == null) {
+				wsa = ClientDocumentsRepository.CreateDefaultWaterAgreement(UoW, DeliveryPoint, DeliveryDate, Contract);
+				Contract.AdditionalAgreements.Add(wsa);
+				CreateOrderAgreementDocument(wsa);
 			}
-			return ag;
+			return wsa;
 		}
 
 		void CreateSalesEquipmentAgreementAndAddEquipment(Nomenclature nom, int count, decimal discount, DiscountReason reason, PromotionalSet proSet)
@@ -3196,10 +3185,9 @@ namespace Vodovoz.Domain.Orders
 			int amountDelivered = OrderItems
 									.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 									.Sum(item => item.ActualCount.Value);
-
-			int forfeitCount = 0;
+									
 			int forfeitId = standartNomenclatures.GetForfeitId();
-			forfeitCount = OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
+			int forfeitCount = OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
 																	   .Select(arg => arg.ActualCount.Value).Sum();
 
 			if(amountDelivered != 0 || ReturnedTare > 0 || forfeitCount > 0) {

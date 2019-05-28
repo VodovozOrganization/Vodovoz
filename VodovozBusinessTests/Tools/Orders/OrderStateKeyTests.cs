@@ -1,6 +1,5 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
-using System;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Tools.Orders;
 
@@ -10,6 +9,7 @@ namespace VodovozBusinessTests.Tools.Orders
 	public class OrderStateKeyTests
 	{
 		[Test()]
+		[Ignore("Вадим говорит, что нужно переделывать")]
 		public void CompareWithDeliveryPriceRuleTestCase()
 		{
 			var deliveryPriceMock = Substitute.For<IDeliveryPriceRule>();

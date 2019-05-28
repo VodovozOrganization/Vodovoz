@@ -1760,7 +1760,7 @@ Sum(Fields!amount_unloaded_empty.Value, "NotClosed") - Sum(Fields!actual_count.V
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="Closed">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>200</Timeout>
         <CommandText>select
@@ -1854,7 +1854,7 @@ group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="last_name">
           <DataField>last_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1898,7 +1898,7 @@ group by
       </Fields>
     </DataSet>
     <DataSet Name="NotClosed">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>200</Timeout>
         <CommandText>select
@@ -1992,7 +1992,7 @@ group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="last_name">
           <DataField>last_name</DataField>
           <TypeName>System.String</TypeName>
@@ -2036,7 +2036,7 @@ group by
       </Fields>
     </DataSet>
     <DataSet Name="Total">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>200</Timeout>
         <CommandText>select
@@ -2124,7 +2124,7 @@ where
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="count">
           <DataField>count</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -2184,11 +2184,11 @@ where
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=saendra;password=qwerty;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

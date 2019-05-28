@@ -205,7 +205,7 @@ namespace Vodovoz.Core.Journal
 		private void SubscribeOnChanges()
 		{
 			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.UnsubscribeAll(this);
-			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.WatchMany(OnEntitiesUpdated, registeredTypes.ToArray());
+			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.BatchSubscribeOnEntity(OnEntitiesUpdated, registeredTypes.ToArray());
 		}
 
 		private void OnEntitiesUpdated(QS.DomainModel.NotifyChange.EntityChangeEvent[] changeEvents)

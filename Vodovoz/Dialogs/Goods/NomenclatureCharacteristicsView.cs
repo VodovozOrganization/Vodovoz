@@ -1,9 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Gamma.Utilities;
 using Gtk;
 using QS.DomainModel.UoW;
-using QS.Widgets.Gtk;
+using QS.Widgets.GtkUI;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Dialogs.Goods

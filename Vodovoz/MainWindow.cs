@@ -1201,7 +1201,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new FirstClientsReport())
 		);
 	}
-	
+
 	protected void OnActionTariffZoneDebtsReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1239,6 +1239,30 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			OrmReference.GenerateHashName<PromotionalSet>(),
 			() => new OrmReference(typeof(PromotionalSet))
+		);
+	}
+
+	protected void OnActionDeliveryPointCategoryActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<DeliveryPointCategory>(),
+			() => new OrmReference(typeof(DeliveryPointCategory))
+		);
+	}
+
+	protected void OnActionCounterpartyActivityKindsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<CounterpartyActivityKind>(),
+			() => new OrmReference(typeof(CounterpartyActivityKind))
+		);
+	}
+
+	protected void OnActionCounterpartyActivityKindActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ClientsByDeliveryPointCategoryAndActivityKindsReport>(),
+			() => new QSReport.ReportViewDlg(new ClientsByDeliveryPointCategoryAndActivityKindsReport())
 		);
 	}
 }

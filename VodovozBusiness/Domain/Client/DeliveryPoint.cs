@@ -40,82 +40,80 @@ namespace Vodovoz.Domain.Client
 
 		[Display(Name = "Время разгрузки")]
 		public virtual int MinutesToUnload {
-			get { return minutesToUnload; }
-			set { SetField(ref minutesToUnload, value, () => MinutesToUnload); }
+			get => minutesToUnload;
+			set => SetField(ref minutesToUnload, value, () => MinutesToUnload);
 		}
 
 		string letter;
 
 		[Display(Name = "Литера")]
 		public virtual string Letter {
-			get { return letter; }
-			set { SetField(ref letter, value, () => Letter); }
+			get => letter;
+			set => SetField(ref letter, value, () => Letter);
 		}
 
 		string addressAddition;
 
 		[Display(Name = "Дополнение к адресу")]
 		public virtual string АddressAddition {
-			get { return addressAddition; }
-			set { SetField(ref addressAddition, value, () => АddressAddition); }
+			get => addressAddition;
+			set => SetField(ref addressAddition, value, () => АddressAddition);
 		}
 
 		string placement;
 
 		[Display(Name = "Помещение")]
 		public virtual string Placement {
-			get { return placement; }
-			set { SetField(ref placement, value, () => Placement); }
+			get => placement;
+			set => SetField(ref placement, value, () => Placement);
 		}
 
 		string floor;
 
 		[Display(Name = "Этаж")]
 		public virtual string Floor {
-			get { return floor; }
-			set { SetField(ref floor, value, () => Floor); }
+			get => floor;
+			set => SetField(ref floor, value, () => Floor);
 		}
 
 		EntranceType entranceType;
 
 		[Display(Name = "Тип входа")]
 		public virtual EntranceType EntranceType {
-			get { return entranceType; }
-			set { SetField(ref entranceType, value, () => EntranceType); }
+			get => entranceType;
+			set => SetField(ref entranceType, value, () => EntranceType);
 		}
 
 		string entrance;
 
 		[Display(Name = "Парадная")]
 		public virtual string Entrance {
-			get { return entrance; }
-			set { SetField(ref entrance, value, () => Entrance); }
+			get => entrance;
+			set => SetField(ref entrance, value, () => Entrance);
 		}
 
-		public virtual string Title {
-			get { return String.IsNullOrWhiteSpace(CompiledAddress) ? "АДРЕС ПУСТОЙ" : CompiledAddress; }
-		}
+		public virtual string Title => string.IsNullOrWhiteSpace(CompiledAddress) ? "АДРЕС ПУСТОЙ" : CompiledAddress;
 
 		[Display(Name = "Полный адрес")]
 		public virtual string CompiledAddress {
 			get {
-				string address = String.Empty;
-				if(!String.IsNullOrWhiteSpace(City))
-					address += String.Format("{0} {1}, ", LocalityType.GetEnumShortTitle(), City);
-				if(!String.IsNullOrWhiteSpace(Street))
-					address += String.Format("{0}, ", Street);
-				if(!String.IsNullOrWhiteSpace(Building))
-					address += String.Format("д.{0}, ", Building);
-				if(!String.IsNullOrWhiteSpace(Letter))
-					address += String.Format("лит.{0}, ", Letter);
+				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(City))
+					address += string.Format("{0} {1}, ", LocalityType.GetEnumShortTitle(), City);
+				if(!string.IsNullOrWhiteSpace(Street))
+					address += string.Format("{0}, ", Street);
+				if(!string.IsNullOrWhiteSpace(Building))
+					address += string.Format("д.{0}, ", Building);
+				if(!string.IsNullOrWhiteSpace(Letter))
+					address += string.Format("лит.{0}, ", Letter);
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += String.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
+					address += string.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
 				if(!string.IsNullOrWhiteSpace(Floor))
-					address += String.Format("эт.{0}, ", Floor);
-				if(!String.IsNullOrWhiteSpace(Room))
-					address += String.Format("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
-				if(!String.IsNullOrWhiteSpace(АddressAddition))
-					address += String.Format("{0}, ", АddressAddition);
+					address += string.Format("эт.{0}, ", Floor);
+				if(!string.IsNullOrWhiteSpace(Room))
+					address += string.Format("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
+				if(!string.IsNullOrWhiteSpace(АddressAddition))
+					address += string.Format("{0}, ", АddressAddition);
 
 				return address.TrimEnd(',', ' ');
 			}
@@ -125,21 +123,21 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Адрес без дополнения")]
 		public virtual string CompiledAddressWOAddition {
 			get {
-				string address = String.Empty;
-				if(!String.IsNullOrWhiteSpace(City))
-					address += String.Format("{0} {1}, ", LocalityType.GetEnumShortTitle(), City);
-				if(!String.IsNullOrWhiteSpace(Street))
-					address += String.Format("{0}, ", Street);
-				if(!String.IsNullOrWhiteSpace(Building))
-					address += String.Format("д.{0}, ", Building);
-				if(!String.IsNullOrWhiteSpace(Letter))
-					address += String.Format("лит.{0}, ", Letter);
+				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(City))
+					address += string.Format("{0} {1}, ", LocalityType.GetEnumShortTitle(), City);
+				if(!string.IsNullOrWhiteSpace(Street))
+					address += string.Format("{0}, ", Street);
+				if(!string.IsNullOrWhiteSpace(Building))
+					address += string.Format("д.{0}, ", Building);
+				if(!string.IsNullOrWhiteSpace(Letter))
+					address += string.Format("лит.{0}, ", Letter);
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += String.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
+					address += string.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
 				if(!string.IsNullOrWhiteSpace(Floor))
-					address += String.Format("эт.{0}, ", Floor);
-				if(!String.IsNullOrWhiteSpace(Room))
-					address += String.Format("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
+					address += string.Format("эт.{0}, ", Floor);
+				if(!string.IsNullOrWhiteSpace(Room))
+					address += string.Format("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
 
 				return address.TrimEnd(',', ' ');
 			}
@@ -150,21 +148,21 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Сокращенный адрес")]
 		public virtual string ShortAddress {
 			get {
-				string address = String.Empty;
-				if(!String.IsNullOrWhiteSpace(City) && City != "Санкт-Петербург")
-					address += String.Format("{0} {1}, ", LocalityType.GetEnumShortTitle(), AddressHelper.ShortenCity(City));
-				if(!String.IsNullOrWhiteSpace(Street))
-					address += String.Format("{0}, ", AddressHelper.ShortenStreet(Street));
-				if(!String.IsNullOrWhiteSpace(Building))
-					address += String.Format("д.{0}, ", Building);
-				if(!String.IsNullOrWhiteSpace(Letter))
-					address += String.Format("лит.{0}, ", Letter);
+				string address = string.Empty;
+				if(!string.IsNullOrWhiteSpace(City) && City != "Санкт-Петербург")
+					address += string.Format("{0} {1}, ", LocalityType.GetEnumShortTitle(), AddressHelper.ShortenCity(City));
+				if(!string.IsNullOrWhiteSpace(Street))
+					address += string.Format("{0}, ", AddressHelper.ShortenStreet(Street));
+				if(!string.IsNullOrWhiteSpace(Building))
+					address += string.Format("д.{0}, ", Building);
+				if(!string.IsNullOrWhiteSpace(Letter))
+					address += string.Format("лит.{0}, ", Letter);
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += String.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
+					address += string.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
 				if(!string.IsNullOrWhiteSpace(Floor))
-					address += String.Format("эт.{0}, ", Floor);
-				if(!String.IsNullOrWhiteSpace(Room))
-					address += String.Format("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
+					address += string.Format("эт.{0}, ", Floor);
+				if(!string.IsNullOrWhiteSpace(Room))
+					address += string.Format("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
 
 				return address.TrimEnd(',', ' ');
 			}
@@ -177,24 +175,24 @@ namespace Vodovoz.Domain.Client
 		[Required(ErrorMessage = "Город должен быть заполнен.")]
 		[StringLength(45)]
 		public virtual string City {
-			get { return city; }
-			set { SetField(ref city, value, () => City); }
+			get => city;
+			set => SetField(ref city, value, () => City);
 		}
 
 		LocalityType localityType;
 
 		[Display(Name = "Тип населенного пункта")]
 		public virtual LocalityType LocalityType {
-			get { return localityType; }
-			set { SetField(ref localityType, value, () => LocalityType); }
+			get => localityType;
+			set => SetField(ref localityType, value, () => LocalityType);
 		}
 
 		string cityDistrict;
 
 		[Display(Name = "Район области")]
 		public virtual string CityDistrict {
-			get { return cityDistrict; }
-			set { SetField(ref cityDistrict, value, () => CityDistrict); }
+			get => cityDistrict;
+			set => SetField(ref cityDistrict, value, () => CityDistrict);
 		}
 
 		string street;
@@ -203,16 +201,16 @@ namespace Vodovoz.Domain.Client
 		[Required(ErrorMessage = "Улица должна быть заполнена.")]
 		[StringLength(50)]
 		public virtual string Street {
-			get { return street; }
-			set { SetField(ref street, value, () => Street); }
+			get => street;
+			set => SetField(ref street, value, () => Street);
 		}
 
 		string streetDistrict;
 
 		[Display(Name = "Район города")]
 		public virtual string StreetDistrict {
-			get { return streetDistrict; }
-			set { SetField(ref streetDistrict, value, () => StreetDistrict); }
+			get => streetDistrict;
+			set => SetField(ref streetDistrict, value, () => StreetDistrict);
 		}
 
 
@@ -221,32 +219,32 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Номер дома")]
 		[Required(ErrorMessage = "Номер дома должен быть заполнен.")]
 		public virtual string Building {
-			get { return building; }
-			set { SetField(ref building, value, () => Building); }
+			get => building;
+			set => SetField(ref building, value, () => Building);
 		}
 
 		RoomType roomType;
 
 		[Display(Name = "Тип помещения")]
 		public virtual RoomType RoomType {
-			get { return roomType; }
-			set { SetField(ref roomType, value, () => RoomType); }
+			get => roomType;
+			set => SetField(ref roomType, value, () => RoomType);
 		}
 
 		string room;
 
 		[Display(Name = "Офис/Квартира")]
 		public virtual string Room {
-			get { return room; }
-			set { SetField(ref room, value, () => Room); }
+			get => room;
+			set => SetField(ref room, value, () => Room);
 		}
 
 		string comment;
 
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
-			get { return comment; }
-			set { SetField(ref comment, value, () => Comment); }
+			get => comment;
+			set => SetField(ref comment, value, () => Comment);
 		}
 
 		decimal? latitude;
@@ -257,8 +255,8 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Широта")]
 		[PropertyChangedAlso("СoordinatesText")]
 		public virtual decimal? Latitude {
-			get { return latitude; }
-			protected set { SetField(ref latitude, value, () => Latitude); }
+			get => latitude;
+			protected set => SetField(ref latitude, value, () => Latitude);
 		}
 
 		decimal? longitude;
@@ -269,24 +267,24 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Долгота")]
 		[PropertyChangedAlso("СoordinatesText")]
 		public virtual decimal? Longitude {
-			get { return longitude; }
-			protected set { SetField(ref longitude, value, () => Longitude); }
+			get => longitude;
+			protected set => SetField(ref longitude, value, () => Longitude);
 		}
 
 		bool isActive = true;
 
 		[Display(Name = "Активный")]
 		public virtual bool IsActive {
-			get { return isActive; }
-			set { SetField(ref isActive, value, () => IsActive); }
+			get => isActive;
+			set => SetField(ref isActive, value, () => IsActive);
 		}
 
 		private IList<Contact> contacts = new List<Contact>();
 
 		[Display(Name = "Ответственные лица")]
 		public virtual IList<Contact> Contacts {
-			get { return contacts; }
-			set { SetField(ref contacts, value, () => Contacts); }
+			get => contacts;
+			set => SetField(ref contacts, value, () => Contacts);
 		}
 
 		GenericObservableList<Contact> observableContacts;
@@ -303,40 +301,40 @@ namespace Vodovoz.Domain.Client
 
 		[Display(Name = "Логистический район")]
 		public virtual LogisticsArea LogisticsArea {
-			get { return logisticsArea; }
-			set { SetField(ref logisticsArea, value, () => LogisticsArea); }
+			get => logisticsArea;
+			set => SetField(ref logisticsArea, value, () => LogisticsArea);
 		}
 
 		DeliverySchedule deliverySchedule;
 
 		[Display(Name = "График доставки")]
 		public virtual DeliverySchedule DeliverySchedule {
-			get { return deliverySchedule; }
-			set { SetField(ref deliverySchedule, value, () => DeliverySchedule); }
+			get => deliverySchedule;
+			set => SetField(ref deliverySchedule, value, () => DeliverySchedule);
 		}
 
 		bool foundOnOsm;
 
 		[Display(Name = "Адрес найден на карте OSM")]
 		public virtual bool FoundOnOsm {
-			get { return foundOnOsm; }
-			set { SetField(ref foundOnOsm, value, () => FoundOnOsm); }
+			get => foundOnOsm;
+			set => SetField(ref foundOnOsm, value, () => FoundOnOsm);
 		}
 
 		bool manualCoordinates;
 
 		[Display(Name = "Ручные координаты")]
 		public virtual bool ManualCoordinates {
-			get { return manualCoordinates; }
-			set { SetField(ref manualCoordinates, value, () => ManualCoordinates); }
+			get => manualCoordinates;
+			set => SetField(ref manualCoordinates, value, () => ManualCoordinates);
 		}
 
 		bool isFixedInOsm;
 
 		[Display(Name = "Исправлен в OSM")]
 		public virtual bool IsFixedInOsm {
-			get { return isFixedInOsm; }
-			set { SetField(ref isFixedInOsm, value, () => IsFixedInOsm); }
+			get => isFixedInOsm;
+			set => SetField(ref isFixedInOsm, value, () => IsFixedInOsm);
 		}
 
 		Counterparty counterparty;
@@ -344,16 +342,16 @@ namespace Vodovoz.Domain.Client
 		[Required]
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty {
-			get { return counterparty; }
-			protected set { SetField(ref counterparty, value, () => Counterparty); }
+			get => counterparty;
+			protected set => SetField(ref counterparty, value, () => Counterparty);
 		}
 
 		private string address1c;
 
 		[Display(Name = "Адрес 1С")]
 		public virtual string Address1c {
-			get { return address1c; }
-			set { SetField(ref address1c, value, () => Address1c); }
+			get => address1c;
+			set => SetField(ref address1c, value, () => Address1c);
 		}
 
 		string code1c;
@@ -361,56 +359,56 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Код в 1С")]
 		/// Код уникален только внутри контрагента
 		public virtual string Code1c {
-			get { return code1c; }
-			set { SetField(ref code1c, value, () => Code1c); }
+			get => code1c;
+			set => SetField(ref code1c, value, () => Code1c);
 		}
 
 		int bottleReserv;
 
 		[Display(Name = "Резерв бутылей")]
 		public virtual int BottleReserv {
-			get { return bottleReserv; }
-			set { SetField(ref bottleReserv, value, () => BottleReserv); }
+			get => bottleReserv;
+			set => SetField(ref bottleReserv, value, () => BottleReserv);
 		}
 
 		Nomenclature defaultWaterNomenclature;
 
 		[Display(Name = "Вода по умолчанию")]
 		public virtual Nomenclature DefaultWaterNomenclature {
-			get { return defaultWaterNomenclature; }
-			set { SetField(ref defaultWaterNomenclature, value, () => DefaultWaterNomenclature); }
+			get => defaultWaterNomenclature;
+			set => SetField(ref defaultWaterNomenclature, value, () => DefaultWaterNomenclature);
 		}
 
 		bool alwaysFreeDelivery;
 
 		[Display(Name = "Всегда бесплатная доставка")]
 		public virtual bool AlwaysFreeDelivery {
-			get { return alwaysFreeDelivery; }
-			set { SetField(ref alwaysFreeDelivery, value, () => AlwaysFreeDelivery); }
+			get => alwaysFreeDelivery;
+			set => SetField(ref alwaysFreeDelivery, value, () => AlwaysFreeDelivery);
 		}
 
 		User coordsLastChangeUser;
 
 		[Display(Name = "Последнее изменение пользователем")]
 		public virtual User СoordsLastChangeUser {
-			get { return coordsLastChangeUser; }
-			set { SetField(ref coordsLastChangeUser, value, () => СoordsLastChangeUser); }
+			get => coordsLastChangeUser;
+			set => SetField(ref coordsLastChangeUser, value, () => СoordsLastChangeUser);
 		}
 
 		private int? distanceFromBaseMeters;
 
 		[Display(Name = "Расстояние от базы в метрах")]
 		public virtual int? DistanceFromBaseMeters {
-			get { return distanceFromBaseMeters; }
-			set { SetField(ref distanceFromBaseMeters, value, () => DistanceFromBaseMeters); }
+			get => distanceFromBaseMeters;
+			set => SetField(ref distanceFromBaseMeters, value, () => DistanceFromBaseMeters);
 		}
 
 		IList<Phone> phones = new List<Phone>();
 
 		[Display(Name = "Телефоны")]
 		public virtual IList<Phone> Phones {
-			get { return phones; }
-			set { SetField(ref phones, value, () => Phones); }
+			get => phones;
+			set => SetField(ref phones, value, () => Phones);
 		}
 
 		GenericObservableList<Phone> observablePhones;
@@ -427,8 +425,8 @@ namespace Vodovoz.Domain.Client
 
 		[Display(Name = "Посчитан ввод остатков")]
 		public virtual bool? HaveResidue {
-			get { return haveResidue; }
-			set { SetField(ref haveResidue, value, () => HaveResidue); }
+			get => haveResidue;
+			set => SetField(ref haveResidue, value, () => HaveResidue);
 		}
 
 		#region Временные поля для хранения фиксированных цен из 1с
@@ -439,8 +437,8 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		[Display(Name = "Фикса Семиозерье из 1с")]
 		public virtual decimal FixPrice1 {
-			get { return fixPrice1; }
-			set { SetField(ref fixPrice1, value, () => FixPrice1); }
+			get => fixPrice1;
+			set => SetField(ref fixPrice1, value, () => FixPrice1);
 		}
 
 		private decimal fixPrice2;
@@ -449,8 +447,8 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		[Display(Name = "Фикса Кислородная из 1с")]
 		public virtual decimal FixPrice2 {
-			get { return fixPrice2; }
-			set { SetField(ref fixPrice2, value, () => FixPrice2); }
+			get => fixPrice2;
+			set => SetField(ref fixPrice2, value, () => FixPrice2);
 		}
 
 		private decimal fixPrice3;
@@ -459,8 +457,8 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		[Display(Name = "Фикса Снятогорская из 1с")]
 		public virtual decimal FixPrice3 {
-			get { return fixPrice3; }
-			set { SetField(ref fixPrice3, value, () => FixPrice3); }
+			get => fixPrice3;
+			set => SetField(ref fixPrice3, value, () => FixPrice3);
 		}
 
 		private decimal fixPrice4;
@@ -469,8 +467,8 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		[Display(Name = "Фикса Стройка из 1с")]
 		public virtual decimal FixPrice4 {
-			get { return fixPrice4; }
-			set { SetField(ref fixPrice4, value, () => FixPrice4); }
+			get => fixPrice4;
+			set => SetField(ref fixPrice4, value, () => FixPrice4);
 		}
 
 		private decimal fixPrice5;
@@ -479,8 +477,8 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		[Display(Name = "Фикса С Ручками из 1с")]
 		public virtual decimal FixPrice5 {
-			get { return fixPrice5; }
-			set { SetField(ref fixPrice5, value, () => FixPrice5); }
+			get => fixPrice5;
+			set => SetField(ref fixPrice5, value, () => FixPrice5);
 		}
 
 		ScheduleRestrictedDistrict district;
@@ -498,6 +496,18 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref addCertificatesAlways, value, () => AddCertificatesAlways);
 		}
 
+		DeliveryPointCategory category;
+		[Required(ErrorMessage = "Укажите тип объекта")]
+		[Display(Name = "Тип объекта")]
+		public virtual DeliveryPointCategory Category {
+			get => category;
+			set {
+				if(value != null && value.IsArchive)
+					value = null;
+				SetField(ref category, value, () => Category);
+			}
+		}
+
 		#endregion
 
 
@@ -508,8 +518,8 @@ namespace Vodovoz.Domain.Client
 		public virtual string CoordinatesText {
 			get {
 				if(Latitude == null || Longitude == null)
-					return String.Empty;
-				return String.Format("(ш. {0:F5}, д. {1:F5})", Latitude, Longitude);
+					return string.Empty;
+				return string.Format("(ш. {0:F5}, д. {1:F5})", Latitude, Longitude);
 			}
 		}
 
@@ -616,13 +626,13 @@ namespace Vodovoz.Domain.Client
 
 		public DeliveryPoint()
 		{
-			CompiledAddress = String.Empty;
+			CompiledAddress = string.Empty;
 			City = "Санкт-Петербург";
 			LocalityType = LocalityType.city;
-			Street = String.Empty;
-			Building = String.Empty;
-			Room = String.Empty;
-			Comment = String.Empty;
+			Street = string.Empty;
+			Building = string.Empty;
+			Room = string.Empty;
+			Comment = string.Empty;
 		}
 
 		public virtual void AddContact(Contact contact)

@@ -112,6 +112,8 @@
     <Folder Include="Tools\Orders\" />
     <Folder Include="Domain\" />
     <Folder Include="Domain\Orders\" />
+    <Folder Include="Domain\RouteList\" />
+    <Folder Include="Domain\Client\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
@@ -122,6 +124,8 @@
     <Compile Include="Tools\Orders\OrderStateKeyTests.cs" />
     <Compile Include="Domain\Orders\OrderTests.cs" />
     <Compile Include="Domain\Orders\OrderItemTests.cs" />
+    <Compile Include="Domain\RouteList\RouteListItemTests.cs" />
+    <Compile Include="Domain\Client\CounterpartyActivityKindTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">

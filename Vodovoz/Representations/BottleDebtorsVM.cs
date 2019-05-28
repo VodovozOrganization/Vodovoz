@@ -81,7 +81,7 @@ namespace Vodovoz.Representations
 			if(Filter.Address != null)
 				pointsQuery = pointsQuery.Where((arg) => arg.Id == Filter.Address.Id);
 			if(Filter.OPF != null)
-				pointsQuery = pointsQuery.Where((arg) => arg.Counterparty.PersonType == Filter.OPF);
+				pointsQuery = pointsQuery.Where( () => counterpartyAlias.PersonType == Filter.OPF.Value);
 
 			var debtorslist = pointsQuery
 				.JoinAlias(c => c.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)

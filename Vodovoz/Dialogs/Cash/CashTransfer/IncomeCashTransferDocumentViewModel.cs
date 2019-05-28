@@ -100,9 +100,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private void ConfigEntityUpdateSubscribes()
 		{
-			NotifyConfiguration.Instance.WatchMany<RouteList>(RoutelistEntityConfig_EntityUpdated);
-			NotifyConfiguration.Instance.WatchMany<IncomeCategory>(IncomeCategoryEntityConfig_EntityUpdated);
-			NotifyConfiguration.Instance.WatchMany<ExpenseCategory>(ExpenseCategoryEntityConfig_EntityUpdated);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<RouteList>(RoutelistEntityConfig_EntityUpdated);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<IncomeCategory>(IncomeCategoryEntityConfig_EntityUpdated);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ExpenseCategory>(ExpenseCategoryEntityConfig_EntityUpdated);
 		}
 
 		private void RoutelistEntityConfig_EntityUpdated(EntityChangeEvent[] changeEvents)

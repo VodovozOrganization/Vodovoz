@@ -12,6 +12,7 @@ using QS.Report;
 using QSProjectsLib;
 using QSSupportLib;
 using QSValidation;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -23,6 +24,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
@@ -1039,7 +1041,7 @@ namespace Vodovoz.Domain.Logistic
 					var rate = r.Split('=');
 					ratesList.Add(new[] { int.Parse(rate[0]), decimal.Parse(rate[1]), (object)DateTime.Parse(rate[2]) });
 				}
-				var sortedRatesList = ratesList.OrderByDescending<object[], object>(x => x[2]).ToList();
+				var sortedRatesList = ratesList.OrderByDescending(x => x[2]).ToList();
 
 				foreach(var r in sortedRatesList) {
 					if(address.Order.DeliveryPoint.Id == (int)r[0]) {
@@ -1069,39 +1071,20 @@ namespace Vodovoz.Domain.Logistic
 			ClosingFilled = true;
 		}
 
-		public virtual List<BottlesMovementOperation> UpdateBottlesMovementOperation()
+		public virtual List<BottlesMovementOperation> UpdateBottlesMovementOperation(IStandartNomenclatures standartNomenclatures)
 		{
 			var result = new List<BottlesMovementOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered && x.Status != RouteListItemStatus.Canceled).ToList();
-			foreach(RouteListItem address in addresesDelivered) {
-				int amountDelivered = address.Order.OrderItems
-												   .Where(item => (item.Nomenclature.Category == NomenclatureCategory.water) && !item.Nomenclature.IsDisposableTare)
-												   .Sum(item => item.ActualCount ?? 0);
-				var bottlesMovementOperation = address.Order.BottlesMovementOperation;
 
-				int forfeitCount = 0;
-				if(MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) {
-					if(int.TryParse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"], out int forfeitId)) {
-						forfeitCount += address.Order.OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
-																		   .Select(arg => arg.ActualCount.Value).Sum();
-					}
-				}
-
-				if(amountDelivered != 0 || address.BottlesReturned != 0 || forfeitCount > 0) {
-					if(bottlesMovementOperation == null) {
-						bottlesMovementOperation = new BottlesMovementOperation {
-							Order = address.Order,
-							Counterparty = address.Order.Client,
-							DeliveryPoint = address.Order.DeliveryPoint
-						};
-					}
-					bottlesMovementOperation.OperationTime = address.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-					bottlesMovementOperation.Delivered = amountDelivered;
-					bottlesMovementOperation.Returned = address.BottlesReturned + forfeitCount;
+			foreach(RouteListItem address in addresesDelivered) 
+			{
+				if(address.FillBottleMovementOperation(standartNomenclatures, out BottlesMovementOperation bottlesMovementOperation)) 
+				{
 					address.Order.BottlesMovementOperation = bottlesMovementOperation;
 					result.Add(bottlesMovementOperation);
-
-				} else if(bottlesMovementOperation != null) {
+				} 
+				else if(bottlesMovementOperation != null) 
+				{
 					UoW.Delete(bottlesMovementOperation);
 					address.Order.BottlesMovementOperation = null;
 				}
@@ -1505,7 +1488,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var counterpartyMovementOperations = this.UpdateCounterpartyMovementOperations();
 			var moneyMovementOperations = this.UpdateMoneyMovementOperations();
-			var bottleMovementOperations = this.UpdateBottlesMovementOperation();
+			var bottleMovementOperations = this.UpdateBottlesMovementOperation(new BaseParametersProvider());
 			var depositsOperations = this.UpdateDepositOperations(UoW);
 
 			counterpartyMovementOperations.ForEach(op => UoW.Save(op));

@@ -1143,6 +1143,15 @@
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
     <Compile Include="Dialogs\OrderWidgets\PromotionalSetDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderWidgets.PromotionalSetDlg.cs" />
+    <Compile Include="SidePanel\InfoViews\CallTaskPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CallTaskPanelView.cs" />
+    <Compile Include="SidePanel\InfoProviders\ICallTaskProvider.cs" />
+    <Compile Include="Dialogs\Client\DeliveryPointCategoryDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.DeliveryPointCategoryDlg.cs" />
+    <Compile Include="Dialogs\Client\CounterpartyActivityKindDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.CounterpartyActivityKindDlg.cs" />
+    <Compile Include="ReportsParameters\Bottles\ClientsByDeliveryPointCategoryAndActivityKindsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ClientsByDeliveryPointCategoryAndActivityKindsReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1726,6 +1735,9 @@
     </None>
     <None Include="Reports\Bottles\RoutesListRegister.rdl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Bottles\ClientsByDeliveryPointCategoryAndActivityKindsReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ProjectExtensions>

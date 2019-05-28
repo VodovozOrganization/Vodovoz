@@ -21,7 +21,7 @@ namespace Vodovoz.ServiceDialogs
 	{
 		PaymentsFromTinkoffParser parser;
 		GenericObservableList<PaymentFromTinkoff> paymentsFromTinkoff;
-		List<String> errorList = new List<string>();
+		List<string> errorList = new List<string>();
 		Dictionary<int, decimal> otherPaymentsFromDB;
 
 		string colorWhite = "white";
@@ -52,7 +52,7 @@ namespace Vodovoz.ServiceDialogs
 					.AddSetter((c, n) => (c as CellRendererToggle).Activatable = n.Selectable)
 				.AddColumn("Дата и\nвремя")
 					.AddTextRenderer(
-						x => String.Format(
+						x => string.Format(
 							"{0}\n{1}",
 							x.DateAndTime.ToString("M"),
 							x.DateAndTime.ToString("t")
@@ -60,7 +60,7 @@ namespace Vodovoz.ServiceDialogs
 					)
 				.AddColumn("Номер и\nсумма оплаты")
 					.AddTextRenderer(
-						x => String.Format(
+						x => string.Format(
 							"{0}\n{1}",
 							x.PaymentNr.ToString(),
 							CurrencyWorks.GetShortCurrencyString(x.PaymentRUR)
@@ -68,7 +68,7 @@ namespace Vodovoz.ServiceDialogs
 					)
 				.AddColumn("Контакты")
 					.AddTextRenderer(
-						x => String.Format(
+						x => string.Format(
 							"{0}\n{1}",
 							x.Phone,
 							x.Email
@@ -152,16 +152,16 @@ namespace Vodovoz.ServiceDialogs
 				StringBuilder sb = new StringBuilder();
 				if(paymentsFromTinkoff.Any())
 					sb.Append(
-						String.Format(
+						string.Format(
 							"Отмечено для загрузки <b>{0}</b> платежей из <b>{1}</b>, ",
 							paymentsFromTinkoff.Count(p => p.Selected),
 							paymentsFromTinkoff.Count()
 						)
 					);
 				if(paymentsFromTinkoff.Any(p => p.IsDuplicate))
-					sb.Append(String.Format("<span background=\"{0}\">     </span> - был загружен ранее, ", colorYellow));
+					sb.Append(string.Format("<span background=\"{0}\">     </span> - был загружен ранее, ", colorYellow));
 				if(paymentsFromTinkoff.Any(p => p.PaymentStatus != PaymentStatus.CONFIRMED))
-					sb.Append(String.Format("<span background=\"{0}\">     </span> - статус неприемлем, ", colorLightRed));
+					sb.Append(string.Format("<span background=\"{0}\">     </span> - статус неприемлем, ", colorLightRed));
 
 				lblDescription.Markup = sb.ToString().Trim(new[] { ' ', ',' });
 			}
@@ -169,7 +169,7 @@ namespace Vodovoz.ServiceDialogs
 
 		protected void OnFilechooserSelectionChanged(object sender, EventArgs e)
 		{
-			btnReadFile.Sensitive = !String.IsNullOrWhiteSpace(fChooser.Filename);
+			btnReadFile.Sensitive = !string.IsNullOrWhiteSpace(fChooser.Filename);
 			btnUpload.Sensitive = false;
 			UpdateDescription();
 		}
@@ -206,7 +206,7 @@ namespace Vodovoz.ServiceDialogs
 					uow.Dispose();
 					cnt = 0;
 					AddErrorMessage(
-						String.Format(
+						string.Format(
 							"Ошибка при сохранении платёжа №{0}\n{1}\n{2}",
 							selectedPayment.PaymentNr,
 							exp.Message,
@@ -226,7 +226,7 @@ namespace Vodovoz.ServiceDialogs
 		void AddErrorMessage(string msg)
 		{
 			errorList.Add(
-				String.Format(
+				string.Format(
 					"{0}: {1}\n",
 					DateTime.Now.ToString("G"),
 					msg
@@ -238,7 +238,7 @@ namespace Vodovoz.ServiceDialogs
 		{
 			UpdateProgress(
 				processed * 1d / total,
-				String.Format(
+				string.Format(
 					"{0} (Сохранено {1} из {2})",
 					text,
 					saved,
@@ -252,7 +252,7 @@ namespace Vodovoz.ServiceDialogs
 			if(progress > 1)
 				progress = 1;
 			progressBar.Fraction = progress;
-			progressBar.Text = String.Format("{1}% - {0} ", text, (int)(progress * 100));
+			progressBar.Text = string.Format("{1}% - {0} ", text, (int)(progress * 100));
 			progressBar.Fraction = progress > 1 ? 1d : progress;
 			QSMain.WaitRedraw();
 		}
@@ -274,13 +274,13 @@ namespace Vodovoz.ServiceDialogs
 			UpdateDescription();
 
 			if(errorList.Any()) {
-				string fileName = String.Format("PaymentFromTinkoffErrors_{0}.log", DateTime.Now.ToString("yyyyMMddHHmmss"));
+				string fileName = string.Format("PaymentFromTinkoffErrors_{0}.log", DateTime.Now.ToString("yyyyMMddHHmmss"));
 				File.WriteAllLines(
 					fileName,
 					errorList
 				);
 				MessageDialogHelper.RunWarningDialog(
-					String.Format(
+					string.Format(
 						"Некоторые платежи не были добавлены. Возможно, они уже есть в нашей базе. Дополнительная информация в файле {0}",
 						fileName
 					)

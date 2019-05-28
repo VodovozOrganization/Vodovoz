@@ -3,7 +3,6 @@ using System.Linq;
 using Gtk;
 using QS.Deletion;
 using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -22,7 +21,6 @@ namespace Vodovoz.JournalViewers
 		public TasksView()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			this.TabName = "Журнал задач для обзвона";
 			ConfigureDlg();
 		}
@@ -35,7 +33,7 @@ namespace Vodovoz.JournalViewers
 			calltaskfilterview.Refiltered += (sender, e) => UpdateStatistics();
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
-			callTasksVM = new CallTasksVM( new BaseParametersProvider() );
+			callTasksVM = new CallTasksVM(new BaseParametersProvider());
 			calltaskfilterview.Refiltered += (sender, e) => callTasksVM.UpdateNodes();
 			callTasksVM.ItemsListUpdated += (sender, e) => UpdateStatistics();
 			callTasksVM.Filter = calltaskfilterview.GetQueryFilter();

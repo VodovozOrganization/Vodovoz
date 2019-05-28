@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NHibernate;
 using NHibernate.Criterion;
@@ -43,6 +44,24 @@ namespace Vodovoz.Filters
 			set => SetField(ref hideCompleted, value, () => HideCompleted);
 		}
 
+		private bool showOnlyWihoutEmployee = true;
+		public bool ShowOnlyWihoutEmployee {
+			get => showOnlyWihoutEmployee;
+			set => SetField(ref showOnlyWihoutEmployee, value, () => ShowOnlyWihoutEmployee);
+		}
+
+		private SortingParamType sortingParam = SortingParamType.Id;
+		public SortingParamType SortingParam {
+			get => sortingParam;
+			set => SetField(ref sortingParam, value, () => SortingParam);
+		}
+
+		private SortingDirectionType sortingDirection;
+		public SortingDirectionType SortingDirection {
+			get => sortingDirection;
+			set => SetField(ref sortingDirection, value, () => SortingDirection);
+		}
+
 		public void SetDatePeriod(DateTime startPeriod, DateTime endPeriod)
 		{
 			StartDate = startPeriod;
@@ -71,6 +90,8 @@ namespace Vodovoz.Filters
 
 			if(Employee != null) 
 				result = Restrictions.And(result, Restrictions.Where<CallTask>(x => x.AssignedEmployee == Employee));
+			else if(ShowOnlyWihoutEmployee)
+				result = Restrictions.And(result, Restrictions.Where<CallTask>(x => x.AssignedEmployee == null));
 
 			if(HideCompleted)
 				result = Restrictions.And(result, Restrictions.Where<CallTask>(x => !x.IsTaskComplete));
@@ -114,5 +135,35 @@ namespace Vodovoz.Filters
 		CompleteTaskDate,
 		[Display(Name = "Период выполнения задачи")]
 		DeadlinePeriod
+	}
+
+	public enum SortingParamType //TODO : придумать как переделать на рефлексию
+	{
+		[Display(Name = "Клиент")]
+		Client,
+		[Display(Name = "Адрес")]
+		DeliveryPoint,
+		[Display(Name = "№")]
+		Id,
+		[Display(Name = "Долг по адресу")]
+		DebtByAddress,
+		[Display(Name = "Долг по клиенту")]
+		DebtByClient,
+		[Display(Name = "Создатель задачи")]
+		Deadline,
+		[Display(Name = "Ответственный")]
+		AssignedEmployee,
+		[Display(Name = "Статус")]
+		Status,
+		[Display(Name = "Срочность")]
+		ImportanceDegree
+	}
+
+	public enum SortingDirectionType
+	{
+		[Display(Name = "От меньшего к больше")]
+		FromSmallerToBigger,
+		[Display(Name = "От большего к меньшему")]
+		FromBiggerToSmaller
 	}
 }

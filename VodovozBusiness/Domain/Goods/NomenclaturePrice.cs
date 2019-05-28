@@ -1,13 +1,12 @@
-﻿using QS.DomainModel.Entity;
-using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.Goods
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "цены",
 		Nominative = "цена")]
-	public partial class NomenclaturePrice: PropertyChangedBase, IDomainObject
+	public class NomenclaturePrice : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
 

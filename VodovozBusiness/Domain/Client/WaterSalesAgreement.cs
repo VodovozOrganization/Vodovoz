@@ -1,21 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using NHibernate.Util;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QSOrmProject;
-using System.Linq;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
 using Vodovoz.Tools.AdditionalAgreements;
-using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Client
 {
 
-	[Appellative (Gender = GrammaticalGender.Neuter,
+	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "доп. соглашения продажи воды",
 		Nominative = "доп. соглашение продажи воды")]
 	[HistoryTrace]
@@ -25,15 +24,15 @@ namespace Vodovoz.Domain.Client
 		public virtual IUnitOfWorkGeneric<WaterSalesAgreement> UoWGeneric { set; get; }
 		public virtual IUnitOfWork UoW { set; get; }
 
-		IList<WaterSalesAgreementFixedPrice> fixedPrices = new List<WaterSalesAgreementFixedPrice> ();
+		IList<WaterSalesAgreementFixedPrice> fixedPrices = new List<WaterSalesAgreementFixedPrice>();
 
-		[Display (Name = "Фиксированные цены")]
+		[Display(Name = "Фиксированные цены")]
 		public virtual IList<WaterSalesAgreementFixedPrice> FixedPrices {
 			get { return fixedPrices; }
-			set { 
-				if(SetField (ref fixedPrices, value, () => FixedPrices)){
+			set {
+				if(SetField(ref fixedPrices, value, () => FixedPrices)) {
 					observableFixedPrices = null;
-				} 
+				}
 			}
 		}
 
@@ -41,22 +40,22 @@ namespace Vodovoz.Domain.Client
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<WaterSalesAgreementFixedPrice> ObservableFixedPrices {
 			get {
-				if (observableFixedPrices == null)
-					observableFixedPrices = new GenericObservableList<WaterSalesAgreementFixedPrice> (FixedPrices);
+				if(observableFixedPrices == null)
+					observableFixedPrices = new GenericObservableList<WaterSalesAgreementFixedPrice>(FixedPrices);
 				return observableFixedPrices;
 			}
 		}
 
-		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			foreach (ValidationResult result in base.Validate (validationContext))
+			foreach(ValidationResult result in base.Validate(validationContext))
 				yield return result;
-			if (Contract.CheckWaterSalesAgreementExists (Id, DeliveryPoint)) {
-				if (DeliveryPoint != null)
-					yield return new ValidationResult ("Доп. соглашение для данной точки доставки уже существует. " +
+			if(Contract.CheckWaterSalesAgreementExists(Id, DeliveryPoint)) {
+				if(DeliveryPoint != null)
+					yield return new ValidationResult("Доп. соглашение для данной точки доставки уже существует. " +
 					"Пожалуйста, закройте действующее соглашение для создания нового.", new[] { "DeliveryPoint" });
 				else
-					yield return new ValidationResult ("Общее доп. соглашение по продаже воды уже существует. " +
+					yield return new ValidationResult("Общее доп. соглашение по продаже воды уже существует. " +
 					"Пожалуйста, закройте действующее соглашение для создания нового.", new[] { "DeliveryPoint" });
 			}
 		}
@@ -64,15 +63,15 @@ namespace Vodovoz.Domain.Client
 		#region Расчетные
 
 		public virtual bool HasFixedPrice => FixedPrices.Any();
-	
+
 		#endregion
 
-		public virtual void  AddFixedPrice(Nomenclature nomenclature, decimal price)
+		public virtual void AddFixedPrice(Nomenclature nomenclature, decimal price)
 		{
 			if(ObservableFixedPrices.Any(x => x.Nomenclature != null && x.Nomenclature.Id == nomenclature.Id)) {
 				return;
 			}
-			var nomenculaturePrice = new WaterSalesAgreementFixedPrice{
+			var nomenculaturePrice = new WaterSalesAgreementFixedPrice {
 				Nomenclature = nomenclature,
 				AdditionalAgreement = this,
 				Price = price
@@ -145,13 +144,13 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		public static IUnitOfWorkGeneric<WaterSalesAgreement> Create (CounterpartyContract contract)
+		public static IUnitOfWorkGeneric<WaterSalesAgreement> Create(CounterpartyContract contract)
 		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<WaterSalesAgreement> ($"Создание нового доп. соглашения на воду для договора {contract.Number}.");
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<WaterSalesAgreement>($"Создание нового доп. соглашения на воду для договора {contract.Number}.");
 			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
-			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithType (uow.Root.Contract, AgreementType.WaterSales);
+			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithType(uow.Root.Contract, AgreementType.WaterSales);
 			return uow;
 		}
 	}
-	
+
 }
