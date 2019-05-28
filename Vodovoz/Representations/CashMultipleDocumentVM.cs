@@ -43,7 +43,13 @@ namespace Vodovoz.Representations
 			RegisterExpense();
 			RegisterAdvanceReport();
 
-			FinalListFunction = OrderFunc;
+			UpdateOnChanges(
+				typeof(Income),
+				typeof(Expense),
+				typeof(AdvanceReport)
+			);
+
+			AfterSourceFillFunction = OrderFunc;
 
 			Filter.InitSubdivisionsAccess(new Type[] { typeof(Income), typeof(Expense), typeof(AdvanceReport) });
 

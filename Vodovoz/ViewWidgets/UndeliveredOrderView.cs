@@ -131,9 +131,7 @@ namespace Vodovoz.ViewWidgets
 			if(undelivery.Id <= 0)
 				yentInProcessAtDepartment.Subject = SubdivisionsRepository.GetQCDepartment(UoW);
 
-			var filterRegisteredBy = new EmployeeFilter(UoW);
-			filterRegisteredBy.ShowFired = false;
-			refRegisteredBy.RepresentationModel = new EmployeesVM(filterRegisteredBy);
+			refRegisteredBy.RepresentationModel = new EmployeesVM(UoW);
 			refRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
 
 			yEnumCMBDriverCallPlace.EnumItemSelected += CMBSelectedItemChanged;

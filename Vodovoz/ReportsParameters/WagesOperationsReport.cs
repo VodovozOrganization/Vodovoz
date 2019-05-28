@@ -19,9 +19,7 @@ namespace Vodovoz.Reports
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
-			var filter = new EmployeeFilter(UoW);
-			filter.ShowFired = false;
-			yentryreferenceEmployee.RepresentationModel = new EmployeesVM(filter);
+			yentryreferenceEmployee.RepresentationModel = new EmployeesVM();
 		}
 
 		#region IOrmDialog implementation

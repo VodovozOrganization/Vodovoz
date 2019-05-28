@@ -20,6 +20,7 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModelBased;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz
 {
@@ -56,17 +57,17 @@ namespace Vodovoz
 
 		public CounterpartyDlg(Counterparty sub) : this(sub.Id) { }
 
-		public CounterpartyDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
+		public CounterpartyDlg(IEntityConstructorParam ctorParam)
 		{
 			this.Build();
-			if(option.NeedCreateNew) {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateWithNewChildRoot<Counterparty>(baseUoW)
+			if(ctorParam.IsNewEntity) {
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateWithNewChildRoot<Counterparty>(ctorParam.RootUoW)
 					: UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
 			} else {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<Counterparty>(option.EntityId), baseUoW)
-					: UnitOfWorkFactory.CreateForRoot<Counterparty>(option.EntityId);
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateForChildRoot(ctorParam.RootUoW.GetById<Counterparty>(ctorParam.EntityOpenId), ctorParam.RootUoW)
+					: UnitOfWorkFactory.CreateForRoot<Counterparty>(ctorParam.EntityOpenId);
 			}
 
 			ConfigureDlg();
@@ -138,14 +139,23 @@ namespace Vodovoz
 			referenceCameFrom.Binding.AddBinding(Entity, e => e.CameFrom, w => w.Subject).InitializeFromSource();
 			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
 			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
-			var filterAccountant = new EmployeeFilter(UoW);
-			filterAccountant.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			var filterAccountant = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterAccountant.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.ShowFired = false
+			);
 			referenceAccountant.RepresentationModel = new EmployeesVM(filterAccountant);
-			var filterSalesManager = new EmployeeFilter(UoW);
-			filterSalesManager.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			var filterSalesManager = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterSalesManager.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.ShowFired = false
+			);
 			referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
-			var filterBottleManager = new EmployeeFilter(UoW);
-			filterBottleManager.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			var filterBottleManager = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterBottleManager.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.ShowFired = false
+			);
 			referenceBottleManager.RepresentationModel = new EmployeesVM(filterBottleManager);
 			proxiesview1.CounterpartyUoW = UoWGeneric;
 			dataentryMainContact.RepresentationModel = new ViewModel.ContactsVM(UoW, Entity);

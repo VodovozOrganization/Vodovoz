@@ -43,7 +43,7 @@ namespace Vodovoz
 			yentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			yentryrefParentSubdivision.SubjectType = typeof(Subdivision);
 			yentryrefParentSubdivision.Binding.AddBinding(Entity, e => e.ParentSubdivision, w => w.Subject).InitializeFromSource();
-			yentryreferenceChief.RepresentationModel = new EmployeesVM(new EmployeeFilter(UoW));
+			yentryreferenceChief.RepresentationModel = new EmployeesVM();
 			yentryreferenceChief.Binding.AddBinding(Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
 
 			subdivisionsVM = new SubdivisionsVM(UoW, Entity);

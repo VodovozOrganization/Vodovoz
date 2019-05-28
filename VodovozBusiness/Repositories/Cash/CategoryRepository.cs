@@ -4,6 +4,7 @@ using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
 using QSSupportLib;
+using System.Runtime.CompilerServices;
 
 namespace Vodovoz.Repository.Cash
 {
@@ -98,9 +99,14 @@ namespace Vodovoz.Repository.Cash
 			return null;
 		}
 
+		internal static Func<IUnitOfWork, ExpenseCategory> FuelDocumentExpenseCategoryTestGap;
 		public static ExpenseCategory FuelDocumentExpenseCategory(IUnitOfWork uow)
 		{
-			if (MainSupport.BaseParameters.All.ContainsKey(fuelDocumentExpenseCategory))
+			if(FuelDocumentExpenseCategoryTestGap != null) {
+				return FuelDocumentExpenseCategoryTestGap(uow);
+			}
+
+			if(MainSupport.BaseParameters.All.ContainsKey(fuelDocumentExpenseCategory))
 			{
 				int id = -1;
 				id = int.Parse (MainSupport.BaseParameters.All [fuelDocumentExpenseCategory]);

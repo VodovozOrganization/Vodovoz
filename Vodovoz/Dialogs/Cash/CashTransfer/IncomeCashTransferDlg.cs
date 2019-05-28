@@ -14,6 +14,7 @@ using QS.RepresentationModel.GtkUI;
 using Vodovoz.ViewModel;
 using Vodovoz.Domain.Employees;
 using NHibernate.Criterion;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
@@ -50,11 +51,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			ylabelStatus.Binding.AddFuncBinding(ViewModel.Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 			ylabelSum.Binding.AddFuncBinding(ViewModel.Entity, e => e.TransferedSum.ToShortCurrencyString(), w => w.LabelProp).InitializeFromSource();
 
-			var filterDriver = new EmployeeFilter(ViewModel.UoW);
-			filterDriver.SetAndRefilterAtOnce(
-				x => x.ShowFired = false
-			);
-			entryDriver.RepresentationModel = new EmployeesVM(filterDriver);
+			entryDriver.RepresentationModel = new EmployeesVM(ViewModel.UoW);
 			entryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 			entryDriver.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 

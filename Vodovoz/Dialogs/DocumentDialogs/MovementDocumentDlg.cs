@@ -85,8 +85,7 @@ namespace Vodovoz
 			referenceDeliveryPointFrom.CanEditReference = false;
 			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPointFrom.Binding.AddBinding(Entity, e => e.FromDeliveryPoint, w => w.Subject).InitializeFromSource();
-			var filterEmployee = new EmployeeFilter(UoW);
-			referenceEmployee.RepresentationModel = new EmployeesVM(filterEmployee);
+			referenceEmployee.RepresentationModel = new EmployeesVM();
 			referenceEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
 			yentryrefWagon.SubjectType = typeof(MovementWagon);

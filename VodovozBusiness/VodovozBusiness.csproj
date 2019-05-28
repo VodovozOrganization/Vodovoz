@@ -445,7 +445,6 @@
     <Compile Include="Domain\Client\Comments.cs" />
     <Compile Include="Domain\Client\CommentsGroups.cs" />
     <Compile Include="Domain\Client\CommentsTemplates.cs" />
-    <Compile Include="Repositories\Logistics\FuelTypeRepository.cs" />
     <Compile Include="Domain\Sale\ScheduleRestrictedDistrict.cs" />
     <Compile Include="Domain\Sale\ScheduleRestriction.cs" />
     <Compile Include="HibernateMapping\Sale\ScheduleRestrictedDistrictMap.cs" />
@@ -596,13 +595,21 @@
     <Compile Include="ViewModelBased\DelegateCommand.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
     <Compile Include="ViewModelBased\ViewModelGeneric.cs" />
-    <Compile Include="ViewModelBased\EntityOpenOption.cs" />
+    <Compile Include="ViewModelBased\EntityConstructorParam.cs" />
     <Compile Include="Filters\IncomeFilter.cs" />
     <Compile Include="Filters\ExpenseFilter.cs" />
+    <Compile Include="Domain\Fuel\FuelIncomeInvoice.cs" />
+    <Compile Include="Domain\Fuel\FuelIncomeOperation.cs" />
+    <Compile Include="Domain\Fuel\FuelExpenseOperation.cs" />
+    <Compile Include="Domain\Fuel\FuelTransferDocument.cs" />
+    <Compile Include="Domain\Fuel\FuelTransferOperation.cs" />
     <Compile Include="Domain\Sale\TariffZone.cs" />
     <Compile Include="HibernateMapping\Sale\TariffZoneMap.cs" />
     <Compile Include="Domain\Order\NonReturnReason.cs" />
     <Compile Include="HibernateMapping\Order\NonReturnReasonMap.cs" />
+    <Compile Include="Domain\Fuel\FuelIncomeInvoiceItem.cs" />
+    <Compile Include="Tools\ValidationHelper.cs" />
+    <Compile Include="ViewModelBased\TabViewModelBase.cs" />
     <Compile Include="Domain\Order\PromotionalSet.cs" />
     <Compile Include="Domain\Order\PromotionalSetItem.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetMap.cs" />
@@ -614,6 +621,17 @@
     <Compile Include="Services\IImageProvider.cs" />
     <Compile Include="Domain\Service\BaseParametersProvider.cs" />
     <Compile Include="Services\IStandartDiscountsService.cs" />
+    <Compile Include="Repositories\FuelRepository.cs" />
+    <Compile Include="HibernateMapping\Operations\FuelIncomeOperationMap.cs" />
+    <Compile Include="HibernateMapping\Operations\FuelExpenseOperationMap.cs" />
+    <Compile Include="HibernateMapping\Operations\FuelTransferOperationMap.cs" />
+    <Compile Include="HibernateMapping\Fuel\FuelTransferDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Fuel\FuelIncomeInvoiceMap.cs" />
+    <Compile Include="HibernateMapping\Fuel\FuelIncomeInvoiceItemMap.cs" />
+    <Compile Include="EntityRepositories\Subdivisions\ISubdivisionRepository.cs" />
+    <Compile Include="EntityRepositories\Subdivisions\SubdivisionRepository.cs" />
+    <Compile Include="EntityRepositories\Fuel\IFuelRepository.cs" />
+    <Compile Include="EntityRepositories\Fuel\FuelRepository.cs" />
     <Compile Include="Domain\Payments\OrderIdProviderForMobileApp.cs" />
     <Compile Include="HibernateMapping\Payments\OrderIdProviderForMobileAppMap.cs" />
     <Compile Include="Domain\Client\DeliveryPointCategory.cs" />
@@ -658,7 +676,12 @@
     <Folder Include="HibernateMapping\Cash\Transfer\" />
     <Folder Include="ViewModelBased\" />
     <Folder Include="Filters\" />
+    <Folder Include="Domain\Fuel\" />
     <Folder Include="Services\" />
+    <Folder Include="HibernateMapping\Fuel\" />
+    <Folder Include="EntityRepositories\" />
+    <Folder Include="EntityRepositories\Subdivisions\" />
+    <Folder Include="EntityRepositories\Fuel\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

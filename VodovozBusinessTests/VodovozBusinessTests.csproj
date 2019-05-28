@@ -96,6 +96,9 @@
     <Reference Include="System.Threading.Tasks.Extensions">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.2\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="NSubstitute">
+      <HintPath>..\packages\NSubstitute.4.0.0\lib\net46\NSubstitute.dll</HintPath>
+    </Reference>
     <Reference Include="BouncyCastle.Crypto">
       <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
@@ -111,6 +114,7 @@
     <Folder Include="Tools\" />
     <Folder Include="Tools\Orders\" />
     <Folder Include="Domain\" />
+    <Folder Include="Domain\Fuel\" />
     <Folder Include="Domain\Orders\" />
     <Folder Include="Domain\RouteList\" />
     <Folder Include="Domain\Client\" />
@@ -122,8 +126,11 @@
     <Compile Include="Deletion\ConfigTests.cs" />
     <Compile Include="ConfigureOneTime.cs" />
     <Compile Include="Tools\Orders\OrderStateKeyTests.cs" />
+    <Compile Include="Domain\Fuel\FuelTransferDocumentTests.cs" />
+    <Compile Include="Domain\Fuel\FuelDocumentTests.cs" />
     <Compile Include="Domain\Orders\OrderTests.cs" />
     <Compile Include="Domain\Orders\OrderItemTests.cs" />
+    <Compile Include="AssertsAccumulator.cs" />
     <Compile Include="Domain\RouteList\RouteListItemTests.cs" />
     <Compile Include="Domain\Client\CounterpartyActivityKindTests.cs" />
   </ItemGroup>

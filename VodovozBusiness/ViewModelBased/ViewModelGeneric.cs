@@ -8,7 +8,7 @@ using QS.DomainModel.UoW;
 
 namespace Vodovoz.ViewModelBased
 {
-	public abstract class ViewModel<TEntity> : ViewModelBase
+	public abstract class ViewModel<TEntity> : TabViewModelBase
 		where TEntity : class, INotifyPropertyChanged, IDomainObject, new()
 	{
 		private IUnitOfWorkGeneric<TEntity> uoWGeneric;
@@ -24,35 +24,34 @@ namespace Vodovoz.ViewModelBased
 
 		public TEntity Entity => UoWGeneric?.Root;
 
-		protected ViewModel(IEntityOpenOption entityOpenOption)
+		protected ViewModel(IEntityConstructorParam entityOpenOption)
 		{
 			if(entityOpenOption == null) {
 				throw new ArgumentNullException(nameof(entityOpenOption));
 			}
 
-			if(entityOpenOption.NeedCreateNew) {
+			if(entityOpenOption.IsNewEntity) {
 				UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<TEntity>();
 			} else {
-				UoWGeneric = UnitOfWorkFactory.CreateForRoot<TEntity>(entityOpenOption.EntityId);
+				UoWGeneric = UnitOfWorkFactory.CreateForRoot<TEntity>(entityOpenOption.EntityOpenId);
 			}
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
 		}
 
-		protected abstract void ConfigurePropertyChangingRelations();
-
-		private Dictionary<string, IList<string>> propertyTriggerRelation;
+		private Dictionary<string, IList<string>> propertyTriggerRelations = new Dictionary<string, IList<string>>();
+		private Dictionary<string, Action> propertyOnChangeActions = new Dictionary<string, Action>();
 
 		private void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if(propertyTriggerRelation == null) {
-				ConfigurePropertyChangingRelations();
-			}
-
-			if(propertyTriggerRelation.ContainsKey(e.PropertyName)) {
-				foreach(var relatedPropertyName in propertyTriggerRelation[e.PropertyName]) {
+			if(propertyTriggerRelations.ContainsKey(e.PropertyName)) {
+				foreach(var relatedPropertyName in propertyTriggerRelations[e.PropertyName]) {
 					OnPropertyChanged(relatedPropertyName);
 				}
+			}
+
+			if(propertyOnChangeActions.ContainsKey(e.PropertyName)) {
+				propertyOnChangeActions[e.PropertyName].Invoke();
 			}
 		}
 
@@ -62,16 +61,12 @@ namespace Vodovoz.ViewModelBased
 		/// </summary>
 		protected void SetPropertyChangeRelation<T>(Expression<Func<TEntity, object>> entityTriggeredProperty, params Expression<Func<T>>[] vmChangingPropertiesExpressions)
 		{
-			if(propertyTriggerRelation == null) {
-				propertyTriggerRelation = new Dictionary<string, IList<string>>();
-			}
-
 			IList<string> vmChangingProperties = new List<string>();
 			string entityPropertyName = Entity.GetPropertyName(entityTriggeredProperty);
-			if(propertyTriggerRelation.ContainsKey(entityPropertyName)) {
-				vmChangingProperties = propertyTriggerRelation[entityPropertyName];
+			if(propertyTriggerRelations.ContainsKey(entityPropertyName)) {
+				vmChangingProperties = propertyTriggerRelations[entityPropertyName];
 			} else {
-				propertyTriggerRelation.Add(entityPropertyName, vmChangingProperties);
+				propertyTriggerRelations.Add(entityPropertyName, vmChangingProperties);
 			}
 
 			foreach(var cpe in vmChangingPropertiesExpressions) {
@@ -81,5 +76,15 @@ namespace Vodovoz.ViewModelBased
 				}
 			}
 		}
+
+		protected void OnEntityPropertyChanged(Expression<Func<TEntity, object>> entityTriggeredProperty, Action onChangeAction)
+		{
+			string entityPropertyName = Entity.GetPropertyName(entityTriggeredProperty);
+			if(!propertyOnChangeActions.ContainsKey(entityPropertyName)) {
+				propertyOnChangeActions.Add(entityPropertyName, onChangeAction);
+			}
+		}
+
+
 	}
 }

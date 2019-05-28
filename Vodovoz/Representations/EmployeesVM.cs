@@ -3,17 +3,17 @@ using Gamma.Utilities;
 using Gamma.ColumnConfig;
 using Vodovoz.Domain.Employees;
 using Gtk;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QS.DomainModel.UoW;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.ViewModel
 {
 	public class EmployeesVM : RepresentationModelEntityBase<Employee, EmployeesVMNode>
 	{
-		public EmployeeFilter Filter {
+		public EmployeeFilterViewModel Filter {
 			get {
-				return RepresentationFilter as EmployeeFilter;
+				return RepresentationFilter as EmployeeFilterViewModel;
 			}
 			set {
 				RepresentationFilter = value as IRepresentationFilter;
@@ -29,12 +29,8 @@ namespace Vodovoz.ViewModel
 
 			var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
 
-			if(!Filter.ShowFired) {
-				query.Where(e => !e.IsFired);
-			}
-
-			if(Filter.RestrictCategory != null) {
-				query.Where(e => e.Category == Filter.RestrictCategory);
+			if(Filter != null) {
+				query.Where(Filter.GetFilter());
 			}
 
 			#region для ускорения редактора
@@ -84,18 +80,26 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public EmployeesVM(EmployeeFilter filter) : this(filter.UoW)
+		public EmployeesVM(IUnitOfWork uow, EmployeeFilterViewModel filterViewModel)
 		{
-			Filter = filter;
+			Filter = filterViewModel;
+			UoW = uow;
+		}
+
+		public EmployeesVM(EmployeeFilterViewModel filterViewModel)
+		{
+			Filter = filterViewModel;
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		public EmployeesVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			CreateRepresentationFilter = () => new EmployeeFilter(UoW);
+			CreateRepresentationFilter = () => new EmployeeFilterViewModel(ServicesConfig.CommonServices) { ShowFired = false };
 		}
 
-		public EmployeesVM(IUnitOfWork uow) : base()
+		public EmployeesVM(IUnitOfWork uow)
 		{
+			CreateRepresentationFilter = () => new EmployeeFilterViewModel(ServicesConfig.CommonServices) { ShowFired = false };
 			this.UoW = uow;
 		}
 

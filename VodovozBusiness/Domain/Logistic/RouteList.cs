@@ -511,7 +511,7 @@ namespace Vodovoz.Domain.Logistic
 
 			foreach(FuelDocument item in ObservableFuelDocuments) {
 				item.Car = Car;
-				item.Operation.Car = Car;
+				item.FuelOperation.Car = Car;
 			}
 		}
 
@@ -523,7 +523,7 @@ namespace Vodovoz.Domain.Logistic
 
 			foreach(FuelDocument item in ObservableFuelDocuments) {
 				item.Driver = Driver;
-				item.Operation.Driver = Driver;
+				item.FuelOperation.Driver = Driver;
 			}
 		}
 
@@ -532,9 +532,9 @@ namespace Vodovoz.Domain.Logistic
 			if(FuelOutlayedOperation == null) {
 				return false;
 			}
-			var carDiff = FuelDocuments.Select(x => x.Operation).Any(x => x.Car != null && x.Car.Id != Car.Id)
+			var carDiff = FuelDocuments.Select(x => x.FuelOperation).Any(x => x.Car != null && x.Car.Id != Car.Id)
 									   || (FuelOutlayedOperation.Car != null && FuelOutlayedOperation.Car.Id != Car.Id);
-			var driverDiff = FuelDocuments.Select(x => x.Operation).Any(x => x.Driver != null && x.Driver.Id != Driver.Id)
+			var driverDiff = FuelDocuments.Select(x => x.FuelOperation).Any(x => x.Driver != null && x.Driver.Id != Driver.Id)
 										  || (FuelOutlayedOperation.Driver != null && FuelOutlayedOperation.Driver.Id != Driver.Id);
 			return carDiff || driverDiff;
 		}
@@ -1316,10 +1316,6 @@ namespace Vodovoz.Domain.Logistic
 			//Необходимо для того что бы случайно не пересчитать операцию расхода топлива. После массовой смены расхода.
 			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6)) {
 				return;
-			}
-
-			foreach(var item in FuelDocuments) {
-				item.UpdateDocument(UoW);
 			}
 
 			if(ConfirmedDistance == 0) {

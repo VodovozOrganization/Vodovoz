@@ -14,6 +14,7 @@ using QS.RepresentationModel.GtkUI;
 using Vodovoz.ViewModel;
 using Vodovoz.Domain.Employees;
 using NHibernate.Criterion;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
@@ -46,7 +47,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			yspinMoney.Binding.AddBinding(ViewModel.Entity, e => e.TransferedSum, w => w.ValueAsDecimal).InitializeFromSource();
 			yspinMoney.Binding.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			var filterDriver = new EmployeeFilter(ViewModel.UoW);
+			var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false

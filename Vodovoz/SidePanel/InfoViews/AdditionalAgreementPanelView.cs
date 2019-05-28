@@ -198,7 +198,7 @@ namespace Vodovoz.SidePanel.InfoViews
 						continue;
 					TDIMain.MainNotebook.OpenTab(
 						DialogHelper.GenerateDialogHashName<WaterSalesAgreement>(wa.Id),
-						() => new WaterAgreementDlg(InfoProvider.UoW, EntityOpenOption.Open(wa.Id, true))
+						() => new WaterAgreementDlg(EntityConstructorParam.ForOpenInChildUoW(wa.Id, InfoProvider.UoW))
 					);
 				}
 			}

@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ReportsParameters.Sales
@@ -15,8 +16,11 @@ namespace Vodovoz.ReportsParameters.Sales
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filter = new EmployeeFilter(UoW);
-			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.ShowFired = false
+			);
 			yEntRefEmployee.RepresentationModel = new EmployeesVM(filter);
 		}
 

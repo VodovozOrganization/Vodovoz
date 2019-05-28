@@ -44,6 +44,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
@@ -271,7 +272,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			var filterAuthor = new EmployeeFilter(UoW) {
+			var filterAuthor = new EmployeeFilterViewModel(ServicesConfig.CommonServices) {
 				ShowFired = false
 			};
 			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
@@ -793,7 +794,7 @@ namespace Vodovoz
 			   && SaveOrderBeforeContinue<M2ProxyDocument>()) {
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<M2ProxyDocument>(0),
-					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), UoW, EntityOpenOption.Create(true))
+					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), EntityConstructorParam.ForCreateInChildUoW(UoW))
 				);
 			}
 		}
@@ -855,7 +856,7 @@ namespace Vodovoz
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName(type, agreement.Id),
 							() => {
-								var dialog = OrmMain.CreateObjectDialog(type, UoW, EntityOpenOption.Open(agreement.Id, true));
+								var dialog = OrmMain.CreateObjectDialog(type, EntityConstructorParam.ForOpenInChildUoW(agreement.Id, UoW));
 								if(dialog is IAgreementSaved)
 									(dialog as IAgreementSaved).AgreementSaved += AgreementSaved;
 								return dialog;
@@ -1854,7 +1855,7 @@ namespace Vodovoz
 		protected void OnPickerDeliveryDateDateChangedByUser(object sender, EventArgs e)
 		{
 			if(Entity.DeliveryDate.HasValue) {
-				if(Entity.DeliveryDate.Value.Date != DateTime.Today.Date || MessageDialogHelper.RunWarningDialog("Подтвердите дату доставки", "Доставка сегодня? Вы уверены?")) {
+				if(Entity.DeliveryDate.Value.Date != DateTime.Today.Date || MessageDialogHelper.RunWarningDialog("Подтвердите дату доставки", "Доставка сегодня? Вы уверены?", ButtonsType.YesNo)) {
 					CheckSameOrders();
 					Entity.ChangeOrderContract();
 					return;
@@ -2031,7 +2032,7 @@ namespace Vodovoz
 		{
 			var res = Entity.IsWrongWater(out string title, out string message);
 			if(res == true)
-				return MessageDialogHelper.RunWarningDialog(title, message);
+				return MessageDialogHelper.RunWarningDialog(title, message, ButtonsType.YesNo);
 			return !res;
 		}
 

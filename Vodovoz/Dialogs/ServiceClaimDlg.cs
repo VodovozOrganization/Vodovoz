@@ -131,7 +131,7 @@ namespace Vodovoz
 			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceCounterparty.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 
-			referenceEngineer.RepresentationModel = new EmployeesVM(new EmployeeFilter(UoW));
+			referenceEngineer.RepresentationModel = new EmployeesVM();
 			referenceEngineer.Binding.AddBinding(Entity, e => e.Engineer, w => w.Subject).InitializeFromSource();
 
 			yentryEquipmentReplacement.ItemsQuery = EquipmentRepository.AvailableOnDutyEquipmentQuery ();

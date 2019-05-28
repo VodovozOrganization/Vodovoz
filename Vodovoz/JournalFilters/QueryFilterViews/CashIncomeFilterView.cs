@@ -6,6 +6,7 @@ using Vodovoz.Filters;
 using Vodovoz.ViewModel;
 using Gamma.Utilities;
 using QS.Dialog.GtkUI;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.JournalFilters.QueryFilterViews
 {
@@ -24,7 +25,8 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			ydateperiodPicker.Binding.AddBinding(Filter, x => x.EndDate, w => w.EndDate).InitializeFromSource();
 			ydateperiodPicker.PeriodChanged += (sender, e) => Refilter();
 
-			var counterpartyFilter = new EmployeeFilter(UoW);
+			var counterpartyFilter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			counterpartyFilter.ShowFired = false;
 			entryEmployee.RepresentationModel = new EmployeesVM(counterpartyFilter);
 			entryEmployee.Binding.AddBinding(Filter, x => x.Employee, w => w.Subject).InitializeFromSource();
 			entryEmployee.ChangedByUser += (sender, e) => Refilter();

@@ -6,6 +6,7 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
@@ -65,12 +66,12 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(ExpenseType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			var filterCasher = new EmployeeFilter(UoW);
+			var filterCasher = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterCasher.ShowFired = false;
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
-			var filterEmployee = new EmployeeFilter(UoW);
+			var filterEmployee = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterEmployee.ShowFired = false;
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
 			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();

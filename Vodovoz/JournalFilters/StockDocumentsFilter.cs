@@ -7,6 +7,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -21,8 +22,11 @@ namespace Vodovoz
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
 			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
 				yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
-			var filter = new EmployeeFilter(UoW);
-			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.ShowFired = false
+			);
 			yentryrefDriver.RepresentationModel = new EmployeesVM(filter);
 			dateperiodDocs.StartDate = DateTime.Today.AddDays(-7);
 			dateperiodDocs.EndDate = DateTime.Today.AddDays(1);

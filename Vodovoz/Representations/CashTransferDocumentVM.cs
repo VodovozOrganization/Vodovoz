@@ -30,7 +30,12 @@ namespace Vodovoz.Representations
 			RegisterIncomeTransfer();
 			RegisterCommonTransfer();
 
-			FinalListFunction = OrderFunc;
+			UpdateOnChanges(
+				typeof(IncomeCashTransferDocument),
+				typeof(CommonCashTransferDocument)
+			);
+
+			AfterSourceFillFunction = OrderFunc;
 
 			TreeViewConfig = FluentColumnsConfig<CashTransferDocumentVMNode>.Create()
 				.AddColumn("№").AddTextRenderer(node => node.DocumentId.ToString())
@@ -114,12 +119,12 @@ namespace Vodovoz.Representations
 				"По ордерам",
 				//функция диалога создания документа
 				() => {
-					var viewModel = new IncomeCashTransferDocumentViewModel(EntityOpenOption.Create());
+					var viewModel = new IncomeCashTransferDocumentViewModel(EntityConstructorParam.ForCreate());
 					return viewModel.View as IncomeCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
-					var viewModel = new IncomeCashTransferDocumentViewModel(EntityOpenOption.Open(node.DocumentId));
+					var viewModel = new IncomeCashTransferDocumentViewModel(EntityConstructorParam.ForOpen(node.DocumentId));
 					return viewModel.View as IncomeCashTransferDlg;
 				}
 			);
@@ -190,12 +195,12 @@ namespace Vodovoz.Representations
 				"На сумму",
 				//функция диалога создания документа
 				() => {
-					var viewModel = new CommonCashTransferDocumentViewModel(EntityOpenOption.Create());
+					var viewModel = new CommonCashTransferDocumentViewModel(EntityConstructorParam.ForCreate());
 					return viewModel.View as CommonCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
-					var viewModel = new CommonCashTransferDocumentViewModel(EntityOpenOption.Open(node.DocumentId));
+					var viewModel = new CommonCashTransferDocumentViewModel(EntityConstructorParam.ForOpen(node.DocumentId));
 					return viewModel.View as CommonCashTransferDlg;
 				}
 			);

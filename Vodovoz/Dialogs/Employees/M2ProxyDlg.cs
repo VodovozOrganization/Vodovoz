@@ -47,19 +47,19 @@ namespace Vodovoz.Dialogs.Employees
 			ConfigureDlg();
 		}
 
-		public M2ProxyDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
+		public M2ProxyDlg(IEntityConstructorParam ctorParam)
 		{
 			this.Build();
-			if(option.NeedCreateNew) {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateWithNewChildRoot<M2ProxyDocument>(baseUoW)
+			if(ctorParam.IsNewEntity) {
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateWithNewChildRoot<M2ProxyDocument>(ctorParam.RootUoW)
 					: UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
 			} else {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<M2ProxyDocument>(option.EntityId), baseUoW)
-					: UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(option.EntityId);
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateForChildRoot(ctorParam.RootUoW.GetById<M2ProxyDocument>(ctorParam.EntityOpenId), ctorParam.RootUoW)
+					: UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(ctorParam.EntityOpenId);
 			}
-			UoWOrder = baseUoW;
+			UoWOrder = ctorParam.RootUoW;
 			Entity.Order = UoWOrder.RootObject as Order;
 
 			ConfigureDlg();
@@ -90,8 +90,7 @@ namespace Vodovoz.Dialogs.Employees
 			yDPDatesRange.Binding.AddBinding(Entity, x => x.Date, x => x.StartDate).InitializeFromSource();
 			yDPDatesRange.Binding.AddBinding(Entity, x => x.ExpirationDate, x => x.EndDate).InitializeFromSource();
 
-			var filterEmployee = new EmployeeFilter(UoW);
-			yEEmployee.RepresentationModel = new EmployeesVM(filterEmployee);
+			yEEmployee.RepresentationModel = new EmployeesVM();
 			yEEmployee.Binding.AddBinding(Entity, x => x.Employee, x => x.Subject).InitializeFromSource();
 
 			var filterSupplier = new CounterpartyFilter(UoW);

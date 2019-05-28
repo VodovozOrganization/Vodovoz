@@ -11,6 +11,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
+using Vodovoz.Filters.ViewModels;
+
 namespace Vodovoz.Dialogs.Employees
 {
 	[System.ComponentModel.ToolboxItem(true)]
@@ -51,7 +53,8 @@ namespace Vodovoz.Dialogs.Employees
 				UpdateStates();
 			};
 
-			var filterDefaultForwarder = new EmployeeFilter(UoW);
+			var filterDefaultForwarder = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterDefaultForwarder.ShowFired = false;
 			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryDriver.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			yentryDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();

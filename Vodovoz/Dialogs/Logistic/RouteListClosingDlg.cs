@@ -19,6 +19,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository;
@@ -100,7 +101,7 @@ namespace Vodovoz
 			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 
-			var filterDriver = new EmployeeFilter(UoW);
+			var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false
@@ -109,7 +110,7 @@ namespace Vodovoz
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 
 			previousForwarder = Entity.Forwarder;
-			var filterForwarder = new EmployeeFilter(UoW);
+			var filterForwarder = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterForwarder.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.ShowFired = false
@@ -118,7 +119,7 @@ namespace Vodovoz
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.Changed += ReferenceForwarder_Changed;
 
-			var filterLogistican = new EmployeeFilter(UoW);
+			var filterLogistican = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterLogistican.SetAndRefilterAtOnce(x => x.ShowFired = false);
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
@@ -316,7 +317,7 @@ namespace Vodovoz
 
 			config
 				.AddColumn("Дата").AddTextRenderer(node => node.Date.ToShortDateString())
-				.AddColumn("Литры").AddNumericRenderer(node => node.Operation.LitersGived)
+				.AddColumn("Литры").AddNumericRenderer(node => node.FuelOperation.LitersGived)
 						.Adjustment(new Adjustment(0, -100000, 100000, 10, 100, 10))
 				.AddColumn("").AddTextRenderer()
 				.RowCells();
@@ -783,7 +784,7 @@ namespace Vodovoz
 			track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
 
 			var fuelOtlayedOp = UoWGeneric.Root.FuelOutlayedOperation;
-			var givedOp = Entity.FuelDocuments.Select(x => x.Operation.Id);
+			var givedOp = Entity.FuelDocuments.Select(x => x.FuelOperation.Id);
 			//Проверяем существование операций и исключаем их.
 			var exclude = new List<int>();
 			exclude.AddRange(givedOp);
@@ -829,20 +830,20 @@ namespace Vodovoz
 				text.Add("Не указан вид топлива");
 			}
 
-			if(Entity.FuelDocuments.Select(x => x.Operation).Any()) {
+			if(Entity.FuelDocuments.Select(x => x.FuelOperation).Any()) {
 				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp));
 			}
 
 			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)", spentFuel, (decimal)Entity.Car.FuelConsumption));
 
-			if(Entity.FuelDocuments.Select(x => x.Operation).Any()) {
+			if(Entity.FuelDocuments.Select(x => x.FuelOperation).Any()) {
 				text.Add(string.Format("Выдано {0:F2} литров",
-					 Entity.FuelDocuments.Select(x => x.Operation.LitersGived).Sum()));
+					 Entity.FuelDocuments.Select(x => x.FuelOperation.LitersGived).Sum()));
 			}
 
 			if(Entity.Car.FuelType != null) {
 				text.Add(string.Format("Текущий остаток топлива {0:F2} л.", balanceBeforeOp
-					+ Entity.FuelDocuments.Select(x => x.Operation.LitersGived).Sum() - spentFuel));
+					+ Entity.FuelDocuments.Select(x => x.FuelOperation.LitersGived).Sum() - spentFuel));
 			}
 
 			ytextviewFuelInfo.Buffer.Text = string.Join("\n", text);

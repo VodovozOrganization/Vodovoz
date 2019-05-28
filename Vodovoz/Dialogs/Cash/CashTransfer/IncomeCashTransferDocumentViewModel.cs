@@ -22,12 +22,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	public class IncomeCashTransferDocumentViewModel : ViewModel<IncomeCashTransferDocument>
 	{
-		private IEnumerable<Subdivision> cashSubdivisions;
-		private IEnumerable<Subdivision> availableSubdivisionsForUser;
-
-		public IncomeCashTransferDocumentViewModel(IEntityOpenOption entityOpenOption) : base(entityOpenOption)
+		public IncomeCashTransferDocumentViewModel(IEntityConstructorParam entityOpenOption) : base(entityOpenOption)
 		{
-			if(entityOpenOption.NeedCreateNew) {
+			if(entityOpenOption.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;
 				Entity.Author = Cashier;
 			}
@@ -37,9 +34,8 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			UpdateExpenseCategories();
 			View = new IncomeCashTransferDlg(this);
 
-			Entity.PropertyChanged += Entity_PropertyChanged;
-
 			ConfigEntityUpdateSubscribes();
+			ConfigureEntityPropertyChanges();
 		}
 
 		private Employee cashier;
@@ -77,23 +73,21 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			return base.Save();
 		}
 
-		protected override void ConfigurePropertyChangingRelations()
+		private void ConfigureEntityPropertyChanges()
 		{
 			SetPropertyChangeRelation(e => e.Status,
 				() => CanEdit
 			);
-		}
 
-		private void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(Entity.CashSubdivisionFrom)) {
+			OnEntityPropertyChanged(e => e.CashSubdivisionFrom, () => {
 				UpdateSubdivisionsTo();
 				Entity.ObservableCashTransferDocumentIncomeItems.Clear();
 				Entity.ObservableCashTransferDocumentExpenseItems.Clear();
-			}
-			if(e.PropertyName == nameof(Entity.CashSubdivisionTo)) {
+			});
+
+			OnEntityPropertyChanged(e => e.CashSubdivisionTo, () => {
 				UpdateSubdivisionsFrom();
-			}
+			});
 		}
 
 		#region Подписки на внешние измнения сущностей
@@ -411,6 +405,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		#endregion Настройка списков статей дохода и прихода
 
 		#region Настройка списков доступных подразделений кассы
+
+		private IEnumerable<Subdivision> cashSubdivisions;
+		private IEnumerable<Subdivision> availableSubdivisionsForUser;
 
 		private IEnumerable<Subdivision> subdivisionsFrom;
 		public virtual IEnumerable<Subdivision> SubdivisionsFrom {

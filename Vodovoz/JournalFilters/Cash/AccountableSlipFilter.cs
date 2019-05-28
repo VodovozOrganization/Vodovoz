@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -14,7 +15,7 @@ namespace Vodovoz
 		{
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 
-			var filter = new EmployeeFilter(UoW);
+			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filter.SetAndRefilterAtOnce(x => x.ShowFired = false);
 			yentryAccountable.RepresentationModel = new EmployeesVM(filter);
 		}

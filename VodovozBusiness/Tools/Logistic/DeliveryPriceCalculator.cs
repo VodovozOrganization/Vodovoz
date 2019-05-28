@@ -9,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -36,7 +37,7 @@ namespace Vodovoz.Tools.Logistic
 
 			//Топливо
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot("Расчет стоимости доставки")) {
-				var fuel = FuelTypeRepository.GetDefaultFuel(uow);
+				var fuel = FuelRepository.GetDefaultFuel(uow);
 				if(fuel == null) {
 					result.ErrorMessage = string.Format("Топливо по умолчанию «АИ-92» не найдено в справочке.");
 					return result;

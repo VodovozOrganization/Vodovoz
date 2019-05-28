@@ -7,6 +7,7 @@ using QSProjectsLib;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Reports
 {
@@ -17,8 +18,11 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
-			var filter = new EmployeeFilter(UoW);
-			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.ShowFired = false
+			);
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 		}
 

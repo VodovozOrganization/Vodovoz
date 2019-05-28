@@ -40,6 +40,7 @@ namespace Vodovoz
 			TrayIcon.Tooltip = "Веселый Водовоз";
 
 			CreateProjectParam ();
+			ConfigureViewModelWidgetResolver();
 			QSMain.SetupFromArgs(args);
 			// Создаем окно входа
 			Login LoginDialog = new Login ();

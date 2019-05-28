@@ -17,6 +17,7 @@ using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
@@ -83,21 +84,25 @@ namespace Vodovoz
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = logisticanEditing;
 
-			var filterDriver = new EmployeeFilter(UoW);
-			filterDriver.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterDriver.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.ShowFired = false
+			);
 			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			referenceDriver.Sensitive = logisticanEditing;
-			var filterForwarder = new EmployeeFilter(UoW);
-			filterForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
+			var filterForwarder = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterForwarder.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.forwarder,
+				x => x.ShowFired = false
+			);
 			referenceForwarder.RepresentationModel = new EmployeesVM(filterForwarder);
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.Sensitive = logisticanEditing;
 			referenceForwarder.Changed += ReferenceForwarder_Changed;
 
-			var filterLogistican = new EmployeeFilter(UoW);
-			filterLogistican.SetAndRefilterAtOnce(x => x.ShowFired = false);
-			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
+			referenceLogistican.RepresentationModel = new EmployeesVM();
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 			referenceLogistican.Sensitive = logisticanEditing;
 

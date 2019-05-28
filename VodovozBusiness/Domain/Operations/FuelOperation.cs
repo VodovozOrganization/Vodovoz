@@ -46,6 +46,14 @@ namespace Vodovoz
 			set {SetField(ref litersGived, value, () => LitersGived);}
 		}
 
+		private decimal payedLiters;
+		[Display(Name = "Выдано литров топлива деньгами")]
+		public virtual decimal PayedLiters {
+			get => payedLiters;
+			set => SetField(ref payedLiters, value, () => PayedLiters);
+		}
+
+
 		private decimal litersOutlayed;
 
 		[Display (Name = "Потрачено литров топлива")]

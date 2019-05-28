@@ -16,8 +16,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filter = new EmployeeFilter(UoW);
-			yentryDriver.RepresentationModel = new EmployeesVM(filter);
+			yentryDriver.RepresentationModel = new EmployeesVM();
 		}
 
 		#region IOrmDialog implementation
@@ -105,7 +104,7 @@ namespace Vodovoz.ReportsParameters
 			if(radioCatOffice.Active) {
 				filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			}
-			yentryDriver.RepresentationModel = new EmployeesVM(filter);
+			yentryDriver.RepresentationModel = new EmployeesVM();
 		}
 
 		protected string GetCategory()

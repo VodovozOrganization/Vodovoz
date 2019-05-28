@@ -17,9 +17,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		private IEnumerable<Subdivision> cashSubdivisions;
 		private IEnumerable<Subdivision> availableSubdivisionsForUser;
 
-		public CommonCashTransferDocumentViewModel(IEntityOpenOption entityOpenOption) : base(entityOpenOption)
+		public CommonCashTransferDocumentViewModel(IEntityConstructorParam entityOpenOption) : base(entityOpenOption)
 		{
-			if(entityOpenOption.NeedCreateNew) {
+			if(entityOpenOption.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;
 				Entity.Author = Cashier;
 			}
@@ -31,6 +31,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
 
+			ConfigureEntityChangingRelations();
 			ConfigEntityUpdateSubscribes();
 		}
 
@@ -69,7 +70,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 			return base.Save();
 		}
 
-		protected override void ConfigurePropertyChangingRelations()
+		protected void ConfigureEntityChangingRelations()
 		{
 			SetPropertyChangeRelation(e => e.Status,
 				() => CanEdit

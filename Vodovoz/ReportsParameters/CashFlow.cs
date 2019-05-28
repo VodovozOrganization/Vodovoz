@@ -10,6 +10,7 @@ using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 
@@ -32,12 +33,12 @@ namespace Vodovoz.Reports
 			dateStart.Date = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
 			dateEnd.Date = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
 
-			var filterCasher = new EmployeeFilter(uow);
+			var filterCasher = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterCasher.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			filterCasher.ShowFired = false;
 			yentryrefCasher.RepresentationModel = new EmployeesVM(filterCasher);
 
-			var filterEmployee = new EmployeeFilter(uow);
-			yentryrefEmployee.RepresentationModel = new EmployeesVM(filterEmployee);
+			yentryrefEmployee.RepresentationModel = new EmployeesVM();
 
 			var recurciveConfig = OrmMain.GetObjectDescription<ExpenseCategory>().TableView.RecursiveTreeConfig;
 			var list = CategoryRepository.ExpenseCategories(uow);

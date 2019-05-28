@@ -25,6 +25,7 @@ using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.Domain.Fuel;
 
 namespace Vodovoz
 {
@@ -881,10 +882,15 @@ namespace Vodovoz
 				.AddClearDependence<RouteList>(item => item.ForwarderWageOperation)
 				.AddDeleteDependence<Expense>(item => item.WagesOperation);
 
-			DeleteConfig.AddHibernateDeleteInfo<FuelOperation>()
-				.RequiredCascadeDeletion()
-				.AddDeleteDependence<RouteList>(x => x.FuelOutlayedOperation)
-				.AddDeleteDependence<FuelDocument>(x => x.Operation);
+			#endregion
+
+			#region Права
+
+			DeleteConfig.AddHibernateDeleteInfo<TypeOfEntity>()
+				.AddDeleteDependence<EntityUserPermission>(x => x.TypeOfEntity)
+				;
+			DeleteConfig.AddHibernateDeleteInfo<EntityUserPermission>();
+			DeleteConfig.AddHibernateDeleteInfo<PresetUserPermission>();
 
 			#endregion
 
@@ -948,9 +954,6 @@ namespace Vodovoz
 				.AddDeleteDependence<ExpenseCategory>(x => x.Parent)
 				.AddClearDependence<Counterparty>(item => item.DefaultExpenseCategory);
 
-			DeleteConfig.AddHibernateDeleteInfo<FuelDocument>()
-						.AddDeleteCascadeDependence(x => x.Operation);
-
 			DeleteConfig.AddHibernateDeleteInfo<FineNomenclature>();
 
 			DeleteConfig.AddHibernateDeleteInfo<CashTransferDocumentBase>()
@@ -959,7 +962,7 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(item => item.ExpenseOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CommonCashTransferDocument>()
-				.AddDeleteCascadeDependence(item => item.CashTransferOperation)
+				.AddDeleteDependence<CashTransferOperation>(item => item.CashTransferDocument)
 				.AddDeleteCascadeDependence(item => item.IncomeOperation)
 				.AddDeleteCascadeDependence(item => item.ExpenseOperation);
 
@@ -977,9 +980,46 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<CashTransferOperation>()
 				.RequiredCascadeDeletion()
-				.AddDeleteDependence<IncomeCashTransferDocument>(item => item.CashTransferOperation);
+				.AddDeleteDependence<CashTransferDocumentBase>(item => item.CashTransferOperation);
 
 			#endregion
+
+			#region Топливо
+
+			DeleteConfig.AddHibernateDeleteInfo<FuelDocument>()
+						.AddDeleteCascadeDependence(x => x.FuelOperation)
+						.AddDeleteCascadeDependence(x => x.FuelExpenseOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<FuelOperation>()
+				.RequiredCascadeDeletion()
+				.AddDeleteDependence<RouteList>(x => x.FuelOutlayedOperation)
+				.AddDeleteDependence<FuelDocument>(x => x.FuelOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<FuelTransferDocument>()
+				.AddDeleteCascadeDependence(item => item.FuelExpenseOperation)
+				.AddDeleteCascadeDependence(item => item.FuelIncomeOperation)
+				.AddDeleteCascadeDependence(item => item.FuelTransferOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<FuelIncomeInvoice>()
+				.AddDeleteDependenceFromCollection(item => item.FuelIncomeInvoiceItems);
+
+			DeleteConfig.AddHibernateDeleteInfo<FuelIncomeInvoiceItem>()
+				.AddDeleteCascadeDependence(item => item.FuelIncomeOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<FuelExpenseOperation>()
+				.RequiredCascadeDeletion()
+				.AddDeleteDependence<FuelTransferDocument>(item => item.FuelExpenseOperation)
+				.AddDeleteDependence<FuelDocument>(item => item.FuelExpenseOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<FuelIncomeOperation>()
+				.RequiredCascadeDeletion()
+				.AddDeleteDependence<FuelTransferDocument>(item => item.FuelIncomeOperation)
+				.AddDeleteDependence<FuelIncomeInvoiceItem>(item => item.FuelIncomeOperation);
+
+			DeleteConfig.AddHibernateDeleteInfo<FuelTransferOperation>();
+
+
+			#endregion Топливо
 
 			#region Операции по счету
 

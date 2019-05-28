@@ -16,6 +16,7 @@ using Vodovoz.Dialogs;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
@@ -102,13 +103,19 @@ namespace Vodovoz
 				}
 			};
 
-			var filterDriver = new EmployeeFilter(UoW, false);
-			filterDriver.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
-			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
+			var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterDriver.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.ShowFired = false
+			);
+			referenceDriver.RepresentationModel = new EmployeesVM();
 			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
-			var filter = new EmployeeFilter(UoW, false);
-			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
+			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.forwarder,
+				x => x.ShowFired = false
+			);
 			referenceForwarder.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			referenceForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();
 			referenceForwarder.Changed += (sender, args) => {
@@ -116,8 +123,7 @@ namespace Vodovoz
 			};
 
 			referenceLogistican.Sensitive = false;
-			var filterLogistican = new EmployeeFilter(UoW);
-			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
+			referenceLogistican.RepresentationModel = new EmployeesVM();
 			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistican, w => w.Subject).InitializeFromSource();
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);

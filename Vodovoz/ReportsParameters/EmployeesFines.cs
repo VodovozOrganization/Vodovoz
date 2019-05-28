@@ -6,6 +6,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Reports
 {
@@ -15,7 +16,8 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filter = new EmployeeFilter(UoW);
+			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filter.ShowFired = false;
 			yentryDriver.RepresentationModel = new EmployeesVM(filter);
 		}
 		#region IOrmDialog implementation
@@ -95,7 +97,8 @@ namespace Vodovoz.Reports
 
 		protected void OnRadioCatAllToggled(object sender, EventArgs e)
 		{
-			var filter = new EmployeeFilter(UoW);
+			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filter.ShowFired = false;
 			if(radioCatDriver.Active) {
 				filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			}

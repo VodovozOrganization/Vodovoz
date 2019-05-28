@@ -20,6 +20,7 @@ using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
 using QSSupportLib;
+using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Cash;
@@ -45,6 +46,11 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
+using QS.Tdi.Gtk;
+using Vodovoz.Dialogs.Fuel;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Filters.GtkViews;
+using QS.Dialog.Gtk;
 
 namespace Vodovoz
 {
@@ -108,7 +114,22 @@ namespace Vodovoz
 
 			UserDialog.PermissionViewsCreator = delegate {
 				return new List<IPermissionsView> { new QS.Permissions.PermissionMatrixView(new QS.Permissions.PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
-			};
+			};		
+		}
+
+		static void ConfigureViewModelWidgetResolver()
+		{
+			//Регистрация вкладок
+			ViewModelWidgetResolver.Instance
+				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
+				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>();
+
+			//Регистрация фильтров
+			ViewModelWidgetResolver.Instance
+				.RegisterWidgetForFilterViewModel<EmployeeFilterViewModel, EmployeeFilterView>();
+
+			TDIMain.TDIWidgetResolver = ViewModelWidgetResolver.Instance;
+			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
 		static void CreateBaseConfig()

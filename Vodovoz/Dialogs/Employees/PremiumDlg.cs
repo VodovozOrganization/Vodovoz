@@ -46,8 +46,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			Entity.ObservableItems.ListContentChanged += ObservableItems_ListContentChanged;
 
-			var filterAuthor = new EmployeeFilter(UoW);
-			yentryAuthor.RepresentationModel = new EmployeesVM(filterAuthor);
+			yentryAuthor.RepresentationModel = new EmployeesVM();
 			yentryAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<PremiumItem>()

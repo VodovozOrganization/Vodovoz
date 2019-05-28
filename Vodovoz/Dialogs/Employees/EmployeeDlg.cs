@@ -18,6 +18,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 using QS.Project.Repositories;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz
 {
@@ -93,8 +94,11 @@ namespace Vodovoz
 			yentryDeliveryDaySchedule.SubjectType = typeof(DeliveryDaySchedule);
 			yentryDeliveryDaySchedule.Binding.AddBinding(Entity, e => e.DefaultDaySheldule, w => w.Subject).InitializeFromSource();
 
-			var filterDefaultForwarder = new EmployeeFilter(UoW);
-			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
+			var filterDefaultForwarder = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterDefaultForwarder.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.forwarder,
+				x => x.ShowFired = false
+			);
 			yentryDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			yentryDefaultForwarder.Binding.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
 
