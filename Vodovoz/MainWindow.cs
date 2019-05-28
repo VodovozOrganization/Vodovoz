@@ -1265,4 +1265,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new ClientsByDeliveryPointCategoryAndActivityKindsReport())
 		);
 	}
+
+	protected void OnActionExtraBottlesReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ExtraBottleReport>(),
+			() => new QSReport.ReportViewDlg(new ExtraBottleReport())
+		);
+	}
 }
