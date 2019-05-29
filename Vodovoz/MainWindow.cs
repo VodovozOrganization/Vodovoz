@@ -361,8 +361,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
-		var refWin = new ReferenceRepresentation(new CounterpartyVM());
-		refWin.ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit);
+		var refWin = new ReferenceRepresentation(new CounterpartyVM()) {
+			ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
+		};
 		tdiMain.AddTab(refWin);
 	}
 
@@ -400,14 +401,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		OrmReference refWin = new OrmReference(typeof(DeliverySchedule));
 		tdiMain.AddTab(refWin);
-	}
-
-	protected void OnActionLogisticsAreaActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<LogisticAreasEditDlg>(),
-			() => new LogisticAreasEditDlg()
-		);
 	}
 
 	protected void OnActionUpdateBanksFromCBRActivated(object sender, EventArgs e)
