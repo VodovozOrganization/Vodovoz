@@ -31,6 +31,10 @@ namespace Vodovoz.Representations
 
 		public IQueryFilter Filter { get; set; }
 
+		public bool NeedUpdate { get; set; }
+
+		protected override bool NeedUpdateFunc(CallTask updatedSubject) => NeedUpdate;
+
 		public override IColumnsConfig ColumnsConfig => FluentColumnsConfig<CallTaskVMNode>.Create()
 			.AddColumn("№").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Срочность").AddPixbufRenderer(node => node.ImportanceDegree == ImportanceDegreeType.Important && !node.IsTaskComplete ? img : emptyImg)
@@ -194,8 +198,6 @@ namespace Vodovoz.Representations
 
 			return statisticsParam;
 		}
-
-		protected override bool NeedUpdateFunc(CallTask updatedSubject) => true;
 
 		public override Menu GetPopupMenu(RepresentationSelectResult[] selected)
 		{

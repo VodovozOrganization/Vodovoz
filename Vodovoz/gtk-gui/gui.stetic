@@ -71675,6 +71675,25 @@ not tooltip</property>
                 <property name="Fill">False</property>
               </packing>
             </child>
+            <child>
+              <widget class="Gamma.GtkWidgets.yCheckButton" id="ycheckbuttonAutoUpdate">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Автообновление</property>
+                <property name="Active">True</property>
+                <property name="DrawIndicator">True</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Toggled" handler="OnYcheckbuttonAutoUpdateToggled" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">7</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="Position">0</property>

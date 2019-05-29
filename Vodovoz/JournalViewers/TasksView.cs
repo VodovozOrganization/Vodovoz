@@ -36,6 +36,7 @@ namespace Vodovoz.JournalViewers
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
 			callTasksVM = new CallTasksVM(new BaseParametersProvider());
+			callTasksVM.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 			calltaskfilterview.Refiltered += (sender, e) => callTasksVM.UpdateNodes();
 			callTasksVM.ItemsListUpdated += (sender, e) => UpdateStatistics();
 			callTasksVM.Filter = calltaskfilterview.GetQueryFilter();
@@ -170,6 +171,11 @@ namespace Vodovoz.JournalViewers
 			popup.ShowAll();
 			popup.Popup();
 		}
+
+		protected void OnYcheckbuttonAutoUpdateToggled(object sender, EventArgs e)
+		{
+			callTasksVM.NeedUpdate = ycheckbuttonAutoUpdate.Active;
+		} 
 		#endregion
 	}
 }
