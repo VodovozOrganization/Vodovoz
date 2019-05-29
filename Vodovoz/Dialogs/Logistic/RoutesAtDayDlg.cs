@@ -25,6 +25,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories.Sale;
@@ -47,7 +48,7 @@ namespace Vodovoz
 		IList<RouteList> routesAtDay;
 		IList<AtWorkDriver> driversAtDay;
 		IList<AtWorkForwarder> forwardersAtDay;
-		IList<LogisticsArea> logisticanDistricts;
+		IList<ScheduleRestrictedDistrict> logisticanDistricts;
 		RouteOptimizer optimizer = new RouteOptimizer();
 		RouteGeometryCalculator distanceCalculator = new RouteGeometryCalculator(DistanceProvider.Osrm);
 
@@ -650,7 +651,7 @@ namespace Vodovoz
 			var outLogisticAreas = ordersAtDay
 				.Where(
 					x => !logisticanDistricts.Any(
-						a => x.DeliveryPoint.NetTopologyPoint != null && a.Geometry.Contains(x.DeliveryPoint.NetTopologyPoint)
+						a => x.DeliveryPoint.NetTopologyPoint != null && a.DistrictBorder.Contains(x.DeliveryPoint.NetTopologyPoint)
 					)
 				)
 				.ToList();
@@ -779,7 +780,7 @@ namespace Vodovoz
 
 					ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 						order.DeliverySchedule?.Name ?? "Не назначено",
-						logisticanDistricts?.FirstOrDefault(x => x.Geometry.Contains(order.DeliveryPoint.NetTopologyPoint))?.Name);
+						logisticanDistricts?.FirstOrDefault(x => x.DistrictBorder.Contains(order.DeliveryPoint.NetTopologyPoint))?.DistrictName);
 
 					addressMarker.ToolTipText = ttText;
 
@@ -1130,11 +1131,11 @@ namespace Vodovoz
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			logisticanDistricts = LogisticAreaRepository.AreaWithGeometry(UoW);
+			logisticanDistricts = ScheduleRestrictionRepository.AreasWithGeometry(UoW);
 			foreach(var district in logisticanDistricts) {
 				var poligon = new GMapPolygon(
-					district.Geometry.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList()
-					, district.Name);
+					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList()
+					, district.DistrictName);
 				districtsOverlay.Polygons.Add(poligon);
 			}
 			logger.Info("Ок.");

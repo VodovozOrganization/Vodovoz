@@ -223,7 +223,6 @@
     <Compile Include="Domain\Logistic\DeliverySchedule.cs" />
     <Compile Include="Domain\Logistic\DeliveryShift.cs" />
     <Compile Include="Domain\Logistic\FuelType.cs" />
-    <Compile Include="Domain\Logistic\LogisticsArea.cs" />
     <Compile Include="Domain\Logistic\RouteColumn.cs" />
     <Compile Include="Domain\Logistic\RouteList.cs" />
     <Compile Include="Domain\Logistic\RouteListItem.cs" />
@@ -316,7 +315,6 @@
     <Compile Include="HibernateMapping\Logistic\DeliveryScheduleMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryShiftMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelTypeMap.cs" />
-    <Compile Include="HibernateMapping\Logistic\LogisticsAreaMap.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteColumnMap.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteListItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteListMap.cs" />
@@ -422,7 +420,6 @@
     <Compile Include="Repositories\Logistics\AtWorkRepository.cs" />
     <Compile Include="Domain\Logistic\DriverDistrictPriority.cs" />
     <Compile Include="HibernateMapping\Logistic\DriverDistrictPriorityMap.cs" />
-    <Compile Include="Repositories\Logistics\LogisticAreaRepository.cs" />
     <Compile Include="Repositories\Logistics\CarRepository.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />

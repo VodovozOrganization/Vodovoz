@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
 using QS.Dialog;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.UoW;
 using QS.Report;
-using QSProjectsLib;
 using QSReport;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ReportsParameters
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrdersByDistrictReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
 	{
 		public OrdersByDistrictReport()
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			referenceLogisticArea.SubjectType = typeof(LogisticsArea);
+			refDistrict.SubjectType = typeof(ScheduleRestrictedDistrict);
 		}
 
 		#region IOrmDialog implementation
@@ -29,28 +28,23 @@ namespace Vodovoz.ReportsParameters
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчет по районам";
-			}
-		}
+		public string Title => "Отчет по районам";
 
 		#endregion
 
 		private ReportInfo GetReportInfo()
 		{
 			string ReportName;
-			var parameters = new Dictionary<string, object>
-				{
-					{ "start_date", dateperiodpicker.StartDate },
-					{ "end_date", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) }
+			var parameters = new Dictionary<string, object> {
+				{ "start_date", dateperiodpicker.StartDate },
+				{ "end_date", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) }
 			};
 
 			if(checkAllDistrict.Active) {
 				ReportName = "Orders.OrdersByAllDistrict";
 			} else {
 				ReportName = "Orders.OrdersByDistrict";
-				parameters.Add("id_district", ((LogisticsArea)referenceLogisticArea.Subject).Id);
+				parameters.Add("id_district", ((ScheduleRestrictedDistrict)refDistrict.Subject).Id);
 			}
 
 			return new ReportInfo {
@@ -63,12 +57,12 @@ namespace Vodovoz.ReportsParameters
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			string errorString = string.Empty;
-			if(referenceLogisticArea.Subject == null && !checkAllDistrict.Active)
+			if(refDistrict.Subject == null && !checkAllDistrict.Active)
 				errorString += "Не заполнен район\n";
 			if(dateperiodpicker.StartDateOrNull == null)
 				errorString += "Не заполнена дата\n";
 			if(!string.IsNullOrWhiteSpace(errorString)) {
-				MessageDialogWorks.RunErrorDialog(errorString);
+				MessageDialogHelper.RunErrorDialog(errorString);
 				return;
 			}
 			OnUpdate(true);
@@ -76,21 +70,17 @@ namespace Vodovoz.ReportsParameters
 
 		void OnUpdate(bool hide = false)
 		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		void CanRun()
 		{
-			buttonCreateReport.Sensitive =
-				(dateperiodpicker.EndDateOrNull != null && dateperiodpicker.StartDateOrNull != null);
+			buttonCreateReport.Sensitive = dateperiodpicker.EndDateOrNull.HasValue && dateperiodpicker.StartDateOrNull.HasValue;
 		}
 
 		protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e)
 		{
 			CanRun();
 		}
-
 	}
 }

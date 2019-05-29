@@ -52,7 +52,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.FixPrice5)				.Column("fix_price5");
 
 			References(x => x.Counterparty)				.Column("counterparty_id");
-			References(x => x.LogisticsArea)			.Column("logistic_area_id");
 			References(x => x.DeliverySchedule)			.Column("delivery_schedule_id");
 			References(x => x.СoordsLastChangeUser)		.Column("coords_lastchange_user_id");
 			References(x => x.DefaultWaterNomenclature)	.Column("default_nomenclature_id");

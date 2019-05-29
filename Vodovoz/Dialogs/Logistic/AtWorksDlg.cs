@@ -108,7 +108,7 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Грузоп.")
 					.AddTextRenderer(x => x.Car != null ? x.Car.MaxWeight.ToString("D") : null)
 				.AddColumn("Районы доставки")
-					.AddTextRenderer(x => string.Join(", ", x.Districts.Select(d => d.District.Name)))
+					.AddTextRenderer(x => string.Join(", ", x.Districts.Select(d => d.District.DistrictName)))
 				.AddColumn("")
 				.Finish();
 			ytreeviewAtWorkDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
@@ -358,7 +358,7 @@ namespace Vodovoz.Dialogs.Logistic
 			if(toAdd.Count == 0)
 				return;
 
-			var orders = LogisticAreaRepository.OrdersCountByArea(UoW, DialogAtDate, 12);
+			var orders = ScheduleRestrictionRepository.OrdersCountByDistrict(UoW, DialogAtDate, 12);
 			var districtsBottles = orders.GroupBy(x => x.DistrictId).ToDictionary(x => x.Key, x => x.Sum(o => o.WaterCount));
 
 			foreach(var forwarder in toAdd) {

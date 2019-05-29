@@ -10,6 +10,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -157,8 +158,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			TestCars(possibleRoutes);
 
-			var areas = UoW.GetAll<LogisticsArea>().ToList();
-			List<LogisticsArea> unusedDistricts = new List<LogisticsArea>();
+			var areas = UoW.GetAll<ScheduleRestrictedDistrict>().ToList();
+			List<ScheduleRestrictedDistrict> unusedDistricts = new List<ScheduleRestrictedDistrict>();
 			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
 
 			/// Перебираем все заказы, исключаем те которые без координат, определяем для каждого заказа район
@@ -168,7 +169,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				if(order.DeliveryPoint.Longitude == null || order.DeliveryPoint.Latitude == null)
 					continue;
 				var point = new Point((double)order.DeliveryPoint.Latitude.Value, (double)order.DeliveryPoint.Longitude.Value);
-				var area = areas.Find(x => x.Geometry.Contains(point));
+				var area = areas.Find(x => x.DistrictBorder.Contains(point));
 				if(area != null) {
 					var oldRoute = Routes.FirstOrDefault(r => r.Addresses.Any(a => a.Order.Id == order.Id));
 					if(oldRoute != null)
@@ -183,7 +184,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 			Nodes = calculatedOrders.ToArray();
 			if(unusedDistricts.Any()) {
-				AddWarning("Районы без водителей: {0}", string.Join(", ", unusedDistricts.Select(x => x.Name)));
+				AddWarning("Районы без водителей: {0}", string.Join(", ", unusedDistricts.Select(x => x.DistrictName)));
 			}
 
 			/// Создаем калькулятор расчета расстояний. Он сразу запрашивает уже имеющиеся расстояния из кеша
