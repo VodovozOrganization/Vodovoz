@@ -1176,8 +1176,6 @@
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelIncomeInvoiceView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.SubdivisionFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Core.Journal.RepresentationJournalView.cs" />
     <Compile Include="Infrastructure\Services\IRepresentationEntityPicker.cs" />
     <Compile Include="Infrastructure\Services\RepresentationEntityPickerGtk.cs" />
     <Compile Include="Infrastructure\Journal\IRepresentationJournalFactory.cs" />

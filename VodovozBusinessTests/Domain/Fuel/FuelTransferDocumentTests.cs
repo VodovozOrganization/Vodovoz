@@ -41,7 +41,6 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			// assert
 			AssertsAccumulator.Create
-				.Accumulate(() => Assert.That(document.FuelTransferOperation.FuelTransferDocument, Is.EqualTo(document)))
 				.Accumulate(() => Assert.That(document.FuelTransferOperation.ReceiveTime, Is.Null))
 				.Accumulate(() => Assert.That(document.FuelTransferOperation.SendTime, Is.EqualTo(document.SendTime)))
 				.Accumulate(() => Assert.That(document.FuelTransferOperation.SubdivisionFrom, Is.SameAs(document.CashSubdivisionFrom)))
@@ -209,7 +208,6 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var document = new FuelTransferDocument();
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
-			transferOperation.FuelTransferDocument = document;
 			transferOperation.ReceiveTime = null;
 			transferOperation.SendTime = sendTimeForReceive;
 			transferOperation.SubdivisionFrom = subdivisionFrom;
@@ -256,7 +254,6 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var document = new FuelTransferDocument();
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
-			transferOperation.FuelTransferDocument = document;
 			transferOperation.ReceiveTime = null;
 			transferOperation.SendTime = sendTimeForReceive;
 			transferOperation.SubdivisionFrom = subdivisionFrom;
@@ -303,7 +300,6 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var document = new FuelTransferDocument();
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
-			transferOperation.FuelTransferDocument = document;
 			transferOperation.ReceiveTime = null;
 			transferOperation.SendTime = sendTimeForReceive;
 			transferOperation.SubdivisionFrom = subdivisionFrom;
@@ -350,7 +346,6 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var document = new FuelTransferDocument();
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
-			transferOperation.FuelTransferDocument = document;
 			transferOperation.ReceiveTime = null;
 			transferOperation.SendTime = sendTimeForReceive;
 			transferOperation.SubdivisionFrom = subdivisionFrom;
@@ -397,7 +392,6 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var document = new FuelTransferDocument();
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
-			transferOperation.FuelTransferDocument = document;
 			transferOperation.ReceiveTime = null;
 			transferOperation.SendTime = sendTimeForReceive;
 			transferOperation.SubdivisionFrom = subdivisionFrom;
@@ -448,7 +442,6 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var document = new FuelTransferDocument();
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
-			transferOperation.FuelTransferDocument = document;
 			transferOperation.ReceiveTime = null;
 			transferOperation.SendTime = sendTimeForReceive;
 			transferOperation.SubdivisionFrom = subdivisionFrom;
@@ -496,7 +489,6 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var document = new FuelTransferDocument();
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
-			transferOperation.FuelTransferDocument = document;
 			transferOperation.ReceiveTime = null;
 			transferOperation.SendTime = sendTimeForReceive;
 			transferOperation.SubdivisionFrom = subdivisionFrom;
@@ -541,7 +533,6 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var document = new FuelTransferDocument();
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
-			transferOperation.FuelTransferDocument = document;
 			transferOperation.ReceiveTime = null;
 			transferOperation.SendTime = sendTimeForReceive;
 			transferOperation.SubdivisionFrom = subdivisionFrom;
@@ -585,7 +576,6 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var document = new FuelTransferDocument();
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
-			transferOperation.FuelTransferDocument = document;
 			transferOperation.ReceiveTime = null;
 			transferOperation.SendTime = sendTimeForReceive;
 			transferOperation.SubdivisionFrom = subdivisionFrom;
@@ -630,7 +620,6 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var document = new FuelTransferDocument();
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
-			transferOperation.FuelTransferDocument = document;
 			transferOperation.ReceiveTime = null;
 			transferOperation.SendTime = sendTimeForReceive;
 			transferOperation.SubdivisionFrom = subdivisionFrom;

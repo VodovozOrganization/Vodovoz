@@ -527,46 +527,6 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(res, Is.False);
 		}
 
-		static IEnumerable GetAdditionalDiscountByActionBottle()
-		{
-			yield return new object[] { 0, 0m };
-			yield return new object[] { 1, 10m };
-			yield return new object[] { 3, 10m };
-			yield return new object[] { 4, 20m };
-		}
-
-		[TestCaseSource(nameof(GetAdditionalDiscountByActionBottle))]
-		public void GetAdditionalDiscountByActionBottleTest(int cnt, decimal result)
-		{
-			// arrange
-			Nomenclature nomenclatureMock0 = Substitute.For<Nomenclature>();
-			nomenclatureMock0.IsWater19L.Returns(true);
-			OrderItem orderItemMock0 = Substitute.For<OrderItem>();
-			orderItemMock0.Nomenclature.Returns(nomenclatureMock0);
-			orderItemMock0.Count.Returns(2);
-
-			Nomenclature nomenclatureMock1 = Substitute.For<Nomenclature>();
-			nomenclatureMock1.IsWater19L.Returns(true);
-			OrderItem orderItemMock1 = Substitute.For<OrderItem>();
-			orderItemMock1.Nomenclature.Returns(nomenclatureMock1);
-			orderItemMock1.Count.Returns(1);
-
-			Order orderUnderTest = new Order {
-				OrderItems = new List<OrderItem> {
-					orderItemMock0,
-					orderItemMock1
-				},
-				TareFromClientByActionBottle = cnt
-			};
-			OrderRepository.GetFirstRealOrderForClientTestGap = (uow, c) => new Order();
-
-			// act
-			var res = orderUnderTest.GetAdditionalDiscountByActionBottle();
-
-			// assert
-			Assert.That(res, Is.EqualTo(result));
-		}
-
 		#endregion
 		
 		#region UpdateOperationTests
