@@ -638,6 +638,7 @@
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointCategoryMap.cs" />
     <Compile Include="Domain\Client\CounterpartyActivityKind.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyActivityKindMap.cs" />
+    <Compile Include="Services\IPersonProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
