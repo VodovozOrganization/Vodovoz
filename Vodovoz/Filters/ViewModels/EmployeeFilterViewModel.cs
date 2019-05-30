@@ -1,7 +1,7 @@
 ﻿using System;
 using NHibernate.Criterion;
-using Vodovoz.Domain.Employees;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Services;
 namespace Vodovoz.Filters.ViewModels
 {
@@ -14,7 +14,7 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		private EmployeeCategory? restrictCategory;
-		[PropertyChangedAlso(nameof(CategoryRestricted))]
+		[PropertyChangedAlso(nameof(IsCategoryNotRestricted))]
 		public virtual EmployeeCategory? RestrictCategory {
 			get => restrictCategory;
 			set {
@@ -24,7 +24,7 @@ namespace Vodovoz.Filters.ViewModels
 			}
 		}
 
-		public bool CategoryRestricted => RestrictCategory.HasValue;
+		public bool IsCategoryNotRestricted => !RestrictCategory.HasValue;
 
 		private bool showFired;
 		public virtual bool ShowFired {
@@ -38,13 +38,12 @@ namespace Vodovoz.Filters.ViewModels
 
 		public override ICriterion GetFilter()
 		{
-			ICriterion result = Restrictions.Where<Employee>(x => x.IsFired == ShowFired);
+			if(!ShowFired)
+				Criterions.Add(Restrictions.Where<Employee>(x => !x.IsFired));
+			if(Category.HasValue)
+				Criterions.Add(Restrictions.Where<Employee>(x => x.Category == Category.Value));
 
-			if(Category.HasValue) {
-				result = Restrictions.And(result, Restrictions.Where<Employee>(x => x.Category == Category.Value));
-			}
-
-			return result;
+			return base.GetFilter();
 		}
 	}
 }

@@ -153,7 +153,7 @@ namespace Vodovoz.Dialogs.Fuel
 					if(!Validate()) {
 						return;
 					}
-					Entity.Send(CurrentEmployee);
+					Entity.Send(CurrentEmployee, fuelRepository);
 					sendedNow = Entity.Status == FuelTransferDocumentStatuses.Sent;
 					OnPropertyChanged(() => CanSave);
 				},

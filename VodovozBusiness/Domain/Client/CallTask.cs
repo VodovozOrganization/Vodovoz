@@ -11,10 +11,8 @@ using Vodovoz.Repositories.HumanResources;
 namespace Vodovoz.Domain.Client
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "задачи",
-		Nominative = "задача",
-		Prepositional = "задаче",
-		PrepositionalPlural = "задачах"
+		NominativePlural = "Задачи по обзвону",
+		Nominative = "Задача по обзвону"
 	)]
 	[EntityPermission]
 	public class CallTask : PropertyChangedBase, ITask , IValidatableObject

@@ -2,6 +2,8 @@
 using Gamma.ColumnConfig;
 using Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Goods;
@@ -94,14 +96,17 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				x => x.DefaultSelectedCategory = NomenclatureCategory.water,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = OrmReferenceMode.MultiSelect,
-				TabName = "Номенклатуры на продажу",
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = JournalSelectMode.Multiple,
 				ShowFilter = true
 			};
+			SelectDialog.CustomTabName("Номенклатуры на продажу");
 			SelectDialog.ObjectSelected += (s, ea) => {
-				var nomenclaturesForSaleVMNode = ea.Selected.Select(o => o.VMNode as NomenclatureForSaleVMNode);
-				foreach(var nomenclatureForSaleVMNode in nomenclaturesForSaleVMNode) {
+				var selectedNodes = ea.GetNodes<NomenclatureForSaleVMNode>();
+				if(!selectedNodes.Any()) {
+					return;
+				}
+				foreach(var nomenclatureForSaleVMNode in selectedNodes) {
 					Nomenclature n = UoWGeneric.GetById<Nomenclature>(nomenclatureForSaleVMNode.Id);
 					Entity.ObservablePromotionalSetItems.Add(
 						new PromotionalSetItem {

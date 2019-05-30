@@ -7,6 +7,8 @@ using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain;
@@ -110,16 +112,19 @@ namespace Vodovoz
 
 		void AddEquipmentManually(PaidRentPackage paidRentPackage)
 		{
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new EquipmentsNonSerialForRentVM(AgreementUoW, paidRentPackage.EquipmentType));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Оборудование для аренды";
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new EquipmentsNonSerialForRentVM(AgreementUoW, paidRentPackage.EquipmentType));
+			SelectDialog.Mode = JournalSelectMode.Single;
+			SelectDialog.CustomTabName("Оборудование для аренды");
 			SelectDialog.ObjectSelected += EquipmentSelected;
 			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
 		}
 
-		void EquipmentSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void EquipmentSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			var selectedNode = (NomenclatureForRentVMNode)e.VMNode;
+			var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
+			if(selectedNode == null) {
+				return;
+			}
 
 			var rentPackage = RentPackageRepository.GetPaidRentPackage(AgreementUoW, selectedNode.Type);
 			if(rentPackage == null) {
@@ -153,17 +158,17 @@ namespace Vodovoz
 
 		protected void OnButtonAddByTypeClicked(object sender, EventArgs e)
 		{
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.EquipmentTypesForRentVM(MyOrmDialog.UoW));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.TabName = "Выберите тип оборудования";
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.EquipmentTypesForRentVM(MyOrmDialog.UoW));
+			SelectDialog.Mode = JournalSelectMode.Single;
+			SelectDialog.CustomTabName("Выберите тип оборудования");
 			SelectDialog.ObjectSelected += EquipmentByTypeSelected;
 
 			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
 		}
 
-		void EquipmentByTypeSelected (object sender, ReferenceRepresentationSelectedEventArgs args)
+		void EquipmentByTypeSelected (object sender, JournalObjectSelectedEventArgs args)
 		{
-			var equipmentType = AgreementUoW.GetById<EquipmentType>(args.ObjectId);
+			var equipmentType = AgreementUoW.GetById<EquipmentType>(args.GetSelectedIds().FirstOrDefault());
 
 			var rentPackage = Repository.RentPackageRepository.GetPaidRentPackage(AgreementUoW, equipmentType);
 			if(rentPackage == null) {

@@ -2,6 +2,8 @@
 using System.Linq;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
@@ -83,15 +85,18 @@ namespace Vodovoz.Dialogs
 				x => x.DefaultSelectedCategory = NomenclatureCategory.water,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = OrmReferenceMode.MultiSelect,
-				TabName = "Номенклатура на продажу",
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = JournalSelectMode.Multiple,
 				ShowFilter = true
 			};
+			SelectDialog.CustomTabName("Номенклатура на продажу");
 			SelectDialog.ObjectSelected += (s, ea) => {
-				var nomenclaturesForSaleVMNode = ea.Selected.Select(o => o.VMNode as NomenclatureForSaleVMNode);
-				foreach(var nomenclatureForSaleVMNode in nomenclaturesForSaleVMNode) {
-					Nomenclature n = UoWGeneric.GetById<Nomenclature>(nomenclatureForSaleVMNode.Id);
+				var selectedNodes = ea.GetNodes<NomenclatureForSaleVMNode>();
+				if(!selectedNodes.Any()) {
+					return;
+				}
+				foreach(var node in selectedNodes) {
+					Nomenclature n = UoWGeneric.GetById<Nomenclature>(node.Id);
 					if(n != null && !Entity.ObservableNomenclatures.Any(x => x == n))
 						Entity.ObservableNomenclatures.Add(n);
 				}

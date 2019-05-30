@@ -12,12 +12,8 @@ namespace Vodovoz.ViewModel
 	public class EmployeesVM : RepresentationModelEntityBase<Employee, EmployeesVMNode>
 	{
 		public EmployeeFilterViewModel Filter {
-			get {
-				return RepresentationFilter as EmployeeFilterViewModel;
-			}
-			set {
-				RepresentationFilter = value as IRepresentationFilter;
-			}
+			get => RepresentationFilter as EmployeeFilterViewModel;
+			set => RepresentationFilter = value as IRepresentationFilter;
 		}
 
 		#region IRepresentationModel implementation
@@ -29,9 +25,9 @@ namespace Vodovoz.ViewModel
 
 			var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
 
-			if(Filter != null) {
-				query.Where(Filter.GetFilter());
-			}
+			var filtration = Filter?.GetFilter();
+			if(filtration != null)
+				query.Where(filtration);
 
 			#region для ускорения редактора
 			var result = query
@@ -59,24 +55,15 @@ namespace Vodovoz.ViewModel
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 
-		public override IColumnsConfig ColumnsConfig {
-			get { return columnsConfig; }
-		}
+		public override IColumnsConfig ColumnsConfig => columnsConfig;
 
-		public override bool PopupMenuExist {
-			get {
-				return false;
-			}
-		}
+		public override bool PopupMenuExist => false;
 
 		#endregion
 
 		#region implemented abstract members of RepresentationModelBase
 
-		protected override bool NeedUpdateFunc(Employee updatedSubject)
-		{
-			return true;
-		}
+		protected override bool NeedUpdateFunc(Employee updatedSubject) => true;
 
 		#endregion
 
@@ -102,7 +89,6 @@ namespace Vodovoz.ViewModel
 			CreateRepresentationFilter = () => new EmployeeFilterViewModel(ServicesConfig.CommonServices) { ShowFired = false };
 			this.UoW = uow;
 		}
-
 	}
 
 	public class EmployeesVMNode : INodeWithEntryFastSelect
@@ -117,7 +103,7 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		[SearchHighlight]
-		public string FullName { get { return String.Format("{0} {1} {2}", EmpLastName, EmpFirstName, EmpMiddleName); } }
+		public string FullName => String.Format("{0} {1} {2}", EmpLastName, EmpFirstName, EmpMiddleName);
 
 		public EmployeeCategory EmpCatEnum { get; set; }
 

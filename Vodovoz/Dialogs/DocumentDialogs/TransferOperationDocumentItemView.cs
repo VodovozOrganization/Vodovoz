@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -83,17 +86,20 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			var filter = new StockBalanceFilter(UnitOfWorkFactory.CreateWithoutRoot());
 		//	filter.RestrictWarehouse = DocumentUoW.Root.FromWarehouse;
 
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.StockBalanceVM(filter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.None;
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new StockBalanceVM(filter), Buttons.None);
+			SelectDialog.Mode = JournalSelectMode.Single;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
 
 			mytab.TabParent.AddSlaveTab(mytab, SelectDialog);
 		}
 
-		void NomenclatureSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void NomenclatureSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			var nomenctature = DocumentUoW.GetById<Nomenclature>(e.ObjectId);
+			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			if(selectedId == 0) {
+				return;
+			}
+			var nomenctature = DocumentUoW.GetById<Nomenclature>(selectedId);
 		//	DocumentUoW.Root.AddItem(nomenctature, 0, (e.VMNode as ViewModel.StockBalanceVMNode).Amount);
 		}
 	}

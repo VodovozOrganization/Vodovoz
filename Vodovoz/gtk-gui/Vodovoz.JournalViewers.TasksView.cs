@@ -20,6 +20,8 @@ namespace Vodovoz.JournalViewers
 
 		private global::Gtk.Button buttonRefresh;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonAutoUpdate;
+
 		private global::Gtk.HSeparator hseparator1;
 
 		private global::Gtk.HBox hboxEditSelected;
@@ -147,19 +149,33 @@ namespace Vodovoz.JournalViewers
 			w10.Position = 6;
 			w10.Expand = false;
 			w10.Fill = false;
-			this.vboxJournal.Add(this.hbxDlgControls);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.hbxDlgControls]));
-			w11.Position = 0;
+			// Container child hbxDlgControls.Gtk.Box+BoxChild
+			this.ycheckbuttonAutoUpdate = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonAutoUpdate.CanFocus = true;
+			this.ycheckbuttonAutoUpdate.Name = "ycheckbuttonAutoUpdate";
+			this.ycheckbuttonAutoUpdate.Label = global::Mono.Unix.Catalog.GetString("Автообновление");
+			this.ycheckbuttonAutoUpdate.Active = true;
+			this.ycheckbuttonAutoUpdate.DrawIndicator = true;
+			this.ycheckbuttonAutoUpdate.UseUnderline = true;
+			this.hbxDlgControls.Add(this.ycheckbuttonAutoUpdate);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbxDlgControls[this.ycheckbuttonAutoUpdate]));
+			w11.PackType = ((global::Gtk.PackType)(1));
+			w11.Position = 7;
 			w11.Expand = false;
 			w11.Fill = false;
+			this.vboxJournal.Add(this.hbxDlgControls);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.hbxDlgControls]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vboxJournal.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
 			this.vboxJournal.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.hseparator1]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.hseparator1]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child vboxJournal.Gtk.Box+BoxChild
 			this.hboxEditSelected = new global::Gtk.HBox();
 			this.hboxEditSelected.Name = "hboxEditSelected";
@@ -175,24 +191,24 @@ namespace Vodovoz.JournalViewers
 			this.buttonChandgeEployee.UseUnderline = true;
 			this.buttonChandgeEployee.Label = global::Mono.Unix.Catalog.GetString("Ответственный");
 			this.hbox6.Add(this.buttonChandgeEployee);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonChandgeEployee]));
-			w13.Position = 0;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonChandgeEployee]));
+			w14.Position = 0;
+			w14.Expand = false;
+			w14.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.entryreferencevmEmployeeFilter = new global::QSOrmProject.EntryReferenceVM();
 			this.entryreferencevmEmployeeFilter.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferencevmEmployeeFilter.Name = "entryreferencevmEmployeeFilter";
 			this.hbox6.Add(this.entryreferencevmEmployeeFilter);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.entryreferencevmEmployeeFilter]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
-			this.hboxEditSelected.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxEditSelected[this.hbox6]));
-			w15.Position = 0;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.entryreferencevmEmployeeFilter]));
+			w15.Position = 1;
 			w15.Expand = false;
 			w15.Fill = false;
+			this.hboxEditSelected.Add(this.hbox6);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxEditSelected[this.hbox6]));
+			w16.Position = 0;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child hboxEditSelected.Gtk.Box+BoxChild
 			this.taskStatusComboBox = new global::Gamma.Widgets.yEnumComboBox();
 			this.taskStatusComboBox.Name = "taskStatusComboBox";
@@ -201,24 +217,24 @@ namespace Vodovoz.JournalViewers
 			this.taskStatusComboBox.UseShortTitle = false;
 			this.taskStatusComboBox.DefaultFirst = false;
 			this.hboxEditSelected.Add(this.taskStatusComboBox);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxEditSelected[this.taskStatusComboBox]));
-			w16.Position = 1;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxEditSelected[this.taskStatusComboBox]));
+			w17.Position = 1;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child hboxEditSelected.Gtk.Box+BoxChild
 			this.buttonCompleteSelected = new global::Gtk.Button();
 			this.buttonCompleteSelected.CanFocus = true;
 			this.buttonCompleteSelected.Name = "buttonCompleteSelected";
 			this.buttonCompleteSelected.UseUnderline = true;
 			this.buttonCompleteSelected.Label = global::Mono.Unix.Catalog.GetString("Задачи выполнены");
-			global::Gtk.Image w17 = new global::Gtk.Image();
-			w17.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-ok", global::Gtk.IconSize.Menu);
-			this.buttonCompleteSelected.Image = w17;
+			global::Gtk.Image w18 = new global::Gtk.Image();
+			w18.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-ok", global::Gtk.IconSize.Menu);
+			this.buttonCompleteSelected.Image = w18;
 			this.hboxEditSelected.Add(this.buttonCompleteSelected);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxEditSelected[this.buttonCompleteSelected]));
-			w18.Position = 2;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxEditSelected[this.buttonCompleteSelected]));
+			w19.Position = 2;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child hboxEditSelected.Gtk.Box+BoxChild
 			this.datepickerDeadlineChange = new global::QSWidgetLib.DatePicker();
 			this.datepickerDeadlineChange.Events = ((global::Gdk.EventMask)(256));
@@ -228,32 +244,32 @@ namespace Vodovoz.JournalViewers
 			this.datepickerDeadlineChange.IsEditable = true;
 			this.datepickerDeadlineChange.AutoSeparation = false;
 			this.hboxEditSelected.Add(this.datepickerDeadlineChange);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxEditSelected[this.datepickerDeadlineChange]));
-			w19.Position = 3;
-			w19.Expand = false;
-			w19.Fill = false;
-			this.vboxJournal.Add(this.hboxEditSelected);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.hboxEditSelected]));
-			w20.Position = 2;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hboxEditSelected[this.datepickerDeadlineChange]));
+			w20.Position = 3;
 			w20.Expand = false;
 			w20.Fill = false;
+			this.vboxJournal.Add(this.hboxEditSelected);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.hboxEditSelected]));
+			w21.Position = 2;
+			w21.Expand = false;
+			w21.Fill = false;
 			// Container child vboxJournal.Gtk.Box+BoxChild
 			this.calltaskfilterview = new global::Vodovoz.JournalFilters.QueryFilterViews.CallTaskFilterView();
 			this.calltaskfilterview.Events = ((global::Gdk.EventMask)(256));
 			this.calltaskfilterview.Name = "calltaskfilterview";
 			this.vboxJournal.Add(this.calltaskfilterview);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.calltaskfilterview]));
-			w21.Position = 3;
-			w21.Expand = false;
-			w21.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.calltaskfilterview]));
+			w22.Position = 3;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child vboxJournal.Gtk.Box+BoxChild
 			this.hseparator2 = new global::Gtk.HSeparator();
 			this.hseparator2.Name = "hseparator2";
 			this.vboxJournal.Add(this.hseparator2);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.hseparator2]));
-			w22.Position = 4;
-			w22.Expand = false;
-			w22.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.hseparator2]));
+			w23.Position = 4;
+			w23.Expand = false;
+			w23.Fill = false;
 			// Container child vboxJournal.Gtk.Box+BoxChild
 			this.vbox2 = new global::Gtk.VBox();
 			this.vbox2.Name = "vbox2";
@@ -267,13 +283,13 @@ namespace Vodovoz.JournalViewers
 			this.searchentity.Events = ((global::Gdk.EventMask)(256));
 			this.searchentity.Name = "searchentity";
 			this.hbox7.Add(this.searchentity);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.searchentity]));
-			w23.Position = 0;
-			this.vbox2.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.searchentity]));
 			w24.Position = 0;
-			w24.Expand = false;
-			w24.Fill = false;
+			this.vbox2.Add(this.hbox7);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
+			w25.Position = 0;
+			w25.Expand = false;
+			w25.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -284,19 +300,19 @@ namespace Vodovoz.JournalViewers
 			this.representationtreeviewTask.Name = "representationtreeviewTask";
 			this.GtkScrolledWindow.Add(this.representationtreeviewTask);
 			this.vbox2.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
-			w26.Position = 1;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
+			w27.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hboxStatistics = new global::Gtk.HBox();
 			this.hboxStatistics.Name = "hboxStatistics";
 			this.hboxStatistics.Spacing = 6;
 			this.vbox2.Add(this.hboxStatistics);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxStatistics]));
-			w27.Position = 2;
-			w27.Expand = false;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxStatistics]));
+			w28.Position = 2;
+			w28.Expand = false;
 			this.vboxJournal.Add(this.vbox2);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.vbox2]));
-			w28.Position = 5;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.vbox2]));
+			w29.Position = 5;
 			this.Add(this.vboxJournal);
 			if ((this.Child != null))
 			{
@@ -309,6 +325,7 @@ namespace Vodovoz.JournalViewers
 			this.buttonAdd.Clicked += new global::System.EventHandler(this.OnAddTaskButtonClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler(this.OnButtonEditClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
+			this.ycheckbuttonAutoUpdate.Toggled += new global::System.EventHandler(this.OnYcheckbuttonAutoUpdateToggled);
 			this.buttonRefresh.Clicked += new global::System.EventHandler(this.OnButtonRefreshClicked);
 			this.radiobuttonShowFilter.Toggled += new global::System.EventHandler(this.OnRadiobuttonShowFilterToggled);
 			this.radiobuttonShowFilter.Clicked += new global::System.EventHandler(this.OnRadiobuttonShowFilterClicked);

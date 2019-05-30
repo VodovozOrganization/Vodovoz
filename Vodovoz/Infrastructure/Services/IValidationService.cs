@@ -6,6 +6,6 @@ namespace Vodovoz.Infrastructure.Services
 {
 	public interface IValidationService
 	{
-		IValidator GetValidator(IValidatableObject validatableObject, IDictionary<object, object> contextItems = null);
+		IValidator GetValidator(IValidatableObject validatableObject, ValidationContext validationContext = null);
 	}
 }

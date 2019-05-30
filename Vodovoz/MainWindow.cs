@@ -303,8 +303,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionEmploeyActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<EmployeesVM>(),
-			() => new ReferenceRepresentation(new EmployeesVM())
+			PermissionControlledRepresentationJournal.GenerateHashName<EmployeesVM>(),
+			() => new PermissionControlledRepresentationJournal(new EmployeesVM())
 		);
 	}
 
@@ -361,9 +361,10 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
-		var refWin = new ReferenceRepresentation(new CounterpartyVM()) {
-			ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
-		};
+		var button = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"] 
+			? Buttons.All 
+			: (Buttons.Add | Buttons.Edit);
+		var refWin = new PermissionControlledRepresentationJournal(new CounterpartyVM(), button);
 		tdiMain.AddTab(refWin);
 	}
 
@@ -585,13 +586,13 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		ReferenceButtonMode mode = ReferenceButtonMode.CanEdit;
+		Buttons mode = Buttons.Edit;
 		if(UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"])
-			mode |= ReferenceButtonMode.CanDelete;
+			mode |= Buttons.Delete;
 
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<DeliveryPointsVM>(),
-			() => new ReferenceRepresentation(new DeliveryPointsVM()).Buttons(mode)
+			PermissionControlledRepresentationJournal.GenerateHashName<DeliveryPointsVM>(),
+			() => new PermissionControlledRepresentationJournal(new DeliveryPointsVM(), mode)
 		);
 	}
 
@@ -1066,8 +1067,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionTraineeActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<TraineeVM>(),
-			() => new ReferenceRepresentation(new TraineeVM())
+			PermissionControlledRepresentationJournal.GenerateHashName<TraineeVM>(),
+			() => new PermissionControlledRepresentationJournal(new TraineeVM())
 		);
 	}
 
@@ -1264,6 +1265,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ExtraBottleReport>(),
 			() => new QSReport.ReportViewDlg(new ExtraBottleReport())
+		);
+	}
+
+	protected void OnActionFirstSecondReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
+			() => new QSReport.ReportViewDlg(new FirstSecondClientReport())
 		);
 	}
 }

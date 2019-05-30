@@ -7,6 +7,8 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
@@ -135,18 +137,22 @@ namespace Vodovoz
 				x => x.DefaultSelectedCategory = NomenclatureCategory.deposit,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = OrmReferenceMode.Select,
-				TabName = "Номенклатура на продажу",
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = JournalSelectMode.Single,
 				ShowFilter = true
 			};
+			SelectDialog.CustomTabName("Номенклатура на продажу");
 			SelectDialog.ObjectSelected += NomenclatureSelected;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
-		private void NomenclatureSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		private void NomenclatureSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			Nomenclature nomenclature = UoW.Session.Get<Nomenclature>(e.ObjectId);
+			var selectedIds = e.GetSelectedIds();
+			if(!selectedIds.Any()) {
+				return;
+			}
+			Nomenclature nomenclature = UoW.Session.Get<Nomenclature>(selectedIds);
 			CounterpartyContract contract = routeListItem.Order.Contract;
 			WaterSalesAgreement wsa = null;
 			if(routeListItem.Order.IsLoadedFrom1C || nomenclature == null || contract == null) {
