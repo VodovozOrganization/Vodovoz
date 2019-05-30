@@ -1273,4 +1273,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new ExtraBottleReport())
 		);
 	}
+
+	protected void OnActionFirstSecondReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
+			() => new QSReport.ReportViewDlg(new FirstSecondClientReport())
+		);
+	}
 }

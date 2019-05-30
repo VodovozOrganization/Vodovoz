@@ -1196,6 +1196,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ClientsByDeliveryPointCategoryAndActivityKindsReport.cs" />
     <Compile Include="ReportsParameters\Bottles\ExtraBottleReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ExtraBottleReport.cs" />
+    <Compile Include="ReportsParameters\Bottles\FirstSecondClientReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.FirstSecondClientReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1794,6 +1796,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bottles\ExtraBottlesReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Bottles\FirstSecondClients.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
