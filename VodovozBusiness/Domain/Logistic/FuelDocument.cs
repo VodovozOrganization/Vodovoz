@@ -11,6 +11,7 @@ using NLog;
 using Vodovoz.Tools;
 using Vodovoz.Repository.Cash;
 using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -149,14 +150,22 @@ namespace Vodovoz.Domain.Logistic
 		public FuelDocument()
 		{ }
 
-		public virtual void CreateOperations()
+		public virtual void CreateOperations(IFuelRepository fuelRepository)
 		{
+			if(fuelRepository == null) {
+				throw new ArgumentNullException(nameof(fuelRepository));
+			}
+
 			ExpenseCategory expenseCategory = CategoryRepository.FuelDocumentExpenseCategory(UoW);
 			if(expenseCategory == null) {
 				throw new InvalidProgramException("Не возможно найти подходящую статью расхода, возможно в параметрах базы не настроена статья расхода по умолчанию.");
 			}
 
-			string validationMessage = this.RaiseValidationAndGetResult();
+			ValidationContext context = new ValidationContext(this, new Dictionary<object, object>() {
+				{"Reason", nameof(CreateOperations)}
+			});
+			context.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+			string validationMessage = this.RaiseValidationAndGetResult(context);
 			if(!string.IsNullOrWhiteSpace(validationMessage)) {
 				throw new ValidationException(validationMessage);
 			}
@@ -245,15 +254,30 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(RouteList.ClosingSubdivision == null) {
+				yield return new ValidationResult("Касса в маршрутном листе должна быть заполнена");
+			}
+
+			if(Fuel == null) {
+				yield return new ValidationResult("Топливо должно быть заполнено");
+			}
+
 			if(FuelCoupons <= 0 && PayedLiters <= 0) {
 				yield return new ValidationResult("Не указано сколько топлива выдается.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.PayedLiters) });
 			}
-			if(RouteList.ClosingSubdivision != null && Fuel != null) {
-				FuelRepository fuelRepository = new FuelRepository();
-				decimal balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, RouteList.ClosingSubdivision, Fuel);
-				if(FuelCoupons > balance && FuelCoupons > 0) {
-					yield return new ValidationResult("На балансе недостаточно топлива для выдачи");
+
+
+			if(validationContext.Items.ContainsKey("Reason") && (validationContext.Items["Reason"] as string) == nameof(CreateOperations)) {
+				if(!(validationContext.GetService(typeof(IFuelRepository)) is IFuelRepository fuelRepository)) {
+					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IFuelRepository)}");
+				}
+
+				if(RouteList.ClosingSubdivision != null && Fuel != null) {
+					decimal balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, RouteList.ClosingSubdivision, Fuel);
+					if(FuelCoupons > balance && FuelCoupons > 0) {
+						yield return new ValidationResult("На балансе недостаточно топлива для выдачи");
+					}
 				}
 			}
 		}

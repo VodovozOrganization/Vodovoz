@@ -126,14 +126,17 @@ namespace Vodovoz.Domain.Fuel
 			return sum;
 		}
 
-		private IEnumerable<ValidationResult> ValidateFuelBalance()
+		private IEnumerable<ValidationResult> ValidateFuelBalance(IFuelRepository fuelRepository)
 		{
+			if(fuelRepository == null) {
+				throw new ArgumentNullException(nameof(fuelRepository));
+			}
+
 			if(UoW.IsNew) {
 				yield break;
 			}
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				//FIXME Убрать зависимость. Придумать как использовать такие зависимости в доменной модели
-				FuelRepository fuelRepository = new FuelRepository();
 				var balance = fuelRepository.GetAllFuelsBalanceForSubdivision(uow, Subdivision);
 				FuelIncomeInvoice originalInvoice = uow.GetById<FuelIncomeInvoice>(Id);
 				var originalBalance = fuelRepository.GetAllFuelsBalanceForSubdivision(UoW, originalInvoice.Subdivision);
@@ -196,7 +199,10 @@ namespace Vodovoz.Domain.Fuel
 				yield return new ValidationResult("В документе можно добавлять только топливо");
 			}
 
-			foreach(var result in ValidateFuelBalance()) {
+			if(!(validationContext.GetService(typeof(IFuelRepository)) is IFuelRepository fuelRepository)) {
+				throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IFuelRepository)}");
+			}
+			foreach(var result in ValidateFuelBalance(fuelRepository)) {
 				yield return result;
 			}
 		}

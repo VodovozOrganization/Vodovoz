@@ -172,20 +172,29 @@ namespace Vodovoz.Domain.Fuel
 			if(TransferedLiters <= 0) {
 				yield return new ValidationResult("Объем перемещаемого топлива должен быть больше нуля");
 			}
-			if(cashSubdivisionFrom != null && FuelType != null) {
-				//FIXME Убрать зависимость. Придумать как использовать такие зависимости в доменной модели
-				FuelRepository fuelRepository = new FuelRepository();
-				decimal balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, CashSubdivisionFrom, FuelType);
-				if(transferedLiters > balance) {
-					yield return new ValidationResult($"На балансе недостаточно топлива ({FuelType.Name}) для перемещения");
+
+			if(validationContext.Items.ContainsKey("ForStatus") && (FuelTransferDocumentStatuses)validationContext.Items["ForStatus"] == FuelTransferDocumentStatuses.Sent) {
+				if(!(validationContext.GetService(typeof(IFuelRepository)) is IFuelRepository fuelRepository)) {
+					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IFuelRepository)}");
+				}
+
+				if(cashSubdivisionFrom != null && FuelType != null && Status == FuelTransferDocumentStatuses.Sent) {
+					decimal balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, CashSubdivisionFrom, FuelType);
+					if(transferedLiters > balance) {
+						yield return new ValidationResult($"На балансе недостаточно топлива ({FuelType.Name}) для перемещения");
+					}
 				}
 			}
 		}
 
-		public virtual void Send(Employee cashier)
+		public virtual void Send(Employee cashier, IFuelRepository fuelRepository)
 		{
 			if(cashier == null) {
-				throw new ArgumentNullException(nameof(cashier), $"Не указано кто является кассиром");
+				throw new ArgumentNullException(nameof(cashier));
+			}
+
+			if(fuelRepository == null) {
+				throw new ArgumentNullException(nameof(fuelRepository));
 			}
 
 			if(Status != FuelTransferDocumentStatuses.New) {
@@ -196,7 +205,11 @@ namespace Vodovoz.Domain.Fuel
 				throw new InvalidOperationException($"Топливо уже было отправлено ранее в этом же документе, изменить данные о факте отправки топлива невозможно");
 			}
 
-			string exceptionMessage = this.RaiseValidationAndGetResult();
+			ValidationContext context = new ValidationContext(this, new Dictionary<object, object>() {
+				{"ForStatus", FuelTransferDocumentStatuses.Sent}
+			});
+			context.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+			string exceptionMessage = this.RaiseValidationAndGetResult(context);
 			if(!string.IsNullOrWhiteSpace(exceptionMessage)) {
 				throw new ValidationException(exceptionMessage);
 			}

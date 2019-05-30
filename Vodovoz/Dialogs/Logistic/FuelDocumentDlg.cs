@@ -19,6 +19,7 @@ namespace Vodovoz
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
 		public IUnitOfWork UoW { get; set; }
+		private FuelRepository fuelRepository;
 
 		public FuelDocument FuelDocument { get; set; }
 
@@ -106,6 +107,8 @@ namespace Vodovoz
 		{
 			TabName = "Выдача топлива";
 
+			fuelRepository = new FuelRepository();
+
 			ydatepicker.Binding.AddBinding(FuelDocument, e => e.Date, w => w.Date).InitializeFromSource();
 
 			var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
@@ -135,7 +138,6 @@ namespace Vodovoz
 
 		private void UpdateFuelAdjustment()
 		{
-			FuelRepository fuelRepository = new FuelRepository();
 			decimal balance = 0;
 			if(FuelDocument.RouteList.ClosingSubdivision != null && FuelDocument.Fuel != null) {
 				balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, FuelDocument.RouteList.ClosingSubdivision, FuelDocument.Fuel);
@@ -227,7 +229,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			FuelDocument.CreateOperations();
+			FuelDocument.CreateOperations(fuelRepository);
 
 			logger.Info ("Сохраняем топливный документ...");
 

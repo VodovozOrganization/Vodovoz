@@ -5,6 +5,9 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Employees;
 using Vodovoz;
 using Vodovoz.Domain.Logistic;
+using StaticFuelRepository = Vodovoz.Repositories.FuelRepository;
+using QS.DomainModel.UoW;
+using Vodovoz.EntityRepositories.Fuel;
 
 namespace VodovozBusinessTests.Domain.Fuel
 {
@@ -26,7 +29,14 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
+			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
+
+			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
+			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionFrom, fuelTypeMock).Returns(50);
+
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 			document.Author = Substitute.For<Employee>();
 			document.Driver = Substitute.For<Employee>();
 			document.Car = Substitute.For<Car>();
@@ -37,7 +47,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			document.TransferedLiters = transferedLitersForSend;
 
 			// act
-			document.Send(cashier);
+			document.Send(cashier, fuelRepositoryMock);
 
 			// assert
 			AssertsAccumulator.Create
@@ -59,7 +69,14 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
+			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
+
+			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
+			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionFrom, fuelTypeMock).Returns(50);
+
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 			document.Author = Substitute.For<Employee>();
 			document.Driver = Substitute.For<Employee>();
 			document.Car = Substitute.For<Car>();
@@ -71,7 +88,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var parameterName = document.GetType().GetMethod(nameof(document.Send)).GetParameters()[0].Name;
 
 			// act
-			var exception = Assert.Throws<ArgumentNullException>(() => document.Send(null));
+			var exception = Assert.Throws<ArgumentNullException>(() => document.Send(null, fuelRepositoryMock));
 
 			// assert
 			Assert.That(exception.ParamName, Is.EqualTo(parameterName));
@@ -88,7 +105,14 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
+			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
+
+			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
+			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionFrom, fuelTypeMock).Returns(50);
+
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 			document.Author = Substitute.For<Employee>();
 			document.Driver = Substitute.For<Employee>();
 			document.Car = Substitute.For<Car>();
@@ -99,7 +123,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			document.Status = FuelTransferDocumentStatuses.Sent;
 
 			// act, assert
-			Assert.Throws<InvalidOperationException>(() => document.Send(cashier));
+			Assert.Throws<InvalidOperationException>(() => document.Send(cashier, fuelRepositoryMock));
 		}
 
 		[Test(Description = "Если операция перемещения топлива уже была создана, то должно выбрасыватся исключение InvalidOperationException")]
@@ -113,7 +137,14 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
+			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
+
+			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
+			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionFrom, fuelTypeMock).Returns(50);
+
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 			document.Author = Substitute.For<Employee>();
 			document.Driver = Substitute.For<Employee>();
 			document.Car = Substitute.For<Car>();
@@ -125,7 +156,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			document.FuelTransferOperation = Substitute.For<FuelTransferOperation>();
 
 			// act, assert
-			Assert.Throws<InvalidOperationException>(() => document.Send(cashier));
+			Assert.Throws<InvalidOperationException>(() => document.Send(cashier, fuelRepositoryMock));
 		}
 
 		[Test(Description = "Создание операции списания топлива при отправке документа перемещения")]
@@ -139,7 +170,14 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
+			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
+
+			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
+			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionFrom, fuelTypeMock).Returns(50);
+
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 			document.Author = Substitute.For<Employee>();
 			document.Driver = Substitute.For<Employee>();
 			document.Car = Substitute.For<Car>();
@@ -150,7 +188,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			document.TransferedLiters = transferedLitersForSend;
 
 			// act
-			document.Send(cashier);
+			document.Send(cashier, fuelRepositoryMock);
 
 			// assert
 			AssertsAccumulator.Create
@@ -172,7 +210,14 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
+			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
+			IFuelRepository fuelRepositoryMock = Substitute.For<IFuelRepository>();
+
+			fuelRepositoryMock.GetFuelBalanceForSubdivision(uowMock, subdivisionFrom, fuelTypeMock).Returns(50);
+
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 			document.Author = Substitute.For<Employee>();
 			document.Driver = Substitute.For<Employee>();
 			document.Car = Substitute.For<Car>();
@@ -184,7 +229,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			document.FuelExpenseOperation = Substitute.For<FuelExpenseOperation>();
 
 			// act, assert
-			Assert.Throws<InvalidOperationException>(() => document.Send(cashier));
+			Assert.Throws<InvalidOperationException>(() => document.Send(cashier, fuelRepositoryMock));
 		}
 
 		#endregion SendTests
@@ -205,7 +250,9 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
 			transferOperation.ReceiveTime = null;
@@ -251,7 +298,9 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
 			transferOperation.ReceiveTime = null;
@@ -297,7 +346,9 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
 			transferOperation.ReceiveTime = null;
@@ -343,7 +394,9 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
 			transferOperation.ReceiveTime = null;
@@ -389,7 +442,9 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
 			transferOperation.ReceiveTime = null;
@@ -439,7 +494,9 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
 			transferOperation.ReceiveTime = null;
@@ -486,7 +543,9 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
 			transferOperation.ReceiveTime = null;
@@ -530,7 +589,9 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
 			transferOperation.ReceiveTime = null;
@@ -573,7 +634,9 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
 			transferOperation.ReceiveTime = null;
@@ -617,7 +680,9 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var subdivisionTo = Substitute.For<Subdivision>();
 			subdivisionTo.Id.Returns(2);
 
+			FuelType fuelTypeMock = Substitute.For<FuelType>();
 			var document = new FuelTransferDocument();
+			document.FuelType = fuelTypeMock;
 
 			var transferOperation = Substitute.For<FuelTransferOperation>();
 			transferOperation.ReceiveTime = null;
