@@ -346,7 +346,13 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
-			#endregion
+			OrmMain.AddObjectDescription<ScheduleRestrictedDistrict>()
+				   .Dialog<ScheduleRestrictedDistrictDlg>()
+				   .DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.DistrictName)
+				   .End();
+#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 			OrmMain.ClassMappingList.AddRange(QSContactsMain.GetModuleMaping());

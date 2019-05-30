@@ -101,7 +101,7 @@
       </source>
     </icon-set>
   </icon-factory>
-  <widget class="Gtk.Window" id="MainWindow" design-size="1007 535">
+  <widget class="Gtk.Window" id="MainWindow" design-size="1008 535">
     <action-group name="Default">
       <action id="ActionBaseMenu">
         <property name="Type">Action</property>
@@ -243,11 +243,11 @@
         <property name="Label" translatable="yes">Наша организация</property>
         <property name="ShortLabel" translatable="yes">Наша организация</property>
       </action>
-      <action id="ActionEmploey">
+      <action id="ActionEmployee">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Сотрудники</property>
         <property name="ShortLabel" translatable="yes">Сотрудники</property>
-        <signal name="Activated" handler="OnActionEmploeyActivated" />
+        <signal name="Activated" handler="OnActionEmployeeActivated" />
       </action>
       <action id="ActionNationality">
         <property name="Type">Action</property>
@@ -1216,7 +1216,7 @@
                       <node type="Menuitem" action="ActionOrg" />
                       <node type="Menuitem" action="Subdivisions" />
                       <node type="Separator" />
-                      <node type="Menuitem" action="ActionEmploey" />
+                      <node type="Menuitem" action="ActionEmployee" />
                       <node type="Menuitem" action="ActionTrainee" />
                       <node type="Menuitem" action="ActionNationality" />
                       <node type="Menuitem" action="Action52" />

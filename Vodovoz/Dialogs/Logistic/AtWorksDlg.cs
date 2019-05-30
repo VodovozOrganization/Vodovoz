@@ -275,6 +275,7 @@ namespace Vodovoz.Dialogs.Logistic
 				districtpriorityview1.Districts = selected[0].ObservableDistricts;
 				buttonOpenCar.Sensitive = selected[0].Car != null;
 			}
+			districtpriorityview1.Sensitive = ytreeviewAtWorkDrivers.Selection.CountSelectedRows() == 1;
 		}
 
 		protected void OnButtonEditDistrictsClicked(object sender, EventArgs e)
