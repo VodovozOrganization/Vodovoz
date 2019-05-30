@@ -4,11 +4,14 @@ using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
 using Vodovoz.Tools;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -336,18 +339,22 @@ namespace Vodovoz.ViewWidgets
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = OrmReferenceMode.Select,
-				TabName = "Оборудование к клиенту",
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = JournalSelectMode.Single,
 				ShowFilter = true
 			};
+			SelectDialog.CustomTabName("Оборудование к клиенту");
 			SelectDialog.ObjectSelected += NomenclatureToClient;
 			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
 		}
 
-		void NomenclatureToClient(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void NomenclatureToClient(object sender, JournalObjectSelectedEventArgs e)
 		{
-			AddNomenclatureToClient(UoW.Session.Get<Nomenclature>(e.ObjectId));
+			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			if(selectedId == 0) {
+				return;
+			}
+			AddNomenclatureToClient(UoW.Session.Get<Nomenclature>(selectedId));
 		}
 
 		void AddNomenclatureToClient(Nomenclature nomenclature)
@@ -368,18 +375,22 @@ namespace Vodovoz.ViewWidgets
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = OrmReferenceMode.Select,
-				TabName = "Оборудование от клиента",
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = JournalSelectMode.Single,
 				ShowFilter = true
 			};
+			SelectDialog.CustomTabName("Оборудование от клиента");
 			SelectDialog.ObjectSelected += NomenclatureFromClient;
 			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
 		}
 
-		void NomenclatureFromClient(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void NomenclatureFromClient(object sender, JournalObjectSelectedEventArgs e)
 		{
-			AddNomenclatureFromClient(UoW.Session.Get<Nomenclature>(e.ObjectId));
+			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			if(selectedId == 0) {
+				return;
+			}
+			AddNomenclatureFromClient(UoW.Session.Get<Nomenclature>(selectedId));
 		}
 
 		void AddNomenclatureFromClient(Nomenclature nomenclature)

@@ -57,8 +57,10 @@ namespace Vodovoz.Core.Journal
 				RepresentationModel.SearchStrings = null;
 				RepresentationModel.ItemsListUpdated += RepresentationModel_ItemsListUpdated;
 				tableview.RepresentationModel = RepresentationModel;
-				if(RepresentationModel.JournalFilter != null)
-					SetFilter(RepresentationModel.JournalFilter as Widget);
+				if(RepresentationModel.JournalFilter != null) {
+					Widget resolvedFilterWidget = DialogHelper.FilterWidgetResolver.Resolve(RepresentationModel.JournalFilter);
+					SetFilter(resolvedFilterWidget);
+				}
 				hboxSearch.Visible = RepresentationModel.SearchFieldsExist;
 			}
 		}

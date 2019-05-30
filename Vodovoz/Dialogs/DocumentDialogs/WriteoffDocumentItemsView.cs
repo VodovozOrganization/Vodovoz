@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
@@ -8,12 +9,14 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -94,18 +97,22 @@ namespace Vodovoz
 			var filter = new StockBalanceFilter (UnitOfWorkFactory.CreateWithoutRoot ());
 			filter.SetAndRefilterAtOnce(x => x.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse);
 
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM (filter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.None;
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal (new StockBalanceVM (filter), Buttons.None);
+			SelectDialog.Mode = JournalSelectMode.Single;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
 
 			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
 		}
 
-		void NomenclatureSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
+		void NomenclatureSelected (object sender, JournalObjectSelectedEventArgs e)
 		{
-			var nomenctature = DocumentUoW.GetById<Nomenclature> (e.ObjectId);
-			DocumentUoW.Root.AddItem(nomenctature, 0, (e.VMNode as ViewModel.StockBalanceVMNode).Amount);
+			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			var selectedNode = e.GetNodes<StockBalanceVMNode>().FirstOrDefault();
+			if(selectedId == 0 || selectedNode == null) {
+				return;
+			}
+			var nomenctature = DocumentUoW.GetById<Nomenclature> (selectedId);
+			DocumentUoW.Root.AddItem(nomenctature, 0, selectedNode.Amount);
 		}
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)

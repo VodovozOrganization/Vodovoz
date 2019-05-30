@@ -16,6 +16,7 @@ using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.ViewModel;
 using QS.Project.Repositories;
+using QS.Project.Dialogs.GtkUI;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -301,19 +302,23 @@ namespace Vodovoz.ViewWidgets
 				x => x.RestrictCounterparty = oldOrder.Client,
 				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
 			);
-			ReferenceRepresentation dlg = new ReferenceRepresentation(new OrdersVM(filter));
-			dlg.Mode = OrmReferenceMode.Select;
-			dlg.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit));
+			Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? Buttons.All : (Buttons.Add | Buttons.Edit);
+			PermissionControlledRepresentationJournal dlg = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons);
+			dlg.Mode = JournalSelectMode.Single;
 
 			MyTab.TabParent.AddTab(dlg, MyTab, false);
 
 			dlg.ObjectSelected += (s, ea) => {
-				if(oldOrder.Id == ea.ObjectId){
+				var selectedId = ea.GetSelectedIds().FirstOrDefault();
+				if(selectedId == 0) {
+					return;
+				}
+				if(oldOrder.Id == selectedId) {
 					MessageDialogWorks.RunErrorDialog("Перенесённый заказ не может совпадать с недовезённым!");
 					OnBtnChooseOrderClicked(sender, ea);
 					return;
 				}
-				newOrder = undelivery.NewOrder = UoW.GetById<Order>(ea.ObjectId);
+				newOrder = undelivery.NewOrder = UoW.GetById<Order>(selectedId);
 				SetLabelsAcordingToNewOrder();
 				undelivery.NewDeliverySchedule = newOrder.DeliverySchedule;
 			};

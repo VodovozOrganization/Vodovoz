@@ -21,6 +21,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModelBased;
 using Vodovoz.Filters.ViewModels;
+using QS.Project.Dialogs.GtkUI;
 
 namespace Vodovoz
 {
@@ -212,16 +213,16 @@ namespace Vodovoz
 
 		void ButtonLoadFromDP_Clicked(object sender, EventArgs e)
 		{
-			var deliveryPointSelectDlg = new ReferenceRepresentation(new ClientDeliveryPointsVM(UoW, Entity)) {
-				Mode = OrmReferenceMode.Select
+			var deliveryPointSelectDlg = new PermissionControlledRepresentationJournal(new ClientDeliveryPointsVM(UoW, Entity)) {
+				Mode = JournalSelectMode.Single
 			};
 			deliveryPointSelectDlg.ObjectSelected += DeliveryPointRep_ObjectSelected;
 			TabParent.AddSlaveTab(this, deliveryPointSelectDlg);
 		}
 
-		void DeliveryPointRep_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void DeliveryPointRep_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			if(e.VMNode is DeliveryPointVMNode node)
+			if(e.GetNodes<DeliveryPointVMNode>().FirstOrDefault() is DeliveryPointVMNode node)
 				yentrySpecialDeliveryAddress.Text = node.CompiledAddress;
 		}
 
@@ -236,11 +237,10 @@ namespace Vodovoz
 		{
 			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
 			filter.SetAndRefilterAtOnce(x => x.RestrictCounterparty = Entity);
-
-			ReferenceRepresentation OrdersDialog = new ReferenceRepresentation(new OrdersVM(filter)) {
-				Mode = OrmReferenceMode.Normal
+			Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? Buttons.All : (Buttons.Add | Buttons.Edit);
+			PermissionControlledRepresentationJournal OrdersDialog = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
+				Mode = JournalSelectMode.Single
 			};
-			OrdersDialog.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit));
 
 			TabParent.AddTab(OrdersDialog, this, false);
 		}

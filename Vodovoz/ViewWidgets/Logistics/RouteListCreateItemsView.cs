@@ -18,6 +18,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Domain.Sale;
 using Order = Vodovoz.Domain.Orders.Order;
+using QS.Project.Dialogs.GtkUI;
 
 namespace Vodovoz
 {
@@ -225,13 +226,16 @@ namespace Vodovoz
 			ViewModel.OrdersVM vm = new ViewModel.OrdersVM(filter) {
 				CanToggleVisibilityOfColumns = true
 			};
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(vm) {
-				Mode = OrmReferenceMode.MultiSelect,
-				ButtonMode = ReferenceButtonMode.None
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(vm, Buttons.None) {
+				Mode = JournalSelectMode.Multiple
 			};
 			SelectDialog.ObjectSelected += (s, ea) => {
-				foreach(var selected in ea.Selected) {
-					var order = RouteListUoW.GetById<Order>(selected.EntityId);
+				var selectedIds = ea.GetSelectedIds();
+				if(!selectedIds.Any()) {
+					return;
+				}
+				foreach(var selectedId in selectedIds) {
+					var order = RouteListUoW.GetById<Order>(selectedId);
 					RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};

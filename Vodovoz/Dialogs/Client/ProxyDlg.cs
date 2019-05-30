@@ -4,6 +4,8 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QSContacts;
 using QSOrmProject;
 using QSValidation;
@@ -80,16 +82,20 @@ namespace Vodovoz
 			return true;
 		}
 			
-		void Dlg_ObjectSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
+		void Dlg_ObjectSelected (object sender, JournalObjectSelectedEventArgs e)
 		{
+			var selectedIds = e.GetSelectedIds();
+			if(!selectedIds.Any()) {
+				return;
+			}
 			var points = UoW.GetById<DeliveryPoint>(e.GetSelectedIds()).ToList();
 			points.ForEach(Entity.AddDeliveryPoint);
 		}
 			
 		protected void OnButtonAddDeliveryPointsClicked (object sender, EventArgs e)
 		{
-			var dlg = new ReferenceRepresentation(new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Counterparty));
-			dlg.Mode = OrmReferenceMode.MultiSelect;
+			var dlg = new PermissionControlledRepresentationJournal(new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Counterparty));
+			dlg.Mode = JournalSelectMode.Multiple;
 			dlg.ObjectSelected += Dlg_ObjectSelected;
 			TabParent.AddSlaveTab (this, dlg);
 		}

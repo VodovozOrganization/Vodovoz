@@ -378,8 +378,7 @@ public partial class MainWindow : Window
 					x => x.RestrictOnlyService = false
 				);
 				SelfDeliveriesVM vm = new SelfDeliveriesVM(filterOrders);
-				return new ReferenceRepresentation(vm).CustomTabName("Журнал самовывозов")
-													  .Buttons(ReferenceButtonMode.None);
+				return new PermissionControlledRepresentationJournal(vm, Buttons.None).CustomTabName("Журнал самовывозов");
 			}
 		);
 	}
@@ -410,17 +409,16 @@ public partial class MainWindow : Window
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
 	{
+
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<FinesVM>(),
+			PermissionControlledRepresentationJournal.GenerateHashName<FinesVM>(),
 			() => {
 				FinesVM vm = new FinesVM();
 				vm.Filter.SetAndRefilterAtOnce(f => f.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
-				return new ReferenceRepresentation(vm).CustomTabName("Журнал штрафов")
-													  .Buttons(
-														  UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"]
-														  ? ReferenceButtonMode.CanAll
-														  : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
-														 );
+				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"]
+														  ? Buttons.All
+														  : (Buttons.Add | Buttons.Edit);
+				return new PermissionControlledRepresentationJournal(vm, buttons).CustomTabName("Журнал штрафов");
 			}
 		);
 	}
@@ -428,9 +426,13 @@ public partial class MainWindow : Window
 	void ActionPremiumJournal_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<PremiumVM>(),
-			() => new ReferenceRepresentation(new PremiumVM()).CustomTabName("Журнал премий")
-			.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
+			PermissionControlledRepresentationJournal.GenerateHashName<PremiumVM>(),
+			() => {
+				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"]
+														  ? Buttons.All
+														  : (Buttons.Add | Buttons.Edit);
+				return new PermissionControlledRepresentationJournal(new PremiumVM(), buttons).CustomTabName("Журнал премий");
+			}
 		);
 	}
 
@@ -493,15 +495,14 @@ public partial class MainWindow : Window
 	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<RouteListsVM>(),
+			PermissionControlledRepresentationJournal.GenerateHashName<RouteListsVM>(),
 			() => {
 				var vm = new RouteListsVM();
 				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
-				return new ReferenceRepresentation(vm).Buttons(
-					UserPermissionRepository.CurrentUserPresetPermissions["can_delete"]
-					? ReferenceButtonMode.CanAll
-					: (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
-				);
+				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"]
+					? Buttons.All
+					: (Buttons.Add | Buttons.Edit);
+				return new PermissionControlledRepresentationJournal(vm, buttons);
 			}
 		);
 	}
@@ -568,8 +569,12 @@ public partial class MainWindow : Window
 	void ActionClientBalance_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<ClientEquipmentBalanceVM>(),
-			() => new ReferenceRepresentation(new ClientEquipmentBalanceVM(), "Оборудование у клиентов")
+			PermissionControlledRepresentationJournal.GenerateHashName<ClientEquipmentBalanceVM>(),
+			() => {
+				var journal = new PermissionControlledRepresentationJournal(new ClientEquipmentBalanceVM());
+				journal.CustomTabName("Оборудование у клиентов");
+				return journal;
+			}
 		);
 	}
 
@@ -612,9 +617,13 @@ public partial class MainWindow : Window
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<OrdersVM>(),
-			() => new ReferenceRepresentation(new OrdersVM()).CustomTabName("Журнал заказов")
-			.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
+			PermissionControlledRepresentationJournal.GenerateHashName<OrdersVM>(),
+			() => {
+				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"]
+					? Buttons.All
+					: (Buttons.Add | Buttons.Edit);
+				return new PermissionControlledRepresentationJournal(new OrdersVM(), buttons).CustomTabName("Журнал заказов");
+			}
 		);
 	}
 
@@ -633,16 +642,16 @@ public partial class MainWindow : Window
 	void ActionResidueActivated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<ResidueVM>(),
-			() => new ReferenceRepresentation(new ResidueVM()).CustomTabName("Журнал остатков")
+			PermissionControlledRepresentationJournal.GenerateHashName<ResidueVM>(),
+			() => new PermissionControlledRepresentationJournal(new ResidueVM()).CustomTabName("Журнал остатков")
 		);
 	}
 
 	void ActionTransferOperationJournal_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<TransferOperationsVM>(),
-			() => new ReferenceRepresentation(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки").Buttons(ReferenceButtonMode.CanAll));
+			PermissionControlledRepresentationJournal.GenerateHashName<TransferOperationsVM>(),
+			() => new PermissionControlledRepresentationJournal(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки"));
 	}
 
 	void ActionDeliveryPrice_Activated(object sender, System.EventArgs e)

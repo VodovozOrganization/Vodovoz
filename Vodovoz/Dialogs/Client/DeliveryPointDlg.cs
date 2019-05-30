@@ -12,6 +12,8 @@ using NLog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
 using QS.Tdi.Gtk;
 using QSOrmProject;
@@ -429,16 +431,20 @@ namespace Vodovoz
 
 		protected void OnButtonAddResponsiblePersonClicked(object sender, EventArgs e)
 		{
-			var dlg = new ReferenceRepresentation(new ContactsVM(UoW, Entity.Counterparty)) {
-				Mode = OrmReferenceMode.MultiSelect
+			var dlg = new PermissionControlledRepresentationJournal(new ContactsVM(UoW, Entity.Counterparty)) {
+				Mode = JournalSelectMode.Multiple
 			};
 			dlg.ObjectSelected += Dlg_ObjectSelected;
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
-		void Dlg_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void Dlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			var contacts = UoW.GetById<Contact>(e.GetSelectedIds()).ToList();
+			var selectedIds = e.GetSelectedIds();
+			if(!selectedIds.Any()) {
+				return;
+			}
+			var contacts = UoW.GetById<Contact>(selectedIds).ToList();
 			contacts.ForEach(Entity.AddContact);
 		}
 

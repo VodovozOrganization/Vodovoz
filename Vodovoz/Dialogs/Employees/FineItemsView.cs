@@ -7,6 +7,8 @@ using Vodovoz.Domain.Employees;
 using QSProjectsLib;
 using Vodovoz.ViewModel;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs.GtkUI;
+using QS.Project.Dialogs;
 
 namespace Vodovoz
 {
@@ -81,15 +83,19 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var addEmployeeDlg = new ReferenceRepresentation(new EmployeesVM());
-			addEmployeeDlg.Mode = OrmReferenceMode.Select;
+			var addEmployeeDlg = new PermissionControlledRepresentationJournal(new EmployeesVM());
+			addEmployeeDlg.Mode = JournalSelectMode.Single;
 			addEmployeeDlg.ObjectSelected += AddEmployeeDlg_ObjectSelected; 
 			MyTab.TabParent.AddSlaveTab(MyTab, addEmployeeDlg);
 		}
 		
-		void AddEmployeeDlg_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void AddEmployeeDlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			var employee = FineUoW.GetById<Employee>(e.ObjectId);
+			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			if(selectedId == 0) {
+				return;
+			}
+			var employee = FineUoW.GetById<Employee>(selectedId);
 			if(FineUoW.Root.Items.Any(x => x.Employee.Id == employee.Id)) {
 				MessageDialogWorks.RunErrorDialog("Сотрудник {0} уже присутствует в списке.", employee.ShortName);
 				return;
