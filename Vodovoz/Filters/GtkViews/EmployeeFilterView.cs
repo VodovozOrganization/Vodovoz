@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
-using Gamma.Widgets;
-using Vodovoz.Domain.Employees;
+
 namespace Vodovoz.Filters.GtkViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
@@ -16,11 +15,12 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void ConfigureDlg()
 		{
+			enumcomboCategory.ItemsEnum = typeof(EmployeeCategory);
 			enumcomboCategory.ShowSpecialStateAll = true;
 			enumcomboCategory.ShowSpecialStateNot = false;
 
 			enumcomboCategory.Binding.AddBinding(ViewModel, vm => vm.Category, w => w.SelectedItemOrNull).InitializeFromSource();
-			enumcomboCategory.Binding.AddFuncBinding(ViewModel, vm => vm.CategoryRestricted, w => w.Sensitive).InitializeFromSource();
+			enumcomboCategory.Binding.AddFuncBinding(ViewModel, vm => vm.IsCategoryNotRestricted, w => w.Sensitive).InitializeFromSource();
 			checkFired.Binding.AddBinding(ViewModel, vm => vm.ShowFired, w => w.Active).InitializeFromSource();
 		}
 	}
