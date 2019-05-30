@@ -1854,7 +1854,7 @@ namespace Vodovoz
 		protected void OnPickerDeliveryDateDateChangedByUser(object sender, EventArgs e)
 		{
 			if(Entity.DeliveryDate.HasValue) {
-				if(Entity.DeliveryDate.Value.Date != DateTime.Today.Date || MessageDialogHelper.RunWarningDialog("Подтвердите дату доставки", "Доставка сегодня? Вы уверены?")) {
+				if(Entity.DeliveryDate.Value.Date != DateTime.Today.Date || MessageDialogHelper.RunWarningDialog("Подтвердите дату доставки", "Доставка сегодня? Вы уверены?", ButtonsType.YesNo)) {
 					CheckSameOrders();
 					Entity.ChangeOrderContract();
 					return;
@@ -2031,7 +2031,7 @@ namespace Vodovoz
 		{
 			var res = Entity.IsWrongWater(out string title, out string message);
 			if(res == true)
-				return MessageDialogHelper.RunWarningDialog(title, message);
+				return MessageDialogHelper.RunWarningDialog(title, message, ButtonsType.YesNo);
 			return !res;
 		}
 
