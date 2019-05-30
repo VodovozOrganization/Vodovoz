@@ -59,6 +59,7 @@ namespace Vodovoz.Dialogs.Fuel
 			ConfigureEntityPropertyChanges();
 			UpdateCashSubdivisions();
 			UpdateBalanceCache();
+			ValidationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
 		}
 
 		private void ConfigEntityUpdateSubscribes()
@@ -80,7 +81,7 @@ namespace Vodovoz.Dialogs.Fuel
 
 		protected override void BeforeSave()
 		{
-			Entity.UpdateOperations();
+			Entity.UpdateOperations(fuelRepository);
 			base.BeforeSave();
 		}
 

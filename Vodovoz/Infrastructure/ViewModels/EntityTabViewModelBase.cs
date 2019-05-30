@@ -90,7 +90,7 @@ namespace Vodovoz.Infrastructure.ViewModels
 			}
 		}
 
-		protected IDictionary<object, object> ValidationContext { get; set; }
+		protected ValidationContext ValidationContext { get; set; }
 		protected IUserService UserService { get; private set; }
 		protected IValidator Validator { get; private set; }
 		protected IPermissionResult PermissionResult { get; private set; }
@@ -119,7 +119,7 @@ namespace Vodovoz.Infrastructure.ViewModels
 					UoWGeneric = UnitOfWorkFactory.CreateForChildRoot<TEntity>(ctorParam.RootUoW.GetById<TEntity>(ctorParam.EntityOpenId), ctorParam.RootUoW);
 				}
 			}
-
+			ValidationContext = new ValidationContext(Entity);
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			CurrentUser = UserService.GetCurrentUser(UoW);
 			Validator = commonServices.ValidationService.GetValidator(Entity, ValidationContext);
@@ -161,12 +161,7 @@ namespace Vodovoz.Infrastructure.ViewModels
 
 		protected bool Validate()
 		{
-			return Validator.Validate();
-		}
-
-		protected bool Validate(IDictionary<object, object> validationContext)
-		{
-			return Validator.Validate(validationContext);
+			return Validator.Validate(ValidationContext);
 		}
 
 		void Subject_NamePropertyChanged(object sender, PropertyChangedEventArgs e)

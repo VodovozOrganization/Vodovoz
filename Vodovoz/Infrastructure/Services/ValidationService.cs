@@ -14,9 +14,9 @@ namespace Vodovoz.Infrastructure.Services
 			this.validationViewFactory = validationViewFactory;
 		}
 
-		public IValidator GetValidator(IValidatableObject validatableObject, IDictionary<object, object> contextItems = null)
+		public IValidator GetValidator(IValidatableObject validatableObject, ValidationContext validationContext = null)
 		{
-			return new ObjectValidator(validationViewFactory, validatableObject, contextItems);
+			return new ObjectValidator(validationViewFactory, validatableObject, validationContext);
 		}
 	}
 }
