@@ -1246,22 +1246,12 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		/// <summary>
-		/// Закрывает МЛ, либо переводит в сдается, при необходимых условиях, из статуса "Проверка километража" 
-		/// </summary>
 		private void CloseFromOnMileageCheck()
 		{
 			if(Status != RouteListStatus.MileageCheck) {
 				return;
 			}
-
-			decimal cash = CashRepository.CurrentRouteListCash(UoW, this.Id);
-			if(NeedMileageCheck && ConfirmedDistance > 0 && cash == Total && (!IsConsistentWithUnloadDocument() && !DifferencesConfirmed)) {
-				ChangeStatus(RouteListStatus.Closed);
-			} else {
-				ChangeStatus(RouteListStatus.OnClosing);
-
-			}
+			ChangeStatus(RouteListStatus.OnClosing);
 		}
 
 		/// <summary>
@@ -1273,7 +1263,7 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
-			if(!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) {
+			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument()) {
 				ChangeStatus(RouteListStatus.Closed);
 				return;
 			}
