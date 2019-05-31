@@ -45,9 +45,11 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		void UpdateCriteria(EntityChangeEvent[] e)
 		{
-			var wsaList = e.Select(l => l.GetEntity<WaterSalesAgreement>());
-			if(wsaList.Any(a => a.DeliveryPoint?.Id == DeliveryPoint.Id))
-				Refresh();
+			if(DeliveryPoint != null) {
+				var wsaList = e.Select(l => l.GetEntity<WaterSalesAgreement>());
+				if(wsaList.Any(a => a.DeliveryPoint?.Id == DeliveryPoint.Id))
+					Refresh();
+			}
 		}
 
 		#region IPanelView implementation
