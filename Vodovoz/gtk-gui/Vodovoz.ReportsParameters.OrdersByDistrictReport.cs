@@ -16,7 +16,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
-		private global::Gamma.Widgets.yEntryReference referenceLogisticArea;
+		private global::Gamma.Widgets.yEntryReference refDistrict;
 
 		private global::Gtk.CheckButton checkAllDistrict;
 
@@ -75,14 +75,12 @@ namespace Vodovoz.ReportsParameters
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.referenceLogisticArea = new global::Gamma.Widgets.yEntryReference();
-			this.referenceLogisticArea.Events = ((global::Gdk.EventMask)(256));
-			this.referenceLogisticArea.Name = "referenceLogisticArea";
-			this.hbox3.Add(this.referenceLogisticArea);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.referenceLogisticArea]));
+			this.refDistrict = new global::Gamma.Widgets.yEntryReference();
+			this.refDistrict.Events = ((global::Gdk.EventMask)(256));
+			this.refDistrict.Name = "refDistrict";
+			this.hbox3.Add(this.refDistrict);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.refDistrict]));
 			w5.Position = 1;
-			w5.Expand = false;
-			w5.Fill = false;
 			this.vbox1.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
 			w6.Position = 1;
@@ -113,7 +111,8 @@ namespace Vodovoz.ReportsParameters
 			w8.Expand = false;
 			w8.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

@@ -4,6 +4,8 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.ViewWidgets.Logistics
 {
@@ -12,11 +14,9 @@ namespace Vodovoz.ViewWidgets.Logistics
 	{
 		GenericObservableList<AtWorkDriverDistrictPriority> observableDistricts;
 
-		public GenericObservableList<AtWorkDriverDistrictPriority> Districts { 
-			get{
-				return observableDistricts; 	
-			} 
-		set {
+		public GenericObservableList<AtWorkDriverDistrictPriority> Districts {
+			get => observableDistricts;
+			set {
 				observableDistricts = value;
 				ytreeviewDistricts.SetItemsSource(observableDistricts);
 			}
@@ -29,7 +29,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 			this.Build();
 
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<AtWorkDriverDistrictPriority>.Create()
-				.AddColumn("Район").AddTextRenderer(x => x.District.Name)
+				.AddColumn("Район").AddTextRenderer(x => x.District.DistrictName)
 				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority + 1)
 				.Finish();
 			ytreeviewDistricts.Reorderable = true;
@@ -39,10 +39,11 @@ namespace Vodovoz.ViewWidgets.Logistics
 		{
 			var SelectDistrict = new OrmReference(
 				MyOrmDialog.UoW,
-				Repository.Logistics.LogisticAreaRepository.ActiveAreaQuery()
-			);
-			SelectDistrict.Mode = OrmReferenceMode.MultiSelect;
-			SelectDistrict.ObjectSelected += SelectDistrict_ObjectSelected; ;
+				ScheduleRestrictionRepository.AreaWithGeometryQuery()
+			) {
+				Mode = OrmReferenceMode.MultiSelect
+			};
+			SelectDistrict.ObjectSelected += SelectDistrict_ObjectSelected;
 			MyTab.TabParent.AddSlaveTab(MyTab, SelectDistrict);
 		}
 
@@ -54,13 +55,12 @@ namespace Vodovoz.ViewWidgets.Logistics
 
 		void SelectDistrict_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			var addDistricts = e.GetEntities<LogisticsArea>();
+			var addDistricts = e.GetEntities<ScheduleRestrictedDistrict>();
 			addDistricts.Where(x => observableDistricts.All(d => d.District.Id != x.Id))
-				.Select(x => new AtWorkDriverDistrictPriority
-					{
-						Driver = ListParent,
-						District = x
-					})
+				.Select(x => new AtWorkDriverDistrictPriority {
+					Driver = ListParent,
+					District = x
+				})
 				.ToList()
 				.ForEach(x => observableDistricts.Add(x));
 		}

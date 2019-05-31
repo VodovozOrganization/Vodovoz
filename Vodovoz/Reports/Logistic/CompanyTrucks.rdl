@@ -48,23 +48,22 @@
 				NULL,
 				employees.patronymic)) AS driver_name,
 	(SELECT 
-			GROUP_CONCAT(logistics_area.name SEPARATOR ', ')
+			GROUP_CONCAT(schedule_restricted_districts.district_name SEPARATOR ', ')
 		FROM
 			driver_district_priorities
 				LEFT JOIN
-			logistics_area ON driver_district_priorities.district_id = logistics_area.id
+			schedule_restricted_districts ON driver_district_priorities.district_id = schedule_restricted_districts.id
 		WHERE
 			employees.id = driver_district_priorities.driver_id) AS driver_districts,
 	GROUP_CONCAT(DISTINCT ' ',
 		(SELECT 
-				logistics_area.name
+				schedule_restricted_districts.district_name
 			FROM
 				orders
 					LEFT JOIN
 				delivery_points ON orders.delivery_point_id = delivery_points.id
 					LEFT JOIN
-				logistics_area ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')),
-						logistics_district)
+				schedule_restricted_districts ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), district_border)
 			WHERE
 				orders.id = route_list_addresses.order_id)) AS street_district,
 	COUNT(route_list_addresses.id) AS address_count,
@@ -129,8 +128,7 @@ FROM
 		LEFT JOIN
 	delivery_points ON orders.delivery_point_id = delivery_points.id
 		LEFT JOIN
-	logistics_area ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')),
-			logistics_district)
+	schedule_restricted_districts ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), district_border)
 		LEFT JOIN
 	cars ON route_lists.car_id = cars.id
 WHERE

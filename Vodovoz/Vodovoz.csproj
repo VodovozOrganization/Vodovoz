@@ -876,8 +876,6 @@
     <Compile Include="Representations\CommentsTemplatesVM.cs" />
     <Compile Include="ReportsParameters\MastersReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersReport.cs" />
-    <Compile Include="Dialogs\Logistic\LogisticsAreaDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticsAreaDlg.cs" />
     <Compile Include="Dialogs\Sale\DeliveryPriceDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceDlg.cs" />
     <Compile Include="ReportsParameters\Sales\SuburbWaterPriceReport.cs" />
@@ -1062,8 +1060,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Employees.EmployeeContractDlg.cs" />
     <Compile Include="ViewWidgets\SaveTemplateWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.SaveTemplateWidget.cs" />
-    <Compile Include="Dialogs\Logistic\LogisticAreasEditDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.LogisticAreasEditDlg.cs" />
     <Compile Include="Representations\SubdivisionsVM.cs" />
     <Compile Include="Representations\WarehousesVM.cs" />
     <Compile Include="JournalViewers\WarehousesView.cs" />

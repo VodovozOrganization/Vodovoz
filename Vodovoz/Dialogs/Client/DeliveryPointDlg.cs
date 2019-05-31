@@ -110,9 +110,6 @@ namespace Vodovoz
 				.InitializeFromSource();
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 			referenceDeliverySchedule.Binding.AddBinding(Entity, e => e.DeliverySchedule, w => w.Subject).InitializeFromSource();
-			entryCity.FocusOutEvent += FocusOut;
-			entryStreet.FocusOutEvent += FocusOut;
-			entryBuilding.FocusOutEvent += FocusOut;
 
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			labelCompiledAddress.Binding.AddBinding(Entity, e => e.CompiledAddress, w => w.LabelProp).InitializeFromSource();
@@ -305,11 +302,6 @@ namespace Vodovoz
 			);
 		}
 
-		void FocusOut(object o, Gtk.FocusOutEventArgs args)
-		{
-			SetLogisticsArea();
-		}
-
 		void EntryBuilding_FocusOutEvent(object o, Gtk.FocusOutEventArgs args)
 		{
 			bool addressChanged = entryCity.City != cityBeforeChange
@@ -396,19 +388,6 @@ namespace Vodovoz
 			phonesview1.RemoveEmpty();
 			UoWGeneric.Save();
 			return true;
-		}
-
-		protected void SetLogisticsArea()
-		{
-			IList<DeliveryPoint> sameAddress = UoWGeneric.Session.CreateCriteria<DeliveryPoint>()
-				.Add(Restrictions.Eq("City", UoWGeneric.Root.City))
-				.Add(Restrictions.Eq("Street", UoWGeneric.Root.Street))
-				.Add(Restrictions.Eq("Building", UoWGeneric.Root.Building))
-				.Add(Restrictions.IsNotNull("LogisticsArea"))
-				.Add(Restrictions.Not(Restrictions.Eq("Id", UoWGeneric.Root.Id)))
-				.List<DeliveryPoint>();
-			if(sameAddress.Any())
-				UoWGeneric.Root.LogisticsArea = sameAddress[0].LogisticsArea;
 		}
 
 		protected void OnRadoiInformationToggled(object sender, EventArgs e)

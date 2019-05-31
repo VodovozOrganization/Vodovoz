@@ -11,6 +11,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Repositories.Orders
@@ -49,14 +50,19 @@ namespace Vodovoz.Repositories.Orders
 			return query.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery && !order.IsService);
 		}
 
-		public static IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, LogisticsArea area)
+		public static IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, ScheduleRestrictedDistrict district)
 		{
 			DeliveryPoint point = null;
 			return uow.Session.QueryOver<VodovozOrder>()
-				.JoinAlias(o => o.DeliveryPoint, () => point)
-				.Where(o => o.DeliveryDate == date.Date && point.LogisticsArea.Id == area.Id
-				   && !o.SelfDelivery && o.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted)
-				.List<VodovozOrder>();
+							  .JoinAlias(o => o.DeliveryPoint, () => point)
+							  .Where(
+							  		o => o.DeliveryDate == date.Date
+									&& point.District.Id == district.Id
+									&& !o.SelfDelivery
+									&& o.OrderStatus == OrderStatus.Accepted
+							  )
+							  .List<VodovozOrder>()
+							  ;
 		}
 
 		public static VodovozOrder GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)

@@ -300,7 +300,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionEmploeyActivated(object sender, EventArgs e)
+	protected void OnActionEmployeeActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
 			PermissionControlledRepresentationJournal.GenerateHashName<EmployeesVM>(),
@@ -402,14 +402,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		OrmReference refWin = new OrmReference(typeof(DeliverySchedule));
 		tdiMain.AddTab(refWin);
-	}
-
-	protected void OnActionLogisticsAreaActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<LogisticAreasEditDlg>(),
-			() => new LogisticAreasEditDlg()
-		);
 	}
 
 	protected void OnActionUpdateBanksFromCBRActivated(object sender, EventArgs e)

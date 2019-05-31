@@ -244,13 +244,13 @@ namespace Vodovoz
 
 		protected void AddOrdersFromRegion()
 		{
-			OrmReference SelectDialog = new OrmReference(typeof(LogisticsArea), RouteListUoW) {
+			OrmReference SelectDialog = new OrmReference(typeof(ScheduleRestrictedDistrict), RouteListUoW) {
 				Mode = OrmReferenceMode.Select,
 				ButtonMode = ReferenceButtonMode.CanEdit
 			};
 			SelectDialog.ObjectSelected += (s, ea) => {
 				if(ea.Subject != null) {
-					foreach(var order in OrderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, ea.Subject as LogisticsArea))
+					foreach(var order in OrderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, ea.Subject as ScheduleRestrictedDistrict))
 						RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};

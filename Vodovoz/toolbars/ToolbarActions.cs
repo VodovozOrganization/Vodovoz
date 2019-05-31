@@ -4,22 +4,20 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
-using QSOrmProject;
 using QS.Project.Repositories;
+using QSOrmProject;
 using Vodovoz;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.JournalViewers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
-using Vodovoz.Dialogs.Fuel;
-using Vodovoz.ViewModelBased;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Fuel;
 
 public partial class MainWindow : Window
 {
@@ -73,7 +71,6 @@ public partial class MainWindow : Window
 	Action ActionRouteListAddressesTransferring;
 	Action ActionTransferOperationJournal;
 	Action ActionScheduleRestrictedDistricts;
-	Action ActionLogisticAreas;
 	Action ActionCashTransferDocuments;
 	Action ActionFuelTransferDocuments;
 
@@ -135,7 +132,6 @@ public partial class MainWindow : Window
 		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
 		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Журнал доверенностей", null, "table");
 		ActionScheduleRestrictedDistricts = new Action("ActionScheduleRestrictedDistricts", "Районы с графиками доставки", null, "table");
-		ActionLogisticAreas = new Action("ActionLogisticAreas", "Логистические районы", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup("ToolbarActions");
@@ -189,7 +185,6 @@ public partial class MainWindow : Window
 		w1.Add(ActionRouteListAddressesTransferring, null);
 		w1.Add(ActionTransferOperationJournal, null);
 		w1.Add(ActionScheduleRestrictedDistricts, null);
-		w1.Add(ActionLogisticAreas, null);
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -215,7 +210,7 @@ public partial class MainWindow : Window
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
 		ActionAtWorks.Activated += ActionAtWorks_Activated;
 		ActionRouteListsAtDay.Activated += ActionRouteListsAtDay_Activated;
-		ActionRouteListsPrint.Activated += ActionRouteListsPrint_Activated; ;
+		ActionRouteListsPrint.Activated += ActionRouteListsPrint_Activated;
 		ActionRouteListClosingTable.Activated += ActionRouteListClosingTable_Activated;
 		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
@@ -245,7 +240,6 @@ public partial class MainWindow : Window
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
 		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
 		ActionScheduleRestrictedDistricts.Activated += ActionScheduleRestrictedDistricts_Activated;
-		ActionLogisticAreas.Activated += ActionActionLogisticAreas_Activated;
 		#endregion
 	}
 
@@ -581,7 +575,7 @@ public partial class MainWindow : Window
 	void ActionAddOrder_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			OrmMain.GenerateDialogHashName<Vodovoz.Domain.Orders.Order>(0),
+			DialogHelper.GenerateDialogHashName<Order>(0),
 			() => new OrderDlg()
 		);
 	}
@@ -632,8 +626,9 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<UndeliveriesView>(),
 			() => {
-				var view = new UndeliveriesView();
-				view.ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_undeliveries"] ? ReferenceButtonMode.CanAll : ReferenceButtonMode.CanAdd;
+				var view = new UndeliveriesView {
+					ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_undeliveries"] ? ReferenceButtonMode.CanAll : ReferenceButtonMode.CanAdd
+				};
 				return view;
 			}
 		);
@@ -665,12 +660,6 @@ public partial class MainWindow : Window
 	void ActionScheduleRestrictedDistricts_Activated(object sender, System.EventArgs e)
 	{
 		var tab = new ScheduleRestrictedDistrictsDlg();
-		tdiMain.AddTab(tab);
-	}
-
-	void ActionActionLogisticAreas_Activated(object sender, System.EventArgs e)
-	{
-		var tab = new LogisticAreasEditDlg();
 		tdiMain.AddTab(tab);
 	}
 }

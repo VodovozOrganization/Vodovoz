@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -23,10 +23,9 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref driver, value, () => Driver); }
 		}
 
-		private Logistic.LogisticsArea district;
-
+		ScheduleRestrictedDistrict district;
 		[Display(Name = "Район")]
-		public virtual Logistic.LogisticsArea District
+		public virtual ScheduleRestrictedDistrict District
 		{
 			get { return district; }
 			set { SetField(ref district, value, () => District); }

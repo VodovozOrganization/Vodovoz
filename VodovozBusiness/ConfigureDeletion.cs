@@ -513,11 +513,6 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryShift>()
 				.AddClearDependence<RouteList>(x => x.Shift);
 
-			DeleteConfig.AddHibernateDeleteInfo<LogisticsArea>()
-				.AddDeleteDependence<AtWorkDriverDistrictPriority>(x => x.District)
-				.AddDeleteDependence<DriverDistrictPriority>(x => x.District)
-				.AddClearDependence<DeliveryPoint>(item => item.LogisticsArea);
-
 			DeleteConfig.AddHibernateDeleteInfo<RouteList>()
 				.AddDeleteDependence<RouteListItem>(x => x.RouteList)
 				.AddDeleteDependence<CarLoadDocument>(x => x.RouteList)
