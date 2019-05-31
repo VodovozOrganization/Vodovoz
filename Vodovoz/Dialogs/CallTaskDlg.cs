@@ -130,7 +130,7 @@ namespace Vodovoz.Dialogs
 				return;
 			OrderDlg orderDlg = new OrderDlg();
 			orderDlg.Entity.Client = Entity.Counterparty;
-			orderDlg.Entity.UpdateBaseParametersForClient();
+			orderDlg.Entity.UpdateClientDefaultParam();
 			orderDlg.Entity.DeliveryPoint = Entity.DeliveryPoint;
 			TabParent.AddTab(orderDlg , this);
 		}

@@ -18,7 +18,6 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz;
 using Vodovoz.Core;
-using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -32,6 +31,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.JournalViewers;
 using Vodovoz.ReportsParameters;
+using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
@@ -1275,4 +1275,13 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new FirstSecondClientReport())
 		);
 	}
+
+	protected void OnActionCloseDeliveryReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCloseDeliveryReport>(),
+			() => new QSReport.ReportViewDlg(new CounterpartyCloseDeliveryReport())
+		);
+	}
+
 }

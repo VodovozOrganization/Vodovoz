@@ -878,6 +878,12 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
+					if(Client.IsDeliveriesClosed && PaymentType != PaymentType.cash && PaymentType != PaymentType.ByCard)
+						yield return new ValidationResult(
+							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
+							new[] { this.GetPropertyName(o => o.PaymentType) }
+						);
+
 					if(!DeliveryPoint.FindAndAssociateDistrict(UoW))
 						yield return new ValidationResult(
 							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
@@ -1680,7 +1686,7 @@ namespace Vodovoz.Domain.Orders
 			return oi;
 		}
 
-		public virtual void UpdateBaseParametersForClient()
+		public virtual void UpdateClientDefaultParam()
 		{
 			if(Client == null)
 				return;

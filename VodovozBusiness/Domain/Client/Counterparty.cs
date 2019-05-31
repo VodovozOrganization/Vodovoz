@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
@@ -10,11 +11,13 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using QS.Project.Repositories;
 using QSContacts;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 
@@ -89,6 +92,42 @@ namespace Vodovoz.Domain.Client
 			get => contact;
 			set => SetField(ref contact, value, () => Contacts);
 		}
+
+		#region CloseDelivery
+
+		private bool isDeliveriesClosed;
+
+		[Display(Name = "Поставки закрыты?")]
+		public virtual bool IsDeliveriesClosed {
+			get => isDeliveriesClosed;
+			protected set => SetField(ref isDeliveriesClosed, value, () => IsDeliveriesClosed);
+		}
+
+		private string closeDeliveryComment;
+
+		[Display(Name = "Комментарий по закрытию поставок")]
+		public virtual string CloseDeliveryComment {
+			get => closeDeliveryComment;
+			set => SetField(ref closeDeliveryComment, value, () => CloseDeliveryComment);
+		}
+
+		private DateTime? closeDeliveryDate;
+
+		[Display(Name = "Дата закрытия поставок")]
+		public virtual DateTime? CloseDeliveryDate {
+			get => closeDeliveryDate;
+			protected set => SetField(ref closeDeliveryDate, value, () => CloseDeliveryDate);
+		}
+
+		private Employee closeDeliveryPerson;
+
+		[Display(Name = "Сотрудник закрывший поставки")]
+		public virtual Employee CloseDeliveryPerson {
+			get => closeDeliveryPerson;
+			protected set => SetField(ref closeDeliveryPerson, value, () => CloseDeliveryPerson);
+		}
+
+		#endregion CloseDelivery
 
 		private IList<Proxy> proxies;
 
@@ -469,6 +508,51 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
+		#region CloseDelivery
+
+		public virtual void AddCloseDeliveryComment(string comment,IUnitOfWork UoW)
+		{
+			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			CloseDeliveryComment = employee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + comment;
+		}
+
+		protected virtual bool CloseDelivery(IUnitOfWork UoW)
+		{
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"])
+				return false;
+
+			IsDeliveriesClosed = true;
+			CloseDeliveryDate = DateTime.Now;
+			CloseDeliveryPerson = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			return true;
+		}
+
+
+		protected virtual bool OperDelivery(IUnitOfWork UoW)
+		{
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"])
+				return false;
+
+			IsDeliveriesClosed = false;
+			CloseDeliveryDate = null;
+			CloseDeliveryPerson = null;
+			CloseDeliveryComment = null;
+
+			return true;
+		}
+
+		public virtual bool ToogleDeliveryOption(IUnitOfWork UoW)
+		{
+			return IsDeliveriesClosed ? OperDelivery(UoW) : CloseDelivery(UoW); 
+		}
+
+		public virtual string GetCloseDeliveryInfo()
+		{
+			return CloseDeliveryPerson?.ShortName + " " + CloseDeliveryDate?.ToString("dd/MM/yyyy HH:mm");
+		}
+
+		#endregion CloseDelivery
+
 		public Counterparty()
 		{
 			Name = string.Empty;
@@ -525,6 +609,10 @@ namespace Vodovoz.Domain.Client
 					yield return new ValidationResult("ИНН может содержать только цифры.",
 						new[] { this.GetPropertyName(o => o.INN) });
 			}
+
+			if(IsDeliveriesClosed && String.IsNullOrWhiteSpace(CloseDeliveryComment))
+				yield return new ValidationResult("Неоходимо заполнить комментарий по закрытию поставок",
+						new[] { this.GetPropertyName(o => o.CloseDeliveryComment) });
 
 			if(IsArchive) {
 				var unclosedContracts = CounterpartyContracts.Where(c => !c.IsArchive)

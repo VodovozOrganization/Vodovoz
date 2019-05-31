@@ -1722,29 +1722,41 @@ namespace Vodovoz
 		protected void OnReferenceClientChanged(object sender, EventArgs e)
 		{
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(referenceClient.Subject));
-			if(Entity.Client != null) {
+			if(Entity.Client != null) 
+			{
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, Entity.Client);
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 				referenceContract.RepresentationModel = new ViewModel.ContractsVM(UoW, Entity.Client);
 
-				PaymentType? previousEnum = enumPaymentType.SelectedItem is PaymentType ? ((PaymentType?)enumPaymentType.SelectedItem) : null;
-				var hideEnums = new Enum[] { PaymentType.cashless };
+				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;
+
+				Enum[] hideEnums = { PaymentType.cashless };
+
 				if(Entity.Client.PersonType == PersonType.natural)
 					enumPaymentType.AddEnumToHideList(hideEnums);
 				else
 					enumPaymentType.ClearEnumHideList();
-				if(previousEnum.HasValue) {
-					if(previousEnum.Value == Entity.PaymentType) {
-						enumPaymentType.SelectedItem = previousEnum.Value;
-					} else if(Entity.Id == 0 || hideEnums.Contains(Entity.PaymentType)) {
+
+				if(previousPaymentType.HasValue) 
+				{
+					if(previousPaymentType.Value == Entity.PaymentType) 
+					{
+						enumPaymentType.SelectedItem = previousPaymentType.Value;
+					} 
+					else if(Entity.Id == 0 || hideEnums.Contains(Entity.PaymentType)) 
+					{
 						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
 						OnEnumPaymentTypeChanged(null, e);
 						Entity.ChangeOrderContract();
-					} else {
+					} 
+					else 
+					{
 						enumPaymentType.SelectedItem = Entity.PaymentType;
 					}
 				}
-			} else {
+			} 
+			else 
+			{
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
 			}
 			Entity.SetProxyForOrder();
@@ -1878,8 +1890,16 @@ namespace Vodovoz
 		}
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
-		{			
-			Entity.UpdateBaseParametersForClient();
+		{
+			if(Entity.Client.IsDeliveriesClosed) 
+			{
+				string message = "Стоп отгрузки!!!" + Environment.NewLine + "Комментарий от фин.отдела: " + Entity.Client?.CloseDeliveryComment;
+				MessageDialogHelper.RunInfoDialog(message);
+				Enum[] hideEnums = new Enum[] { PaymentType.barter, PaymentType.BeveragesWorld, PaymentType.CourierByCard, PaymentType.ContractDoc, PaymentType.CourierByCard, PaymentType.cashless };
+				enumPaymentType.AddEnumToHideList(hideEnums);
+			}
+
+			Entity.UpdateClientDefaultParam();
 
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();

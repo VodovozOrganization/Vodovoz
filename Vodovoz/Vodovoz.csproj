@@ -1194,6 +1194,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ExtraBottleReport.cs" />
     <Compile Include="ReportsParameters\Bottles\FirstSecondClientReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.FirstSecondClientReport.cs" />
+    <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCloseDeliveryReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCloseDeliveryReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1396,6 +1398,7 @@
     <Folder Include="Infrastructure\Converters\" />
     <Folder Include="Infrastructure\Services\" />
     <Folder Include="Infrastructure\Journal\" />
+    <Folder Include="ReportsParameters\Bookkeeping\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1795,6 +1798,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bottles\FirstSecondClients.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Bookkeeping\CloseCounterpartyDelivery.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

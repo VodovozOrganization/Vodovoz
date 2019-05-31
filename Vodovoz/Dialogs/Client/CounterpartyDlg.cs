@@ -21,6 +21,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModelBased;
 using Vodovoz.Filters.ViewModels;
+using QS.Dialog.GtkUI;
 using QS.Project.Dialogs.GtkUI;
 
 namespace Vodovoz
@@ -209,6 +210,7 @@ namespace Vodovoz
 			referenceCameFrom.Sensitive = Entity.Id == 0;
 			referenceCameFrom.Sensitive = Entity.Id == 0;
 			enumNeedOfCheque.Visible = lblNeedCheque.Visible = CounterpartyRepository.IsCashPayment(Entity.PaymentMethod);
+			SetVisibilityForCloseDeliveryComments();
 		}
 
 		void ButtonLoadFromDP_Clicked(object sender, EventArgs e)
@@ -423,5 +425,74 @@ namespace Vodovoz
 		{
 			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
 		}
+
+		#region CloseDelivery //Возможно стоит вынести комментарий по закрытию в отдельный виджет
+
+		private void SetVisibilityForCloseDeliveryComments()
+		{
+
+			labelCloseDelivery.Visible = Entity.IsDeliveriesClosed;
+			GtkScrolledWindowCloseDelivery.Visible = Entity.IsDeliveriesClosed;
+			buttonSaveCloseComment.Visible = Entity.IsDeliveriesClosed;
+			buttonEditCloseDeliveryComment.Visible = Entity.IsDeliveriesClosed;
+			buttonCloseDelivery.Label = Entity.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки";
+			ytextviewCloseComment.Buffer.Text = Entity.IsDeliveriesClosed ? Entity.CloseDeliveryComment : String.Empty;
+
+			if(!Entity.IsDeliveriesClosed)
+				return;
+
+			labelCloseDelivery.LabelProp = "Поставки закрыл : " + Entity.GetCloseDeliveryInfo() + Environment.NewLine + "<b>Комментарий по закрытию поставок:</b>";
+
+			if(String.IsNullOrWhiteSpace(Entity.CloseDeliveryComment)) {
+				buttonSaveCloseComment.Sensitive = true;
+				buttonEditCloseDeliveryComment.Sensitive = false;
+				ytextviewCloseComment.Sensitive = true;
+			} else {
+				buttonEditCloseDeliveryComment.Sensitive = true;
+				buttonSaveCloseComment.Sensitive = false;
+				ytextviewCloseComment.Sensitive = false;
+			}
+		}
+
+		protected void OnButtonSaveCloseCommentClicked(object sender, EventArgs e)
+		{
+			if(String.IsNullOrWhiteSpace(ytextviewCloseComment.Buffer.Text))
+				return;
+
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"]) 
+			{
+				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
+				return;
+			}
+
+			Entity.AddCloseDeliveryComment(ytextviewCloseComment.Buffer.Text, UoW);
+			SetVisibilityForCloseDeliveryComments();
+		}
+
+		protected void OnButtonEditCloseDeliveryCommentClicked(object sender, EventArgs e)
+		{
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"]) 
+			{
+				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
+				return;
+			}
+
+			if(MessageDialogHelper.RunQuestionDialog("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?")) {
+				Entity.CloseDeliveryComment = ytextviewCloseComment.Buffer.Text = String.Empty;
+				SetVisibilityForCloseDeliveryComments();
+			}
+		}
+
+		protected void OnButtonCloseDeliveryClicked(object sender, EventArgs e)
+		{
+			if(!Entity.ToogleDeliveryOption(UoW)) 
+			{
+				MessageDialogHelper.RunWarningDialog("У вас нет прав для закрытия/открытия поставок");
+				return;
+			}
+			SetVisibilityForCloseDeliveryComments();
+		}
+
+		#endregion CloseDelivery
 	}
 }
