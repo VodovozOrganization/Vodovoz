@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
@@ -8,13 +9,11 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
-using NHibernate.Type;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.RepresentationModel.GtkUI;
 using QS.Utilities.Text;
-using QSOrmProject;
-using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
@@ -22,16 +21,15 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
 {
-	public class SelfDeliveriesVM : RepresentationModelEntityBase<VodovozOrder, UnclosedSelfDeliveriesVMNode>
+	public class SelfDeliveriesVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<VodovozOrder, UnclosedSelfDeliveriesVMNode>
 	{
 		public OrdersFilter Filter {
 			get { return RepresentationFilter as OrdersFilter; }
-			set { RepresentationFilter = value as IRepresentationFilter; }
+			set { RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter; }
 		}
 
 		public SelfDeliveriesVM(OrdersFilter filter) : this(filter.UoW)
@@ -178,30 +176,41 @@ namespace Vodovoz.Representations
 
 		#endregion
 
-		public override Menu GetPopupMenu(RepresentationSelectResult[] selected)
-		{
-			var selectedNode = selected.FirstOrDefault().VMNode as UnclosedSelfDeliveriesVMNode;
-			var isOneSelected = selected.Count() == 1 && selectedNode != null;
-			var selectedOrder = UoW.GetById<VodovozOrder>(selectedNode.Id);
-			Menu popupMenu = new Menu();
-			MenuItem menuItemOrder = new MenuItem("Открыть заказ");
-			menuItemOrder.Activated += (sender, e) => {
-				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<VodovozOrder>(selectedNode.Id),
-					() => new OrderDlg(selectedNode.Id)
-				);
-			};
-			menuItemOrder.Sensitive = isOneSelected;
-			popupMenu.Add(menuItemOrder);
+		public override IEnumerable<IJournalPopupItem> PopupItems {
+			get {
+				var result = new List<IJournalPopupItem>();
 
-			MenuItem menuItemInvoices = new MenuItem("Создать кассовые ордера");
-			menuItemInvoices.Activated += (sender, e) => {
-				CreateSelfDeliveryCashInvoices(selectedNode.Id);
-			};
-			menuItemInvoices.Sensitive = isOneSelected && selectedOrder.OrderStatus == OrderStatus.WaitForPayment;
-			popupMenu.Add(menuItemInvoices);
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Открыть заказ",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<UnclosedSelfDeliveriesVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						MainClass.MainWin.TdiMain.OpenTab(
+							DialogHelper.GenerateDialogHashName<VodovozOrder>(selectedNode.Id),
+							() => new OrderDlg(selectedNode.Id)
+						);
+					},
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<UnclosedSelfDeliveriesVMNode>();
+						return selectedNodes.Count() == 1;
+					}
+				));
 
-			return popupMenu;
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Создать кассовые ордера",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<UnclosedSelfDeliveriesVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null) {
+							CreateSelfDeliveryCashInvoices(selectedNode.Id);
+						}
+					},
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<UnclosedSelfDeliveriesVMNode>();
+						return selectedNodes.Count() == 1 && selectedNodes.First().StatusEnum == OrderStatus.WaitForPayment;
+					}
+				));
+
+				return result;
+			}
 		}
 
 		void CreateSelfDeliveryCashInvoices(int orderId)

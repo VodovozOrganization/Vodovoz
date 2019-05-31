@@ -9,9 +9,9 @@ using QS.Permissions;
 using QS.Project.Repositories;
 using QS.RepresentationModel;
 using QS.Tdi;
-using QSOrmProject.RepresentationModel;
 using System.ComponentModel;
 using QS.DomainModel.NotifyChange;
+using QS.RepresentationModel.GtkUI;
 
 namespace Vodovoz.Core.Journal
 {
@@ -122,6 +122,8 @@ namespace Vodovoz.Core.Journal
 		}
 
 		public IJournalFilter JournalFilter { get; set; }
+
+		public virtual IEnumerable<IJournalPopupItem> PopupItems => new List<IJournalPopupItem>();
 
 		#endregion
 

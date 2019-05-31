@@ -8,7 +8,6 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Cash;
@@ -16,6 +15,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using QS.Utilities.Text;
 using Vodovoz.Repository.Cash;
+using QS.RepresentationModel.GtkUI;
 
 namespace Vodovoz.Representations
 {

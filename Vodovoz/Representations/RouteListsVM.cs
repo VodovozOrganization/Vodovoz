@@ -10,10 +10,10 @@ using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.RepresentationModel.GtkUI;
 using QS.Tdi.Gtk;
 using QS.Utilities.Text;
 using QSOrmProject;
-using QSOrmProject.RepresentationModel;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -21,11 +21,11 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ViewModel
 {
-	public class RouteListsVM : RepresentationModelEntityBase<RouteList, RouteListsVMNode>
+	public class RouteListsVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<RouteList, RouteListsVMNode>
 	{
 		public RouteListsFilter Filter {
 			get => RepresentationFilter as RouteListsFilter;
-			set => RepresentationFilter = value as IRepresentationFilter;
+			set => RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter;
 		}
 
 		#region IRepresentationModel implementation
@@ -162,8 +162,7 @@ namespace Vodovoz.ViewModel
 
 		public override bool PopupMenuExist => true;
 
-		private RepresentationSelectResult[] lastMenuSelected;
-		RouteList selectedRouteList;
+		//RouteList selectedRouteList;
 
 		private List<RouteListStatus> KeepingDlgStatuses = new List<RouteListStatus>()
 			{
@@ -215,189 +214,154 @@ namespace Vodovoz.ViewModel
 				RouteListStatus.MileageCheck
 			};
 
-		public override Menu GetPopupMenu(RepresentationSelectResult[] selected)
-		{
-			lastMenuSelected = selected;
 
-			#region получение и обновление выделенного МЛ
-			var routeListId = lastMenuSelected.Select(x => x.EntityId)
-											  .FirstOrDefault();
+		public override IEnumerable<IJournalPopupItem> PopupItems {
+			get {
+				var result = new List<IJournalPopupItem>();
 
-			selectedRouteList = UoW.Session.QueryOver<RouteList>()
-										   .Where(x => x.Id == routeListId)
-										   .List()
-										   .FirstOrDefault();
-			UoW.Session.Refresh(selectedRouteList);
-			#endregion
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Открыть трек",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null) {
+							TrackOnMapWnd track = new TrackOnMapWnd(selectedNode.Id);
+							track.Show();
+						}
+					}
+				));
 
-			Menu popupMenu = new Menu();
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Открыть диалог создания",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null)
+							MainClass.MainWin.TdiMain.OpenTab(
+								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+								() => new RouteListCreateDlg(selectedNode.Id)
+							);
+					}
+				));
 
-			MenuItem menuItemRouteListOpenTrack = new MenuItem("Открыть трек");
-			menuItemRouteListOpenTrack.Activated += MenuItemRouteListOpenTrack_Activated;
-			popupMenu.Add(menuItemRouteListOpenTrack);
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Отгрузка со склада",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null && ControlDlgStatuses.Contains(selectedNode.StatusEnum))
+							MainClass.MainWin.TdiMain.OpenTab(
+								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+								() => new RouteListControlDlg(selectedNode.Id)
+							);
+					},
+					(selectedItems) => selectedItems.Any(x =>
+						ControlDlgStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+				));
 
-			popupMenu.Add(new SeparatorMenuItem());
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Отправить МЛ на погрузку",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
+						bool isSlaveTabActive = false;
+						var routeListIds = selectedNodes.Select(x => x.Id).ToArray();
+						var routeLists = UoW.Session.QueryOver<RouteList>()
+							.Where(x => x.Id.IsIn(routeListIds))
+							.List();
 
-			MenuItem menuItemRouteListCreateDlg = new MenuItem("Открыть диалог создания");
-			menuItemRouteListCreateDlg.Activated += MenuItemRouteListCreateDlg_Activated;
-			popupMenu.Add(menuItemRouteListCreateDlg);
+						routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) =>
+						{
+							if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
+								MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
+								isSlaveTabActive = true;
+								return;
+							}
 
-			MenuItem menuItemRouteListControlDlg = new MenuItem("Отгрузка со склада");
-			menuItemRouteListControlDlg.Activated += MenuItemRouteListControlDlg_Activated;
-			menuItemRouteListControlDlg.Sensitive = selected.Any(x =>
-				ControlDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
-			popupMenu.Add(menuItemRouteListControlDlg);
+							foreach(var address in routeList.Addresses) {
+								if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
+									address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading);
+							}
 
-			MenuItem menuItemRouteListSendToLoading = new MenuItem("Отправить МЛ на погрузку") {
-				Sensitive = selected.Any((x) => (x.VMNode as RouteListsVMNode).StatusEnum == RouteListStatus.Confirmed)
-			};
-			menuItemRouteListSendToLoading.Activated += MenuItemRouteListSendToLoading_Activated;
-			popupMenu.Add(menuItemRouteListSendToLoading);
+							routeList.ChangeStatus(RouteListStatus.InLoading);
+							UoW.Save(routeList);
+						});
 
-			MenuItem menuItemRouteListKeepingDlg = new MenuItem("Открыть диалог ведения");
-			menuItemRouteListKeepingDlg.Activated += MenuItemRouteListKeepingDlg_Activated;
-			menuItemRouteListKeepingDlg.Sensitive = selected.Any(x =>
-				KeepingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
-			popupMenu.Add(menuItemRouteListKeepingDlg);
+						if(isSlaveTabActive)
+							return;
 
-			MenuItem menuItemRouteListClosingDlg = new MenuItem("Открыть диалог закрытия");
-			menuItemRouteListClosingDlg.Activated += MenuItemRouteListClosingDlg_Activated;
-			menuItemRouteListClosingDlg.Sensitive = selected.Any(x =>
-				ClosingDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
-			popupMenu.Add(menuItemRouteListClosingDlg);
+						foreach(var rlNode in selectedNodes) {
+							var node = (rlNode as RouteListsVMNode);
+							if(node != null)
+								node.StatusEnum = RouteListStatus.InLoading;
+						}
+						UoW.Commit();
+					},
+					(selectedItems) => selectedItems.Any((x) => (x as RouteListsVMNode).StatusEnum == RouteListStatus.Confirmed)
+				));
 
-			MenuItem menuItemRouteListMileageCheckDlg = new MenuItem("Открыть диалог проверки километража");
-			menuItemRouteListMileageCheckDlg.Activated += MenuItemRouteListMileageCheckDlg_Activated;
-			menuItemRouteListMileageCheckDlg.Sensitive = selected.Any(x =>
-				MileageCheckDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
-			popupMenu.Add(menuItemRouteListMileageCheckDlg);
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Открыть диалог ведения",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null && KeepingDlgStatuses.Contains(selectedNode.StatusEnum))
+							MainClass.MainWin.TdiMain.OpenTab(
+								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+								() => new RouteListKeepingDlg(selectedNode.Id)
+							);
+					},
+					(selectedItems) => selectedItems.Any(x => KeepingDlgStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+				));
 
-			popupMenu.Add(new SeparatorMenuItem());
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Открыть диалог закрытия",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null && ClosingDlgStatuses.Contains(selectedNode.StatusEnum))
+							MainClass.MainWin.TdiMain.OpenTab(
+								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+								() => new RouteListClosingDlg(selectedNode.Id)
+							);
+					},
+					(selectedItems) => selectedItems.Any(x => ClosingDlgStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+				));
 
-			MenuItem menuItemDeleteRouteList = new MenuItem("Удалить МЛ");
-			menuItemDeleteRouteList.Activated += MenuItemRouteListDelete_Activated;
-			menuItemDeleteRouteList.Sensitive = selected.Any(x =>
-				CanDeletedStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
-			popupMenu.Add(menuItemDeleteRouteList);
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Открыть диалог проверки километража",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null && MileageCheckDlgStatuses.Contains(selectedNode.StatusEnum))
+							MainClass.MainWin.TdiMain.OpenTab(
+								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+								() => new RouteListMileageCheckDlg(selectedNode.Id)
+							);
+					},
+					(selectedItems) => selectedItems.Any(x => MileageCheckDlgStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+				));
 
-			MenuItem menuItemRouteListFuelIssuingDlg = new MenuItem("Выдать топливо");
-			menuItemRouteListFuelIssuingDlg.Activated += MenuItemRouteListFuelIssuing_Activated;
-			menuItemRouteListFuelIssuingDlg.Sensitive = selected.Any(x =>
-				FuelIssuingStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
-			popupMenu.Add(menuItemRouteListFuelIssuingDlg);
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Удалить МЛ",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						var objectType = typeof(RouteList);
+						if(selectedNode != null && OrmMain.DeleteObject(objectType, selectedNode.Id))
+							this.UpdateNodes();
+					},
+					(selectedItems) => selectedItems.Any(x => CanDeletedStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+				));
 
-			return popupMenu;
-		}
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Выдать топливо",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null) {
+							var routeListId = selectedNode.Id;
+							var RouteList = UoW.GetById<RouteList>(routeListId);
+							MainClass.MainWin.TdiMain.OpenTab(
+									DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
+									() => new FuelDocumentDlg(RouteList)
+								);
+						}
+					},
+					(selectedItems) => selectedItems.Any(x => FuelIssuingStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+				));
 
-		void MenuItemRouteListSendToLoading_Activated(object sender, EventArgs e)
-		{
-			bool isSlaveTabActive = false;
-			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-			var routeLists = UoW.Session.QueryOver<RouteList>()
-				.Where(x => x.Id.IsIn(routeListIds))
-				.List();
-
-			routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) => 
-			{
-				if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) 
-				{
-					MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
-					isSlaveTabActive = true;
-					return;
-				}
-
-				foreach(var address in routeList.Addresses) 
-				{
-					if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
-						address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading);
-				}
-
-				routeList.ChangeStatus(RouteListStatus.InLoading);
-				UoW.Save(routeList);
-			});
-
-			if(isSlaveTabActive)
-				return;
-
-			foreach(var rlNode in lastMenuSelected) 
-			{
-				var node = (rlNode.VMNode as RouteListsVMNode);
-				if(node != null)
-					node.StatusEnum = RouteListStatus.InLoading;
-			}
-			UoW.Commit();
-		}
-
-		void MenuItemRouteListOpenTrack_Activated(object sender, EventArgs e)
-		{
-			if(selectedRouteList != null) {
-				TrackOnMapWnd track = new TrackOnMapWnd(selectedRouteList.Id);
-				track.Show();
-			}
-		}
-
-		void MenuItemRouteListMileageCheckDlg_Activated(object sender, EventArgs e)
-		{
-			if(selectedRouteList != null && MileageCheckDlgStatuses.Contains(selectedRouteList.Status))
-				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
-					() => new RouteListMileageCheckDlg(selectedRouteList.Id)
-				);
-		}
-
-		void MenuItemRouteListClosingDlg_Activated(object sender, EventArgs e)
-		{
-			if(selectedRouteList != null && ClosingDlgStatuses.Contains(selectedRouteList.Status))
-				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
-					() => new RouteListClosingDlg(selectedRouteList.Id)
-				);
-		}
-
-		void MenuItemRouteListControlDlg_Activated(object sender, EventArgs e)
-		{
-			if(selectedRouteList != null && ControlDlgStatuses.Contains(selectedRouteList.Status))
-				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
-					() => new RouteListControlDlg(selectedRouteList.Id)
-				);
-		}
-
-
-		void MenuItemRouteListKeepingDlg_Activated(object sender, EventArgs e)
-		{
-			if(selectedRouteList != null && KeepingDlgStatuses.Contains(selectedRouteList.Status))
-				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
-					() => new RouteListKeepingDlg(selectedRouteList.Id)
-				);
-		}
-
-		void MenuItemRouteListCreateDlg_Activated(object sender, EventArgs e)
-		{
-			if(selectedRouteList != null)
-				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
-					() => new RouteListCreateDlg(selectedRouteList.Id)
-				);
-		}
-
-		void MenuItemRouteListDelete_Activated(object sender, EventArgs e)
-		{
-			var objectType = typeof(RouteList);
-			if(selectedRouteList != null && OrmMain.DeleteObject(objectType, selectedRouteList.Id))
-				this.UpdateNodes();
-		}
-
-		void MenuItemRouteListFuelIssuing_Activated(object sender, EventArgs e)
-		{
-			if(selectedRouteList != null) {
-				var routeListId = selectedRouteList.Id;
-				var RouteList = UoW.GetById<RouteList>(routeListId);
-				MainClass.MainWin.TdiMain.OpenTab(
-						DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
-						() => new FuelDocumentDlg(RouteList)
-					);
+			return result;
 			}
 		}
 	}
