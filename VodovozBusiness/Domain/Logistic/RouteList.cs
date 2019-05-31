@@ -1263,7 +1263,7 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
-			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument()) {
+			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument() && PermissionRepository.HasAccessToClosingRoutelist()) {
 				ChangeStatus(RouteListStatus.Closed);
 				return;
 			}
