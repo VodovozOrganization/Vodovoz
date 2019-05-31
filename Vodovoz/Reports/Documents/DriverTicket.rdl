@@ -73,7 +73,7 @@
 		SEPARATOR '; '
 	) AS client_contact,
 	
-	logistics_area.name AS logistics_area,
+	schedule_restricted_districts.district_name AS logistics_area,
 	delivery_points.compiled_address_short AS del_point_address,
 	delivery_points.city AS city,
 	delivery_points.street AS street,
@@ -104,7 +104,7 @@ FROM
 		LEFT JOIN
 	delivery_points ON orders.delivery_point_id = delivery_points.id
 		LEFT JOIN
-	logistics_area ON delivery_points.logistic_area_id = logistics_area.id
+	schedule_restricted_districts ON delivery_points.schedule_restricted_district_id = schedule_restricted_districts.id
 		LEFT JOIN
 	employees ON employees.id = orders.author_employee_id
 		LEFT JOIN

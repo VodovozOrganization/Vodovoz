@@ -65,13 +65,13 @@
                 AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol6L')) AS water6_amount,
          GROUP_CONCAT(DISTINCT ' ',
         (SELECT 
-            GROUP_CONCAT(logistics_area.name SEPARATOR ' пересечение с ')
+            GROUP_CONCAT(schedule_restricted_districts.district_name SEPARATOR ' пересечение с ')
             FROM
                 orders
             LEFT JOIN
                 delivery_points ON orders.delivery_point_id = delivery_points.id
             LEFT JOIN
-                logistics_area ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), logistics_district)
+                schedule_restricted_districts ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), district_border)
             WHERE
                 orders.id = route_list_addresses.order_id
             )
@@ -90,7 +90,7 @@ LEFT JOIN
 LEFT JOIN
     delivery_points ON orders.delivery_point_id = delivery_points.id
 LEFT JOIN
-    logistics_area ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), logistics_district)
+    schedule_restricted_districts ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), district_border)
 LEFT JOIN
     geographic_groups_to_entities gge ON gge.route_list_id = route_lists.id
 LEFT JOIN
