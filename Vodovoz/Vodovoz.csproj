@@ -144,7 +144,7 @@
       <HintPath>..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45\GeoAPI.CoordinateSystems.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
-      <HintPath>..\packages\Google.Protobuf.3.7.0\lib\net45\Google.Protobuf.dll</HintPath>
+      <HintPath>..\packages\Google.Protobuf.3.8.0\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel" />
     <Reference Include="NetTopologySuite.CoordinateSystems">
@@ -169,7 +169,7 @@
       <HintPath>..\packages\MySql.Data.8.0.16\lib\net452\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
-      <HintPath>..\packages\NLog.4.6.3\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.6.4\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate.Spatial">
       <HintPath>..\packages\NHibernate.Spatial.5.2.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
@@ -181,7 +181,7 @@
       <HintPath>..\packages\NHibernate.5.2.5\lib\net461\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="BouncyCastle.Crypto">
-      <HintPath>..\packages\BouncyCastle.1.8.3.1\lib\BouncyCastle.Crypto.dll</HintPath>
+      <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="DiffPlex">
       <HintPath>..\packages\DiffPlex.1.4.4\lib\net40\DiffPlex.dll</HintPath>
