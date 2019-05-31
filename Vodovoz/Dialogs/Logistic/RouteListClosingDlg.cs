@@ -463,7 +463,6 @@ namespace Vodovoz
 		{
 			buttonAccept.Sensitive = 
 				(Entity.Status == RouteListStatus.OnClosing || Entity.Status == RouteListStatus.MileageCheck) 
-				&& Entity.IsConsistentWithUnloadDocument()
 				&& canCloseRoutelist;
 		}
 
@@ -642,10 +641,6 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(!IsConsistentWithUnloadDocument() || !canCloseRoutelist) {
-				return;
-			}
-
 			if(!TrySetCashier()) {
 				return;
 			}
@@ -665,6 +660,9 @@ namespace Vodovoz
 			var cash = CashRepository.CurrentRouteListCash(UoW, Entity.Id);
 			if(Entity.Total != cash) {
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
+				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {
+					Entity.ChangeStatus(RouteListStatus.MileageCheck);
+				}
 				return;
 			}
 

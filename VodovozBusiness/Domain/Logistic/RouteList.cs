@@ -1284,10 +1284,6 @@ namespace Vodovoz.Domain.Logistic
 				throw new InvalidOperationException(String.Format("Должен быть заполнен кассир"));
 			}
 
-			if(!PermissionRepository.HasAccessToClosingRoutelist()) {
-				return;
-			}
-
 			ConfirmAndClose();
 		}
 
