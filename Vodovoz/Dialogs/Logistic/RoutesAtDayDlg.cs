@@ -195,9 +195,9 @@ namespace Vodovoz
 			ytreeviewOnDayDrivers.Selection.Changed += YtreeviewDrivers_Selection_Changed;
 
 			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
-																			    .AddColumn("Экспедитор")
-																			 	    .AddTextRenderer(x => x.Employee.ShortName)
-																			    .Finish();
+																				.AddColumn("Экспедитор")
+																					 .AddTextRenderer(x => x.Employee.ShortName)
+																				.Finish();
 			ytreeviewOnDayForwarders.Selection.Mode = SelectionMode.Multiple;
 
 			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
@@ -217,8 +217,6 @@ namespace Vodovoz
 			yspeccomboboxCashSubdivision.ShowSpecialStateNot = true;
 			yspeccomboboxCashSubdivision.ItemsList = subdivisions;
 			yspeccomboboxCashSubdivision.SelectedItem = SpecialComboState.Not;
-
-			OrmMain.GetObjectDescription<RouteList>().ObjectUpdatedGeneric += RouteListExternalUpdated;
 		}
 
 		private Subdivision ClosingSubdivision => yspeccomboboxCashSubdivision.SelectedItem as Subdivision;
@@ -335,25 +333,6 @@ namespace Vodovoz
 		{
 			var selected = addressesOverlay.Markers.Where(m => brokenSelection.IsInside(m.Position)).ToList();
 			UpdateSelectedInfo(selected);
-		}
-
-		void RouteListExternalUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<RouteList> e)
-		{
-			List<RouteList> routeLists = e.UpdatedSubjects
-											.Where(rl => rl.Date.Date == ydateForRoutes.Date.Date)
-											.ToList();
-
-			bool foundRL = routeLists != null && routeLists.Any();
-
-			if(foundRL) {
-				bool answer = !HasNoChanges && MessageDialogHelper.RunQuestionDialog(
-						"Сохраненный маршрут открыт на вкладке маршруты за день." +
-						"При продолжении работы в этой вкладке, внесенные внешние изменения могут быть потеряны. " +
-						"При отмене данные в этом диалоге будут перезаписаны." +
-						"\nПродолжить работу в этой вкладке?");
-				if(!answer)
-					FillDialogAtDay();
-			}
 		}
 
 		void YtreeRoutes_Selection_Changed(object sender, EventArgs e)
@@ -1107,12 +1086,6 @@ namespace Vodovoz
 				);
 			}
 		}
-		protected override void OnDestroyed()
-		{
-			logger.Debug("RoutesAtDayDlg Destroyed() called.");
-			//Отписываемся от событий.
-			OrmMain.GetObjectDescription<RouteList>().ObjectUpdatedGeneric -= RouteListExternalUpdated;
-		}
 
 		#endregion
 
@@ -1134,8 +1107,9 @@ namespace Vodovoz
 			logisticanDistricts = ScheduleRestrictionRepository.AreasWithGeometry(UoW);
 			foreach(var district in logisticanDistricts) {
 				var poligon = new GMapPolygon(
-					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList()
-					, district.DistrictName);
+					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
+					district.DistrictName
+				);
 				districtsOverlay.Polygons.Add(poligon);
 			}
 			logger.Info("Ок.");
