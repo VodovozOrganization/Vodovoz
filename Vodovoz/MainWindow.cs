@@ -361,8 +361,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
-		var button = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"] 
-			? Buttons.All 
+		var button = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"]
+			? Buttons.All
 			: (Buttons.Add | Buttons.Edit);
 		var refWin = new PermissionControlledRepresentationJournal(new CounterpartyVM(), button);
 		tdiMain.AddTab(refWin);
@@ -1276,6 +1276,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
+	protected void OnActionFuelConsumptionReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
+			() => new QSReport.ReportViewDlg(new FuelConsumptionReport())
+		);
+	}
+
 	protected void OnActionCloseDeliveryReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1283,5 +1291,4 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new CounterpartyCloseDeliveryReport())
 		);
 	}
-
 }

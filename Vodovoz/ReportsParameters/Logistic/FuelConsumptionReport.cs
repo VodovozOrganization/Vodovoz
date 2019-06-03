@@ -9,13 +9,11 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.Reports.Logistic
+namespace Vodovoz.ReportsParameters.Logistic
 {
-	public partial class RoutesListRegisterReport : Gtk.Bin, IParametersWidget, ISingleUoWDialog
+	public partial class FuelConsumptionReport : Gtk.Bin, IParametersWidget, ISingleUoWDialog
 	{
 		GenericObservableList<GeographicGroup> geographicGroups;
-
-		bool orderById;
 
 		#region IOrmDialog implementation
 
@@ -23,10 +21,9 @@ namespace Vodovoz.Reports.Logistic
 
 		#endregion
 
-		public RoutesListRegisterReport(bool orderById = false)
+		public FuelConsumptionReport(bool orderById = false)
 		{
 			this.Build();
-			this.orderById = orderById;
 			ConfigureDlg();
 			Destroyed += (sender, e) => UoW.Dispose();
 		}
@@ -46,7 +43,7 @@ namespace Vodovoz.Reports.Logistic
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title => "Реестр маршрутных листов";
+		public string Title => "Отчет по выдаче топлива по МЛ";
 
 		#endregion
 
@@ -63,13 +60,12 @@ namespace Vodovoz.Reports.Logistic
 		private ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Identifier = orderById ? "Bottles.RoutesListRegister" : "Logistic.RoutesListRegister" ,
+				Identifier = chkDetailed.Active ? "Logistic.FuelConsumptionDetailedReport" : "Logistic.FuelConsumptionReport",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
 					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "is_driver_master", chkMasters.Active ? 1 : 0 },
-					{ "geographic_groups", GetResultIds(geographicGroups.Select(g => g.Id)) }
+					{ "geo_group_ids", GetResultIds(geographicGroups.Select(g => g.Id)) }
 				}
 			};
 		}

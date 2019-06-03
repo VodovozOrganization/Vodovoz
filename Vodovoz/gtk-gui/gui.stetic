@@ -101,7 +101,7 @@
       </source>
     </icon-set>
   </icon-factory>
-  <widget class="Gtk.Window" id="MainWindow" design-size="1008 535">
+  <widget class="Gtk.Window" id="MainWindow" design-size="1006 535">
     <action-group name="Default">
       <action id="ActionBaseMenu">
         <property name="Type">Action</property>
@@ -1174,6 +1174,12 @@
         <property name="ShortLabel" translatable="yes">Отчет по первичным/вторичным заказам</property>
         <signal name="Activated" handler="OnActionFirstSecondReportActivated" />
       </action>
+      <action id="ActionFuelConsumptionReport">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчет по выдаче топлива по МЛ</property>
+        <property name="ShortLabel" translatable="yes">Отчет по выдаче топлива по МЛ</property>
+        <signal name="Activated" handler="OnActionFuelConsumptionReportActivated" />
+      </action>
       <action id="ActionBookkeepping">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Бухгалтерия</property>
@@ -1346,6 +1352,7 @@
                     </node>
                     <node type="Menu" action="ActionLogistic">
                       <node type="Menuitem" action="ActionOrdersByDistrictsAndDeliverySchedules" />
+                      <node type="Menuitem" action="ActionFuelConsumptionReport" />
                     </node>
                     <node type="Separator" />
                     <node type="Menu" action="ActionReportEmployees">
@@ -48287,7 +48294,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Reports.Logistic.RoutesListRegisterReport" design-size="300 300">
+  <widget class="Gtk.Bin" id="Vodovoz.Reports.Logistic.RoutesListRegisterReport" design-size="300 165">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -48331,7 +48338,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Vodovoz.ViewWidgets.GeographicGroupsToStringWidget" id="geograficGroup">
+          <widget class="Vodovoz.ViewWidgets.GeographicGroupsToStringWidget" id="geographicGroup">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <property name="Label" />
@@ -79291,6 +79298,100 @@ not tooltip</property>
           </widget>
           <packing>
             <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Logistic.FuelConsumptionReport" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="label1">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Дата:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="QSWidgetLib.DatePeriodPicker" id="dateperiodpicker">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="StartDate">0</property>
+                <property name="EndDate">0</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">False</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">False</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Vodovoz.ViewWidgets.GeographicGroupsToStringWidget" id="geographicGroup">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+            <property name="Label" />
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.CheckButton" id="chkDetailed">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Label" translatable="yes">Подробный отчёт</property>
+            <property name="DrawIndicator">True</property>
+            <property name="HasLabel">True</property>
+            <property name="UseUnderline">True</property>
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonCreateReport">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonCreateReportClicked" />
+          </widget>
+          <packing>
+            <property name="Position">4</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>

@@ -1194,6 +1194,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ExtraBottleReport.cs" />
     <Compile Include="ReportsParameters\Bottles\FirstSecondClientReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.FirstSecondClientReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\FuelConsumptionReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.FuelConsumptionReport.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCloseDeliveryReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCloseDeliveryReport.cs" />
   </ItemGroup>
@@ -1798,6 +1800,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bottles\FirstSecondClients.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\FuelConsumptionReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\FuelConsumptionDetailedReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bookkeeping\CloseCounterpartyDelivery.rdl">
