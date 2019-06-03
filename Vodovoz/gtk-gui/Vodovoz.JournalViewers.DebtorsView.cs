@@ -52,6 +52,7 @@ namespace Vodovoz.JournalViewers
 			this.buttonFilter.Label = global::Mono.Unix.Catalog.GetString("Фильтр");
 			this.hbox3.Add(this.buttonFilter);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonFilter]));
+			w1.PackType = ((global::Gtk.PackType)(1));
 			w1.Position = 1;
 			w1.Expand = false;
 			w1.Fill = false;
@@ -63,6 +64,7 @@ namespace Vodovoz.JournalViewers
 			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString("Обновить");
 			this.hbox3.Add(this.buttonRefresh);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonRefresh]));
+			w2.PackType = ((global::Gtk.PackType)(1));
 			w2.Position = 2;
 			w2.Expand = false;
 			w2.Fill = false;

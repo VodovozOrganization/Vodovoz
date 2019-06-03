@@ -31,7 +31,8 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnButtonCreateTaskClicked(object sender, EventArgs e)
 		{
-			bottleDebtorVM.CreateTask(treeviewDebtors.GetSelectedObjects().OfType<BottleDebtorsVMNode>().ToArray());
+			var taskCount = bottleDebtorVM.CreateTask(treeviewDebtors.GetSelectedObjects().OfType<BottleDebtorsVMNode>().ToArray());
+			MessageDialogHelper.RunInfoDialog($"Создано задач: {taskCount}");
 		}
 
 		protected void OnSearchentity1TextChanged(object sender, EventArgs e)
@@ -79,6 +80,11 @@ namespace Vodovoz.JournalViewers
 				bottleDebtorVM.OpenReport(selectedNode.ClientId, selectedNode.AddressId);
 			else
 				MessageDialogHelper.RunInfoDialog("Необходимо выбрать точку доставки");
+		}
+
+		protected void OnButtonRefreshClicked(object sender, EventArgs e)
+		{
+			bottleDebtorVM?.UpdateNodes();
 		}
 	}
 }

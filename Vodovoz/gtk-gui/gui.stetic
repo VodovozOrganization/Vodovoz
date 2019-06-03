@@ -71644,7 +71644,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.JournalViewers.DebtorsView" design-size="628 502">
+  <widget class="Gtk.Bin" id="Vodovoz.JournalViewers.DebtorsView" design-size="648 502">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -71672,6 +71672,7 @@ not tooltip</property>
                     <signal name="Clicked" handler="OnButtonFilterClicked" />
                   </widget>
                   <packing>
+                    <property name="PackType">End</property>
                     <property name="Position">1</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
@@ -71685,8 +71686,10 @@ not tooltip</property>
                     <property name="Type">TextOnly</property>
                     <property name="Label" translatable="yes">Обновить</property>
                     <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonRefreshClicked" />
                   </widget>
                   <packing>
+                    <property name="PackType">End</property>
                     <property name="Position">2</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>

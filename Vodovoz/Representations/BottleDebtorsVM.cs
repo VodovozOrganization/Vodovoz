@@ -201,8 +201,9 @@ namespace Vodovoz.Representations
 				() => new QSReport.ReportViewDlg(reportInfo));
 		}
 
-		public void CreateTask(BottleDebtorsVMNode[] bottleDebtors)
+		public int CreateTask(BottleDebtorsVMNode[] bottleDebtors)
 		{
+			int newTaskCount = 0;
 			foreach(var item in bottleDebtors) {
 				if(item == null)
 					continue;
@@ -213,9 +214,11 @@ namespace Vodovoz.Representations
 					CreationDate = DateTime.Now,
 					EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59)
 				};
+				newTaskCount++;
 				UoW.Save(task);
 			}
 			UoW.Commit();
+			return newTaskCount;
 		}
 	}
 
