@@ -2790,6 +2790,9 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(var item in OrderItems)
 				item.ActualCount = item.Count;
+
+			foreach(var depositItem in OrderDepositItems)
+				depositItem.ActualCount = depositItem.Count;
 		}
 
 		/// <summary>
@@ -3533,8 +3536,8 @@ namespace Vodovoz.Domain.Orders
 			var bottleRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Bottles).Sum(x => x.Total);
 			var equipmentRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
 			var operations = UpdateDepositOperations(uow, equipmentRefundDeposit, bottleRefundDeposit);
-			return operations;
 			operations.ForEach(x => uow.Save(x));
+			return operations;
 		}
 
 		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow, decimal equipmentRefundDeposit, decimal bottleRefundDeposit)
