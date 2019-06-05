@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	CASE cars.type_of_use
@@ -66,7 +66,7 @@
 				logistics_area ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')),
 						logistics_district)
 			WHERE
-				orders.id = route_list_addresses.order_id)) AS street_district,
+				orders.id = route_list_addresses.order_id LIMIT 1 )) AS street_district,
 	COUNT(route_list_addresses.id) AS address_count,
 	(SELECT 
 			COUNT(route_list_addresses.id)
@@ -147,7 +147,7 @@ ORDER BY driver_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
