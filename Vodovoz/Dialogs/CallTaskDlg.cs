@@ -138,7 +138,7 @@ namespace Vodovoz.Dialogs
 		protected void OnCreateTaskButtonClicked(object sender, EventArgs e)
 		{
 			CallTaskDlg newTask = new CallTaskDlg();
-			newTask.Entity.CopyTask(Entity);
+			newTask.Entity.CopyTask(Entity , UoW);
 			newTask.UpdateAddressFields();
 			TabParent.AddTab(newTask,this);
 		}
