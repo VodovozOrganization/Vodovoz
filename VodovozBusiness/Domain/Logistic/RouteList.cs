@@ -183,6 +183,13 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref closingComment, value, () => ClosingComment);
 		}
 
+		string cashierReviewComment;
+		[Display(Name = "Комментарий по закрытию кассы")]
+		public virtual string CashierReviewComment {
+			get => cashierReviewComment;
+			set => SetField(ref cashierReviewComment, value, () => CashierReviewComment);
+		}
+
 		Employee cashier;
 		[IgnoreHistoryTrace]
 		public virtual Employee Cashier {

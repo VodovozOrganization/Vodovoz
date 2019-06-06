@@ -94,6 +94,12 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			permissioncommentview.UoW = UoW;
+			permissioncommentview.Title = "Комментарий по проверке закрытия МЛ: ";
+			permissioncommentview.Comment = Entity.CashierReviewComment;
+			permissioncommentview.PermissionName = "can_edit_cashier_review_comment";
+			permissioncommentview.Comment = Entity.CashierReviewComment;
+			permissioncommentview.CommentChanged += (comment) => Entity.CashierReviewComment = comment;
 			canCloseRoutelist = PermissionRepository.HasAccessToClosingRoutelist();
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
@@ -152,7 +158,8 @@ namespace Vodovoz
 
 			routeListAddressesView.UoW = UoW;
 			routeListAddressesView.RouteList = Entity;
-			foreach(RouteListItem item in routeListAddressesView.Items) {
+			foreach(RouteListItem item in routeListAddressesView.Items) 
+			{
 				item.Order.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged;
 				item.Order.ObservableOrderItems.ElementAdded += ObservableOrderItems_ElementAdded;
 				item.Order.ObservableOrderItems.ElementRemoved += ObservableOrderItems_ElementRemoved;
