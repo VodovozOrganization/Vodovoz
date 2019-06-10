@@ -5,7 +5,6 @@ using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
-using QSOrmProject;
 using Vodovoz;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
@@ -256,14 +255,14 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			"CRM",
 			() => new TasksView(), null
-			);
+		);
 	}
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-		"CRM",
-		() => new DebtorsView(), null
+			"CRM",
+			() => new DebtorsView(), null
 		);
 	}
 

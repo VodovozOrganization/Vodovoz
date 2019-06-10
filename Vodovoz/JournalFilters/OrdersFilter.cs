@@ -304,6 +304,12 @@ namespace Vodovoz
 		{
 			OnRefiltered();
 		}
+
+		public override void Destroy()
+		{
+			UoW?.Dispose();
+			base.Destroy();
+		}
 	}
 }
 

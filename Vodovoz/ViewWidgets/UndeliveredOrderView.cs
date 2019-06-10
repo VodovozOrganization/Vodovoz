@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using Gamma.GtkWidgets;
 using NHibernate.Util;
+using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
-using QSOrmProject;
+using QS.Project.Dialogs.GtkUI;
+using QS.Project.Repositories;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -15,13 +18,11 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.ViewModel;
-using QS.Project.Repositories;
-using QS.Project.Dialogs.GtkUI;
 
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UndeliveredOrderView : QS.Dialog.Gtk.WidgetOnDialogBase
+	public partial class UndeliveredOrderView : WidgetOnDialogBase
 	{
 		Order newOrder = null;
 		Order oldOrder = null;
@@ -303,8 +304,9 @@ namespace Vodovoz.ViewWidgets
 				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
 			);
 			Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? Buttons.All : (Buttons.Add | Buttons.Edit);
-			PermissionControlledRepresentationJournal dlg = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons);
-			dlg.Mode = JournalSelectMode.Single;
+			PermissionControlledRepresentationJournal dlg = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
+				Mode = JournalSelectMode.Single
+			};
 
 			MyTab.TabParent.AddTab(dlg, MyTab, false);
 
@@ -314,7 +316,7 @@ namespace Vodovoz.ViewWidgets
 					return;
 				}
 				if(oldOrder.Id == selectedId) {
-					MessageDialogWorks.RunErrorDialog("Перенесённый заказ не может совпадать с недовезённым!");
+					MessageDialogHelper.RunErrorDialog("Перенесённый заказ не может совпадать с недовезённым!");
 					OnBtnChooseOrderClicked(sender, ea);
 					return;
 				}
@@ -333,7 +335,7 @@ namespace Vodovoz.ViewWidgets
 			var dlg = new OrderDlg();
 			dlg.CopyOrderFrom(order.Id);
 			MyTab.TabParent.OpenTab(
-				OrmMain.GenerateDialogHashName<Domain.Orders.Order>(dlg.Entity.Id),
+				DialogHelper.GenerateDialogHashName<Order>(dlg.Entity.Id),
 				() => dlg
 			);
 
@@ -357,7 +359,7 @@ namespace Vodovoz.ViewWidgets
 		{
 			var dlg = new OrderDlg(order);
 			MyTab.TabParent.OpenTab(
-				OrmMain.GenerateDialogHashName<Domain.Orders.Order>(order.Id),
+				DialogHelper.GenerateDialogHashName<Order>(order.Id),
 				() => dlg
 			);
 		}

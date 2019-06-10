@@ -4,12 +4,11 @@ using System.Linq;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
-using QSOrmProject;
-using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModel;
@@ -69,12 +68,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
 			if(DocumentUoW.Root.FromClient == null) {
-				MessageDialogWorks.RunErrorDialog("Не добавлен отправитель.");
+				MessageDialogHelper.RunErrorDialog("Не добавлен отправитель.");
 				return;
 			}
 
 			if(DocumentUoW.Root.FromDeliveryPoint == null) {
-				MessageDialogWorks.RunErrorDialog("Не добавлена точка доставки отправителя.");
+				MessageDialogHelper.RunErrorDialog("Не добавлена точка доставки отправителя.");
 			}
 
 			ITdiTab mytab = DialogHelper.FindParentTab(this);
@@ -84,10 +83,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			}
 
 			var filter = new StockBalanceFilter(UnitOfWorkFactory.CreateWithoutRoot());
-		//	filter.RestrictWarehouse = DocumentUoW.Root.FromWarehouse;
+			//	filter.RestrictWarehouse = DocumentUoW.Root.FromWarehouse;
 
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new StockBalanceVM(filter), Buttons.None);
-			SelectDialog.Mode = JournalSelectMode.Single;
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new StockBalanceVM(filter), Buttons.None) {
+				Mode = JournalSelectMode.Single
+			};
 			SelectDialog.ObjectSelected += NomenclatureSelected;
 
 			mytab.TabParent.AddSlaveTab(mytab, SelectDialog);

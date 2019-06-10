@@ -237,7 +237,7 @@ namespace Vodovoz
 
 		void AllOrders_Activated(object sender, EventArgs e)
 		{
-			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
+			var filter = new OrdersFilter(UoW);
 			filter.SetAndRefilterAtOnce(x => x.RestrictCounterparty = Entity);
 			Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? Buttons.All : (Buttons.Add | Buttons.Edit);
 			PermissionControlledRepresentationJournal OrdersDialog = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {

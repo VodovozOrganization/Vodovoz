@@ -462,13 +462,11 @@ namespace Vodovoz
 
 		private void WriteCoordinates(decimal? latitude, decimal? longitude)
 		{
-			if(EqualCoords(Entity.Latitude, latitude)
-			&& EqualCoords(Entity.Longitude, longitude)) {
+			if(EqualCoords(Entity.Latitude, latitude) && EqualCoords(Entity.Longitude, longitude))
 				return;
-			}
 
 			Entity.SetСoordinates(latitude, longitude, UoW);
-			Entity.СoordsLastChangeUser = Repositories.HumanResources.UserRepository.GetCurrentUser(UnitOfWorkFactory.CreateWithoutRoot());
+			Entity.СoordsLastChangeUser = Repositories.HumanResources.UserRepository.GetCurrentUser(UoW);
 		}
 
 		/// <summary>

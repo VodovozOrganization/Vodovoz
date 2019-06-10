@@ -65,6 +65,12 @@ namespace Vodovoz
 			ShowArchive = checkShowArchive.Active;
 			OnRefiltered();
 		}
+
+		public override void Destroy()
+		{
+			UoW?.Dispose();
+			base.Destroy();
+		}
 	}
 }
 

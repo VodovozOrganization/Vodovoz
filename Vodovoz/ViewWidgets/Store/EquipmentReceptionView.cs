@@ -168,14 +168,18 @@ namespace Vodovoz
 		void MenuitemSelectFromClient_Activated(object sender, EventArgs e)
 		{
 			equipmentToSetSerial = ytreeEquipment.GetSelectedObject<ReceptionEquipmentItemNode>();
-			var filter = new ClientBalanceFilter(UnitOfWorkFactory.CreateWithoutRoot());
+			var filter = new ClientBalanceFilter(UoW);
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCounterparty = equipmentToSetSerial.ServiceClaim.Counterparty,
 			    x => x.RestrictNomenclature = x.UoW.GetById<Nomenclature>(equipmentToSetSerial.NomenclatureId)
 			);
 			var selectFromClientDlg = new PermissionControlledRepresentationJournal(new Vodovoz.ViewModel.ClientEquipmentBalanceVM(filter));
-			selectFromClientDlg.CustomTabName(String.Format("Оборудование у {0}",
-				StringWorks.EllipsizeEnd(equipmentToSetSerial.ServiceClaim.Counterparty.Name, 50)));
+			selectFromClientDlg.CustomTabName(
+				string.Format(
+					"Оборудование у {0}",
+					StringWorks.EllipsizeEnd(equipmentToSetSerial.ServiceClaim.Counterparty.Name, 50)
+				)
+			);
 			selectFromClientDlg.ObjectSelected += SelectFromClientDlg_ObjectSelected;
 			MyTab.TabParent.AddSlaveTab(MyTab, selectFromClientDlg);
 		}
