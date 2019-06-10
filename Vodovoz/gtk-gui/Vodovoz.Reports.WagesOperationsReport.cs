@@ -16,7 +16,7 @@ namespace Vodovoz.Reports
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
-		private global::Gamma.Widgets.yEntryReferenceVM yentryreferenceEmployee;
+		private global::QS.Widgets.GtkUI.RepresentationEntry repEntryEmployee;
 
 		private global::Gtk.Button buttonCreateReport;
 
@@ -73,12 +73,14 @@ namespace Vodovoz.Reports
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.yentryreferenceEmployee = new global::Gamma.Widgets.yEntryReferenceVM();
-			this.yentryreferenceEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.yentryreferenceEmployee.Name = "yentryreferenceEmployee";
-			this.hbox2.Add(this.yentryreferenceEmployee);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.yentryreferenceEmployee]));
+			this.repEntryEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
+			this.repEntryEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.repEntryEmployee.Name = "repEntryEmployee";
+			this.hbox2.Add(this.repEntryEmployee);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.repEntryEmployee]));
 			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.vbox1.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
 			w6.Position = 1;

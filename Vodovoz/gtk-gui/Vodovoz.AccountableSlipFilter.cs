@@ -14,7 +14,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label3;
 
-		private global::Gamma.Widgets.yEntryReferenceVM yentryAccountable;
+		private global::QS.Widgets.GtkUI.RepresentationEntry repEntryAccountable;
 
 		private global::Gamma.Widgets.yEntryReference yentryExpense;
 
@@ -26,6 +26,7 @@ namespace Vodovoz
 			this.Name = "Vodovoz.AccountableSlipFilter";
 			// Container child Vodovoz.AccountableSlipFilter.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(4)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -71,11 +72,11 @@ namespace Vodovoz
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryAccountable = new global::Gamma.Widgets.yEntryReferenceVM();
-			this.yentryAccountable.Events = ((global::Gdk.EventMask)(256));
-			this.yentryAccountable.Name = "yentryAccountable";
-			this.table1.Add(this.yentryAccountable);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryAccountable]));
+			this.repEntryAccountable = new global::QS.Widgets.GtkUI.RepresentationEntry();
+			this.repEntryAccountable.Events = ((global::Gdk.EventMask)(256));
+			this.repEntryAccountable.Name = "repEntryAccountable";
+			this.table1.Add(this.repEntryAccountable);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.repEntryAccountable]));
 			w5.LeftAttach = ((uint)(1));
 			w5.RightAttach = ((uint)(2));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -99,7 +100,7 @@ namespace Vodovoz
 			}
 			this.Hide();
 			this.yentryExpense.Changed += new global::System.EventHandler(this.OnYentryExpenseChanged);
-			this.yentryAccountable.Changed += new global::System.EventHandler(this.OnYentryAccountableChanged);
+			this.repEntryAccountable.Changed += new global::System.EventHandler(this.OnYentryAccountableChanged);
 			this.dateperiod.PeriodChanged += new global::System.EventHandler(this.OnDateperiodPeriodChanged);
 		}
 	}

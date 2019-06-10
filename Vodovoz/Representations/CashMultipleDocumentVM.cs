@@ -8,14 +8,14 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.RepresentationModel.GtkUI;
+using QS.Utilities.Text;
 using QSProjectsLib;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using QS.Utilities.Text;
 using Vodovoz.Repository.Cash;
-using QS.RepresentationModel.GtkUI;
 
 namespace Vodovoz.Representations
 {
@@ -454,10 +454,8 @@ namespace Vodovoz.Representations
 					case CashDocumentType.Expense:
 					case CashDocumentType.ExpenseSelfDelivery:
 						return -Money;
-						break;
 					case CashDocumentType.AdvanceReport:
 						return 0;
-						break;
 					default:
 						return Money;
 				}
