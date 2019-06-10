@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gtk;
+using Vodovoz.Core.DataService;
 using Vodovoz.SidePanel.InfoViews;
 
 namespace Vodovoz.SidePanel
@@ -24,7 +25,7 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.EmailsPanelView:
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
-					return new CallTaskPanelView();
+					return new CallTaskPanelView(new BaseParametersProvider());
 				default:
 					throw new NotSupportedException();
 			}

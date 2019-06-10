@@ -7,6 +7,7 @@ using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
+using QS.Project.Repositories;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
@@ -15,9 +16,11 @@ using QSValidation;
 using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModel;
-using QS.Project.Repositories;
 
 namespace Vodovoz
 {
@@ -93,8 +96,11 @@ namespace Vodovoz
 			yentryDeliveryDaySchedule.SubjectType = typeof(DeliveryDaySchedule);
 			yentryDeliveryDaySchedule.Binding.AddBinding(Entity, e => e.DefaultDaySheldule, w => w.Subject).InitializeFromSource();
 
-			var filterDefaultForwarder = new EmployeeFilter(UoW);
-			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
+			var filterDefaultForwarder = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterDefaultForwarder.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.forwarder,
+				x => x.ShowFired = false
+			);
 			yentryDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			yentryDefaultForwarder.Binding.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
 
@@ -109,7 +115,7 @@ namespace Vodovoz
 			referenceUser.Binding.AddBinding(Entity, e => e.User, w => w.Subject).InitializeFromSource();
 
 			comboCategory.ItemsEnum = typeof(EmployeeCategory);
-			if(hiddenCategory != null && hiddenCategory.Any()){
+			if(hiddenCategory != null && hiddenCategory.Any()) {
 				comboCategory.AddEnumToHideList(hiddenCategory.Cast<object>().ToArray());
 			}
 			comboCategory.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
@@ -146,7 +152,7 @@ namespace Vodovoz
 			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
 
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
-				.AddColumn("Район").AddTextRenderer(x => x.District.Name)
+				.AddColumn("Район").AddTextRenderer(x => x.District.DistrictName)
 				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority + 1)
 				.Finish();
 			ytreeviewDistricts.Reorderable = true;
@@ -154,7 +160,7 @@ namespace Vodovoz
 
 			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
-				.AddColumn("Доп. название").AddTextRenderer(x=>x.Name)
+				.AddColumn("Доп. название").AddTextRenderer(x => x.Name)
 				.Finish();
 			ytreeviewEmployeeDocument.SetItemsSource(Entity.ObservableDocuments);
 
@@ -272,7 +278,7 @@ namespace Vodovoz
 		#region Document
 		protected void OnButtonAddDocumentClicked(object sender, EventArgs e)
 		{
-			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW,Entity.IsRussianCitizen ? hiddenForRussianDocument : hiddenForForeignCitizen);
+			EmployeeDocDlg dlg = new EmployeeDocDlg(UoW, Entity.IsRussianCitizen ? hiddenForRussianDocument : hiddenForForeignCitizen);
 			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableDocuments.Add(dlg.Entity);
 			TabParent.AddSlaveTab(this, dlg);
 		}
@@ -285,8 +291,7 @@ namespace Vodovoz
 
 		protected void OnButtonEditDocumentClicked(object sender, EventArgs e)
 		{
-			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null) 
-			{
+			if(ytreeviewEmployeeDocument.GetSelectedObject<EmployeeDocument>() != null) {
 				EmployeeDocDlg dlg = new EmployeeDocDlg(((EmployeeDocument)ytreeviewEmployeeDocument.GetSelectedObjects()[0]).Id, UoW);
 				TabParent.AddSlaveTab(this, dlg);
 			}
@@ -304,15 +309,15 @@ namespace Vodovoz
 		protected void OnAddContractButtonCliked(object sender, EventArgs e)
 		{
 			List<EmployeeDocument> doc = Entity.GetMainDocuments();
-			if(doc.Count < 1) {
+			if(!doc.Any()) {
 				MessageDialogHelper.RunInfoDialog("Отсутствует главный документ");
 				return;
-			}
-			else if(Entity.Registration!=RegistrationType.Contract) {
+			} 
+			if(Entity.Registration != RegistrationType.Contract) {
 				MessageDialogHelper.RunInfoDialog("Должен быть указан тип регистрации: 'ГПК' ");//FIXME: Временно до задачи I-1556
-				return;   
+				return;
 			}
-			EmployeeContractDlg dlg = new EmployeeContractDlg(doc[0],Entity,UoW);
+			EmployeeContractDlg dlg = new EmployeeContractDlg(doc[0], Entity, UoW);
 			dlg.Save += (object sender1, EventArgs e1) => Entity.ObservableContracts.Add(dlg.Entity);
 			TabParent.AddSlaveTab(this, dlg);
 		}
@@ -325,8 +330,7 @@ namespace Vodovoz
 
 		protected void OnButtonEditContractClicked(object sender, EventArgs e)
 		{
-			if(ytreeviewEmployeeContract.GetSelectedObject<EmployeeContract>() != null) 
-			{
+			if(ytreeviewEmployeeContract.GetSelectedObject<EmployeeContract>() != null) {
 				EmployeeContractDlg dlg = new EmployeeContractDlg(((EmployeeContract)ytreeviewEmployeeContract.GetSelectedObjects()[0]).Id, UoW);
 				TabParent.AddSlaveTab(this, dlg);
 			}
@@ -347,10 +351,11 @@ namespace Vodovoz
 		{
 			var SelectDistrict = new OrmReference(
 				UoW,
-				Repository.Logistics.LogisticAreaRepository.ActiveAreaQuery()
-			);
-			SelectDistrict.Mode = OrmReferenceMode.MultiSelect;
-			SelectDistrict.ObjectSelected += SelectDistrict_ObjectSelected; ;
+				ScheduleRestrictionRepository.AreaWithGeometryQuery()
+			) {
+				Mode = OrmReferenceMode.MultiSelect
+			};
+			SelectDistrict.ObjectSelected += SelectDistrict_ObjectSelected;
 			TabParent.AddSlaveTab(this, SelectDistrict);
 		}
 
@@ -362,30 +367,31 @@ namespace Vodovoz
 
 		void SelectDistrict_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			var addDistricts = e.GetEntities<LogisticsArea>();
+			var addDistricts = e.GetEntities<ScheduleRestrictedDistrict>();
 			addDistricts.Where(x => Entity.Districts.All(d => d.District.Id != x.Id))
 						.Select(x => new DriverDistrictPriority {
 							Driver = Entity,
 							District = x
-						}).ToList().ForEach(x => Entity.ObservableDistricts.Add(x));
+						})
+						.ToList()
+						.ForEach(x => Entity.ObservableDistricts.Add(x))
+						;
 		}
 
 		protected void OnComboWageCalcTypeEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			labelWageCalcRate.Visible = yspinWageCalcRate.Visible
-				= ((WageCalculationType)e.SelectedItem != WageCalculationType.normal 
+				= ((WageCalculationType)e.SelectedItem != WageCalculationType.normal
 				   && (WageCalculationType)e.SelectedItem != WageCalculationType.percentageForService
 				   && (WageCalculationType)e.SelectedItem != WageCalculationType.withoutPayment);
 
-			if((WageCalculationType)e.SelectedItem == WageCalculationType.percentage)
-			{
+			if((WageCalculationType)e.SelectedItem == WageCalculationType.percentage) {
 				yspinWageCalcRate.Adjustment.Upper = 100;
 				Entity.WageCalcRate = Entity.WageCalcRate > 100 ? 100 : Entity.WageCalcRate;
 			}
 
 			if((WageCalculationType)e.SelectedItem == WageCalculationType.fixedDay
-			   || (WageCalculationType)e.SelectedItem == WageCalculationType.fixedRoute)
-			{
+			   || (WageCalculationType)e.SelectedItem == WageCalculationType.fixedRoute) {
 				yspinWageCalcRate.Adjustment.Upper = 100000;
 			}
 

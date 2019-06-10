@@ -13,6 +13,7 @@ using QSBusinessCommon.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -330,6 +331,13 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		private FuelType fuelType;
+		[Display(Name = "Тип топлива")]
+		public virtual FuelType FuelType {
+			get => fuelType;
+			set => SetField(ref fuelType, value, () => FuelType);
+		}
+
 		private Nomenclature dependsOnNomenclature;
 
 		[Display(Name = "Влияющая номенклатура")]
@@ -638,8 +646,13 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult(
 					String.Format("Не указан тип залога."),
 					new[] { this.GetPropertyName(o => o.TypeOfDepositCategory) });
+
 			if((Category == NomenclatureCategory.water || Category == NomenclatureCategory.bottle) && !TareVolume.HasValue) {
 				yield return new ValidationResult("Не выбран объем тары");
+			}
+
+			if(Category == NomenclatureCategory.fuel && FuelType == null) {
+				yield return new ValidationResult("Не выбран тип топлива");
 			}
 
 			if(Unit == null)
@@ -850,7 +863,10 @@ namespace Vodovoz.Domain.Goods
 		[Display(Name = "Сырьё")]
 		material,
 		[Display(Name = "Выезд мастера")]
-		master
+		master,
+		[Display(Name = "Топливо")]
+		fuel
+
 	}
 
 	public enum TareVolume

@@ -6,6 +6,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Reports
 {
@@ -17,8 +18,11 @@ namespace Vodovoz.Reports
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
-			var filterForwarder = new EmployeeFilter(UoW);
-			filterForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.forwarder);
+			var filterForwarder = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterForwarder.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.forwarder,
+				x => x.ShowFired = false
+			);
 			yentryreferenceForwarder.RepresentationModel = new EmployeesVM(filterForwarder);
 		}
 

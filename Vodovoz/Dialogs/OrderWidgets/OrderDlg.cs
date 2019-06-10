@@ -22,6 +22,7 @@ using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
 using QS.Report;
 using QS.Tdi;
@@ -44,6 +45,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
@@ -271,7 +273,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			var filterAuthor = new EmployeeFilter(UoW) {
+			var filterAuthor = new EmployeeFilterViewModel(ServicesConfig.CommonServices) {
 				ShowFired = false
 			};
 			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
@@ -793,7 +795,7 @@ namespace Vodovoz
 			   && SaveOrderBeforeContinue<M2ProxyDocument>()) {
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<M2ProxyDocument>(0),
-					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), UoW, EntityOpenOption.Create(true))
+					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), EntityConstructorParam.ForCreateInChildUoW(UoW))
 				);
 			}
 		}
@@ -855,7 +857,7 @@ namespace Vodovoz
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName(type, agreement.Id),
 							() => {
-								var dialog = OrmMain.CreateObjectDialog(type, UoW, EntityOpenOption.Open(agreement.Id, true));
+								var dialog = OrmMain.CreateObjectDialog(type, EntityConstructorParam.ForOpenInChildUoW(agreement.Id, UoW));
 								if(dialog is IAgreementSaved)
 									(dialog as IAgreementSaved).AgreementSaved += AgreementSaved;
 								return dialog;
@@ -1102,11 +1104,11 @@ namespace Vodovoz
 				x => x.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.master },
 				x => x.DefaultSelectedCategory = NomenclatureCategory.master
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = OrmReferenceMode.Select,
-				TabName = "Выезд мастера",
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = JournalSelectMode.Single,
 				ShowFilter = true
 			};
+			SelectDialog.CustomTabName("Выезд мастера");
 			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
@@ -1122,11 +1124,11 @@ namespace Vodovoz
 				x => x.DefaultSelectedCategory = NomenclatureCategory.water,
 				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = OrmReferenceMode.Select,
-				TabName = "Номенклатура на продажу",
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = JournalSelectMode.Single,
 				ShowFilter = true
 			};
+			SelectDialog.CustomTabName("Номенклатура на продажу");
 			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
 			TabParent.AddSlaveTab(this, SelectDialog);
 
@@ -1152,9 +1154,13 @@ namespace Vodovoz
 			Entity.RecalculateStockBottles(standartDiscountsService);
 		}
 
-		void NomenclatureForSaleSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void NomenclatureForSaleSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
+			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			if(selectedId == 0) {
+				return;
+			}
+			TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedId));
 		}
 
 		void NomenclatureSelected(object sender, OrmReferenceObjectSectedEventArgs e)
@@ -1262,18 +1268,22 @@ namespace Vodovoz
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = OrmReferenceMode.Select,
-				TabName = "Оборудование к клиенту",
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = JournalSelectMode.Single,
 				ShowFilter = true
 			};
+			SelectDialog.CustomTabName("Оборудование к клиенту");
 			SelectDialog.ObjectSelected += NomenclatureToClient;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
-		void NomenclatureToClient(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void NomenclatureToClient(object sender, JournalObjectSelectedEventArgs e)
 		{
-			AddNomenclatureToClient(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
+			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			if(selectedId == 0) {
+				return;
+			}
+			AddNomenclatureToClient(UoWGeneric.Session.Get<Nomenclature>(selectedId));
 		}
 
 		void AddNomenclatureToClient(Nomenclature nomenclature)
@@ -1291,18 +1301,22 @@ namespace Vodovoz
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment
 			);
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = OrmReferenceMode.Select,
-				TabName = "Оборудование от клиента",
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
+				Mode = JournalSelectMode.Single,
 				ShowFilter = true
 			};
+			SelectDialog.CustomTabName("Оборудование от клиента");
 			SelectDialog.ObjectSelected += NomenclatureFromClient;
 			TabParent.AddSlaveTab(this, SelectDialog);
 		}
 
-		void NomenclatureFromClient(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void NomenclatureFromClient(object sender, JournalObjectSelectedEventArgs e)
 		{
-			AddNomenclatureFromClient(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
+			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			if(selectedId == 0) {
+				return;
+			}
+			AddNomenclatureFromClient(UoWGeneric.Session.Get<Nomenclature>(selectedId));
 		}
 
 		void AddNomenclatureFromClient(Nomenclature nomenclature)
@@ -1708,29 +1722,41 @@ namespace Vodovoz
 		protected void OnReferenceClientChanged(object sender, EventArgs e)
 		{
 			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(referenceClient.Subject));
-			if(Entity.Client != null) {
+			if(Entity.Client != null) 
+			{
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, Entity.Client);
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
 				referenceContract.RepresentationModel = new ViewModel.ContractsVM(UoW, Entity.Client);
 
-				PaymentType? previousEnum = enumPaymentType.SelectedItem is PaymentType ? ((PaymentType?)enumPaymentType.SelectedItem) : null;
-				var hideEnums = new Enum[] { PaymentType.cashless };
+				PaymentType? previousPaymentType = enumPaymentType.SelectedItem as PaymentType?;
+
+				Enum[] hideEnums = { PaymentType.cashless };
+
 				if(Entity.Client.PersonType == PersonType.natural)
 					enumPaymentType.AddEnumToHideList(hideEnums);
 				else
 					enumPaymentType.ClearEnumHideList();
-				if(previousEnum.HasValue) {
-					if(previousEnum.Value == Entity.PaymentType) {
-						enumPaymentType.SelectedItem = previousEnum.Value;
-					} else if(Entity.Id == 0 || hideEnums.Contains(Entity.PaymentType)) {
+
+				if(previousPaymentType.HasValue) 
+				{
+					if(previousPaymentType.Value == Entity.PaymentType) 
+					{
+						enumPaymentType.SelectedItem = previousPaymentType.Value;
+					} 
+					else if(Entity.Id == 0 || hideEnums.Contains(Entity.PaymentType)) 
+					{
 						enumPaymentType.SelectedItem = Entity.Client.PaymentMethod;
 						OnEnumPaymentTypeChanged(null, e);
 						Entity.ChangeOrderContract();
-					} else {
+					} 
+					else 
+					{
 						enumPaymentType.SelectedItem = Entity.PaymentType;
 					}
 				}
-			} else {
+			} 
+			else 
+			{
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
 			}
 			Entity.SetProxyForOrder();
@@ -1864,8 +1890,16 @@ namespace Vodovoz
 		}
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
-		{			
-			Entity.UpdateBaseParametersForClient();
+		{
+			if(Entity.Client.IsDeliveriesClosed) 
+			{
+				string message = "Стоп отгрузки!!!" + Environment.NewLine + "Комментарий от фин.отдела: " + Entity.Client?.CloseDeliveryComment;
+				MessageDialogHelper.RunInfoDialog(message);
+				Enum[] hideEnums = new Enum[] { PaymentType.barter, PaymentType.BeveragesWorld, PaymentType.CourierByCard, PaymentType.ContractDoc, PaymentType.CourierByCard, PaymentType.cashless };
+				enumPaymentType.AddEnumToHideList(hideEnums);
+			}
+
+			Entity.UpdateClientDefaultParam();
 
 			//Проверяем возможность добавления Акции "Бутыль"
 			ControlsActionBottleAccessibility();
@@ -2428,7 +2462,7 @@ namespace Vodovoz
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
-			var organization = OrganizationRepository.GetCashlessOrganization(UnitOfWorkFactory.CreateWithoutRoot());
+			var organization = OrganizationRepository.GetCashlessOrganization(UoW);
 			if(organization == null) {
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. В параметрах базы не определена организация для безналичного расчета");
 				return;

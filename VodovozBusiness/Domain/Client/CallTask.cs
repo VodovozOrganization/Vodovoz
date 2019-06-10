@@ -11,10 +11,8 @@ using Vodovoz.Repositories.HumanResources;
 namespace Vodovoz.Domain.Client
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "задачи",
-		Nominative = "задача",
-		Prepositional = "задаче",
-		PrepositionalPlural = "задачах"
+		NominativePlural = "Задачи по обзвону",
+		Nominative = "Задача по обзвону"
 	)]
 	[EntityPermission]
 	public class CallTask : PropertyChangedBase, ITask , IValidatableObject
@@ -126,11 +124,12 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult("Должна быть выбрана точка доставки", new[] { "Address" });
 		}
 
-		public virtual CallTask CreateNewTask()
+		public virtual CallTask CreateNewTask(IUnitOfWork uow)
 		{
 			CallTask task = new CallTask 
 			{
 				DeliveryPoint = DeliveryPoint,
+				TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(uow),
 				Counterparty = Counterparty,
 				CreationDate = DateTime.Now,
 				EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59),
@@ -139,10 +138,11 @@ namespace Vodovoz.Domain.Client
 			return task;
 		}
 
-		public virtual void CopyTask(CallTask callTask)
+		public virtual void CopyTask(CallTask callTask , IUnitOfWork uow)
 		{
 			DeliveryPoint = callTask.DeliveryPoint;
 			Counterparty = callTask.Counterparty;
+			TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(uow); 
 			CreationDate = DateTime.Now;
 			EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
 			AssignedEmployee = callTask.AssignedEmployee;

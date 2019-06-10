@@ -4,6 +4,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
+using Vodovoz.Repositories.Payments;
 
 namespace Vodovoz.ReportsParameters.Payments
 {
@@ -27,6 +28,8 @@ namespace Vodovoz.ReportsParameters.Payments
 			rbtnYesterday.Clicked += OnRbtnYesterdayToggled;
 			rbtnCustomPeriod.Clicked += OnCustomPeriodChanged;
 			pkrStartDate.DateChangedByUser += OnCustomPeriodChanged;
+			ySCmbShop.SetRenderTextFunc<string>(o => string.IsNullOrWhiteSpace(o) ? "{ нет названия }" : o);
+			ySCmbShop.ItemsList = PaymentsRepository.GetAllShopsFromTinkoff(UoW);
 		}
 
 		void SetControlsAccessibility()
@@ -44,8 +47,7 @@ namespace Vodovoz.ReportsParameters.Payments
 
 		void OnUpdate(bool hide = false)
 		{
-			if(LoadReport != null)
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		protected void OnButtonRunClicked(object sender, EventArgs e)
@@ -55,12 +57,14 @@ namespace Vodovoz.ReportsParameters.Payments
 
 		private ReportInfo GetReportInfo()
 		{
-			return new ReportInfo {
+			var rInfo = new ReportInfo {
 				Identifier = "Payments.PaymentsFromTinkoffReport",
 				Parameters = new Dictionary<string, object> {
-					{ "date", startDate }
+					{ "date", startDate },
+					{ "shop", ySCmbShop.SelectedItem ?? "ALL" }
 				}
 			};
+			return rInfo;
 		}
 
 		protected void OnRbtnLast3DaysToggled(object sender, EventArgs e)

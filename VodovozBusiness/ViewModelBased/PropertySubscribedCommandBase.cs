@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModelBased
 		{
 			var foundSet = updatedSets.FirstOrDefault(x => object.ReferenceEquals(x[0], sender));
 			if(((string[])foundSet[1]).Contains(e.PropertyName)) {
-				CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+				RaiseCanExecuteChanged();
 			}
 		}
 

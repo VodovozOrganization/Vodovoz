@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\NUnit.3.11.0\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" />
+  <Import Project="..\packages\NUnit.3.12.0\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.12.0\build\NUnit.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -30,10 +30,10 @@
     <Reference Include="System.Configuration" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.3.12.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="NSubstitute">
-      <HintPath>..\packages\NSubstitute.4.1.0\lib\net46\NSubstitute.dll</HintPath>
+      <HintPath>..\packages\NSubstitute.4.2.0\lib\net46\NSubstitute.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="Antlr3.Runtime">
@@ -79,7 +79,7 @@
       <HintPath>..\packages\Remotion.Linq.EagerFetching.2.2.0\lib\net45\Remotion.Linq.EagerFetching.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
-      <HintPath>..\packages\Google.Protobuf.3.7.0\lib\net45\Google.Protobuf.dll</HintPath>
+      <HintPath>..\packages\Google.Protobuf.3.8.0\lib\net45\Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
@@ -108,12 +108,12 @@
     <Folder Include="Counterparties\" />
     <Folder Include="Goods\" />
     <Folder Include="Deletion\" />
-    <Folder Include="Tools\" />
-    <Folder Include="Tools\Orders\" />
     <Folder Include="Domain\" />
+    <Folder Include="Domain\Fuel\" />
     <Folder Include="Domain\Orders\" />
     <Folder Include="Domain\RouteList\" />
     <Folder Include="Domain\Client\" />
+    <Folder Include="Domain\Payments\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
@@ -121,11 +121,14 @@
     <Compile Include="Goods\NomenclaturePropertiesTest.cs" />
     <Compile Include="Deletion\ConfigTests.cs" />
     <Compile Include="ConfigureOneTime.cs" />
-    <Compile Include="Tools\Orders\OrderStateKeyTests.cs" />
+    <Compile Include="Domain\Fuel\FuelTransferDocumentTests.cs" />
+    <Compile Include="Domain\Fuel\FuelDocumentTests.cs" />
     <Compile Include="Domain\Orders\OrderTests.cs" />
     <Compile Include="Domain\Orders\OrderItemTests.cs" />
+    <Compile Include="AssertsAccumulator.cs" />
     <Compile Include="Domain\RouteList\RouteListItemTests.cs" />
     <Compile Include="Domain\Client\CounterpartyActivityKindTests.cs" />
+    <Compile Include="Domain\Payments\PaymentFromTinkoffTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">

@@ -7,8 +7,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSOrmProject.RepresentationModel;
+using QS.RepresentationModel.GtkUI;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -19,7 +18,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModel
 {
-	public class ReadyForShipmentVM : RepresentationModelWithoutEntityBase<ReadyForShipmentVMNode>
+	public class ReadyForShipmentVM : QSOrmProject.RepresentationModel.RepresentationModelWithoutEntityBase<ReadyForShipmentVMNode>
 	{
 		public ReadyForShipmentVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
 
@@ -34,7 +33,7 @@ namespace Vodovoz.ViewModel
 
 		public ReadyForShipmentFilter Filter {
 			get => RepresentationFilter as ReadyForShipmentFilter;
-			set => RepresentationFilter = value as IRepresentationFilter;
+			set => RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter;
 		}
 
 		#region implemented abstract members of RepresentationModelBase
@@ -92,6 +91,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.Patronymic)
 				   .Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.Car)
 				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
+				   .Select(() => routeListAlias.Status).WithAlias(() => resultAlias.Status)
 				   .Select(() => shiftAlias.Name).WithAlias(() => resultAlias.Shift)
 				)
 				.TransformUsing(Transformers.AliasToBean<ReadyForShipmentVMNode>())
@@ -138,37 +138,27 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc(object updatedSubject) => true;
 
-		public override bool PopupMenuExist => true;
+		public override IEnumerable<IJournalPopupItem> PopupItems {
+			get {
+				var result = new List<IJournalPopupItem>();
 
-		RepresentationSelectResult[] lastMenuSelected;
-		RouteList selectedRouteList;
-		public override Menu GetPopupMenu(RepresentationSelectResult[] selected)
-		{
-			lastMenuSelected = selected;
-			var routeListId = lastMenuSelected.Select(x => x.EntityId)
-											  .FirstOrDefault();
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Отгрузка со склада",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<ReadyForShipmentVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null && selectedNode.Status == RouteListStatus.InLoading)
+							MainClass.MainWin.TdiMain.OpenTab(
+								DialogHelper.GenerateDialogHashName<RouteList>(selectedNode.Id),
+								() => new RouteListControlDlg(selectedNode.Id)
+							);
+					}
+				));
 
-			selectedRouteList = UoW.Session.QueryOver<RouteList>()
-										   .Where(x => x.Id == routeListId)
-										   .List()
-										   .FirstOrDefault();
-			Menu popupMenu = new Menu();
-
-			MenuItem menuItemRouteListControlDlg = new MenuItem("Отгрузка со склада");
-			menuItemRouteListControlDlg.Activated += MenuItemRouteListControlDlg_Activated;
-			popupMenu.Add(menuItemRouteListControlDlg);
-			return popupMenu;
+				return result;
+			}
 		}
+
 		#endregion
-
-		void MenuItemRouteListControlDlg_Activated(object sender, EventArgs e)
-		{
-			if(selectedRouteList != null && selectedRouteList.Status == RouteListStatus.InLoading)
-				MainClass.MainWin.TdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(selectedRouteList.Id),
-					() => new RouteListControlDlg(selectedRouteList.Id)
-				);
-		}
 	}
 
 	public class ReadyForShipmentVMNode
@@ -184,6 +174,8 @@ namespace Vodovoz.ViewModel
 		public string LastName { get; set; }
 
 		public string Patronymic { get; set; }
+
+		public RouteListStatus Status { get; set; }
 
 		[UseForSearch]
 		[SearchHighlight]

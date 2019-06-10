@@ -878,6 +878,12 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
+					if(Client.IsDeliveriesClosed && PaymentType != PaymentType.cash && PaymentType != PaymentType.ByCard)
+						yield return new ValidationResult(
+							"В заказе неверно указан тип оплаты (для данного клиента закрыты поставки)",
+							new[] { this.GetPropertyName(o => o.PaymentType) }
+						);
+
 					if(!DeliveryPoint.FindAndAssociateDistrict(UoW))
 						yield return new ValidationResult(
 							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
@@ -1680,7 +1686,7 @@ namespace Vodovoz.Domain.Orders
 			return oi;
 		}
 
-		public virtual void UpdateBaseParametersForClient()
+		public virtual void UpdateClientDefaultParam()
 		{
 			if(Client == null)
 				return;
@@ -2784,6 +2790,9 @@ namespace Vodovoz.Domain.Orders
 
 			foreach(var item in OrderItems)
 				item.ActualCount = item.Count;
+
+			foreach(var depositItem in OrderDepositItems)
+				depositItem.ActualCount = depositItem.Count;
 		}
 
 		/// <summary>
@@ -3527,8 +3536,8 @@ namespace Vodovoz.Domain.Orders
 			var bottleRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Bottles).Sum(x => x.Total);
 			var equipmentRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
 			var operations = UpdateDepositOperations(uow, equipmentRefundDeposit, bottleRefundDeposit);
-			return operations;
 			operations.ForEach(x => uow.Save(x));
+			return operations;
 		}
 
 		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow, decimal equipmentRefundDeposit, decimal bottleRefundDeposit)

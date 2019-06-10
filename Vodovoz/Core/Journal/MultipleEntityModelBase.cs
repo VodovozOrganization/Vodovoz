@@ -9,8 +9,9 @@ using QS.Permissions;
 using QS.Project.Repositories;
 using QS.RepresentationModel;
 using QS.Tdi;
-using QSOrmProject.RepresentationModel;
 using System.ComponentModel;
+using QS.DomainModel.NotifyChange;
+using QS.RepresentationModel.GtkUI;
 
 namespace Vodovoz.Core.Journal
 {
@@ -69,7 +70,9 @@ namespace Vodovoz.Core.Journal
 
 		#region IMultipleEntityRepresentationModel implementation
 
-		//В данной модели возможно отображение множества сущностей разных типов, поэтому свойство всегда возвращает null
+		/// <summary>
+		/// В данной модели возможно отображение множества сущностей разных типов, поэтому свойство всегда возвращает null
+		/// </summary>
 		public Type EntityType => null;
 
 		public IEnumerable<ActionForCreateEntityConfig> NewEntityActionsConfigs => configList
@@ -120,6 +123,8 @@ namespace Vodovoz.Core.Journal
 
 		public IJournalFilter JournalFilter { get; set; }
 
+		public virtual IEnumerable<IJournalPopupItem> PopupItems => new List<IJournalPopupItem>();
+
 		#endregion
 
 		public IColumnsConfig TreeViewConfig { get; set; }
@@ -134,8 +139,8 @@ namespace Vodovoz.Core.Journal
 			foreach(var item in dataFunctions) {
 				source.AddRange(item.Invoke());
 			}
-			if(FinalListFunction != null) {
-				source = FinalListFunction.Invoke(source);
+			if(AfterSourceFillFunction != null) {
+				source = AfterSourceFillFunction.Invoke(source);
 			}
 
 			SetItemsSource(source);
@@ -143,7 +148,7 @@ namespace Vodovoz.Core.Journal
 
 		#endregion
 
-		public Func<List<TNode>, List<TNode>> FinalListFunction;
+		public Func<List<TNode>, List<TNode>> AfterSourceFillFunction;
 
 		protected EntityPermission GetPermissionForEntity<TEntity>()
 		{
@@ -174,11 +179,8 @@ namespace Vodovoz.Core.Journal
 				}
 				if(!registeredTypes.Contains(type)) {
 					registeredTypes.Add(type);
-					SubscribeOnChanges();
 				}
 			}
-
-			//FIXME Сомнительный вариант, возможно можно сделать лучше
 			Action<Func<IList<TNode>>, IEnumerable<MultipleEntityModelDocumentConfig<TNode>>> finishConfigAction = (Func<IList<TNode>> dataFunc, IEnumerable<MultipleEntityModelDocumentConfig<TNode>> docConfigs) => {
 				if(permission.Read) {
 					configList.AddRange(docConfigs);
@@ -189,26 +191,15 @@ namespace Vodovoz.Core.Journal
 			return new MultipleEntityModelConfiguration<TEntityType, TNode>(finishConfigAction);
 		}
 
-		/// <summary>
-		/// Запрос у модели о необходимости обновления списка если объект изменился.
-		/// </summary>
-		/// <returns><c>true</c>, если небходимо обновлять список.</returns>
-		/// <param name="updatedSubject">Обновившийся объект</param>
-		protected bool NeedUpdateFunc(object updatedSubject)
+		protected bool NeedUpdateFunc(object updatedSubject) => true;
+
+		public void UpdateOnChanges(params Type[] entityTypes)
 		{
-			return registeredTypes.Contains(updatedSubject.GetType());
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity(OnEntitiesUpdated, entityTypes);
 		}
 
-		/// <summary>
-		/// Создает новый базовый клас и подписывается на обновления указанных типов, при этом конструкторе необходима реализация NeedUpdateFunc (object updatedSubject);
-		/// </summary>
-		private void SubscribeOnChanges()
-		{
-			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.UnsubscribeAll(this);
-			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.BatchSubscribeOnEntity(OnEntitiesUpdated, registeredTypes.ToArray());
-		}
-
-		private void OnEntitiesUpdated(QS.DomainModel.NotifyChange.EntityChangeEvent[] changeEvents)
+		private void OnEntitiesUpdated(EntityChangeEvent[] changeEvents)
 		{
 			//FIXME Нужно фиксить! Это решение всего лишь скрывает проблему. Нужно находить утечку памяти и исправлять ее, а не фиксить падения.
 			if(!UoW.IsAlive) {
@@ -217,15 +208,13 @@ namespace Vodovoz.Core.Journal
 				return;
 			}
 
-			if(changeEvents.Select(x => x.Entity).Any(NeedUpdateFunc)) {
-				UpdateNodes();
-			}
+			UpdateNodes();
 		}
 
 		public void Destroy()
 		{
 			logger.Debug("{0} called Destroy()", this.GetType());
-			QS.DomainModel.NotifyChange.NotifyConfiguration.Instance.UnsubscribeAll(this);
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
 		}
 	}
 

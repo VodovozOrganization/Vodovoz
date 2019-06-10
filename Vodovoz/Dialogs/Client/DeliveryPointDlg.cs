@@ -12,6 +12,8 @@ using NLog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
 using QS.Tdi.Gtk;
 using QSOrmProject;
@@ -108,9 +110,6 @@ namespace Vodovoz
 				.InitializeFromSource();
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 			referenceDeliverySchedule.Binding.AddBinding(Entity, e => e.DeliverySchedule, w => w.Subject).InitializeFromSource();
-			entryCity.FocusOutEvent += FocusOut;
-			entryStreet.FocusOutEvent += FocusOut;
-			entryBuilding.FocusOutEvent += FocusOut;
 
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			labelCompiledAddress.Binding.AddBinding(Entity, e => e.CompiledAddress, w => w.LabelProp).InitializeFromSource();
@@ -139,6 +138,7 @@ namespace Vodovoz
 			ychkAlwaysFreeDelivery.Binding.AddBinding(Entity, e => e.AlwaysFreeDelivery, w => w.Active).InitializeFromSource();
 			ychkAlwaysFreeDelivery.Visible = UserPermissionRepository.CurrentUserPresetPermissions["can_set_free_delivery"];
 			lblCounterparty.LabelProp = Entity.Counterparty.FullName;
+			lblId.LabelProp = Entity.Id.ToString();
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding(Entity,
 				entity => entity.CoordinatesExist
@@ -302,11 +302,6 @@ namespace Vodovoz
 			);
 		}
 
-		void FocusOut(object o, Gtk.FocusOutEventArgs args)
-		{
-			SetLogisticsArea();
-		}
-
 		void EntryBuilding_FocusOutEvent(object o, Gtk.FocusOutEventArgs args)
 		{
 			bool addressChanged = entryCity.City != cityBeforeChange
@@ -395,19 +390,6 @@ namespace Vodovoz
 			return true;
 		}
 
-		protected void SetLogisticsArea()
-		{
-			IList<DeliveryPoint> sameAddress = UoWGeneric.Session.CreateCriteria<DeliveryPoint>()
-				.Add(Restrictions.Eq("City", UoWGeneric.Root.City))
-				.Add(Restrictions.Eq("Street", UoWGeneric.Root.Street))
-				.Add(Restrictions.Eq("Building", UoWGeneric.Root.Building))
-				.Add(Restrictions.IsNotNull("LogisticsArea"))
-				.Add(Restrictions.Not(Restrictions.Eq("Id", UoWGeneric.Root.Id)))
-				.List<DeliveryPoint>();
-			if(sameAddress.Any())
-				UoWGeneric.Root.LogisticsArea = sameAddress[0].LogisticsArea;
-		}
-
 		protected void OnRadoiInformationToggled(object sender, EventArgs e)
 		{
 			if(radioInformation.Active)
@@ -428,16 +410,20 @@ namespace Vodovoz
 
 		protected void OnButtonAddResponsiblePersonClicked(object sender, EventArgs e)
 		{
-			var dlg = new ReferenceRepresentation(new ContactsVM(UoW, Entity.Counterparty)) {
-				Mode = OrmReferenceMode.MultiSelect
+			var dlg = new PermissionControlledRepresentationJournal(new ContactsVM(UoW, Entity.Counterparty)) {
+				Mode = JournalSelectMode.Multiple
 			};
 			dlg.ObjectSelected += Dlg_ObjectSelected;
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
-		void Dlg_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void Dlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			var contacts = UoW.GetById<Contact>(e.GetSelectedIds()).ToList();
+			var selectedIds = e.GetSelectedIds();
+			if(!selectedIds.Any()) {
+				return;
+			}
+			var contacts = UoW.GetById<Contact>(selectedIds).ToList();
 			contacts.ForEach(Entity.AddContact);
 		}
 
@@ -476,13 +462,11 @@ namespace Vodovoz
 
 		private void WriteCoordinates(decimal? latitude, decimal? longitude)
 		{
-			if(EqualCoords(Entity.Latitude, latitude)
-			&& EqualCoords(Entity.Longitude, longitude)) {
+			if(EqualCoords(Entity.Latitude, latitude) && EqualCoords(Entity.Longitude, longitude))
 				return;
-			}
 
 			Entity.SetСoordinates(latitude, longitude, UoW);
-			Entity.СoordsLastChangeUser = Repositories.HumanResources.UserRepository.GetCurrentUser(UnitOfWorkFactory.CreateWithoutRoot());
+			Entity.СoordsLastChangeUser = Repositories.HumanResources.UserRepository.GetCurrentUser(UoW);
 		}
 
 		/// <summary>

@@ -49,8 +49,7 @@ namespace Dialogs.Employees
 		{
 			DateTime now = DateTime.Now;
 
-			var filter = new EmployeeFilter(uow);
-			yentryEmployee.RepresentationModel = new EmployeesVM(filter);
+			yentryEmployee.RepresentationModel = new EmployeesVM();
 			yentryEmployee.Changed += YentryEmployee_Changed;
 
 			yenumcomboMonth.ItemsEnum = typeof(Months);

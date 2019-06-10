@@ -31,7 +31,8 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnButtonCreateTaskClicked(object sender, EventArgs e)
 		{
-			bottleDebtorVM.CreateTask(treeviewDebtors.GetSelectedObjects().OfType<BottleDebtorsVMNode>().ToArray());
+			var taskCount = bottleDebtorVM.CreateTask(treeviewDebtors.GetSelectedObjects().OfType<BottleDebtorsVMNode>().ToArray());
+			MessageDialogHelper.RunInfoDialog($"Создано задач: {taskCount}");
 		}
 
 		protected void OnSearchentity1TextChanged(object sender, EventArgs e)
@@ -50,14 +51,23 @@ namespace Vodovoz.JournalViewers
 		{
 			if(args.Event.Button != 3)
 				return;
-				
-			var selectedObj = treeviewDebtors.GetSelectedObjects()?[0];
+
+			var selectedObjects = treeviewDebtors.GetSelectedObjects();
+			var selectedObj = selectedObjects?[0];
 			var selectedNodeId = (selectedObj as BottleDebtorsVMNode)?.AddressId;
 			if(selectedNodeId == null)
 				return;
 
-			RepresentationSelectResult[] representation = { new RepresentationSelectResult(selectedNodeId.Value, selectedObj) };
-			var popup = bottleDebtorVM.GetPopupMenu(representation);
+			Menu popup = new Menu();
+			var popupItems = bottleDebtorVM.PopupItems;
+			foreach(var popupItem in popupItems) {
+				var menuItem = new MenuItem(popupItem.Title) {
+					Sensitive = popupItem.SensitivityFunc.Invoke(selectedObjects)
+				};
+				menuItem.Activated += (sender, e) => { popupItem.ExecuteAction.Invoke(selectedObjects); };
+				popup.Add(menuItem);
+			}
+
 			popup.ShowAll();
 			popup.Popup();
 		}
@@ -70,6 +80,11 @@ namespace Vodovoz.JournalViewers
 				bottleDebtorVM.OpenReport(selectedNode.ClientId, selectedNode.AddressId);
 			else
 				MessageDialogHelper.RunInfoDialog("Необходимо выбрать точку доставки");
+		}
+
+		protected void OnButtonRefreshClicked(object sender, EventArgs e)
+		{
+			bottleDebtorVM?.UpdateNodes();
 		}
 	}
 }

@@ -7,6 +7,8 @@ using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
@@ -17,6 +19,7 @@ namespace Vodovoz
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
 		public IUnitOfWork UoW { get; set; }
+		private FuelRepository fuelRepository;
 
 		public FuelDocument FuelDocument { get; set; }
 
@@ -37,6 +40,7 @@ namespace Vodovoz
 			this.Build ();
 			UoW = uow;
 			FuelDocument = new FuelDocument();
+			FuelDocument.UoW = UoW;
 			autoCommit = false;
 			routeList = rl;
 			FillEntity();
@@ -58,6 +62,7 @@ namespace Vodovoz
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument>();
 			UoW = uow;
 			FuelDocument = uow.Root;
+			FuelDocument.UoW = UoW;
 			autoCommit = true;
 			routeList = UoW.GetById<RouteList>(rl.Id);
 			FillEntity();
@@ -102,10 +107,15 @@ namespace Vodovoz
 		{
 			TabName = "Выдача топлива";
 
+			fuelRepository = new FuelRepository();
+
 			ydatepicker.Binding.AddBinding(FuelDocument, e => e.Date, w => w.Date).InitializeFromSource();
 
-			var filterDriver = new EmployeeFilter(UoW);
-			filterDriver.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterDriver.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.ShowFired = false
+			);
 			yentrydriver.RepresentationModel = new EmployeesVM(filterDriver);
 			yentrydriver.Binding.AddBinding(FuelDocument, e => e.Driver, w => w.Subject).InitializeFromSource();
 
@@ -122,7 +132,17 @@ namespace Vodovoz
 
 			UpdateFuelInfo();
 			UpdateResutlInfo();
+			UpdateFuelAdjustment();
 			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
+		}
+
+		private void UpdateFuelAdjustment()
+		{
+			decimal balance = 0;
+			if(FuelDocument.RouteList.ClosingSubdivision != null && FuelDocument.Fuel != null) {
+				balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, FuelDocument.RouteList.ClosingSubdivision, FuelDocument.Fuel);
+			}
+			yspinFuelTicketLiters.Adjustment = new Gtk.Adjustment(0, 0, (double)balance, 1, 10, 0);
 		}
 
 
@@ -142,13 +162,13 @@ namespace Vodovoz
 			if(routeList.Car.FuelType != null)
 			{
 				var fuelOtlayedOp = routeList.FuelOutlayedOperation;
-				var entityOp = FuelDocument.Operation;
+				var entityOp = FuelDocument.FuelOperation;
 
 				text.Add(string.Format("Вид топлива: {0}", routeList.Car.FuelType.Name));
 
 				var exclude = new List<int>();
 				if(entityOp != null && entityOp.Id != 0){
-					exclude.Add(FuelDocument.Operation.Id);
+					exclude.Add(FuelDocument.FuelOperation.Id);
 				}
 				if(fuelOtlayedOp != null && fuelOtlayedOp.Id != 0){
 					exclude.Add(routeList.FuelOutlayedOperation.Id);
@@ -180,7 +200,7 @@ namespace Vodovoz
 
 		private void UpdateResutlInfo () 
 		{
-			decimal litersGived = FuelDocument.Operation?.LitersGived ?? default(decimal);
+			decimal litersGived = FuelDocument.FuelOperation?.LitersGived ?? default(decimal);
 
 			var text = new List<string>();
 
@@ -209,6 +229,8 @@ namespace Vodovoz
 				return false;
 			}
 
+			FuelDocument.CreateOperations(fuelRepository);
+
 			logger.Info ("Сохраняем топливный документ...");
 
 			routeList.ObservableFuelDocuments.Add(FuelDocument);
@@ -229,8 +251,6 @@ namespace Vodovoz
 		private void OnFuelUpdated()
 		{
 			FuelDocument.Fuel.Cost = spinFuelPrice.ValueAsDecimal;
-			FuelDocument.UpdateOperation();
-			FuelDocument.UpdateFuelCashExpense(UoW, cashier);
 			UpdateResutlInfo();
 			UpdateFuelCashExpenseInfo();
 		}
@@ -239,6 +259,9 @@ namespace Vodovoz
 		{
 			if(e.PropertyName == nameof(FuelDocument.FuelCoupons)) {
 				OnFuelUpdated();
+			}
+			if(e.PropertyName == nameof(FuelDocument.Fuel)) {
+				UpdateFuelAdjustment();
 			}
 		}
 
@@ -264,7 +287,7 @@ namespace Vodovoz
 		protected void OnButtonSetRemainClicked(object sender, EventArgs e)
 		{
 			decimal litersBalance = 0;
-			decimal litersGived = FuelDocument.Operation?.LitersGived ?? default(decimal);
+			decimal litersGived = FuelDocument.FuelOperation?.LitersGived ?? default(decimal);
 
 			litersBalance = fuelBalance + litersGived - fuelOutlayed;
 

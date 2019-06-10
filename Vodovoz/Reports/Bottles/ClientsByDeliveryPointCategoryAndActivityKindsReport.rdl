@@ -15,6 +15,7 @@
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>120</Timeout>
         <CommandText>SELECT
 	dp.compiled_address_short AS address,
 	c.name AS counertparty_name,
@@ -56,7 +57,13 @@ WHERE o.delivery_date BETWEEN @start_date AND @end_date
 AND o.order_status = 'Closed'
 AND (@payment_type = 'ALL' OR o.payment_type = @payment_type)
 AND (@category_id = 0 OR cat.id = @category_id)
-#AND (@substrings = 'ALL' OR o.comment LIKE(CONCAT('%', @substrings, '%')))
+AND (
+	'ALL' IN(@substrings)
+	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), o.comment)
+	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), c.full_name)
+	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), dp.address_1c)
+	OR find_substring_from_array_in_text(CONCAT_WS(',', @substrings), dp.address_addition)
+)
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -120,7 +127,7 @@ AND (@category_id = 0 OR cat.id = @category_id)
       <Textbox Name="Textbox1">
         <Height>17.31pt</Height>
         <Width>806.79pt</Width>
-        <Value>="Клиенты по типам объетов и видам деятельности "  +  Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")</Value>
+        <Value>="Клиенты по типам объектов и видам деятельности " + Iif({?start_date} = {?end_date}, 'за ' + Format(CDate({?start_date}), "dd.MM.yyyy"), 'с ' + Format(CDate({?start_date}), "dd.MM.yyyy") + ' по ' + Format(CDate({?end_date}), "dd.MM.yyyy"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.00pt</Top>
@@ -136,7 +143,7 @@ AND (@category_id = 0 OR cat.id = @category_id)
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>68.6pt</Height>
+    <Height>81.5pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -146,6 +153,8 @@ AND (@category_id = 0 OR cat.id = @category_id)
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -320,7 +329,7 @@ AND (@category_id = 0 OR cat.id = @category_id)
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
-                      <Value>Ввод остатков</Value>
+                      <Value>Ввод оста- тков</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -499,6 +508,99 @@ AND (@category_id = 0 OR cat.id = @category_id)
         </Details>
         <Left>0.0pt</Left>
         <Top>2.4pt</Top>
+        <Footer >
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Bottom>None</Bottom>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>6</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>=Sum(Iif(Fields!delivery_point_debt.IsMissing, 0, {delivery_point_debt}))</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>=Sum(Iif(Fields!counerparty_debt.IsMissing, 0, {counerparty_debt}))</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
     </ReportItems>
   </Body>
@@ -592,7 +694,7 @@ AND (@category_id = 0 OR cat.id = @category_id)
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

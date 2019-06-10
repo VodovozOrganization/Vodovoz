@@ -12,6 +12,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz
 {
@@ -86,12 +87,12 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(IncomeType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			var filterCasher = new EmployeeFilter(UoW);
+			var filterCasher = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterCasher.ShowFired = false;
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
-			var filter = new EmployeeFilter(UoW);
+			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filter.ShowFired = false;
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();

@@ -173,6 +173,13 @@ namespace Vodovoz.Domain.Cash
 			set => SetField(ref cashTransferDocument, value, () => CashTransferDocument);
 		}
 
+		string cashierReviewComment;
+		[Display(Name = "Комментарий по закрытию кассы")]
+		public virtual string CashierReviewComment {
+			get => cashierReviewComment;
+			set => SetField(ref cashierReviewComment, value, () => CashierReviewComment);
+		}
+
 		#endregion
 
 		public virtual string Title => String.Format("Приходный ордер №{0} от {1:d}", Id, Date);

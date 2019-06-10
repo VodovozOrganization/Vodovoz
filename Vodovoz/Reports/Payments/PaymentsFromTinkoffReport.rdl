@@ -58,31 +58,31 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>47.9pt</Width>
+            <Width>45.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>38.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>137.4pt</Width>
+            <Width>133.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>172.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.4pt</Width>
+            <Width>60.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>69.5pt</Width>
+            <Width>65.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>60.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>82.7pt</Width>
+            <Width>80.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>59.1pt</Width>
+            <Width>55.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>102.0pt</Width>
@@ -164,7 +164,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
-                      <Value>Номер оплаты</Value>
+                      <Value>Номер оплаты и магазин</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -174,7 +174,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize>10pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -410,7 +410,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>={payment_nr_from_order}</Value>
+                      <Value>={number_and_shop}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -744,19 +744,22 @@
             <Width>138.0pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>61.3pt</Width>
+          </TableColumn>
+          <TableColumn >
             <Width>76.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>79.7pt</Width>
+            <Width>68.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>171.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>174.8pt</Width>
+            <Width>141.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>174.8pt</Width>
+            <Width>159.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -786,6 +789,23 @@
                     <Textbox Name="Textbox26">
                       <Value>Номер оплаты</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>Магазин</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -904,6 +924,26 @@
                       <Value>=Fields!number.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>={shop}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -1127,7 +1167,8 @@
 			ELSE 99
 		END
 	) AS underpayment_number,
-	o.delivery_date &gt; CURDATE() AS is_future_order
+	o.delivery_date &gt; CURDATE() AS is_future_order,
+	IF(p.shop IS NULL, o.online_order, CONCAT(p.number, '\n', p.shop)) AS number_and_shop
 	#для отладки на тестовых БД. Для того, чтоб увидеть заказы на будущие даты
 	#o.delivery_date &gt; '2018-10-03' AS is_future_order
 FROM
@@ -1153,12 +1194,16 @@ LEFT JOIN
 WHERE
 	payment_type = 'ByCard' AND	online_order IS NOT NULL
 	AND o.delivery_date &gt;= @date
+	AND (@shop = 'ALL' OR p.shop = @shop OR p.shop IS NULL)
 ORDER BY 
 	/*underpayment ASC, */order_satus_numbered DESC
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
+          </QueryParameter>
+          <QueryParameter Name="shop">
+            <Value>=Parameters!shop</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1223,10 +1268,14 @@ ORDER BY
           <DataField>is_future_order</DataField>
           <TypeName>System.Int64</TypeName>
         </Field>
+        <Field Name="number_and_shop">
+          <DataField>number_and_shop</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="PaymentsWithoutOrders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT *
@@ -1236,15 +1285,19 @@ WHERE number NOT IN(
 	FROM orders
 	WHERE online_order IS NOT NULL AND delivery_date &gt;= @date
 ) AND date_and_time &gt;= @date
+AND (@shop = 'ALL' OR shop = @shop OR shop IS NULL)
 ORDER BY date_and_time DESC
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
           </QueryParameter>
+          <QueryParameter Name="shop">
+            <Value>=Parameters!shop</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1282,7 +1335,16 @@ ORDER BY date_and_time DESC
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1296,14 +1358,12 @@ ORDER BY date_and_time DESC
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="shop">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru;SslMode=none;</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

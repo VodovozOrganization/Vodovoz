@@ -7,10 +7,12 @@ using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
-using QSOrmProject;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
+using System.Linq;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -98,18 +100,22 @@ namespace Vodovoz
 			filter.SetAndRefilterAtOnce(x => x.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse);
 			//FIXME возможно нужно добавить ограничение на типы номенклатур.
 
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM (filter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.None;
+			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal (new ViewModel.StockBalanceVM (filter), Buttons.None);
+			SelectDialog.Mode = JournalSelectMode.Single;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
 
 			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
 		}
 
-		void NomenclatureSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
+		void NomenclatureSelected (object sender, JournalObjectSelectedEventArgs e)
 		{
-			var nomenctature = DocumentUoW.GetById<Nomenclature> (e.ObjectId);
-			DocumentUoW.Root.AddMaterial (nomenctature, 1 , (e.VMNode as ViewModel.StockBalanceVMNode).Amount);
+			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			var selectedNode = e.GetNodes<StockBalanceVMNode>().FirstOrDefault();
+			if(selectedId == 0 || selectedNode == null) {
+				return;
+			}
+			var nomenctature = DocumentUoW.GetById<Nomenclature> (selectedId);
+			DocumentUoW.Root.AddMaterial (nomenctature, 1 , selectedNode.Amount);
 		}
 
 		void CalculateTotal ()

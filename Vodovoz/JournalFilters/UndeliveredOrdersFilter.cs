@@ -10,6 +10,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.JournalFilters
 {
@@ -28,16 +29,22 @@ namespace Vodovoz.JournalFilters
 			refOldOrder.RepresentationModel = new OrdersVM(new OrdersFilter(UoW));
 			refOldOrder.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
-			var DriversFilter = new EmployeeFilter(UoW);
-			DriversFilter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
-			refDriver.RepresentationModel = new EmployeesVM(DriversFilter);
+			var driversFilter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			driversFilter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.ShowFired = false
+			);
+			refDriver.RepresentationModel = new EmployeesVM(driversFilter);
 
 			refClient.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
 			refDeliveryPoint.RepresentationModel = new DeliveryPointsVM(new DeliveryPointFilter(UoW));
 
-			var AuthorsFilter = new EmployeeFilter(UoW);
-			AuthorsFilter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
-			refOldOrderAuthor.RepresentationModel = refUndeliveryAuthor.RepresentationModel = new EmployeesVM(AuthorsFilter);
+			var authorsFilter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			authorsFilter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.ShowFired = false
+			);
+			refOldOrderAuthor.RepresentationModel = refUndeliveryAuthor.RepresentationModel = new EmployeesVM(authorsFilter);
 
 			dateperiodOldOrderDate.StartDateOrNull = DateTime.Today.AddMonths(-1);
 			dateperiodOldOrderDate.EndDateOrNull = DateTime.Today.AddMonths(1);

@@ -17,7 +17,7 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			enumcomboDocumentType.ItemsEnum = typeof(CashDocumentType);
-			entryEmployee.RepresentationModel = new ViewModel.EmployeesVM(new EmployeeFilter(uow: UoW, showFired: false));
+			entryEmployee.RepresentationModel = new ViewModel.EmployeesVM();
 			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery();
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 			//Последние 30 дней.

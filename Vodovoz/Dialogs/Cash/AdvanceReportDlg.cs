@@ -9,6 +9,7 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
@@ -113,12 +114,12 @@ namespace Vodovoz
 				accessfilteredsubdivisionselectorwidget.SelectIfPossible(Entity.RelatedToSubdivision);
 			}
 
-			var filterEmployee = new EmployeeFilter(UoW);
+			var filterEmployee = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterEmployee.ShowFired = false;
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
 			yentryEmployee.Binding.AddBinding(Entity, e => e.Accountable, w => w.Subject).InitializeFromSource();
 
-			var filterCasher = new EmployeeFilter(UoW);
+			var filterCasher = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterCasher.ShowFired = false;
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, e => e.Casher, w => w.Subject).InitializeFromSource();

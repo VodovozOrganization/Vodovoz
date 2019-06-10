@@ -8,6 +8,7 @@ using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
@@ -79,7 +80,7 @@ namespace Vodovoz.Dialogs.Cash
 			yentryOrder.RepresentationModel = new OrdersVM(filterOrders);
 			yentryOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
 
-			var filterCasher = new EmployeeFilter(UoW);
+			var filterCasher = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterCasher.ShowFired = false;
 			yentryCasher.RepresentationModel = new EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();

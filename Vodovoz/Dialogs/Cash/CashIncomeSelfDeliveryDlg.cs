@@ -8,6 +8,7 @@ using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
@@ -61,14 +62,21 @@ namespace Vodovoz.Dialogs.Cash
 
 			Entity.TypeDocument = IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery;
 
+			permissioncommentview.UoW = UoW;
+			permissioncommentview.Title = "Комментарий по проверке закрытия МЛ: ";
+			permissioncommentview.Comment = Entity.CashierReviewComment;
+			permissioncommentview.PermissionName = "can_edit_cashier_review_comment";
+			permissioncommentview.Comment = Entity.CashierReviewComment;
+			permissioncommentview.CommentChanged += (comment) => Entity.CashierReviewComment = comment;
+
 			enumcomboOperation.ItemsEnum = typeof(IncomeType);
 			enumcomboOperation.Binding.AddBinding(Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource();
 			enumcomboOperation.Sensitive = false;
 			Entity.TypeOperation = IncomeType.Payment;
 
-			var filterCasher = new EmployeeFilter(UoW);
+			var filterCasher = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filterCasher.ShowFired = false;
-			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
+			yentryCasher.RepresentationModel = new EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 			yentryCasher.Sensitive = false;
 

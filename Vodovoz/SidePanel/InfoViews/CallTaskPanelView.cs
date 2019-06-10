@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.SidePanel.InfoViews
@@ -13,9 +14,12 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		Order Order{ get; set; }
 
-		public CallTaskPanelView()
+		private IPersonProvider personProvider;
+
+		public CallTaskPanelView(IPersonProvider personProvider)
 		{
 			this.Build();
+			this.personProvider = personProvider;
 		}
 
 		#region IPanelView implementation
@@ -44,7 +48,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				MessageDialogHelper.RunInfoDialog("Необходимо выбрать точку доставки");
 				return;
 			}
-			if(String.IsNullOrEmpty(ytextview.Buffer.Text)) {
+			if(String.IsNullOrWhiteSpace(ytextview.Buffer.Text)) {
 				MessageDialogHelper.RunInfoDialog("Необходимо оставить комментарий");
 				return;
 			}
@@ -56,6 +60,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				uow.Root.TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(InfoProvider.UoW);
 				uow.Root.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
 				uow.Root.AddComment(uow, ytextview.Buffer.Text);
+				uow.Root.AssignedEmployee = personProvider?.GetDefaultEmployeeForCallTask(uow);
 				uow.Save();
 			}
 			ytextview.Buffer.Text = String.Empty;

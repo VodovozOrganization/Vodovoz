@@ -14,6 +14,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Project.Repositories;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz
 {
@@ -91,8 +92,7 @@ namespace Vodovoz
 			yentryreferenceRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
 			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
-			var filterAuthor = new EmployeeFilter(UoW);
-			yentryAuthor.RepresentationModel = new EmployeesVM(filterAuthor);
+			yentryAuthor.RepresentationModel = new EmployeesVM();
             yentryAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
 			
             UpdateControlsState();

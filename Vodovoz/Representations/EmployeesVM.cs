@@ -3,21 +3,17 @@ using Gamma.Utilities;
 using Gamma.ColumnConfig;
 using Vodovoz.Domain.Employees;
 using Gtk;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QS.DomainModel.UoW;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.ViewModel
 {
 	public class EmployeesVM : RepresentationModelEntityBase<Employee, EmployeesVMNode>
 	{
-		public EmployeeFilter Filter {
-			get {
-				return RepresentationFilter as EmployeeFilter;
-			}
-			set {
-				RepresentationFilter = value as IRepresentationFilter;
-			}
+		public EmployeeFilterViewModel Filter {
+			get => RepresentationFilter as EmployeeFilterViewModel;
+			set => RepresentationFilter = value as IRepresentationFilter;
 		}
 
 		#region IRepresentationModel implementation
@@ -29,13 +25,9 @@ namespace Vodovoz.ViewModel
 
 			var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
 
-			if(!Filter.ShowFired) {
-				query.Where(e => !e.IsFired);
-			}
-
-			if(Filter.RestrictCategory != null) {
-				query.Where(e => e.Category == Filter.RestrictCategory);
-			}
+			var filtration = Filter?.GetFilter();
+			if(filtration != null)
+				query.Where(filtration);
 
 			#region для ускорения редактора
 			var result = query
@@ -63,42 +55,40 @@ namespace Vodovoz.ViewModel
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 
-		public override IColumnsConfig ColumnsConfig {
-			get { return columnsConfig; }
-		}
+		public override IColumnsConfig ColumnsConfig => columnsConfig;
 
-		public override bool PopupMenuExist {
-			get {
-				return false;
-			}
-		}
+		public override bool PopupMenuExist => false;
 
 		#endregion
 
 		#region implemented abstract members of RepresentationModelBase
 
-		protected override bool NeedUpdateFunc(Employee updatedSubject)
-		{
-			return true;
-		}
+		protected override bool NeedUpdateFunc(Employee updatedSubject) => true;
 
 		#endregion
 
-		public EmployeesVM(EmployeeFilter filter) : this(filter.UoW)
+		public EmployeesVM(IUnitOfWork uow, EmployeeFilterViewModel filterViewModel)
 		{
-			Filter = filter;
+			Filter = filterViewModel;
+			UoW = uow;
+		}
+
+		public EmployeesVM(EmployeeFilterViewModel filterViewModel)
+		{
+			Filter = filterViewModel;
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		public EmployeesVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			CreateRepresentationFilter = () => new EmployeeFilter(UoW);
+			CreateRepresentationFilter = () => new EmployeeFilterViewModel(ServicesConfig.CommonServices) { ShowFired = false };
 		}
 
-		public EmployeesVM(IUnitOfWork uow) : base()
+		public EmployeesVM(IUnitOfWork uow)
 		{
+			CreateRepresentationFilter = () => new EmployeeFilterViewModel(ServicesConfig.CommonServices) { ShowFired = false };
 			this.UoW = uow;
 		}
-
 	}
 
 	public class EmployeesVMNode : INodeWithEntryFastSelect
@@ -113,7 +103,7 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		[SearchHighlight]
-		public string FullName { get { return String.Format("{0} {1} {2}", EmpLastName, EmpFirstName, EmpMiddleName); } }
+		public string FullName => String.Format("{0} {1} {2}", EmpLastName, EmpFirstName, EmpMiddleName);
 
 		public EmployeeCategory EmpCatEnum { get; set; }
 

@@ -36,6 +36,7 @@ namespace Vodovoz.JournalViewers
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
 			callTasksVM = new CallTasksVM(new BaseParametersProvider());
+			callTasksVM.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 			calltaskfilterview.Refiltered += (sender, e) => callTasksVM.UpdateNodes();
 			callTasksVM.ItemsListUpdated += (sender, e) => UpdateStatistics();
 			callTasksVM.Filter = calltaskfilterview.GetQueryFilter();
@@ -160,16 +161,30 @@ namespace Vodovoz.JournalViewers
 			if(args.Event.Button != 3)
 				return;
 
-			var selectedObj = representationtreeviewTask.GetSelectedObjects()?[0];
+			var selectedObjects = representationtreeviewTask.GetSelectedObjects();
+			var selectedObj = selectedObjects?[0];
 			var selectedNodeId = (selectedObj as CallTaskVMNode)?.Id;
 			if(selectedNodeId == null)
 				return;
 
-			RepresentationSelectResult[] representation = { new RepresentationSelectResult(selectedNodeId.Value, selectedObj) };
-			var popup = callTasksVM.GetPopupMenu(representation);
+			Menu popup = new Menu();
+			var popupItems = callTasksVM.PopupItems;
+			foreach(var popupItem in popupItems) {
+				var menuItem = new MenuItem(popupItem.Title) {
+					Sensitive = popupItem.SensitivityFunc.Invoke(selectedObjects)
+				};
+				menuItem.Activated += (sender, e) => { popupItem.ExecuteAction.Invoke(selectedObjects); };
+				popup.Add(menuItem);
+			}
+
 			popup.ShowAll();
 			popup.Popup();
 		}
+
+		protected void OnYcheckbuttonAutoUpdateToggled(object sender, EventArgs e)
+		{
+			callTasksVM.NeedUpdate = ycheckbuttonAutoUpdate.Active;
+		} 
 		#endregion
 	}
 }

@@ -17,6 +17,9 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.TypeOfOwnership).Column("type_of_ownership");
 			Map(x => x.Code1c).Column("code_1c");
 			Map(x => x.MaxCredit).Column("max_credit");
+			Map(x => x.IsDeliveriesClosed).Column("is_deliveries_closed");
+			Map(x => x.CloseDeliveryDate).Column("close_delivery_date");
+			Map(x => x.CloseDeliveryComment).Column("close_delivery_comment");
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.INN).Column("inn");
 			Map(x => x.KPP).Column("kpp");
@@ -50,6 +53,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.DefaultExpenseCategory).Column("default_cash_expense_category_id");
 			References(x => x.CameFrom).Column("counterparty_camefrom_id");
 			References(x => x.FirstOrder).Column("first_order_id");
+			References(x => x.CloseDeliveryPerson).Column("close_delivery_employee_id");
 			HasMany(x => x.Phones).Cascade.All().LazyLoad()
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad()

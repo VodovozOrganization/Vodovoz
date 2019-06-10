@@ -4,6 +4,7 @@ using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
@@ -46,8 +47,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			Entity.ObservableItems.ListContentChanged += ObservableItems_ListContentChanged;
 
-			var filterAuthor = new EmployeeFilter(UoW);
-			yentryAuthor.RepresentationModel = new EmployeesVM(filterAuthor);
+			yentryAuthor.RepresentationModel = new EmployeesVM();
 			yentryAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<PremiumItem>()
@@ -117,15 +117,19 @@ namespace Vodovoz.Dialogs.Employees
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var addEmployeeDlg = new ReferenceRepresentation(new EmployeesVM());
-			addEmployeeDlg.Mode = OrmReferenceMode.Select;
+			var addEmployeeDlg = new PermissionControlledRepresentationJournal(new EmployeesVM());
+			addEmployeeDlg.Mode = JournalSelectMode.Single;
 			addEmployeeDlg.ObjectSelected += AddEmployeeDlg_ObjectSelected;
 			TabParent.AddSlaveTab(this, addEmployeeDlg);
 		}
 
-		void AddEmployeeDlg_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void AddEmployeeDlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			var employee = UoW.GetById<Employee>(e.ObjectId);
+			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			if(selectedId == 0) {
+				return;
+			}
+			var employee = UoW.GetById<Employee>(selectedId);
 			if(Entity.Items.Any(x => x.Employee.Id == employee.Id)) {
 				MessageDialogHelper.RunErrorDialog("Сотрудник {0} уже присутствует в списке.", employee.ShortName);
 				return;

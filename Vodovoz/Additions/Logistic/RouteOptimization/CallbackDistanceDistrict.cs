@@ -2,6 +2,7 @@
 using System.Linq;
 using Google.OrTools.ConstraintSolver;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -23,7 +24,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		private CalculatedOrder[] Nodes;
 		PossibleTrip Trip;
-		Dictionary<LogisticsArea, int> priorites;
+		Dictionary<ScheduleRestrictedDistrict, int> priorites;
 		IDistanceCalculator distanceCalculator;
 
 		/// <summary>

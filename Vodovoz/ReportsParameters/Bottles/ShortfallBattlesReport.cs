@@ -7,6 +7,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -20,8 +21,11 @@ namespace Vodovoz.ReportsParameters.Bottles
 			ydatepicker.Date = DateTime.Now.Date;
 			comboboxDriver.ItemsEnum = typeof(Drivers);
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filter = new EmployeeFilter(UoW);
-			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.ShowFired = false
+			);
 			yentryDriver.RepresentationModel = new EmployeesVM(filter);
 			ySpecCmbNonReturnReason.ItemsList = UoW.Session.QueryOver<NonReturnReason>().List();
 		}

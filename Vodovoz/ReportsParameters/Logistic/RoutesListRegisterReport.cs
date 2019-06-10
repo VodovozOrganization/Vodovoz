@@ -34,10 +34,10 @@ namespace Vodovoz.Reports.Logistic
 		void ConfigureDlg()
 		{
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			geograficGroup.UoW = UoW;
-			geograficGroup.Label = "Часть города:";
+			geographicGroup.UoW = UoW;
+			geographicGroup.Label = "Часть города:";
 			geographicGroups = new GenericObservableList<GeographicGroup>();
-			geograficGroup.Items = geographicGroups;
+			geographicGroup.Items = geographicGroups;
 			foreach(var gg in UoW.Session.QueryOver<GeographicGroup>().List())
 				geographicGroups.Add(gg);
 		}

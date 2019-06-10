@@ -6,6 +6,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Goods;
@@ -13,6 +14,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repository;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -166,14 +168,18 @@ namespace Vodovoz
 		void MenuitemSelectFromClient_Activated(object sender, EventArgs e)
 		{
 			equipmentToSetSerial = ytreeEquipment.GetSelectedObject<ReceptionEquipmentItemNode>();
-			var filter = new ClientBalanceFilter(UnitOfWorkFactory.CreateWithoutRoot());
+			var filter = new ClientBalanceFilter(UoW);
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCounterparty = equipmentToSetSerial.ServiceClaim.Counterparty,
 			    x => x.RestrictNomenclature = x.UoW.GetById<Nomenclature>(equipmentToSetSerial.NomenclatureId)
 			);
-			var selectFromClientDlg = new ReferenceRepresentation(new Vodovoz.ViewModel.ClientEquipmentBalanceVM(filter));
-			selectFromClientDlg.TabName = String.Format("Оборудование у {0}",
-				StringWorks.EllipsizeEnd(equipmentToSetSerial.ServiceClaim.Counterparty.Name, 50));
+			var selectFromClientDlg = new PermissionControlledRepresentationJournal(new Vodovoz.ViewModel.ClientEquipmentBalanceVM(filter));
+			selectFromClientDlg.CustomTabName(
+				string.Format(
+					"Оборудование у {0}",
+					StringWorks.EllipsizeEnd(equipmentToSetSerial.ServiceClaim.Counterparty.Name, 50)
+				)
+			);
 			selectFromClientDlg.ObjectSelected += SelectFromClientDlg_ObjectSelected;
 			MyTab.TabParent.AddSlaveTab(MyTab, selectFromClientDlg);
 		}
@@ -187,9 +193,13 @@ namespace Vodovoz
 			//OnEquipmentListChanged();
 		}
 
-		void SelectFromClientDlg_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void SelectFromClientDlg_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			var equipment = MyOrmDialog.UoW.GetById<Equipment>(e.ObjectId);
+			var selectedId = e.GetSelectedIds().FirstOrDefault();
+			if(selectedId == 0) {
+				return;
+			}
+			var equipment = MyOrmDialog.UoW.GetById<Equipment>(selectedId);
 			equipmentToSetSerial.NewEquipment = equipment;
 			equipmentToSetSerial.EquipmentId = equipment.Id;
 			equipmentToSetSerial.Returned = true;

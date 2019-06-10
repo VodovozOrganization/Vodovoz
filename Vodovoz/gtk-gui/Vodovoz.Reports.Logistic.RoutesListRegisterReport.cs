@@ -12,7 +12,7 @@ namespace Vodovoz.Reports.Logistic
 
 		private global::QSWidgetLib.DatePeriodPicker dateperiodpicker;
 
-		private global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget geograficGroup;
+		private global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget geographicGroup;
 
 		private global::Gtk.CheckButton chkMasters;
 
@@ -56,12 +56,12 @@ namespace Vodovoz.Reports.Logistic
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.geograficGroup = new global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget();
-			this.geograficGroup.Events = ((global::Gdk.EventMask)(256));
-			this.geograficGroup.Name = "geograficGroup";
-			this.geograficGroup.Label = "";
-			this.vbox1.Add(this.geograficGroup);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.geograficGroup]));
+			this.geographicGroup = new global::Vodovoz.ViewWidgets.GeographicGroupsToStringWidget();
+			this.geographicGroup.Events = ((global::Gdk.EventMask)(256));
+			this.geographicGroup.Name = "geographicGroup";
+			this.geographicGroup.Label = "";
+			this.vbox1.Add(this.geographicGroup);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.geographicGroup]));
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;

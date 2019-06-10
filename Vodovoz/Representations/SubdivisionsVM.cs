@@ -12,7 +12,7 @@ namespace Vodovoz.Representations
 	public class SubdivisionsVM : RepresentationModelEntityBase<Subdivision, SubdivisionVMNode>
 	{
 		public IList<SubdivisionVMNode> Result { get; set; }
-		IList<SubdivisionVMNode> AllSubdivisionNodes { get; set; }
+		private IList<SubdivisionVMNode> allSubdivisionNodes;
 		int? parentId;
 
 		public SubdivisionsVM(IUnitOfWork uow) : base() => this.UoW = uow;
@@ -27,7 +27,7 @@ namespace Vodovoz.Representations
 			SubdivisionVMNode resultAlias = null;
 			var query = UoW.Session.QueryOver<Subdivision>();
 
-			AllSubdivisionNodes = query
+			allSubdivisionNodes = query
 				.Left.JoinAlias(o => o.Chief, () => chiefAlias)
 				.SelectList(list => list
 				   .Select(s => s.Id).WithAlias(() => resultAlias.Id)
@@ -40,7 +40,7 @@ namespace Vodovoz.Representations
 				.TransformUsing(Transformers.AliasToBean<SubdivisionVMNode>())
 				.List<SubdivisionVMNode>();
 
-			Result = AllSubdivisionNodes.Where(s => s.ParentId == parentId).ToList();
+			Result = allSubdivisionNodes.Where(s => s.ParentId == parentId).ToList();
 			foreach(var r in Result)
 				SetChildren(r);
 		
@@ -49,7 +49,7 @@ namespace Vodovoz.Representations
 
 		void SetChildren(SubdivisionVMNode node)
 		{
-			var children = AllSubdivisionNodes.Where(s => s.ParentId == node.Id);
+			var children = allSubdivisionNodes.Where(s => s.ParentId == node.Id);
 			node.Children = children.ToList();
 			foreach(var n in children) {
 				n.Parent = node;

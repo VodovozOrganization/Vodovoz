@@ -18,7 +18,6 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz;
 using Vodovoz.Core;
-using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -32,6 +31,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.JournalViewers;
 using Vodovoz.ReportsParameters;
+using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
 using Vodovoz.ReportsParameters.Logistic;
 using Vodovoz.ReportsParameters.Orders;
@@ -300,11 +300,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionEmploeyActivated(object sender, EventArgs e)
+	protected void OnActionEmployeeActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<EmployeesVM>(),
-			() => new ReferenceRepresentation(new EmployeesVM())
+			PermissionControlledRepresentationJournal.GenerateHashName<EmployeesVM>(),
+			() => new PermissionControlledRepresentationJournal(new EmployeesVM())
 		);
 	}
 
@@ -361,8 +361,10 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
-		var refWin = new ReferenceRepresentation(new CounterpartyVM());
-		refWin.ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit);
+		var button = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"]
+			? Buttons.All
+			: (Buttons.Add | Buttons.Edit);
+		var refWin = new PermissionControlledRepresentationJournal(new CounterpartyVM(), button);
 		tdiMain.AddTab(refWin);
 	}
 
@@ -400,14 +402,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		OrmReference refWin = new OrmReference(typeof(DeliverySchedule));
 		tdiMain.AddTab(refWin);
-	}
-
-	protected void OnActionLogisticsAreaActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<LogisticAreasEditDlg>(),
-			() => new LogisticAreasEditDlg()
-		);
 	}
 
 	protected void OnActionUpdateBanksFromCBRActivated(object sender, EventArgs e)
@@ -592,13 +586,13 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		ReferenceButtonMode mode = ReferenceButtonMode.CanEdit;
+		Buttons mode = Buttons.Edit;
 		if(UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"])
-			mode |= ReferenceButtonMode.CanDelete;
+			mode |= Buttons.Delete;
 
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<DeliveryPointsVM>(),
-			() => new ReferenceRepresentation(new DeliveryPointsVM()).Buttons(mode)
+			PermissionControlledRepresentationJournal.GenerateHashName<DeliveryPointsVM>(),
+			() => new PermissionControlledRepresentationJournal(new DeliveryPointsVM(), mode)
 		);
 	}
 
@@ -908,14 +902,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void OnIncomeBalanceReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
-			() => new QSReport.ReportViewDlg(new IncomeBalanceReport())
-		);
-	}
-
 	protected void OnAction45Activated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1073,8 +1059,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionTraineeActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<TraineeVM>(),
-			() => new ReferenceRepresentation(new TraineeVM())
+			PermissionControlledRepresentationJournal.GenerateHashName<TraineeVM>(),
+			() => new PermissionControlledRepresentationJournal(new TraineeVM())
 		);
 	}
 
@@ -1263,6 +1249,46 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ClientsByDeliveryPointCategoryAndActivityKindsReport>(),
 			() => new QSReport.ReportViewDlg(new ClientsByDeliveryPointCategoryAndActivityKindsReport())
+		);
+	}
+
+	protected void OnActionExtraBottlesReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ExtraBottleReport>(),
+			() => new QSReport.ReportViewDlg(new ExtraBottleReport())
+		);
+	}
+
+	protected void OnActionFirstSecondReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<FirstSecondClientReport>(),
+			() => new QSReport.ReportViewDlg(new FirstSecondClientReport())
+		);
+	}
+
+	protected void OnActionFuelConsumptionReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
+			() => new QSReport.ReportViewDlg(new FuelConsumptionReport())
+		);
+	}
+
+	protected void OnActionCloseDeliveryReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCloseDeliveryReport>(),
+			() => new QSReport.ReportViewDlg(new CounterpartyCloseDeliveryReport())
+		);
+	}
+
+	protected void IncomeBalanceReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
+			() => new QSReport.ReportViewDlg(new IncomeBalanceReport())
 		);
 	}
 }

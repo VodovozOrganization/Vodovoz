@@ -54,16 +54,16 @@ namespace Vodovoz.Dialogs.Client
 			ConfigureDlg();
 		}
 
-		public EquipSalesAgreementDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
+		public EquipSalesAgreementDlg(IEntityConstructorParam ctorParam)
 		{
 			this.Build();
-			if(!option.NeedCreateNew) {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<SalesEquipmentAgreement>(option.EntityId), baseUoW)
-					: UnitOfWorkFactory.CreateForRoot<SalesEquipmentAgreement>(option.EntityId);
+			if(!ctorParam.IsNewEntity) {
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateForChildRoot(ctorParam.RootUoW.GetById<SalesEquipmentAgreement>(ctorParam.EntityOpenId), ctorParam.RootUoW)
+					: UnitOfWorkFactory.CreateForRoot<SalesEquipmentAgreement>(ctorParam.EntityOpenId);
 			} else {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateWithNewChildRoot<SalesEquipmentAgreement>(baseUoW)
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateWithNewChildRoot<SalesEquipmentAgreement>(ctorParam.RootUoW)
 					: UnitOfWorkFactory.CreateWithNewRoot<SalesEquipmentAgreement>();
 			}
 

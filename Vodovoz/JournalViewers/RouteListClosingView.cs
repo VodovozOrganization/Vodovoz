@@ -11,7 +11,6 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListClosingView : QS.Dialog.Gtk.TdiTabBase
 	{
-
 		private IUnitOfWork uow;
 
 		private ViewModel.RouteListsVMNode selectedNode;
@@ -128,4 +127,3 @@ namespace Vodovoz
 		}
 	}
 }
-

@@ -9,8 +9,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSOrmProject.RepresentationModel;
+using QS.RepresentationModel.GtkUI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
@@ -19,11 +18,11 @@ using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Representations
 {
-	public class BottleDebtorsVM : RepresentationModelEntityBase<DeliveryPoint, BottleDebtorsVMNode>
+	public class BottleDebtorsVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<DeliveryPoint, BottleDebtorsVMNode>
 	{
 		public BottleDebtorsFilter Filter {
 			get { return RepresentationFilter as BottleDebtorsFilter; }
-			set { RepresentationFilter = value as IRepresentationFilter; }
+			set { RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter; }
 		}
 
 		public override void UpdateNodes()
@@ -145,34 +144,42 @@ namespace Vodovoz.Representations
 			Filter = filter;
 		}
 
-		public override bool PopupMenuExist => true;
+		public override IEnumerable<IJournalPopupItem> PopupItems {
+			get {
+				var result = new List<IJournalPopupItem>();
 
-		public override Menu GetPopupMenu(RepresentationSelectResult[] selected)
-		{
-			int deliveryPointId = selected.Select(x => x.EntityId).FirstOrDefault();
-			BottleDebtorsVMNode[] bottleDebtorsVMNode = selected.Select(x => x.VMNode).OfType<BottleDebtorsVMNode>().ToArray();
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Акт по бутылям и залогам(по клиенту)",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<BottleDebtorsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null) {
+							OpenReport(selectedNode.ClientId);
+						}
+					}
+				));
 
-			DeliveryPoint selectedDeliveryPoint = UoW.Session.QueryOver<DeliveryPoint>()
-							   .Where(x => x.Id == deliveryPointId)
-							   .List()
-							   .FirstOrDefault();
-			UoW.Session.Refresh(selectedDeliveryPoint);
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Акт по бутылям и залогам(по точке доставки)",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<BottleDebtorsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null) {
+							OpenReport(selectedNode.AddressId);
+						}
+					}
+				));
 
-			Menu popupMenu = new Menu();
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Создать задачу",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<BottleDebtorsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null) {
+							CreateTask(selectedNodes.ToArray());
+						}
+					}
+				));
 
-			MenuItem menuItemOpenReportByCounterparty = new MenuItem("Акт по бутылям и залогам(по клиенту)");
-			menuItemOpenReportByCounterparty.Activated += (e, arg) => OpenReport(selectedDeliveryPoint.Counterparty.Id);
-			popupMenu.Add(menuItemOpenReportByCounterparty);
-
-			MenuItem menuItemOpenReportByDeliveryPoint = new MenuItem("Акт по бутылям и залогам(по точке доставки)");
-			menuItemOpenReportByDeliveryPoint.Activated += (e, arg) => OpenReport(selectedDeliveryPoint.Counterparty.Id, selectedDeliveryPoint.Id);
-			popupMenu.Add(menuItemOpenReportByDeliveryPoint);
-
-			MenuItem menuItemCreateTask = new MenuItem("Создать задачу");
-			menuItemCreateTask.Activated += (e, arg) => CreateTask(bottleDebtorsVMNode);
-			popupMenu.Add(menuItemCreateTask);
-
-			return popupMenu;
+				return result;
+			}
 		}
 
 		public void OpenReport(int counterpartyId, int deliveryPointId = -1)
@@ -194,8 +201,9 @@ namespace Vodovoz.Representations
 				() => new QSReport.ReportViewDlg(reportInfo));
 		}
 
-		public void CreateTask(BottleDebtorsVMNode[] bottleDebtors)
+		public int CreateTask(BottleDebtorsVMNode[] bottleDebtors)
 		{
+			int newTaskCount = 0;
 			foreach(var item in bottleDebtors) {
 				if(item == null)
 					continue;
@@ -206,9 +214,11 @@ namespace Vodovoz.Representations
 					CreationDate = DateTime.Now,
 					EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59)
 				};
+				newTaskCount++;
 				UoW.Save(task);
 			}
 			UoW.Commit();
+			return newTaskCount;
 		}
 	}
 

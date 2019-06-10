@@ -187,7 +187,7 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 		public virtual void Send(Employee sender)
 		{
 			if(sender == null) {
-				throw new ArgumentNullException($"Не указано кто является кассиром");
+				throw new ArgumentNullException(nameof(sender), $"Не указано кто является кассиром");
 			}
 
 			if(Status != CashTransferDocumentStatuses.New) {

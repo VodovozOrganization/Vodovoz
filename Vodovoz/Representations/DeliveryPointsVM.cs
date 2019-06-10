@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModel
 {
@@ -24,50 +20,47 @@ namespace Vodovoz.ViewModel
 
 		#region IRepresentationModel implementation
 
-		public override void UpdateNodes ()
+		public override void UpdateNodes()
 		{
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
-			LogisticsArea logisticsAreaAlias = null;
 			DeliveryPointVMNode resultAlias = null;
 
 			var pointsQuery = UoW.Session.QueryOver<DeliveryPoint>(() => deliveryPointAlias);
-			if (Filter.RestrictOnlyNotFoundOsm)
+			if(Filter.RestrictOnlyNotFoundOsm)
 				pointsQuery.Where(x => x.FoundOnOsm == false);
-			if (Filter.RestrictOnlyWithoutStreet)
+			if(Filter.RestrictOnlyWithoutStreet)
 				pointsQuery.Where(p => string.IsNullOrEmpty(p.Street));
 			if(Filter.Client != null)
 				pointsQuery.Where(p => p.Counterparty.Id == Filter.Client.Id);
 
 			var deliveryPointslist = pointsQuery
-				.JoinAlias (c => c.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias (c => c.LogisticsArea, () => logisticsAreaAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.SelectList (list => list
-					.Select (() => deliveryPointAlias.Id).WithAlias (() => resultAlias.Id)
-					.Select (() => deliveryPointAlias.CompiledAddress).WithAlias (() => resultAlias.CompiledAddress)
-					.Select (() => deliveryPointAlias.FoundOnOsm).WithAlias (() => resultAlias.FoundOnOsm)
-					.Select (() => deliveryPointAlias.IsFixedInOsm).WithAlias (() => resultAlias.FixedInOsm)
-					.Select (() => deliveryPointAlias.IsActive).WithAlias (() => resultAlias.IsActive)
-					.Select (() => deliveryPointAlias.Address1c).WithAlias (() => resultAlias.Address1c)
-					.Select (() => counterpartyAlias.FullName).WithAlias (() => resultAlias.Client)
-					.Select (() => logisticsAreaAlias.Name).WithAlias (() => resultAlias.LogisticsArea)
-			                         )
-				.TransformUsing (Transformers.AliasToBean<DeliveryPointVMNode> ())
-				.List<DeliveryPointVMNode> ();
+				.JoinAlias(c => c.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.SelectList(list => list
+				   .Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.Id)
+				   .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
+				   .Select(() => deliveryPointAlias.FoundOnOsm).WithAlias(() => resultAlias.FoundOnOsm)
+				   .Select(() => deliveryPointAlias.IsFixedInOsm).WithAlias(() => resultAlias.FixedInOsm)
+				   .Select(() => deliveryPointAlias.IsActive).WithAlias(() => resultAlias.IsActive)
+				   .Select(() => deliveryPointAlias.Address1c).WithAlias(() => resultAlias.Address1c)
+				   .Select(() => counterpartyAlias.FullName).WithAlias(() => resultAlias.Client)
+				)
+				.TransformUsing(Transformers.AliasToBean<DeliveryPointVMNode>())
+				.List<DeliveryPointVMNode>();
 
-			SetItemsSource (deliveryPointslist);
+			SetItemsSource(deliveryPointslist);
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig<DeliveryPointVMNode>.Create ()
-			.AddColumn("OSM").AddTextRenderer(x => x.FoundOnOsm ? "Да": "")
-			.AddColumn("Испр.").AddTextRenderer(x => x.FixedInOsm ? "Да": "")
+		IColumnsConfig columnsConfig = FluentColumnsConfig<DeliveryPointVMNode>.Create()
+			.AddColumn("OSM").AddTextRenderer(x => x.FoundOnOsm ? "Да" : "")
+			.AddColumn("Испр.").AddTextRenderer(x => x.FixedInOsm ? "Да" : "")
 			//.AddColumn("Логистический район").AddTextRenderer(x => x.LogisticsArea)
-			.AddColumn ("Адрес").SetDataProperty (node => node.CompiledAddress)
+			.AddColumn("Адрес").SetDataProperty(node => node.CompiledAddress)
 			.AddColumn("Адрес из 1с").AddTextRenderer(x => x.Address1c)
 			.AddColumn("Клиент").AddTextRenderer(x => x.Client)
 			.AddColumn("Номер").AddTextRenderer(x => x.IdString)
-			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
-			.Finish ();
+			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
 			get { return columnsConfig; }
@@ -77,23 +70,24 @@ namespace Vodovoz.ViewModel
 
 		#region implemented abstract members of RepresentationModelBase
 
-		protected override bool NeedUpdateFunc (DeliveryPoint updatedSubject)
+		protected override bool NeedUpdateFunc(DeliveryPoint updatedSubject)
 		{
 			return true;
 		}
 
 		#endregion
 
-		public DeliveryPointsVM () : this(UnitOfWorkFactory.CreateWithoutRoot ()){
-			CreateRepresentationFilter = () => new DeliveryPointFilter ();
+		public DeliveryPointsVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
+		{
+			CreateRepresentationFilter = () => new DeliveryPointFilter();
 		}
 
-		public DeliveryPointsVM (IUnitOfWork uow)
+		public DeliveryPointsVM(IUnitOfWork uow)
 		{
 			this.UoW = uow;
 		}
 
-		public DeliveryPointsVM(DeliveryPointFilter filter) : this (filter.UoW)
+		public DeliveryPointsVM(DeliveryPointFilter filter) : this(filter.UoW)
 		{
 			Filter = filter;
 		}

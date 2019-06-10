@@ -4,7 +4,6 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
-using QSOrmProject;
 using QS.Project.Repositories;
 using Vodovoz;
 using Vodovoz.Core.Journal;
@@ -12,12 +11,12 @@ using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.JournalViewers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
-using QS.RepresentationModel.GtkUI;
-using Vodovoz.Domain.Cash.CashTransfer;
 
 public partial class MainWindow : Window
 {
@@ -71,8 +70,8 @@ public partial class MainWindow : Window
 	Action ActionRouteListAddressesTransferring;
 	Action ActionTransferOperationJournal;
 	Action ActionScheduleRestrictedDistricts;
-	Action ActionLogisticAreas;
 	Action ActionCashTransferDocuments;
+	Action ActionFuelTransferDocuments;
 
 	public void BuildToolbarActions()
 	{
@@ -111,6 +110,7 @@ public partial class MainWindow : Window
 		ActionCashFlow = new Action("ActionCashFlow", "Доходы и расходы", null, "table");
 		ActionSelfdeliveryOrders = new Action("ActionSelfdeliveryOrders", "Журнал самовывозов", null, "table");
 		ActionCashTransferDocuments = new Action("ActionCashTransferDocuments", "Журнал перемещения д/с", null, "table");
+		ActionFuelTransferDocuments = new Action("ActionFuelTransferDocuments", "Журнал учета топлива", null, "table");
 
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
@@ -131,7 +131,6 @@ public partial class MainWindow : Window
 		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
 		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Журнал доверенностей", null, "table");
 		ActionScheduleRestrictedDistricts = new Action("ActionScheduleRestrictedDistricts", "Районы с графиками доставки", null, "table");
-		ActionLogisticAreas = new Action("ActionLogisticAreas", "Логистические районы", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup("ToolbarActions");
@@ -167,6 +166,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionCashFlow, null);
 		w1.Add(ActionSelfdeliveryOrders, null);
 		w1.Add(ActionCashTransferDocuments, null);
+		w1.Add(ActionFuelTransferDocuments, null);
 		w1.Add(ActionFinesJournal, null);
 		w1.Add(ActionPremiumJournal, null);
 		w1.Add(ActionCarProxiesJournal, null);
@@ -184,7 +184,6 @@ public partial class MainWindow : Window
 		w1.Add(ActionRouteListAddressesTransferring, null);
 		w1.Add(ActionTransferOperationJournal, null);
 		w1.Add(ActionScheduleRestrictedDistricts, null);
-		w1.Add(ActionLogisticAreas, null);
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -210,7 +209,7 @@ public partial class MainWindow : Window
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
 		ActionAtWorks.Activated += ActionAtWorks_Activated;
 		ActionRouteListsAtDay.Activated += ActionRouteListsAtDay_Activated;
-		ActionRouteListsPrint.Activated += ActionRouteListsPrint_Activated; ;
+		ActionRouteListsPrint.Activated += ActionRouteListsPrint_Activated;
 		ActionRouteListClosingTable.Activated += ActionRouteListClosingTable_Activated;
 		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
@@ -222,6 +221,7 @@ public partial class MainWindow : Window
 		ActionCashFlow.Activated += ActionCashFlow_Activated;
 		ActionSelfdeliveryOrders.Activated += ActionSelfdeliveryOrders_Activated;
 		ActionCashTransferDocuments.Activated += ActionCashTransferDocuments_Activated;
+		ActionFuelTransferDocuments.Activated += ActionFuelTransferDocuments_Activated;
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
 		ActionCarProxiesJournal.Activated += ActionCarProxiesJournal_Activated;
@@ -239,7 +239,6 @@ public partial class MainWindow : Window
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
 		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
 		ActionScheduleRestrictedDistricts.Activated += ActionScheduleRestrictedDistricts_Activated;
-		ActionLogisticAreas.Activated += ActionActionLogisticAreas_Activated;
 		#endregion
 	}
 
@@ -256,14 +255,14 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			"CRM",
 			() => new TasksView(), null
-			);
+		);
 	}
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-		"CRM",
-		() => new DebtorsView(), null
+			"CRM",
+			() => new DebtorsView(), null
 		);
 	}
 
@@ -372,8 +371,7 @@ public partial class MainWindow : Window
 					x => x.RestrictOnlyService = false
 				);
 				SelfDeliveriesVM vm = new SelfDeliveriesVM(filterOrders);
-				return new ReferenceRepresentation(vm).CustomTabName("Журнал самовывозов")
-													  .Buttons(ReferenceButtonMode.None);
+				return new PermissionControlledRepresentationJournal(vm, Buttons.None).CustomTabName("Журнал самовывозов");
 			}
 		);
 	}
@@ -389,19 +387,31 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
+	void ActionFuelTransferDocuments_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<FinesVM>(),
+			RepresentationJournalDialog.GenerateHashName<FuelDocumentsJournalViewModel>(),
+			() => {
+				SubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+				FuelRepository fuelRepository = new FuelRepository();
+				var vm = new FuelDocumentsJournalViewModel(ServicesConfig.EmployeeService, ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, ServicesConfig.RepresentationEntityPicker);
+				return new MultipleEntityJournal("Журнал учета топлива", vm, vm);
+			}
+		);
+	}
+
+	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
+	{
+
+		tdiMain.OpenTab(
+			PermissionControlledRepresentationJournal.GenerateHashName<FinesVM>(),
 			() => {
 				FinesVM vm = new FinesVM();
 				vm.Filter.SetAndRefilterAtOnce(f => f.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
-				return new ReferenceRepresentation(vm).CustomTabName("Журнал штрафов")
-													  .Buttons(
-														  UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"]
-														  ? ReferenceButtonMode.CanAll
-														  : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
-														 );
+				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"]
+														  ? Buttons.All
+														  : (Buttons.Add | Buttons.Edit);
+				return new PermissionControlledRepresentationJournal(vm, buttons).CustomTabName("Журнал штрафов");
 			}
 		);
 	}
@@ -409,9 +419,13 @@ public partial class MainWindow : Window
 	void ActionPremiumJournal_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<PremiumVM>(),
-			() => new ReferenceRepresentation(new PremiumVM()).CustomTabName("Журнал премий")
-			.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
+			PermissionControlledRepresentationJournal.GenerateHashName<PremiumVM>(),
+			() => {
+				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"]
+														  ? Buttons.All
+														  : (Buttons.Add | Buttons.Edit);
+				return new PermissionControlledRepresentationJournal(new PremiumVM(), buttons).CustomTabName("Журнал премий");
+			}
 		);
 	}
 
@@ -474,15 +488,14 @@ public partial class MainWindow : Window
 	void ActionRouteListTable_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<RouteListsVM>(),
+			PermissionControlledRepresentationJournal.GenerateHashName<RouteListsVM>(),
 			() => {
 				var vm = new RouteListsVM();
 				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
-				return new ReferenceRepresentation(vm).Buttons(
-					UserPermissionRepository.CurrentUserPresetPermissions["can_delete"]
-					? ReferenceButtonMode.CanAll
-					: (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
-				);
+				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"]
+					? Buttons.All
+					: (Buttons.Add | Buttons.Edit);
+				return new PermissionControlledRepresentationJournal(vm, buttons);
 			}
 		);
 	}
@@ -549,15 +562,19 @@ public partial class MainWindow : Window
 	void ActionClientBalance_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<ClientEquipmentBalanceVM>(),
-			() => new ReferenceRepresentation(new ClientEquipmentBalanceVM(), "Оборудование у клиентов")
+			PermissionControlledRepresentationJournal.GenerateHashName<ClientEquipmentBalanceVM>(),
+			() => {
+				var journal = new PermissionControlledRepresentationJournal(new ClientEquipmentBalanceVM());
+				journal.CustomTabName("Оборудование у клиентов");
+				return journal;
+			}
 		);
 	}
 
 	void ActionAddOrder_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			OrmMain.GenerateDialogHashName<Vodovoz.Domain.Orders.Order>(0),
+			DialogHelper.GenerateDialogHashName<Order>(0),
 			() => new OrderDlg()
 		);
 	}
@@ -593,9 +610,13 @@ public partial class MainWindow : Window
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<OrdersVM>(),
-			() => new ReferenceRepresentation(new OrdersVM()).CustomTabName("Журнал заказов")
-			.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
+			PermissionControlledRepresentationJournal.GenerateHashName<OrdersVM>(),
+			() => {
+				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"]
+					? Buttons.All
+					: (Buttons.Add | Buttons.Edit);
+				return new PermissionControlledRepresentationJournal(new OrdersVM(), buttons).CustomTabName("Журнал заказов");
+			}
 		);
 	}
 
@@ -604,8 +625,9 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<UndeliveriesView>(),
 			() => {
-				var view = new UndeliveriesView();
-				view.ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_undeliveries"] ? ReferenceButtonMode.CanAll : ReferenceButtonMode.CanAdd;
+				var view = new UndeliveriesView {
+					ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_undeliveries"] ? ReferenceButtonMode.CanAll : ReferenceButtonMode.CanAdd
+				};
 				return view;
 			}
 		);
@@ -614,16 +636,16 @@ public partial class MainWindow : Window
 	void ActionResidueActivated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<ResidueVM>(),
-			() => new ReferenceRepresentation(new ResidueVM()).CustomTabName("Журнал остатков")
+			PermissionControlledRepresentationJournal.GenerateHashName<ResidueVM>(),
+			() => new PermissionControlledRepresentationJournal(new ResidueVM()).CustomTabName("Журнал остатков")
 		);
 	}
 
 	void ActionTransferOperationJournal_Activated(object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<TransferOperationsVM>(),
-			() => new ReferenceRepresentation(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки").Buttons(ReferenceButtonMode.CanAll));
+			PermissionControlledRepresentationJournal.GenerateHashName<TransferOperationsVM>(),
+			() => new PermissionControlledRepresentationJournal(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки"));
 	}
 
 	void ActionDeliveryPrice_Activated(object sender, System.EventArgs e)
@@ -637,12 +659,6 @@ public partial class MainWindow : Window
 	void ActionScheduleRestrictedDistricts_Activated(object sender, System.EventArgs e)
 	{
 		var tab = new ScheduleRestrictedDistrictsDlg();
-		tdiMain.AddTab(tab);
-	}
-
-	void ActionActionLogisticAreas_Activated(object sender, System.EventArgs e)
-	{
-		var tab = new LogisticAreasEditDlg();
 		tdiMain.AddTab(tab);
 	}
 }

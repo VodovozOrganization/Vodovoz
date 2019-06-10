@@ -33,11 +33,14 @@ namespace Vodovoz.Domain.Payments
 				case "3DS_CHECKING":
 					paymentStatus = PaymentStatus.CHECKING;
 					break;
+				case "3DS_CHECKED":
+					paymentStatus = PaymentStatus.CHECKED;
+					break;
 				default:
 					if(!Enum.TryParse(data[0], out paymentStatus))
 						paymentStatus = PaymentStatus.Unacceptable;
 					//else
-						//Selectable = Selected = PaymentStatus == PaymentStatus.CONFIRMED;
+					//Selectable = Selected = PaymentStatus == PaymentStatus.CONFIRMED;
 					break;
 			}
 
@@ -47,10 +50,10 @@ namespace Vodovoz.Domain.Payments
 				null
 			);
 
-			if(!Int32.TryParse(data[2], out paymentNr))
+			if(!int.TryParse(data[2], out paymentNr))
 				paymentNr = 0;
 
-			if(!Decimal.TryParse(data[3], NumberStyles.AllowDecimalPoint, culture.NumberFormat, out paymentRUR))
+			if(!decimal.TryParse(data[3], NumberStyles.AllowDecimalPoint, culture.NumberFormat, out paymentRUR))
 				paymentRUR = 0m;
 
 			Email = data[4];
@@ -94,22 +97,22 @@ namespace Vodovoz.Domain.Payments
 			set => SetField(ref paymentRUR, value, () => PaymentRUR);
 		}
 
-		string email = String.Empty;
+		string email = string.Empty;
 		[Display(Name = "Адрес электронной почты")]
 		public virtual string Email {
 			get => email;
 			set => SetField(ref email, value, () => Email);
 		}
 
-		string phone = String.Empty;
+		string phone = string.Empty;
 		[Display(Name = "Номер телефона")]
 		public virtual string Phone {
 			get => phone;
 			set => SetField(ref phone, value, () => Phone);
 		}
 
-		string shop = String.Empty;
-		[Display(Name = "Магазин какой-то")]
+		string shop = string.Empty;
+		[Display(Name = "Магазин")]
 		public virtual string Shop {
 			get => shop;
 			set => SetField(ref shop, value, () => Shop);
@@ -134,21 +137,41 @@ namespace Vodovoz.Domain.Payments
 	/// </summary>
 	public enum PaymentStatus
 	{
-		[Display(Name = "Новый")]
+		[Display(Name = "Платёж создан")]
 		NEW = 0,
-		[Display(Name = "Подтверждён")]
-		CONFIRMED = 1,
-		[Display(Name = "Показанная форма")]
-		FORM_SHOWED = 2,
-		[Display(Name = "Ошибка авторизации")]
-		AUTH_FAIL = 3,
-		[Display(Name = "3DS_CHECKING")]
-		CHECKING = 4,
-		[Display(Name = "Превышение срока")]
-		DEADLINE_EXPIRED = 5,
-		[Display(Name = "Отвергнут")]
-		REJECTED = 6,
+		[Display(Name = "Отмена платежа")]
+		CANCELED = 1,
+		[Display(Name = "Перенаправление на страницу оплаты")]
+		FORMSHOWED = 2,
+		[Display(Name = "Истек срок платежа")]
+		DEADLINE_EXPIRED = 3,
+		[Display(Name = "Система начала обработку оплаты платежа")]
+		AUTHORIZING = 4,
+		[Display(Name = "Покупатель начал аутентификацию по 3-D Secure")]
+		CHECKING = 5,
+		[Display(Name = "Покупатель завершил проверку 3-D Secure")]
+		CHECKED = 6,
+		[Display(Name = "Ошибка платежа. Остались попытки оплаты")]
+		AUTH_FAIL = 7,
+		[Display(Name = "Средства заблокированы, но не списаны")]
+		AUTHORIZED = 8,
+		[Display(Name = "Начало отмены блокировки средств")]
+		REVERSING = 9,
+		[Display(Name = "Денежные средства разблокированы")]
+		REVERSED = 10,
+		[Display(Name = "Начало списания денежных средств")]
+		CONFIRMING = 11,
+		[Display(Name = "Денежные средства успешно списаны")]
+		CONFIRMED = 12,
+		[Display(Name = "Начало возврата денежных средств")]
+		REFUNDING = 13,
+		[Display(Name = "Произведен частичный возврат денежных средств")]
+		PARTIAL_REFUNDED = 14,
+		[Display(Name = "Произведен возврат денежных средств")]
+		REFUNDED = 15,
+		[Display(Name = "Ошибка платежа. Истекли попытки оплаты")]
+		REJECTED = 16,
 		[Display(Name = "Отсутствует в ДВ")]
-		Unacceptable = 1024
+		Unacceptable = 1024,
 	}
 }

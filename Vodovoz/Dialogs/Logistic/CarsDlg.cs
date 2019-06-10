@@ -10,6 +10,7 @@ using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -57,7 +58,8 @@ namespace Vodovoz
 			ydatepickerDocIssuedDate.Binding.AddBinding(Entity, e => e.DocIssuedDate, w => w.DateOrNull).InitializeFromSource();
 
 
-			var filter = new EmployeeFilter(UoW);
+			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filter.ShowFired = false;
 			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			dataentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 			dataentryreferenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();

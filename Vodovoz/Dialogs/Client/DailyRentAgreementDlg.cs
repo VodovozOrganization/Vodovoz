@@ -71,16 +71,16 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public DailyRentAgreementDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
+		public DailyRentAgreementDlg(IEntityConstructorParam ctorParam)
 		{
 			this.Build();
-			if(!option.NeedCreateNew) {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<DailyRentAgreement>(option.EntityId), baseUoW)
-					: UnitOfWorkFactory.CreateForRoot<DailyRentAgreement>(option.EntityId);
+			if(!ctorParam.IsNewEntity) {
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateForChildRoot(ctorParam.RootUoW.GetById<DailyRentAgreement>(ctorParam.EntityOpenId), ctorParam.RootUoW)
+					: UnitOfWorkFactory.CreateForRoot<DailyRentAgreement>(ctorParam.EntityOpenId);
 			} else {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateWithNewChildRoot<DailyRentAgreement>(baseUoW)
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateWithNewChildRoot<DailyRentAgreement>(ctorParam.RootUoW)
 					: UnitOfWorkFactory.CreateWithNewRoot<DailyRentAgreement>();
 			}
 

@@ -53,11 +53,8 @@ namespace Vodovoz
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
-
-			var filterLogistican = new EmployeeFilter(UoW) {
-				ShowFired = false
-			};
-			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
+		
+			referenceLogistican.RepresentationModel = new EmployeesVM();
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoWGeneric);

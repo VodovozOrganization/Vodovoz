@@ -12,8 +12,6 @@ using NHibernate.Util;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
-using QSOrmProject;
-using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -24,14 +22,16 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.JournalViewers;
 using Vodovoz.Repositories;
 using Vodovoz.Repository;
+using System.Collections.Generic;
+using QS.RepresentationModel.GtkUI;
 
 namespace Vodovoz.ViewModel
 {
-	public class OrdersVM : RepresentationModelEntityBase<Vodovoz.Domain.Orders.Order, OrdersVMNode>
+	public class OrdersVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<Vodovoz.Domain.Orders.Order, OrdersVMNode>
 	{
 		public OrdersFilter Filter {
 			get => RepresentationFilter as OrdersFilter;
-			set => RepresentationFilter = value as IRepresentationFilter;
+			set => RepresentationFilter = value as QSOrmProject.RepresentationModel.IRepresentationFilter;
 		}
 		public bool CanToggleVisibilityOfColumns { get; set; }
 
@@ -215,54 +215,116 @@ namespace Vodovoz.ViewModel
 				c.Visible = val.HasValue && val.Value;
 		}
 
-		public override Gtk.Menu GetPopupMenu(RepresentationSelectResult[] selected)
-		{
-			lastMenuSelected = selected;
+		public override IEnumerable<IJournalPopupItem> PopupItems {
+			get {
+				var result = new List<IJournalPopupItem>();
 
-			Menu popupMenu = new Gtk.Menu();
-			Gtk.MenuItem menuItemRouteList = new MenuItem("Перейти в маршрутный лист");
-			menuItemRouteList.Activated += MenuItemRouteList_Activated;
-			menuItemRouteList.Sensitive = selected.Any(x => ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.Accepted && ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.NewOrder);
-			popupMenu.Add(menuItemRouteList);
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Перейти в маршрутный лист",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrdersVMNode>();
+						var addresses = UoW.Session.QueryOver<RouteListItem>()
+							.Where(x => x.Order.Id.IsIn(selectedNodes.Select(n => n.Id).ToArray())).List();
 
-			Gtk.MenuItem menuItemUndelivery = new MenuItem("Перейти в недовоз");
-			menuItemUndelivery.Activated += MenuItemUndelivery_Activated;
-			menuItemUndelivery.Sensitive = selected.Any(o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, o.EntityId).Any());
-			popupMenu.Add(menuItemUndelivery);
+						var routes = addresses.GroupBy(x => x.RouteList.Id);
 
-			Gtk.MenuItem menuItemRouteListClosingDlg = new Gtk.MenuItem("Открыть диалог закрытия");
-			menuItemRouteListClosingDlg.Activated += MenuItemRouteListClosingDlg_Activated;
-			menuItemRouteListClosingDlg.Sensitive = selected.Any(x => IsOrderInRouteListStatusEnRouted(x.EntityId));
-			popupMenu.Add(menuItemRouteListClosingDlg);
+						var tdiMain = MainClass.MainWin.TdiMain;
 
-			popupMenu.Add(new SeparatorMenuItem());
+						foreach(var route in routes) {
+							tdiMain.OpenTab(
+								DialogHelper.GenerateDialogHashName<RouteList>(route.Key),
+								() => new RouteListKeepingDlg(route.Key, route.Select(x => x.Order.Id).ToArray())
+							);
+						}
+					},
+					(selectedItems) => selectedItems.Any(x => ((OrdersVMNode)x).StatusEnum != OrderStatus.Accepted && ((OrdersVMNode)x).StatusEnum != OrderStatus.NewOrder)));
 
-			Gtk.MenuItem menuItemYandex = new MenuItem("Открыть на Yandex картах(координаты)");
-			menuItemYandex.Activated += MenuItemYandex_Activated;
-			popupMenu.Add(menuItemYandex);
-			Gtk.MenuItem menuItemYandexAddress = new MenuItem("Открыть на Yandex картах(адрес)");
-			menuItemYandexAddress.Activated += MenuItemYandexAddress_Activated;
-			popupMenu.Add(menuItemYandexAddress);
-			Gtk.MenuItem menuItemOSM = new MenuItem("Открыть на карте OSM");
-			menuItemOSM.Activated += MenuItemOSM_Activated;
-			popupMenu.Add(menuItemOSM);
-			return popupMenu;
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Перейти в недовоз",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrdersVMNode>();
+						var order = UoW.GetById<Domain.Orders.Order>(selectedNodes.FirstOrDefault().Id);
+						UndeliveriesView dlg = new UndeliveriesView();
+						dlg.HideFilterAndControls();
+						dlg.GetUndeliveryFilter.SetAndRefilterAtOnce(
+							x => x.ResetFilter(),
+							x => x.RestrictOldOrder = order,
+							x => x.RestrictOldOrderStartDate = order.DeliveryDate,
+							x => x.RestrictOldOrderEndDate = order.DeliveryDate
+						);
+						MainClass.MainWin.TdiMain.AddTab(dlg);
+					},
+					(selectedItems) => selectedItems.Any(o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, ((OrdersVMNode)o).Id).Any())
+				));
+
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Открыть диалог закрытия",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrdersVMNode>();
+						var routeListIds = selectedNodes.Select(x => x.Id).ToArray();
+						var addresses = UoW.Session.QueryOver<RouteListItem>()
+							.Where(x => x.Order.Id.IsIn(routeListIds)).List();
+
+						var routes = addresses.GroupBy(x => x.RouteList.Id);
+						var tdiMain = MainClass.MainWin.TdiMain;
+
+						foreach(var rl in routes) {
+							tdiMain.OpenTab(
+								DialogHelper.GenerateDialogHashName<RouteList>(rl.Key),
+								() => new RouteListClosingDlg(rl.Key)
+							);
+						}
+					},
+					(selectedItems) => selectedItems.Any(x => IsOrderInRouteListStatusEnRouted(((OrdersVMNode)x).Id))
+				));
+
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Открыть на Yandex картах(координаты)",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrdersVMNode>();
+						foreach(var sel in selectedNodes) {
+							var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.Id);
+							if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+								continue;
+
+							System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "https://maps.yandex.ru/?ll={0},{1}&z=17", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
+						}
+					}
+				));
+
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Открыть на Yandex картах(адрес)",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrdersVMNode>();
+						foreach(var sel in selectedNodes) {
+							var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.Id);
+							if(order.DeliveryPoint == null)
+								continue;
+
+							System.Diagnostics.Process.Start(
+								String.Format(CultureInfo.InvariantCulture,
+									"https://maps.yandex.ru/?text={0} {1} {2}",
+									order.DeliveryPoint.City,
+									order.DeliveryPoint.Street,
+									order.DeliveryPoint.Building
+								));
+						}
+					}
+				));
+
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Открыть на карте OSM",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrdersVMNode>();
+						foreach(var sel in selectedNodes) {
+							var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.Id);
+							if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+								continue;
+
+							System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
+						}
+					}
+				));
+
+				return result;
+			}
 		}
 
 		#endregion
-
-		private RepresentationSelectResult[] lastMenuSelected;
-
-		void MenuItemOSM_Activated(object sender, EventArgs e)
-		{
-			foreach(var sel in lastMenuSelected) {
-				var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.EntityId);
-				if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
-					continue;
-
-				System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
-			}
-		}
 
 		bool IsOrderInRouteListStatusEnRouted(int orderId)
 		{
@@ -278,84 +340,6 @@ namespace Vodovoz.ViewModel
 				}
 			}
 			return false;
-		}
-
-		void MenuItemRouteList_Activated(object sender, EventArgs e)
-		{
-			var ordersIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-			var addresses = UoW.Session.QueryOver<RouteListItem>()
-				.Where(x => x.Order.Id.IsIn(ordersIds)).List();
-
-			var routes = addresses.GroupBy(x => x.RouteList.Id);
-
-			var tdiMain = MainClass.MainWin.TdiMain;
-
-			foreach(var route in routes) {
-				tdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(route.Key),
-					() => new RouteListKeepingDlg(route.Key, route.Select(x => x.Order.Id).ToArray())
-				);
-			}
-		}
-
-		void MenuItemUndelivery_Activated(object sender, EventArgs e)
-		{
-			var order = UoW.GetById<Domain.Orders.Order>(lastMenuSelected.FirstOrDefault().EntityId);
-			UndeliveriesView dlg = new UndeliveriesView();
-			dlg.HideFilterAndControls();
-			dlg.GetUndeliveryFilter.SetAndRefilterAtOnce(
-				x => x.ResetFilter(),
-				x => x.RestrictOldOrder = order,
-				x => x.RestrictOldOrderStartDate = order.DeliveryDate,
-				x => x.RestrictOldOrderEndDate = order.DeliveryDate
-			);
-			MainClass.MainWin.TdiMain.AddTab(dlg);
-		}
-
-
-		void MenuItemRouteListClosingDlg_Activated(object sender, EventArgs e)
-		{
-			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
-			var addresses = UoW.Session.QueryOver<RouteListItem>()
-				.Where(x => x.Order.Id.IsIn(routeListIds)).List();
-
-			var routes = addresses.GroupBy(x => x.RouteList.Id);
-			var tdiMain = MainClass.MainWin.TdiMain;
-
-			foreach(var rl in routes) {
-				tdiMain.OpenTab(
-					DialogHelper.GenerateDialogHashName<RouteList>(rl.Key),
-					() => new RouteListClosingDlg(rl.Key)
-				);
-			}
-		}
-
-		void MenuItemYandexAddress_Activated(object sender, EventArgs e)
-		{
-			foreach(var sel in lastMenuSelected) {
-				var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.EntityId);
-				if(order.DeliveryPoint == null)
-					continue;
-
-				System.Diagnostics.Process.Start(
-					String.Format(CultureInfo.InvariantCulture,
-						"https://maps.yandex.ru/?text={0} {1} {2}",
-						order.DeliveryPoint.City,
-						order.DeliveryPoint.Street,
-						order.DeliveryPoint.Building
-					));
-			}
-		}
-
-		void MenuItemYandex_Activated(object sender, EventArgs e)
-		{
-			foreach(var sel in lastMenuSelected) {
-				var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.EntityId);
-				if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
-					continue;
-
-				System.Diagnostics.Process.Start(String.Format(CultureInfo.InvariantCulture, "https://maps.yandex.ru/?ll={0},{1}&z=17", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
-			}
 		}
 
 		#region implemented abstract members of RepresentationModelBase

@@ -11,7 +11,7 @@ namespace Vodovoz.HibernateMapping.Payments
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.Imei).Column("imei");
+			Map(x => x.Uuid).Column("uuid");
 			Map(x => x.OrderSum).Column("order_sum");
 			Map(x => x.Created).Column("created").ReadOnly();
 		}

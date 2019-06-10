@@ -30,8 +30,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		void ConfigureDlg()
 		{
-			dtrngPeriod.StartDate = DateTime.Today.AddDays(-1);
-			dtrngPeriod.EndDate = DateTime.Today.AddDays(1);
+			dtrngPeriod.StartDate = DateTime.Today;
+			dtrngPeriod.EndDate = DateTime.Today;
 			specCmbDeliveryPointCategory.ItemsList = UoW.Session.QueryOver<DeliveryPointCategory>().List();
 			specCmbDeliveryPointCategory.ItemSelected += (s, e) => category = specCmbDeliveryPointCategory.SelectedItem as DeliveryPointCategory;
 			enumCmbPaymentType.ItemsEnum = typeof(PaymentType);

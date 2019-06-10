@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using Gamma.GtkWidgets;
 using NHibernate.Util;
+using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
-using QSOrmProject;
+using QS.Project.Dialogs.GtkUI;
+using QS.Project.Repositories;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -15,12 +18,11 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.ViewModel;
-using QS.Project.Repositories;
 
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class UndeliveredOrderView : QS.Dialog.Gtk.WidgetOnDialogBase
+	public partial class UndeliveredOrderView : WidgetOnDialogBase
 	{
 		Order newOrder = null;
 		Order oldOrder = null;
@@ -131,9 +133,7 @@ namespace Vodovoz.ViewWidgets
 			if(undelivery.Id <= 0)
 				yentInProcessAtDepartment.Subject = SubdivisionsRepository.GetQCDepartment(UoW);
 
-			var filterRegisteredBy = new EmployeeFilter(UoW);
-			filterRegisteredBy.ShowFired = false;
-			refRegisteredBy.RepresentationModel = new EmployeesVM(filterRegisteredBy);
+			refRegisteredBy.RepresentationModel = new EmployeesVM(UoW);
 			refRegisteredBy.Binding.AddBinding(undelivery, s => s.EmployeeRegistrator, w => w.Subject).InitializeFromSource();
 
 			yEnumCMBDriverCallPlace.EnumItemSelected += CMBSelectedItemChanged;
@@ -303,19 +303,24 @@ namespace Vodovoz.ViewWidgets
 				x => x.RestrictCounterparty = oldOrder.Client,
 				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
 			);
-			ReferenceRepresentation dlg = new ReferenceRepresentation(new OrdersVM(filter));
-			dlg.Mode = OrmReferenceMode.Select;
-			dlg.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit));
+			Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? Buttons.All : (Buttons.Add | Buttons.Edit);
+			PermissionControlledRepresentationJournal dlg = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
+				Mode = JournalSelectMode.Single
+			};
 
 			MyTab.TabParent.AddTab(dlg, MyTab, false);
 
 			dlg.ObjectSelected += (s, ea) => {
-				if(oldOrder.Id == ea.ObjectId){
-					MessageDialogWorks.RunErrorDialog("Перенесённый заказ не может совпадать с недовезённым!");
+				var selectedId = ea.GetSelectedIds().FirstOrDefault();
+				if(selectedId == 0) {
+					return;
+				}
+				if(oldOrder.Id == selectedId) {
+					MessageDialogHelper.RunErrorDialog("Перенесённый заказ не может совпадать с недовезённым!");
 					OnBtnChooseOrderClicked(sender, ea);
 					return;
 				}
-				newOrder = undelivery.NewOrder = UoW.GetById<Order>(ea.ObjectId);
+				newOrder = undelivery.NewOrder = UoW.GetById<Order>(selectedId);
 				SetLabelsAcordingToNewOrder();
 				undelivery.NewDeliverySchedule = newOrder.DeliverySchedule;
 			};
@@ -330,7 +335,7 @@ namespace Vodovoz.ViewWidgets
 			var dlg = new OrderDlg();
 			dlg.CopyOrderFrom(order.Id);
 			MyTab.TabParent.OpenTab(
-				OrmMain.GenerateDialogHashName<Domain.Orders.Order>(dlg.Entity.Id),
+				DialogHelper.GenerateDialogHashName<Order>(dlg.Entity.Id),
 				() => dlg
 			);
 
@@ -354,7 +359,7 @@ namespace Vodovoz.ViewWidgets
 		{
 			var dlg = new OrderDlg(order);
 			MyTab.TabParent.OpenTab(
-				OrmMain.GenerateDialogHashName<Domain.Orders.Order>(order.Id),
+				DialogHelper.GenerateDialogHashName<Order>(order.Id),
 				() => dlg
 			);
 		}

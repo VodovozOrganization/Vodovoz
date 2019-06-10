@@ -11,11 +11,19 @@ namespace Vodovoz.Repositories.Payments
 		{
 			var paymentsList = uow.Session.QueryOver<PaymentFromTinkoff>()
 					  .SelectList(list => list
-			                      .Select(p => p.PaymentNr)
-			                      .Select(p => p.PaymentRUR)
-			                     ).List<object[]>();
+								  .Select(p => p.PaymentNr)
+								  .Select(p => p.PaymentRUR)
+								 ).List<object[]>();
 
 			return paymentsList.ToDictionary(r => (int)r[0], r => (decimal)r[1]);
+		}
+
+		public static IEnumerable<string> GetAllShopsFromTinkoff(IUnitOfWork uow)
+		{
+			var shops = uow.Session.QueryOver<PaymentFromTinkoff>()
+								   .SelectList(list => list.SelectGroup(p => p.Shop))
+								   .List<string>();
+			return shops;
 		}
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
@@ -13,12 +12,14 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Goods;
+using System.Collections;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
 
 namespace VodovozBusinessTests.Domain.Orders
 {
-	[TestFixture]
+	[TestFixture()]
 	public class OrderTests
 	{
 		[TearDown]

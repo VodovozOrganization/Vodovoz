@@ -47,6 +47,18 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult("Стоимость не может быть отрицательной",
 					new[] {Gamma.Utilities.PropertyUtil.GetPropertyName(this, o=>o.Cost)});
 		}
+
+		public override bool Equals(object obj)
+		{
+			var type = obj as FuelType;
+			return type != null &&
+				   Id == type.Id;
+		}
+
+		public override int GetHashCode()
+		{
+			return 2108858624 + Id.GetHashCode();
+		}
 	}
 }
 

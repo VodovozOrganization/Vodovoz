@@ -297,12 +297,11 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		LogisticsArea logisticsArea;
-
-		[Display(Name = "Логистический район")]
-		public virtual LogisticsArea LogisticsArea {
-			get => logisticsArea;
-			set => SetField(ref logisticsArea, value, () => LogisticsArea);
+		ScheduleRestrictedDistrict district;
+		[Display(Name = "Район доставки")]
+		public virtual ScheduleRestrictedDistrict District {
+			get => district;
+			set => SetField(ref district, value, () => District);
 		}
 
 		DeliverySchedule deliverySchedule;
@@ -479,14 +478,6 @@ namespace Vodovoz.Domain.Client
 		public virtual decimal FixPrice5 {
 			get => fixPrice5;
 			set => SetField(ref fixPrice5, value, () => FixPrice5);
-		}
-
-		ScheduleRestrictedDistrict district;
-
-		[Display(Name = "Район доставки")]
-		public virtual ScheduleRestrictedDistrict District {
-			get => district;
-			set => SetField(ref district, value, () => District);
 		}
 
 		bool addCertificatesAlways;

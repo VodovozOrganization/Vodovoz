@@ -6,14 +6,22 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Domain.Fuel;
+using NLog;
+using Vodovoz.Tools;
+using Vodovoz.Repository.Cash;
+using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.Domain.Logistic
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "документы выдачи топлива",
 		Nominative = "документ выдачи топлива")]
-	public class FuelDocument : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class FuelDocument : BusinessObjectBase<FuelDocument>, IDomainObject, IValidatableObject
 	{
+		Logger logger = LogManager.GetCurrentClassLogger();
+
 		public virtual int Id { get; set; }
 
 		private DateTime date;
@@ -51,9 +59,16 @@ namespace Vodovoz.Domain.Logistic
 		private FuelOperation operation;
 
 		[Display(Name = "Операции выдачи")]
-		public virtual FuelOperation Operation {
+		public virtual FuelOperation FuelOperation {
 			get { return operation; }
-			set { SetField(ref operation, value, () => Operation); }
+			set { SetField(ref operation, value, () => FuelOperation); }
+		}
+
+		private FuelExpenseOperation fuelExpenseOperation;
+		[Display(Name = "Операции списания топлива")]
+		public virtual FuelExpenseOperation FuelExpenseOperation {
+			get => fuelExpenseOperation;
+			set => SetField(ref fuelExpenseOperation, value, () => FuelExpenseOperation);
 		}
 
 		private decimal? payedForLiter;
@@ -122,43 +137,112 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref lastEditDate, value, () => LastEditDate); }
 		}
 
+		public virtual decimal PayedLiters {
+			get {
+				if(Fuel == null || Fuel.Cost <= 0 || !PayedForFuel.HasValue) {
+					return 0;
+				}
+
+				return Math.Round(PayedForFuel.Value / Fuel.Cost, 2, MidpointRounding.AwayFromZero);
+			}
+		}
+
 		public FuelDocument()
 		{ }
 
-		public virtual void UpdateOperation()
+		public virtual void CreateOperations(IFuelRepository fuelRepository)
 		{
-			decimal litersByMoney = 0;
-			if(Fuel.Cost > 0 && PayedForFuel.HasValue) {
-				litersByMoney = PayedForFuel.Value / Fuel.Cost;
+			if(fuelRepository == null) {
+				throw new ArgumentNullException(nameof(fuelRepository));
 			}
-			if(Operation == null) {
-				Operation = new FuelOperation();
+
+			ExpenseCategory expenseCategory = CategoryRepository.FuelDocumentExpenseCategory(UoW);
+			if(expenseCategory == null) {
+				throw new InvalidProgramException("Не возможно найти подходящую статью расхода, возможно в параметрах базы не настроена статья расхода по умолчанию.");
 			}
-			Operation.Driver = Car.IsCompanyHavings ? null : Driver;
-			Operation.Car = Car.IsCompanyHavings ? Car : null;
-			Operation.Fuel = Fuel;
-			Operation.LitersGived = fuelCoupons + litersByMoney;
-			Operation.LitersOutlayed = 0;
-			Operation.OperationTime = Date;
+
+			ValidationContext context = new ValidationContext(this, new Dictionary<object, object>() {
+				{"Reason", nameof(CreateOperations)}
+			});
+			context.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+			string validationMessage = this.RaiseValidationAndGetResult(context);
+			if(!string.IsNullOrWhiteSpace(validationMessage)) {
+				throw new ValidationException(validationMessage);
+			}
+
+			try {
+				CreateFuelOperation();
+				CreateFuelExpenseOperation();
+				CreateFuelCashExpense(expenseCategory);
+			} catch(Exception ex) {
+				//восстановление исходного состояния
+				FuelOperation = null;
+				FuelExpenseOperation = null;
+				FuelCashExpense = null;
+				logger.Error(ex, "Ошибка при создании операций для выдачи топлива");
+				throw;
+			}
 		}
 
-		public virtual void UpdateFuelCashExpense(IUnitOfWork uow, Employee cashier)
+		private void CreateFuelOperation()
 		{
-			if(PayedForFuel.HasValue) {
-				if(FuelCashExpense == null) {
-					FuelCashExpense = new Expense {
-						ExpenseCategory = Repository.Cash.CategoryRepository.FuelDocumentExpenseCategory(uow),
-						TypeOperation = ExpenseType.Expense,
-						Date = DateTime.Now,
-						Casher = cashier,
-						Employee = Driver,
-						RelatedToSubdivision = RouteList.ClosingSubdivision,
-						Description = $"Оплата топлива по МЛ №{RouteList.Id}",
-					};
-				}
-				FuelCashExpense.Money = Math.Round(PayedForFuel.Value, 0, MidpointRounding.AwayFromZero);
-			} else
-				FuelCashExpense = null;
+			if(FuelOperation != null) {
+				logger.Warn("Попытка создания операции выдачи топлива при уже имеющейся операции");
+				return;
+			}
+
+			FuelOperation = new FuelOperation() {
+				Driver = Car.IsCompanyHavings ? null : Driver,
+				Car = Car.IsCompanyHavings ? Car : null,
+				Fuel = Fuel,
+				LitersGived = FuelCoupons,
+				LitersOutlayed = 0,
+				PayedLiters = PayedForFuel.HasValue ? PayedLiters : 0,
+				OperationTime = Date
+			};
+		}
+
+		private void CreateFuelExpenseOperation()
+		{
+			if(FuelCoupons <= 0) {
+				return;
+			}
+
+			if(FuelExpenseOperation != null) {
+				logger.Warn("Попытка создания операции списания топлива при уже имеющейся операции");
+				return;
+			}
+
+			FuelExpenseOperation = new FuelExpenseOperation() {
+				FuelDocument = this,
+				FuelType = Fuel,
+				FuelLiters = FuelCoupons,
+				RelatedToSubdivision = RouteList.ClosingSubdivision,
+				СreationTime = Date
+			};
+		}
+
+		private void CreateFuelCashExpense(ExpenseCategory expenseCategory)
+		{
+			if(!PayedForFuel.HasValue || (PayedForFuel.HasValue && PayedForFuel.Value <= 0)) {
+				return;
+			}
+
+			if(FuelCashExpense != null) {
+				logger.Warn("Попытка создания операции оплаты топлива при уже имеющейся операции");
+				return;
+			}
+
+			FuelCashExpense = new Expense {
+				ExpenseCategory = expenseCategory,
+				TypeOperation = ExpenseType.Expense,
+				Date = Date,
+				Casher = Author,
+				Employee = Driver,
+				RelatedToSubdivision = RouteList.ClosingSubdivision,
+				Description = $"Оплата топлива по МЛ №{RouteList.Id}",
+				Money = Math.Round(PayedForFuel.Value, 2, MidpointRounding.AwayFromZero)
+			};
 		}
 
 		public virtual Employee GetActualCashier(IUnitOfWork uow)
@@ -166,28 +250,35 @@ namespace Vodovoz.Domain.Logistic
 			return EmployeeRepository.GetEmployeeForCurrentUser(uow);
 		}
 
-		public virtual void UpdateDocument(IUnitOfWork uow)
-		{
-			Car = RouteList.Car;
-			Driver = RouteList.Driver;
-
-			var cashier = GetActualCashier(uow);
-			if(cashier == null) {
-				return;
-			}
-
-			UpdateFuelCashExpense(uow, cashier);
-			UpdateOperation();
-		}
-
-
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Operation == null || operation.LitersGived <= 0) {
-				yield return new ValidationResult("Документ должен выдавать литры топлива. Сейчас их не более нуля.",
-					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Operation) });
+			if(RouteList.ClosingSubdivision == null) {
+				yield return new ValidationResult("Касса в маршрутном листе должна быть заполнена");
+			}
+
+			if(Fuel == null) {
+				yield return new ValidationResult("Топливо должно быть заполнено");
+			}
+
+			if(FuelCoupons <= 0 && PayedLiters <= 0) {
+				yield return new ValidationResult("Не указано сколько топлива выдается.",
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.PayedLiters) });
+			}
+
+
+			if(validationContext.Items.ContainsKey("Reason") && (validationContext.Items["Reason"] as string) == nameof(CreateOperations)) {
+				if(!(validationContext.GetService(typeof(IFuelRepository)) is IFuelRepository fuelRepository)) {
+					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IFuelRepository)}");
+				}
+
+				if(RouteList.ClosingSubdivision != null && Fuel != null) {
+					decimal balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, RouteList.ClosingSubdivision, Fuel);
+					if(FuelCoupons > balance && FuelCoupons > 0) {
+						yield return new ValidationResult("На балансе недостаточно топлива для выдачи");
+					}
+				}
 			}
 		}
 

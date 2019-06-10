@@ -130,7 +130,7 @@ namespace Vodovoz.Dialogs
 				return;
 			OrderDlg orderDlg = new OrderDlg();
 			orderDlg.Entity.Client = Entity.Counterparty;
-			orderDlg.Entity.UpdateBaseParametersForClient();
+			orderDlg.Entity.UpdateClientDefaultParam();
 			orderDlg.Entity.DeliveryPoint = Entity.DeliveryPoint;
 			TabParent.AddTab(orderDlg , this);
 		}
@@ -138,7 +138,7 @@ namespace Vodovoz.Dialogs
 		protected void OnCreateTaskButtonClicked(object sender, EventArgs e)
 		{
 			CallTaskDlg newTask = new CallTaskDlg();
-			newTask.Entity.CopyTask(Entity);
+			newTask.Entity.CopyTask(Entity , UoW);
 			newTask.UpdateAddressFields();
 			TabParent.AddTab(newTask,this);
 		}

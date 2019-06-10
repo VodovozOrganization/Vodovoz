@@ -9,11 +9,11 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.RepresentationModel.GtkUI;
 using QS.Tools;
 using QS.Utilities.Text;
 using QSContacts;
 using QSOrmProject;
-using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
@@ -22,7 +22,7 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Representations
 {
-	public class CallTasksVM : RepresentationModelEntityBase<CallTask, CallTaskVMNode>
+	public class CallTasksVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<CallTask, CallTaskVMNode>
 	{
 		private readonly Pixbuf img; //TODO : переписать на множество вариантов
 		private readonly Pixbuf emptyImg;
@@ -30,6 +30,10 @@ namespace Vodovoz.Representations
 		private int taskCount = 0;
 
 		public IQueryFilter Filter { get; set; }
+
+		public bool NeedUpdate { get; set; }
+
+		protected override bool NeedUpdateFunc(CallTask updatedSubject) => NeedUpdate;
 
 		public override IColumnsConfig ColumnsConfig => FluentColumnsConfig<CallTaskVMNode>.Create()
 			.AddColumn("№").AddTextRenderer(node => node.Id.ToString())
@@ -195,23 +199,22 @@ namespace Vodovoz.Representations
 			return statisticsParam;
 		}
 
-		protected override bool NeedUpdateFunc(CallTask updatedSubject) => true;
+		public override IEnumerable<IJournalPopupItem> PopupItems {
+			get {
+				var result = new List<IJournalPopupItem>();
 
-		public override Menu GetPopupMenu(RepresentationSelectResult[] selected)
-		{
-			var callTaskNode = selected.Select(x => x.VMNode).OfType<CallTaskVMNode>().ToArray();
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Отметить как важное",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<CallTaskVMNode>();
+						ChangeEnitity((task) => task.ImportanceDegree = ImportanceDegreeType.Important, selectedNodes.ToArray(), false);
+						foreach(var selectedNode in selectedNodes) {
+							selectedNode.ImportanceDegree = ImportanceDegreeType.Important;
+						}
+					}
+				));
 
-			Menu popupMenu = new Menu();
-			MenuItem menuItemOpenReportByCounterparty = new MenuItem("Отметить как важное");
-			Action<CallTask> action = (task) => task.ImportanceDegree = ImportanceDegreeType.Important;
-			menuItemOpenReportByCounterparty.Activated += (e, arg) => 
-			{
-				ChangeEnitity(action, callTaskNode ,false);
-				callTaskNode.ToList().ForEach(obj => obj.ImportanceDegree = ImportanceDegreeType.Important);
-			};
-			popupMenu.Add(menuItemOpenReportByCounterparty);
-
-			return popupMenu;
+				return result;
+			}
 		}
 
 		public void ChangeEnitity(Action<CallTask> action , CallTaskVMNode[] tasks , bool NeedUpdate = true)

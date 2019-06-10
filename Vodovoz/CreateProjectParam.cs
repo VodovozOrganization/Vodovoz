@@ -20,6 +20,7 @@ using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
 using QSSupportLib;
+using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Cash;
@@ -45,6 +46,11 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
+using QS.Tdi.Gtk;
+using Vodovoz.Dialogs.Fuel;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Filters.GtkViews;
+using QS.Dialog.Gtk;
 
 namespace Vodovoz
 {
@@ -99,16 +105,32 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_edit_logistic_areas", new PresetUserPermissionSource("can_edit_logistic_areas", "Доступ к редактированию логистических районов", "Пользователь может редактировать логистические районы"));
 			PermissionsSettings.PresetPermissions.Add("can_send_not_loaded_route_lists_en_route", new PresetUserPermissionSource("can_send_not_loaded_route_lists_en_route", "Разрешение отправки недогруженых МЛ в путь", "Пользователь может отправлять недогруженные маршрутные листы в путь"));
 			PermissionsSettings.PresetPermissions.Add("can_confirm_mileage_for_our_GAZelles_Larguses", new PresetUserPermissionSource("can_confirm_mileage_for_our_GAZelles_Larguses", "Разрешение подтверждать киллометраж для наших ГАЗелей и Ларгусов", "Разрешение подтверждать киллометраж для наших ГАЗелей и Ларгусов"));
-
+			PermissionsSettings.PresetPermissions.Add("can_close_deliveries_for_counterparty", new PresetUserPermissionSource("can_close_deliveries_for_counterparty", "Возможность закрыть поставки для клиента", "Возможность закрыть поставки для клиента"));
+			PermissionsSettings.PresetPermissions.Add("can_edit_cashier_review_comment", new PresetUserPermissionSource("can_edit_cashier_review_comment", "Комментарий по проверке кассы", "Возможность изменять комментарий по проверке кассы"));
 			UserDialog.UserPermissionViewsCreator = delegate {
-				return new List<IUserPermissionTab>() {
+				return new List<IUserPermissionTab> {
 					new SubdivisionForUserEntityPermissionWidget()
 				};
 			};
 
 			UserDialog.PermissionViewsCreator = delegate {
-				return new List<IPermissionsView> { new QS.Permissions.PermissionMatrixView(new QS.Permissions.PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
-			};
+				return new List<IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
+			};		
+		}
+
+		static void ConfigureViewModelWidgetResolver()
+		{
+			//Регистрация вкладок
+			ViewModelWidgetResolver.Instance
+				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
+				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>();
+
+			//Регистрация фильтров
+			ViewModelWidgetResolver.Instance
+				.RegisterWidgetForFilterViewModel<EmployeeFilterViewModel, EmployeeFilterView>();
+
+			TDIMain.TDIWidgetResolver = ViewModelWidgetResolver.Instance;
+			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
 		static void CreateBaseConfig()
@@ -127,10 +149,10 @@ namespace Vodovoz
 			// Настройка ORM
 			OrmConfig.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
 				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
-				System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
+				System.Reflection.Assembly.GetAssembly (typeof(HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
-				System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain)),
-				System.Reflection.Assembly.GetAssembly (typeof(QS.HistoryLog.HistoryMain)),
+				System.Reflection.Assembly.GetAssembly (typeof(QSContactsMain)),
+				System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
 			},
 								  (cnf) => cnf.DataBaseIntegration(
 									  dbi => { dbi.BatchSize = 100; dbi.Batcher<MySqlClientBatchingBatcherFactory>(); }
@@ -192,7 +214,6 @@ namespace Vodovoz
 				OrmObjectMapping<RouteColumn>.Create().DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<DeliveryShift>.Create().Dialog<DeliveryShiftDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Диапазон времени", x => x.DeliveryTime).End(),
 				OrmObjectMapping<DeliveryDaySchedule>.Create().Dialog<DeliveryDayScheduleDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<LogisticsArea>.Create().Dialog<LogisticsAreaDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Город", x => x.IsCity ? "Да" : "Нет").End(),
 				//Сервис
 				OrmObjectMapping<ServiceClaim>.Create().Dialog<ServiceClaimDlg>().DefaultTableView().Column("Номер", x => x.Id.ToString()).Column("Тип", x => x.ServiceClaimType.GetEnumTitle()).Column("Оборудование", x => x.Equipment.Title).Column("Подмена", x => x.ReplacementEquipment != null ? "Да" : "Нет").Column("Точка доставки", x => x.DeliveryPoint.Title).End(),
 				//Касса
@@ -326,7 +347,13 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
-			#endregion
+			OrmMain.AddObjectDescription<ScheduleRestrictedDistrict>()
+				   .Dialog<ScheduleRestrictedDistrictDlg>()
+				   .DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.DistrictName)
+				   .End();
+#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 			OrmMain.ClassMappingList.AddRange(QSContactsMain.GetModuleMaping());

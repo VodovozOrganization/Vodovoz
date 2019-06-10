@@ -68,16 +68,16 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public WaterAgreementDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
+		public WaterAgreementDlg(IEntityConstructorParam ctorParam)
 		{
 			this.Build();
-			if(!option.NeedCreateNew) {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<WaterSalesAgreement>(option.EntityId), baseUoW)
-					: UnitOfWorkFactory.CreateForRoot<WaterSalesAgreement>(option.EntityId);
+			if(!ctorParam.IsNewEntity) {
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateForChildRoot(ctorParam.RootUoW.GetById<WaterSalesAgreement>(ctorParam.EntityOpenId), ctorParam.RootUoW)
+					: UnitOfWorkFactory.CreateForRoot<WaterSalesAgreement>(ctorParam.EntityOpenId);
 			} else {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateWithNewChildRoot<WaterSalesAgreement>(baseUoW)
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateWithNewChildRoot<WaterSalesAgreement>(ctorParam.RootUoW)
 					: UnitOfWorkFactory.CreateWithNewRoot<WaterSalesAgreement>();
 			}
 

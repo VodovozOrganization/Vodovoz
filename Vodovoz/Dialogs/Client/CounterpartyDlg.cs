@@ -20,6 +20,9 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModelBased;
+using Vodovoz.Filters.ViewModels;
+using QS.Dialog.GtkUI;
+using QS.Project.Dialogs.GtkUI;
 
 namespace Vodovoz
 {
@@ -56,17 +59,17 @@ namespace Vodovoz
 
 		public CounterpartyDlg(Counterparty sub) : this(sub.Id) { }
 
-		public CounterpartyDlg(IUnitOfWork baseUoW, IEntityOpenOption option)
+		public CounterpartyDlg(IEntityConstructorParam ctorParam)
 		{
 			this.Build();
-			if(option.NeedCreateNew) {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateWithNewChildRoot<Counterparty>(baseUoW)
+			if(ctorParam.IsNewEntity) {
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateWithNewChildRoot<Counterparty>(ctorParam.RootUoW)
 					: UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
 			} else {
-				UoWGeneric = option.UseChildUoW
-					? UnitOfWorkFactory.CreateForChildRoot(baseUoW.GetById<Counterparty>(option.EntityId), baseUoW)
-					: UnitOfWorkFactory.CreateForRoot<Counterparty>(option.EntityId);
+				UoWGeneric = ctorParam.RootUoW != null
+					? UnitOfWorkFactory.CreateForChildRoot(ctorParam.RootUoW.GetById<Counterparty>(ctorParam.EntityOpenId), ctorParam.RootUoW)
+					: UnitOfWorkFactory.CreateForRoot<Counterparty>(ctorParam.EntityOpenId);
 			}
 
 			ConfigureDlg();
@@ -138,14 +141,23 @@ namespace Vodovoz
 			referenceCameFrom.Binding.AddBinding(Entity, e => e.CameFrom, w => w.Subject).InitializeFromSource();
 			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
 			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
-			var filterAccountant = new EmployeeFilter(UoW);
-			filterAccountant.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			var filterAccountant = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterAccountant.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.ShowFired = false
+			);
 			referenceAccountant.RepresentationModel = new EmployeesVM(filterAccountant);
-			var filterSalesManager = new EmployeeFilter(UoW);
-			filterSalesManager.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			var filterSalesManager = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterSalesManager.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.ShowFired = false
+			);
 			referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
-			var filterBottleManager = new EmployeeFilter(UoW);
-			filterBottleManager.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
+			var filterBottleManager = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filterBottleManager.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.office,
+				x => x.ShowFired = false
+			);
 			referenceBottleManager.RepresentationModel = new EmployeesVM(filterBottleManager);
 			proxiesview1.CounterpartyUoW = UoWGeneric;
 			dataentryMainContact.RepresentationModel = new ViewModel.ContactsVM(UoW, Entity);
@@ -198,20 +210,21 @@ namespace Vodovoz
 			referenceCameFrom.Sensitive = Entity.Id == 0;
 			referenceCameFrom.Sensitive = Entity.Id == 0;
 			enumNeedOfCheque.Visible = lblNeedCheque.Visible = CounterpartyRepository.IsCashPayment(Entity.PaymentMethod);
+			SetVisibilityForCloseDeliveryComments();
 		}
 
 		void ButtonLoadFromDP_Clicked(object sender, EventArgs e)
 		{
-			var deliveryPointSelectDlg = new ReferenceRepresentation(new ClientDeliveryPointsVM(UoW, Entity)) {
-				Mode = OrmReferenceMode.Select
+			var deliveryPointSelectDlg = new PermissionControlledRepresentationJournal(new ClientDeliveryPointsVM(UoW, Entity)) {
+				Mode = JournalSelectMode.Single
 			};
 			deliveryPointSelectDlg.ObjectSelected += DeliveryPointRep_ObjectSelected;
 			TabParent.AddSlaveTab(this, deliveryPointSelectDlg);
 		}
 
-		void DeliveryPointRep_ObjectSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
+		void DeliveryPointRep_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			if(e.VMNode is DeliveryPointVMNode node)
+			if(e.GetNodes<DeliveryPointVMNode>().FirstOrDefault() is DeliveryPointVMNode node)
 				yentrySpecialDeliveryAddress.Text = node.CompiledAddress;
 		}
 
@@ -224,13 +237,12 @@ namespace Vodovoz
 
 		void AllOrders_Activated(object sender, EventArgs e)
 		{
-			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
+			var filter = new OrdersFilter(UoW);
 			filter.SetAndRefilterAtOnce(x => x.RestrictCounterparty = Entity);
-
-			ReferenceRepresentation OrdersDialog = new ReferenceRepresentation(new OrdersVM(filter)) {
-				Mode = OrmReferenceMode.Normal
+			Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? Buttons.All : (Buttons.Add | Buttons.Edit);
+			PermissionControlledRepresentationJournal OrdersDialog = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
+				Mode = JournalSelectMode.Single
 			};
-			OrdersDialog.Buttons(UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit));
 
 			TabParent.AddTab(OrdersDialog, this, false);
 		}
@@ -413,5 +425,74 @@ namespace Vodovoz
 		{
 			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
 		}
+
+		#region CloseDelivery //Переделать на PermissionCommentView
+
+		private void SetVisibilityForCloseDeliveryComments()
+		{
+
+			labelCloseDelivery.Visible = Entity.IsDeliveriesClosed;
+			GtkScrolledWindowCloseDelivery.Visible = Entity.IsDeliveriesClosed;
+			buttonSaveCloseComment.Visible = Entity.IsDeliveriesClosed;
+			buttonEditCloseDeliveryComment.Visible = Entity.IsDeliveriesClosed;
+			buttonCloseDelivery.Label = Entity.IsDeliveriesClosed ? "Открыть поставки" : "Закрыть поставки";
+			ytextviewCloseComment.Buffer.Text = Entity.IsDeliveriesClosed ? Entity.CloseDeliveryComment : String.Empty;
+
+			if(!Entity.IsDeliveriesClosed)
+				return;
+
+			labelCloseDelivery.LabelProp = "Поставки закрыл : " + Entity.GetCloseDeliveryInfo() + Environment.NewLine + "<b>Комментарий по закрытию поставок:</b>";
+
+			if(String.IsNullOrWhiteSpace(Entity.CloseDeliveryComment)) {
+				buttonSaveCloseComment.Sensitive = true;
+				buttonEditCloseDeliveryComment.Sensitive = false;
+				ytextviewCloseComment.Sensitive = true;
+			} else {
+				buttonEditCloseDeliveryComment.Sensitive = true;
+				buttonSaveCloseComment.Sensitive = false;
+				ytextviewCloseComment.Sensitive = false;
+			}
+		}
+
+		protected void OnButtonSaveCloseCommentClicked(object sender, EventArgs e)
+		{
+			if(String.IsNullOrWhiteSpace(ytextviewCloseComment.Buffer.Text))
+				return;
+
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"]) 
+			{
+				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
+				return;
+			}
+
+			Entity.AddCloseDeliveryComment(ytextviewCloseComment.Buffer.Text, UoW);
+			SetVisibilityForCloseDeliveryComments();
+		}
+
+		protected void OnButtonEditCloseDeliveryCommentClicked(object sender, EventArgs e)
+		{
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"]) 
+			{
+				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
+				return;
+			}
+
+			if(MessageDialogHelper.RunQuestionDialog("Вы уверены что хотите изменить комментарий (преведущий комментарий будет удален)?")) {
+				Entity.CloseDeliveryComment = ytextviewCloseComment.Buffer.Text = String.Empty;
+				SetVisibilityForCloseDeliveryComments();
+			}
+		}
+
+		protected void OnButtonCloseDeliveryClicked(object sender, EventArgs e)
+		{
+			if(!Entity.ToogleDeliveryOption(UoW)) 
+			{
+				MessageDialogHelper.RunWarningDialog("У вас нет прав для закрытия/открытия поставок");
+				return;
+			}
+			SetVisibilityForCloseDeliveryComments();
+		}
+
+		#endregion CloseDelivery
 	}
 }

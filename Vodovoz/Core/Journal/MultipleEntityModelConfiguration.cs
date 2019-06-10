@@ -7,6 +7,7 @@ using QS.Tdi;
 using QS.Utilities.Text;
 using System.ComponentModel;
 using Vodovoz.ViewModelBased;
+using Vodovoz.Infrastructure.ViewModels;
 
 namespace Vodovoz.Core.Journal
 {
@@ -159,8 +160,9 @@ namespace Vodovoz.Core.Journal
 			return this;
 		}
 
-		#region ViewModelBased
+		#region ViewModelBasedOld
 
+		[Obsolete("Из-за упразднения IViewModelBaseView, является устаревшей. Необходимо вызывать метод AddViewModelDocumentConfiguration")]
 		/// <summary>
 		/// Добавление конфигурации документа с диалогами по умолчанию, идентификатором документа по умолчанию по типу самого документа, и с именем взятым из описания сущности
 		/// </summary>
@@ -172,6 +174,7 @@ namespace Vodovoz.Core.Journal
 			return AddViewModelBasedDocumentConfiguration<TEntityDlg>(GetEntityTitleName());
 		}
 
+		[Obsolete("Из-за упразднения IViewModelBaseView, является устаревшей. Необходимо вызывать метод AddViewModelDocumentConfiguration")]
 		/// <summary>
 		/// Добавление конфигурации документа с диалогами по умолчанию, идентификатором документа по умолчанию по типу самого документа, и с определенным именем
 		/// </summary>
@@ -186,6 +189,7 @@ namespace Vodovoz.Core.Journal
 			return AddViewModelBasedDocumentConfiguration<TEntityDlg>(docIdentificationFunc, createActionTitle);
 		}
 
+		[Obsolete("Из-за упразднения IViewModelBaseView, является устаревшей. Необходимо вызывать метод AddViewModelDocumentConfiguration")]
 		/// <summary>
 		/// Добавление конфигурации документа с диалогами по умолчанию, с определенным идентификатором
 		/// </summary>
@@ -198,6 +202,7 @@ namespace Vodovoz.Core.Journal
 			return AddViewModelBasedDocumentConfiguration<TEntityDlg>(docIdentificationFunc, GetEntityTitleName());
 		}
 
+		[Obsolete("Из-за упразднения IViewModelBaseView, является устаревшей. Необходимо вызывать метод AddViewModelDocumentConfiguration")]
 		/// <summary>
 		/// Добавление конфигурации документа с диалогами по умолчанию, с определенным идентификатором и именем
 		/// </summary>
@@ -220,6 +225,7 @@ namespace Vodovoz.Core.Journal
 			return AddViewModelBasedDocumentConfiguration<TEntityDlg>(docIdentificationFunc, createActionTitle, createDlgFunc, openDlgFunc);
 		}
 
+		[Obsolete("Из-за упразднения IViewModelBaseView, является устаревшей. Необходимо вызывать метод AddViewModelDocumentConfiguration")]
 		/// <summary>
 		/// Добавление конфигурации документа с не стандартным опредлением диалогов, с определенным идентификатором и именем взятым из описания сущности
 		/// </summary>
@@ -234,6 +240,7 @@ namespace Vodovoz.Core.Journal
 			return AddViewModelBasedDocumentConfiguration<TEntityDlg>(docIdentificationFunc, GetEntityTitleName(), createDlgFunc, openDlgFunc);
 		}
 
+		[Obsolete("Из-за упразднения IViewModelBaseView, является устаревшей. Необходимо вызывать метод AddViewModelDocumentConfiguration")]
 		/// <summary>
 		/// Добавление функций открытия диалогов для документа с определенным идентификатором и именем
 		/// </summary>
@@ -255,6 +262,7 @@ namespace Vodovoz.Core.Journal
 			return this;
 		}
 
+		[Obsolete("Из-за упразднения IViewModelBaseView, является устаревшей. Необходимо вызывать метод AddViewModelDocumentConfiguration")]
 		/// <summary>
 		/// Добавление функций открытия диалогов для документа с определенным идентификатором без возможности создания документа
 		/// </summary>
@@ -271,6 +279,123 @@ namespace Vodovoz.Core.Journal
 
 			var dlgInfo = new MultipleEntityModelDocumentConfig<TNode>(typeof(TEntity), openDlgFunc, docIdentificationFunc);
 			docConfigs.Add(typeof(TEntityDlg), dlgInfo);
+			return this;
+		}
+
+		#endregion
+
+		#region ViewModelBased
+
+		/// <summary>
+		/// Добавление конфигурации документа с диалогами по умолчанию, идентификатором документа по умолчанию по типу самого документа, и с именем взятым из описания сущности
+		/// </summary>
+		/// <returns>Конфигурация документа</returns>
+		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
+		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>()
+			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+		{
+			return AddViewModelDocumentConfiguration<TViewModel>(GetEntityTitleName());
+		}
+
+		/// <summary>
+		/// Добавление конфигурации документа с диалогами по умолчанию, идентификатором документа по умолчанию по типу самого документа, и с определенным именем
+		/// </summary>
+		/// <returns>Конфигурация документа</returns>
+		/// <param name="createActionTitle">Отображаемое имя документа в действиях с документов</param>
+		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
+		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>(string createActionTitle)
+			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+		{
+			Func<TNode, bool> docIdentificationFunc = (TNode node) => node.EntityType == typeof(TEntity);
+
+			return AddViewModelDocumentConfiguration<TViewModel>(docIdentificationFunc, createActionTitle);
+		}
+
+		/// <summary>
+		/// Добавление конфигурации документа с диалогами по умолчанию, с определенным идентификатором
+		/// </summary>
+		/// <returns>Конфигурация документа</returns>
+		/// <param name="docIdentificationFunc">Уникальный идентификатор типа документа, должен возвращать true только для тех строк для которых должен открываться выбранный тип диалога и больше никакой другой</param>
+		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
+		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>(Func<TNode, bool> docIdentificationFunc)
+			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+		{
+			return AddViewModelDocumentConfiguration<TViewModel>(docIdentificationFunc, GetEntityTitleName());
+		}
+
+		/// <summary>
+		/// Добавление конфигурации документа с диалогами по умолчанию, с определенным идентификатором и именем
+		/// </summary>
+		/// <returns>Конфигурация документа</returns>
+		/// <param name="docIdentificationFunc">Уникальный идентификатор типа документа, должен возвращать true только для тех строк для которых должен открываться выбранный тип диалога и больше никакой другой</param>
+		/// <param name="createActionTitle">Отображаемое имя документа в действиях с документов</param>
+		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
+		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>(Func<TNode, bool> docIdentificationFunc, string createActionTitle)
+			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+		{
+			Type dlgType = typeof(TViewModel);
+			CheckDialogRestrictions(dlgType);
+
+			var dlgCtorForCreateNewEntity = dlgType.GetConstructor(Type.EmptyTypes);
+			var dlgCtorForOpenEntity = dlgType.GetConstructor(new[] { typeof(int) });
+
+			Func<TViewModel> createDlgFunc = () => (TViewModel)dlgCtorForCreateNewEntity.Invoke(Type.EmptyTypes);
+			Func<TNode, TViewModel> openDlgFunc = (TNode node) => (TViewModel)dlgCtorForOpenEntity.Invoke(new object[] { node.DocumentId });
+
+			return AddViewModelDocumentConfiguration<TViewModel>(docIdentificationFunc, createActionTitle, createDlgFunc, openDlgFunc);
+		}
+
+		/// <summary>
+		/// Добавление конфигурации документа с не стандартным опредлением диалогов, с определенным идентификатором и именем взятым из описания сущности
+		/// </summary>
+		/// <returns>Конфигурация документа</returns>
+		/// <param name="docIdentificationFunc">Уникальный идентификатор типа документа, должен возвращать true только для тех строк для которых должен открываться выбранный тип диалога и больше никакой другой</param>
+		/// <param name="createDlgFunc">Функция вызова диалога создания нового документа</param>
+		/// <param name="openDlgFunc">Функция вызова диалога открытия нового документа</param>
+		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
+		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>(Func<TNode, bool> docIdentificationFunc, Func<TViewModel> createDlgFunc, Func<TNode, TViewModel> openDlgFunc)
+			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+		{
+			return AddViewModelDocumentConfiguration<TViewModel>(docIdentificationFunc, GetEntityTitleName(), createDlgFunc, openDlgFunc);
+		}
+
+		/// <summary>
+		/// Добавление функций открытия диалогов для документа с определенным идентификатором и именем
+		/// </summary>
+		/// <returns>Конфигурация документа</returns>
+		/// <param name="docIdentificationFunc">Уникальный идентификатор типа документа, должен возвращать true только для тех строк для которых должен открываться выбранный тип диалога и больше никакой другой</param>
+		/// <param name="createActionTitle">Отображаемое имя документа в действиях с документов</param>
+		/// <param name="createDlgFunc">Функция вызова диалога создания нового документа</param>
+		/// <param name="openDlgFunc">Функция вызова диалога открытия нового документа</param>
+		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
+		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>(Func<TNode, bool> docIdentificationFunc, string createActionTitle, Func<TViewModel> createDlgFunc, Func<TNode, TViewModel> openDlgFunc)
+			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+		{
+			if(docConfigs.ContainsKey(typeof(TViewModel))) {
+				throw new InvalidOperationException($"Кофигурация для сущности {nameof(TEntity)} уже содержит кофигурацию документа для диалога {nameof(TViewModel)}");
+			}
+
+			var dlgInfo = new MultipleEntityModelDocumentConfig<TNode>(typeof(TEntity), createActionTitle, createDlgFunc, openDlgFunc, docIdentificationFunc);
+			docConfigs.Add(typeof(TViewModel), dlgInfo);
+			return this;
+		}
+
+		/// <summary>
+		/// Добавление функций открытия диалогов для документа с определенным идентификатором без возможности создания документа
+		/// </summary>
+		/// <returns>Конфигурация документа</returns>
+		/// <param name="docIdentificationFunc">Уникальный идентификатор типа документа, должен возвращать true только для тех строк для которых должен открываться выбранный тип диалога и больше никакой другой</param>
+		/// <param name="openDlgFunc">Функция вызова диалога открытия нового документа</param>
+		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
+		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfigurationWithoutCreation<TViewModel>(Func<TNode, bool> docIdentificationFunc, Func<TNode, TViewModel> openDlgFunc)
+			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+		{
+			if(docConfigs.ContainsKey(typeof(TViewModel))) {
+				throw new InvalidOperationException($"Кофигурация для сущности {nameof(TEntity)} уже содержит кофигурацию документа для диалога {nameof(TViewModel)}");
+			}
+
+			var dlgInfo = new MultipleEntityModelDocumentConfig<TNode>(typeof(TEntity), openDlgFunc, docIdentificationFunc);
+			docConfigs.Add(typeof(TViewModel), dlgInfo);
 			return this;
 		}
 

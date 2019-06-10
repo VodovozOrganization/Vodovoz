@@ -12,9 +12,9 @@ namespace Vodovoz.Domain.Payments
 	{
 		public OrderIdProviderForMobileApp() { }
 
-		public OrderIdProviderForMobileApp(string imei, int sum)
+		public OrderIdProviderForMobileApp(string uuid, int sum)
 		{
-			Imei = imei;
+			Uuid = uuid;
 			OrderSum = sum;
 		}
 
@@ -22,11 +22,11 @@ namespace Vodovoz.Domain.Payments
 
 		public virtual int Id { get; set; }
 
-		string imei;
-		[Display(Name = "IMEI мобильного устройства")]
-		public virtual string Imei {
-			get => imei;
-			set => SetField(ref imei, value, () => Imei);
+		string uuid;
+		[Display(Name = "Uuid мобильного устройства")]
+		public virtual string Uuid {
+			get => uuid;
+			set => SetField(ref uuid, value, () => Uuid);
 		}
 
 		decimal orderSum;

@@ -169,7 +169,7 @@ namespace Vodovoz
 			config
 				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.BottlesReturned)
-						.AddSetter((cell, node) => cell.Editable = (node.IsDelivered()))
+						.AddSetter((cell, node) => cell.Editable = ( node.IsDelivered() && !node.Order.IsBottleStock ) )
 						.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
 						.AddSetter(EmptyBottleCellSetter)
 				.AddColumn("Бутылей по\n акции").HeaderAlignment(0.5f).EnterToNextCell()

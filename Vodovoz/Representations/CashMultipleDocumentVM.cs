@@ -8,13 +8,13 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject.RepresentationModel;
+using QS.RepresentationModel.GtkUI;
+using QS.Utilities.Text;
 using QSProjectsLib;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using QS.Utilities.Text;
 using Vodovoz.Repository.Cash;
 
 namespace Vodovoz.Representations
@@ -43,7 +43,13 @@ namespace Vodovoz.Representations
 			RegisterExpense();
 			RegisterAdvanceReport();
 
-			FinalListFunction = OrderFunc;
+			UpdateOnChanges(
+				typeof(Income),
+				typeof(Expense),
+				typeof(AdvanceReport)
+			);
+
+			AfterSourceFillFunction = OrderFunc;
 
 			Filter.InitSubdivisionsAccess(new Type[] { typeof(Income), typeof(Expense), typeof(AdvanceReport) });
 
@@ -448,10 +454,8 @@ namespace Vodovoz.Representations
 					case CashDocumentType.Expense:
 					case CashDocumentType.ExpenseSelfDelivery:
 						return -Money;
-						break;
 					case CashDocumentType.AdvanceReport:
 						return 0;
-						break;
 					default:
 						return Money;
 				}
