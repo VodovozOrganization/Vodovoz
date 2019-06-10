@@ -35,7 +35,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>254.1pt</Height>
+    <Height>295.3pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Income</DataSetName>
@@ -55,49 +55,28 @@
             <Width>54.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.1pt</Width>
+            <Width>61.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>62.5pt</Width>
+            <Width>60.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>35.7pt</Width>
+            <Width>59.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.2pt</Width>
+            <Width>66.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.9pt</Width>
+            <Width>81.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.7pt</Width>
+            <Width>102.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.0pt</Width>
+            <Width>87.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>59.9pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>40.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>41.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>54.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>58.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>50.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>57.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>63.6pt</Width>
+            <Width>123.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -135,7 +114,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -153,25 +132,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>ФИО Водителя</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -179,7 +140,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox87" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>№ МЛ</Value>
+                      <Value>№ Заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -189,7 +150,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -197,7 +158,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox92" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>Дата МЛ</Value>
+                      <Value>Дата заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -207,7 +168,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -225,7 +186,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -244,26 +205,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Color>Black</Color>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox99">
-                      <Value>в.т.ч. "доп. нал"</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <Color>Black</Color>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -281,81 +223,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox28">
-                      <Value>в т.ч. недовозы</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Value>в т.ч. переносы</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>№ Взаимосвязанного МЛ </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox38">
-                      <Value>Неопределенный остаток</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -372,25 +241,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox102">
-                      <Value>Комментарий кассира</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -408,7 +259,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -479,26 +330,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>=Fields!driver.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox88" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>=Fields!number.Value</Value>
+                      <Value>={oder_id}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -516,7 +349,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox93" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>=(Format(Fields!date.Value,"dd.MM"))</Value>
+                      <Value>=(Format({delivery_date},"dd.MM"))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -534,7 +367,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox98" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>= {PlanedIncome}</Value>
+                      <Value>= {plan}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -552,25 +385,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>={FactIncome}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox100">
-                      <Value>={extra_cash}</Value>
+                      <Value>={fact}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -588,7 +403,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox78">
-                      <Value>=Iif( Fields!FactIncome.IsMissing, 0, {FactIncome}) - Iif( Fields!PlanedIncome.IsMissing, 0,  {PlanedIncome})</Value>
+                      <Value>={dif}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -600,83 +415,6 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>=Fields!NedovozSum.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox26">
-                      <Value>=Fields!TransferedSum.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox19">
-                      <Value>={TransferedFromML} + " "  + {TransferedToML}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox41">
-                      <Value>=Iif( Fields!FactIncome.IsMissing, 0, {FactIncome}) - 
-Iif( Fields!PlanedIncome.IsMissing, 0,  {PlanedIncome}) - 
-Iif( Fields!NedovozSum.IsMissing, 0,  {NedovozSum}) - 
-Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -700,25 +438,6 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox103">
-                      <Value>={closing_comment}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox109">
                       <Value>={cashier_review_comment}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -731,7 +450,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BackgroundColor>
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -741,7 +460,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
           </TableRows>
         </Details>
         <Left>1.6pt</Left>
-        <Top>20.5pt</Top>
+        <Top>19.8pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -812,27 +531,6 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox86">
                       <Value>
                       </Value>
@@ -875,7 +573,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox96">
-                      <Value>=SUM({PlanedIncome})</Value>
+                      <Value>=SUM({plan})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -888,7 +586,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -896,7 +594,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=SUM({IncMinusExp})</Value>
+                      <Value>=SUM({fact})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -909,28 +607,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox101">
-                      <Value>=SUM({extra_cash})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -938,7 +615,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox79">
-                      <Value>=sum(Iif(Fields!PlanedIncome.IsMissing, 0 ,{PlanedIncome})  - Iif(Fields!FactIncome.IsMissing, 0 ,{FactIncome}))</Value>
+                      <Value>=sum({dif})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -951,91 +628,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox30">
-                      <Value>=sum({NedovozSum})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Value>=sum({TransferedSum})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox20">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox42">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1043,27 +636,6 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox104">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1108,6 +680,29 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
           </TableRows>
         </Footer>
       </Table>
+      <Textbox Name="Textbox63">
+        <Height>12.00pt</Height>
+        <Width>91.80pt</Width>
+        <Value>Прочие статусы</Value>
+        <ZIndex>1</ZIndex>
+        <Left>4.8pt</Left>
+        <Top>143.1pt</Top>
+        <Style>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+        <CanShrink>true</CanShrink>
+      </Textbox>
+      <Textbox Name="Textbox64">
+        <Height>12.00pt</Height>
+        <Width>63.24pt</Width>
+        <Value>Закрытые</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>4.60pt</Top>
+        <Style>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
       <Table Name="Table2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>IncomeAllStatus</DataSetName>
         <NoRows>Нет записей</NoRows>
@@ -1120,65 +715,47 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>19.5pt</Width>
+            <Width>20.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.4pt</Width>
+            <Width>54.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>32.8pt</Width>
+            <Width>61.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.3pt</Width>
+            <Width>60.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>32.4pt</Width>
+            <Width>59.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.2pt</Width>
+            <Width>59.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.2pt</Width>
+            <Width>66.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>87.1pt</Width>
+            <Width>81.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.7pt</Width>
+            <Width>102.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.7pt</Width>
+            <Width>87.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.5pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>46.5pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>46.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>55.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>56.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>60.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>73.3pt</Width>
+            <Width>123.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>46.2pt</Height>
+              <Height>57.5pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox74">
+                    <Textbox Name="Textbox4">
                       <Value>№</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -1189,14 +766,13 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                    <Textbox Name="Textbox6">
                       <Value>Дата ПКО</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -1207,14 +783,14 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                    <Textbox Name="Textbox8">
                       <Value>№ ПКО</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -1225,15 +801,15 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox17">
-                      <Value>ФИО Водителя</Value>
+                    <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>№ Заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1243,34 +819,15 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox25">
-                      <Value>№ МЛ</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox34">
-                      <Value>Дата МЛ</Value>
+                    <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>Дата заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1280,15 +837,15 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox65">
-                      <Value>Статус МЛ</Value>
+                    <Textbox Name="Textbox39">
+                      <Value>Статус заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1298,32 +855,14 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox80">
-                      <Value>Комментарий кассира по закрытию</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox36">
+                    <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>План. приход</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -1334,14 +873,14 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox71">
+                    <Textbox Name="Textbox12">
                       <Value>Сумма ПКО</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -1352,15 +891,16 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <Color>Black</Color>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox4">
-                      <Value>в.т.ч. "доп. нал"</Value>
+                    <Textbox Name="Textbox13">
+                      <Value>Расхождение (ПКО-План)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1370,68 +910,14 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox39">
-                      <Value>в.т.ч недовозы</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox40">
-                      <Value>в.т.ч. переносы</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>№ Взаимосвязанного МЛ </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox52" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                    <Textbox Name="Textbox14">
                       <Value>ФИО ответственного</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -1442,32 +928,14 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox57">
-                      <Value>Комментарий кассира(по адресу)</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox85">
+                    <Textbox Name="Textbox15">
                       <Value>Комментарий по проверке</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -1478,7 +946,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1491,11 +959,11 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>26.9pt</Height>
+              <Height>39.0pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox75">
+                    <Textbox Name="Textbox16">
                       <Value>=RowNumber()</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1505,15 +973,15 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         </BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox6">
+                    <Textbox Name="Textbox17">
                       <Value>={CashIncomeDates}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1523,15 +991,15 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         </BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox13">
+                    <Textbox Name="Textbox18">
                       <Value>={cash_income_id}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1541,16 +1009,16 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         </BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>=Fields!driver.Value</Value>
+                    <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>={order_id}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1559,36 +1027,16 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         </BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox43">
-                      <Value>=Fields!number.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox44">
-                      <Value>=(Format(Fields!date.Value,"dd.MM"))</Value>
+                    <Textbox Name="Textbox20" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>=(Format({delivery_date},"dd.MM"))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1597,240 +1045,26 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         </BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox66">
-                      <Value>=Fields!status.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox81">
-                      <Value>={closing_comment}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox46">
-                      <Value>=Fields!BasePlanedIncome.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox72">
-                      <Value>={IncMinusExp}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox10">
-                      <Value>={extra_cash}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox49">
-                      <Value>=Fields!NedovozSum.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox50">
-                      <Value>=Fields!TransferedSum.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox45">
-                      <Value>={TransferedFromML} + " "  + {TransferedToML}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox48">
-                      <Value>={employee_name}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox83">
-                      <Value>={cashierComments}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox89">
-                      <Value>={cashier_review_comment}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BackgroundColor>
-                        </BackgroundColor>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Left>0.0pt</Left>
-        <Top>159.6pt</Top>
-        <Footer>
-          <TableRows>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox76">
+                    <Textbox Name="Textbox40">
                       <Value>
-                      </Value>
+=Switch({order_status} = 'NewOrder', 'Новый', Fields!order_status.Value = 'Accepted', 'Принят', Fields!order_status.Value = 'HoldedFine', 'Принят', Fields!order_status.Value = 'InTravelList', 'В маршрутном листе', Fields!order_status.Value = 'OnLoading', 'На погрузке', Fields!order_status.Value = 'OnTheWay', 'В пути', Fields!order_status.Value = 'Shipped', 'Доставлен', Fields!order_status.Value = 'UnloadingOnStock', 'Выгрузка на складе', Fields!order_status.Value = 'ReportNotClosed', 'Отчет не закрыт', Fields!order_status.Value = 'Closed', 'Закрыт', Fields!order_status.Value = 'Canceled', 'Отменен', Fields!order_status.Value = 'NotDelivered', 'Недовоз', Fields!order_status.Value = 'DeliveryCanceled', 'Доставка отменена', Fields!order_status.Value = 'WaitForPayment', 'Ожидание оплаты')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
+                          <Default>Solid</Default>
                         </BorderStyle>
+                        <BackgroundColor>
+                        </BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -1838,41 +1072,17 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox9">
-                      <Value>
-                      </Value>
+                    <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>= {plan}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
+                          <Default>Solid</Default>
                         </BorderStyle>
+                        <BackgroundColor>
+                        </BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -1881,19 +1091,16 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>
-                      </Value>
+                      <Value>={fact}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
+                          <Default>Solid</Default>
                         </BorderStyle>
+                        <BackgroundColor>
+                        </BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -1901,28 +1108,73 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox53">
-                      <Style>
+                    <Textbox Name="Textbox23">
+                      <Value>={dif}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
+                          <Default>Solid</Default>
                         </BorderStyle>
+                        <BackgroundColor>
+                        </BackgroundColor>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>
-                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox54">
+                    <Textbox Name="Textbox24">
+                      <Value>={employee_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <BackgroundColor>
+                        </BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>={cashier_review_comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <BackgroundColor>
+                        </BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>6.9pt</Left>
+        <Top>166.4pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>27.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1943,7 +1195,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox67">
+                    <Textbox Name="Textbox27">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1964,7 +1216,70 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox82">
+                    <Textbox Name="Textbox28">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
                       <Value>Итого:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -1976,7 +1291,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -1984,8 +1299,8 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox56">
-                      <Value>=sum({BasePlanedIncome})</Value>
+                    <Textbox Name="Textbox34">
+                      <Value>=SUM({plan})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1998,15 +1313,15 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox73">
-                      <Value>=SUM({IncMinusExp})</Value>
+                    <Textbox Name="Textbox35">
+                      <Value>=SUM({fact})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2019,15 +1334,15 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox21">
-                      <Value>=SUM({extra_cash})</Value>
+                    <Textbox Name="Textbox36">
+                      <Value>=sum({dif})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2040,56 +1355,14 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox59">
-                      <Value>=sum({NedovozSum})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox60">
-                      <Value>=sum({TransferedSum})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox55">
+                    <Textbox Name="Textbox37">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2110,49 +1383,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox51">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox84">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox90">
+                    <Textbox Name="Textbox38">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2176,29 +1407,6 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
           </TableRows>
         </Footer>
       </Table>
-      <Textbox Name="Textbox63">
-        <Height>12.00pt</Height>
-        <Width>91.80pt</Width>
-        <Value>Прочие статусы</Value>
-        <ZIndex>1</ZIndex>
-        <Left>3.2pt</Left>
-        <Top>143.1pt</Top>
-        <Style>
-          <FontWeight>Bold</FontWeight>
-        </Style>
-        <CanShrink >true</CanShrink>
-      </Textbox>
-      <Textbox Name="Textbox64">
-        <Height>12.00pt</Height>
-        <Width>63.24pt</Width>
-        <Value>Закрытые</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>4.60pt</Top>
-        <Style>
-          <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -2222,143 +1430,59 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    t.*,
-    (t.FactIncome - t.PlanedIncome - t.NedovozSum - IF(t.TransferedSum &lt; 0,
-        t.TransferedSum,
-        0) - t.DepositsSum) AS balance
+res.*,
+(res.fact-res.plan) as dif
 FROM
-    (SELECT 
-        route_lists.id AS number,
-        SUM(route_list_addresses.extra_cash) AS extra_cash,
-        CI.cash_income_id ,
-        CI.employee_name ,
-        route_lists.cashier_review_comment,
-        route_lists.closing_comment,
-        GROUP_CONCAT(CONCAT('+', transferML.transferFromML)
-            SEPARATOR ' ') AS TransferedFromML,
-        GROUP_CONCAT(CONCAT('-', transferML.transferToML)
-            SEPARATOR ' ') AS TransferedToML,
-        route_lists.date AS date,
-        CONCAT_WS('', CONCAT(employees.last_name, ' '), IF(employees.name = '', '', CONCAT(LEFT(employees.name, 1), '.')), IF(employees.patronymic = '', '', CONCAT(LEFT(employees.patronymic, 1), '.'))) AS driver,
-        (SUM(CAST(IFNULL(money_movement_operations.money, 0)
-            AS DECIMAL (10 , 2 )) * IF(route_list_addresses.status = 'Completed', 1, 0) + CAST((IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0))
-            AS DECIMAL (10 , 2 )))) AS FactIncome,
-        SUM(Orders.TotalOrdersSum) AS PlanedIncome,
-        IFNULL(nedovoz.nedovoz_sum, 0) AS NedovozSum,
-        IFNULL(Transfered.TotalOrdersSum, 0) AS TransferedSum,
-        SUM(IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0)) AS DepositsSum,
-        CI.CashIncomeDates,
-        CAST((IFNULL(CI.MoneyIncome, 0) - IFNULL(CE.MoneyExpence, 0))
-            AS DECIMAL (10 , 2 )) AS IncMinusExp
-    FROM
-        route_lists
-        LEFT JOIN employees ON route_lists.driver_id = employees.id
-        LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-        LEFT JOIN orders ON route_list_addresses.order_id = orders.id
-        LEFT JOIN money_movement_operations ON money_movement_operations.order_id = orders.id
-        LEFT JOIN deposit_operations ON deposit_operations.order_id = orders.id
-    LEFT JOIN (SELECT 
-        orders.id AS order_id,
-            IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0) AS TotalOrdersSum
-    FROM
-        orders
+(
+SELECT 
+     ROUND(IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0)) AS plan ,
+     ROUND(inc.fact_income) AS fact,
+     inc.employee_name,
+     orders.id AS order_id,
+     orders.delivery_date,
+     inc.CashIncomeDates,
+     inc.cashier_review_comment,
+     inc.cash_income_id
+FROM 
+    orders
+    LEFT JOIN deposit_operations ON deposit_operations.order_id = orders.id
+    JOIN 
+    (
+        SELECT
+            SUM(cash_income.money) AS fact_income,
+            cash_income.id AS cash_income_id,
+            cash_income.cashier_review_comment,
+            GROUP_CONCAT(CONCAT_WS
+            (   '',
+                CONCAT(employees.last_name, ' '),
+                IF(employees.name = '',
+                    '',
+                    CONCAT(LEFT(employees.name, 1), '.')),
+                IF(employees.patronymic = '',
+                    '',
+                    CONCAT(LEFT(employees.patronymic, 1), '.'))
+            ) SEPARATOR ', ' ) AS employee_name,
+            GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y') SEPARATOR ', ') AS CashIncomeDates,
+            cash_income.order_id
+        FROM
+            cash_income
+            LEFT JOIN employees ON employees.id = cash_income.casher_employee_id
+        WHERE
+            DATE(cash_income.date) &gt;= DATE(@StartDate) AND
+            DATE(cash_income.date) &lt;= DATE(@EndDate)
+        GROUP BY
+            order_id
+    ) as inc ON inc.order_id = orders.id
     LEFT JOIN order_items ON order_items.order_id = orders.id
-        AND orders.payment_type = 'cash'
-    LEFT JOIN deposit_operations ON deposit_operations.order_id = order_items.order_id
-    LEFT JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
-    WHERE
-        route_list_addresses.transfered_to_id IS NULL
-            AND route_list_addresses.was_transfered = 0
-    GROUP BY orders.id) AS Orders ON Orders.order_id = route_list_addresses.order_id
-    LEFT JOIN (SELECT 
-        route_list_addresses.route_list_id,
-            0 - SUM(order_items.price * (order_items.count - IFNULL(order_items.actual_count, 0))) AS nedovoz_sum
-    FROM
-        route_list_addresses
-    LEFT JOIN orders ON orders.id = route_list_addresses.order_id
-    LEFT JOIN order_items ON order_items.order_id = orders.id
-    LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-    LEFT JOIN order_equipment ON order_equipment.order_id = orders.id
-    WHERE
-        orders.payment_type = 'cash'
-            AND order_items.price &gt; 0
-            AND ((orders.order_status IN ('Canceled' , 'NotDelivered', 'DeliveryCanceled')
-            AND route_list_addresses.status != 'transfered')
-            OR (route_list_addresses.status = 'Completed'
-            AND ((nomenclature.category IN ('water' , 'equipment', 'additional', 'bottle')
-            AND nomenclature.serial = FALSE
-            AND order_items.count != IFNULL(order_items.actual_count, 0))
-            OR order_equipment.confirmed = FALSE)))
-    GROUP BY route_list_addresses.route_list_id) AS nedovoz ON nedovoz.route_list_id = route_lists.id
-    LEFT JOIN (SELECT 
-        internal_trans.route_list_id,
-            SUM(internal_trans.TotalOrdersSum) AS TotalOrdersSum
-    FROM
-        (SELECT 
-        route_list_addresses.id,
-            route_list_addresses.route_list_id,
-            route_list_addresses.status,
-            ROUND(IFNULL(IF(status = 'transfered', 0 - order_items.price * order_items.count * (1 - (order_items.discount / 100)), order_items.price * order_items.count * (1 - (order_items.discount / 100))), 0), 2) AS TotalOrdersSum
-    FROM
-        route_list_addresses
-    LEFT JOIN orders ON orders.id = route_list_addresses.order_id
-    LEFT JOIN order_items ON order_items.order_id = orders.id
-        AND orders.payment_type = 'cash'
-    WHERE
-        (status = 'transfered'
-            OR was_transfered = TRUE)) AS internal_trans
-    GROUP BY internal_trans.route_list_id
-    HAVING TotalOrdersSum != 0) AS Transfered ON Transfered.route_list_id = route_lists.id
-    LEFT JOIN (SELECT 
-        route_list_addresses.id,
-            route_list_addresses.transfered_to_id,
-            route_list_addresses.route_list_id,
-            tranfer_to_route_list.route_list_id AS transferToML,
-            tranfer_from_route_list.route_list_id AS transferFromMl
-    FROM
-        route_list_addresses
-    LEFT JOIN orders ON route_list_addresses.order_id = orders.id
-    LEFT JOIN route_list_addresses AS tranfer_to_route_list ON tranfer_to_route_list.id = route_list_addresses.transfered_to_id
-    LEFT JOIN route_list_addresses AS tranfer_from_route_list ON tranfer_from_route_list.transfered_to_id = route_list_addresses.id
-    WHERE
-        orders.payment_type = 'cash'
-    GROUP BY tranfer_to_route_list.route_list_id , tranfer_from_route_list.route_list_id) AS transferML ON transferML.id = route_list_addresses.id
-    LEFT JOIN (SELECT
-		GROUP_CONCAT(CONCAT_WS
-		(   '',
-			CONCAT(employees.last_name, ' '),
-			IF(employees.name = '',
-				'',
-				CONCAT(LEFT(employees.name, 1), '.')),
-			IF(employees.patronymic = '',
-				'',
-				CONCAT(LEFT(employees.patronymic, 1), '.'))
-		) SEPARATOR ', ' ) AS employee_name,
-        route_list_id,
-        GROUP_CONCAT( cash_income.id SEPARATOR ', ') AS cash_income_id,
-            SUM(IFNULL(cash_income.money, 0)) AS MoneyIncome,
-            GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y')
-                SEPARATOR ', ') AS CashIncomeDates
-    FROM
-        cash_income
-        LEFT JOIN employees ON employees.id = cash_income.employee_id
-    GROUP BY route_list_id) AS CI ON CI.route_list_id = route_lists.id
-    LEFT JOIN (SELECT 
-        route_list_id,
-            SUM(IFNULL(cash_expense.money, 0)) AS MoneyExpence
-    FROM
-        cash_expense
-    WHERE
-        type_operation NOT IN ('EmployeeAdvance' , 'Advance')
-    GROUP BY route_list_id) AS CE ON CE.route_list_id = route_lists.id
-    WHERE
-        route_lists.status IN ('Closed' , 'MileageCheck')
-            AND route_lists.date &gt;= @StartDate
-            AND route_lists.date &lt;= @EndDate
-    GROUP BY route_lists.id) AS t</CommandText>
+WHERE
+    orders.self_delivery = true AND
+    orders.order_status = 'Closed' 
+GROUP BY
+    orders.id
+) AS res</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -2368,230 +1492,92 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
-        <Field Name="number">
-          <DataField>number</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="date">
-          <DataField>date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="driver">
-          <DataField>driver</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="FactIncome">
-          <DataField>FactIncome</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="PlanedIncome">
-          <DataField>PlanedIncome</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="NedovozSum">
-          <DataField>NedovozSum</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="TransferedSum">
-          <DataField>TransferedSum</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="DepositsSum">
-          <DataField>DepositsSum</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
+      <Fields>
         <Field Name="CashIncomeDates">
           <DataField>CashIncomeDates</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="IncMinusExp">
-          <DataField>IncMinusExp</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="balance">
-          <DataField>balance</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="TransferedFromML">
-          <DataField>TransferedFromML</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="TransferedToML">
-          <DataField>TransferedToML</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="extra_cash">
-          <DataField>extra_cash</DataField>
-        </Field>
-        <Field Name="cash_income_id">
-          <DataField>cash_income_id</DataField>
-        </Field>
         <Field Name="cashier_review_comment">
           <DataField>cashier_review_comment</DataField>
         </Field>
-        <Field Name="closing_comment">
-          <DataField>closing_comment</DataField>
-        </Field>
         <Field Name="employee_name">
           <DataField>employee_name</DataField>
+        </Field>
+        <Field Name="dif">
+          <DataField>dif</DataField>
+        </Field>
+        <Field Name="plan">
+          <DataField>plan</DataField>
+        </Field>
+        <Field Name="fact">
+          <DataField>fact</DataField>
+        </Field>
+        <Field Name="oder_id">
+          <DataField>order_id</DataField>
+        </Field>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+        </Field>
+        <Field Name="cash_income_id">
+          <DataField>cash_income_id</DataField>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="IncomeAllStatus">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    route_lists.id as number,
-    route_lists.closing_comment,
-    route_lists.cashier_review_comment,
-    (SELECT GROUP_CONCAT(CONCAT(order_id,': ',cashier_comment,' ')) FROM route_list_addresses WHERE route_list_id = route_lists.id AND extra_cash != 0) AS cashierComments,
-    SUM(route_list_addresses.extra_cash) as extra_cash,
-    route_lists.date as date,
-    employees.last_name as driver,
-    (
-        CASE
-            WHEN route_lists.status = 'New' THEN 'Новый'
-            WHEN route_lists.status = 'InLoading' THEN 'На погрузке'
-            WHEN route_lists.status = 'EnRoute' THEN 'В пути'
-            WHEN route_lists.status = 'OnClosing' THEN 'Сдаётся'
-            ELSE route_lists.status
-        END
-    )
-    as status,
-        GROUP_CONCAT(CONCAT('+', transferML.transferFromML)
-            SEPARATOR ' ') AS TransferedFromML,
-        GROUP_CONCAT(CONCAT('-', transferML.transferToML)
-            SEPARATOR ' ') AS TransferedToML,
-    SUM(Orders.TotalOrdersSum) as BasePlanedIncome,
-    SUM(Orders.TotalOrdersSum) + IFNULL(nedovoz.nedovoz_sum, 0) + IFNULL(Transfered.TotalOrdersSum, 0) as CurrenctPlanedIncome,
-    IFNULL(nedovoz.nedovoz_sum, 0) as NedovozSum,
-    IFNULL(Transfered.TotalOrdersSum, 0) as TransferedSum,
-    CI.cash_income_id,
-    CI.employee_name,
-    CI.CashIncomeDates as CashIncomeDates,
-    CAST((IFNULL(CI.MoneyIncome,0)-IFNULL(CE.MoneyExpence,0)) as DECIMAL(10,2)) as IncMinusExp
+res.*,
+(res.fact-res.plan) as dif
 FROM
-    route_lists
-    LEFT JOIN employees ON route_lists.driver_id = employees.id
-    LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
- #Переносы
-    LEFT JOIN 
-        (
-            SELECT 
-                route_list_addresses.id,
-                route_list_addresses.transfered_to_id,
-                route_list_addresses.route_list_id,
-                tranfer_to_route_list.route_list_id AS transferToML,
-                tranfer_from_route_list.route_list_id AS transferFromMl
-            FROM
-                route_list_addresses
-                LEFT JOIN orders ON route_list_addresses.order_id = orders.id
-                LEFT JOIN route_list_addresses AS tranfer_to_route_list ON tranfer_to_route_list.id = route_list_addresses.transfered_to_id
-                LEFT JOIN route_list_addresses AS tranfer_from_route_list ON tranfer_from_route_list.transfered_to_id = route_list_addresses.id
-            WHERE
-                orders.payment_type = 'cash'
-            GROUP BY 
-                tranfer_to_route_list.route_list_id , tranfer_from_route_list.route_list_id
-        ) AS transferML ON transferML.id = route_list_addresses.id    
-#Плановый приход
-    LEFT JOIN
-        (
-            SELECT 
-                orders.id as order_id,
-                IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))),2),0) as TotalOrdersSum
-            FROM orders
-                LEFT JOIN order_items ON order_items.order_id = orders.id AND orders.payment_type = 'cash'
-            GROUP BY orders.id
-        ) as Orders ON Orders.order_id = route_list_addresses.order_id
-#Недовозы
-    LEFT JOIN
-        (
-            SELECT
-                route_list_addresses.route_list_id,
-                0 - SUM(order_items.price * (order_items.count - order_items.actual_count)) as nedovoz_sum
-            FROM
-                route_list_addresses
-                LEFT JOIN orders ON orders.id = route_list_addresses.order_id
-                LEFT JOIN order_items ON order_items.order_id = orders.id
-                LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-                LEFT JOIN order_equipment ON order_equipment.order_id = orders.id
-            WHERE
-                orders.payment_type = 'cash'
-                    AND order_items.price &gt; 0
-                    AND    (
-                            #Полностью недовезенные заказы без перенесенных адресов (чтобы не засчиталось дважды)
-                            orders.order_status in ('Canceled', 'NotDelivered', 'DeliveryCanceled') 
-                            AND route_list_addresses.status != 'transfered'
-                    )                    
-            GROUP BY route_list_addresses.route_list_id
-        ) as nedovoz ON nedovoz.route_list_id = route_lists.id
-#Переносы
-    LEFT JOIN
-        (
-            SELECT
-                internal_trans.route_list_id,
-                SUM(internal_trans.TotalOrdersSum) as TotalOrdersSum
-            FROM
-                (SELECT
-                    route_list_addresses.id,
-                    route_list_addresses.route_list_id,
-                    route_list_addresses.status,
-                    ROUND(
-                        IFNULL(
-                            IF(status = 'transfered',
-                            0 - order_items.price * order_items.count * (1 - (order_items.discount / 100)),
-                            order_items.price * order_items.count * (1 - (order_items.discount / 100))
-                            )
-                        , 0)
-                    ,2) as TotalOrdersSum
-                FROM 
-                    route_list_addresses 
-                    LEFT JOIN orders On orders.id = route_list_addresses.order_id
-                    LEFT JOIN order_items ON order_items.order_id = orders.id AND orders.payment_type = 'cash'
-                WHERE
-                    (status = 'transfered' 
-                    OR was_transfered = true)
-                ) as internal_trans
-            GROUP BY internal_trans.route_list_id HAVING TotalOrdersSum != 0
-        ) as Transfered ON Transfered.route_list_id = route_lists.id
-    #Приходные ордера
-        LEFT JOIN (
-                SELECT 
-                    route_list_id,
-                    GROUP_CONCAT(CONCAT_WS
-                    (   '',
-                        CONCAT(employees.last_name, ' '),
-                        IF(employees.name = '',
-                            '',
-                            CONCAT(LEFT(employees.name, 1), '.')),
-                        IF(employees.patronymic = '',
-                            '',
-                            CONCAT(LEFT(employees.patronymic, 1), '.'))
-                    ) SEPARATOR ', ' ) AS employee_name,
-                    GROUP_CONCAT( cash_income.id SEPARATOR ', ') AS cash_income_id,
-                    SUM(IFNULL(cash_income.money, 0)) as MoneyIncome,
-                    GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y' ) SEPARATOR ', ') as CashIncomeDates
-                FROM cash_income
-                LEFT JOIN employees ON employees.id = cash_income.employee_id
-                GROUP BY
-                    route_list_id
-            ) AS CI ON CI.route_list_id = route_lists.id
-    #Расходные ордера
-        LEFT JOIN (
-                SELECT 
-                    route_list_id,
-                    SUM(IFNULL(cash_expense.money, 0)) as MoneyExpence
-                FROM cash_expense
-                WHERE type_operation NOT IN('EmployeeAdvance', 'Advance')
-                GROUP BY
-                    route_list_id
-            ) AS CE ON CE.route_list_id = route_lists.id
+(
+SELECT 
+     ROUND(IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0)) AS plan ,
+     ROUND(inc.fact_income) AS fact,
+     inc.employee_name,
+     orders.id AS order_id,
+     orders.order_status,
+     orders.delivery_date,
+     inc.CashIncomeDates,
+     inc.cashier_review_comment,
+     inc.cash_income_id
+FROM 
+    orders
+    LEFT JOIN deposit_operations ON deposit_operations.order_id = orders.id
+    JOIN 
+    (
+        SELECT
+            SUM(cash_income.money) AS fact_income,
+            cash_income.id AS cash_income_id,
+            cash_income.cashier_review_comment,
+            GROUP_CONCAT(CONCAT_WS
+            (   '',
+                CONCAT(employees.last_name, ' '),
+                IF(employees.name = '',
+                    '',
+                    CONCAT(LEFT(employees.name, 1), '.')),
+                IF(employees.patronymic = '',
+                    '',
+                    CONCAT(LEFT(employees.patronymic, 1), '.'))
+            ) SEPARATOR ', ' ) AS employee_name,
+            GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y') SEPARATOR ', ') AS CashIncomeDates,
+            cash_income.order_id
+        FROM
+            cash_income
+            LEFT JOIN employees ON employees.id = cash_income.casher_employee_id
+        WHERE
+            DATE(cash_income.date) &gt;= DATE(@StartDate) AND
+            DATE(cash_income.date) &lt;= DATE(@EndDate)
+        GROUP BY
+            order_id
+    ) as inc ON inc.order_id = orders.id
+    LEFT JOIN order_items ON order_items.order_id = orders.id
 WHERE
-    route_lists.status NOT IN ('Closed', 'MileageCheck')
-    AND route_lists.date &gt;= @StartDate AND route_lists.date &lt;= @EndDate
-GROUP BY route_lists.id
-;</CommandText>
+    orders.self_delivery = true AND
+    orders.order_status NOT IN ('Closed') 
+GROUP BY
+    orders.id
+) AS res</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -2601,70 +1587,37 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
-        <Field Name="number">
-          <DataField>number</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="date">
-          <DataField>date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="driver">
-          <DataField>driver</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="BasePlanedIncome">
-          <DataField>BasePlanedIncome</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="CurrenctPlanedIncome">
-          <DataField>CurrenctPlanedIncome</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="NedovozSum">
-          <DataField>NedovozSum</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="TransferedSum">
-          <DataField>TransferedSum</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="status">
-          <DataField>status</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
+      <Fields>
         <Field Name="CashIncomeDates">
           <DataField>CashIncomeDates</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="IncMinusExp">
-          <DataField>IncMinusExp</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="closing_comment">
-          <DataField>closing_comment</DataField>
-        </Field>
         <Field Name="cashier_review_comment">
           <DataField>cashier_review_comment</DataField>
-        </Field>
-        <Field Name="extra_cash">
-          <DataField>extra_cash</DataField>
         </Field>
         <Field Name="cash_income_id">
           <DataField>cash_income_id</DataField>
         </Field>
+        <Field Name="dif">
+          <DataField>dif</DataField>
+        </Field>
+        <Field Name="fact">
+          <DataField>fact</DataField>
+        </Field>
         <Field Name="employee_name">
           <DataField>employee_name</DataField>
         </Field>
-        <Field Name="cashierComments">
-          <DataField>cashierComments</DataField>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
         </Field>
-        <Field Name="TransferedFromML">
-          <DataField>TransferedFromML</DataField>
+        <Field Name="order_status">
+          <DataField>order_status</DataField>
         </Field>
-        <Field Name="TransferedToML">
-          <DataField>TransferedToML</DataField>
+        <Field Name="delivery_date">
+          <DataField>delivery_date</DataField>
+        </Field>
+        <Field Name="plan">
+          <DataField>plan</DataField>
         </Field>
       </Fields>
     </DataSet>
