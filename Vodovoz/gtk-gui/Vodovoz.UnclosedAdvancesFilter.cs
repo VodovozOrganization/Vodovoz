@@ -12,9 +12,9 @@ namespace Vodovoz
 
 		private global::Gtk.Label label4;
 
-		private global::Gamma.Widgets.yDatePeriodPicker yAdvancePeriod;
+		private global::QS.Widgets.GtkUI.RepresentationEntry repEntryAccountable;
 
-		private global::Gamma.Widgets.yEntryReferenceVM yentryAccountable;
+		private global::Gamma.Widgets.yDatePeriodPicker yAdvancePeriod;
 
 		private global::Gamma.Widgets.yEntryReference yentryExpense;
 
@@ -26,6 +26,7 @@ namespace Vodovoz
 			this.Name = "Vodovoz.UnclosedAdvancesFilter";
 			// Container child Vodovoz.UnclosedAdvancesFilter.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(6)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -60,25 +61,24 @@ namespace Vodovoz
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.repEntryAccountable = new global::QS.Widgets.GtkUI.RepresentationEntry();
+			this.repEntryAccountable.Events = ((global::Gdk.EventMask)(256));
+			this.repEntryAccountable.Name = "repEntryAccountable";
+			this.table1.Add(this.repEntryAccountable);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.repEntryAccountable]));
+			w4.LeftAttach = ((uint)(1));
+			w4.RightAttach = ((uint)(2));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.yAdvancePeriod = new global::Gamma.Widgets.yDatePeriodPicker();
 			this.yAdvancePeriod.Events = ((global::Gdk.EventMask)(256));
 			this.yAdvancePeriod.Name = "yAdvancePeriod";
 			this.yAdvancePeriod.StartDate = new global::System.DateTime(0);
 			this.yAdvancePeriod.EndDate = new global::System.DateTime(0);
 			this.table1.Add(this.yAdvancePeriod);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.yAdvancePeriod]));
-			w4.LeftAttach = ((uint)(5));
-			w4.RightAttach = ((uint)(6));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.yentryAccountable = new global::Gamma.Widgets.yEntryReferenceVM();
-			this.yentryAccountable.Events = ((global::Gdk.EventMask)(256));
-			this.yentryAccountable.Name = "yentryAccountable";
-			this.table1.Add(this.yentryAccountable);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryAccountable]));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.yAdvancePeriod]));
+			w5.LeftAttach = ((uint)(5));
+			w5.RightAttach = ((uint)(6));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -98,8 +98,8 @@ namespace Vodovoz
 			}
 			this.Hide();
 			this.yentryExpense.Changed += new global::System.EventHandler(this.OnYentryExpenseChanged);
-			this.yentryAccountable.Changed += new global::System.EventHandler(this.OnYentryAccountableChanged);
 			this.yAdvancePeriod.PeriodChanged += new global::System.EventHandler(this.OnYAdvancePeriodPeriodChanged);
+			this.repEntryAccountable.Changed += new global::System.EventHandler(this.OnYentryAccountableChanged);
 		}
 	}
 }

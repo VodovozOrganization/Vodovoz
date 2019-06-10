@@ -32,7 +32,7 @@ namespace Dialogs.Employees
 
 		private global::Gtk.Label label3;
 
-		private global::Gamma.Widgets.yEntryReferenceVM yentryEmployee;
+		private global::QS.Widgets.GtkUI.RepresentationEntry yentryEmployee;
 
 		private global::Gtk.Label labelTotalHours;
 
@@ -165,7 +165,7 @@ namespace Dialogs.Employees
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.yentryEmployee = new global::Gamma.Widgets.yEntryReferenceVM();
+			this.yentryEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.yentryEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.yentryEmployee.Name = "yentryEmployee";
 			this.hbox6.Add(this.yentryEmployee);

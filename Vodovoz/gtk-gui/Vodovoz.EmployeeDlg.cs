@@ -152,7 +152,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelAndroidPassword;
 
-		private global::Gamma.Widgets.yEntryReferenceVM yentryDefaultForwarder;
+		private global::QS.Widgets.GtkUI.RepresentationEntry repEntDefaultForwarder;
 
 		private global::Gamma.Widgets.yEntryReference yentryDeliveryDaySchedule;
 
@@ -206,7 +206,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label lable66;
 
-		private global::Gtk.VBox vbox6;
+		private global::Gtk.VBox vbox8;
 
 		private global::Gtk.HBox hbox12;
 
@@ -343,7 +343,7 @@ namespace Vodovoz
 			this.notebookMain = new global::Gtk.Notebook();
 			this.notebookMain.CanFocus = true;
 			this.notebookMain.Name = "notebookMain";
-			this.notebookMain.CurrentPage = 0;
+			this.notebookMain.CurrentPage = 1;
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -1047,11 +1047,11 @@ namespace Vodovoz
 			w73.XOptions = ((global::Gtk.AttachOptions)(4));
 			w73.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryDefaultForwarder = new global::Gamma.Widgets.yEntryReferenceVM();
-			this.yentryDefaultForwarder.Events = ((global::Gdk.EventMask)(256));
-			this.yentryDefaultForwarder.Name = "yentryDefaultForwarder";
-			this.table1.Add(this.yentryDefaultForwarder);
-			global::Gtk.Table.TableChild w74 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryDefaultForwarder]));
+			this.repEntDefaultForwarder = new global::QS.Widgets.GtkUI.RepresentationEntry();
+			this.repEntDefaultForwarder.Events = ((global::Gdk.EventMask)(256));
+			this.repEntDefaultForwarder.Name = "repEntDefaultForwarder";
+			this.table1.Add(this.repEntDefaultForwarder);
+			global::Gtk.Table.TableChild w74 = ((global::Gtk.Table.TableChild)(this.table1[this.repEntDefaultForwarder]));
 			w74.TopAttach = ((uint)(3));
 			w74.BottomAttach = ((uint)(4));
 			w74.LeftAttach = ((uint)(3));
@@ -1314,10 +1314,10 @@ namespace Vodovoz
 			this.notebookMain.SetTabLabel(this.vbox7, this.lable66);
 			this.lable66.ShowAll();
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
-			this.vbox6 = new global::Gtk.VBox();
-			this.vbox6.Name = "vbox6";
-			this.vbox6.Spacing = 6;
-			// Container child vbox6.Gtk.Box+BoxChild
+			this.vbox8 = new global::Gtk.VBox();
+			this.vbox8.Name = "vbox8";
+			this.vbox8.Spacing = 6;
+			// Container child vbox8.Gtk.Box+BoxChild
 			this.hbox12 = new global::Gtk.HBox();
 			this.hbox12.Name = "hbox12";
 			this.hbox12.Spacing = 6;
@@ -1363,12 +1363,12 @@ namespace Vodovoz
 			w109.Position = 2;
 			w109.Expand = false;
 			w109.Fill = false;
-			this.vbox6.Add(this.hbox12);
-			global::Gtk.Box.BoxChild w110 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.hbox12]));
+			this.vbox8.Add(this.hbox12);
+			global::Gtk.Box.BoxChild w110 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.hbox12]));
 			w110.Position = 0;
 			w110.Expand = false;
 			w110.Fill = false;
-			// Container child vbox6.Gtk.Box+BoxChild
+			// Container child vbox8.Gtk.Box+BoxChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
 			this.GtkScrolledWindow4.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -1377,17 +1377,17 @@ namespace Vodovoz
 			this.ytreeviewEmployeeDocument.CanFocus = true;
 			this.ytreeviewEmployeeDocument.Name = "ytreeviewEmployeeDocument";
 			this.GtkScrolledWindow4.Add(this.ytreeviewEmployeeDocument);
-			this.vbox6.Add(this.GtkScrolledWindow4);
-			global::Gtk.Box.BoxChild w112 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.GtkScrolledWindow4]));
+			this.vbox8.Add(this.GtkScrolledWindow4);
+			global::Gtk.Box.BoxChild w112 = ((global::Gtk.Box.BoxChild)(this.vbox8[this.GtkScrolledWindow4]));
 			w112.Position = 1;
-			this.notebookMain.Add(this.vbox6);
-			global::Gtk.Notebook.NotebookChild w113 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.vbox6]));
+			this.notebookMain.Add(this.vbox8);
+			global::Gtk.Notebook.NotebookChild w113 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.vbox8]));
 			w113.Position = 5;
 			// Notebook tab
 			this.label30 = new global::Gtk.Label();
 			this.label30.Name = "label30";
 			this.label30.LabelProp = global::Mono.Unix.Catalog.GetString("Документы");
-			this.notebookMain.SetTabLabel(this.vbox6, this.label30);
+			this.notebookMain.SetTabLabel(this.vbox8, this.label30);
 			this.label30.ShowAll();
 			this.vbox1.Add(this.notebookMain);
 			global::Gtk.Box.BoxChild w114 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebookMain]));
