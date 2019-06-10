@@ -121,5 +121,11 @@ namespace Vodovoz.Dialogs
 		{
 			this.OnCloseTab(true);
 		}
+
+		public override void Destroy()
+		{
+			UoW?.Dispose();
+			base.Destroy();
+		}
 	}
 }

@@ -300,5 +300,11 @@ namespace Vodovoz.JournalViewers
 		{
 			TabParent.AddSlaveTab(this, new UndeliveriesWithCommentsPrintDlg(undeliveredOrdersFilter));
 		}
+
+		public override void Destroy()
+		{
+			UoW?.Dispose();
+			base.Destroy();
+		}
 	}
 }

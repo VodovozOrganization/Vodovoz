@@ -2462,7 +2462,7 @@ namespace Vodovoz
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
-			var organization = OrganizationRepository.GetCashlessOrganization(UnitOfWorkFactory.CreateWithoutRoot());
+			var organization = OrganizationRepository.GetCashlessOrganization(UoW);
 			if(organization == null) {
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. В параметрах базы не определена организация для безналичного расчета");
 				return;
