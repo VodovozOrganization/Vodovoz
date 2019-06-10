@@ -101,8 +101,8 @@ namespace Vodovoz
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.ShowFired = false
 			);
-			yentryDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
-			yentryDefaultForwarder.Binding.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
+			repEntDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
+			repEntDefaultForwarder.Binding.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
 
 			referenceNationality.SubjectType = typeof(Nationality);
 			referenceNationality.Binding.AddBinding(Entity, e => e.Nationality, w => w.Subject).InitializeFromSource();

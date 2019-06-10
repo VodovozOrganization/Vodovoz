@@ -2226,7 +2226,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceBuhgalter">
+                          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceBuhgalter">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -2247,7 +2247,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceLeader">
+                          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceLeader">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -2473,7 +2473,7 @@
           <widget class="Gtk.Notebook" id="notebookMain">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">1</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
@@ -3667,7 +3667,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryDefaultForwarder">
+                      <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="repEntDefaultForwarder">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                       </widget>
@@ -4050,7 +4050,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.VBox" id="vbox6">
+              <widget class="Gtk.VBox" id="vbox8">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
@@ -4455,7 +4455,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="dataentryreferenceDriver">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="dataentryreferenceDriver">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                     <signal name="Changed" handler="OnDataentryreferenceDriverChanged" />
@@ -5936,7 +5936,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="dependsOnNomenclature">
+                          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="dependsOnNomenclature">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                             <signal name="Changed" handler="OnDependsOnNomenclatureChanged" />
@@ -8763,7 +8763,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceMainCounterparty">
+                          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceMainCounterparty">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                             <signal name="ChangedByUser" handler="OnReferenceMainCounterpartyChangedByUser" />
@@ -8785,7 +8785,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referencePreviousCounterparty">
+                          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referencePreviousCounterparty">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                             <signal name="ChangedByUser" handler="OnReferencePreviousCounterpartyChangedByUser" />
@@ -8976,7 +8976,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="dataentryFinancialContact">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="dataentryFinancialContact">
                     <property name="MemberName" />
                     <property name="Visible">False</property>
                     <property name="Events">ButtonPressMask</property>
@@ -8997,7 +8997,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="dataentryMainContact">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="dataentryMainContact">
                     <property name="MemberName" />
                     <property name="Visible">False</property>
                     <property name="Events">ButtonPressMask</property>
@@ -9254,7 +9254,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceAccountant">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceAccountant">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -9274,7 +9274,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceBottleManager">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceBottleManager">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -9294,7 +9294,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceSalesManager">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceSalesManager">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -10502,7 +10502,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -10976,7 +10976,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="ChangedByUser" handler="OnReferenceDeliveryPointChangedByUser" />
@@ -12384,7 +12384,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="yEntryRefDefWater">
+                                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yEntryRefDefWater">
                                     <property name="MemberName" />
                                     <property name="Events">ButtonPressMask</property>
                                   </widget>
@@ -15288,7 +15288,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -15664,7 +15664,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -16411,7 +16411,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefDriver">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryrefDriver">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="ChangedByUser" handler="OnYentryrefDriverChangedByUser" />
@@ -18324,7 +18324,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceContractor">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceContractor">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -19008,7 +19008,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceEmployee">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="repEntryEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -19141,7 +19141,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterpartyFrom">
+                      <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceCounterpartyFrom">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <signal name="Changed" handler="OnReferenceCounterpartyFromChanged" />
@@ -19308,7 +19308,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterpartyTo">
+                      <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceCounterpartyTo">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <signal name="Changed" handler="OnReferenceCounterpartyToChanged" />
@@ -19733,7 +19733,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterparty">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceCounterparty">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnReferenceCounterpartyChanged" />
@@ -19776,11 +19776,13 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceEmployee">
+              <widget class="Gamma.Widgets.yEntryReference" id="referenceWarehouse">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
               <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
@@ -19795,13 +19797,11 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="referenceWarehouse">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="repEntryEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
               <packing>
-                <property name="TopAttach">1</property>
-                <property name="BottomAttach">2</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
@@ -21385,7 +21385,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDriver">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -21405,7 +21405,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceForwarder">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceForwarder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -21425,7 +21425,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceLogistican">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceLogistican">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -21915,7 +21915,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDriver">
+                      <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDriver">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                       </widget>
@@ -21936,7 +21936,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceForwarder">
+                      <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceForwarder">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                       </widget>
@@ -21957,7 +21957,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceLogistican">
+                      <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceLogistican">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                       </widget>
@@ -24594,9 +24594,8 @@
             <property name="LeftAttach">1</property>
             <property name="RightAttach">2</property>
             <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
+            <property name="XExpand">True</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -24641,7 +24640,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryTag">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryTag">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnYentryTagChanged" />
@@ -24652,9 +24651,8 @@
             <property name="LeftAttach">1</property>
             <property name="RightAttach">2</property>
             <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
+            <property name="XExpand">True</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -25314,7 +25312,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterparty">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceCounterparty">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                     <signal name="Changed" handler="OnReferenceCounterpartyChanged" />
@@ -25336,7 +25334,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDeliveryPoint">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                     <signal name="Changed" handler="OnReferenceDeliveryPointChanged" />
@@ -25488,9 +25486,8 @@
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">2</property>
                         <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
+                        <property name="XExpand">True</property>
                         <property name="XFill">True</property>
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>
@@ -25537,7 +25534,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceEngineer">
+                      <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceEngineer">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                       </widget>
@@ -25545,9 +25542,8 @@
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">2</property>
                         <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
+                        <property name="XExpand">True</property>
                         <property name="XFill">True</property>
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>
@@ -26721,7 +26717,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryCasher">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryCasher">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -26761,7 +26757,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryEmployee">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnYentryEmployeeChanged" />
@@ -26783,7 +26779,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yEntryRouteList">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yEntryRouteList">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -27249,7 +27245,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryCasher">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryCasher">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -27268,7 +27264,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryEmployee">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -27803,7 +27799,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryCasher">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryCasher">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -27822,7 +27818,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryEmployee">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnYentryEmployeeChanged" />
@@ -28311,7 +28307,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AccountableSlipFilter" design-size="660 68">
+  <widget class="Gtk.Bin" id="Vodovoz.AccountableSlipFilter" design-size="590 68">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -28407,7 +28403,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryAccountable">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="repEntryAccountable">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnYentryAccountableChanged" />
@@ -28519,6 +28515,25 @@
           </packing>
         </child>
         <child>
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="repEntryAccountable">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+            <signal name="Changed" handler="OnYentryAccountableChanged" />
+          </widget>
+          <packing>
+            <property name="LeftAttach">1</property>
+            <property name="RightAttach">2</property>
+            <property name="AutoSize">True</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">True</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
           <widget class="Gamma.Widgets.yDatePeriodPicker" id="yAdvancePeriod">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
@@ -28530,26 +28545,6 @@
             <property name="LeftAttach">5</property>
             <property name="RightAttach">6</property>
             <property name="AutoSize">False</property>
-            <property name="XOptions">Fill</property>
-            <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
-            <property name="XFill">True</property>
-            <property name="XShrink">False</property>
-            <property name="YExpand">False</property>
-            <property name="YFill">True</property>
-            <property name="YShrink">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryAccountable">
-            <property name="MemberName" />
-            <property name="Events">ButtonPressMask</property>
-            <signal name="Changed" handler="OnYentryAccountableChanged" />
-          </widget>
-          <packing>
-            <property name="LeftAttach">1</property>
-            <property name="RightAttach">2</property>
-            <property name="AutoSize">True</property>
             <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">False</property>
@@ -28899,7 +28894,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefCasher">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryrefCasher">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -28920,7 +28915,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefEmployee">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryrefEmployee">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -29488,7 +29483,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="1155 688">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="1150 688">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <signal name="Shown" handler="OnShown" />
@@ -30577,7 +30572,7 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceAuthor">
+                              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceAuthor">
                                 <property name="MemberName" />
                                 <property name="Events">ButtonPressMask</property>
                               </widget>
@@ -30598,7 +30593,7 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceClient">
+                              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceClient">
                                 <property name="MemberName" />
                                 <property name="Events">ButtonPressMask</property>
                                 <signal name="Changed" handler="OnReferenceClientChanged" />
@@ -30621,7 +30616,7 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceContract">
+                              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceContract">
                                 <property name="MemberName" />
                                 <property name="Sensitive">False</property>
                                 <property name="Events">ButtonPressMask</property>
@@ -30644,7 +30639,7 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
+                              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDeliveryPoint">
                                 <property name="MemberName" />
                                 <property name="Events">ButtonPressMask</property>
                                 <signal name="Changed" handler="OnReferenceDeliveryPointChanged" />
@@ -31083,7 +31078,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDriverCallId">
+                      <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDriverCallId">
                         <property name="MemberName" />
                         <property name="Sensitive">False</property>
                         <property name="Events">ButtonPressMask</property>
@@ -33772,7 +33767,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceClient">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceClient">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="ChangedByUser" handler="OnReferenceClientChangedByUser" />
@@ -33792,7 +33787,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="ChangedByUser" handler="OnReferenceDeliveryPointChangedByUser" />
@@ -34556,7 +34551,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDriver">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -34577,7 +34572,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceForwarder">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceForwarder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -34598,7 +34593,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceLogistican">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceLogistican">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -35167,7 +35162,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDriver">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDriver">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -35188,7 +35183,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceForwarder">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceForwarder">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -35209,7 +35204,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceLogistican">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceLogistican">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -36891,7 +36886,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterparty">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceCounterparty">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnReferenceCounterpartyChanged" />
@@ -37046,7 +37041,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterparty">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceCounterparty">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnReferenceCounterpartyChanged" />
@@ -37068,7 +37063,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDeliveryPoint">
             <property name="MemberName" />
             <property name="Sensitive">False</property>
             <property name="Events">ButtonPressMask</property>
@@ -39096,7 +39091,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryAuthor">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryAuthor">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -39115,7 +39110,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceRouteList">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryreferenceRouteList">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="ChangedByUser" handler="OnYentryreferenceRouteListChangedByUser" />
@@ -39855,7 +39850,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryDriver">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryDriver">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnYentryDriverChanged" />
@@ -40168,9 +40163,8 @@ not tooltip</property>
                     <property name="LeftAttach">3</property>
                     <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
+                    <property name="XExpand">True</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
                     <property name="YExpand">False</property>
@@ -40280,7 +40274,7 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefOrder">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryrefOrder">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                     <signal name="ChangedByUser" handler="OnYentryrefOrderChangedByUser" />
@@ -40289,9 +40283,8 @@ not tooltip</property>
                     <property name="LeftAttach">3</property>
                     <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
+                    <property name="XExpand">True</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
                     <property name="YExpand">False</property>
@@ -40699,9 +40692,8 @@ not tooltip</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">False</property>
+                <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -40811,7 +40803,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefRouteList">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryrefRouteList">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="ChangedByUser" handler="OnYentryrefRouteListChangedByUser" />
@@ -40820,9 +40812,8 @@ not tooltip</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">False</property>
+                <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -41112,9 +41103,8 @@ not tooltip</property>
                     <property name="LeftAttach">3</property>
                     <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
+                    <property name="XExpand">True</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
                     <property name="YExpand">False</property>
@@ -41253,7 +41243,7 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefRouteList">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryrefRouteList">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                     <signal name="Changed" handler="OnYentryrefRouteListChanged" />
@@ -41262,9 +41252,8 @@ not tooltip</property>
                     <property name="LeftAttach">3</property>
                     <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
+                    <property name="XExpand">True</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
                     <property name="YExpand">False</property>
@@ -42690,7 +42679,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yreferenceClientSelector">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yreferenceClientSelector">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnYentryreferencevmClientSelectorChanged" />
@@ -42710,7 +42699,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yreferenceDeliveryPoint">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yreferenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnYreferenceDeliveryPointChanged" />
@@ -43441,7 +43430,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentrydriver">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentrydriver">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -44626,7 +44615,7 @@ not tooltip</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryEmployee">
+                      <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryEmployee">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                       </widget>
@@ -45803,7 +45792,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceChief">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryreferenceChief">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -45931,7 +45920,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceDriver">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryreferenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -46145,7 +46134,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceDriver">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryreferenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -46215,7 +46204,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryAuthor">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryAuthor">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -46392,7 +46381,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryDriver">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryDriver">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -46659,7 +46648,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceEmployee">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="repEntryEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -46838,7 +46827,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceForwarder">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryreferenceForwarder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnYentryreferenceForwarderChanged" />
@@ -46931,7 +46920,7 @@ not tooltip</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceRLFrom">
+                          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryreferenceRLFrom">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -47026,7 +47015,7 @@ not tooltip</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceRLTo">
+                          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryreferenceRLTo">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -47601,7 +47590,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceRouteListFrom">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryreferenceRouteListFrom">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -47642,7 +47631,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceRouteListTo">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryreferenceRouteListTo">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -49050,7 +49039,7 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceClient">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceClient">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -49069,7 +49058,7 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDeliveryPoint">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -49129,7 +49118,7 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferencevm1">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryreferencevm1">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -50101,7 +50090,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceEmployee">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="repEntryEmployee">
                 <property name="MemberName" />
                 <property name="Visible">False</property>
                 <property name="Sensitive">False</property>
@@ -50326,7 +50315,7 @@ not tooltip</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterpartyFrom">
+                      <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceCounterpartyFrom">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <signal name="Changed" handler="OnReferenceCounterpartyFromChanged" />
@@ -50647,7 +50636,7 @@ not tooltip</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterpartyTo">
+                      <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceCounterpartyTo">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <signal name="Changed" handler="OnReferenceCounterpartyToChanged" />
@@ -52770,7 +52759,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceDriver">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryreferenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnYentryreferenceDriverChanged" />
@@ -55220,7 +55209,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -57252,7 +57241,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryAuthor">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryAuthor">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -57865,7 +57854,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryDriver">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryDriver">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnYentryDriverChanged" />
@@ -58160,7 +58149,7 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryDriver">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryDriver">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -58667,7 +58656,7 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="yEEmployee">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yEEmployee">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -58688,7 +58677,7 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="yEForOrder">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yEForOrder">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -58730,7 +58719,7 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="yESupplier">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yESupplier">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -58980,7 +58969,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterparty">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceCounterparty">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -59001,7 +58990,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceDeliveryPoint">
             <property name="MemberName" />
             <property name="Sensitive">False</property>
             <property name="Events">ButtonPressMask</property>
@@ -60686,7 +60675,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="refDriver">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="refDriver">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnRefDriverChanged" />
@@ -60707,7 +60696,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="refOldOrder">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="refOldOrder">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnRefOldOrderChanged" />
@@ -60726,7 +60715,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="refOldOrderAuthor">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="refOldOrderAuthor">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnRefOldOrderAuthorChanged" />
@@ -60745,7 +60734,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReferenceVM" id="refUndeliveryAuthor">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="refUndeliveryAuthor">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnRefUndeliveryAuthorChanged" />
@@ -61358,7 +61347,7 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="yEForUndeliveredOrder">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yEForUndeliveredOrder">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -61682,7 +61671,7 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="refRegisteredBy">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="refRegisteredBy">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -66662,7 +66651,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryCasher">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryCasher">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -66681,7 +66670,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryOrder">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryOrder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnYentryOrderChanged" />
@@ -67262,7 +67251,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryCasher">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryCasher">
                 <property name="MemberName" />
                 <property name="Sensitive">False</property>
                 <property name="Events">ButtonPressMask</property>
@@ -67281,7 +67270,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryOrder">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yentryOrder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnYentryOrderChanged" />
@@ -70334,7 +70323,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yEntRefEmployee">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yEntRefEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnChangeReportParameters" />
@@ -70744,7 +70733,7 @@ not tooltip</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="deliveryPointYentryreferencevm">
+                          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="deliveryPointYentryreferencevm">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                             <signal name="ChangedByUser" handler="OnDeliveryPointYentryreferencevmChangedByUser" />
@@ -70763,7 +70752,7 @@ not tooltip</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="EmployeeyEntryreferencevm">
+                          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="EmployeeyEntryreferencevm">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -76289,7 +76278,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="entryreferencevmEmployee">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryreferencevmEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="ChangedByUser" handler="OnEntryreferencevmEmployeeChangedByUser" />

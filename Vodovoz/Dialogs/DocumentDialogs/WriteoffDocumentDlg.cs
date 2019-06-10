@@ -57,7 +57,7 @@ namespace Vodovoz
 			}
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.WriteoffEdit, Entity.WriteoffWarehouse);
-			referenceEmployee.IsEditable = referenceWarehouse.IsEditable = textComment.Editable = editing;
+			repEntryEmployee.IsEditable = referenceWarehouse.IsEditable = textComment.Editable = editing;
 			writeoffdocumentitemsview1.Sensitive = editing;
 
 			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
@@ -71,8 +71,8 @@ namespace Vodovoz
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.CanEditReference = false;
 			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
-			referenceEmployee.RepresentationModel = new EmployeesVM();
-			referenceEmployee.Binding.AddBinding (Entity, e => e.ResponsibleEmployee, w => w.Subject).InitializeFromSource ();
+			repEntryEmployee.RepresentationModel = new EmployeesVM();
+			repEntryEmployee.Binding.AddBinding (Entity, e => e.ResponsibleEmployee, w => w.Subject).InitializeFromSource ();
 			comboType.ItemsEnum = typeof(WriteoffType);
 			referenceDeliveryPoint.Sensitive = referenceCounterparty.Sensitive = (UoWGeneric.Root.Client != null);
 			comboType.EnumItemSelected += (object sender, Gamma.Widgets.ItemSelectedEventArgs e) => {

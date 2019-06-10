@@ -17,7 +17,7 @@ namespace Vodovoz
 
 			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			filter.SetAndRefilterAtOnce(x => x.ShowFired = false);
-			yentryAccountable.RepresentationModel = new EmployeesVM(filter);
+			repEntryAccountable.RepresentationModel = new EmployeesVM(filter);
 		}
 
 		public AccountableSlipFilter(IUnitOfWork uow) : this()
@@ -39,10 +39,10 @@ namespace Vodovoz
 		}
 
 		public Employee RestrictAccountable {
-			get { return yentryAccountable.Subject as Employee; }
+			get { return repEntryAccountable.Subject as Employee; }
 			set {
-				yentryAccountable.Subject = value;
-				yentryAccountable.Sensitive = false;
+				repEntryAccountable.Subject = value;
+				repEntryAccountable.Sensitive = false;
 			}
 		}
 

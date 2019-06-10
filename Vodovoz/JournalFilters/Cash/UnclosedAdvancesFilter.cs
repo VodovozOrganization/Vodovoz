@@ -11,7 +11,7 @@ namespace Vodovoz
 	{
 		protected override void ConfigureWithUow()
 		{
-			yentryAccountable.RepresentationModel = new ViewModel.EmployeesVM();
+			repEntryAccountable.RepresentationModel = new ViewModel.EmployeesVM();
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 			yAdvancePeriod.StartDateOrNull = new DateTime(DateTime.Today.Year-1, 1, 1);
 			yAdvancePeriod.EndDateOrNull = DateTime.Today;
@@ -36,10 +36,10 @@ namespace Vodovoz
 		}
 
 		public Employee RestrictAccountable {
-			get { return yentryAccountable.Subject as Employee; }
+			get { return repEntryAccountable.Subject as Employee; }
 			set {
-				yentryAccountable.Subject = value;
-				yentryAccountable.Sensitive = false;
+				repEntryAccountable.Subject = value;
+				repEntryAccountable.Sensitive = false;
 			}
 		}
 

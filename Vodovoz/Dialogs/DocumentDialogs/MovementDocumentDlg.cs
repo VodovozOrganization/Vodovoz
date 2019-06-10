@@ -61,7 +61,7 @@ namespace Vodovoz
 			}
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.MovementEdit, Entity.FromWarehouse, Entity.ToWarehouse);
-			enumMovementType.Sensitive = referenceEmployee.IsEditable = referenceWarehouseTo.Sensitive
+			enumMovementType.Sensitive = repEntryEmployee.IsEditable = referenceWarehouseTo.Sensitive
 				 = yentryrefWagon.IsEditable = textComment.Sensitive = editing;
 			movementdocumentitemsview1.Sensitive = editing;
 
@@ -85,8 +85,8 @@ namespace Vodovoz
 			referenceDeliveryPointFrom.CanEditReference = false;
 			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPointFrom.Binding.AddBinding(Entity, e => e.FromDeliveryPoint, w => w.Subject).InitializeFromSource();
-			referenceEmployee.RepresentationModel = new EmployeesVM();
-			referenceEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
+			repEntryEmployee.RepresentationModel = new EmployeesVM();
+			repEntryEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
 			yentryrefWagon.SubjectType = typeof(MovementWagon);
 			yentryrefWagon.Binding.AddBinding(Entity, e => e.MovementWagon, w => w.Subject).InitializeFromSource();
