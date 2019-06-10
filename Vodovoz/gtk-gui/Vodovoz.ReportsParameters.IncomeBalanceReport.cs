@@ -12,6 +12,12 @@ namespace Vodovoz.ReportsParameters
 
 		private global::QSWidgetLib.DatePeriodPicker dateperiodpicker;
 
+		private global::Gtk.HBox hbox2;
+
+		private global::Gtk.Label label1;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxReportType;
+
 		private global::Gtk.Button buttonCreateRepot;
 
 		protected virtual void Build()
@@ -30,6 +36,7 @@ namespace Vodovoz.ReportsParameters
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.label2 = new global::Gtk.Label();
+			this.label2.WidthRequest = 50;
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
 			this.hbox3.Add(this.label2);
@@ -52,17 +59,48 @@ namespace Vodovoz.ReportsParameters
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.label1 = new global::Gtk.Label();
+			this.label1.WidthRequest = 50;
+			this.label1.Name = "label1";
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Отчет:");
+			this.hbox2.Add(this.label1);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.label1]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.yenumcomboboxReportType = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboboxReportType.Name = "yenumcomboboxReportType";
+			this.yenumcomboboxReportType.ShowSpecialStateAll = false;
+			this.yenumcomboboxReportType.ShowSpecialStateNot = false;
+			this.yenumcomboboxReportType.UseShortTitle = false;
+			this.yenumcomboboxReportType.DefaultFirst = false;
+			this.hbox2.Add(this.yenumcomboboxReportType);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.yenumcomboboxReportType]));
+			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateRepot = new global::Gtk.Button();
 			this.buttonCreateRepot.CanFocus = true;
 			this.buttonCreateRepot.Name = "buttonCreateRepot";
 			this.buttonCreateRepot.UseUnderline = true;
 			this.buttonCreateRepot.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateRepot);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateRepot]));
-			w4.PackType = ((global::Gtk.PackType)(1));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateRepot]));
+			w7.PackType = ((global::Gtk.PackType)(1));
+			w7.Position = 3;
+			w7.Expand = false;
+			w7.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

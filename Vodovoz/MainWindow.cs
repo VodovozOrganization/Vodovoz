@@ -902,14 +902,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void OnIncomeBalanceReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
-			() => new QSReport.ReportViewDlg(new IncomeBalanceReport())
-		);
-	}
-
 	protected void OnAction45Activated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1289,6 +1281,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<CounterpartyCloseDeliveryReport>(),
 			() => new QSReport.ReportViewDlg(new CounterpartyCloseDeliveryReport())
+		);
+	}
+
+	protected void IncomeBalanceReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
+			() => new QSReport.ReportViewDlg(new IncomeBalanceReport())
 		);
 	}
 }

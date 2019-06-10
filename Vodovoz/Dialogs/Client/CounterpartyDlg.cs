@@ -426,7 +426,7 @@ namespace Vodovoz
 			radioSpecialDocFields.Visible = ycheckSpecialDocuments.Active;
 		}
 
-		#region CloseDelivery //Возможно стоит вынести комментарий по закрытию в отдельный виджет
+		#region CloseDelivery //Переделать на PermissionCommentView
 
 		private void SetVisibilityForCloseDeliveryComments()
 		{

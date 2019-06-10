@@ -17,6 +17,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Date).Column ("date");
 			Map(x => x.Money).Column("money");
 			Map(x => x.Description).Column("description");
+			Map(x => x.CashierReviewComment).Column("cashier_review_comment");
 
 			References(x => x.Casher).Column ("casher_employee_id");
 			References(x => x.Employee).Column ("employee_id");

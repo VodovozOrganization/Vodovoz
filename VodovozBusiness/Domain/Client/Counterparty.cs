@@ -520,7 +520,6 @@ namespace Vodovoz.Domain.Client
 		{
 			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"])
 				return false;
-
 			IsDeliveriesClosed = true;
 			CloseDeliveryDate = DateTime.Now;
 			CloseDeliveryPerson = EmployeeRepository.GetEmployeeForCurrentUser(UoW);

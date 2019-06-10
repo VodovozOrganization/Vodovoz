@@ -1198,6 +1198,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.FuelConsumptionReport.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCloseDeliveryReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCloseDeliveryReport.cs" />
+    <Compile Include="ViewWidgets\PermissionCommentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PermissionCommentView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1655,7 +1657,7 @@
     <None Include="Reports\Sales\SalesReportDetail.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Sales\IncomeBalance.rdl">
+    <None Include="Reports\Sales\IncomeBalanceByMl.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\StockProductionMovements.rdl">
@@ -1809,6 +1811,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bookkeeping\CloseCounterpartyDelivery.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\CommonIncomeBalance.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\IncomeBalanceBySelfDelivery.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

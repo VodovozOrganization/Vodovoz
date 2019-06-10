@@ -106,7 +106,7 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_send_not_loaded_route_lists_en_route", new PresetUserPermissionSource("can_send_not_loaded_route_lists_en_route", "Разрешение отправки недогруженых МЛ в путь", "Пользователь может отправлять недогруженные маршрутные листы в путь"));
 			PermissionsSettings.PresetPermissions.Add("can_confirm_mileage_for_our_GAZelles_Larguses", new PresetUserPermissionSource("can_confirm_mileage_for_our_GAZelles_Larguses", "Разрешение подтверждать киллометраж для наших ГАЗелей и Ларгусов", "Разрешение подтверждать киллометраж для наших ГАЗелей и Ларгусов"));
 			PermissionsSettings.PresetPermissions.Add("can_close_deliveries_for_counterparty", new PresetUserPermissionSource("can_close_deliveries_for_counterparty", "Возможность закрыть поставки для клиента", "Возможность закрыть поставки для клиента"));
-
+			PermissionsSettings.PresetPermissions.Add("can_edit_cashier_review_comment", new PresetUserPermissionSource("can_edit_cashier_review_comment", "Комментарий по проверке кассы", "Возможность изменять комментарий по проверке кассы"));
 			UserDialog.UserPermissionViewsCreator = delegate {
 				return new List<IUserPermissionTab> {
 					new SubdivisionForUserEntityPermissionWidget()
