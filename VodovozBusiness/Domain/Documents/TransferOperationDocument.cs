@@ -13,8 +13,8 @@ using Vodovoz.Domain.Operations;
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "переносы",
-		Nominative = "перенос")]
+		NominativePlural = "переносы между точками доставки",
+		Nominative = "перенос между точками доставки")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class TransferOperationDocument : Document, IValidatableObject, IDomainObject

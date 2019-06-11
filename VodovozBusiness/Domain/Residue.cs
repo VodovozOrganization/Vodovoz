@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
@@ -11,10 +10,10 @@ using Vodovoz.Domain.Operations;
 namespace Vodovoz.Domain
 {
 	[Appellative (Gender = GrammaticalGender.Masculine,
-		NominativePlural = "остатки",
-		Nominative = "остаток")]
+		NominativePlural = "документы ввода остатков",
+		Nominative = "документа ввода остатков")]
 	[EntityPermission]
-	public class Residue : PropertyChangedBase, IDomainObject//, IValidatableObject
+	public class Residue : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
 
