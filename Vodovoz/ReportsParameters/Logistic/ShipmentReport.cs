@@ -6,6 +6,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Store;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {

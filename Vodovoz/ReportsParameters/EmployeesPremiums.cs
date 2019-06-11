@@ -6,6 +6,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ReportsParameters
 {

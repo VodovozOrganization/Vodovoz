@@ -11,6 +11,7 @@ using QS.Report;
 using QSProjectsLib;
 using QSReport;
 using Vodovoz.Domain.Employees;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.Reports
 {

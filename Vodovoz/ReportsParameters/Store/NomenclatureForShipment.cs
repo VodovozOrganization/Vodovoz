@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ReportsParameters.Store
 {

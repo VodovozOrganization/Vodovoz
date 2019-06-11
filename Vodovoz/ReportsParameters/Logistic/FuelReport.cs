@@ -9,6 +9,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.Reports
 {
