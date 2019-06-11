@@ -241,7 +241,7 @@ namespace Vodovoz
 			filter.SetAndRefilterAtOnce(x => x.RestrictCounterparty = Entity);
 			Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? Buttons.All : (Buttons.Add | Buttons.Edit);
 			PermissionControlledRepresentationJournal OrdersDialog = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
-				Mode = JournalSelectMode.Single
+				Mode = JournalSelectMode.None
 			};
 
 			TabParent.AddTab(OrdersDialog, this, false);
