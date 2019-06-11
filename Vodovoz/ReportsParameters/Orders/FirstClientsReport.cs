@@ -9,6 +9,7 @@ using Vodovoz.Repositories.Orders;
 using System.Linq;
 using NHibernate.Util;
 using Vodovoz.Domain.Orders;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ReportsParameters.Orders
 {

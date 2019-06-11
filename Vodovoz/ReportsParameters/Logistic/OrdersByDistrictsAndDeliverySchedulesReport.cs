@@ -4,6 +4,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {

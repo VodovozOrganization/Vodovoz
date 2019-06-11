@@ -21,6 +21,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Gamma.Utilities;
 using Vodovoz.Domain.Sale;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.Reports
 {
