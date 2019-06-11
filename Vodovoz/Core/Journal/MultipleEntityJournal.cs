@@ -317,6 +317,16 @@ namespace Vodovoz.Core.Journal
 			searchEntryShown = count;
 		}
 
+		public override void Destroy()
+		{
+			if(RepresentationModel != null) {
+				RepresentationModel.Destroy();
+			}
+			base.Destroy();
+		}
+
+
+
 		#endregion
 	}
 }

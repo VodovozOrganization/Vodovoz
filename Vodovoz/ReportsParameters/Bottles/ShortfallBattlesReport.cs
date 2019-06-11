@@ -13,7 +13,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ShortfallBattlesReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class ShortfallBattlesReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public ShortfallBattlesReport()
 		{

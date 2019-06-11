@@ -8,7 +8,7 @@ using QSReport;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class SendedEmailsReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class SendedEmailsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public SendedEmailsReport()
 		{

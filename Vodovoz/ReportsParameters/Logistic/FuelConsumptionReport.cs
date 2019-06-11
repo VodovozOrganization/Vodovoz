@@ -25,7 +25,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			this.Build();
 			ConfigureDlg();
-			Destroyed += (sender, e) => UoW.Dispose();
 		}
 
 		void ConfigureDlg()

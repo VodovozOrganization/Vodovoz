@@ -7,11 +7,12 @@ using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
+using QS.Dialog.Gtk;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MastersReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class MastersReport : WidgetOnDialogBase, ISingleUoWDialog, IParametersWidget
 	{
 		public MastersReport()
 		{

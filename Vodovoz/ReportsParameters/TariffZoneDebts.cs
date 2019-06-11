@@ -11,7 +11,7 @@ using Vodovoz.Domain.Sale;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class TariffZoneDebts : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class TariffZoneDebts : SingleUoWWidgetBase, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 

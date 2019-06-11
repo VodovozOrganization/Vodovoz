@@ -8,7 +8,7 @@ using QSReport;
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrdersByCreationDateReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class OrdersByCreationDateReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 		public OrdersByCreationDateReport()

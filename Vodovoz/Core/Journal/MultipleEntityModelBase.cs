@@ -215,6 +215,9 @@ namespace Vodovoz.Core.Journal
 		{
 			logger.Debug("{0} called Destroy()", this.GetType());
 			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			if(UoW != null) {
+				UoW.Dispose();
+			}
 		}
 	}
 

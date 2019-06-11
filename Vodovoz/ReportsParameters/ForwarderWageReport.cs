@@ -11,7 +11,7 @@ using Vodovoz.Filters.ViewModels;
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ForwarderWageReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class ForwarderWageReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public ForwarderWageReport()
 		{

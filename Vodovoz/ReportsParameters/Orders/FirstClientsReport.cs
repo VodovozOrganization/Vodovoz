@@ -13,7 +13,7 @@ using Vodovoz.Domain.Orders;
 namespace Vodovoz.ReportsParameters.Orders
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class FirstClientsReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class FirstClientsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 

@@ -28,7 +28,6 @@ namespace Vodovoz.Reports.Logistic
 			this.Build();
 			this.orderById = orderById;
 			ConfigureDlg();
-			Destroyed += (sender, e) => UoW.Dispose();
 		}
 
 		void ConfigureDlg()

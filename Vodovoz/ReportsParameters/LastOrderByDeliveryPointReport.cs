@@ -8,7 +8,7 @@ using QSWidgetLib;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class LastOrderByDeliveryPointReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class LastOrderByDeliveryPointReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public LastOrderByDeliveryPointReport()
 		{

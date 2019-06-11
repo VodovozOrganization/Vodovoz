@@ -10,7 +10,7 @@ using Vodovoz.Domain.Store;
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ShipmentReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class ShipmentReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		IUnitOfWork uow;
 

@@ -8,7 +8,7 @@ using Vodovoz.Repositories.Payments;
 
 namespace Vodovoz.ReportsParameters.Payments
 {
-	public partial class PaymentsFromTinkoffReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class PaymentsFromTinkoffReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 		DateTime? startDate;

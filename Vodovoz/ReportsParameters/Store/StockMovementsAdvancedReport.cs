@@ -18,7 +18,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ReportsParameters.Store
 {
-	public partial class StockMovementsAdvancedReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class StockMovementsAdvancedReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		class StockMovementsAdvancedReportNode : PropertyChangedBase
 		{
