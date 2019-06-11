@@ -16,8 +16,6 @@ namespace Vodovoz.ReportsParameters.Orders
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FirstClientsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public IUnitOfWork UoW { get; private set; }
-
 		public FirstClientsReport()
 		{
 			this.Build();

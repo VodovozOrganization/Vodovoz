@@ -11,8 +11,6 @@ namespace Vodovoz.ReportsParameters
 {
 	public partial class ReportForBigClient : SingleUoWWidgetBase, IParametersWidget
 	{
-		public IUnitOfWork UoW { get; private set; }
-
 		public ReportForBigClient()
 		{
 			this.Build();

@@ -25,12 +25,6 @@ namespace Vodovoz.ReportsParameters.Sales
 			yEntRefEmployee.RepresentationModel = new EmployeesVM(filter);
 		}
 
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get; private set; }
-
-		#endregion
-
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;

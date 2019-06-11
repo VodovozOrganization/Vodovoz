@@ -10,8 +10,6 @@ namespace Vodovoz.ReportsParameters.Sales
 {
 	public partial class SuburbWaterPriceReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public IUnitOfWork UoW { get; private set; }
-
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		public string Title {

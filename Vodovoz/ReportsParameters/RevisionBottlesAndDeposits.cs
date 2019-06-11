@@ -12,8 +12,6 @@ namespace Vodovoz.Reports
 {
 	public partial class RevisionBottlesAndDeposits : SingleUoWWidgetBase, IParametersWidget
 	{
-		public IUnitOfWork UoW { get; private set;}
-
 		public bool ShowStockBottle { get; set; }
 
 		public RevisionBottlesAndDeposits()

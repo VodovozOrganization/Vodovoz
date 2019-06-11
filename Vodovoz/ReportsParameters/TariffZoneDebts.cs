@@ -13,8 +13,6 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class TariffZoneDebts : SingleUoWWidgetBase, IParametersWidget
 	{
-		public IUnitOfWork UoW { get; private set; }
-
 		public TariffZoneDebts()
 		{
 			this.Build();

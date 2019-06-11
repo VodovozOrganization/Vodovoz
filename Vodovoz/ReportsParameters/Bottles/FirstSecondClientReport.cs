@@ -29,8 +29,6 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		public string Title { get { return "Отчёт по первичным/вторичным заказам"; } }
 
-		public IUnitOfWork UoW { get; set; }
-
 		#endregion
 
 		void OnUpdate(bool hide = false)
