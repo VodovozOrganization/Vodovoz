@@ -81,7 +81,7 @@ namespace Vodovoz.Representations
 		}
 	}
 
-	public class TraineeVMNode : INodeWithEntryFastSelect
+	public class TraineeVMNode : QS.RepresentationModel.GtkUI.INodeWithEntryFastSelect
 	{
 		[UseForSearch]
 		[SearchHighlight]

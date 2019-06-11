@@ -91,7 +91,7 @@ namespace Vodovoz.ViewModel
 		}
 	}
 
-	public class EmployeesVMNode : INodeWithEntryFastSelect
+	public class EmployeesVMNode : QS.RepresentationModel.GtkUI.INodeWithEntryFastSelect
 	{
 		[UseForSearch]
 		[SearchHighlight]
