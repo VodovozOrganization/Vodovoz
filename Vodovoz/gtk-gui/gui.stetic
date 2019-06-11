@@ -6342,7 +6342,7 @@
                                 <property name="IsTextCombo">False</property>
                                 <property name="Items" translatable="yes" />
                                 <property name="ShowSpecialStateAll">False</property>
-                                <property name="ShowSpecialStateNot">False</property>
+                                <property name="ShowSpecialStateNot">True</property>
                                 <property name="UseShortTitle">False</property>
                                 <property name="DefaultFirst">False</property>
                               </widget>

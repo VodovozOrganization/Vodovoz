@@ -114,6 +114,7 @@
     <Folder Include="Domain\RouteList\" />
     <Folder Include="Domain\Client\" />
     <Folder Include="Domain\Payments\" />
+    <Folder Include="Domain\Goods\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Domain\RouteList\RouteListItemTests.cs" />
     <Compile Include="Domain\Client\CounterpartyActivityKindTests.cs" />
     <Compile Include="Domain\Payments\PaymentFromTinkoffTests.cs" />
+    <Compile Include="Domain\Goods\NomenclatureTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">

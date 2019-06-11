@@ -214,8 +214,9 @@ namespace Vodovoz.Domain.Goods
 				if(SetField(ref category, value, () => Category)) {
 					if(Category != NomenclatureCategory.equipment)
 						IsSerial = false;
+					if(Category != NomenclatureCategory.water)
+						TareVolume = null;
 				}
-
 			}
 		}
 
@@ -566,7 +567,7 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual string CategoryString => Category.GetEnumTitle();
 
-		public virtual string ShortOrFullName => String.IsNullOrWhiteSpace(ShortName) ? Name : ShortName;
+		public virtual string ShortOrFullName => string.IsNullOrWhiteSpace(ShortName) ? Name : ShortName;
 
 		public virtual bool IsWater19L {
 			get {
@@ -580,7 +581,7 @@ namespace Vodovoz.Domain.Goods
 
 		public override string ToString()
 		{
-			return String.Format("id ={0} Name = {1}", Id, Name);
+			return string.Format("id ={0} Name = {1}", Id, Name);
 
 		}
 
@@ -634,22 +635,24 @@ namespace Vodovoz.Domain.Goods
 		{
 			if(Category == NomenclatureCategory.equipment && Type == null)
 				yield return new ValidationResult(
-					String.Format("Не указан тип оборудования."),
+					string.Format("Не указан тип оборудования."),
 					new[] { this.GetPropertyName(o => o.Type) });
 
 			if(Category == NomenclatureCategory.equipment && SubTypeOfEquipmentCategory == null)
 				yield return new ValidationResult(
-					String.Format("Не указан подтип оборудования (для продажи или нет)."),
+					string.Format("Не указан подтип оборудования (для продажи или нет)."),
 					new[] { this.GetPropertyName(o => o.SubTypeOfEquipmentCategory) });
 
 			if(Category == NomenclatureCategory.deposit && TypeOfDepositCategory == null)
 				yield return new ValidationResult(
-					String.Format("Не указан тип залога."),
+					string.Format("Не указан тип залога."),
 					new[] { this.GetPropertyName(o => o.TypeOfDepositCategory) });
 
-			if((Category == NomenclatureCategory.water || Category == NomenclatureCategory.bottle) && !TareVolume.HasValue) {
-				yield return new ValidationResult("Не выбран объем тары");
-			}
+			if(Category == NomenclatureCategory.water && !TareVolume.HasValue)
+				yield return new ValidationResult(
+					"Не выбран объем тары",
+					new[] { this.GetPropertyName(o => o.TareVolume) }
+				);
 
 			if(Category == NomenclatureCategory.fuel && FuelType == null) {
 				yield return new ValidationResult("Не выбран тип топлива");
@@ -657,7 +660,7 @@ namespace Vodovoz.Domain.Goods
 
 			if(Unit == null)
 				yield return new ValidationResult(
-					String.Format("Не указаны единицы измерения"),
+					string.Format("Не указаны единицы измерения"),
 					new[] { this.GetPropertyName(o => o.Unit) });
 
 			//Проверка зависимостей номенклатур #1: если есть зависимые
@@ -666,12 +669,12 @@ namespace Vodovoz.Domain.Goods
 				if(dependedNomenclatures.Any()) {
 					string dependedNomenclaturesText = "Цена данной номенклатуры не может зависеть от другой номенклатуры, т.к. от данной номенклатуры зависят цены следующих номенклатур:\n";
 					foreach(Nomenclature n in dependedNomenclatures)
-						dependedNomenclaturesText += String.Format("{0}: {1} ({2})\n", n.Id, n.OfficialName, n.CategoryString);
+						dependedNomenclaturesText += string.Format("{0}: {1} ({2})\n", n.Id, n.OfficialName, n.CategoryString);
 					yield return new ValidationResult(dependedNomenclaturesText, new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
 				}
 				if(DependsOnNomenclature.DependsOnNomenclature != null)
 					yield return new ValidationResult(
-						String.Format("Номенклатура '{0}' указанная в качеcтве основной для цен этой номеклатуры, сама зависит от '{1}'",
+						string.Format("Номенклатура '{0}' указанная в качеcтве основной для цен этой номеклатуры, сама зависит от '{1}'",
 						              DependsOnNomenclature.ShortOrFullName, DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName),
 						new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
 			}
@@ -680,14 +683,14 @@ namespace Vodovoz.Domain.Goods
 			{
 				if(Code1c.Length != LengthOfCode1c)
 					yield return new ValidationResult(
-						String.Format("Код 1с с префиксом автоформирования '{0}', должен содержать {1}-символов.",
+						string.Format("Код 1с с префиксом автоформирования '{0}', должен содержать {1}-символов.",
 						              PrefixOfCode1c, LengthOfCode1c),
 						new[] { this.GetPropertyName(o => o.Code1c) });
 
 				var next = NomenclatureRepository.GetNextCode1c(UoW);
-				if(String.Compare(Code1c, next) > 0)
+				if(string.Compare(Code1c, next) > 0)
 					yield return new ValidationResult(
-						String.Format("Код 1с использует префикс автоматического формирования кодов '{0}'. При этом пропускает некоторое количество значений. Используйте в качестве следующего кода {1} или оставьте это поле пустым для автозаполенения.",
+						string.Format("Код 1с использует префикс автоматического формирования кодов '{0}'. При этом пропускает некоторое количество значений. Используйте в качестве следующего кода {1} или оставьте это поле пустым для автозаполенения.",
 						              PrefixOfCode1c, next),
 						new[] { this.GetPropertyName(o => o.Code1c) });
 			}

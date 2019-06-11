@@ -228,7 +228,7 @@ namespace VodovozBusinessTests.Domain.Payments
 			};
 		}
 
-		[Test(Description = "Создание экземпляра сущьности через конструктор для массивом строк")]
+		[Test(Description = "Создание экземпляра сущьности через конструктор массивом строк")]
 		[TestCaseSource(nameof(StringArraysAndResultPayment))]
 		public void PaymentFromTinkoff_CreatingOfNewInstanceUseingCtorWithStringParameter_SuccessfullCreation(string[] parameter, PaymentFromTinkoff result)
 		{
