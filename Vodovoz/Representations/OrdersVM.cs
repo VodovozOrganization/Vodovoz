@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Gamma.ColumnConfig;
@@ -11,6 +12,7 @@ using NHibernate.Transform;
 using NHibernate.Util;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.RepresentationModel.GtkUI;
 using QS.Utilities.Text;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
@@ -22,8 +24,6 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.JournalViewers;
 using Vodovoz.Repositories;
 using Vodovoz.Repository;
-using System.Collections.Generic;
-using QS.RepresentationModel.GtkUI;
 
 namespace Vodovoz.ViewModel
 {
@@ -165,6 +165,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 				   .Select(() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 				   .Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
+				   .Select(() => orderAlias.OnlineOrder).WithAlias(() => resultAlias.OnlineOrder)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 				   .Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
 				   .Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
@@ -203,6 +204,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Изменил").SetDataProperty(node => node.LastEditor)
 			.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
 			.AddColumn("Номер звонка").SetDataProperty(node => node.DriverCallId)
+			.AddColumn("OnLine заказ №").SetDataProperty(node => node.OnLineNumber)
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 
@@ -421,6 +423,11 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		[SearchHighlight]
 		public int DriverCallId { get; set; }
+
+		public int? OnlineOrder { get; set; }
+		[UseForSearch]
+		[SearchHighlight]
+		public string OnLineNumber => OnlineOrder?.ToString() ?? string.Empty;
 
 		public decimal? Latitude { get; set; }
 		public decimal? Longitude { get; set; }
