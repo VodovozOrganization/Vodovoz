@@ -11,7 +11,7 @@ using Vodovoz.Repositories.HumanResources;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MastersVisitReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class MastersVisitReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		IUnitOfWork uow;
 

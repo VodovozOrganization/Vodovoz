@@ -13,7 +13,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
-	public partial class ClientsByDeliveryPointCategoryAndActivityKindsReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class ClientsByDeliveryPointCategoryAndActivityKindsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 		DeliveryPointCategory category;

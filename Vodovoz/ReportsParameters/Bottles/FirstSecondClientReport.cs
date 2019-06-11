@@ -11,7 +11,7 @@ using Vodovoz.Repositories.Orders;
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class FirstSecondClientReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class FirstSecondClientReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public FirstSecondClientReport()
 		{

@@ -10,7 +10,7 @@ using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Reports
 {
-	public partial class EmployeesFines : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class EmployeesFines : SingleUoWWidgetBase, IParametersWidget
 	{
 		public EmployeesFines()
 		{

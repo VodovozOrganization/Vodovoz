@@ -9,7 +9,7 @@ using Vodovoz.Domain.Store;
 namespace Vodovoz.ReportsParameters.Store
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class NotFullyLoadedRouteListsReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class NotFullyLoadedRouteListsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 

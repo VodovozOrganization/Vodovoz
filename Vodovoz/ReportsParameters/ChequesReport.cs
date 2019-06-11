@@ -10,7 +10,7 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class ChequesReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class ChequesReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		GenericObservableList<GeographicGroup> geographicGroups;
 
@@ -19,7 +19,6 @@ namespace Vodovoz.ReportsParameters
 			this.Build();
 			ydatepicker.Date = DateTime.Now.Date;
 			ConfigureDlg();
-			Destroyed += (sender, e) => UoW.Dispose();
 		}
 
 		void ConfigureDlg()

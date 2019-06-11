@@ -11,7 +11,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class WagesOperationsReport: Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class WagesOperationsReport: SingleUoWWidgetBase, IParametersWidget
 	{
 		public WagesOperationsReport()
 		{

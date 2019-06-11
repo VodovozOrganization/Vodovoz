@@ -9,7 +9,7 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class OrdersByDistrictReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class OrdersByDistrictReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public OrdersByDistrictReport()
 		{

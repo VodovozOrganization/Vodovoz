@@ -24,7 +24,7 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Reports
 {
-	public partial class SalesReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class SalesReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		class SalesReportNode : PropertyChangedBase
 		{

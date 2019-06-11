@@ -9,7 +9,7 @@ using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Reports
 {
-	public partial class RevisionBottlesAndDeposits : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class RevisionBottlesAndDeposits : SingleUoWWidgetBase, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set;}
 

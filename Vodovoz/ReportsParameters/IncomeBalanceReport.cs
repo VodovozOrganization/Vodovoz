@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class IncomeBalanceReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class IncomeBalanceReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private string reportPath = "Sales.CommonIncomeBalance";
 

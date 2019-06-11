@@ -8,7 +8,7 @@ using QSReport;
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DrivingCallReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class DrivingCallReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public DrivingCallReport()
 		{
