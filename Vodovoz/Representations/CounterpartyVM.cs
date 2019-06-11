@@ -148,7 +148,7 @@ namespace Vodovoz.ViewModel
 		}
 	}
 
-	public class CounterpartyVMNode : INodeWithEntryFastSelect
+	public class CounterpartyVMNode : QS.RepresentationModel.GtkUI.INodeWithEntryFastSelect
 	{
 		public int Id { get; set; }
 
