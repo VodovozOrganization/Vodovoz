@@ -14,7 +14,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы разгрузки автомобилей",
 		Nominative = "документ разгрузки автомобиля")]
 	[EntityPermission]
@@ -47,17 +47,20 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual Warehouse Warehouse {
 			get => warehouse;
-			set => SetField(ref warehouse, value, () => Warehouse);
+			set {
+				if(SetField(ref warehouse, value, () => Warehouse))
+					UpdateWarehouse();
+			}
 		}
 
-		IList<CarUnloadDocumentItem> items = new List<CarUnloadDocumentItem> ();
+		IList<CarUnloadDocumentItem> items = new List<CarUnloadDocumentItem>();
 
-		[Display (Name = "Строки")]
+		[Display(Name = "Строки")]
 		public virtual IList<CarUnloadDocumentItem> Items {
 			get => items;
 			set {
-				SetField(ref items, value, () => Items);
-				observableItems = null;
+				if(SetField(ref items, value, () => Items))
+					observableItems = null;
 			}
 		}
 
@@ -65,15 +68,15 @@ namespace Vodovoz.Domain.Documents
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<CarUnloadDocumentItem> ObservableItems {
 			get {
-				if (observableItems == null)
-					observableItems = new GenericObservableList<CarUnloadDocumentItem> (Items);
+				if(observableItems == null)
+					observableItems = new GenericObservableList<CarUnloadDocumentItem>(Items);
 				return observableItems;
 			}
 		}
 
 		string comment;
 
-		[Display (Name = "Комментарий")]
+		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get => comment;
 			set => SetField(ref comment, value, () => Comment);
@@ -83,21 +86,20 @@ namespace Vodovoz.Domain.Documents
 
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if (Author == null)
-				yield return new ValidationResult ("Не указан кладовщик.",
-					new[] { this.GetPropertyName (o => o.Author) });
-			if (RouteList == null)
-				yield return new ValidationResult ("Не указан маршрутный лист, по которому осуществляется разгрузка.",
-					new[] { this.GetPropertyName (o => o.RouteList)});
-			
+			if(Author == null)
+				yield return new ValidationResult("Не указан кладовщик.",
+					new[] { this.GetPropertyName(o => o.Author) });
+			if(RouteList == null)
+				yield return new ValidationResult("Не указан маршрутный лист, по которому осуществляется разгрузка.",
+					new[] { this.GetPropertyName(o => o.RouteList) });
+
 			if(Warehouse == null)
-				yield return new ValidationResult ("Не указан склад разгрузки.",
-					new[] { this.GetPropertyName (o => o.Warehouse)});
-			
-			foreach(var item in Items)
-			{
+				yield return new ValidationResult("Не указан склад разгрузки.",
+					new[] { this.GetPropertyName(o => o.Warehouse) });
+
+			foreach(var item in Items) {
 				if(item.MovementOperation.Nomenclature.Category == NomenclatureCategory.bottle && item.MovementOperation.Amount < 0)
 					yield return new ValidationResult(
 						string.Format("Для оборудования {0}, нельзя указывать отрицательное значение.", item.MovementOperation.Nomenclature.Name),
@@ -117,19 +119,19 @@ namespace Vodovoz.Domain.Documents
 				.Any(g => g.Count() > 1);
 
 			if(hasDublicateServiceClaims)
-				yield return new ValidationResult (
+				yield return new ValidationResult(
 					"Имеются продублированные заявки на сервис.",
-					new[] { this.GetPropertyName (o => o.Items)}
+					new[] { this.GetPropertyName(o => o.Items) }
 				);
-			
+
 		}
 
 		#endregion
 
-		public virtual void AddItem (CarUnloadDocumentItem item)
+		public virtual void AddItem(CarUnloadDocumentItem item)
 		{
 			item.Document = this;
-			ObservableItems.Add (item);
+			ObservableItems.Add(item);
 		}
 
 		public virtual void AddItem(ReciveTypes reciveType, Nomenclature nomenclature, Equipment equipment, decimal amount, Service.ServiceClaim serviceClaim, string redhead = null, DefectSource source = DefectSource.None, CullingCategory typeOfDefect = null)
@@ -151,6 +153,17 @@ namespace Vodovoz.Domain.Documents
 					TypeOfDefect = typeOfDefect
 				}
 			);
+		}
+
+		public virtual void UpdateWarehouse()
+		{
+			if(Warehouse != null) {
+				foreach(var item in Items) {
+					if(item.MovementOperation != null) {
+						item.MovementOperation.IncomingWarehouse = Warehouse;
+					}
+				}
+			}
 		}
 	}
 }
