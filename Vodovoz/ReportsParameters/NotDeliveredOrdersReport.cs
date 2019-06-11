@@ -11,8 +11,6 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NotDeliveredOrdersReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public IUnitOfWork UoW { get; private set; }
-
 		public NotDeliveredOrdersReport()
 		{
 			this.Build();

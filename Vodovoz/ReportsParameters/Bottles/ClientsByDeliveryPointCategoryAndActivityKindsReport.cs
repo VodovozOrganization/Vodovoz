@@ -16,7 +16,6 @@ namespace Vodovoz.ReportsParameters.Bottles
 {
 	public partial class ClientsByDeliveryPointCategoryAndActivityKindsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public IUnitOfWork UoW { get; private set; }
 		DeliveryPointCategory category;
 		PaymentType? paymentType;
 		CounterpartyActivityKind activityKind;

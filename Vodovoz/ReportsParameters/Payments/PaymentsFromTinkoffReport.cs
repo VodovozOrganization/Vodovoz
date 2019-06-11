@@ -11,7 +11,6 @@ namespace Vodovoz.ReportsParameters.Payments
 {
 	public partial class PaymentsFromTinkoffReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public IUnitOfWork UoW { get; private set; }
 		DateTime? startDate;
 		public PaymentsFromTinkoffReport()
 		{
