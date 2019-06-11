@@ -399,13 +399,6 @@ namespace Vodovoz.Reports
 			.AddColumn("Название").AddTextRenderer(node => node.Name)
 			.Finish();
 
-
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get; private set; }
-
-		#endregion
-
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;

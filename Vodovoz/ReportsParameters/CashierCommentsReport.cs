@@ -17,12 +17,6 @@ namespace Vodovoz.Reports
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 		}
 
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get; private set; }
-
-		#endregion
-
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;

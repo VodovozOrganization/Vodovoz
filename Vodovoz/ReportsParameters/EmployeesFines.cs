@@ -21,11 +21,6 @@ namespace Vodovoz.Reports
 			filter.ShowFired = false;
 			yentryDriver.RepresentationModel = new EmployeesVM(filter);
 		}
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get; private set; }
-
-		#endregion
 
 		#region IParametersWidget implementation
 

@@ -11,7 +11,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrdersByDistrictsAndDeliverySchedulesReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public IUnitOfWork UoW { get; private set; }
 		DateTime date;
 		public OrdersByDistrictsAndDeliverySchedulesReport()
 		{

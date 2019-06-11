@@ -18,12 +18,6 @@ namespace Vodovoz.ReportsParameters
 			dateperiodpicker.EndDate = DateTime.Now.Date;
 		}
 
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get; private set; }
-
-		#endregion
-
 		#region IParametersWidget implementation
 
 		public string Title {

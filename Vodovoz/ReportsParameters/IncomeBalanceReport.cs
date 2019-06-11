@@ -23,12 +23,6 @@ namespace Vodovoz.ReportsParameters
 			yenumcomboboxReportType.SelectedItem = IncomeReportType.Сommon;
 		}
 
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get; private set; }
-
-		#endregion
-
 		#region IParametersWidget implementation
 
 		public string Title {

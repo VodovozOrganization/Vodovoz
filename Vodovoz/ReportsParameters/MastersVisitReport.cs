@@ -23,12 +23,6 @@ namespace Vodovoz.ReportsParameters
 			ButtonSensivity();
 		}
 
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get { return uow; } private set {; } }
-
-		#endregion
-
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;

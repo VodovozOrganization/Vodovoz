@@ -12,8 +12,6 @@ namespace Vodovoz.ReportsParameters.Store
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class NotFullyLoadedRouteListsReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public IUnitOfWork UoW { get; private set; }
-
 		public NotFullyLoadedRouteListsReport()
 		{
 			this.Build();

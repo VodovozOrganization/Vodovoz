@@ -11,7 +11,6 @@ namespace Vodovoz.ReportsParameters.Bottles
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrdersByCreationDateReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		public IUnitOfWork UoW { get; private set; }
 		public OrdersByCreationDateReport()
 		{
 			this.Build();
