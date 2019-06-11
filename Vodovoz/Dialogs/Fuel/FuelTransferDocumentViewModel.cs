@@ -270,10 +270,10 @@ namespace Vodovoz.Dialogs.Fuel
 
 		#region FuelBalance
 
-		private decimal duelBalanceCache;
+		private decimal fuelBalanceCache;
 		public virtual decimal FuelBalanceCache {
-			get => duelBalanceCache;
-			set => SetField(ref duelBalanceCache, value, () => FuelBalanceCache);
+			get => fuelBalanceCache;
+			set => SetField(ref fuelBalanceCache, value, () => FuelBalanceCache);
 		}
 
 		private void UpdateBalanceCache()
@@ -282,7 +282,7 @@ namespace Vodovoz.Dialogs.Fuel
 				return;
 			}
 			FuelBalanceCache = fuelRepository.GetFuelBalanceForSubdivision(UoW, Entity.CashSubdivisionFrom, Entity.FuelType);
-			if(Entity.TransferedLiters > FuelBalanceCache) {
+			if(Entity.TransferedLiters > FuelBalanceCache && CanEdit) {
 				Entity.TransferedLiters = FuelBalanceCache;
 			}
 		}
