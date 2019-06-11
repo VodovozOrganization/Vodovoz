@@ -85,7 +85,11 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private void SetLitersAdjustment()
 		{
-			yspinLiters.Adjustment = new Adjustment(0, 0, (double)ViewModel.FuelBalanceCache, 1, 10, 0);
+			double upperValue = 100000000;
+			if(ViewModel.CanEdit) {
+				upperValue = (double)ViewModel.FuelBalanceCache;
+			}
+			yspinLiters.Adjustment = new Adjustment(yspinLiters.Value, 0, upperValue, 1, 10, 0);
 		}
 
 		private string GetAvailableFuelLabel(decimal value)
