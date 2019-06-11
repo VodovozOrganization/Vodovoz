@@ -7,7 +7,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModel
 {
-	public class ClientDeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, ClientDeliveryPointVMNode>, IRepresentationModelWithParent
+	public class ClientDeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, ClientDeliveryPointVMNode>, QS.RepresentationModel.GtkUI.IRepresentationModelWithParent
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
