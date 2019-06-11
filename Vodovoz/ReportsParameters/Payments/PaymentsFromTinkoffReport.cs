@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Repositories.Payments;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ReportsParameters.Payments
 {

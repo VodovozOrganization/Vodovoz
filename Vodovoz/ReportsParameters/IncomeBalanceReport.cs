@@ -5,6 +5,7 @@ using QS.Dialog;
 using QS.Report;
 using QSReport;
 using System.ComponentModel.DataAnnotations;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ReportsParameters
 {
