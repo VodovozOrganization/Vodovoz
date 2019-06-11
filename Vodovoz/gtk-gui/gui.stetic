@@ -29832,7 +29832,7 @@
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="IsEditable">True</property>
-                                <property name="MaxLength">8</property>
+                                <property name="MaxLength">10</property>
                                 <property name="InvisibleChar">●</property>
                               </widget>
                               <packing>
