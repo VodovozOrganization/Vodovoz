@@ -8,7 +8,7 @@ using QSReport;
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrdersByDistrictsAndDeliverySchedulesReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class OrdersByDistrictsAndDeliverySchedulesReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 		DateTime date;

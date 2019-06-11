@@ -12,7 +12,7 @@ using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Reports
 {
-	public partial class FuelReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class FuelReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public FuelReport()
 		{

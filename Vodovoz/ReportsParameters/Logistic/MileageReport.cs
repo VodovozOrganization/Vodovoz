@@ -8,7 +8,7 @@ using QSReport;
 namespace Vodovoz.ReportsParameters.Logistic
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MileageReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class MileageReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public MileageReport()
 		{

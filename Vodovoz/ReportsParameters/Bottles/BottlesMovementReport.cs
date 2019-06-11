@@ -10,7 +10,7 @@ using QS.Dialog.GtkUI;
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class BottlesMovementReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class BottlesMovementReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public BottlesMovementReport()
 		{

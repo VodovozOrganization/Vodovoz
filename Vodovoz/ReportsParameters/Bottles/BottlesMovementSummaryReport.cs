@@ -9,7 +9,7 @@ using QSReport;
 namespace Vodovoz.ReportsParameters.Bottles
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class BottlesMovementSummaryReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class BottlesMovementSummaryReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public BottlesMovementSummaryReport()
 		{

@@ -7,7 +7,7 @@ using QSReport;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
-	public partial class SuburbWaterPriceReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class SuburbWaterPriceReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 

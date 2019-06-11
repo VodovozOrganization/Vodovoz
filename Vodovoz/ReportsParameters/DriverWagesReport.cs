@@ -12,7 +12,7 @@ using Vodovoz.Filters.ViewModels;
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DriverWagesReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class DriverWagesReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public DriverWagesReport()
 		{

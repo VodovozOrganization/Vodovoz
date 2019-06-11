@@ -10,7 +10,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz.ReportsParameters.Sales
 {
-	public partial class OrderCreationDateReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class OrderCreationDateReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public OrderCreationDateReport()
 		{

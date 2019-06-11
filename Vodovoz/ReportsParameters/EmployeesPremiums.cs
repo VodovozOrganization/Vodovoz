@@ -10,7 +10,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EmployeesPremiums : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class EmployeesPremiums : SingleUoWWidgetBase, IParametersWidget
 	{
 		public EmployeesPremiums()
 		{

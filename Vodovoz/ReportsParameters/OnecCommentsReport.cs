@@ -8,7 +8,7 @@ using QSReport;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class OnecCommentsReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class OnecCommentsReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public OnecCommentsReport ()
 		{

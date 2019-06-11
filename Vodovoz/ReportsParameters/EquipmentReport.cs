@@ -12,7 +12,7 @@ using Vodovoz.Domain.Sale;
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EquipmentReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class EquipmentReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		GenericObservableList<GeographicGroup> geographicGroups;
 
@@ -20,7 +20,6 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			ConfigureDlg();
-			Destroyed += (sender, e) => UoW.Dispose();
 		}
 
 		void ConfigureDlg()

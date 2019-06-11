@@ -14,7 +14,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Reports
 {
-	public partial class DriversWageBalanceReport : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class DriversWageBalanceReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private class DriverNode
 		{

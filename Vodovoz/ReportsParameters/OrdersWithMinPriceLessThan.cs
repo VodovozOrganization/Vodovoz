@@ -8,7 +8,7 @@ using QSReport;
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrdersWithMinPriceLessThan : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class OrdersWithMinPriceLessThan : SingleUoWWidgetBase, IParametersWidget
 	{
 		public OrdersWithMinPriceLessThan()
 		{

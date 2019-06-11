@@ -125,5 +125,13 @@ namespace Vodovoz
 				}
 			}
 		}
+
+		public override void Destroy()
+		{
+			if(UoW != null) {
+				UoW.Dispose();
+			}
+			base.Destroy();
+		}
 	}
 }

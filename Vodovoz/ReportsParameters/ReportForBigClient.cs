@@ -8,7 +8,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ReportsParameters
 {
-	public partial class ReportForBigClient : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class ReportForBigClient : SingleUoWWidgetBase, IParametersWidget
 	{
 		public IUnitOfWork UoW { get; private set; }
 

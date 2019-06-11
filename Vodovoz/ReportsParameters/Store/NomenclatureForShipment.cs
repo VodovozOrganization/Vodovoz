@@ -11,14 +11,13 @@ using Vodovoz.Domain.Sale;
 namespace Vodovoz.ReportsParameters.Store
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class NomenclatureForShipment : Gtk.Bin, ISingleUoWDialog, IParametersWidget
+	public partial class NomenclatureForShipment : SingleUoWWidgetBase, IParametersWidget
 	{
 		public NomenclatureForShipment()
 		{
 			this.Build();
 			ydatepicker.Date = DateTime.Now.Date.AddDays(1);
 			ConfigureDlg();
-			Destroyed += (sender, e) => UoW.Dispose();
 		}
 
 		void ConfigureDlg()
