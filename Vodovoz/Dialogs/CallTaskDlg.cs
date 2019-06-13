@@ -64,10 +64,10 @@ namespace Vodovoz.Dialogs
 
 			employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 
-			ClientPhonesView.UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			ClientPhonesView.UoW = UoW;
 			ClientPhonesView.IsReadOnly = true;
 
-			DeliveryPointPhonesview.UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			DeliveryPointPhonesview.UoW = UoW;
 			DeliveryPointPhonesview.IsReadOnly = true;
 
 			UpdateAddressFields();
