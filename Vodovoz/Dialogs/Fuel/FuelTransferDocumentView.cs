@@ -49,12 +49,12 @@ namespace Vodovoz.Dialogs.Fuel
 			comboboxCashSubdivisionFrom.SetRenderTextFunc<Subdivision>(s => s.Name);
 			comboboxCashSubdivisionFrom.Binding.AddBinding(ViewModel, vm => vm.SubdivisionsFrom, w => w.ItemsList).InitializeFromSource();
 			comboboxCashSubdivisionFrom.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			comboboxCashSubdivisionFrom.Binding.AddBinding(ViewModel.Entity, e => e.CashSubdivisionFrom, w => w.SelectedItem).InitializeFromSource();
+			comboboxCashSubdivisionFrom.Binding.AddBinding(ViewModel, e => e.CashSubdivisionFrom, w => w.SelectedItem).InitializeFromSource();
 
 			comboboxCashSubdivisionTo.SetRenderTextFunc<Subdivision>(s => s.Name);
 			comboboxCashSubdivisionTo.Binding.AddBinding(ViewModel, vm => vm.SubdivisionsTo, w => w.ItemsList).InitializeFromSource();
 			comboboxCashSubdivisionTo.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-			comboboxCashSubdivisionTo.Binding.AddBinding(ViewModel.Entity, e => e.CashSubdivisionTo, w => w.SelectedItem).InitializeFromSource();
+			comboboxCashSubdivisionTo.Binding.AddBinding(ViewModel, e => e.CashSubdivisionTo, w => w.SelectedItem).InitializeFromSource();
 
 			buttonSend.Clicked += (sender, e) => { ViewModel.SendCommand.Execute(); };
 			buttonSend.Binding.AddBinding(ViewModel, vm => vm.CanSend, w => w.Sensitive).InitializeFromSource();

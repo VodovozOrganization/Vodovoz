@@ -60,6 +60,14 @@ namespace Vodovoz.Dialogs.Fuel
 				() => CanEdit
 			);
 
+			SetPropertyChangeRelation(e => e.CashSubdivisionFrom,
+				() => CashSubdivisionFrom
+			);
+
+			SetPropertyChangeRelation(e => e.CashSubdivisionTo,
+				() => CashSubdivisionTo
+			);
+
 			OnEntityPropertyChanged(UpdateSubdivisionsTo, e => e.CashSubdivisionFrom);
 			OnEntityPropertyChanged(UpdateSubdivisionsFrom, e => e.CashSubdivisionTo);
 			OnEntityPropertyChanged(UpdateBalanceCache, 
@@ -207,14 +215,14 @@ namespace Vodovoz.Dialogs.Fuel
 		private IEnumerable<Subdivision> cashSubdivisions;
 		private IEnumerable<Subdivision> availableSubdivisionsForUser;
 
-		private IEnumerable<Subdivision> subdivisionsFrom;
-		public virtual IEnumerable<Subdivision> SubdivisionsFrom {
+		private List<Subdivision> subdivisionsFrom;
+		public virtual List<Subdivision> SubdivisionsFrom {
 			get => subdivisionsFrom;
 			set => SetField(ref subdivisionsFrom, value, () => SubdivisionsFrom);
 		}
 
-		private IEnumerable<Subdivision> subdivisionsTo;
-		public virtual IEnumerable<Subdivision> SubdivisionsTo {
+		private List<Subdivision> subdivisionsTo;
+		public virtual List<Subdivision> SubdivisionsTo {
 			get => subdivisionsTo;
 			set => SetField(ref subdivisionsTo, value, () => SubdivisionsTo);
 		}
@@ -224,28 +232,55 @@ namespace Vodovoz.Dialogs.Fuel
 			availableSubdivisionsForUser = subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, CurrentUser);
 			cashSubdivisions = subdivisionRepository.GetCashSubdivisions(UoW);
 			if(Entity.CashSubdivisionTo == null) {
-				SubdivisionsFrom = availableSubdivisionsForUser;
+				SubdivisionsFrom = new List<Subdivision>(availableSubdivisionsForUser);
 			} else {
-				SubdivisionsFrom = availableSubdivisionsForUser.Where(x => x != Entity.CashSubdivisionTo);
+				SubdivisionsFrom = new List<Subdivision>(availableSubdivisionsForUser.Where(x => x != Entity.CashSubdivisionTo));
 			}
-			if(Entity.CashSubdivisionTo == null) {
-				SubdivisionsTo = cashSubdivisions;
+			if(Entity.CashSubdivisionFrom == null) {
+				SubdivisionsTo = new List<Subdivision>(cashSubdivisions);
 			} else {
-				SubdivisionsTo = cashSubdivisions.Where(x => x != Entity.CashSubdivisionFrom);
+				SubdivisionsTo = new List<Subdivision>(cashSubdivisions.Where(x => x != Entity.CashSubdivisionFrom));
+			}
+			if(!CanEdit && !SubdivisionsFrom.Contains(CashSubdivisionFrom)) {
+				SubdivisionsFrom.Add(CashSubdivisionFrom);
+			}
+			if(!CanEdit && !SubdivisionsTo.Contains(CashSubdivisionTo)) {
+				SubdivisionsTo.Add(CashSubdivisionTo);
 			}
 		}
 
 
 		private bool isUpdatingSubdivisions = false;
 
+
+
+		public virtual Subdivision CashSubdivisionFrom {
+			get => Entity.CashSubdivisionFrom;
+			set {
+				if(CanEdit) {
+					Entity.CashSubdivisionFrom = value;
+				}
+			}
+		}
+
+		public virtual Subdivision CashSubdivisionTo {
+			get => Entity.CashSubdivisionTo;
+			set {
+				if(CanEdit) {
+					Entity.CashSubdivisionTo = value;
+				}
+			}
+		}
+
+
 		private void UpdateSubdivisionsFrom()
 		{
-			if(isUpdatingSubdivisions) {
+			if(!CanEdit || isUpdatingSubdivisions) {
 				return;
 			}
 			isUpdatingSubdivisions = true;
 			var currentSubdivisonFrom = Entity.CashSubdivisionFrom;
-			SubdivisionsFrom = availableSubdivisionsForUser.Where(x => x != Entity.CashSubdivisionTo);
+			SubdivisionsFrom = new List<Subdivision>(availableSubdivisionsForUser.Where(x => x != Entity.CashSubdivisionTo));
 			if(SubdivisionsTo.Contains(currentSubdivisonFrom)) {
 				Entity.CashSubdivisionFrom = currentSubdivisonFrom;
 			}
@@ -254,12 +289,12 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private void UpdateSubdivisionsTo()
 		{
-			if(isUpdatingSubdivisions) {
+			if(!CanEdit || isUpdatingSubdivisions) {
 				return;
 			}
 			isUpdatingSubdivisions = true;
 			var currentSubdivisonTo = Entity.CashSubdivisionTo;
-			SubdivisionsTo = cashSubdivisions.Where(x => x != Entity.CashSubdivisionFrom);
+			SubdivisionsTo = new List<Subdivision>(cashSubdivisions.Where(x => x != Entity.CashSubdivisionFrom));
 			if(SubdivisionsTo.Contains(currentSubdivisonTo)) {
 				Entity.CashSubdivisionTo = currentSubdivisonTo;
 			}
