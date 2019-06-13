@@ -1200,6 +1200,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCloseDeliveryReport.cs" />
     <Compile Include="ViewWidgets\PermissionCommentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PermissionCommentView.cs" />
+    <Compile Include="ReportsParameters\Bottles\ProfitabilityBottlesByStockReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ProfitabilityBottlesByStockReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1817,6 +1819,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Sales\IncomeBalanceBySelfDelivery.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Bottles\ProfitabilityBottlesByStock.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

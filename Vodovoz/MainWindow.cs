@@ -1284,11 +1284,19 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void IncomeBalanceReportActivated(object sender, EventArgs e)
+	protected void OnIncomeBalanceReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<IncomeBalanceReport>(),
 			() => new QSReport.ReportViewDlg(new IncomeBalanceReport())
+		);
+	}
+
+	protected void OnActionProfitabilityBottlesByStockActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ProfitabilityBottlesByStockReport>(),
+			() => new QSReport.ReportViewDlg(new ProfitabilityBottlesByStockReport())
 		);
 	}
 }
