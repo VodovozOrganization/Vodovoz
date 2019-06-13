@@ -62,6 +62,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.UoW = uowMock;
 			fuelDocument.FuelCoupons = 40;
 			fuelDocument.PayedForFuel = null;
+			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
 			fuelDocument.CreateOperations(fuelRepositoryMock);
@@ -109,6 +110,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.UoW = uowMock;
 			fuelDocument.FuelCoupons = 40;
 			fuelDocument.PayedForFuel = null;
+			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
 			fuelDocument.CreateOperations(fuelRepositoryMock);
@@ -219,6 +221,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.UoW = uowMock;
 			fuelDocument.FuelCoupons = 40;
 			fuelDocument.PayedForFuel = null;
+			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
 			fuelDocument.CreateOperations(fuelRepositoryMock);
@@ -386,6 +389,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.UoW = uowMock;
 			fuelDocument.FuelCoupons = 40;
 			fuelDocument.PayedForFuel = null;
+			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
 			fuelDocument.CreateOperations(fuelRepositoryMock);
@@ -427,6 +431,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.UoW = uowMock;
 			fuelDocument.FuelCoupons = 40;
 			fuelDocument.PayedForFuel = 0;
+			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
 			fuelDocument.CreateOperations(fuelRepositoryMock);
@@ -466,6 +471,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.UoW = uowMock;
 			fuelDocument.FuelCoupons = 40;
 			fuelDocument.PayedForFuel = 500;
+			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
 			fuelDocument.CreateOperations(fuelRepositoryMock);
@@ -520,6 +526,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelDocument.UoW = uowMock;
 			fuelDocument.FuelCoupons = 40;
 			fuelDocument.PayedForFuel = payedForFuel;
+			fuelDocument.Subdivision = subdivisionMock;
 
 			// act
 			fuelDocument.CreateOperations(fuelRepositoryMock);
