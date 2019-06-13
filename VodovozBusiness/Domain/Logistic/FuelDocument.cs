@@ -73,7 +73,6 @@ namespace Vodovoz.Domain.Logistic
 
 		private decimal? payedForLiter;
 
-
 		[Display(Name = "Топливо, оплаченное деньгами")]
 		public virtual decimal? PayedForFuel {
 			get { return payedForLiter; }
@@ -136,6 +135,14 @@ namespace Vodovoz.Domain.Logistic
 			get { return lastEditDate; }
 			set { SetField(ref lastEditDate, value, () => LastEditDate); }
 		}
+
+		private Subdivision subdivision;
+		[Display(Name = "Подразделение")]
+		public virtual Subdivision Subdivision {
+			get => subdivision;
+			set => SetField(ref subdivision, value, () => Subdivision);
+		}
+
 
 		public virtual decimal PayedLiters {
 			get {
@@ -217,7 +224,7 @@ namespace Vodovoz.Domain.Logistic
 				FuelDocument = this,
 				FuelType = Fuel,
 				FuelLiters = FuelCoupons,
-				RelatedToSubdivision = RouteList.ClosingSubdivision,
+				RelatedToSubdivision = Subdivision,
 				СreationTime = Date
 			};
 		}
@@ -239,7 +246,7 @@ namespace Vodovoz.Domain.Logistic
 				Date = Date,
 				Casher = Author,
 				Employee = Driver,
-				RelatedToSubdivision = RouteList.ClosingSubdivision,
+				RelatedToSubdivision = Subdivision,
 				Description = $"Оплата топлива по МЛ №{RouteList.Id}",
 				Money = Math.Round(PayedForFuel.Value, 2, MidpointRounding.AwayFromZero)
 			};
@@ -258,6 +265,10 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult("Касса в маршрутном листе должна быть заполнена");
 			}
 
+			if(Subdivision == null) {
+				yield return new ValidationResult("Необходимо выбрать кассу, с которой будет списываться топливо");
+			}
+
 			if(Fuel == null) {
 				yield return new ValidationResult("Топливо должно быть заполнено");
 			}
@@ -273,8 +284,8 @@ namespace Vodovoz.Domain.Logistic
 					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IFuelRepository)}");
 				}
 
-				if(RouteList.ClosingSubdivision != null && Fuel != null) {
-					decimal balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, RouteList.ClosingSubdivision, Fuel);
+				if(Subdivision != null && Fuel != null) {
+					decimal balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, Subdivision, Fuel);
 					if(FuelCoupons > balance && FuelCoupons > 0) {
 						yield return new ValidationResult("На балансе недостаточно топлива для выдачи");
 					}

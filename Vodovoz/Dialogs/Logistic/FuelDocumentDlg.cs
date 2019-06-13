@@ -8,9 +8,11 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -86,7 +88,7 @@ namespace Vodovoz
 			var cashSubdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!cashSubdivisions.Contains(cashier.Subdivision)) {
 				MessageDialogHelper.RunWarningDialog(
-					"Выдать топливо может только подразделение кассы"
+					"Выдать топливо может только сотрудник кассы"
 				);
 				return false;
 			}
@@ -108,6 +110,17 @@ namespace Vodovoz
 			TabName = "Выдача топлива";
 
 			fuelRepository = new FuelRepository();
+
+			yspeccomboboxSubdivision.SetRenderTextFunc<Subdivision>(s => s.Name);
+			yspeccomboboxSubdivision.Binding.AddBinding(FuelDocument, e => e.Subdivision, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxSubdivision.Sensitive = FuelDocument.FuelExpenseOperation == null;
+			var subdivisionRepository = new SubdivisionRepository();
+			var availableSubdivisionsForUser = subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, UserRepository.GetCurrentUser(UoW));
+			yspeccomboboxSubdivision.ItemsList = availableSubdivisionsForUser;
+			var currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(availableSubdivisionsForUser.Contains(currentEmployee.Subdivision)) {
+				yspeccomboboxSubdivision.SelectedItem = currentEmployee.Subdivision;
+			}
 
 			ydatepicker.Binding.AddBinding(FuelDocument, e => e.Date, w => w.Date).InitializeFromSource();
 
@@ -132,19 +145,10 @@ namespace Vodovoz
 
 			UpdateFuelInfo();
 			UpdateResutlInfo();
-			UpdateFuelAdjustment();
 			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
-		}
 
-		private void UpdateFuelAdjustment()
-		{
-			decimal balance = 0;
-			if(FuelDocument.RouteList.ClosingSubdivision != null && FuelDocument.Fuel != null) {
-				balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, FuelDocument.RouteList.ClosingSubdivision, FuelDocument.Fuel);
-			}
-			yspinFuelTicketLiters.Adjustment = new Gtk.Adjustment(0, 0, (double)balance, 1, 10, 0);
+			UpdateAvailableFuels();
 		}
-
 
 		private void UpdateFuelInfo() {
 			var text = new List<string>();
@@ -260,9 +264,21 @@ namespace Vodovoz
 			if(e.PropertyName == nameof(FuelDocument.FuelCoupons)) {
 				OnFuelUpdated();
 			}
-			if(e.PropertyName == nameof(FuelDocument.Fuel)) {
-				UpdateFuelAdjustment();
+			if(e.PropertyName == nameof(FuelDocument.Subdivision) || e.PropertyName == nameof(FuelDocument.Fuel)) {
+				UpdateAvailableFuels();
 			}
+		}
+
+		private void UpdateAvailableFuels()
+		{
+			decimal balance = 0;
+
+			if(FuelDocument.Subdivision != null && FuelDocument.Fuel != null) {
+				balance = fuelRepository.GetFuelBalanceForSubdivision(UoW, FuelDocument.Subdivision, FuelDocument.Fuel);
+			}
+
+			labelAvalilableFuel.LabelProp = $"Доступно к выдаче: {balance} л.";
+			yspinFuelTicketLiters.Adjustment = new Gtk.Adjustment(0, 0, (double)balance, 1, 10, 0);
 		}
 
 		private void UpdateFuelCashExpenseInfo()
@@ -273,11 +289,11 @@ namespace Vodovoz
 				labelExpenseInfo.Text = "";
 			}
 			if (FuelDocument.PayedForFuel.HasValue) {
-				if (FuelDocument.FuelCashExpense.Id <= 0) {
+				if (FuelDocument.FuelCashExpense != null && FuelDocument.FuelCashExpense.Id <= 0) {
 					buttonOpenExpense.Sensitive = false;
 					labelExpenseInfo.Text = "Расходный ордер будет создан";
 				}
-				if (FuelDocument.FuelCashExpense.Id > 0) {
+				if (FuelDocument.FuelCashExpense != null && FuelDocument.FuelCashExpense.Id > 0) {
 					buttonOpenExpense.Sensitive = true;
 					labelExpenseInfo.Text = "";
 				}
