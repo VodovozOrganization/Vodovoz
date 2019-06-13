@@ -11,15 +11,9 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
-	public partial class FuelConsumptionReport : Gtk.Bin, IParametersWidget, ISingleUoWDialog
+	public partial class FuelConsumptionReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		GenericObservableList<GeographicGroup> geographicGroups;
-
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get; private set; }
-
-		#endregion
 
 		public FuelConsumptionReport(bool orderById = false)
 		{

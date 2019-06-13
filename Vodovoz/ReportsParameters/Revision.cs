@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
@@ -7,13 +8,13 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Reports
 {
-	public partial class Revision : Gtk.Bin, IParametersWidget
+	public partial class Revision : SingleUoWWidgetBase, IParametersWidget
 	{
 		public Revision()
 		{
 			this.Build();
-			var uow = UnitOfWorkFactory.CreateWithoutRoot ();
-			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(uow);
+			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(UoW);
 		}	
 
 		#region IParametersWidget implementation
