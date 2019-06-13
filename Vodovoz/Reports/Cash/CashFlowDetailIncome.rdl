@@ -19,6 +19,7 @@
     if(cash_income.cash_income_category_id,
         1,
         0) as CategoryType,
+    cash_income.id as id,
     cash_income.date as Date,
     cash_income_category.name as Category,
     cash_income.cash_income_category_id as CategoryId,
@@ -92,10 +93,14 @@ ORDER BY Category;</CommandText>
           <DataField>Date</DataField>
           <rd:TypeName>System.DateTime</rd:TypeName>
         </Field>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="MLatDay">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT  
 	route_lists.date as date
@@ -123,7 +128,7 @@ GROUP BY route_lists.date</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="MLdate">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -173,11 +178,14 @@ GROUP BY route_lists.date</CommandText>
           <TableColumn>
             <Width>65pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>50.4pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>125pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>305pt</Width>
+            <Width>255.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65pt</Width>
@@ -201,6 +209,25 @@ GROUP BY route_lists.date</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>РКО/ПКО</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Silver</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -218,6 +245,7 @@ GROUP BY route_lists.date</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -235,6 +263,7 @@ GROUP BY route_lists.date</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -252,6 +281,7 @@ GROUP BY route_lists.date</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -278,6 +308,25 @@ GROUP BY route_lists.date</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <Format>dd.MM.yyyy</Format>
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>={id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -293,6 +342,7 @@ GROUP BY route_lists.date</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -310,6 +360,7 @@ GROUP BY route_lists.date</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -327,6 +378,7 @@ GROUP BY route_lists.date</CommandText>
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -355,6 +407,25 @@ GROUP BY route_lists.date</CommandText>
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -372,6 +443,7 @@ GROUP BY route_lists.date</CommandText>
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -387,6 +459,7 @@ GROUP BY route_lists.date</CommandText>
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <Value>Итого:</Value>
                     </Textbox>
@@ -403,6 +476,7 @@ GROUP BY route_lists.date</CommandText>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <Value>=sum(Fields!sum.Value)</Value>
                     </Textbox>
@@ -440,7 +514,7 @@ GROUP BY route_lists.date</CommandText>
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <BackgroundColor>Lightgrey</BackgroundColor>
-                            <VerticalAlign>Bottom</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                             <FontFamily>Monotype Corsiva</FontFamily>
                             <FontSize>14pt</FontSize>
                             <FontStyle>Italic</FontStyle>
@@ -448,7 +522,7 @@ GROUP BY route_lists.date</CommandText>
                           <Value>=Fields!Category.Value</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>3</ColSpan>
+                      <ColSpan>4</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -462,7 +536,7 @@ GROUP BY route_lists.date</CommandText>
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Right</TextAlign>
                             <BackgroundColor>Lightgrey</BackgroundColor>
-                            <VerticalAlign>Bottom</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=sum(Fields!sum.Value)</Value>
                         </Textbox>

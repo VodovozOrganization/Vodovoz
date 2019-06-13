@@ -24,12 +24,8 @@ namespace Vodovoz.Representations
 		private CashDocumentVMNode resultAlias = null;
 
 		public CashDocumentsFilter Filter {
-			get {
-				return RepresentationFilter as CashDocumentsFilter;
-			}
-			set {
-				RepresentationFilter = value as IRepresentationFilter;
-			}
+			get => RepresentationFilter as CashDocumentsFilter;
+			set => RepresentationFilter = value as IRepresentationFilter;
 		}
 
 		public CashMultipleDocumentVM(CashDocumentsFilter filter)
@@ -54,21 +50,18 @@ namespace Vodovoz.Representations
 			Filter.InitSubdivisionsAccess(new Type[] { typeof(Income), typeof(Expense), typeof(AdvanceReport) });
 
 			TreeViewConfig = FluentColumnsConfig<CashDocumentVMNode>.Create()
-			.AddColumn("Тип документа").SetDataProperty(node => node.DisplayName)
-			.AddColumn("Дата").SetDataProperty(node => node.DateString)
-			.AddColumn("Сотрудник").SetDataProperty(node => node.EmployeeString)
-			.AddColumn("Статья").SetDataProperty(node => node.Category)
-			.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Money))
-			.AddColumn("Кассир").SetDataProperty(node => node.CasherString)
-			.AddColumn("Основание").SetDataProperty(node => node.Description)
+				.AddColumn("№ РКО/ПКО").AddTextRenderer(node => node.DocumentId.ToString())
+				.AddColumn("Тип документа").AddTextRenderer(node => node.DisplayName)
+				.AddColumn("Дата").AddTextRenderer(node => node.DateString)
+				.AddColumn("Сотрудник").AddTextRenderer(node => node.EmployeeString)
+				.AddColumn("Статья").AddTextRenderer(node => node.Category)
+				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Money))
+				.AddColumn("Кассир").AddTextRenderer(node => node.CasherString)
+				.AddColumn("Основание").AddTextRenderer(node => node.Description)
 			.Finish();
 		}
 
-		List<CashDocumentVMNode> OrderFunc(List<CashDocumentVMNode> arg)
-		{
-			return arg.OrderByDescending(x => x.Date).ToList();
-		}
-
+		List<CashDocumentVMNode> OrderFunc(List<CashDocumentVMNode> arg) => arg.OrderByDescending(x => x.Date).ToList();
 
 		private string GetTotalSumInfo()
 		{
@@ -93,10 +86,7 @@ namespace Vodovoz.Representations
 			return total + separatedCash;
 		}
 
-		public override string GetSummaryInfo()
-		{
-			return $"{GetAllCashSummaryInfo()} Сумма выбранных документов: {GetTotalSumInfo()}. {base.GetSummaryInfo()}";
-		}
+		public override string GetSummaryInfo() => $"{GetAllCashSummaryInfo()} Сумма выбранных документов: {GetTotalSumInfo()}. {base.GetSummaryInfo()}";
 
 		private void RegisterIncome()
 		{
@@ -390,10 +380,7 @@ namespace Vodovoz.Representations
 	public class CashDocumentVMNode<TEntity> : CashDocumentVMNode
 		where TEntity : class, IDomainObject
 	{
-		public CashDocumentVMNode()
-		{
-			EntityType = typeof(TEntity);
-		}
+		public CashDocumentVMNode() => EntityType = typeof(TEntity);
 	}
 
 	public class CashDocumentVMNode : MultipleEntityVMNodeBase
@@ -402,6 +389,8 @@ namespace Vodovoz.Representations
 
 		public override Type EntityType { get; set; }
 
+		[UseForSearch]
+		[SearchHighlight]
 		public override int DocumentId { get; set; }
 
 		[UseForSearch]
@@ -414,28 +403,20 @@ namespace Vodovoz.Representations
 		public DateTime Date { get; set; }
 
 		[UseForSearch]
-		public string DateString { get { return Date.ToShortDateString(); } }
+		public string DateString => Date.ToShortDateString();
 
 		public string EmployeeSurname { get; set; }
 		public string EmployeeName { get; set; }
 		public string EmployeePatronymic { get; set; }
 
 		[UseForSearch]
-		public string EmployeeString {
-			get {
-				return PersonHelper.PersonNameWithInitials(EmployeeSurname, EmployeeName, EmployeePatronymic);
-			}
-		}
+		public string EmployeeString => PersonHelper.PersonNameWithInitials(EmployeeSurname, EmployeeName, EmployeePatronymic);
 
 		public string CasherSurname { get; set; }
 		public string CasherName { get; set; }
 		public string CasherPatronymic { get; set; }
 
-		public string CasherString {
-			get {
-				return PersonHelper.PersonNameWithInitials(CasherSurname, CasherName, CasherPatronymic);
-			}
-		}
+		public string CasherString => PersonHelper.PersonNameWithInitials(CasherSurname, CasherName, CasherPatronymic);
 
 		public IncomeInvoiceDocumentType IncomeDocumentType { get; set; }
 		public ExpenseInvoiceDocumentType ExpenseDocumentType { get; set; }

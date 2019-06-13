@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataAdvance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense.id as expense_id,
@@ -93,7 +93,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="expense_id">
           <DataField>expense_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -175,11 +175,14 @@ ORDER BY Category;</CommandText>
           <TableColumn>
             <Width>65pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>66.7pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>125pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>305pt</Width>
+            <Width>241.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65pt</Width>
@@ -203,6 +206,25 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>РКО/ПКО</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Silver</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -220,6 +242,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -237,6 +260,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -254,6 +278,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -281,6 +306,26 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <Format>dd.MM.yyyy</Format>
                         <BackgroundColor>Lightcyan</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign >Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>=Fields!expense_id.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Lightcyan</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -297,6 +342,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Lightcyan</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -315,6 +361,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Lightcyan</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -333,6 +380,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Lightcyan</BackgroundColor>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -363,7 +411,26 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -381,6 +448,7 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -396,6 +464,7 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <Value>Итого:</Value>
                     </Textbox>
@@ -412,6 +481,7 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                       <Value>=sum(Fields!Sum.Value)</Value>
                     </Textbox>
@@ -447,7 +517,7 @@ ORDER BY Category;</CommandText>
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <BackgroundColor>Lightgrey</BackgroundColor>
-                            <VerticalAlign>Bottom</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                             <FontStyle>Italic</FontStyle>
                             <FontFamily>Monotype Corsiva</FontFamily>
                             <FontSize>14pt</FontSize>
@@ -455,7 +525,7 @@ ORDER BY Category;</CommandText>
                           <Value>=Fields!Category.Value</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>3</ColSpan>
+                      <ColSpan>4</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -469,7 +539,7 @@ ORDER BY Category;</CommandText>
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Right</TextAlign>
                             <BackgroundColor>Lightgrey</BackgroundColor>
-                            <VerticalAlign>Bottom</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                           <Value>=sum(Iif(Previous({expense_id}) != {expense_id}, Fields!Sum.Value, 0)) - sum({return_money})</Value>
                         </Textbox>
@@ -511,8 +581,26 @@ ORDER BY Category;</CommandText>
                             <BorderColor />
                             <BorderWidth />
                             <Format>dd.MM.yyyy</Format>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <TextAlign >Center</TextAlign>
                           </Style>
                           <Value>={date}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox26">
+                          <Value>=Fields!expense_id.Value</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <TextAlign >Center</TextAlign>
+                          </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -525,6 +613,7 @@ ORDER BY Category;</CommandText>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
+                            <VerticalAlign >Middle</VerticalAlign>
                           </Style>
                           <Value>={employee}</Value>
                         </Textbox>
@@ -539,6 +628,7 @@ ORDER BY Category;</CommandText>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
+                            <VerticalAlign >Middle</VerticalAlign>
                           </Style>
                           <Value>={description}</Value>
                           <CanGrow>true</CanGrow>
@@ -554,6 +644,7 @@ ORDER BY Category;</CommandText>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
+                            <VerticalAlign >Middle</VerticalAlign>
                           </Style>
                           <Value>=Fields!Sum.Value</Value>
                         </Textbox>
@@ -576,9 +667,30 @@ ORDER BY Category;</CommandText>
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <BorderColor  />
+                            <BorderWidth  />
+                            <TextAlign >Center</TextAlign>
                           </Style>
                           <Value>
                           </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox27">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <BorderColor  />
+                            <BorderWidth  />
+                            <TextAlign >Center</TextAlign>
+                          </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -589,6 +701,9 @@ ORDER BY Category;</CommandText>
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
+                            <VerticalAlign >Middle</VerticalAlign>
+                            <BorderColor  />
+                            <BorderWidth  />
                           </Style>
                           <Value>
                           </Value>
@@ -605,6 +720,7 @@ ORDER BY Category;</CommandText>
                             <BorderColor />
                             <BorderWidth />
                             <TextAlign>Right</TextAlign>
+                            <VerticalAlign >Middle</VerticalAlign>
                           </Style>
                           <Value>Непогашено:</Value>
                         </Textbox>
@@ -619,6 +735,7 @@ ORDER BY Category;</CommandText>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
+                            <VerticalAlign >Middle</VerticalAlign>
                           </Style>
                           <Value>={Sum} - Sum({return_money})</Value>
                         </Textbox>
@@ -667,7 +784,7 @@ ORDER BY Category;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <DefaultValue>
