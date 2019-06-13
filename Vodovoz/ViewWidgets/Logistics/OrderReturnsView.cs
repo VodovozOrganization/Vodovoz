@@ -152,7 +152,7 @@ namespace Vodovoz
 			if(!selectedIds.Any()) {
 				return;
 			}
-			Nomenclature nomenclature = UoW.Session.Get<Nomenclature>(selectedIds);
+			Nomenclature nomenclature = UoW.Session.Get<Nomenclature>(selectedIds.First());
 			CounterpartyContract contract = routeListItem.Order.Contract;
 			WaterSalesAgreement wsa = null;
 			if(routeListItem.Order.IsLoadedFrom1C || nomenclature == null || contract == null) {
