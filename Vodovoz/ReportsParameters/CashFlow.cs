@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -16,7 +17,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz.Reports
 {
-	public partial class CashFlow : Gtk.Bin, IParametersWidget
+	public partial class CashFlow : SingleUoWWidgetBase, IParametersWidget
 	{
 		ExpenseCategory allItem = new ExpenseCategory{
 			Name = "Все"
@@ -25,9 +26,9 @@ namespace Vodovoz.Reports
 		public CashFlow ()
 		{
 			this.Build ();
-			var uow = UnitOfWorkFactory.CreateWithoutRoot ();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			comboPart.ItemsEnum = typeof(ReportParts);
-			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (uow);
+			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (UoW);
 			comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = false;
 			var now = DateTime.Now;
 			dateStart.Date = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
@@ -41,7 +42,7 @@ namespace Vodovoz.Reports
 			yentryrefEmployee.RepresentationModel = new EmployeesVM();
 
 			var recurciveConfig = OrmMain.GetObjectDescription<ExpenseCategory>().TableView.RecursiveTreeConfig;
-			var list = CategoryRepository.ExpenseCategories(uow);
+			var list = CategoryRepository.ExpenseCategories(UoW);
 			list.Insert(0, allItem);
 			var model = recurciveConfig.CreateModel((IList)list);
 			comboExpenseCategory.Model = model.Adapter;

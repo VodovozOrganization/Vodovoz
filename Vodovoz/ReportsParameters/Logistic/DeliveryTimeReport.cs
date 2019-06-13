@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
@@ -9,10 +10,9 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
-	public partial class DeliveryTimeReport : Gtk.Bin, IParametersWidget
+	public partial class DeliveryTimeReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		GenericObservableList<GeographicGroup> geographicGroups;
-		IUnitOfWork uow;
 
 		public DeliveryTimeReport ()
 		{
@@ -22,12 +22,12 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		void ConfigureDlg()
 		{
-			uow = UnitOfWorkFactory.CreateWithoutRoot();
-			geograficGroup.UoW = uow;
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			geograficGroup.UoW = UoW;
 			geograficGroup.Label = "Часть города:";
 			geographicGroups = new GenericObservableList<GeographicGroup>();
 			geograficGroup.Items = geographicGroups;
-			foreach(var gg in uow.Session.QueryOver<GeographicGroup>().List())
+			foreach(var gg in UoW.Session.QueryOver<GeographicGroup>().List())
 				geographicGroups.Add(gg);
 		}
 

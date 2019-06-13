@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSOrmProject;
@@ -8,14 +9,12 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Reports
 {
-	public partial class StockMovements : Gtk.Bin, IParametersWidget
+	public partial class StockMovements : SingleUoWWidgetBase, IParametersWidget
 	{
-		IUnitOfWork uow;
-
 		public StockMovements()
 		{
 			this.Build();
-			uow = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				yentryrefWarehouse.Subject =  CurrentUserSettings.Settings.DefaultWarehouse;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
@@ -9,16 +10,16 @@ using Vodovoz.Repository.Cash;
 
 namespace Vodovoz.Reports
 {
-	public partial class AccountFlow : Gtk.Bin, IParametersWidget
+	public partial class AccountFlow : SingleUoWWidgetBase, IParametersWidget
 	{
 		public AccountFlow ()
 		{
 			this.Build ();
-			var uow = UnitOfWorkFactory.CreateWithoutRoot ();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			comboPart.ItemsEnum = typeof(ReportParts);
-			comboExpenseCategory.ItemsList = CategoryRepository.ExpenseCategories (uow);
+			comboExpenseCategory.ItemsList = CategoryRepository.ExpenseCategories (UoW);
 			comboExpenseCategory.SelectedItem = Gamma.Widgets.SpecialComboState.All;
-			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (uow);
+			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (UoW);
 			comboIncomeCategory.SelectedItem = Gamma.Widgets.SpecialComboState.All;
 
 		}
