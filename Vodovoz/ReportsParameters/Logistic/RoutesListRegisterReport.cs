@@ -11,17 +11,11 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Reports.Logistic
 {
-	public partial class RoutesListRegisterReport : Gtk.Bin, IParametersWidget, ISingleUoWDialog
+	public partial class RoutesListRegisterReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		GenericObservableList<GeographicGroup> geographicGroups;
 
 		bool orderById;
-
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get; private set; }
-
-		#endregion
 
 		public RoutesListRegisterReport(bool orderById = false)
 		{

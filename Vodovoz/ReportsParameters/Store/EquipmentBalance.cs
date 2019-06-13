@@ -6,6 +6,7 @@ using System.Linq;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Report;
@@ -14,16 +15,14 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ReportsParameters.Store
 {
-	public partial class EquipmentBalance : Gtk.Bin, IParametersWidget
+	public partial class EquipmentBalance : SingleUoWWidgetBase, IParametersWidget
 	{
-		IUnitOfWork uow;
-
 		GenericObservableList<SelectableNomenclatureTypeNode> observableItems { get; set; }
 
 		public EquipmentBalance()
 		{
 			this.Build();
-			uow = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			var categoryList =  Enum.GetValues(typeof(NomenclatureCategory)).Cast<NomenclatureCategory>().ToList();
 
