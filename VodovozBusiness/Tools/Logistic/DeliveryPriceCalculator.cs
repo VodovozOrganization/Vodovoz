@@ -7,9 +7,8 @@ using QSOsm;
 using QSOsm.Osrm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repositories.Sale;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Repositories;
+using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -48,14 +47,14 @@ namespace Vodovoz.Tools.Logistic
 				districts = ScheduleRestrictionRepository.AreasWithGeometry(uow);
 
 				//Координаты
-				if(latitude == null || longitude == null) {
+				if(!latitude.HasValue || !longitude.HasValue) {
 					result.ErrorMessage = string.Format("Не указаны координаты. Невозможно расчитать расстояние.");
 					return result;
 				}
 
 				//Расчет растояния
 				if(deliveryPoint == null) {
-					var gg = GeographicGroupRepository.GeographicGroupByCoordinates(latitude, longitude, districts);
+					var gg = GeographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
 					var route = new List<PointOnEarth>(2);
 					if(gg != null && gg.BaseCoordinatesExist)
 						route.Add(new PointOnEarth((double)gg.BaseLatitude, (double)gg.BaseLongitude));

@@ -26,7 +26,7 @@ namespace Vodovoz.Dialogs.Sale
 			TabName = "Рассчет стоимости доставки";
 
 			entryCity.CitySelected += (sender, e) => {
-				entryBuilding.Text = string.Empty;
+				entryBuilding.House = string.Empty;
 				entryStreet.CityId = entryCity.OsmId;
 				entryStreet.Street = string.Empty;
 				entryStreet.StreetDistrict = string.Empty;
@@ -57,8 +57,7 @@ namespace Vodovoz.Dialogs.Sale
 		void EntryBuilding_Changed(object sender, EventArgs e)
 		{
 			if(entryBuilding.OsmCompletion.HasValue && entryBuilding.OsmCompletion.Value) {
-				decimal? lat, lng;
-				entryBuilding.GetCoordinates(out lng, out lat);
+				entryBuilding.GetCoordinates(out decimal? lng, out decimal? lat);
 				SetCoordinates(lat, lng);
 				deliverypriceview.DeliveryPrice = DeliveryPriceCalculator.Calculate(latitude, longitude, yspinBottles.ValueAsInt);
 			}
@@ -72,9 +71,8 @@ namespace Vodovoz.Dialogs.Sale
 
 			string[] coordinates = booferCoordinates?.Split(',');
 			if(coordinates?.Length == 2) {
-				decimal lat, lng;
-				bool goodLat = decimal.TryParse(coordinates[0].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out lat);
-				bool goodLon = decimal.TryParse(coordinates[1].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out lng);
+				bool goodLat = decimal.TryParse(coordinates[0].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out decimal lat);
+				bool goodLon = decimal.TryParse(coordinates[1].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out decimal lng);
 				SetCoordinates(lat, lng);
 
 				if(goodLat && goodLon) {
