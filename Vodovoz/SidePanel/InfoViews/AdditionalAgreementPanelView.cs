@@ -40,14 +40,14 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelRent.LineWrapMode = Pango.WrapMode.WordChar;
 			labelEquipmentCount.LineWrapMode = Pango.WrapMode.WordChar;
 
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<WaterSalesAgreement>(UpdateCriteria);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<WaterSalesAgreementFixedPrice>(UpdateCriteria);
 		}
 
 		void UpdateCriteria(EntityChangeEvent[] e)
 		{
 			if(DeliveryPoint != null) {
-				var wsaList = e.Select(l => l.GetEntity<WaterSalesAgreement>());
-				if(wsaList.Any(a => a.DeliveryPoint?.Id == DeliveryPoint.Id))
+				var fPrices = e.Select(l => l.GetEntity<WaterSalesAgreementFixedPrice>());
+				if(fPrices.Any(p => p.AdditionalAgreement?.DeliveryPoint?.Id == DeliveryPoint.Id))
 					Refresh();
 			}
 		}
