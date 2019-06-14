@@ -22,10 +22,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
+using QS.Dialog;
 
 namespace Vodovoz
 {
-	public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab
+	public partial class OrderReturnsView : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab, ISingleUoWDialog
 	{
 		class OrderNode : PropertyChangedBase
 		{
