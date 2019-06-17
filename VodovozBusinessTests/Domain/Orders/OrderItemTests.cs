@@ -1,8 +1,11 @@
-﻿using NUnit.Framework;
-using System;
-using Vodovoz.Domain.Orders;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using NSubstitute;
+using NUnit.Framework;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 
 namespace VodovozBusinessTests.Domain.Orders
 {
@@ -121,6 +124,36 @@ namespace VodovozBusinessTests.Domain.Orders
 
 			// assert
 			Assert.That(testedOrderItem.Discount, Is.EqualTo(result));
+		}
+
+		[Test(Description = "Если меняем кол-во оборудования на продажу, то кол-во в его ДС так же должно меняться")]
+		public void PropCount_WhenSetCountForItemThatIsSalesEquipment_ThenCountInAdditionalAgreementAlsoChanges()
+		{
+			// arrange
+			Nomenclature nomenclatureMock = Substitute.For<Nomenclature>();
+			SalesEquipmentAgreement aa = new SalesEquipmentAgreement {
+				SalesEqipments = new List<SalesEquipment>()
+			};
+
+			var sEq = new SalesEquipment {
+				AdditionalAgreement = aa,
+				Count = 1,
+				Nomenclature = nomenclatureMock
+			};
+
+			OrderItem orderItem = new OrderItem {
+				AdditionalAgreement = aa,
+				Count = 1,
+				Nomenclature = nomenclatureMock
+			};
+
+			aa.SalesEqipments.Add(sEq);
+
+			// act
+			orderItem.Count = 2;
+
+			// assert
+			Assert.That(aa.SalesEqipments.FirstOrDefault(e => e.Nomenclature == nomenclatureMock)?.Count, Is.EqualTo(2));
 		}
 	}
 }
