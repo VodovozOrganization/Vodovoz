@@ -1634,6 +1634,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -71479,6 +71480,7 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Изменить задачи</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -71594,25 +71596,19 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="QSOrmProject.EntryReferenceVM" id="entryreferencevmEmployeeFilter">
+                  <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="representationentryEmployee">
                     <property name="MemberName" />
-                    <property name="Visible">False</property>
                     <property name="Events">ButtonPressMask</property>
-                    <signal name="ChangedByUser" handler="OnEntryreferencevmEmployeeFilterChangedByUser" />
                   </widget>
                   <packing>
                     <property name="Position">1</property>
                     <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
                   </packing>
                 </child>
               </widget>
               <packing>
                 <property name="Position">0</property>
                 <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
               </packing>
             </child>
             <child>
@@ -71707,7 +71703,7 @@ not tooltip</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
-              <widget class="Gtk.HBox" id="hbox7">
+              <widget class="Gtk.HBox" id="hbox8">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
