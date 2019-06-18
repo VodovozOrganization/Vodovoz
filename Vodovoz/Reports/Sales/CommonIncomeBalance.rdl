@@ -614,14 +614,14 @@ FROM
 SELECT
     SUM(t.PlanedIncome) as plan,
     SUM(t.FactIncome) as fact,
-    categoty
+    category
 FROM
     (SELECT 
             (SUM(CAST(IFNULL(money_movement_operations.money, 0)
                 AS DECIMAL (10 , 2 )) * IF(route_list_addresses.status = 'Completed', 1, 0) + CAST((IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0))
                 AS DECIMAL (10 , 2 )))) AS FactIncome,
             SUM(Orders.TotalOrdersSum) AS PlanedIncome ,
-            CI.categoty
+            CI.category
     FROM
         route_lists
     LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
@@ -696,7 +696,7 @@ FROM
     HAVING TotalOrdersSum != 0) AS Transfered ON Transfered.route_list_id = route_lists.id
     LEFT JOIN (SELECT 
             route_list_id,
-            cash_income_category.name as categoty,
+            cash_income_category.name as category,
             SUM(IFNULL(cash_income.money, 0)) AS MoneyIncome,
             GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y')
                 SEPARATOR ', ') AS CashIncomeDates
