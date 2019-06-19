@@ -299,6 +299,9 @@ namespace Vodovoz
 
 			checkSelfDelivery.Toggled += (sender, e) => {
 				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
+				lblDeliveryPoint.Sensitive = referenceDeliveryPoint.Sensitive = !checkSelfDelivery.Active;
+				buttonAddMaster.Sensitive = !checkSelfDelivery.Active;
+				Entity.UpdateClientDefaultParam();
 			};
 
 			Entity.ObservableOrderItems.ElementChanged += (aList, aIdx) => {
@@ -1082,7 +1085,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			if(Entity.DeliveryPoint == null) {
+			if(Entity.DeliveryPoint == null && !Entity.SelfDelivery) {
 				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должна быть выбрана точка доставки.");
 				return false;
 			}
@@ -1224,7 +1227,7 @@ namespace Vodovoz
 				return;
 			}
 
-			if(Entity.Client == null || Entity.DeliveryPoint == null) {
+			if(Entity.Client == null || (Entity.DeliveryPoint == null && !Entity.SelfDelivery)) {
 				MessageDialogHelper.RunWarningDialog("Для добавления оборудования должна быть выбрана точка доставки.");
 				return;
 			}
@@ -2293,6 +2296,9 @@ namespace Vodovoz
 			enumNeedOfCheque.Visible = lblNeedCheque.Visible = Entity.Client != null && CounterpartyRepository.IsCashPayment(Entity.PaymentType);
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
 				referenceClient.IsEditable = val;
+			referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
+			lblDeliveryPoint.Sensitive = referenceDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val;
+			buttonAddMaster.Sensitive = !checkSelfDelivery.Active && val && !Entity.IsLoadedFrom1C;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =
 				enumDocumentType.Sensitive = val;
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive =
@@ -2305,8 +2311,8 @@ namespace Vodovoz
 			tblOnRouteEditReason.Sensitive = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
-			yCmbPromoSets.Sensitive = Entity.DeliveryPoint != null && val;
-			buttonAddForSale.Sensitive = referenceContract.Sensitive = buttonAddMaster.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
+			yCmbPromoSets.Sensitive = val;
+			buttonAddForSale.Sensitive = referenceContract.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 		}

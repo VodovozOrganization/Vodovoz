@@ -671,7 +671,7 @@ FROM
 		orders.id AS orders_id,
 		orders.author_employee_id AS orders_author_employee_id,
 		counterparty.name as counterparty,
-		delivery_points.compiled_address as delivery_point,
+		IF(orders.self_delivery, 'Самовывоз', delivery_points.compiled_address) as delivery_point,
 		orders.id as order_id,
 		IF(
 			employees.name IS NULL OR employees.last_name IS NULL,

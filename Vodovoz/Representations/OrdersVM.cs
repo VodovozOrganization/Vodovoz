@@ -153,6 +153,7 @@ namespace Vodovoz.ViewModel
 			var result = query
 				.SelectList(list => list
 				   .Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
+				   .Select(() => orderAlias.SelfDelivery).WithAlias(() => resultAlias.IsSelfDelivery)
 				   .Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
 				   .Select(() => deliveryScheduleAlias.Name).WithAlias(() => resultAlias.DeliveryTime)
 				   .Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
@@ -190,7 +191,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Номер").SetDataProperty(node => node.Id.ToString())
 			.AddColumn("Дата").SetDataProperty(node => node.Date.ToString("d"))
 			.AddColumn("Автор").SetDataProperty(node => node.Author)
-			.AddColumn("Время").SetDataProperty(node => node.DeliveryTime)
+			.AddColumn("Время").SetDataProperty(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
 			.AddColumn("Статус").SetDataProperty(node => node.StatusEnum.GetEnumTitle())
 			.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
 			.AddColumn("Кол-во с/о")
@@ -198,15 +199,16 @@ namespace Vodovoz.ViewModel
 				.AddTextRenderer(node => node.SanitisationAmount.ToString())
 			.AddColumn("Клиент").SetDataProperty(node => node.Counterparty)
 			.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
-			.AddColumn("Коор.").AddTextRenderer(x => x.Latitude.HasValue && x.Longitude.HasValue ? "Есть" : String.Empty)
-			.AddColumn("Район доставки").SetDataProperty(node => node.DistrictName)
+			.AddColumn("Коор.").AddTextRenderer(x => x.Coordinates)
+			.AddColumn("Район доставки").SetDataProperty(node => node.IsSelfDelivery ? "-" : node.DistrictName)
 			.AddColumn("Адрес").SetDataProperty(node => node.Address)
 			.AddColumn("Изменил").SetDataProperty(node => node.LastEditor)
-			.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
+			.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : string.Empty)
 			.AddColumn("Номер звонка").SetDataProperty(node => node.DriverCallId)
 			.AddColumn("OnLine заказ №").SetDataProperty(node => node.OnLineNumber)
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
-			.Finish();
+			.Finish()
+		;
 
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
 		public override bool PopupMenuExist => true;
@@ -377,6 +379,7 @@ namespace Vodovoz.ViewModel
 		public OrderStatus StatusEnum { get; set; }
 
 		public DateTime Date { get; set; }
+		public bool IsSelfDelivery { get; set; }
 		public string DeliveryTime { get; set; }
 		public int BottleAmount { get; set; }
 		public int SanitisationAmount { get; set; }
@@ -398,7 +401,7 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		[SearchHighlight]
-		public string Address => String.Format("{0}, {1} д.{2}", City, Street, Building);
+		public string Address => IsSelfDelivery ? "Самовывоз" : string.Format("{0}, {1} д.{2}", City, Street, Building);
 
 		public string AuthorLastName { get; set; }
 		public string AuthorName { get; set; }
@@ -431,6 +434,13 @@ namespace Vodovoz.ViewModel
 
 		public decimal? Latitude { get; set; }
 		public decimal? Longitude { get; set; }
+		public string Coordinates {
+			get {
+				if(IsSelfDelivery)
+					return "-";
+				return Latitude.HasValue && Longitude.HasValue ? "Есть" : string.Empty;
+			}
+		}
 
 		public string RowColor {
 			get {

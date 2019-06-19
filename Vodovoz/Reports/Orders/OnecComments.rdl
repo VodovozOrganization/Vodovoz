@@ -289,7 +289,7 @@
         <CommandText>SELECT
 	orders.id AS ordernum,
 	counterparty.full_name AS client,
-	compiled_address_short AS address,
+	IF(orders.self_delivery, 'Самовывоз', delivery_points.compiled_address) AS address,
 	orders.comment_logist AS commentLogist,
 	CASE order_status
 		WHEN 'NewOrder' THEN 'Новый'

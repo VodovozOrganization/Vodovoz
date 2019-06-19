@@ -5,10 +5,9 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
-using QSOrmProject;
-using Vodovoz.Domain.Goods;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
 {
@@ -69,7 +68,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Номер")]
-		public virtual string Number { 
+		public virtual string Number {
 			get => String.Format("{0}-{1}", Counterparty.VodovozInternalId, ContractSubNumber);
 			set { }
 		}
@@ -142,26 +141,25 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
-#region Вычисляемые
+		#region Вычисляемые
 
-		public virtual string Title { 
-			get { return String.Format ("Договор №{0}-{1} от {2:d}", Counterparty.VodovozInternalId, ContractSubNumber, IssueDate); }
+		public virtual string Title {
+			get { return String.Format("Договор №{0}-{1} от {2:d}", Counterparty.VodovozInternalId, ContractSubNumber, IssueDate); }
 		}
 
 		public virtual string TitleIn1c {
 			get { return String.Format("{0}-{1} от {2:d}", Counterparty.VodovozInternalId, ContractSubNumber, IssueDate); }
 		}
 
-#endregion
+		#endregion
 
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if (!IsArchive && !OnCancellation)
-			{
+			if(!IsArchive && !OnCancellation) {
 				var contracts = Repository.CounterpartyContractRepository.GetActiveContractsWithOrganization(UnitOfWorkFactory.CreateWithoutRoot("Валидация договора контрагента"), Counterparty, Organization, ContractType);
-				if (contracts.Any(c => c.Id != Id))
+				if(contracts.Any(c => c.Id != Id))
 					yield return new ValidationResult(
 						String.Format("У контрагента '{0}' уже есть активный договор с организацией '{1}'", Counterparty.Name, Organization.Name),
 						new[] { this.GetPropertyName(o => o.Organization) });
@@ -183,9 +181,9 @@ namespace Vodovoz.Domain.Client
 		}
 
 		//Конструкторы
-		public static IUnitOfWorkGeneric<CounterpartyContract> Create (Counterparty counterparty)
+		public static IUnitOfWorkGeneric<CounterpartyContract> Create(Counterparty counterparty)
 		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<CounterpartyContract> ();
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<CounterpartyContract>();
 			uow.Root.Counterparty = counterparty;
 			uow.Root.ContractSubNumber = GenerateSubNumber(counterparty);
 			return uow;
@@ -199,54 +197,54 @@ namespace Vodovoz.Domain.Client
 		/// <returns><c>true</c>, если такое доп. соглашение уже существует, <c>false</c> иначе.</returns>
 		/// <param name="id">Id доп. соглашения, для исключения совпадения с самим собой.</param>
 		/// <param name="deliveryPoint">Точка доставки.</param>
-		public virtual bool CheckWaterSalesAgreementExists (int id, DeliveryPoint deliveryPoint)
+		public virtual bool CheckWaterSalesAgreementExists(int id, DeliveryPoint deliveryPoint)
 		{
-			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1) {
+			if(AdditionalAgreements == null || AdditionalAgreements.Count < 1) {
 				return false;
 			}
-			if (deliveryPoint != null) {
-				return AdditionalAgreements.Any (
+			if(deliveryPoint != null) {
+				return AdditionalAgreements.Any(
 					a => a.Id != id &&
 					a.DeliveryPoint != null &&
 					a.DeliveryPoint.Id == deliveryPoint.Id &&
 					a.Type == AgreementType.WaterSales &&
 					!a.IsCancelled);
 			}
-			return AdditionalAgreements.Any (
+			return AdditionalAgreements.Any(
 				a => a.Id != id &&
 				a.DeliveryPoint == null &&
 				a.Type == AgreementType.WaterSales &&
-				!a.IsCancelled);
+				!a.IsCancelled
+			);
 		}
 
-		public virtual WaterSalesAgreement GetWaterSalesAgreement (DeliveryPoint deliveryPoint, Nomenclature nomenclature)
+		public virtual WaterSalesAgreement GetWaterSalesAgreement(DeliveryPoint deliveryPoint, Nomenclature nomenclature)
 		{
-			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1) {
+			if(AdditionalAgreements == null || !AdditionalAgreements.Any())
 				return null;
-			}
+
 			AdditionalAgreement agreement = null;
-			if (deliveryPoint != null) {
-				agreement = AdditionalAgreements.Select(x => x.Self).OfType<WaterSalesAgreement>().FirstOrDefault (a => 
-					a.DeliveryPoint != null &&
-					a.DeliveryPoint.Id == deliveryPoint.Id &&
-					!a.IsCancelled
-					&& a.HasFixedPrice
-					&& a.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id)
+			if(deliveryPoint != null) {
+				agreement = AdditionalAgreements.Select(x => x.Self).OfType<WaterSalesAgreement>().FirstOrDefault(a =>
+				   a.DeliveryPoint != null &&
+				   a.DeliveryPoint.Id == deliveryPoint.Id &&
+				   !a.IsCancelled
+				   && a.HasFixedPrice
+				   && a.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id)
 				);
-				if (agreement == null)
-				{
-					agreement = AdditionalAgreements.FirstOrDefault(a => 
+				if(agreement == null) {
+					agreement = AdditionalAgreements.FirstOrDefault(a =>
 						a.DeliveryPoint != null &&
 						a.DeliveryPoint.Id == deliveryPoint.Id &&
 						a.Type == AgreementType.WaterSales &&
 						!a.IsCancelled);
 				}
 			}
-			if (agreement == null) {
-				agreement = AdditionalAgreements.FirstOrDefault (a => 
-					a.DeliveryPoint == null &&
-				a.Type == AgreementType.WaterSales &&
-				!a.IsCancelled);
+			if(agreement == null) {
+				agreement = AdditionalAgreements.FirstOrDefault(a =>
+				   a.DeliveryPoint == null &&
+			   a.Type == AgreementType.WaterSales &&
+			   !a.IsCancelled);
 			}
 			return agreement?.Self as WaterSalesAgreement;
 		}
@@ -257,21 +255,21 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		public virtual WaterSalesAgreement GetWaterSalesAgreement(DeliveryPoint deliveryPoint)
 		{
-			if(AdditionalAgreements == null || AdditionalAgreements.Count < 1) {
+			if(AdditionalAgreements == null || !AdditionalAgreements.Any())
 				return null;
-			}
-			return AdditionalAgreements
-				.Select(x => x.Self)
-				.OfType<WaterSalesAgreement>()
-				.Where(x => x.DeliveryPoint == deliveryPoint && !x.IsCancelled)
-				.FirstOrDefault();
+
+			return AdditionalAgreements.Select(x => x.Self)
+									   .OfType<WaterSalesAgreement>()
+									   .FirstOrDefault(x => x.DeliveryPoint == deliveryPoint && !x.IsCancelled)
+									   ;
 		}
 
-		public virtual bool RepairAgreementExists ()
+		public virtual bool RepairAgreementExists()
 		{
-			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1)
+			if(AdditionalAgreements == null || !AdditionalAgreements.Any())
 				return false;
-			return AdditionalAgreements.Any (a => a.Type == AgreementType.Repair && !a.IsCancelled);
+
+			return AdditionalAgreements.Any(a => a.Type == AgreementType.Repair && !a.IsCancelled);
 		}
 
 		/// <summary>
@@ -281,21 +279,17 @@ namespace Vodovoz.Domain.Client
 		/// <param name="uow">Unit of Work.</param>
 		public virtual bool UpdateContractTemplate(IUnitOfWork uow)
 		{
-			if (Organization == null)
-			{
+			if(Organization == null) {
 				DocumentTemplate = null;
 				ChangedTemplateFile = null;
-			}
-			else
-			{
+			} else {
 				var newTemplate = Repository.Client.DocTemplateRepository.GetTemplate(uow, TemplateType.Contract, Organization, ContractType);
 				if(newTemplate == null) {
 					DocumentTemplate = null;
 					ChangedTemplateFile = null;
 					return false;
 				}
-				if(!DomainHelper.EqualDomainObjects(newTemplate, DocumentTemplate))
-				{
+				if(!DomainHelper.EqualDomainObjects(newTemplate, DocumentTemplate)) {
 					DocumentTemplate = newTemplate;
 					ChangedTemplateFile = null;
 					return true;
@@ -316,7 +310,7 @@ namespace Vodovoz.Domain.Client
 	{
 		public CounterpartyContract Contract { get; private set; }
 
-		public ContractSavedEventArgs (CounterpartyContract contract)
+		public ContractSavedEventArgs(CounterpartyContract contract)
 		{
 			Contract = contract;
 		}

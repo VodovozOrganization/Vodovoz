@@ -1158,7 +1158,7 @@
       </action>
       <action id="ActionCounterpartyActivityKind">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Клиенты по типам объетов и видам деятельности</property>
+        <property name="Label" translatable="yes">Клиенты по типам объектов и видам деятельности</property>
         <property name="ShortLabel" translatable="yes">Клиенты по типам объетов и видам деятельности</property>
         <signal name="Activated" handler="OnActionCounterpartyActivityKindActivated" />
       </action>
@@ -1641,7 +1641,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -11484,7 +11483,6 @@
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -11501,7 +11499,6 @@
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отменить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -29680,7 +29677,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">3</property>
             <child>
               <widget class="Gtk.VBox" id="vboxInfo">
                 <property name="MemberName" />
@@ -30316,26 +30313,6 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gtk.Label" id="label3">
-                                <property name="MemberName" />
-                                <property name="Xalign">1</property>
-                                <property name="LabelProp" translatable="yes">Точка доставки:</property>
-                              </widget>
-                              <packing>
-                                <property name="TopAttach">3</property>
-                                <property name="BottomAttach">4</property>
-                                <property name="AutoSize">True</property>
-                                <property name="XOptions">Fill</property>
-                                <property name="YOptions">Fill</property>
-                                <property name="XExpand">False</property>
-                                <property name="XFill">True</property>
-                                <property name="XShrink">False</property>
-                                <property name="YExpand">False</property>
-                                <property name="YFill">True</property>
-                                <property name="YShrink">False</property>
-                              </packing>
-                            </child>
-                            <child>
                               <widget class="Gtk.Label" id="label4">
                                 <property name="MemberName" />
                                 <property name="Xalign">1</property>
@@ -30515,6 +30492,26 @@
                               <packing>
                                 <property name="TopAttach">13</property>
                                 <property name="BottomAttach">14</property>
+                                <property name="AutoSize">True</property>
+                                <property name="XOptions">Fill</property>
+                                <property name="YOptions">Fill</property>
+                                <property name="XExpand">False</property>
+                                <property name="XFill">True</property>
+                                <property name="XShrink">False</property>
+                                <property name="YExpand">False</property>
+                                <property name="YFill">True</property>
+                                <property name="YShrink">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Label" id="lblDeliveryPoint">
+                                <property name="MemberName" />
+                                <property name="Xalign">1</property>
+                                <property name="LabelProp" translatable="yes">Точка доставки:</property>
+                              </widget>
+                              <packing>
+                                <property name="TopAttach">3</property>
+                                <property name="BottomAttach">4</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -71487,6 +71484,7 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Изменить задачи</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>

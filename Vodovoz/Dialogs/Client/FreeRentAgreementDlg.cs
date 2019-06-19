@@ -119,8 +119,7 @@ namespace Vodovoz
 			logger.Info ("Сохраняем доп. соглашение...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
-			if (AgreementSaved != null)
-				AgreementSaved (this, new AgreementSavedEventArgs (UoWGeneric.Root));
+			AgreementSaved?.Invoke(this, new AgreementSavedEventArgs(UoWGeneric.Root));
 			return true;
 		}
 	}

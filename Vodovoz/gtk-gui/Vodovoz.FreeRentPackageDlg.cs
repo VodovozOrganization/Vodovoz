@@ -107,11 +107,11 @@ namespace Vodovoz
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.spinDeposit = new global::Gamma.GtkWidgets.ySpinButton(0, 99999, 1);
+			this.spinDeposit = new global::Gamma.GtkWidgets.ySpinButton(0D, 99999D, 1D);
 			this.spinDeposit.CanFocus = true;
 			this.spinDeposit.Name = "spinDeposit";
-			this.spinDeposit.Adjustment.PageIncrement = 10;
-			this.spinDeposit.ClimbRate = 1;
+			this.spinDeposit.Adjustment.PageIncrement = 10D;
+			this.spinDeposit.ClimbRate = 1D;
 			this.spinDeposit.Numeric = true;
 			this.spinDeposit.ValueAsDecimal = 0m;
 			this.spinDeposit.ValueAsInt = 0;
@@ -212,11 +212,11 @@ namespace Vodovoz
 			w16.RightAttach = ((uint)(2));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.spinMinWaterAmount = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
+			this.spinMinWaterAmount = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.spinMinWaterAmount.CanFocus = true;
 			this.spinMinWaterAmount.Name = "spinMinWaterAmount";
-			this.spinMinWaterAmount.Adjustment.PageIncrement = 10;
-			this.spinMinWaterAmount.ClimbRate = 1;
+			this.spinMinWaterAmount.Adjustment.PageIncrement = 10D;
+			this.spinMinWaterAmount.ClimbRate = 1D;
 			this.spinMinWaterAmount.Numeric = true;
 			this.spinMinWaterAmount.ValueAsDecimal = 0m;
 			this.spinMinWaterAmount.ValueAsInt = 0;
@@ -233,7 +233,8 @@ namespace Vodovoz
 			w18.Expand = false;
 			w18.Fill = false;
 			this.Add(this.vbox3);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

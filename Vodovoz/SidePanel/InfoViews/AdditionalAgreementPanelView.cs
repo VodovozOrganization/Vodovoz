@@ -61,7 +61,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			var allEquipmentAtDeliveryPoint = EquipmentRepository.GetEquipmentAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			labelEquipmentCount.Text = allEquipmentAtDeliveryPoint.Count + " шт.";
-			var nextServiceText = "";
+			var nextServiceText = string.Empty;
 			var equipmentsWithNextServiceDate = allEquipmentAtDeliveryPoint
 				.Where(eq => eq.NextServiceDate.HasValue);
 			var eqWithMinDate = equipmentsWithNextServiceDate
@@ -194,7 +194,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonWaterAgreementClicked(object sender, EventArgs e)
 		{
-			if(WaterAgreements.Length > 0) {
+			if(WaterAgreements != null && WaterAgreements.Any()) {
 				foreach(var wa in WaterAgreements) {
 					if(wa.Contract.Id != Contract?.Id)
 						continue;

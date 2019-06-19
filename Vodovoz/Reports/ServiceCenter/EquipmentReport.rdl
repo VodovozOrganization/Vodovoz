@@ -504,7 +504,7 @@ WHERE
 				)
 			OR equipments.order_id IS NOT NULL
 		)
-	AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
+	AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups) OR gg.id IS NULL)
 GROUP BY orders.id
 ;</CommandText>
         <QueryParameters>

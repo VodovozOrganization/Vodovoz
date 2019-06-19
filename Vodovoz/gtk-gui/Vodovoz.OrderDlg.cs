@@ -98,8 +98,6 @@ namespace Vodovoz
 
 		private global::Gtk.Label label2;
 
-		private global::Gtk.Label label3;
-
 		private global::Gtk.Label label4;
 
 		private global::Gtk.Label labelBillDate;
@@ -117,6 +115,8 @@ namespace Vodovoz
 		private global::Gtk.Label labelProxyInfo;
 
 		private global::Gtk.Label labelSignatureType;
+
+		private global::Gtk.Label lblDeliveryPoint;
 
 		private global::Gamma.Widgets.yDatePicker pickerBillDate;
 
@@ -490,7 +490,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 3;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vboxInfo = new global::Gtk.VBox();
 			this.vboxInfo.Name = "vboxInfo";
@@ -871,38 +871,27 @@ namespace Vodovoz
 			w45.XOptions = ((global::Gtk.AttachOptions)(4));
 			w45.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.label3 = new global::Gtk.Label();
-			this.label3.Name = "label3";
-			this.label3.Xalign = 1F;
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Точка доставки:");
-			this.table1.Add(this.label3);
-			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1[this.label3]));
-			w46.TopAttach = ((uint)(3));
-			w46.BottomAttach = ((uint)(4));
-			w46.XOptions = ((global::Gtk.AttachOptions)(4));
-			w46.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.label4 = new global::Gtk.Label();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Форма оплаты:");
 			this.table1.Add(this.label4);
-			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.table1[this.label4]));
-			w47.TopAttach = ((uint)(5));
-			w47.BottomAttach = ((uint)(6));
-			w47.XOptions = ((global::Gtk.AttachOptions)(4));
-			w47.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1[this.label4]));
+			w46.TopAttach = ((uint)(5));
+			w46.BottomAttach = ((uint)(6));
+			w46.XOptions = ((global::Gtk.AttachOptions)(4));
+			w46.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelBillDate = new global::Gtk.Label();
 			this.labelBillDate.Name = "labelBillDate";
 			this.labelBillDate.Xalign = 1F;
 			this.labelBillDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата счета:");
 			this.table1.Add(this.labelBillDate);
-			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.table1[this.labelBillDate]));
-			w48.TopAttach = ((uint)(10));
-			w48.BottomAttach = ((uint)(11));
-			w48.XOptions = ((global::Gtk.AttachOptions)(4));
-			w48.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.table1[this.labelBillDate]));
+			w47.TopAttach = ((uint)(10));
+			w47.BottomAttach = ((uint)(11));
+			w47.XOptions = ((global::Gtk.AttachOptions)(4));
+			w47.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelComment = new global::Gtk.Label();
 			this.labelComment.Name = "labelComment";
@@ -910,58 +899,58 @@ namespace Vodovoz
 			this.labelComment.Yalign = 0F;
 			this.labelComment.LabelProp = global::Mono.Unix.Catalog.GetString("Комментарий \nк заказу:");
 			this.table1.Add(this.labelComment);
-			global::Gtk.Table.TableChild w49 = ((global::Gtk.Table.TableChild)(this.table1[this.labelComment]));
-			w49.TopAttach = ((uint)(14));
-			w49.BottomAttach = ((uint)(15));
-			w49.XOptions = ((global::Gtk.AttachOptions)(4));
-			w49.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.table1[this.labelComment]));
+			w48.TopAttach = ((uint)(14));
+			w48.BottomAttach = ((uint)(15));
+			w48.XOptions = ((global::Gtk.AttachOptions)(4));
+			w48.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelDeliveryDate = new global::Gtk.Label();
 			this.labelDeliveryDate.Name = "labelDeliveryDate";
 			this.labelDeliveryDate.Xalign = 1F;
 			this.labelDeliveryDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата доставки:");
 			this.table1.Add(this.labelDeliveryDate);
-			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.table1[this.labelDeliveryDate]));
-			w50.TopAttach = ((uint)(9));
-			w50.BottomAttach = ((uint)(10));
-			w50.XOptions = ((global::Gtk.AttachOptions)(4));
-			w50.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w49 = ((global::Gtk.Table.TableChild)(this.table1[this.labelDeliveryDate]));
+			w49.TopAttach = ((uint)(9));
+			w49.BottomAttach = ((uint)(10));
+			w49.XOptions = ((global::Gtk.AttachOptions)(4));
+			w49.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelDeliverySchedule = new global::Gtk.Label();
 			this.labelDeliverySchedule.Name = "labelDeliverySchedule";
 			this.labelDeliverySchedule.Xalign = 1F;
 			this.labelDeliverySchedule.LabelProp = global::Mono.Unix.Catalog.GetString("Время доставки:");
 			this.table1.Add(this.labelDeliverySchedule);
-			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.table1[this.labelDeliverySchedule]));
-			w51.TopAttach = ((uint)(9));
-			w51.BottomAttach = ((uint)(10));
-			w51.LeftAttach = ((uint)(2));
-			w51.RightAttach = ((uint)(3));
-			w51.XOptions = ((global::Gtk.AttachOptions)(4));
-			w51.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.table1[this.labelDeliverySchedule]));
+			w50.TopAttach = ((uint)(9));
+			w50.BottomAttach = ((uint)(10));
+			w50.LeftAttach = ((uint)(2));
+			w50.RightAttach = ((uint)(3));
+			w50.XOptions = ((global::Gtk.AttachOptions)(4));
+			w50.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelOnlineOrder = new global::Gtk.Label();
 			this.labelOnlineOrder.Name = "labelOnlineOrder";
 			this.labelOnlineOrder.Xalign = 1F;
 			this.labelOnlineOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Онлайн заказ:");
 			this.table1.Add(this.labelOnlineOrder);
-			global::Gtk.Table.TableChild w52 = ((global::Gtk.Table.TableChild)(this.table1[this.labelOnlineOrder]));
-			w52.TopAttach = ((uint)(5));
-			w52.BottomAttach = ((uint)(6));
-			w52.LeftAttach = ((uint)(2));
-			w52.RightAttach = ((uint)(3));
-			w52.XOptions = ((global::Gtk.AttachOptions)(4));
-			w52.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.table1[this.labelOnlineOrder]));
+			w51.TopAttach = ((uint)(5));
+			w51.BottomAttach = ((uint)(6));
+			w51.LeftAttach = ((uint)(2));
+			w51.RightAttach = ((uint)(3));
+			w51.XOptions = ((global::Gtk.AttachOptions)(4));
+			w51.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelPreviousOrder = new global::Gtk.Label();
 			this.labelPreviousOrder.Name = "labelPreviousOrder";
 			this.labelPreviousOrder.LabelProp = global::Mono.Unix.Catalog.GetString("Предыдущий заказ.");
 			this.table1.Add(this.labelPreviousOrder);
-			global::Gtk.Table.TableChild w53 = ((global::Gtk.Table.TableChild)(this.table1[this.labelPreviousOrder]));
-			w53.LeftAttach = ((uint)(2));
-			w53.RightAttach = ((uint)(4));
-			w53.XOptions = ((global::Gtk.AttachOptions)(4));
-			w53.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w52 = ((global::Gtk.Table.TableChild)(this.table1[this.labelPreviousOrder]));
+			w52.LeftAttach = ((uint)(2));
+			w52.RightAttach = ((uint)(4));
+			w52.XOptions = ((global::Gtk.AttachOptions)(4));
+			w52.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelProxyInfo = new global::Gtk.Label();
 			this.labelProxyInfo.Name = "labelProxyInfo";
@@ -970,22 +959,33 @@ namespace Vodovoz
 			this.labelProxyInfo.UseMarkup = true;
 			this.labelProxyInfo.Justify = ((global::Gtk.Justification)(3));
 			this.table1.Add(this.labelProxyInfo);
-			global::Gtk.Table.TableChild w54 = ((global::Gtk.Table.TableChild)(this.table1[this.labelProxyInfo]));
-			w54.TopAttach = ((uint)(13));
-			w54.BottomAttach = ((uint)(14));
-			w54.LeftAttach = ((uint)(2));
-			w54.RightAttach = ((uint)(4));
-			w54.XOptions = ((global::Gtk.AttachOptions)(4));
-			w54.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w53 = ((global::Gtk.Table.TableChild)(this.table1[this.labelProxyInfo]));
+			w53.TopAttach = ((uint)(13));
+			w53.BottomAttach = ((uint)(14));
+			w53.LeftAttach = ((uint)(2));
+			w53.RightAttach = ((uint)(4));
+			w53.XOptions = ((global::Gtk.AttachOptions)(4));
+			w53.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelSignatureType = new global::Gtk.Label();
 			this.labelSignatureType.Name = "labelSignatureType";
 			this.labelSignatureType.Xalign = 1F;
 			this.labelSignatureType.LabelProp = global::Mono.Unix.Catalog.GetString("Подписание\n документов:");
 			this.table1.Add(this.labelSignatureType);
-			global::Gtk.Table.TableChild w55 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSignatureType]));
-			w55.TopAttach = ((uint)(13));
-			w55.BottomAttach = ((uint)(14));
+			global::Gtk.Table.TableChild w54 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSignatureType]));
+			w54.TopAttach = ((uint)(13));
+			w54.BottomAttach = ((uint)(14));
+			w54.XOptions = ((global::Gtk.AttachOptions)(4));
+			w54.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.lblDeliveryPoint = new global::Gtk.Label();
+			this.lblDeliveryPoint.Name = "lblDeliveryPoint";
+			this.lblDeliveryPoint.Xalign = 1F;
+			this.lblDeliveryPoint.LabelProp = global::Mono.Unix.Catalog.GetString("Точка доставки:");
+			this.table1.Add(this.lblDeliveryPoint);
+			global::Gtk.Table.TableChild w55 = ((global::Gtk.Table.TableChild)(this.table1[this.lblDeliveryPoint]));
+			w55.TopAttach = ((uint)(3));
+			w55.BottomAttach = ((uint)(4));
 			w55.XOptions = ((global::Gtk.AttachOptions)(4));
 			w55.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild

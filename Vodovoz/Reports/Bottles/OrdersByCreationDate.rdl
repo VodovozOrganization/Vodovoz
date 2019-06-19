@@ -43,7 +43,7 @@
 			IF(employees.patronymic = '',
 				'',
 				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS Employee,
-	delivery_points.compiled_address AS Address,
+	IF(orders.self_delivery, 'Самовывоз', delivery_points.compiled_address) AS Address,
 	SUM(order_items.count) AS BottleCount,
 	counterparty.name AS ClientName
 FROM

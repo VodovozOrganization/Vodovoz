@@ -381,7 +381,7 @@
         <CommandText>SELECT
 	MainOrders.id,
 	counterparty.name as CounterpartyName,
-    delivery_points.compiled_address_short as AddressShort,
+    IF(MainOrders.self_delivery, 'Самовывоз', delivery_points.compiled_address_short) as AddressShort,
 	MainOrders.delivery_date as DeliveryDate,
     BottlesTable.bottle_count as BottleCount,
     BottlesTable.smallest_price as Price,

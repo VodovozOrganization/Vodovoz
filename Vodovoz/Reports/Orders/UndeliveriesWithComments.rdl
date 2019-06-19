@@ -649,9 +649,19 @@ FROM
 		oldo.delivery_date AS old_order_date,
 		un.reason AS reason,
 		un.new_order_id AS new_order_id,
-		IF(newo.id IS NULL, '--', CONCAT_WS('\n', DATE_FORMAT(newo.delivery_date, '%e.%m'), new_schedule.name)) AS transfered,
+		IF(
+            newo.id IS NULL,
+            '--',
+            CONCAT_WS(
+                '\n',
+                DATE_FORMAT(newo.delivery_date, '%e.%m'),
+                new_schedule.name
+            )
+        ) AS transfered,
 		coun.name AS client,
-		(
+        IF(
+            oldo.self_delivery,
+            'Самовывоз',
 			CASE
 				WHEN compiled_address_short LIKE '%, пар%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', пар', compiled_address_short)-1)
 				WHEN compiled_address_short LIKE '%, ТЦ%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', ТЦ', compiled_address_short)-1)
@@ -661,7 +671,7 @@ FROM
 				WHEN compiled_address_short LIKE '%, общ%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', общ', compiled_address_short)-1)
 				WHEN compiled_address_short LIKE '%, эт%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', эт', compiled_address_short)-1)
 				WHEN compiled_address_short LIKE '%, кв%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', кв', compiled_address_short)-1)
-				END			
+			END
 		) AS address,
 		#кол-во воды к клиенту
 		(
@@ -732,7 +742,7 @@ FROM
 			WHERE route_list_addresses.order_id = oldo.id),
 			'Не в МЛ'
 		) AS driver,
-		#время звонка водителя, если стаус старого заказа подходит для существования МЛ
+		#время звонка водителя, если статус старого заказа подходит для существования МЛ
 		(
 			IF(
 				un.undelivered_order_status IN('NewOrder','WaitForPayment','Accepted'),
