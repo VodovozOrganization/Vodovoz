@@ -239,9 +239,9 @@ namespace Vodovoz
 			entryBottlesToReturn.ValidationMode = ValidationType.numeric;
 			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
-			entryBottlesToReturn.ValidationMode = ValidationType.numeric;
 			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
 			yChkActionBottle.Toggled += YChkActionBottle_Toggled;
+			yEntTareActBtlFromClient.ValidationMode = ValidationType.numeric;
 			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount , w => w.Text , new IntToStringValuableConverter()).InitializeFromSource();
 			yEntTareActBtlFromClient.Changed += OnYEntTareActBtlFromClientChanged;
 

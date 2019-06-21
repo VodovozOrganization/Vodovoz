@@ -21,7 +21,7 @@
 	docs.doc_date,
 	docs.doc_payment_type,
 	IFNULL(docs.delivery_point_id, '0') AS delivery_point_id,
-	docs.delivery_point_address,
+	IFNULL(docs.delivery_point_address, 'Самовывоз') AS delivery_point_address,
 	docs.doc_name,
 	docs.doc_status,
 	CASE
@@ -708,7 +708,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="BottleStock">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     IFNULL(bottles_by_stock_actual_count , 0 ) AS bottle_by_stock ,
@@ -724,7 +724,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -2154,7 +2154,7 @@ ____________(                        )
           <FontWeight>Bold</FontWeight>
           <TextAlign>Right</TextAlign>
         </Style>
-        <Visibility >
+        <Visibility>
           <Hidden>=!{?show_stock_bottle}</Hidden>
         </Visibility>
       </Textbox>
@@ -2171,9 +2171,9 @@ ____________(                        )
           <BorderWidth />
           <TextAlign>Left</TextAlign>
           <FontWeight>Bold</FontWeight>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
-        <Visibility >
+        <Visibility>
           <Hidden>=!{?show_stock_bottle}</Hidden>
         </Visibility>
       </Textbox>

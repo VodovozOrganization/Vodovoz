@@ -3191,8 +3191,9 @@ namespace Vodovoz.Domain.Orders
 									.Sum(item => item.ActualCount.Value);
 
 			int forfeitId = standartNomenclatures.GetForfeitId();
-			int forfeitCount = OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
-																	   .Select(arg => arg.ActualCount.Value).Sum();
+			int forfeitCount = OrderItems.Where(i => i.Nomenclature.Id == forfeitId)
+										 .Select(i => i.ActualCount.Value)
+										 .Sum();
 
 			if(amountDelivered != 0 || ReturnedTare > 0 || forfeitCount > 0) {
 				if(BottlesMovementOperation == null) {

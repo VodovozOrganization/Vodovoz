@@ -11,6 +11,8 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repository;
+using Vodovoz.Repository.Operations;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Documents
@@ -199,6 +201,26 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		public virtual void UpdateReceptions(IUnitOfWork uow, IList<GoodsReceptionVMNode> bottlesReceptions, IList<GoodsReceptionVMNode> goodsReceptions)
+		{
+			if(Warehouse != null && Warehouse.CanReceiveBottles) {
+				int bottlesReturned = 0;
+				foreach(GoodsReceptionVMNode item in bottlesReceptions) {
+					UpdateReturnedOperation(uow, item.NomenclatureId, item.Amount);
+					var defBottle = NomenclatureRepository.GetDefaultBottle(uow);
+					if(item.NomenclatureId == defBottle.Id)
+						bottlesReturned = item.Amount;
+				}
+				var emptyBottlesAlreadyReturned = BottlesRepository.GetEmptyBottlesFromClientByOrder(uow, Order, Id);
+				Order.ReturnedTare = emptyBottlesAlreadyReturned + bottlesReturned;
+			}
+
+			if(Warehouse != null && Warehouse.CanReceiveEquipment)
+				foreach(GoodsReceptionVMNode item in goodsReceptions) {
+					UpdateReturnedOperation(uow, item.NomenclatureId, item.Amount);
+				}
+		}
+
 		public virtual void UpdateReturnedOperations(IUnitOfWork uow, Dictionary<int, decimal> returnedNomenclatures)
 		{
 			foreach(var returned in returnedNomenclatures) {
@@ -206,7 +228,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateReturnedOperation(IUnitOfWork uow, int returnedNomenclaureId, decimal returnedNomenclaureQuantity)
+		void UpdateReturnedOperation(IUnitOfWork uow, int returnedNomenclaureId, decimal returnedNomenclaureQuantity)
 		{
 			var item = ReturnedItems.FirstOrDefault(x => x.Nomenclature.Id == returnedNomenclaureId);
 			if(item == null && returnedNomenclaureQuantity != 0) {
@@ -225,13 +247,21 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual bool FullyShiped(IUnitOfWork uow , IStandartNomenclatures standartNomenclatures)
+		public virtual bool FullyShiped(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures)
 		{
 			//Проверка текущего документа
-			return Order.TryCloseSelfDeliveryOrder(uow, standartNomenclatures, this );
+			return Order.TryCloseSelfDeliveryOrder(uow, standartNomenclatures, this);
 		}
 
 		#endregion
+	}
+
+	public class GoodsReceptionVMNode
+	{
+		public int NomenclatureId { get; set; }
+		public string Name { get; set; }
+		public int Amount { get; set; }
+		public NomenclatureCategory Category { get; set; }
 	}
 }
 

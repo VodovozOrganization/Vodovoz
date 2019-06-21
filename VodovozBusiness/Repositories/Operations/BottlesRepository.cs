@@ -35,20 +35,40 @@ namespace Vodovoz.Repository.Operations
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
 			var queryResult = UoW.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
-				.Where(() => operationAlias.DeliveryPoint.Id == deliveryPoint.Id);
-			if (before.HasValue)
-				queryResult.Where(() => operationAlias.OperationTime < before);			
-			
-			var bottles =  queryResult.SelectList(list => list
-					.SelectSum(()=>operationAlias.Delivered).WithAlias(()=>result.Delivered)
-					.SelectSum(()=>operationAlias.Returned).WithAlias(()=>result.Returned)
+										 .Where(() => operationAlias.DeliveryPoint == deliveryPoint);
+			if(before.HasValue)
+				queryResult.Where(() => operationAlias.OperationTime < before);
+
+			var bottles = queryResult.SelectList(list => list
+				   .SelectSum(() => operationAlias.Delivered).WithAlias(() => result.Delivered)
+				   .SelectSum(() => operationAlias.Returned).WithAlias(() => result.Returned)
 				)
 				.TransformUsing(Transformers.AliasToBean<BottlesBalanceQueryResult>()).List<BottlesBalanceQueryResult>()
 				.FirstOrDefault()?.BottlesDebt ?? 0;
 			return bottles;
 		}
 
-		public static int GetEmptyBottlesFromClientByOrder(IUnitOfWork uow, Order order)
+		public static int GetBottlesAtCouterpartyAndDeliveryPoint(IUnitOfWork UoW, Counterparty counterparty, DeliveryPoint deliveryPoint, DateTime? before = null)
+		{
+			BottlesMovementOperation operationAlias = null;
+			BottlesBalanceQueryResult result = null;
+			var queryResult = UoW.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
+										 .Where(() => operationAlias.Counterparty == counterparty)
+										 .Where(() => operationAlias.DeliveryPoint == deliveryPoint);
+			if(before.HasValue)
+				queryResult.Where(() => operationAlias.OperationTime < before);
+
+			var bottles = queryResult.SelectList(list => list
+				   .SelectSum(() => operationAlias.Delivered).WithAlias(() => result.Delivered)
+				   .SelectSum(() => operationAlias.Returned).WithAlias(() => result.Returned)
+				)
+				.TransformUsing(Transformers.AliasToBean<BottlesBalanceQueryResult>()).List<BottlesBalanceQueryResult>()
+				.FirstOrDefault()?
+				.BottlesDebt ?? 0;
+			return bottles;
+		}
+
+		public static int GetEmptyBottlesFromClientByOrder(IUnitOfWork uow, Order order, int? excludeDocument = null)
 		{
 			var routeListItems = uow.Session.QueryOver<RouteListItem>()
 			                        .Where(rli => rli.Order == order)
@@ -58,12 +78,17 @@ namespace Vodovoz.Repository.Operations
 
 			var defBottle = NomenclatureRepository.GetDefaultBottle(uow);
 			SelfDeliveryDocument selfDeliveryDocumentAlias = null;
-			var bttls = uow.Session.QueryOver<SelfDeliveryDocumentReturned>()
-			               .Left.JoinAlias(d => d.Document, () => selfDeliveryDocumentAlias)
-			               .Where(() => selfDeliveryDocumentAlias.Order == order)
-			               .Where(r => r.Nomenclature == defBottle)
-			               .Select(Projections.Sum<SelfDeliveryDocumentReturned>(s => s.Amount))
-			               .SingleOrDefault<Decimal>();
+
+			var query = uow.Session.QueryOver<SelfDeliveryDocumentReturned>()
+								   .Left.JoinAlias(d => d.Document, () => selfDeliveryDocumentAlias)
+								   .Where(() => selfDeliveryDocumentAlias.Order == order)
+								   .Where(r => r.Nomenclature == defBottle);
+
+			if(excludeDocument.HasValue && excludeDocument.Value > 0)
+				query.Where(() => selfDeliveryDocumentAlias.Id != excludeDocument.Value);
+
+			var bttls = query.Select(Projections.Sum<SelfDeliveryDocumentReturned>(s => s.Amount))
+							 .SingleOrDefault<decimal>();
 			return (int)bttls;
 		}
 
