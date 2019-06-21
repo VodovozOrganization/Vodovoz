@@ -23,6 +23,7 @@ using Vodovoz.ViewModelBased;
 using Vodovoz.Filters.ViewModels;
 using QS.Dialog.GtkUI;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Domain;
 
 namespace Vodovoz
 {

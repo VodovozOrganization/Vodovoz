@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.Employees;
+﻿using QS.Views.GtkUI;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Filters.GtkViews
@@ -6,10 +7,9 @@ namespace Vodovoz.Filters.GtkViews
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EmployeeFilterView : FilterViewBase<EmployeeFilterViewModel>
 	{
-		public EmployeeFilterView(EmployeeFilterViewModel viewModel)
+		public EmployeeFilterView(EmployeeFilterViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			ViewModel = viewModel;
 			ConfigureDlg();
 		}
 

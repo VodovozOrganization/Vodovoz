@@ -15,6 +15,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Repositories.Client;
 using QS.Project.Repositories;
 using Vodovoz.ViewModelBased;
+using QS.Project.Domain;
 
 namespace Vodovoz
 {

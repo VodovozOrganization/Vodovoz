@@ -17,6 +17,7 @@ using QS.DomainModel.Config;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Cash;
 using QS.DomainModel.NotifyChange;
+using QS.Project.Domain;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {

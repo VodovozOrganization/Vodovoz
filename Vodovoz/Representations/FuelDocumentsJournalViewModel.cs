@@ -11,11 +11,12 @@ using QS.DomainModel.UoW;
 using Gamma.ColumnConfig;
 using NHibernate.Transform;
 using Vodovoz.Dialogs.Fuel;
-using Vodovoz.ViewModelBased;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.EntityRepositories.Subdivisions;
 using NHibernate.Criterion;
 using Vodovoz.EntityRepositories.Fuel;
+using QS.Services;
+using QS.Project.Domain;
 
 namespace Vodovoz.Representations
 {

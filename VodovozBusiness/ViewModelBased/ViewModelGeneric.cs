@@ -5,6 +5,7 @@ using System.Data.Bindings.Utilities;
 using System.Linq.Expressions;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 
 namespace Vodovoz.ViewModelBased
 {

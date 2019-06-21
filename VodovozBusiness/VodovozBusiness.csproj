@@ -592,7 +592,6 @@
     <Compile Include="ViewModelBased\DelegateCommand.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
     <Compile Include="ViewModelBased\ViewModelGeneric.cs" />
-    <Compile Include="ViewModelBased\EntityConstructorParam.cs" />
     <Compile Include="Filters\IncomeFilter.cs" />
     <Compile Include="Filters\ExpenseFilter.cs" />
     <Compile Include="Domain\Fuel\FuelIncomeInvoice.cs" />

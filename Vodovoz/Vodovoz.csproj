@@ -1141,32 +1141,14 @@
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
     <Compile Include="Dialogs\OrderWidgets\PromotionalSetDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderWidgets.PromotionalSetDlg.cs" />
-    <Compile Include="Infrastructure\ViewModels\ViewModelBase.cs" />
-    <Compile Include="Infrastructure\ViewModels\TabViewModelBase.cs" />
-    <Compile Include="Infrastructure\ViewModels\WidgetViewModelBase.cs" />
-    <Compile Include="Infrastructure\ViewModels\WindowViewModelBase.cs" />
-    <Compile Include="Infrastructure\ViewModels\UoWTabViewModelBase.cs" />
-    <Compile Include="Infrastructure\ViewModels\EntityTabViewModelBase.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTransferDocumentView.cs" />
     <Compile Include="Filters\ViewModels\EmployeeFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\EmployeeFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeFilterView.cs" />
-    <Compile Include="Filters\FilterViewModelBase.cs" />
-    <Compile Include="Filters\GtkViews\FilterViewBase.cs" />
-    <Compile Include="Infrastructure\Views\TabViewBase.cs" />
+    <Compile Include="Filters\RepresentationFilterViewModelBase.cs" />
     <Compile Include="Infrastructure\Converters\DecimalToStringConverter.cs" />
-    <Compile Include="Infrastructure\Services\ICommonServices.cs" />
-    <Compile Include="Infrastructure\Services\IValidationService.cs" />
-    <Compile Include="Infrastructure\Services\IInteractiveService.cs" />
-    <Compile Include="Infrastructure\Services\ValidationService.cs" />
     <Compile Include="ServicesConfig.cs" />
-    <Compile Include="Infrastructure\Services\CommonServices.cs" />
-    <Compile Include="Infrastructure\Services\InteractiveService.cs" />
-    <Compile Include="Infrastructure\Services\IPermissionService.cs" />
-    <Compile Include="Infrastructure\Services\PermissionService.cs" />
-    <Compile Include="Infrastructure\Services\IUserService.cs" />
-    <Compile Include="Infrastructure\Services\UserService.cs" />
     <Compile Include="Infrastructure\Services\IEmployeeService.cs" />
     <Compile Include="Infrastructure\Services\EmployeeService.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
@@ -1180,7 +1162,6 @@
     <Compile Include="Dialogs\Fuel\FuelBalanceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelBalanceView.cs" />
     <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
-    <Compile Include="Infrastructure\ViewModels\UoWWidgetViewModelBase.cs" />
     <Compile Include="SidePanel\InfoViews\CallTaskPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CallTaskPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICallTaskProvider.cs" />
@@ -1198,10 +1179,24 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.FuelConsumptionReport.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCloseDeliveryReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCloseDeliveryReport.cs" />
+    <Compile Include="Infrastructure\Services\InteractiveService.cs" />
+    <Compile Include="JournalViewModels\OrderJournalViewModel.cs" />
+    <Compile Include="Filters\GtkViews\OrderFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderFilterView.cs" />
+    <Compile Include="Filters\ViewModels\OrderJournalFilterViewModel.cs" />
+    <Compile Include="Infrastructure\Converters\NullToBooleanConverter.cs" />
+    <Compile Include="Infrastructure\Converters\NullableBooleanToBooleanConverter.cs" />
+    <Compile Include="JournalNodes\OrderJournalNode.cs" />
+    <Compile Include="JournalColumnsConfigs\JournalsColumnsConfigs.cs" />
     <Compile Include="ViewWidgets\PermissionCommentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PermissionCommentView.cs" />
     <Compile Include="ReportsParameters\Bottles\ProfitabilityBottlesByStockReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ProfitabilityBottlesByStockReport.cs" />
+    <Compile Include="JournalViewModels\CounterpartyJournalViewModel.cs" />
+    <Compile Include="Filters\ViewModels\CounterpartyJournalFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\CounterpartyFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CounterpartyFilterView.cs" />
+    <Compile Include="JournalNodes\CounterpartyJournalNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1400,11 +1395,13 @@
     <Folder Include="Filters\" />
     <Folder Include="Filters\GtkViews\" />
     <Folder Include="Filters\ViewModels\" />
-    <Folder Include="Infrastructure\Views\" />
     <Folder Include="Infrastructure\Converters\" />
     <Folder Include="Infrastructure\Services\" />
     <Folder Include="Infrastructure\Journal\" />
     <Folder Include="ReportsParameters\Bookkeeping\" />
+    <Folder Include="JournalViewModels\" />
+    <Folder Include="JournalNodes\" />
+    <Folder Include="JournalColumnsConfigs\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

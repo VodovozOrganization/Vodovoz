@@ -16,6 +16,7 @@ using Vodovoz.Repository.Client;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModelBased;
 using QS.DomainModel.NotifyChange;
+using QS.Project.Domain;
 
 namespace Vodovoz.SidePanel.InfoViews
 {

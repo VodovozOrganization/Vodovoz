@@ -23,6 +23,7 @@ using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Domain;
 using QS.Project.Repositories;
 using QS.Report;
 using QS.Tdi;

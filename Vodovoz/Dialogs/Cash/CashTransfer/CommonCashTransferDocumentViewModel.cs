@@ -9,6 +9,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModelBased;
 using Vodovoz.Repository.Cash;
 using QS.DomainModel.NotifyChange;
+using QS.Project.Domain;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {

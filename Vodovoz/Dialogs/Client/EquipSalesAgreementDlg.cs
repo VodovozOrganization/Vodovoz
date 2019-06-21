@@ -4,6 +4,7 @@ using Gamma.GtkWidgets;
 using NLog;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Repositories;
 using QSOrmProject;
 using QSValidation;
