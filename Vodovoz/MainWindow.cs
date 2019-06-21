@@ -42,6 +42,9 @@ using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
+using Vodovoz.Filters.ViewModels;
+using QS.DomainModel.Config;
+using Vodovoz.JournalViewModels;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -361,11 +364,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
-		var button = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"]
-			? Buttons.All
-			: (Buttons.Add | Buttons.Edit);
-		var refWin = new PermissionControlledRepresentationJournal(new CounterpartyVM(), button);
-		tdiMain.AddTab(refWin);
+		CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
+		var counterpartyJournal = new CounterpartyJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices);
+
+		tdiMain.AddTab(counterpartyJournal);
 	}
 
 	protected void OnActionEMailTypesActivated(object sender, EventArgs e)
