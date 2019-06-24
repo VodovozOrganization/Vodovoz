@@ -27,7 +27,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
-			this.label1.Xalign = 0.02F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Постановка задачи:</b>");
 			this.label1.UseMarkup = true;
 			this.vbox2.Add(this.label1);

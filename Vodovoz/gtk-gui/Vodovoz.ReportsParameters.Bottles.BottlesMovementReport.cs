@@ -31,8 +31,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
-			this.label1.Xalign = 1F;
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
 			this.hbox1.Add(this.label1);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.label1]));
 			w1.Position = 0;

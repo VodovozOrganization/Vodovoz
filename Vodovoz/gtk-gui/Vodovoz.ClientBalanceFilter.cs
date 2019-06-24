@@ -8,11 +8,11 @@ namespace Vodovoz
 
 		private global::Gtk.CheckButton checkIncludeSold;
 
-		private global::QSOrmProject.EntryReferenceVM entryreferenceClient;
+		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferenceClient;
 
 		private global::QSOrmProject.EntryReference entryreferenceNomenclature;
 
-		private global::QSOrmProject.EntryReferenceVM entryreferencePoint;
+		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferencePoint;
 
 		private global::Gtk.Label label1;
 
@@ -44,17 +44,15 @@ namespace Vodovoz
 			w1.BottomAttach = ((uint)(2));
 			w1.LeftAttach = ((uint)(1));
 			w1.RightAttach = ((uint)(2));
-			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferenceClient = new global::QSOrmProject.EntryReferenceVM();
+			this.entryreferenceClient = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.entryreferenceClient.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferenceClient.Name = "entryreferenceClient";
 			this.table1.Add(this.entryreferenceClient);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferenceClient]));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.entryreferenceNomenclature = new global::QSOrmProject.EntryReference();
@@ -69,7 +67,7 @@ namespace Vodovoz
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferencePoint = new global::QSOrmProject.EntryReferenceVM();
+			this.entryreferencePoint = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.entryreferencePoint.Sensitive = false;
 			this.entryreferencePoint.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferencePoint.Name = "entryreferencePoint";
@@ -111,7 +109,8 @@ namespace Vodovoz
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

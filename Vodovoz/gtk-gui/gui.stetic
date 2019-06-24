@@ -27,7 +27,7 @@
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
     <widget-library name="../../../VodovozService/EmailService/bin/Debug/Email.dll" />
     <widget-library name="../../../QSProjects/QS.Project.Gtk/bin/Debug/QS.Project.Gtk.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -15812,7 +15812,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ClientBalanceFilter" design-size="696 76">
+  <widget class="Gtk.Bin" id="Vodovoz.ClientBalanceFilter" design-size="666 60">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -15841,9 +15841,8 @@
             <property name="LeftAttach">1</property>
             <property name="RightAttach">2</property>
             <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
+            <property name="XExpand">True</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -15852,7 +15851,7 @@
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="entryreferenceClient">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryreferenceClient">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnEntryreferenceClientChanged" />
@@ -15861,9 +15860,8 @@
             <property name="LeftAttach">1</property>
             <property name="RightAttach">2</property>
             <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
+            <property name="XExpand">True</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -15894,7 +15892,7 @@
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="entryreferencePoint">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryreferencePoint">
             <property name="MemberName" />
             <property name="Sensitive">False</property>
             <property name="Events">ButtonPressMask</property>
@@ -16037,7 +16035,7 @@
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="entryEmployee">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryEmployee">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnEntryEmployeeChanged" />
@@ -16254,9 +16252,8 @@
             <property name="LeftAttach">3</property>
             <property name="RightAttach">4</property>
             <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
+            <property name="XExpand">True</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -16265,7 +16262,7 @@
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="entryreferencePoint">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryreferencePoint">
             <property name="MemberName" />
             <property name="Sensitive">False</property>
             <property name="Events">ButtonPressMask</property>
@@ -16276,9 +16273,8 @@
             <property name="LeftAttach">3</property>
             <property name="RightAttach">4</property>
             <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
+            <property name="XExpand">True</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -16423,9 +16419,8 @@
             <property name="LeftAttach">3</property>
             <property name="RightAttach">4</property>
             <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
+            <property name="XExpand">True</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -24049,9 +24044,8 @@
             <property name="LeftAttach">3</property>
             <property name="RightAttach">4</property>
             <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
+            <property name="XExpand">True</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -24060,7 +24054,7 @@
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="entryreferenceClient">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryreferenceClient">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnEntryreferenceClientChanged" />
@@ -24082,7 +24076,7 @@
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="entryreferencePoint">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryreferencePoint">
             <property name="MemberName" />
             <property name="Sensitive">False</property>
             <property name="Events">ButtonPressMask</property>
@@ -24094,9 +24088,8 @@
             <property name="LeftAttach">3</property>
             <property name="RightAttach">4</property>
             <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
+            <property name="XExpand">True</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -54757,7 +54750,7 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="QSOrmProject.EntryReferenceVM" id="entryreferencevm1">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryreferencevm1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -58886,7 +58879,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.ReportForBigClient" design-size="318 300">
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.ReportForBigClient" design-size="353 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -58917,6 +58910,7 @@ not tooltip</property>
             <property name="Type">TextOnly</property>
             <property name="Label" translatable="yes">Сформировать отчет</property>
             <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonRunClicked" />
           </widget>
           <packing>
             <property name="TopAttach">5</property>
@@ -58940,6 +58934,7 @@ not tooltip</property>
             <property name="Events">ButtonPressMask</property>
             <property name="StartDate">0</property>
             <property name="EndDate">0</property>
+            <signal name="PeriodChanged" handler="OnDateperiodpicker1PeriodChanged" />
           </widget>
           <packing>
             <property name="LeftAttach">1</property>
@@ -59018,6 +59013,7 @@ not tooltip</property>
           <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceCounterparty">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
+            <signal name="Changed" handler="OnReferenceCounterpartyChanged" />
           </widget>
           <packing>
             <property name="TopAttach">1</property>
@@ -60679,7 +60675,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="refClient">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="refClient">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnRefClientChanged" />
@@ -60700,7 +60696,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="refDeliveryPoint">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="refDeliveryPoint">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnRefDeliveryPointChanged" />
@@ -63544,7 +63540,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="yEntryRefDriver">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yEntryRefDriver">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
@@ -69474,7 +69470,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.CertificateDlg" design-size="630 253">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.CertificateDlg" design-size="774 253">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -69720,7 +69716,6 @@ not tooltip</property>
                         <property name="ShowSpecialStateNot">True</property>
                         <property name="UseShortTitle">False</property>
                         <property name="DefaultFirst">False</property>
-                        <signal name="ChangedByUser" handler="OnYEnumCmbTypeChangedByUser" />
                       </widget>
                       <packing>
                         <property name="TopAttach">1</property>
@@ -71955,7 +71950,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="entryreferenceClient">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryreferenceClient">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="ChangedByUser" handler="OnEntryreferenceClientChanged" />
@@ -71975,7 +71970,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="entryreferenceDeliveryPoint">
+          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="entryreferenceDeliveryPoint">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="ChangedByUser" handler="OnEntryreferenceDeliveryPointChangedByUser" />

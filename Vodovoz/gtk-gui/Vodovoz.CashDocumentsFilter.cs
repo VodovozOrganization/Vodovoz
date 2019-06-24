@@ -10,7 +10,7 @@ namespace Vodovoz
 
 		private global::QSWidgetLib.DatePeriodPicker dateperiodDocs;
 
-		private global::QSOrmProject.EntryReferenceVM entryEmployee;
+		private global::QS.Widgets.GtkUI.RepresentationEntry entryEmployee;
 
 		private global::Gamma.Widgets.yEnumComboBox enumcomboDocumentType;
 
@@ -66,7 +66,7 @@ namespace Vodovoz
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryEmployee = new global::QSOrmProject.EntryReferenceVM();
+			this.entryEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.entryEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.entryEmployee.Name = "entryEmployee";
 			this.table1.Add(this.entryEmployee);
