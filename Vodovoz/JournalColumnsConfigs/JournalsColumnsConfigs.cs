@@ -14,7 +14,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		public static void RegisterColumns()
 		{
 			//OrderJournalViewModel
-			TreeViewColumnsConfigFactory.Register<OrderJournalViewModel>(FluentColumnsConfig<OrderJournalNode>.Create()
+			TreeViewColumnsConfigFactory.Register<OrderJournalViewModel>(() => FluentColumnsConfig<OrderJournalNode>.Create()
 				.AddColumn("Номер").SetDataProperty(node => node.Id.ToString())
 				.AddColumn("Дата").SetDataProperty(node => node.Date.ToString("d"))
 				.AddColumn("Автор").SetDataProperty(node => node.Author)
@@ -34,7 +34,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.Finish());
 
 			//CounterpartyJournalViewModel
-			TreeViewColumnsConfigFactory.Register<CounterpartyJournalViewModel>(FluentColumnsConfig<CounterpartyJournalNode>.Create()
+			TreeViewColumnsConfigFactory.Register<CounterpartyJournalViewModel>(() => FluentColumnsConfig<CounterpartyJournalNode>.Create()
 			.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
 			.AddColumn("Вн.номер").AddTextRenderer(x => x.InternalId.ToString())
 			.AddColumn("Тег").AddTextRenderer(x => x.Tags, useMarkup: true)
