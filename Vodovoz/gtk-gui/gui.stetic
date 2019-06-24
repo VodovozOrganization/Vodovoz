@@ -26,8 +26,11 @@
     <widget-library name="../../../QSProjects/QS.HistoryLog.Gtk/bin/Debug/QS.HistoryLog.Gtk.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
     <widget-library name="../../../VodovozService/EmailService/bin/Debug/Email.dll" />
+    <widget-library name="../../../QSProjects/QS.Project/bin/Debug/QS.Project.dll" />
+    <widget-library name="../../../QSProjects/QS.Report/bin/Debug/QS.Report.dll" />
     <widget-library name="../../../QSProjects/QS.Project.Gtk/bin/Debug/QS.Project.Gtk.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../../../QSProjects/QS.HistoryLog/bin/Debug/QS.HistoryLog.dll" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -23861,7 +23864,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrdersFilter" design-size="730 97">
+  <widget class="Gtk.Bin" id="Vodovoz.OrdersFilter" design-size="995 105">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
