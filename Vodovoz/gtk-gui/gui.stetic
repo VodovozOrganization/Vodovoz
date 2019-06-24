@@ -7835,6 +7835,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -8210,6 +8211,50 @@
                             <property name="AutoSize">False</property>
                             <property name="YOptions">Fill</property>
                             <property name="XExpand">True</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="QS.Widgets.GtkUI.EntityViewModelEntry" id="entryMainCounterparty">
+                            <property name="MemberName" />
+                            <property name="Events">ButtonPressMask</property>
+                            <property name="CanEditReference">False</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">5</property>
+                            <property name="BottomAttach">6</property>
+                            <property name="LeftAttach">1</property>
+                            <property name="RightAttach">4</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="QS.Widgets.GtkUI.EntityViewModelEntry" id="entryPreviousCounterparty">
+                            <property name="MemberName" />
+                            <property name="Events">ButtonPressMask</property>
+                            <property name="CanEditReference">False</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">6</property>
+                            <property name="BottomAttach">7</property>
+                            <property name="LeftAttach">1</property>
+                            <property name="RightAttach">4</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
                             <property name="XFill">True</property>
                             <property name="XShrink">False</property>
                             <property name="YExpand">False</property>
@@ -8763,50 +8808,6 @@
                             <property name="LeftAttach">3</property>
                             <property name="RightAttach">4</property>
                             <property name="AutoSize">False</property>
-                            <property name="XOptions">Fill</property>
-                            <property name="YOptions">Fill</property>
-                            <property name="XExpand">False</property>
-                            <property name="XFill">True</property>
-                            <property name="XShrink">False</property>
-                            <property name="YExpand">False</property>
-                            <property name="YFill">True</property>
-                            <property name="YShrink">False</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referenceMainCounterparty">
-                            <property name="MemberName" />
-                            <property name="Events">ButtonPressMask</property>
-                            <signal name="ChangedByUser" handler="OnReferenceMainCounterpartyChangedByUser" />
-                          </widget>
-                          <packing>
-                            <property name="TopAttach">5</property>
-                            <property name="BottomAttach">6</property>
-                            <property name="LeftAttach">1</property>
-                            <property name="RightAttach">4</property>
-                            <property name="AutoSize">True</property>
-                            <property name="XOptions">Fill</property>
-                            <property name="YOptions">Fill</property>
-                            <property name="XExpand">False</property>
-                            <property name="XFill">True</property>
-                            <property name="XShrink">False</property>
-                            <property name="YExpand">False</property>
-                            <property name="YFill">True</property>
-                            <property name="YShrink">False</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="referencePreviousCounterparty">
-                            <property name="MemberName" />
-                            <property name="Events">ButtonPressMask</property>
-                            <signal name="ChangedByUser" handler="OnReferencePreviousCounterpartyChangedByUser" />
-                          </widget>
-                          <packing>
-                            <property name="TopAttach">6</property>
-                            <property name="BottomAttach">7</property>
-                            <property name="LeftAttach">1</property>
-                            <property name="RightAttach">4</property>
-                            <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
                             <property name="XExpand">False</property>
@@ -9744,7 +9745,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox10">
+                  <widget class="Gtk.HBox" id="hbox16">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
@@ -9820,7 +9821,7 @@
                   <placeholder />
                 </child>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox9">
+                  <widget class="Gtk.HBox" id="hbox18">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>

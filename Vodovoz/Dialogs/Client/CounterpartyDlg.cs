@@ -24,6 +24,8 @@ using Vodovoz.Filters.ViewModels;
 using QS.Dialog.GtkUI;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -127,11 +129,10 @@ namespace Vodovoz
 			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
-			var counterpatiesView = new ViewModel.CounterpartyVM(UoW);
-			referenceMainCounterparty.RepresentationModel = counterpatiesView;
-			referenceMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
-			referencePreviousCounterparty.RepresentationModel = counterpatiesView;
-			referencePreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
+			entryMainCounterparty.SetEntitySelectorFactory(new DefaultEntitySelectorFactory<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entryPreviousCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
+			entryPreviousCounterparty.SetEntitySelectorFactory(new DefaultEntitySelectorFactory<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entryPreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
 
 			//Setting subjects
 			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account>(UoWGeneric, c => c.Accounts);
@@ -326,7 +327,7 @@ namespace Vodovoz
 			labelFIO.Visible = entryFIO.Visible = Entity.PersonType == PersonType.natural;
 			labelShort.Visible = datalegalname1.Visible =
 					labelFullName.Visible = entryFullName.Visible =
-					referenceMainCounterparty.Visible = labelMainCounterparty.Visible =
+					entryMainCounterparty.Visible = labelMainCounterparty.Visible =
 						radioDetails.Visible = radiobuttonProxies.Visible = lblPaymentType.Visible =
 							enumPayment.Visible = (Entity.PersonType == PersonType.legal);
 		}
