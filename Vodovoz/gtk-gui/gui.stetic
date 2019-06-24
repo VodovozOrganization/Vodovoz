@@ -24065,10 +24065,10 @@
           </packing>
         </child>
         <child>
-          <widget class="QS.Widgets.GtkUI.EntityViewModelEntry" id="entryClient">
+          <widget class="QSOrmProject.EntryReferenceVM" id="entryreferenceClient">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
-            <property name="CanEditReference">False</property>
+            <signal name="Changed" handler="OnEntryreferenceClientChanged" />
           </widget>
           <packing>
             <property name="TopAttach">1</property>
