@@ -1,21 +1,21 @@
 ﻿using System;
 using NHibernate;
-using QS.DomainModel.Config;
-using QS.Project.Journal;
-using QS.Services;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Sale;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using QS.DomainModel.Config;
+using QS.Project.Journal;
+using QS.Services;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repository;
 using Vodovoz.JournalNodes;
+using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -56,7 +56,7 @@ namespace Vodovoz.JournalViewModels
 
 		protected override Func<IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => () => {
 
-			Nomenclature sanitizationNomenclature = NomenclatureRepository.GetSanitisationNomenclature(UoW);
+			Nomenclature sanitizationNomenclature = new NomenclatureRepository().GetSanitisationNomenclature(UoW);
 
 			var query = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
