@@ -1644,7 +1644,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -7835,7 +7834,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -23873,7 +23871,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrdersFilter" design-size="732 97">
+  <widget class="Gtk.Bin" id="Vodovoz.OrdersFilter" design-size="981 105">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -24067,10 +24065,10 @@
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReferenceVM" id="entryreferenceClient">
+          <widget class="QS.Widgets.GtkUI.EntityViewModelEntry" id="entryClient">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
-            <signal name="Changed" handler="OnEntryreferenceClientChanged" />
+            <property name="CanEditReference">False</property>
           </widget>
           <packing>
             <property name="TopAttach">1</property>
@@ -79843,6 +79841,28 @@ not tooltip</property>
           </packing>
         </child>
         <child>
+          <widget class="QS.Widgets.GtkUI.EntityViewModelEntry" id="entryCounterparty">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+            <property name="CanEditReference">False</property>
+          </widget>
+          <packing>
+            <property name="TopAttach">1</property>
+            <property name="BottomAttach">2</property>
+            <property name="LeftAttach">1</property>
+            <property name="RightAttach">2</property>
+            <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
           <widget class="Gamma.Widgets.yEnumComboBox" id="enumcomboPaymentType">
             <property name="MemberName" />
             <property name="IsTextCombo">False</property>
@@ -80085,27 +80105,6 @@ not tooltip</property>
           <packing>
             <property name="LeftAttach">2</property>
             <property name="RightAttach">3</property>
-            <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
-            <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
-            <property name="XFill">True</property>
-            <property name="XShrink">False</property>
-            <property name="YExpand">False</property>
-            <property name="YFill">True</property>
-            <property name="YShrink">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="representationentryCounterparty">
-            <property name="MemberName" />
-            <property name="Events">ButtonPressMask</property>
-          </widget>
-          <packing>
-            <property name="TopAttach">1</property>
-            <property name="BottomAttach">2</property>
-            <property name="LeftAttach">1</property>
-            <property name="RightAttach">2</property>
             <property name="AutoSize">True</property>
             <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>

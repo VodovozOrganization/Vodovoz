@@ -1,9 +1,11 @@
 ﻿using System;
+using QS.Project.Journal.EntitySelector;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -24,8 +26,8 @@ namespace Vodovoz.Filters.GtkViews
 			enumcomboPaymentType.ItemsEnum = typeof(PaymentType);
 			enumcomboPaymentType.Binding.AddBinding(ViewModel, vm => vm.RestrictPaymentType, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			representationentryCounterparty.RepresentationModel = ViewModel.CounterpartyRepresentationModel;
-			representationentryCounterparty.Binding.AddBinding(ViewModel, vm => vm.RestrictCounterparty, w => w.Subject).InitializeFromSource();
+			entryCounterparty.SetEntitySelectorFactory(new DefaultEntitySelectorFactory<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.RestrictCounterparty, w => w.Subject).InitializeFromSource();
 
 			representationentryDeliveryPoint.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointRepresentationModel, w => w.RepresentationModel).InitializeFromSource();
 			representationentryDeliveryPoint.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointRepresentationModel, w => w.Sensitive, new NullToBooleanConverter()).InitializeFromSource();
