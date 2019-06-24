@@ -31,7 +31,7 @@ namespace Vodovoz.JournalViewers
 		{
 			EmployeesVM employeeVM = new EmployeesVM();
 			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
-			entryreferencevmEmployeeFilter.RepresentationModel = employeeVM;
+			representationentryEmployee.RepresentationModel = employeeVM;
 			calltaskfilterview.Refiltered += (sender, e) => UpdateStatistics();
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
@@ -125,11 +125,11 @@ namespace Vodovoz.JournalViewers
 
 		#region ChangeEntityStateButton
 
-		protected void OnAssignedEmployeeButtonClicked(object sender, EventArgs e) => entryreferencevmEmployeeFilter.OpenSelectDialog("Ответственный :");
+		protected void OnAssignedEmployeeButtonClicked(object sender, EventArgs e) => representationentryEmployee.OpenSelectDialog("Ответственный :");
 
 		protected void OnEntryreferencevmEmployeeFilterChangedByUser(object sender, EventArgs e)
 		{
-			Action<CallTask> action = ((task) => task.AssignedEmployee = entryreferencevmEmployeeFilter.Subject as Employee);
+			Action<CallTask> action = ((task) => task.AssignedEmployee = representationentryEmployee.Subject as Employee);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();
 			callTasksVM.ChangeEnitity(action , tasks);
 		}

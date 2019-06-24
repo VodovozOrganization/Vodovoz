@@ -67,7 +67,7 @@ namespace Vodovoz
 			OnRefiltered();
 		}
 
-		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
+		protected void OnEntryClientChanged(object sender, EventArgs e)
 		{
 			entryreferencePoint.Sensitive = RestrictCounterparty != null;
 			if(RestrictCounterparty == null)

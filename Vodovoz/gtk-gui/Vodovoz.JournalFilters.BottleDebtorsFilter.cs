@@ -8,9 +8,9 @@ namespace Vodovoz.JournalFilters
 
 		private global::Gtk.Button buttonBottleCountOK;
 
-		private global::QSOrmProject.EntryReferenceVM entryreferenceClient;
+		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferenceClient;
 
-		private global::QSOrmProject.EntryReferenceVM entryreferenceDeliveryPoint;
+		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferenceDeliveryPoint;
 
 		private global::Gtk.Label label1;
 
@@ -56,7 +56,7 @@ namespace Vodovoz.JournalFilters
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferenceClient = new global::QSOrmProject.EntryReferenceVM();
+			this.entryreferenceClient = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.entryreferenceClient.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferenceClient.Name = "entryreferenceClient";
 			this.table1.Add(this.entryreferenceClient);
@@ -66,7 +66,7 @@ namespace Vodovoz.JournalFilters
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferenceDeliveryPoint = new global::QSOrmProject.EntryReferenceVM();
+			this.entryreferenceDeliveryPoint = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.entryreferenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferenceDeliveryPoint.Name = "entryreferenceDeliveryPoint";
 			this.table1.Add(this.entryreferenceDeliveryPoint);

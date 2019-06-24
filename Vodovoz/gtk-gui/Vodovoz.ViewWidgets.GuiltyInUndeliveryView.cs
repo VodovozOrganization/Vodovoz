@@ -44,6 +44,7 @@ namespace Vodovoz.ViewWidgets
 			this.enumBtnGuiltySide.Name = "enumBtnGuiltySide";
 			this.enumBtnGuiltySide.UseUnderline = true;
 			this.enumBtnGuiltySide.UseMarkup = false;
+			this.enumBtnGuiltySide.LabelXAlign = 0F;
 			this.enumBtnGuiltySide.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			this.table1.Add(this.enumBtnGuiltySide);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.enumBtnGuiltySide]));

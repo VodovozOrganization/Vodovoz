@@ -274,6 +274,7 @@ namespace Vodovoz
 			this.phonesView = new global::QSContacts.PhonesView();
 			this.phonesView.Events = ((global::Gdk.EventMask)(256));
 			this.phonesView.Name = "phonesView";
+			this.phonesView.IsReadOnly = false;
 			this.datatable1.Add(this.phonesView);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatable1[this.phonesView]));
 			w21.TopAttach = ((uint)(5));
@@ -300,7 +301,8 @@ namespace Vodovoz
 			w23.Expand = false;
 			w23.Fill = false;
 			this.Add(this.datavbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

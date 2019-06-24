@@ -16,7 +16,7 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private global::Gtk.Label label3;
 
-		private global::QSOrmProject.EntryReferenceVM yEntryRefDriver;
+		private global::QS.Widgets.GtkUI.RepresentationEntry yEntryRefDriver;
 
 		private global::Gamma.Widgets.yEnumComboBox yEnumCmbSource;
 
@@ -28,6 +28,7 @@ namespace Vodovoz.ReportsParameters.Store
 			this.Name = "Vodovoz.ReportsParameters.Store.DefectiveItemsReport";
 			// Container child Vodovoz.ReportsParameters.Store.DefectiveItemsReport.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			this.table1.BorderWidth = ((uint)(6));
@@ -88,7 +89,7 @@ namespace Vodovoz.ReportsParameters.Store
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yEntryRefDriver = new global::QSOrmProject.EntryReferenceVM();
+			this.yEntryRefDriver = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.yEntryRefDriver.Events = ((global::Gdk.EventMask)(256));
 			this.yEntryRefDriver.Name = "yEntryRefDriver";
 			this.table1.Add(this.yEntryRefDriver);
