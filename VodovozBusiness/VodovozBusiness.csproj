@@ -635,6 +635,10 @@
     <Compile Include="Domain\Client\CounterpartyActivityKind.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyActivityKindMap.cs" />
     <Compile Include="Services\IPersonProvider.cs" />
+    <Compile Include="EntityRepositories\Operations\BottlesRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\NomenclatureRepository.cs" />
+    <Compile Include="EntityRepositories\Operations\IBottlesRepository.cs" />
+    <Compile Include="EntityRepositories\Goods\INomenclatureRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -679,6 +683,8 @@
     <Folder Include="EntityRepositories\" />
     <Folder Include="EntityRepositories\Subdivisions\" />
     <Folder Include="EntityRepositories\Fuel\" />
+    <Folder Include="EntityRepositories\Operations\" />
+    <Folder Include="EntityRepositories\Goods\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

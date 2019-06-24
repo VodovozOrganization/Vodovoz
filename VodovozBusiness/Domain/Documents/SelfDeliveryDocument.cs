@@ -11,8 +11,8 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using Vodovoz.Repository;
-using Vodovoz.Repository.Operations;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Documents
@@ -201,17 +201,22 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateReceptions(IUnitOfWork uow, IList<GoodsReceptionVMNode> bottlesReceptions, IList<GoodsReceptionVMNode> goodsReceptions)
+		public virtual void UpdateReceptions(IUnitOfWork uow, IList<GoodsReceptionVMNode> bottlesReceptions, IList<GoodsReceptionVMNode> goodsReceptions, INomenclatureRepository nomenclatureRepository, IBottlesRepository bottlesRepository)
 		{
+			if(nomenclatureRepository == null)
+				throw new ArgumentNullException(nameof(nomenclatureRepository));
+			if(bottlesRepository == null)
+				throw new ArgumentNullException(nameof(bottlesRepository));
+
 			if(Warehouse != null && Warehouse.CanReceiveBottles) {
 				int bottlesReturned = 0;
 				foreach(GoodsReceptionVMNode item in bottlesReceptions) {
 					UpdateReturnedOperation(uow, item.NomenclatureId, item.Amount);
-					var defBottle = NomenclatureRepository.GetDefaultBottle(uow);
+					var defBottle = nomenclatureRepository.GetDefaultBottle(uow);
 					if(item.NomenclatureId == defBottle.Id)
 						bottlesReturned = item.Amount;
 				}
-				var emptyBottlesAlreadyReturned = BottlesRepository.GetEmptyBottlesFromClientByOrder(uow, Order, Id);
+				var emptyBottlesAlreadyReturned = bottlesRepository.GetEmptyBottlesFromClientByOrder(uow, nomenclatureRepository, Order, Id);
 				Order.ReturnedTare = emptyBottlesAlreadyReturned + bottlesReturned;
 			}
 
@@ -232,7 +237,7 @@ namespace Vodovoz.Domain.Documents
 		{
 			var item = ReturnedItems.FirstOrDefault(x => x.Nomenclature.Id == returnedNomenclaureId);
 			if(item == null && returnedNomenclaureQuantity != 0) {
-				item = new SelfDeliveryDocumentReturned() {
+				item = new SelfDeliveryDocumentReturned {
 					Amount = returnedNomenclaureQuantity,
 					Document = this,
 					Nomenclature = uow.GetById<Nomenclature>(returnedNomenclaureId)
@@ -264,4 +269,3 @@ namespace Vodovoz.Domain.Documents
 		public NomenclatureCategory Category { get; set; }
 	}
 }
-

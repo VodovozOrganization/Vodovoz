@@ -14,8 +14,9 @@ using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository;
 using Vodovoz.Services;
 
 namespace Vodovoz
@@ -162,7 +163,7 @@ namespace Vodovoz
 			}
 
 			Entity.UpdateOperations(UoW);
-			Entity.UpdateReceptions(UoW, BottlesReceptionList, GoodsReceptionList);
+			Entity.UpdateReceptions(UoW, BottlesReceptionList, GoodsReceptionList, new NomenclatureRepository(), new BottlesRepository());
 
 			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
 			if(Entity.FullyShiped(UoW, standartNomenclatures))
@@ -226,7 +227,7 @@ namespace Vodovoz
 
 		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
-			OrmReference refWin = new OrmReference(NomenclatureRepository.NomenclatureOfGoodsWithoutEmptyBottlesQuery()) {
+			OrmReference refWin = new OrmReference(new NomenclatureRepository().NomenclatureOfGoodsWithoutEmptyBottlesQuery()) {
 				FilterClass = null,
 				Mode = OrmReferenceMode.Select
 			};

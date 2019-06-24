@@ -133,6 +133,7 @@
     <Compile Include="Domain\Payments\PaymentFromTinkoffTests.cs" />
     <Compile Include="Domain\Goods\NomenclatureTests.cs" />
     <Compile Include="Domain\Documents\CarUnloadDocumentTests.cs" />
+    <Compile Include="Domain\Documents\SelfDeliveryDocumentTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
