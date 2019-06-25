@@ -10,6 +10,7 @@ namespace Vodovoz.JournalNodes
 		public OrderStatus StatusEnum { get; set; }
 
 		public DateTime Date { get; set; }
+		public bool IsSelfDelivery { get; set; }
 		public string DeliveryTime { get; set; }
 		public int BottleAmount { get; set; }
 		public int SanitisationAmount { get; set; }
@@ -25,7 +26,7 @@ namespace Vodovoz.JournalNodes
 
 		public string Address1c { get; set; }
 
-		public string Address => String.Format("{0}, {1} д.{2}", City, Street, Building);
+		public string Address => IsSelfDelivery ? "Самовывоз" : string.Format("{0}, {1} д.{2}", City, Street, Building);
 
 		public string AuthorLastName { get; set; }
 		public string AuthorName { get; set; }
@@ -43,8 +44,18 @@ namespace Vodovoz.JournalNodes
 
 		public int DriverCallId { get; set; }
 
+		public int? OnlineOrder { get; set; }
+		public string OnLineNumber => OnlineOrder?.ToString() ?? string.Empty;
+
 		public decimal? Latitude { get; set; }
 		public decimal? Longitude { get; set; }
+		public string Coordinates {
+			get {
+				if(IsSelfDelivery)
+					return "-";
+				return Latitude.HasValue && Longitude.HasValue ? "Есть" : string.Empty;
+			}
+		}
 
 		public string RowColor {
 			get {

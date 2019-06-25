@@ -158,6 +158,7 @@ namespace Vodovoz.JournalViewModels
 			var resultQuery = query
 				.SelectList(list => list
 				   .Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
+				   .Select(() => orderAlias.SelfDelivery).WithAlias(() => resultAlias.IsSelfDelivery)
 				   .Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
 				   .Select(() => deliveryScheduleAlias.Name).WithAlias(() => resultAlias.DeliveryTime)
 				   .Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
@@ -170,6 +171,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 				   .Select(() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 				   .Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
+				   .Select(() => orderAlias.OnlineOrder).WithAlias(() => resultAlias.OnlineOrder)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 				   .Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
 				   .Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
@@ -181,7 +183,7 @@ namespace Vodovoz.JournalViewModels
 				   .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 				   .SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
 				)
-				.OrderBy(x => x.DeliveryDate).Desc
+				.OrderBy(x => x.CreateDate).Desc
 				.TransformUsing(Transformers.AliasToBean<OrderJournalNode>());
 
 			return resultQuery;
