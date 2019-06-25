@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Dialog.Gtk;
 using QS.DomainModel.Config;
 using QS.Project.Journal;
 using QS.Services;
@@ -15,6 +18,8 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using Vodovoz.JournalViewers;
+using Vodovoz.Repositories;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
@@ -182,12 +187,162 @@ namespace Vodovoz.JournalViewModels
 			return resultQuery;
 		};
 
-		protected override Func<OrderDlg> CreateDialogFunction => () => {
-			return new OrderDlg();
-		};
+		protected override Func<OrderDlg> CreateDialogFunction => () => new OrderDlg();
 
-		protected override Func<OrderJournalNode, OrderDlg> OpenDialogFunction => (node) => {
-			return new OrderDlg(node.Id);
-		};
+		protected override Func<OrderJournalNode, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
+
+		protected override void CreatePopupActions()
+		{
+			PopupActionsList.Add(
+				new JournalAction(
+					"Перейти в маршрутный лист",
+					selectedItems => selectedItems.Any(
+						x => (x as OrderJournalNode).StatusEnum != OrderStatus.Accepted && (x as OrderJournalNode).StatusEnum != OrderStatus.NewOrder
+					),
+					selectedItems => true,
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
+						var addresses = UoW.Session.QueryOver<RouteListItem>()
+							.Where(x => x.Order.Id.IsIn(selectedNodes.Select(n => n.Id).ToArray())).List();
+
+						var routes = addresses.GroupBy(x => x.RouteList.Id);
+
+						var tdiMain = MainClass.MainWin.TdiMain;
+
+						foreach(var route in routes) {
+							tdiMain.OpenTab(
+								DialogHelper.GenerateDialogHashName<RouteList>(route.Key),
+								() => new RouteListKeepingDlg(route.Key, route.Select(x => x.Order.Id).ToArray())
+							);
+						}
+					}
+				)
+			);
+			PopupActionsList.Add(
+				new JournalAction(
+					"Перейти в недовоз",
+					(selectedItems) => selectedItems.Any(o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, (o as OrderJournalNode).Id).Any()),
+					selectedItems => true,
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
+						var order = UoW.GetById<VodovozOrder>(selectedNodes.FirstOrDefault().Id);
+						UndeliveriesView dlg = new UndeliveriesView();
+						dlg.HideFilterAndControls();
+						dlg.GetUndeliveryFilter.SetAndRefilterAtOnce(
+							x => x.ResetFilter(),
+							x => x.RestrictOldOrder = order,
+							x => x.RestrictOldOrderStartDate = order.DeliveryDate,
+							x => x.RestrictOldOrderEndDate = order.DeliveryDate
+						);
+						MainClass.MainWin.TdiMain.AddTab(dlg);
+					}
+				)
+			);
+			PopupActionsList.Add(
+				new JournalAction(
+					"Открыть диалог закрытия",
+					(selectedItems) => selectedItems.Any(x => IsOrderInRouteListStatusEnRouted((x as OrderJournalNode).Id)),
+					selectedItems => true,
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
+						var routeListIds = selectedNodes.Select(x => x.Id).ToArray();
+						var addresses = UoW.Session.QueryOver<RouteListItem>()
+							.Where(x => x.Order.Id.IsIn(routeListIds)).List();
+
+						var routes = addresses.GroupBy(x => x.RouteList.Id);
+						var tdiMain = MainClass.MainWin.TdiMain;
+
+						foreach(var rl in routes) {
+							tdiMain.OpenTab(
+								DialogHelper.GenerateDialogHashName<RouteList>(rl.Key),
+								() => new RouteListClosingDlg(rl.Key)
+							);
+						}
+					}
+				)
+			);
+			PopupActionsList.Add(
+				new JournalAction(
+					"Открыть на Yandex картах(координаты)",
+					selectedItems => true,
+					selectedItems => true,
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
+						foreach(var sel in selectedNodes) {
+							var order = UoW.GetById<VodovozOrder>(sel.Id);
+							if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+								continue;
+
+							System.Diagnostics.Process.Start(
+								string.Format(
+									CultureInfo.InvariantCulture,
+									"https://maps.yandex.ru/?ll={0},{1}&z=17",
+									order.DeliveryPoint.Longitude,
+									order.DeliveryPoint.Latitude
+								)
+							);
+						}
+					}
+				)
+			);
+			PopupActionsList.Add(
+				new JournalAction(
+					"Открыть на Yandex картах(адрес)",
+					selectedItems => true,
+					selectedItems => true,
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
+						foreach(var sel in selectedNodes) {
+							var order = UoW.GetById<VodovozOrder>(sel.Id);
+							if(order.DeliveryPoint == null)
+								continue;
+
+							System.Diagnostics.Process.Start(
+								string.Format(CultureInfo.InvariantCulture,
+									"https://maps.yandex.ru/?text={0} {1} {2}",
+									order.DeliveryPoint.City,
+									order.DeliveryPoint.Street,
+									order.DeliveryPoint.Building
+								)
+							);
+						}
+					}
+				)
+			);
+			PopupActionsList.Add(
+				new JournalAction(
+					"Открыть на карте OSM",
+					selectedItems => true,
+					selectedItems => true,
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
+						foreach(var sel in selectedNodes) {
+							var order = UoW.GetById<VodovozOrder>(sel.Id);
+							if(order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
+								continue;
+
+							System.Diagnostics.Process.Start(string.Format(CultureInfo.InvariantCulture, "http://www.openstreetmap.org/#map=17/{1}/{0}", order.DeliveryPoint.Longitude, order.DeliveryPoint.Latitude));
+						}
+					}
+				)
+			);
+		}
+
+		bool IsOrderInRouteListStatusEnRouted(int orderId)
+		{
+			var orderIdArr = new[] { orderId };
+			var routeListItems = UoW.Session.QueryOver<RouteListItem>()
+						.Where(x => x.Order.Id.IsIn(orderIdArr)).List();
+
+			if(routeListItems.Any()) {
+				foreach(var routeListItem in routeListItems) {
+					if(routeListItem.RouteList.Status >= RouteListStatus.EnRoute)
+						return true;
+					return false;
+				}
+			}
+			return false;
+		}
+
 	}
 }
