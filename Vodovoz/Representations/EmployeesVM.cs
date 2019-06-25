@@ -1,10 +1,10 @@
 ﻿using System;
-using Gamma.Utilities;
 using Gamma.ColumnConfig;
-using Vodovoz.Domain.Employees;
+using Gamma.Utilities;
 using Gtk;
-using QSOrmProject.RepresentationModel;
 using QS.DomainModel.UoW;
+using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.ViewModel
@@ -25,11 +25,12 @@ namespace Vodovoz.ViewModel
 
 			var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
 
-			var filtration = Filter?.GetFilter();
-			if(filtration != null)
-				query.Where(filtration);
+			if(!Filter.ShowFired)
+				query.Where(e => !e.IsFired);
 
-			#region для ускорения редактора
+			if(Filter.Category != null)
+				query.Where(e => e.Category == Filter.Category);
+
 			var result = query
 				.SelectList(list => list
 				   .Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
@@ -38,12 +39,12 @@ namespace Vodovoz.ViewModel
 				   .Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmpLastName)
 				   .Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmpMiddleName)
 				   .Select(() => employeeAlias.Category).WithAlias(() => resultAlias.EmpCatEnum)
-				   ).OrderBy(x => x.LastName).Asc
+				   )
+				.OrderBy(x => x.LastName).Asc
 				.OrderBy(x => x.Name).Asc
 				.OrderBy(x => x.Patronymic).Asc
 				.TransformUsing(NHibernate.Transform.Transformers.AliasToBean<EmployeesVMNode>())
 				.List<EmployeesVMNode>();
-			#endregion
 
 			SetItemsSource(result);
 		}
@@ -80,9 +81,7 @@ namespace Vodovoz.ViewModel
 		}
 
 		public EmployeesVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
-		{
-			CreateRepresentationFilter = () => new EmployeeFilterViewModel(ServicesConfig.CommonServices) { ShowFired = false };
-		}
+		{ }
 
 		public EmployeesVM(IUnitOfWork uow)
 		{

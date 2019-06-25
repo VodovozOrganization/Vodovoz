@@ -439,7 +439,7 @@
 	orders.id AS order_id,
 	orders.delivery_date,
 	counterparty.full_name AS client,
-	delivery_points.compiled_address AS address,
+	IF(orders.self_delivery, 'Самовывоз', delivery_points.compiled_address) AS address,
 	orders.online_order,
 	IF(SUM(IFNULL(actual_count, 0) * price - discount_money)&gt;0, SUM(IFNULL(actual_count, 0) * price - discount_money), 0) AS actual_sum,
 	IF(SUM(count * price - discount_money)&gt;0, SUM(count * price - discount_money), 0) AS sum,

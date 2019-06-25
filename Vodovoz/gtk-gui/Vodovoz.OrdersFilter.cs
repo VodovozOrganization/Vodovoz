@@ -20,9 +20,9 @@ namespace Vodovoz
 
 		private global::QSWidgetLib.DatePeriodPicker dateperiodOrders;
 
-		private global::QSOrmProject.EntryReferenceVM entryreferenceClient;
+		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferenceClient;
 
-		private global::QSOrmProject.EntryReferenceVM entryreferencePoint;
+		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferencePoint;
 
 		private global::Gamma.Widgets.yEnumComboBox enumcomboPaymentType;
 
@@ -45,7 +45,7 @@ namespace Vodovoz
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.OrdersFilter";
 			// Container child Vodovoz.OrdersFilter.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(5)), false);
+			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(6)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -59,10 +59,10 @@ namespace Vodovoz
 			this.checkHideService.UseUnderline = true;
 			this.table1.Add(this.checkHideService);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.checkHideService]));
-			w1.TopAttach = ((uint)(3));
-			w1.BottomAttach = ((uint)(4));
-			w1.LeftAttach = ((uint)(3));
-			w1.RightAttach = ((uint)(4));
+			w1.TopAttach = ((uint)(1));
+			w1.BottomAttach = ((uint)(2));
+			w1.LeftAttach = ((uint)(5));
+			w1.RightAttach = ((uint)(6));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -74,10 +74,10 @@ namespace Vodovoz
 			this.checkLessThreeHours.UseUnderline = true;
 			this.table1.Add(this.checkLessThreeHours);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.checkLessThreeHours]));
-			w2.TopAttach = ((uint)(3));
-			w2.BottomAttach = ((uint)(4));
-			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(2));
+			w2.TopAttach = ((uint)(2));
+			w2.BottomAttach = ((uint)(3));
+			w2.LeftAttach = ((uint)(5));
+			w2.RightAttach = ((uint)(6));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -89,10 +89,8 @@ namespace Vodovoz
 			this.checkOnlySelfDelivery.UseUnderline = true;
 			this.table1.Add(this.checkOnlySelfDelivery);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.checkOnlySelfDelivery]));
-			w3.TopAttach = ((uint)(2));
-			w3.BottomAttach = ((uint)(3));
-			w3.LeftAttach = ((uint)(3));
-			w3.RightAttach = ((uint)(4));
+			w3.LeftAttach = ((uint)(4));
+			w3.RightAttach = ((uint)(5));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -104,8 +102,8 @@ namespace Vodovoz
 			this.checkOnlyService.UseUnderline = true;
 			this.table1.Add(this.checkOnlyService);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.checkOnlyService]));
-			w4.TopAttach = ((uint)(3));
-			w4.BottomAttach = ((uint)(4));
+			w4.TopAttach = ((uint)(1));
+			w4.BottomAttach = ((uint)(2));
 			w4.LeftAttach = ((uint)(4));
 			w4.RightAttach = ((uint)(5));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -119,25 +117,23 @@ namespace Vodovoz
 			this.checkWithoutCoordinates.UseUnderline = true;
 			this.table1.Add(this.checkWithoutCoordinates);
 			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.checkWithoutCoordinates]));
-			w5.TopAttach = ((uint)(3));
-			w5.BottomAttach = ((uint)(4));
-			w5.LeftAttach = ((uint)(2));
-			w5.RightAttach = ((uint)(3));
+			w5.TopAttach = ((uint)(2));
+			w5.BottomAttach = ((uint)(3));
+			w5.LeftAttach = ((uint)(4));
+			w5.RightAttach = ((uint)(5));
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.checkWithoutSelfDelivery = new global::Gtk.CheckButton();
 			this.checkWithoutSelfDelivery.CanFocus = true;
 			this.checkWithoutSelfDelivery.Name = "checkWithoutSelfDelivery";
-			this.checkWithoutSelfDelivery.Label = global::Mono.Unix.Catalog.GetString("Без самовывоза");
+			this.checkWithoutSelfDelivery.Label = global::Mono.Unix.Catalog.GetString("Скрыть самовывозы");
 			this.checkWithoutSelfDelivery.DrawIndicator = true;
 			this.checkWithoutSelfDelivery.UseUnderline = true;
 			this.table1.Add(this.checkWithoutSelfDelivery);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.checkWithoutSelfDelivery]));
-			w6.TopAttach = ((uint)(2));
-			w6.BottomAttach = ((uint)(3));
-			w6.LeftAttach = ((uint)(4));
-			w6.RightAttach = ((uint)(5));
+			w6.LeftAttach = ((uint)(5));
+			w6.RightAttach = ((uint)(6));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -148,24 +144,23 @@ namespace Vodovoz
 			this.dateperiodOrders.EndDate = new global::System.DateTime(0);
 			this.table1.Add(this.dateperiodOrders);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.dateperiodOrders]));
-			w7.LeftAttach = ((uint)(4));
-			w7.RightAttach = ((uint)(5));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.LeftAttach = ((uint)(3));
+			w7.RightAttach = ((uint)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferenceClient = new global::QSOrmProject.EntryReferenceVM();
+			this.entryreferenceClient = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.entryreferenceClient.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferenceClient.Name = "entryreferenceClient";
 			this.table1.Add(this.entryreferenceClient);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferenceClient]));
-			w8.TopAttach = ((uint)(2));
-			w8.BottomAttach = ((uint)(3));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
 			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(3));
+			w8.RightAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferencePoint = new global::QSOrmProject.EntryReferenceVM();
+			this.entryreferencePoint = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.entryreferencePoint.Sensitive = false;
 			this.entryreferencePoint.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferencePoint.Name = "entryreferencePoint";
@@ -173,9 +168,8 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferencePoint]));
 			w9.TopAttach = ((uint)(1));
 			w9.BottomAttach = ((uint)(2));
-			w9.LeftAttach = ((uint)(4));
-			w9.RightAttach = ((uint)(5));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.LeftAttach = ((uint)(3));
+			w9.RightAttach = ((uint)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.enumcomboPaymentType = new global::Gamma.Widgets.yEnumComboBox();
@@ -186,10 +180,10 @@ namespace Vodovoz
 			this.enumcomboPaymentType.DefaultFirst = false;
 			this.table1.Add(this.enumcomboPaymentType);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboPaymentType]));
-			w10.TopAttach = ((uint)(1));
-			w10.BottomAttach = ((uint)(2));
+			w10.TopAttach = ((uint)(2));
+			w10.BottomAttach = ((uint)(3));
 			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(3));
+			w10.RightAttach = ((uint)(2));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -202,7 +196,7 @@ namespace Vodovoz
 			this.table1.Add(this.enumcomboStatus);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboStatus]));
 			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(3));
+			w11.RightAttach = ((uint)(2));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -221,8 +215,8 @@ namespace Vodovoz
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Контрагент:");
 			this.table1.Add(this.label2);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
-			w13.TopAttach = ((uint)(2));
-			w13.BottomAttach = ((uint)(3));
+			w13.TopAttach = ((uint)(1));
+			w13.BottomAttach = ((uint)(2));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -234,8 +228,8 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.label3]));
 			w14.TopAttach = ((uint)(1));
 			w14.BottomAttach = ((uint)(2));
-			w14.LeftAttach = ((uint)(3));
-			w14.RightAttach = ((uint)(4));
+			w14.LeftAttach = ((uint)(2));
+			w14.RightAttach = ((uint)(3));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -245,8 +239,8 @@ namespace Vodovoz
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
 			this.table1.Add(this.label4);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.label4]));
-			w15.LeftAttach = ((uint)(3));
-			w15.RightAttach = ((uint)(4));
+			w15.LeftAttach = ((uint)(2));
+			w15.RightAttach = ((uint)(3));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -256,8 +250,8 @@ namespace Vodovoz
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Тип оплаты:");
 			this.table1.Add(this.label5);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1[this.label5]));
-			w16.TopAttach = ((uint)(1));
-			w16.BottomAttach = ((uint)(2));
+			w16.TopAttach = ((uint)(2));
+			w16.BottomAttach = ((uint)(3));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);

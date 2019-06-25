@@ -6,9 +6,8 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
+using QS.Utilities.Text;
 using QSOrmProject.RepresentationModel;
-using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -99,7 +98,7 @@ namespace Vodovoz.ViewModel
 
 				result.AddRange (invoiceList);
 			}
-		
+
 			if ((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.IncomingWater) && Filter.RestrictDriver == null) {
 				var waterQuery = UoW.Session.QueryOver<IncomingWater>(() => waterAlias);
 				if (Filter.RestrictWarehouse != null)
@@ -213,12 +212,12 @@ namespace Vodovoz.ViewModel
 					.Select (() => DocumentType.WriteoffDocument).WithAlias (() => resultAlias.DocTypeEnum)
 					.Select (Projections.Conditional (
 					                  Restrictions.Where (() => counterpartyAlias.Name == null),
-					                  Projections.Constant (String.Empty, NHibernateUtil.String),
+					                  Projections.Constant (string.Empty, NHibernateUtil.String),
 					                  Projections.Property (() => counterpartyAlias.Name)))
 					.WithAlias (() => resultAlias.Counterparty)
 					.Select (Projections.Conditional (
 					                  Restrictions.Where (() => warehouseAlias.Name == null),
-					                  Projections.Constant (String.Empty, NHibernateUtil.String),
+					                  Projections.Constant (string.Empty, NHibernateUtil.String),
 					                  Projections.Property (() => warehouseAlias.Name)))
 					.WithAlias (() => resultAlias.Warehouse)
 						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
@@ -344,7 +343,8 @@ namespace Vodovoz.ViewModel
 					.JoinAlias (() => selfDeliveryAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => selfDeliveryAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.SelectList (list => list
-						.Select (() => selfDeliveryAlias.Id).WithAlias (() => resultAlias.Id)
+						.Select(() => selfDeliveryAlias.Id).WithAlias(() => resultAlias.Id)
+						.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 						.Select (() => selfDeliveryAlias.TimeStamp).WithAlias (() => resultAlias.Date)
 						.Select (() => DocumentType.SelfDeliveryDocument).WithAlias (() => resultAlias.DocTypeEnum)
 						.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
@@ -465,14 +465,12 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Дата").SetDataProperty (node => node.DateString)
 			.AddColumn ("Автор").SetDataProperty (node => node.Author)
 			.AddColumn ("Изменил").SetDataProperty (node => node.LastEditor)
-			.AddColumn ("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
+			.AddColumn ("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : string.Empty)
 			.AddColumn ("Детали").AddTextRenderer (node => node.Description).SearchHighlight()
 			.AddColumn ("Комментарий").SetDataProperty (node => node.Comment)
 			.Finish ();
 
-		public override IColumnsConfig ColumnsConfig {
-			get { return columnsConfig; }
-		}
+		public override IColumnsConfig ColumnsConfig => columnsConfig;
 
 		#endregion
 
@@ -519,11 +517,11 @@ namespace Vodovoz.ViewModel
 
 		public DocumentType DocTypeEnum { get; set; }
 
-		public string DocTypeString { get { return DocTypeEnum.GetEnumTitle(); } }
+		public string DocTypeString => DocTypeEnum.GetEnumTitle();
 
 		public DateTime Date { get; set; }
 
-		public string DateString { get { return  Date.ToShortDateString () + " " + Date.ToShortTimeString (); } }
+		public string DateString => Date.ToShortDateString() + " " + Date.ToShortTimeString();
 
 		[UseForSearch]
 		public string Description { 
@@ -532,44 +530,64 @@ namespace Vodovoz.ViewModel
 				switch (DocTypeEnum)
 				{
 					case DocumentType.IncomingInvoice:
-						return String.Format("Поставщик: {0}; Склад поступления: {1};", Counterparty, Warehouse);
+						return string.Format("Поставщик: {0}; Склад поступления: {1};", Counterparty, Warehouse);
 					case DocumentType.IncomingWater:
-						return String.Format("Количество: {0}; Склад поступления: {1};", Amount, Warehouse);
+						return string.Format("Количество: {0}; Склад поступления: {1};", Amount, Warehouse);
 					case DocumentType.MovementDocument:
 						if (MDCategory == MovementDocumentCategory.counterparty)
-							return String.Format("\"{0}\" -> \"{1}\"", Counterparty, SecondCounterparty);
+							return string.Format("\"{0}\" -> \"{1}\"", Counterparty, SecondCounterparty);
 						if (MDCategory == MovementDocumentCategory.Transportation)
-							return String.Format("{0} -> {1}{2} - {3}", Warehouse, SecondWarehouse,
-							String.IsNullOrEmpty(CarNumber) ? null : String.Format(", Фура: {0}", CarNumber), Status == TransportationStatus.Delivered ? "Доставлено" : "");
-						return String.Format("{0} -> {1}{2}", Warehouse, SecondWarehouse,
-							String.IsNullOrEmpty(CarNumber) ? null : String.Format(", Фура: {0}", CarNumber));
+							return string.Format("{0} -> {1}{2} - {3}", Warehouse, SecondWarehouse,
+							string.IsNullOrEmpty(CarNumber) ? null : string.Format(", Фура: {0}", CarNumber), Status == TransportationStatus.Delivered ? "Доставлено" : "");
+						return string.Format("{0} -> {1}{2}", Warehouse, SecondWarehouse,
+							string.IsNullOrEmpty(CarNumber) ? null : string.Format(", Фура: {0}", CarNumber));
 					case DocumentType.WriteoffDocument:
-						if (Warehouse != String.Empty)
-							return String.Format("Со склада \"{0}\"", Warehouse);
-						if (Counterparty != String.Empty)
-							return String.Format("От клиента \"{0}\"", Counterparty);
-						return "";
+						if (Warehouse != string.Empty)
+							return string.Format("Со склада \"{0}\"", Warehouse);
+						if (Counterparty != string.Empty)
+							return string.Format("От клиента \"{0}\"", Counterparty);
+						return string.Empty;
 					case DocumentType.CarLoadDocument:
-						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber,
-									StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic), RouteListId);
+						return string.Format(
+							"Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}",
+							CarModel,
+							CarNumber,
+							PersonHelper.PersonNameWithInitials(
+								DirverSurname,
+								DirverName,
+								DirverPatronymic
+							),
+							RouteListId
+						);
 					case DocumentType.CarUnloadDocument:
-						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber,
-							StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic), RouteListId);
+						return string.Format(
+							"Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}",
+							CarModel,
+							CarNumber,
+							PersonHelper.PersonNameWithInitials(
+								DirverSurname,
+								DirverName,
+								DirverPatronymic
+							),
+							RouteListId
+						);
 					case DocumentType.InventoryDocument:
-						return String.Format("По складу: {0}", Warehouse);
+						return string.Format("По складу: {0}", Warehouse);
 					case DocumentType.ShiftChangeDocument:
-						return String.Format("По складу: {0}", Warehouse);
+						return string.Format("По складу: {0}", Warehouse);
 					case DocumentType.RegradingOfGoodsDocument:
-						return String.Format("По складу: {0}", Warehouse);
+						return string.Format("По складу: {0}", Warehouse);
 					case DocumentType.SelfDeliveryDocument:
-						return String.Format("Склад: {0}, Клиент:{1}", Warehouse, Counterparty);
+						return string.Format("Склад: {0}, Заказ №: {1}, Клиент: {2}", Warehouse, OrderId, Counterparty);
 					default:
-						return "";
+						return string.Empty;
 				}
 			}
 		}
 
 		public string Counterparty { get; set; }
+
+		public int OrderId { get; set; }
 
 		public string SecondCounterparty { get; set; }
 
@@ -593,13 +611,13 @@ namespace Vodovoz.ViewModel
 		public string AuthorName { get; set; }
 		public string AuthorPatronymic { get; set; }
 
-		public string Author {get{return StringWorks.PersonNameWithInitials(AuthorSurname, AuthorName, AuthorPatronymic);}}
+		public string Author => PersonHelper.PersonNameWithInitials(AuthorSurname, AuthorName, AuthorPatronymic);
 
 		public string LastEditorSurname { get; set; }
 		public string LastEditorName { get; set; }
 		public string LastEditorPatronymic { get; set; }
 
-		public string LastEditor {get{return StringWorks.PersonNameWithInitials(LastEditorSurname, LastEditorName, LastEditorPatronymic);}}
+		public string LastEditor => PersonHelper.PersonNameWithInitials(LastEditorSurname, LastEditorName, LastEditorPatronymic);
 
 		public string DirverSurname { get; set; }
 		public string DirverName { get; set; }

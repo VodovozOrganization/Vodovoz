@@ -13,7 +13,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModel
 {
-	public class TransferOperationsVM: RepresentationModelEntityBase<TransferOperationDocument, TransferOperationVMNode>
+	public class TransferOperationsVM : RepresentationModelEntityBase<TransferOperationDocument, TransferOperationVMNode>
 	{
 		public override void UpdateNodes()
 		{
@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModel
 				.SelectList(list => list
 							.Select(() => transferAlias.Id).WithAlias(() => resultAlias.Id)
 							.Select(() => transferAlias.TimeStamp).WithAlias(() => resultAlias.Date)
-				            .Select(() => transferAlias.Comment).WithAlias(() => resultAlias.Comment)
+							.Select(() => transferAlias.Comment).WithAlias(() => resultAlias.Comment)
 							.Select(() => fromCounterpartyAlias.Name).WithAlias(() => resultAlias.FromCounterparty)
 							.Select(() => toCounterpartyAlias.Name).WithAlias(() => resultAlias.ToCounterparty)
 							.Select(() => fromDeliveryPointAlias.ShortAddress).WithAlias(() => resultAlias.FromDeliveryPoint)
@@ -52,7 +52,7 @@ namespace Vodovoz.ViewModel
 							.Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic))
 				.TransformUsing(Transformers.AliasToBean<TransferOperationVMNode>())
 				.List<TransferOperationVMNode>();
-			
+
 			result.AddRange(transferList);
 
 			result.Sort((x, y) => {
@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc(TransferOperationDocument updatedSubject) => true;
 
-		public TransferOperationsVM() : this(UnitOfWorkFactory.CreateWithoutRoot()){}
+		public TransferOperationsVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
 
 		public TransferOperationsVM(IUnitOfWork uow)
 		{
@@ -101,15 +101,25 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		[SearchHighlight]
 		public string FromCounterparty { get; set; }
+
+		string fromDeliveryPoint;
 		[UseForSearch]
 		[SearchHighlight]
-		public string FromDeliveryPoint { get; set; }
+		public string FromDeliveryPoint {
+			get => string.IsNullOrEmpty(fromDeliveryPoint) ? "Самовывоз" : fromDeliveryPoint;
+			set => fromDeliveryPoint = value;
+		}
 		[UseForSearch]
 		[SearchHighlight]
 		public string ToCounterparty { get; set; }
+
+		string toDeliveryPoint;
 		[UseForSearch]
 		[SearchHighlight]
-		public string ToDeliveryPoint { get; set; }
+		public string ToDeliveryPoint {
+			get => string.IsNullOrEmpty(toDeliveryPoint) ? "Самовывоз" : toDeliveryPoint;
+			set => toDeliveryPoint = value;
+		}
 
 		public string Comment { get; set; }
 

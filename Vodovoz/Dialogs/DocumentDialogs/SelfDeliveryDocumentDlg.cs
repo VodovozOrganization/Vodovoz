@@ -6,16 +6,17 @@ using Gamma.Utilities;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QS.Project.Repositories;
+using QSOrmProject;
 using Vodovoz.Additions.Store;
+using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository;
-using Vodovoz.Core.DataService;
 using Vodovoz.Services;
 
 namespace Vodovoz
@@ -162,18 +163,10 @@ namespace Vodovoz
 			}
 
 			Entity.UpdateOperations(UoW);
-			foreach(GoodsReceptionVMNode item in BottlesReceptionList) {
-				Entity.UpdateReturnedOperation(UoW, item.NomenclatureId, item.Amount);
-				var defBottle = NomenclatureRepository.GetDefaultBottle(UoW);
-				if(item.NomenclatureId == defBottle.Id)
-					Entity.Order.ReturnedTare = item.Amount;
-			}
-			foreach(GoodsReceptionVMNode item in GoodsReceptionList) {
-				Entity.UpdateReturnedOperation(UoW, item.NomenclatureId, item.Amount);
-			}
-			
+			Entity.UpdateReceptions(UoW, BottlesReceptionList, GoodsReceptionList, new NomenclatureRepository(), new BottlesRepository());
+
 			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
-			if(Entity.FullyShiped(UoW , standartNomenclatures))
+			if(Entity.FullyShiped(UoW, standartNomenclatures))
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 
 			logger.Info("Сохраняем документ самовывоза...");
@@ -234,9 +227,10 @@ namespace Vodovoz
 
 		protected void OnBtnAddOtherGoodsClicked(object sender, EventArgs e)
 		{
-			OrmReference refWin = new OrmReference(NomenclatureRepository.NomenclatureOfGoodsWithoutEmptyBottlesQuery());
-			refWin.FilterClass = null;
-			refWin.Mode = OrmReferenceMode.Select;
+			OrmReference refWin = new OrmReference(new NomenclatureRepository().NomenclatureOfGoodsWithoutEmptyBottlesQuery()) {
+				FilterClass = null,
+				Mode = OrmReferenceMode.Select
+			};
 			refWin.ObjectSelected += RefWin_ObjectSelected;
 			this.TabParent.AddTab(refWin, this);
 		}
@@ -247,7 +241,7 @@ namespace Vodovoz
 			if(nomenclature == null) {
 				return;
 			}
-			var node = new GoodsReceptionVMNode() {
+			var node = new GoodsReceptionVMNode {
 				Category = nomenclature.Category,
 				NomenclatureId = nomenclature.Id,
 				Name = nomenclature.Name
@@ -255,13 +249,5 @@ namespace Vodovoz
 			if(!GoodsReceptionList.Any(n => n.NomenclatureId == node.NomenclatureId))
 				GoodsReceptionList.Add(node);
 		}
-	}
-
-	public class GoodsReceptionVMNode
-	{
-		public int NomenclatureId { get; set; }
-		public string Name { get; set; }
-		public int Amount { get; set; }
-		public NomenclatureCategory Category { get; set; }
 	}
 }

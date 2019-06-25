@@ -3,6 +3,7 @@ using System.Linq;
 using NLog;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.DocTemplates;

@@ -494,7 +494,7 @@ namespace Vodovoz.Domain.Orders
 
 		private bool isBottleStock;
 		[Display(Name = "Акция \"Бутыль\" ")]
-		public virtual bool IsBottleStock{
+		public virtual bool IsBottleStock {
 			get => isBottleStock;
 			set => SetField(ref isBottleStock, value, () => IsBottleStock);
 		}
@@ -884,7 +884,7 @@ namespace Vodovoz.Domain.Orders
 							new[] { this.GetPropertyName(o => o.PaymentType) }
 						);
 
-					if(!DeliveryPoint.FindAndAssociateDistrict(UoW))
+					if(DeliveryPoint != null && !DeliveryPoint.FindAndAssociateDistrict(UoW))
 						yield return new ValidationResult(
 							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
 							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
@@ -1105,8 +1105,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void OnChangeContract(bool changedClient = false)
 		{
-			foreach(var item in ObservableOrderItems
-					.Where(x => x.AdditionalAgreement != null)) {
+			foreach(var item in ObservableOrderItems.Where(x => x.AdditionalAgreement != null)) {
 
 				if(item.AdditionalAgreement.Self is WaterSalesAgreement) {
 					var waterAgreement = Contract.GetWaterSalesAgreement(DeliveryPoint);
@@ -1241,7 +1240,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void ChangeOrderContract()
 		{
-			if(Client == null || DeliveryPoint == null || DeliveryDate == null) {
+			if(Client == null || (DeliveryPoint == null && !SelfDelivery) || DeliveryDate == null) {
 				return;
 			}
 			var oldContract = Contract;
@@ -1366,13 +1365,13 @@ namespace Vodovoz.Domain.Orders
 						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
 						break;
 					case AgreementType.DailyRent:
-						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
+						AgreementTransfer<DailyRentAgreement>(out uowAggr, agr.Id, actualContract);
 						break;
 					case AgreementType.FreeRent:
-						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
+						AgreementTransfer<FreeRentAgreement>(out uowAggr, agr.Id, actualContract);
 						break;
 					case AgreementType.EquipmentSales:
-						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
+						AgreementTransfer<SalesEquipmentAgreement>(out uowAggr, agr.Id, actualContract);
 						break;
 				}
 				try {
@@ -1690,9 +1689,10 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(Client == null)
 				return;
-			if( !(OrderStatus == OrderStatus.NewOrder) )
+			if(OrderStatus != OrderStatus.NewOrder)
 				return;
 
+			DeliveryDate = null;
 			DeliveryPoint = null;
 			DeliverySchedule = null;
 			Contract = null;
@@ -1733,9 +1733,9 @@ namespace Vodovoz.Domain.Orders
 			OrderItem deliveryPriceItem = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == paidDeliveryNomenclatureId);
 
 			#region перенести всё это в OrderStateKey
-			bool IsDeliveryForFree = DeliveryPoint.AlwaysFreeDelivery
+			bool IsDeliveryForFree = SelfDelivery
 												  || IsService
-												  || SelfDelivery
+												  || DeliveryPoint.AlwaysFreeDelivery
 												  || ObservableOrderItems.Any(n => n.Nomenclature.Category == NomenclatureCategory.spare_parts)
 												  || !ObservableOrderItems.Any(n => n.Nomenclature.Id != paidDeliveryNomenclatureId) && (BottlesReturn > 0 || ObservableOrderEquipments.Any() || ObservableOrderDepositItems.Any())
 												  ;
@@ -1750,7 +1750,7 @@ namespace Vodovoz.Domain.Orders
 			var districts = DeliveryPoint?.CalculateDistricts(UoW);
 
 			OrderStateKey orderKey = new OrderStateKey(this);
-			var price = districts.Any() ? districts.Max(x => x.GetDeliveryPrice(orderKey)) : 0m;
+			var price = districts != null && districts.Any() ? districts.Max(x => x.GetDeliveryPrice(orderKey)) : 0m;
 
 			if(price != 0) {
 				if(deliveryPriceItem == null) {
@@ -1891,6 +1891,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, out string msg)
 		{
 			msg = string.Empty;
+			if(SelfDelivery)
+				return true;
 			var proSetDict = PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
 			if(!proSetDict.Any())
 				return true;
@@ -2083,10 +2085,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(documents == null || !documents.Any())
 				return null;
-				
+
 			List<OrderDocument> thisOrderDocuments = new List<OrderDocument>();
-			foreach(OrderDocument doc in documents) 
-			{
+			foreach(OrderDocument doc in documents) {
 				if(doc.Order != this)
 					ObservableOrderDocuments.Remove(doc);
 				else
@@ -2750,8 +2751,7 @@ namespace Vodovoz.Domain.Orders
 		private void OnChangeStatusToClosed()
 		{
 			SetDepositsActualCounts();
-			if(SelfDelivery) 
-			{
+			if(SelfDelivery) {
 				UpdateDepositOperations(UoW);
 				SetActualCountToSelfDelivery();
 			}
@@ -2783,9 +2783,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void SetActualCountToSelfDelivery()
 		{
-			if(!SelfDelivery)
-				return;
-			if(!(OrderStatus == OrderStatus.Closed))
+			if(!SelfDelivery || OrderStatus != OrderStatus.Closed)
 				return;
 
 			foreach(var item in OrderItems)
@@ -2802,7 +2800,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(!SelfDelivery)
 				return;
-			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard) 
+			if(PaymentType != PaymentType.cashless && PaymentType != PaymentType.ByCard)
 				return;
 			if(OrderStatus != OrderStatus.WaitForPayment)
 				return;
@@ -2856,13 +2854,11 @@ namespace Vodovoz.Domain.Orders
 
 			bool isFullyLoad = IsFullyShippedSelfDeliveryOrder(UoW);
 
-			if(OrderStatus == OrderStatus.WaitForPayment) 
-			{
+			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatus(OrderStatus.Closed);
 					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider());
-				}
-				else 
+				} else
 					ChangeStatus(OrderStatus.OnLoading);
 
 				return;
@@ -3038,8 +3034,7 @@ namespace Vodovoz.Domain.Orders
 			// Закрывает заказ и создает операцию движения бутылей если все товары в заказе отгружены
 			bool canCloseOrder = true;
 			var unloadedNoms = SelfDeliveryRepository.OrderNomenclaturesUnloaded(uow, this, closingDocument);
-			foreach(var nGrp in nomGrp) 
-			{
+			foreach(var nGrp in nomGrp) {
 				decimal totalCount = default(decimal);
 				if(unloadedNoms.ContainsKey(nGrp.Key))
 					totalCount += unloadedNoms[nGrp.Key];
@@ -3137,14 +3132,14 @@ namespace Vodovoz.Domain.Orders
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
 		/// склада все отгружено, и произведена оплата
 		/// </summary>
-		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures , SelfDeliveryDocument closingDocument = null)
+		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, SelfDeliveryDocument closingDocument = null)
 		{
 			if(!IsFullyShippedSelfDeliveryOrder(uow, closingDocument) || OrderStatus != OrderStatus.OnLoading)
 				return false;
 
 			bool isFullyPaid = SelfDeliveryIsFullyPaid();
 
-			UpdateBottlesMovementOperationWithoutDelivery(UoW , standartNomenclatures);
+			UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures);
 
 			switch(PaymentType) {
 				case PaymentType.cash:
@@ -3194,10 +3189,11 @@ namespace Vodovoz.Domain.Orders
 			int amountDelivered = OrderItems
 									.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 									.Sum(item => item.ActualCount.Value);
-									
+
 			int forfeitId = standartNomenclatures.GetForfeitId();
-			int forfeitCount = OrderItems.Where(arg => arg.Nomenclature.Id == forfeitId && arg.ActualCount != null)
-																	   .Select(arg => arg.ActualCount.Value).Sum();
+			int forfeitCount = OrderItems.Where(i => i.Nomenclature.Id == forfeitId)
+										 .Select(i => i.ActualCount.Value)
+										 .Sum();
 
 			if(amountDelivered != 0 || ReturnedTare > 0 || forfeitCount > 0) {
 				if(BottlesMovementOperation == null) {

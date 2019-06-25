@@ -387,7 +387,7 @@
         <CommandText>SELECT 
 	daily_number_1c AS daily_number,
 	counterparty.full_name AS client,
-	delivery_points.compiled_address AS address,
+	IF(orders.self_delivery, 'Самовывоз (Юг, Север...)', delivery_points.compiled_address) AS address,
 	orders.id AS order_id,
 	SUM(
 		IF(
@@ -429,7 +429,7 @@ LEFT JOIN geographic_groups gg ON gge.geographic_group_id = gg.id
 LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
 WHERE
 	orders.delivery_date = DATE(@date)
-	AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
+	AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups) OR gg.id IS NULL)
 GROUP BY order_id
 ;</CommandText>
         <QueryParameters>

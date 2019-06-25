@@ -1,0 +1,283 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using NHibernate.Criterion;
+using QS.DomainModel.UoW;
+using QSSupportLib;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
+
+namespace Vodovoz.EntityRepositories.Goods
+{
+	public class NomenclatureRepository : INomenclatureRepository
+	{
+		public QueryOver<Nomenclature> NomenclatureForProductMaterialsQuery()
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForProductMaterial()))
+							.Where(n => !n.IsArchive);
+		}
+
+		public QueryOver<Nomenclature> NomenclatureEquipmentsQuery()
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category == NomenclatureCategory.equipment)
+							.Where(n => !n.IsArchive);
+		}
+
+		public QueryOver<Nomenclature> NomenclatureForSaleQuery()
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForSale()))
+							.Where(n => !n.IsArchive);
+		}
+
+		public QueryOver<Nomenclature> NomenclatureByCategory(NomenclatureCategory category)
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category == category)
+							.Where(n => !n.IsArchive);
+		}
+
+		/// <summary>
+		/// Запрос номенклатур которые можно использовать на складе
+		/// </summary>
+		public QueryOver<Nomenclature> NomenclatureOfGoodsOnlyQuery()
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForGoods()))
+							.Where(n => !n.IsArchive);
+		}
+
+		public QueryOver<Nomenclature> NomenclatureOfGoodsWithoutEmptyBottlesQuery()
+		{
+			return QueryOver.Of<Nomenclature>()
+							.Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForGoodsWithoutEmptyBottles()))
+							.Where(n => !n.IsArchive);
+		}
+
+		public QueryOver<Nomenclature> NomenclatureWaterOnlyQuery()
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category == NomenclatureCategory.water)
+							.Where(n => !n.IsArchive);
+		}
+
+		public QueryOver<Nomenclature> NomenclatureEquipOnlyQuery()
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category == NomenclatureCategory.equipment)
+							.Where(n => !n.IsArchive);
+		}
+
+		public Nomenclature GetBottleDeposit(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "bottleDeposit_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура залога за бутыли.");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+
+		public Nomenclature GetDefaultBottle(IUnitOfWork uow)
+		{
+			var defaultBottleParameter = "default_bottle_nomenclature";
+			if(!MainSupport.BaseParameters.All.ContainsKey(defaultBottleParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура бутыли по умолчанию.");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[defaultBottleParameter]));
+		}
+
+		/// <summary>
+		/// Возвращает список номенклатур, которые зависят от передаваемой номенклатуры.
+		/// </summary>
+		/// <returns>Список зависимых номенклатур.</returns>
+		/// <param name="uow">uow - Unit of work</param>
+		/// <param name="influentialNomenclature">influentialNomenclature - вляющая номенклатура</param>
+		public IList<Nomenclature> GetDependedNomenclatures(IUnitOfWork uow, Nomenclature influentialNomenclature)
+		{
+			return uow.Session.QueryOver<Nomenclature>()
+					  .Where(n => n.DependsOnNomenclature.Id == influentialNomenclature.Id)
+					  .List();
+		}
+
+		public QueryOver<Nomenclature> NomenclatureOfItemsForService()
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category == NomenclatureCategory.equipment)
+							.Where(n => !n.IsArchive);
+		}
+
+		public QueryOver<Nomenclature> NomenclatureOfPartsForService()
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category == NomenclatureCategory.spare_parts)
+							.Where(n => !n.IsArchive);
+		}
+
+		public QueryOver<Nomenclature> NomenclatureOfServices()
+		{
+			return QueryOver.Of<Nomenclature>()
+				.Where(n => n.Category == NomenclatureCategory.service)
+							.Where(n => !n.IsArchive);
+		}
+
+		public IList<Nomenclature> NomenclatureOfDefectiveGoods(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<Nomenclature>()
+				.Where(n => n.IsDefectiveBottle).List();
+		}
+
+		public string GetNextCode1c(IUnitOfWork uow)
+		{
+			var lastCode1c = uow.Query<Nomenclature>()
+								.Where(n => n.Code1c.IsLike(Nomenclature.PrefixOfCode1c, MatchMode.Start))
+								.OrderBy(n => n.Code1c).Desc
+								.Select(n => n.Code1c)
+								.Take(1)
+								.SingleOrDefault<string>();
+			int id = 0;
+			if(!String.IsNullOrEmpty(lastCode1c)) {
+				id = int.Parse(lastCode1c.Replace(Nomenclature.PrefixOfCode1c, ""));//Тут специально падаем в эксепшен если не смогли распарсить, подума 5 раз, пережде чем заменить на TryParse
+			}
+			id++;
+			string format = new String('0', Nomenclature.LengthOfCode1c - Nomenclature.PrefixOfCode1c.Length);
+			return Nomenclature.PrefixOfCode1c + id.ToString(format);
+		}
+
+		public QueryOver<Nomenclature> NomenclatureInGroupsQuery(int[] groupsIds)
+		{
+			return QueryOver.Of<Nomenclature>()
+							.Where(n => n.ProductGroup.Id.IsIn(groupsIds));
+		}
+
+		public Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow)
+		{
+			var followingNomenclaure = "номенклатура_для_выезда_с_мастером";
+			if(!MainSupport.BaseParameters.All.ContainsKey(followingNomenclaure))
+				throw new InvalidProgramException("В параметрах базы не указана номенклатура \"номенклатура_для_выезда_с_мастером\" для добавления в заказ типа \"Выезд мастера\"");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[followingNomenclaure]));
+		}
+
+		public Nomenclature GetForfeitNomenclature(IUnitOfWork uow)
+		{
+			var forfeitNomenclatureStr = "forfeit_nomenclature_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(forfeitNomenclatureStr))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура для \"Бутыль (Неустойка)\"");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[forfeitNomenclatureStr]));
+		}
+
+		public Nomenclature GetSanitisationNomenclature(IUnitOfWork uow)
+		{
+			var sanitisationNomenclature = "выезд_мастера_для_сан_обр";
+			if(!MainSupport.BaseParameters.All.ContainsKey(sanitisationNomenclature))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура для \"Выезд мастера для с\\о\"");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[sanitisationNomenclature]));
+		}
+
+		public IList<Nomenclature> GetNomenclatureWithPriceForMobileApp(IUnitOfWork uow, params MobileCatalog[] catalogs)
+		{
+			return uow.Session.QueryOver<Nomenclature>()
+							  .Where(n => !n.IsArchive)
+							  .Where(n => n.MobileCatalog.IsIn(catalogs))
+							  .List();
+		}
+
+		/// <summary>
+		/// Возврат словаря сертификатов для передаваемых номенклатур
+		/// </summary>
+		/// <returns>Словарь сертификатов</returns>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="nomenclatures">Список номенклатур</param>
+		public Dictionary<Nomenclature, IList<Certificate>> GetDictionaryWithCertificatesForNomenclatures(IUnitOfWork uow, Nomenclature[] nomenclatures)
+		{
+			Dictionary<Nomenclature, IList<Certificate>> dict = new Dictionary<Nomenclature, IList<Certificate>>();
+			foreach(var n in nomenclatures) {
+				Nomenclature nomenclatureAlias = null;
+				var certificates = uow.Session.QueryOver<Certificate>()
+									   .Left.JoinAlias(c => c.Nomenclatures, () => nomenclatureAlias)
+									   .Where(() => nomenclatureAlias.Id == n.Id)
+									   .List()
+									   ;
+				if(certificates.Any()) {
+					if(!dict.ContainsKey(n))
+						dict.Add(n, certificates);
+					else {
+						foreach(Certificate certificate in certificates)
+							dict[n].Add(certificate);
+					}
+				}
+			}
+
+			return dict;
+		}
+
+		/// <summary>
+		/// Возвращает Dictionary где: 
+		/// key - id номенклатуры
+		/// value - массив id картинок
+		/// </summary>
+		/// <returns>The nomenclature images identifiers.</returns>
+		public Dictionary<int, int[]> GetNomenclatureImagesIds(IUnitOfWork uow, params int[] nomenclatureIds)
+		{
+			return uow.Session.QueryOver<NomenclatureImage>()
+						 .Where(n => n.Nomenclature.Id.IsIn(nomenclatureIds))
+						 .SelectList(list => list
+						 	.Select(i => i.Id)
+							.Select(i => i.Nomenclature.Id)
+						 )
+						 .List<object[]>()
+						 .GroupBy(x => (int)x[1])
+						 .ToDictionary(g => g.Key, g => g.Select(x => (int)x[0]).ToArray());
+		}
+
+		#region Получение номенклатур воды
+
+		public Nomenclature GetWaterSemiozerie(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "nomenclature_semiozerie_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Семиозерье");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+
+		public Nomenclature GetWaterKislorodnaya(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "nomenclature_kislorodnaya_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Кислородная");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+
+		public Nomenclature GetWaterSnyatogorskaya(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "nomenclature_snyatogorskaya_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Снятогорская");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+
+		public Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "nomenclature_kislorodnaya_deluxe_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Кислородная Deluxe");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+
+		public Nomenclature GetWaterStroika(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "nomenclature_stroika_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды Стройка");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+
+		public Nomenclature GetWaterRuchki(IUnitOfWork uow)
+		{
+			var bottleDepositParameter = "nomenclature_ruchki_id";
+			if(!MainSupport.BaseParameters.All.ContainsKey(bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды С ручками");
+			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
+		}
+		#endregion
+	}
+}

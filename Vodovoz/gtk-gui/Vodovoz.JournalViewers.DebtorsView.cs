@@ -146,6 +146,7 @@ namespace Vodovoz.JournalViewers
 			}
 			this.bottledebtorsfilter.Hide();
 			this.Hide();
+			this.buttonRefresh.Clicked += new global::System.EventHandler(this.OnButtonRefreshClicked);
 			this.buttonFilter.Clicked += new global::System.EventHandler(this.OnButtonFilterClicked);
 			this.searchentity1.TextChanged += new global::System.EventHandler(this.OnSearchentity1TextChanged);
 			this.treeviewDebtors.ButtonReleaseEvent += new global::Gtk.ButtonReleaseEventHandler(this.OnTreeviewDebtorsButtonReleaseEvent);

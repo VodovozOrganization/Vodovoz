@@ -88,12 +88,11 @@ namespace Vodovoz.Domain.Orders
 			set {
 				//Если цена не отличается от той которая должна быть по прайсам в 
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
-				IsUserPrice = !(value == GetPriceByTotalCount() || value == 0);
+				IsUserPrice = value != GetPriceByTotalCount() && value != 0;
 
 				if(SetField(ref price, value, () => Price)) {
-					if(AdditionalAgreement != null && AdditionalAgreement.Self is SalesEquipmentAgreement) {
-						(AdditionalAgreement.Self as SalesEquipmentAgreement).UpdatePrice(Nomenclature, value);
-					}
+					if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
+						aa.UpdatePrice(Nomenclature, value);
 					RecalculateDiscount();
 					RecalculateNDS();
 				}
@@ -115,6 +114,8 @@ namespace Vodovoz.Domain.Orders
 			get => count;
 			set {
 				if(SetField(ref count, value, () => Count)) {
+					if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
+						aa.UpdateCount(Nomenclature, value);
 					Order?.RecalculateItemsPrice();
 					RecalculateDiscount();
 					RecalculateNDS();
@@ -385,6 +386,9 @@ namespace Vodovoz.Domain.Orders
 					result = true;
 
 				if(AdditionalAgreement?.Type == AgreementType.WaterSales)
+					result = true;
+
+				if(AdditionalAgreement?.Type == AgreementType.EquipmentSales)
 					result = true;
 
 				if(Nomenclature.Category == NomenclatureCategory.rent)

@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gtk;
+using QS.Dialog.GtkUI;
+using QS.Project.Filter;
+using QS.RepresentationModel;
 using QS.Tdi;
 using QS.Tdi.Gtk;
-using System.Collections.Generic;
-using Vodovoz.Infrastructure.ViewModels;
-using Vodovoz.Filters;
+using QS.ViewModels;
 using QS.RepresentationModel;
 using QS.Dialog.GtkUI;
+using QS.Project.Filter;
+using QS.Journal.GtkUI;
 
 namespace Vodovoz.Core
 {
@@ -34,13 +38,18 @@ namespace Vodovoz.Core
 			if(tab is Widget) {
 				return (Widget)tab;
 			}
+
+			if(JournalViewFactory.TryCreateView(out Widget widget, tab)) {
+				return widget;
+			}
+
 			Type tabType = tab.GetType();
 			if(!viewModelWidgets.ContainsKey(tabType)) {
 				throw new ApplicationException($"Не настроено сопоставление для {tabType.Name}");
 			}
 
 			var widgetCtorInfo = viewModelWidgets[tabType].GetConstructor(new[] { tabType });
-			Widget widget = (Widget)widgetCtorInfo.Invoke(new object[] { tab });
+			widget = (Widget)widgetCtorInfo.Invoke(new object[] { tab });
 			return widget;
 		}
 
@@ -53,6 +62,26 @@ namespace Vodovoz.Core
 			if(filter is Widget) {
 				return (Widget)filter;
 			}
+			Type filterType = filter.GetType();
+			if(!viewModelWidgets.ContainsKey(filterType)) {
+				throw new ApplicationException($"Не настроено сопоставление для {filterType.Name}");
+			}
+
+			var widgetCtorInfo = viewModelWidgets[filterType].GetConstructor(new[] { filterType });
+			Widget widget = (Widget)widgetCtorInfo.Invoke(new object[] { filter });
+			return widget;
+		}
+
+		public Widget Resolve(QS.Project.Journal.IJournalFilter filter)
+		{
+			if(filter == null) {
+				return null;
+			}
+
+			if(filter is Widget) {
+				return (Widget)filter;
+			}
+
 			Type filterType = filter.GetType();
 			if(!viewModelWidgets.ContainsKey(filterType)) {
 				throw new ApplicationException($"Не настроено сопоставление для {filterType.Name}");

@@ -62,6 +62,12 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		public virtual void UpdateCount(Nomenclature nomenclature, int count)
+		{
+			var salesEquipment = ObservableSalesEqipments.FirstOrDefault(x => x.Nomenclature.Id == nomenclature?.Id);
+			if(salesEquipment != null)
+				salesEquipment.Count = count;
+		}
 
 		public static IUnitOfWorkGeneric<SalesEquipmentAgreement> Create(CounterpartyContract contract)
 		{

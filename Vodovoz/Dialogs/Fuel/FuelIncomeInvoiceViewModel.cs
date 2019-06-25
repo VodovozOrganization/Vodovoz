@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Infrastructure.ViewModels;
+using QS.ViewModels;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.ViewModelBased;
@@ -17,6 +17,8 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Fuel;
 using QS.DomainModel.Entity;
+using QS.Project.Domain;
+using QS.Services;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -120,6 +122,7 @@ namespace Vodovoz.Dialogs.Fuel
 		{
 			AddItemCommand = new DelegateCommand(
 				() => {
+
 					IRepresentationModel model = new EntityCommonRepresentationModelConstructor<Nomenclature>()
 						.AddColumn("Название", x => x.OfficialName).AddSearch(x => x.OfficialName)
 						.AddColumn("Тип топлива", x => x.FuelType.Name)

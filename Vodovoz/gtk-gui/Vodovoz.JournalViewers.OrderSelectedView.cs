@@ -16,7 +16,7 @@ namespace Vodovoz.JournalViewers
 
 		private global::Gtk.Label label2;
 
-		private global::QSOrmProject.EntryReferenceVM entryreferencevm1;
+		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferencevm1;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -77,7 +77,7 @@ namespace Vodovoz.JournalViewers
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.entryreferencevm1 = new global::QSOrmProject.EntryReferenceVM();
+			this.entryreferencevm1 = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.entryreferencevm1.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferencevm1.Name = "entryreferencevm1";
 			this.hbox1.Add(this.entryreferencevm1);
@@ -103,7 +103,8 @@ namespace Vodovoz.JournalViewers
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.GtkScrolledWindow]));
 			w8.Position = 2;
 			this.Add(this.vbox3);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

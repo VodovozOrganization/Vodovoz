@@ -11,6 +11,8 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Documents
@@ -199,6 +201,31 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		public virtual void UpdateReceptions(IUnitOfWork uow, IList<GoodsReceptionVMNode> bottlesReceptions, IList<GoodsReceptionVMNode> goodsReceptions, INomenclatureRepository nomenclatureRepository, IBottlesRepository bottlesRepository)
+		{
+			if(nomenclatureRepository == null)
+				throw new ArgumentNullException(nameof(nomenclatureRepository));
+			if(bottlesRepository == null)
+				throw new ArgumentNullException(nameof(bottlesRepository));
+
+			if(Warehouse != null && Warehouse.CanReceiveBottles) {
+				int bottlesReturned = 0;
+				foreach(GoodsReceptionVMNode item in bottlesReceptions) {
+					UpdateReturnedOperation(uow, item.NomenclatureId, item.Amount);
+					var defBottle = nomenclatureRepository.GetDefaultBottle(uow);
+					if(item.NomenclatureId == defBottle.Id)
+						bottlesReturned = item.Amount;
+				}
+				var emptyBottlesAlreadyReturned = bottlesRepository.GetEmptyBottlesFromClientByOrder(uow, nomenclatureRepository, Order, Id);
+				Order.ReturnedTare = emptyBottlesAlreadyReturned + bottlesReturned;
+			}
+
+			if(Warehouse != null && Warehouse.CanReceiveEquipment)
+				foreach(GoodsReceptionVMNode item in goodsReceptions) {
+					UpdateReturnedOperation(uow, item.NomenclatureId, item.Amount);
+				}
+		}
+
 		public virtual void UpdateReturnedOperations(IUnitOfWork uow, Dictionary<int, decimal> returnedNomenclatures)
 		{
 			foreach(var returned in returnedNomenclatures) {
@@ -206,11 +233,11 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateReturnedOperation(IUnitOfWork uow, int returnedNomenclaureId, decimal returnedNomenclaureQuantity)
+		void UpdateReturnedOperation(IUnitOfWork uow, int returnedNomenclaureId, decimal returnedNomenclaureQuantity)
 		{
 			var item = ReturnedItems.FirstOrDefault(x => x.Nomenclature.Id == returnedNomenclaureId);
 			if(item == null && returnedNomenclaureQuantity != 0) {
-				item = new SelfDeliveryDocumentReturned() {
+				item = new SelfDeliveryDocumentReturned {
 					Amount = returnedNomenclaureQuantity,
 					Document = this,
 					Nomenclature = uow.GetById<Nomenclature>(returnedNomenclaureId)
@@ -225,13 +252,20 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual bool FullyShiped(IUnitOfWork uow , IStandartNomenclatures standartNomenclatures)
+		public virtual bool FullyShiped(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures)
 		{
 			//Проверка текущего документа
-			return Order.TryCloseSelfDeliveryOrder(uow, standartNomenclatures, this );
+			return Order.TryCloseSelfDeliveryOrder(uow, standartNomenclatures, this);
 		}
 
 		#endregion
 	}
-}
 
+	public class GoodsReceptionVMNode
+	{
+		public int NomenclatureId { get; set; }
+		public string Name { get; set; }
+		public int Amount { get; set; }
+		public NomenclatureCategory Category { get; set; }
+	}
+}

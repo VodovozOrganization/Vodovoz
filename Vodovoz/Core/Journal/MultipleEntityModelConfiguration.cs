@@ -7,7 +7,6 @@ using QS.Tdi;
 using QS.Utilities.Text;
 using System.ComponentModel;
 using Vodovoz.ViewModelBased;
-using Vodovoz.Infrastructure.ViewModels;
 
 namespace Vodovoz.Core.Journal
 {
@@ -292,7 +291,7 @@ namespace Vodovoz.Core.Journal
 		/// <returns>Конфигурация документа</returns>
 		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
 		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>()
-			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+			where TViewModel : QS.ViewModels.TabViewModelBase
 		{
 			return AddViewModelDocumentConfiguration<TViewModel>(GetEntityTitleName());
 		}
@@ -304,7 +303,7 @@ namespace Vodovoz.Core.Journal
 		/// <param name="createActionTitle">Отображаемое имя документа в действиях с документов</param>
 		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
 		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>(string createActionTitle)
-			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+			where TViewModel : QS.ViewModels.TabViewModelBase
 		{
 			Func<TNode, bool> docIdentificationFunc = (TNode node) => node.EntityType == typeof(TEntity);
 
@@ -318,7 +317,7 @@ namespace Vodovoz.Core.Journal
 		/// <param name="docIdentificationFunc">Уникальный идентификатор типа документа, должен возвращать true только для тех строк для которых должен открываться выбранный тип диалога и больше никакой другой</param>
 		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
 		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>(Func<TNode, bool> docIdentificationFunc)
-			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+			where TViewModel : QS.ViewModels.TabViewModelBase
 		{
 			return AddViewModelDocumentConfiguration<TViewModel>(docIdentificationFunc, GetEntityTitleName());
 		}
@@ -331,7 +330,7 @@ namespace Vodovoz.Core.Journal
 		/// <param name="createActionTitle">Отображаемое имя документа в действиях с документов</param>
 		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
 		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>(Func<TNode, bool> docIdentificationFunc, string createActionTitle)
-			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+			where TViewModel : QS.ViewModels.TabViewModelBase
 		{
 			Type dlgType = typeof(TViewModel);
 			CheckDialogRestrictions(dlgType);
@@ -354,7 +353,7 @@ namespace Vodovoz.Core.Journal
 		/// <param name="openDlgFunc">Функция вызова диалога открытия нового документа</param>
 		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
 		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>(Func<TNode, bool> docIdentificationFunc, Func<TViewModel> createDlgFunc, Func<TNode, TViewModel> openDlgFunc)
-			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+			where TViewModel : QS.ViewModels.TabViewModelBase
 		{
 			return AddViewModelDocumentConfiguration<TViewModel>(docIdentificationFunc, GetEntityTitleName(), createDlgFunc, openDlgFunc);
 		}
@@ -369,7 +368,7 @@ namespace Vodovoz.Core.Journal
 		/// <param name="openDlgFunc">Функция вызова диалога открытия нового документа</param>
 		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
 		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfiguration<TViewModel>(Func<TNode, bool> docIdentificationFunc, string createActionTitle, Func<TViewModel> createDlgFunc, Func<TNode, TViewModel> openDlgFunc)
-			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+			where TViewModel : QS.ViewModels.TabViewModelBase
 		{
 			if(docConfigs.ContainsKey(typeof(TViewModel))) {
 				throw new InvalidOperationException($"Кофигурация для сущности {nameof(TEntity)} уже содержит кофигурацию документа для диалога {nameof(TViewModel)}");
@@ -388,7 +387,7 @@ namespace Vodovoz.Core.Journal
 		/// <param name="openDlgFunc">Функция вызова диалога открытия нового документа</param>
 		/// <typeparam name="TViewModel">Тип диалога для конфигурируемого документа</typeparam>
 		public MultipleEntityModelConfiguration<TEntity, TNode> AddViewModelDocumentConfigurationWithoutCreation<TViewModel>(Func<TNode, bool> docIdentificationFunc, Func<TNode, TViewModel> openDlgFunc)
-			where TViewModel : Infrastructure.ViewModels.TabViewModelBase
+			where TViewModel : QS.ViewModels.TabViewModelBase
 		{
 			if(docConfigs.ContainsKey(typeof(TViewModel))) {
 				throw new InvalidOperationException($"Кофигурация для сущности {nameof(TEntity)} уже содержит кофигурацию документа для диалога {nameof(TViewModel)}");

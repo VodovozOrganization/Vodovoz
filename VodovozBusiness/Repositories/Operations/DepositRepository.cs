@@ -4,7 +4,6 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
-using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Repository.Operations
 {
@@ -13,18 +12,18 @@ namespace Vodovoz.Repository.Operations
 		/// <summary>
 		/// Получаем текущие депозиты для точки
 		/// </summary>
-		/// <param name="type">Указываем тип дипозита, если null то по берем все типы.</param>
+		/// <param name="depositType">Указываем тип депозита, если null то по берем все типы.</param>
 		public static decimal GetDepositsAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, DepositType? depositType, DateTime? before = null)
 		{
 			DepositOperation operationAlias = null;
 			DepositsQueryResult result = null;
 			var queryResult = UoW.Session.QueryOver<DepositOperation>(() => operationAlias)
 				.Where(() => operationAlias.DeliveryPoint.Id == deliveryPoint.Id);
-			if (before.HasValue)
+			if(before.HasValue)
 				queryResult.Where(() => operationAlias.OperationTime < before);
-			if (depositType.HasValue)
-				queryResult.Where(() => operationAlias.DepositType == depositType);			
-			
+			if(depositType.HasValue)
+				queryResult.Where(() => operationAlias.DepositType == depositType);
+
 			var deposits = queryResult.SelectList(list => list
 					.SelectSum(() => operationAlias.ReceivedDeposit).WithAlias(() => result.Received)
 					.SelectSum(() => operationAlias.RefundDeposit).WithAlias(() => result.Refund)
@@ -39,11 +38,11 @@ namespace Vodovoz.Repository.Operations
 			DepositsQueryResult result = null;
 			var queryResult = UoW.Session.QueryOver<DepositOperation>(() => operationAlias)
 				.Where(() => operationAlias.Counterparty.Id == counterparty.Id);
-			if (before.HasValue)
-				queryResult.Where(() => operationAlias.OperationTime < before);			
-			if (depositType.HasValue)
-				queryResult.Where(() => operationAlias.DepositType == depositType);			
-			
+			if(before.HasValue)
+				queryResult.Where(() => operationAlias.OperationTime < before);
+			if(depositType.HasValue)
+				queryResult.Where(() => operationAlias.DepositType == depositType);
+
 			var deposits = queryResult.SelectList(list => list
 					.SelectSum(() => operationAlias.ReceivedDeposit).WithAlias(() => result.Received)
 					.SelectSum(() => operationAlias.RefundDeposit).WithAlias(() => result.Refund)
@@ -52,17 +51,33 @@ namespace Vodovoz.Repository.Operations
 			return deposits;
 		}
 
+		public static decimal GetDepositsAtCounterpartyAndDeliveryPoint(IUnitOfWork UoW, Counterparty counterparty, DeliveryPoint deliveryPoint, DepositType? depositType, DateTime? before = null)
+		{
+			DepositOperation operationAlias = null;
+			DepositsQueryResult result = null;
+			var queryResult = UoW.Session.QueryOver(() => operationAlias)
+										 .Where(() => operationAlias.Counterparty == counterparty)
+										 .Where(() => operationAlias.DeliveryPoint == deliveryPoint)
+										 ;
+			if(before.HasValue)
+				queryResult.Where(() => operationAlias.OperationTime < before);
+			if(depositType.HasValue)
+				queryResult.Where(() => operationAlias.DepositType == depositType);
+
+			var deposits = queryResult.SelectList(list => list
+					.SelectSum(() => operationAlias.ReceivedDeposit).WithAlias(() => result.Received)
+					.SelectSum(() => operationAlias.RefundDeposit).WithAlias(() => result.Refund)
+				).TransformUsing(Transformers.AliasToBean<DepositsQueryResult>()).List<DepositsQueryResult>()
+				.FirstOrDefault()?
+				.Deposits ?? 0;
+			return deposits;
+		}
+
 		class DepositsQueryResult
 		{
-			public decimal Received{get;set;}
-			public decimal Refund{get;set;}
-			public decimal Deposits{
-				get{
-					return Received - Refund;
-				}
-			}
+			public decimal Received { get; set; }
+			public decimal Refund { get; set; }
+			public decimal Deposits => Received - Refund;
 		}
 	}
-
-
 }

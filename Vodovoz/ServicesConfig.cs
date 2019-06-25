@@ -3,6 +3,8 @@ using Vodovoz.Infrastructure.Services;
 using QSValidation;
 using QS.Permissions;
 using Vodovoz.Infrastructure.Journal;
+using QS.Services;
+
 namespace Vodovoz
 {
 	public static class ServicesConfig

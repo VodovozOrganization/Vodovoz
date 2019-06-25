@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
-using Vodovoz.Infrastructure.ViewModels;
+using QS.ViewModels;
 using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
@@ -15,6 +15,8 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.EntityRepositories.Fuel;
+using QS.Project.Domain;
+using QS.Services;
 
 namespace Vodovoz.Dialogs.Fuel
 {

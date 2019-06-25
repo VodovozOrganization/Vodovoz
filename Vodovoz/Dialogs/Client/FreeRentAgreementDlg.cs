@@ -2,6 +2,7 @@
 using NLog;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.DocTemplates;
@@ -119,8 +120,7 @@ namespace Vodovoz
 			logger.Info ("Сохраняем доп. соглашение...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
-			if (AgreementSaved != null)
-				AgreementSaved (this, new AgreementSavedEventArgs (UoWGeneric.Root));
+			AgreementSaved?.Invoke(this, new AgreementSavedEventArgs(UoWGeneric.Root));
 			return true;
 		}
 	}

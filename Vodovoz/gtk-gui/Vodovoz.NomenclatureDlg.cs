@@ -748,7 +748,7 @@ namespace Vodovoz
 			this.enumTareVolume = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumTareVolume.Name = "enumTareVolume";
 			this.enumTareVolume.ShowSpecialStateAll = false;
-			this.enumTareVolume.ShowSpecialStateNot = false;
+			this.enumTareVolume.ShowSpecialStateNot = true;
 			this.enumTareVolume.UseShortTitle = false;
 			this.enumTareVolume.DefaultFirst = false;
 			this.hboxTare.Add(this.enumTareVolume);

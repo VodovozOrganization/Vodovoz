@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -51,10 +52,7 @@ namespace Vodovoz.Domain.Client
 			if (RentDays < 1)
 				yield return new ValidationResult ("Срок аренды не может быть меньше одного дня.", new[] { "RentDays" });
 
-			if (DeliveryPoint == null)
-				yield return new ValidationResult("Необходимо указать точку доставки.", new[] { "DeliveryPoint" });
-
-			if (Equipment.Count < 1)
+			if (!Equipment.Any())
 				yield return new ValidationResult("Необходимо добавить в список оборудование.", new[] { "Equipment" });
 		}
 
@@ -76,7 +74,5 @@ namespace Vodovoz.Domain.Client
 				}
 			}
 		}
-
 	}
-	
 }

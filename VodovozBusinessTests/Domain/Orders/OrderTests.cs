@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
@@ -12,8 +13,6 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
-using Vodovoz.Domain.Goods;
-using System.Collections;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
 
@@ -46,16 +45,14 @@ namespace VodovozBusinessTests.Domain.Orders
 			waterNomenclature.IsDisposableTare.Returns(false);
 
 			yield return new OrderItem { Nomenclature = forfeitNomenclature, Count = forfeitCount };
-			yield return new OrderItem { Nomenclature = emptyBottleNomenclature, Count = emptyBottlesCount};
+			yield return new OrderItem { Nomenclature = emptyBottleNomenclature, Count = emptyBottlesCount };
 			yield return new OrderItem { Nomenclature = waterNomenclature, Count = waterCount };
 		}
 
-		private static IEnumerable<OrderItem> OrderItemsWithPriceAndCount(params (int,int)[] countAndPrice)
+		private static IEnumerable<OrderItem> OrderItemsWithPriceAndCount(params (int, int)[] countAndPrice)
 		{
-			foreach(var i in countAndPrice)
-			{
-				yield return new OrderItem 
-				{
+			foreach(var i in countAndPrice) {
+				yield return new OrderItem {
 					ActualCount = i.Item1,
 					Price = i.Item2
 				};
@@ -476,7 +473,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			yield return new object[] { OrderStatus.Accepted, false };
 			yield return new object[] { OrderStatus.Canceled, true };
-			yield return new object[] { OrderStatus.Closed, false};
+			yield return new object[] { OrderStatus.Closed, false };
 			yield return new object[] { OrderStatus.DeliveryCanceled, true };
 			yield return new object[] { OrderStatus.InTravelList, false };
 			yield return new object[] { OrderStatus.NewOrder, true };
@@ -528,7 +525,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		}
 
 		#endregion
-		
+
 		#region UpdateOperationTests
 		static IEnumerable WaterForfeitBottleOrderItems()
 		{
@@ -536,7 +533,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			yield return new object[] { ForfeitWaterAndEmptyBottles(7, 5).ToList(), 7, 5 };
 			yield return new object[] { ForfeitWaterAndEmptyBottles(0, 2).ToList(), 0, 2 };
 			yield return new object[] { ForfeitWaterAndEmptyBottles(3, 0).ToList(), 3, 0 };
-			yield return new object[] { ForfeitWaterAndEmptyBottles(11 , 11 , 11).ToList(), 11, 11 };
+			yield return new object[] { ForfeitWaterAndEmptyBottles(11, 11, 11).ToList(), 11, 11 };
 		}
 		[TestCaseSource(nameof(WaterForfeitBottleOrderItems))]
 		[Test(Description = "Проверка создания операции перемещения бутылей")]
@@ -609,11 +606,11 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			yield return new object[] { OrderItemsWithPriceAndCount((5, 100), (1, 1000), (7, 300)).ToList(), new List<double> { 50, 100, 210 }, 360m };
 			yield return new object[] { OrderItemsWithPriceAndCount((1, 100), (10, 200), (7, 5000)).ToList(), new List<double> { 10, 200, 3500 }, 3710m };
-			yield return new object[] { OrderItemsWithPriceAndCount((8, 800), (5, 435), (5, 700)).ToList(), new List<double> { 640, 217.5 , 350 }, 1207.5m};
+			yield return new object[] { OrderItemsWithPriceAndCount((8, 800), (5, 435), (5, 700)).ToList(), new List<double> { 640, 217.5, 350 }, 1207.5m };
 		}
 		[TestCaseSource(nameof(OrderItemsAndDiscountInMoney))]
 		[Test(Description = "Проверка расчета скидки( в рублях )")]
-		public void Check_Money_Discount_For_OrderItems(List<OrderItem> OrderItems,List<double> discountForOrderItems, decimal discountInMoney)
+		public void Check_Money_Discount_For_OrderItems(List<OrderItem> OrderItems, List<double> discountForOrderItems, decimal discountInMoney)
 		{
 			// arrange
 			Order testOrder = new Order();
@@ -626,7 +623,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			testOrder.SetDiscount(discountReason, discountInMoney, DiscountUnits.money);
 
 			// assert
-			for(int i = 0; i < OrderItems.Count; i++) 
+			for(int i = 0; i < OrderItems.Count; i++)
 				Assert.AreEqual(discountForOrderItems[i], testOrder.OrderItems[i].DiscountMoney);
 		}
 
@@ -634,8 +631,8 @@ namespace VodovozBusinessTests.Domain.Orders
 		static IEnumerable OrderItemsAndDiscountInPercent()
 		{
 			yield return new object[] { OrderItemsWithPriceAndCount((5, 100), (1, 1000), (7, 300)).ToList(), new List<double> { 50, 100, 210 }, 10 };
-			yield return new object[] { OrderItemsWithPriceAndCount((1, 100), (10, 200), (7, 5000)).ToList(), new List<double> { 50, 1000, 17500 }, 50};
-			yield return new object[] { OrderItemsWithPriceAndCount((8, 800), (5, 435), (5, 700)).ToList(), new List<double> { 6400, 2175, 3500 }, 110};
+			yield return new object[] { OrderItemsWithPriceAndCount((1, 100), (10, 200), (7, 5000)).ToList(), new List<double> { 50, 1000, 17500 }, 50 };
+			yield return new object[] { OrderItemsWithPriceAndCount((8, 800), (5, 435), (5, 700)).ToList(), new List<double> { 6400, 2175, 3500 }, 110 };
 		}
 		[TestCaseSource(nameof(OrderItemsAndDiscountInPercent))]
 		[Test(Description = "Проверка расчета скидки( в процентах )")]

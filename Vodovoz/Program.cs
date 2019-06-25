@@ -41,6 +41,8 @@ namespace Vodovoz
 
 			CreateProjectParam ();
 			ConfigureViewModelWidgetResolver();
+			ConfigureJournalColumnsConfigs();
+
 			QSMain.SetupFromArgs(args);
 			// Создаем окно входа
 			Login LoginDialog = new Login ();

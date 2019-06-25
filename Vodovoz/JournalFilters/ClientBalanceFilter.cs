@@ -1,9 +1,12 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -14,7 +17,7 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			entryreferenceNomenclature.SubjectType = typeof(Nomenclature);
-			entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM();
+			entryClient.SetEntitySelectorFactory(new DefaultEntitySelectorFactory<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
 		}
 
 		public ClientBalanceFilter(IUnitOfWork uow) : this()
@@ -28,10 +31,10 @@ namespace Vodovoz
 		}
 
 		public Counterparty RestrictCounterparty {
-			get { return entryreferenceClient.Subject as Counterparty; }
+			get { return entryClient.Subject as Counterparty; }
 			set {
-				entryreferenceClient.Subject = value;
-				entryreferenceClient.Sensitive = false;
+				entryClient.Subject = value;
+				entryClient.Sensitive = false;
 			}
 		}
 
@@ -64,7 +67,7 @@ namespace Vodovoz
 			OnRefiltered();
 		}
 
-		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
+		protected void OnEntryClientChanged(object sender, EventArgs e)
 		{
 			entryreferencePoint.Sensitive = RestrictCounterparty != null;
 			if(RestrictCounterparty == null)

@@ -51,7 +51,7 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual BottlesMovementOperation OutBottlesOperation {
 			get { return outBottlesOperation; }
-			set { SetField(ref outBottlesOperation, value, () => OutBottlesOperation);}
+			set { SetField(ref outBottlesOperation, value, () => OutBottlesOperation); }
 		}
 
 		BottlesMovementOperation incBottlesOperation;
@@ -110,7 +110,6 @@ namespace Vodovoz.Domain.Documents
 		DeliveryPoint fromDeliveryPoint;
 
 		[Display(Name = "Точка доставки отправителя")]
-		[Required(ErrorMessage = "Точка доставки отправителя должна быть указана.")]
 		public virtual DeliveryPoint FromDeliveryPoint {
 			get { return fromDeliveryPoint; }
 			set { SetField(ref fromDeliveryPoint, value, () => FromDeliveryPoint); }
@@ -119,7 +118,6 @@ namespace Vodovoz.Domain.Documents
 		DeliveryPoint toDeliveryPoint;
 
 		[Display(Name = "Точка доставки получателя")]
-		[Required(ErrorMessage = "Точка доставки получателя должна быть указана.")]
 		public virtual DeliveryPoint ToDeliveryPoint {
 			get { return toDeliveryPoint; }
 			set { SetField(ref toDeliveryPoint, value, () => ToDeliveryPoint); }
@@ -154,10 +152,8 @@ namespace Vodovoz.Domain.Documents
 			SaveDepositOperations(UoW, ref outBottlesDeposits, ref incBottlesDeposits, bottlesDeposits, DepositType.Bottles);
 			SaveDepositOperations(UoW, ref outEquipmentDeposits, ref incEquipmentDeposits, equipmentDeposits, DepositType.Equipment);
 
-			if(outBottles == null && incBottles == null)
-			{
-				if(this.OutBottlesOperation != null)
-				{
+			if(outBottles == null && incBottles == null) {
+				if(this.OutBottlesOperation != null) {
 					UoW.Delete(this.OutBottlesOperation);
 					this.OutBottlesOperation = null;
 				}
@@ -166,8 +162,7 @@ namespace Vodovoz.Domain.Documents
 					UoW.Delete(this.IncBottlesOperation);
 					this.IncBottlesOperation = null;
 				}
-			} else
-			{
+			} else {
 				this.OutBottlesOperation = outBottles;
 				this.IncBottlesOperation = incBottles;
 			}
@@ -226,7 +221,7 @@ namespace Vodovoz.Domain.Documents
 				outBottles.Returned = incBottles.Delivered = bottles;
 				outBottles.Delivered = incBottles.Returned = 0;
 			} else if(bottles < 0) {
-				outBottles.Delivered = incBottles.Returned = bottles * -1;
+				outBottles.Delivered = incBottles.Returned = -bottles;
 				outBottles.Returned = incBottles.Delivered = 0;
 			}
 		}
@@ -254,7 +249,7 @@ namespace Vodovoz.Domain.Documents
 				outDeposits.RefundDeposit = incDeposits.ReceivedDeposit = deposits;
 				outDeposits.ReceivedDeposit = incDeposits.RefundDeposit = 0;
 			} else if(deposits < 0) {
-				outDeposits.ReceivedDeposit = incDeposits.RefundDeposit = deposits * -1;
+				outDeposits.ReceivedDeposit = incDeposits.RefundDeposit = -deposits;
 				outDeposits.RefundDeposit = incDeposits.ReceivedDeposit = 0;
 			}
 		}
@@ -263,31 +258,15 @@ namespace Vodovoz.Domain.Documents
 		{
 			if(FromClient == null)
 				yield return new ValidationResult(String.Format("Клиент-отправитель не указан."),
-				                                  new[] { this.GetPropertyName(o => o.FromClient) });
-
-			if(FromDeliveryPoint == null)
-				yield return new ValidationResult(String.Format("Точка доставки отправителя не указана."),
-												  new[] { this.GetPropertyName(o => o.FromDeliveryPoint) });
+												  new[] { this.GetPropertyName(o => o.FromClient) });
 
 			if(ToClient == null)
 				yield return new ValidationResult(String.Format("Клиент-получатель не указан."),
 												  new[] { this.GetPropertyName(o => o.ToClient) });
 
-			if(ToDeliveryPoint == null)
-				yield return new ValidationResult(String.Format("Точка доставки получателя не указана."),
-												  new[] { this.GetPropertyName(o => o.ToDeliveryPoint) });
-			
-			if(FromDeliveryPoint == ToDeliveryPoint)
+			if(FromDeliveryPoint != null && ToDeliveryPoint != null && FromDeliveryPoint == ToDeliveryPoint)
 				yield return new ValidationResult(String.Format("Точки доставки отправителя и получателя одинаковые."),
 												  new[] { this.GetPropertyName(o => o.FromDeliveryPoint), this.GetPropertyName(o => o.ToDeliveryPoint) });
-
-		/*	if(OutBottlesOperation == null
-			   && OutBottlesDepositOperation == null
-			   && OutEquipmentDepositOperation == null)
-				yield return new ValidationResult(String.Format("Вы ничего не указали для перемещения."),
-												  new[] {this.GetPropertyName(o => o.OutBottlesOperation),
-														this.GetPropertyName(o => o.OutBottlesDepositOperation),
-														this.GetPropertyName(o => o.OutEquipmentDepositOperation)}); */
 		}
 	}
 }

@@ -21,7 +21,7 @@
     docs.doc_date,
     docs.doc_payment_type,
     ifnull(docs.delivery_point_id, '0') AS delivery_point_id,
-    docs.delivery_point_address,
+    IFNULL(docs.delivery_point_address, 'Самовывоз') AS delivery_point_address,
     docs.doc_name,
     docs.doc_status,
     case

@@ -7,6 +7,7 @@ using QSValidation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModelBased;
+using QS.Project.Domain;
 
 namespace Vodovoz
 {

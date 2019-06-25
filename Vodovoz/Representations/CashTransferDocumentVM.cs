@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.RepresentationModel.GtkUI;
 using QS.Utilities.Text;
 using QSProjectsLib;

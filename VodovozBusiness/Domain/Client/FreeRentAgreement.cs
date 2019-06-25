@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {
@@ -38,10 +38,7 @@ namespace Vodovoz.Domain.Client
 			foreach (ValidationResult result in base.Validate (validationContext))
 				yield return result;
 			
-			if (DeliveryPoint == null)
-				yield return new ValidationResult ("Необходимо указать точку доставки.", new[] { "DeliveryPoint" });
-
-			if (Equipment.Count < 1)
+			if (!Equipment.Any())
 				yield return new ValidationResult("Необходимо добавить в список оборудование", new[] { "Equipment" });
 		}
 

@@ -36,6 +36,7 @@ namespace Vodovoz.ReportsParameters.Payments
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			this.table1.BorderWidth = ((uint)(6));
@@ -87,6 +88,7 @@ namespace Vodovoz.ReportsParameters.Payments
 			this.rbtnCustomPeriod = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Начиная с даты"));
 			this.rbtnCustomPeriod.CanFocus = true;
 			this.rbtnCustomPeriod.Name = "rbtnCustomPeriod";
+			this.rbtnCustomPeriod.Active = true;
 			this.rbtnCustomPeriod.DrawIndicator = true;
 			this.rbtnCustomPeriod.UseUnderline = true;
 			this.rbtnCustomPeriod.Group = new global::GLib.SList(global::System.IntPtr.Zero);

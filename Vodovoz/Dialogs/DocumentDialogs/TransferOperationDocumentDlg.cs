@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using NHibernate.Criterion;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -40,14 +38,13 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			ConfigureDlg();
 		}
 
-		public TransferOperationDocumentDlg(TransferOperationDocument sub) : this (sub.Id)
+		public TransferOperationDocumentDlg(TransferOperationDocument sub) : this(sub.Id)
 		{
 		}
 
 		void ConfigureDlg()
 		{
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-		//	datepickerDate.Date = Entity.TimeStamp;
 			datepickerDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
@@ -58,16 +55,13 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			referenceCounterpartyTo.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
-			referenceDeliveryPointTo.CanEditReference = false;
-			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPointTo.Binding.AddBinding(Entity, e => e.ToDeliveryPoint, w => w.Subject).InitializeFromSource();
-			referenceDeliveryPointFrom.CanEditReference = false;
-			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPointFrom.Binding.AddBinding(Entity, e => e.FromDeliveryPoint, w => w.Subject).InitializeFromSource();
 			repEntryEmployee.RepresentationModel = new EmployeesVM();
 			repEntryEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
 			transferoperationdocumentitemview1.DocumentUoW = UoWGeneric;
+
+			if(Entity.FromClient != null)
+				RefreshSpinButtons();
 		}
 
 		public override bool Save()
@@ -77,11 +71,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			var valid = new QSValidator<TransferOperationDocument>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
-			
 
 			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			Entity.TimeStamp = datepickerDate.Date;
-		//	Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
@@ -101,70 +92,66 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		protected void OnReferenceCounterpartyFromChanged(object sender, EventArgs e)
 		{
-			referenceDeliveryPointFrom.Sensitive = referenceCounterpartyFrom.Subject != null;
-			if(referenceCounterpartyFrom.Subject != null) {
-				var points = ((Counterparty)referenceCounterpartyFrom.Subject).DeliveryPoints.Select(o => o.Id).ToList();
-				referenceDeliveryPointFrom.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint>()
-					.Add(Restrictions.In("Id", points));
+			ySpecCmbDeliveryPointFrom.Sensitive = Entity.FromClient != null;
+			if(Entity.FromClient != null) {
+				ySpecCmbDeliveryPointFrom.SetRenderTextFunc<DeliveryPoint>(d => d.ShortAddress);
+				ySpecCmbDeliveryPointFrom.ItemsList = Entity.FromClient.DeliveryPoints;
+				ySpecCmbDeliveryPointFrom.Binding.AddBinding(Entity, t => t.FromDeliveryPoint, w => w.SelectedItem).InitializeFromSource();
+				RefreshSpinButtons();
+				ySpecCmbDeliveryPointFrom.Changed += (s, ea) => RefreshSpinButtons();
 			}
 		}
 
 		protected void OnReferenceCounterpartyToChanged(object sender, EventArgs e)
 		{
-			referenceDeliveryPointTo.Sensitive = referenceCounterpartyTo.Subject != null;
-			if(referenceCounterpartyTo.Subject != null) {
-				var points = ((Counterparty)referenceCounterpartyTo.Subject).DeliveryPoints.Select(o => o.Id).ToList();
-				referenceDeliveryPointTo.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint>()
-					.Add(Restrictions.In("Id", points));
+			ySpecCmbDeliveryPointTo.Sensitive = Entity.ToClient != null;
+			if(Entity.ToClient != null) {
+				ySpecCmbDeliveryPointTo.SetRenderTextFunc<DeliveryPoint>(d => d.ShortAddress);
+				ySpecCmbDeliveryPointTo.ItemsList = Entity.ToClient.DeliveryPoints;
+				ySpecCmbDeliveryPointTo.Binding.AddBinding(Entity, t => t.ToDeliveryPoint, w => w.SelectedItem).InitializeFromSource();
 			}
-		}
-
-		protected void OnReferenceDeliveryPointFromChanged(object sender, EventArgs e)
-		{
-			RefreshSpinButtons();
 		}
 
 		protected void OnCheckbuttonLockToggled(object sender, EventArgs e)
 		{
-			if(referenceDeliveryPointFrom.Subject != null)
+			if(Entity.FromClient != null)
 				RefreshSpinButtons();
 		}
 
 		protected void RefreshSpinButtons()
 		{
-			int bottlesMax = BottlesRepository.GetBottlesAtDeliveryPoint(UoWGeneric, Entity.FromDeliveryPoint, Entity.TimeStamp);
-			decimal depositsBottlesMax = DepositRepository.GetDepositsAtDeliveryPoint(UoWGeneric, Entity.FromDeliveryPoint, DepositType.Bottles, Entity.TimeStamp);
-			decimal depositsEquipmentMax = DepositRepository.GetDepositsAtDeliveryPoint(UoWGeneric, Entity.FromDeliveryPoint, DepositType.Equipment, Entity.TimeStamp);
+			int bottlesMax = BottlesRepository.GetBottlesAtCouterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, Entity.TimeStamp);
+			decimal depositsBottlesMax = DepositRepository.GetDepositsAtCounterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, DepositType.Bottles, Entity.TimeStamp);
+			decimal depositsEquipmentMax = DepositRepository.GetDepositsAtCounterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, DepositType.Equipment, Entity.TimeStamp);
 
-			if(Entity.OutBottlesOperation != null) {
+			if(Entity.OutBottlesOperation != null)
 				spinBottles.Value = Entity.OutBottlesOperation.Returned != 0 ? Entity.OutBottlesOperation.Returned : (Entity.OutBottlesOperation.Delivered * -1);
-			} else
+			else
 				spinBottles.Value = 0;
 
-			if(Entity.OutBottlesDepositOperation != null) {
+			if(Entity.OutBottlesDepositOperation != null)
 				spinDepositsBottles.Value = (double)(Entity.OutBottlesDepositOperation.RefundDeposit != 0 ? Entity.OutBottlesDepositOperation.RefundDeposit : (Entity.OutBottlesDepositOperation.ReceivedDeposit * -1));
-			} else
+			else
 				spinDepositsBottles.Value = 0;
 
-			if(Entity.OutEquipmentDepositOperation != null) {
+			if(Entity.OutEquipmentDepositOperation != null)
 				spinDepositsEquipment.Value = (double)(Entity.OutEquipmentDepositOperation.RefundDeposit != 0 ? Entity.OutEquipmentDepositOperation.RefundDeposit : (Entity.OutEquipmentDepositOperation.ReceivedDeposit * -1));
-			} else
+			else
 				spinDepositsEquipment.Value = 0;
 
 			if(Math.Abs(bottlesMax) < Math.Abs(spinBottles.Value)
 			   || Math.Abs(depositsBottlesMax) < Math.Abs((decimal)spinDepositsBottles.Value)
-				|| Math.Abs(depositsEquipmentMax) < Math.Abs((decimal)spinDepositsEquipment.Value))
-			{
+				|| Math.Abs(depositsEquipmentMax) < Math.Abs((decimal)spinDepositsEquipment.Value)) {
 				checkbuttonLock.Active = false;
 			}
 
-			spinBottles.Sensitive = referenceDeliveryPointFrom.Subject != null;
+			spinBottles.Sensitive = Entity.FromClient != null;
 			labelBottlesMax.LabelProp = bottlesMax.ToString();
 
-			spinDepositsBottles.Sensitive = referenceDeliveryPointFrom.Subject != null;
+			spinDepositsBottles.Sensitive = Entity.FromClient != null;
 			labelDepositsBottlesMax.LabelProp = depositsBottlesMax.ToString();
 
-			spinDepositsEquipment.Sensitive = referenceDeliveryPointFrom.Subject != null;
+			spinDepositsEquipment.Sensitive = Entity.FromClient != null;
 			labelDepositsEquipmentMax.LabelProp = depositsEquipmentMax.ToString();
 
 			if(checkbuttonLock.Active) {
@@ -208,8 +195,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		protected void OnSpinDepositsEquipmentChanged(object sender, EventArgs e)
 		{
-			if(Entity.OutEquipmentDepositOperation == null)
-			{
+			if(Entity.OutEquipmentDepositOperation == null) {
 				this.HasChanges = spinDepositsEquipment.Value != 0;
 				return;
 			}

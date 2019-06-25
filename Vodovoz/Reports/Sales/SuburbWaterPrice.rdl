@@ -28,7 +28,7 @@
     orders.id,
     counterparty.name AS client,
     counterparty.comment,
-    orders.address_1c,
+    IF(orders.self_delivery, 'Самовывоз', orders.address_1c) AS address_1c,
     delivery_points.distance_from_center_meters,
     SUM(order_items.count) AS water_count,
     schedule_restricted_districts.min_bottles,
@@ -123,7 +123,7 @@ ORDER BY orders.id;</CommandText>
     orders.id,
     counterparty.name AS client,
     counterparty.comment,
-    orders.address_1c,
+    IF(orders.self_delivery, 'Самовывоз', orders.address_1c) AS address_1c,
     SUM(order_items.count) AS water_count,
     SUM(order_items.count * order_items.price) / SUM(order_items.count) AS avg_price
 FROM

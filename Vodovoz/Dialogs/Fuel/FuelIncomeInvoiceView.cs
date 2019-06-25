@@ -1,7 +1,7 @@
-﻿using Vodovoz.Infrastructure.Views;
-using Vodovoz.Domain.Fuel;
+﻿using Vodovoz.Domain.Fuel;
 using Gtk;
 using Gamma.GtkWidgets;
+using QS.Views.GtkUI;
 
 namespace Vodovoz.Dialogs.Fuel
 {

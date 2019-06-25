@@ -1099,7 +1099,7 @@
 	o.delivery_date AS order_date,
 	o.id AS order_id,
 	c.full_name AS client,
-	dp.compiled_address_short AS address,
+	IF(o.self_delivery, 'Самовывоз', dp.compiled_address_short) AS address,
 	o.online_order AS payment_nr_from_order,
 	p.total_sum AS sum_from_bank,
 	o_sum.total AS sum_from_order,

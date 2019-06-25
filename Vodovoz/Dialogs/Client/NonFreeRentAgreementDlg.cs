@@ -3,6 +3,7 @@ using System.Linq;
 using NLog;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Project.Repositories;
 using QSOrmProject;
 using QSValidation;
@@ -131,17 +132,14 @@ namespace Vodovoz
 			logger.Info ("Сохраняем доп. соглашение...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
-			if (AgreementSaved != null)
-				AgreementSaved (this, new AgreementSavedEventArgs (UoWGeneric.Root));
+			AgreementSaved?.Invoke(this, new AgreementSavedEventArgs(UoWGeneric.Root));
 			return true;
 		}
 
 		protected void OnEntryMonthsChanged(object sender, EventArgs e)
 		{
-			int result = 0;
-			if(Int32.TryParse(entryMonths.Text, out result)) {
+			if(Int32.TryParse(entryMonths.Text, out int result))
 				Entity.RentMonths = result;
-			}
 		}
 	}
 }

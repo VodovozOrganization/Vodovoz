@@ -1,12 +1,5 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Fuel;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
-using NHibernate;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace Vodovoz.Repositories
 {

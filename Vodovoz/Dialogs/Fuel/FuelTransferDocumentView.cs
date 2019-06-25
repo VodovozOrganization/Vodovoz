@@ -1,6 +1,6 @@
 ﻿using Gamma.Utilities;
-using Vodovoz.Infrastructure.Views;
 using Gtk;
+using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Dialogs.Fuel

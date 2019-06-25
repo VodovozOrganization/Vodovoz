@@ -346,7 +346,7 @@
         <CommandText>SELECT 
     orders.delivery_date as date,
     counterparty.full_name as client,
-    delivery_points.compiled_address as address,
+    IF(orders.self_delivery, 'Самовывоз', delivery_points.compiled_address) as address,
     case
 		when orders.order_status = 'Canceled' then 'Отменен'
 		when orders.order_status = 'NotDelivered' then 'Недовоз'

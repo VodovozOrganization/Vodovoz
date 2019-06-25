@@ -754,7 +754,7 @@
 	SUM(T.water_count) AS water_count,
 	T.tare_to_collect,
 	T.status,
-	T.geo_group,
+	IF(T.is_self_delivery, "???", T.geo_group) AS geo_group,
 	T.rl_id,
 	T.driver
 FROM(
@@ -794,6 +794,7 @@ FROM(
 			WHEN 'DeliveryCanceled' THEN 'Доставка отменена'
 			ELSE orders.order_status
 		END AS status,
+        orders.self_delivery AS is_self_delivery,
 		GROUP_CONCAT(DISTINCT gg.name SEPARATOR ', ') AS geo_group,
 		rl.id AS rl_id,
 		IF(
@@ -821,7 +822,7 @@ FROM(
 	WHERE
 		orders.delivery_date = DATE(@date)
 		AND ((orders.payment_type = 'cash' AND orders.need_cheque = 'Yes') OR orders.payment_type = 'BeveragesWorld')
-		AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
+		AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups) OR gg.id IS NULL)
 	GROUP BY order_items.id
 	) AS T
 GROUP BY T.order_id

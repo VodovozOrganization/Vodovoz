@@ -30,7 +30,7 @@ namespace Vodovoz.JournalViewers
 
 		private global::Gtk.Button buttonChandgeEployee;
 
-		private global::QSOrmProject.EntryReferenceVM entryreferencevmEmployeeFilter;
+		private global::QS.Widgets.GtkUI.RepresentationEntry representationentryEmployee;
 
 		private global::Gamma.Widgets.yEnumComboBox taskStatusComboBox;
 
@@ -44,7 +44,7 @@ namespace Vodovoz.JournalViewers
 
 		private global::Gtk.VBox vbox2;
 
-		private global::Gtk.HBox hbox7;
+		private global::Gtk.HBox hbox8;
 
 		private global::QSWidgetLib.SearchEntity searchentity;
 
@@ -196,19 +196,15 @@ namespace Vodovoz.JournalViewers
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.entryreferencevmEmployeeFilter = new global::QSOrmProject.EntryReferenceVM();
-			this.entryreferencevmEmployeeFilter.Events = ((global::Gdk.EventMask)(256));
-			this.entryreferencevmEmployeeFilter.Name = "entryreferencevmEmployeeFilter";
-			this.hbox6.Add(this.entryreferencevmEmployeeFilter);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.entryreferencevmEmployeeFilter]));
+			this.representationentryEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
+			this.representationentryEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.representationentryEmployee.Name = "representationentryEmployee";
+			this.hbox6.Add(this.representationentryEmployee);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.representationentryEmployee]));
 			w15.Position = 1;
-			w15.Expand = false;
-			w15.Fill = false;
 			this.hboxEditSelected.Add(this.hbox6);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxEditSelected[this.hbox6]));
 			w16.Position = 0;
-			w16.Expand = false;
-			w16.Fill = false;
 			// Container child hboxEditSelected.Gtk.Box+BoxChild
 			this.taskStatusComboBox = new global::Gamma.Widgets.yEnumComboBox();
 			this.taskStatusComboBox.Name = "taskStatusComboBox";
@@ -275,18 +271,18 @@ namespace Vodovoz.JournalViewers
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox7 = new global::Gtk.HBox();
-			this.hbox7.Name = "hbox7";
-			this.hbox7.Spacing = 6;
-			// Container child hbox7.Gtk.Box+BoxChild
+			this.hbox8 = new global::Gtk.HBox();
+			this.hbox8.Name = "hbox8";
+			this.hbox8.Spacing = 6;
+			// Container child hbox8.Gtk.Box+BoxChild
 			this.searchentity = new global::QSWidgetLib.SearchEntity();
 			this.searchentity.Events = ((global::Gdk.EventMask)(256));
 			this.searchentity.Name = "searchentity";
-			this.hbox7.Add(this.searchentity);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.searchentity]));
+			this.hbox8.Add(this.searchentity);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.searchentity]));
 			w24.Position = 0;
-			this.vbox2.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
+			this.vbox2.Add(this.hbox8);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox8]));
 			w25.Position = 0;
 			w25.Expand = false;
 			w25.Fill = false;
@@ -318,7 +314,6 @@ namespace Vodovoz.JournalViewers
 			{
 				this.Child.ShowAll();
 			}
-			this.entryreferencevmEmployeeFilter.Hide();
 			this.hboxEditSelected.Hide();
 			this.calltaskfilterview.Hide();
 			this.Hide();
@@ -332,7 +327,6 @@ namespace Vodovoz.JournalViewers
 			this.radiobuttonEditSelected.Toggled += new global::System.EventHandler(this.OnRadiobuttonEditSelectedToggled);
 			this.radiobuttonEditSelected.Clicked += new global::System.EventHandler(this.OnRadiobuttonEditSelectedClicked);
 			this.buttonChandgeEployee.Clicked += new global::System.EventHandler(this.OnAssignedEmployeeButtonClicked);
-			this.entryreferencevmEmployeeFilter.ChangedByUser += new global::System.EventHandler(this.OnEntryreferencevmEmployeeFilterChangedByUser);
 			this.taskStatusComboBox.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnTaskstateButtonEnumItemClicked);
 			this.buttonCompleteSelected.Clicked += new global::System.EventHandler(this.OnCompleteTaskButtonClicked);
 			this.datepickerDeadlineChange.DateChangedByUser += new global::System.EventHandler(this.OnDatepickerDeadlineChangeDateChangedByUser);

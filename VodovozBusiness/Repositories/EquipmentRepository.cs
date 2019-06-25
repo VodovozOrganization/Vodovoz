@@ -322,9 +322,9 @@ namespace Vodovoz.Repository
 
 		public static IList<Equipment> GetEquipmentAtDeliveryPoint(IUnitOfWork uow, DeliveryPoint deliveryPoint)
 		{
-			return GetEquipmentAtDeliveryPointQuery(deliveryPoint.Counterparty, deliveryPoint)
-				.GetExecutableQueryOver(uow.Session)
-				.List();
+			return GetEquipmentAtDeliveryPointQuery(deliveryPoint?.Counterparty, deliveryPoint)
+					.GetExecutableQueryOver(uow.Session)
+					.List();
 		}
 
 		public static IList<Equipment> GetEquipmentForClient(IUnitOfWork uow, Counterparty counterparty)

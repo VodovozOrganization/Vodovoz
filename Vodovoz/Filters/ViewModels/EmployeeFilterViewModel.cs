@@ -1,11 +1,10 @@
 ﻿using System;
-using NHibernate.Criterion;
 using QS.DomainModel.Entity;
+using QS.Services;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Infrastructure.Services;
 namespace Vodovoz.Filters.ViewModels
 {
-	public class EmployeeFilterViewModel : FilterViewModelBase<EmployeeFilterViewModel>
+	public class EmployeeFilterViewModel : RepresentationFilterViewModelBase<EmployeeFilterViewModel>
 	{
 		private EmployeeCategory? category;
 		public virtual EmployeeCategory? Category {
@@ -34,16 +33,6 @@ namespace Vodovoz.Filters.ViewModels
 
 		public EmployeeFilterViewModel(ICommonServices services) : base((services ?? throw new ArgumentNullException(nameof(services))).InteractiveService)
 		{
-		}
-
-		public override ICriterion GetFilter()
-		{
-			if(!ShowFired)
-				Criterions.Add(Restrictions.Where<Employee>(x => !x.IsFired));
-			if(Category.HasValue)
-				Criterions.Add(Restrictions.Where<Employee>(x => x.Category == Category.Value));
-
-			return base.GetFilter();
 		}
 	}
 }

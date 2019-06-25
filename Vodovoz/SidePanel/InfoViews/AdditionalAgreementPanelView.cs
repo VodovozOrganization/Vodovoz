@@ -16,6 +16,7 @@ using Vodovoz.Repository.Client;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModelBased;
 using QS.DomainModel.NotifyChange;
+using QS.Project.Domain;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -40,14 +41,14 @@ namespace Vodovoz.SidePanel.InfoViews
 			labelRent.LineWrapMode = Pango.WrapMode.WordChar;
 			labelEquipmentCount.LineWrapMode = Pango.WrapMode.WordChar;
 
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<WaterSalesAgreement>(UpdateCriteria);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<WaterSalesAgreementFixedPrice>(UpdateCriteria);
 		}
 
 		void UpdateCriteria(EntityChangeEvent[] e)
 		{
 			if(DeliveryPoint != null) {
-				var wsaList = e.Select(l => l.GetEntity<WaterSalesAgreement>());
-				if(wsaList.Any(a => a.DeliveryPoint?.Id == DeliveryPoint.Id))
+				var fPrices = e.Select(l => l.GetEntity<WaterSalesAgreementFixedPrice>());
+				if(fPrices.Any(p => p.AdditionalAgreement?.DeliveryPoint?.Id == DeliveryPoint.Id))
 					Refresh();
 			}
 		}
@@ -61,7 +62,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			var allEquipmentAtDeliveryPoint = EquipmentRepository.GetEquipmentAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			labelEquipmentCount.Text = allEquipmentAtDeliveryPoint.Count + " шт.";
-			var nextServiceText = "";
+			var nextServiceText = string.Empty;
 			var equipmentsWithNextServiceDate = allEquipmentAtDeliveryPoint
 				.Where(eq => eq.NextServiceDate.HasValue);
 			var eqWithMinDate = equipmentsWithNextServiceDate
@@ -194,7 +195,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		protected void OnButtonWaterAgreementClicked(object sender, EventArgs e)
 		{
-			if(WaterAgreements.Length > 0) {
+			if(WaterAgreements != null && WaterAgreements.Any()) {
 				foreach(var wa in WaterAgreements) {
 					if(wa.Contract.Id != Contract?.Id)
 						continue;

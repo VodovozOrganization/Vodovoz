@@ -66,7 +66,6 @@ namespace Vodovoz
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.labelRecived = new global::Gtk.Label();
 			this.labelRecived.Name = "labelRecived";
-			this.labelRecived.LabelProp = global::Mono.Unix.Catalog.GetString("label2");
 			this.hbox4.Add(this.labelRecived);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.labelRecived]));
 			w5.PackType = ((global::Gtk.PackType)(1));
@@ -88,7 +87,8 @@ namespace Vodovoz
 			w7.Expand = false;
 			w7.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

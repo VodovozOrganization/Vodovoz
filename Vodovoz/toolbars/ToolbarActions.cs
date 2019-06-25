@@ -17,6 +17,9 @@ using Vodovoz.JournalViewers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
+using Vodovoz.JournalViewModels;
+using QS.DomainModel.Config;
+using Vodovoz.Filters.ViewModels;
 
 public partial class MainWindow : Window
 {
@@ -609,15 +612,10 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<OrdersVM>(),
-			() => {
-				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"]
-					? Buttons.All
-					: (Buttons.Add | Buttons.Edit);
-				return new PermissionControlledRepresentationJournal(new OrdersVM(), buttons).CustomTabName("Журнал заказов");
-			}
-		);
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
+		var ordersJournal = new OrderJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices);
+		tdiMain.AddTab(ordersJournal);
 	}
 
 	void ActionUndeliveredOrdersActivated(object sender, System.EventArgs e)
