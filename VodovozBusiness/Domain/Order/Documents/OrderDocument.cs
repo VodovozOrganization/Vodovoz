@@ -62,7 +62,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual int CopiesToPrint {
 			get {
 				if(copiesToPrint < 0 && typesForVariableQuantity.Contains(Type))
-					return Order.DocumentType.Value == DefaultDocumentType.torg12 ? 1 : 2;
+					return Order.DocumentType.HasValue && Order.DocumentType.Value == DefaultDocumentType.torg12 ? 1 : 2;
 				return copiesToPrint;
 			}
 			set => copiesToPrint = value;
