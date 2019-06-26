@@ -15,6 +15,7 @@ using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModelBased;
+using Vodovoz.Repository.Cash;
 
 namespace Vodovoz.Representations
 {
@@ -56,6 +57,11 @@ namespace Vodovoz.Representations
 
 				.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
 				.Finish();
+		}
+
+		public override string GetSummaryInfo()
+		{
+			return $"{base.GetSummaryInfo()}. В сейфе инкасcатора: {CurrencyWorks.GetShortCurrencyString(CashRepository.GetCashInTransfering(UoW))}";
 		}
 
 		private void RegisterIncomeTransfer()
