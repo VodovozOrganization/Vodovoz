@@ -644,7 +644,7 @@ FROM
     GROUP BY T.route_list_id) AS PhoneSums ON PhoneSums.route_list_id = route_lists.id
     LEFT JOIN (SELECT 
         orders.id AS order_id,
-            IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0) AS TotalOrdersSum
+            IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0) AS TotalOrdersSum
     FROM
         orders
     LEFT JOIN order_items ON order_items.order_id = orders.id
