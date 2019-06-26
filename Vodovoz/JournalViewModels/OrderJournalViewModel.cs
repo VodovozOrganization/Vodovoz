@@ -44,6 +44,7 @@ namespace Vodovoz.JournalViewModels
 				() => lastEditorAlias.Patronymic,
 				() => orderAlias.LastEditedTime,
 				() => orderAlias.DriverCallId,
+				() => orderAlias.OnlineOrder,
 				() => orderAlias.Id
 			);
 		}
