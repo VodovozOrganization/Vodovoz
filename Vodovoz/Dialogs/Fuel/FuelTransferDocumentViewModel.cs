@@ -101,6 +101,7 @@ namespace Vodovoz.Dialogs.Fuel
 
 		public bool CanEdit => Entity.Status == FuelTransferDocumentStatuses.New;
 		public bool CanSave => (CanEdit && HasChanges) || sendedNow || receivedNow;
+		public bool CanPrint => !CanEdit && !UoW.IsNew;
 
 		private bool sendedNow;
 		[PropertyChangedAlso(nameof(CanSave))]
@@ -149,11 +150,13 @@ namespace Vodovoz.Dialogs.Fuel
 
 		public DelegateCommand SendCommand { get; private set; }
 		public DelegateCommand ReceiveCommand { get; private set; }
+		public DelegateCommand PrintCommand { get; private set; }
 
 		private void CreateCommands()
 		{
 			CreateSendCommand();
 			CreateReceiveCommand();
+			CreatePrintCommand();
 		}
 
 		private void CreateSendCommand()
@@ -208,6 +211,23 @@ namespace Vodovoz.Dialogs.Fuel
 				x => x.Id
 			);
 			ReceiveCommand.CanExecuteChanged += (sender, e) => { OnPropertyChanged(() => CanReceive); };
+		}
+
+		private void CreatePrintCommand()
+		{
+			PrintCommand = new DelegateCommand(
+				() => {
+					var reportInfo = new QS.Report.ReportInfo {
+						Title = String.Format($"Документ перемещения №{Entity.Id} от {Entity.CreationTime:d}"),
+						Identifier = "Documents.FuelTransferDocument",
+						Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } }
+					};
+
+					var report = new QSReport.ReportViewDlg(reportInfo);
+					TabParent.AddTab(report, this, false);
+				},
+				() => Entity.Id != 0
+			);
 		}
 
 		#endregion

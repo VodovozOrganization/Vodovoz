@@ -1198,6 +1198,7 @@
     <Compile Include="JournalNodes\CounterpartyJournalNode.cs" />
     <Compile Include="JournalViewModels\SelfDeliveriesJournalViewModel.cs" />
     <Compile Include="JournalNodes\SelfDeliveryJournalNode.cs" />
+    <Compile Include="Infrastructure\Converters\BooleanInvertedConverted.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1820,6 +1821,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bottles\ProfitabilityBottlesByStock.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\FuelTransferDocument.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
