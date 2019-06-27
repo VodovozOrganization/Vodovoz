@@ -1049,7 +1049,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeSelfDeliveryDlg.cs" />
     <Compile Include="Dialogs\Cash\CashIncomeCategoryDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeCategoryDlg.cs" />
-    <Compile Include="Representations\SelfDeliveriesVM.cs" />
     <Compile Include="Dialogs\Cash\CashExpenseSelfDeliveryDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashExpenseSelfDeliveryDlg.cs" />
     <Compile Include="ReportsParameters\Logistic\OrdersByDistrictsAndDeliverySchedulesReport.cs" />
@@ -1197,6 +1196,8 @@
     <Compile Include="Filters\GtkViews\CounterpartyFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CounterpartyFilterView.cs" />
     <Compile Include="JournalNodes\CounterpartyJournalNode.cs" />
+    <Compile Include="JournalViewModels\SelfDeliveriesJournalViewModel.cs" />
+    <Compile Include="JournalNodes\SelfDeliveryJournalNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

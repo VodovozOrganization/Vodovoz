@@ -358,25 +358,20 @@ public partial class MainWindow : Window
 		);
 	}
 
-
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			"SelfDeliveryJournal",
-			() => {
-				var filterOrders = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
-				filterOrders.SetAndRefilterAtOnce(
-					x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
-					x => x.AllowPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld, PaymentType.cashless, PaymentType.ByCard },
-					x => x.RestrictSelfDelivery = true,
-					x => x.RestrictWithoutSelfDelivery = false,
-					x => x.RestrictHideService = true,
-					x => x.RestrictOnlyService = false
-				);
-				SelfDeliveriesVM vm = new SelfDeliveriesVM(filterOrders);
-				return new PermissionControlledRepresentationJournal(vm, Buttons.None).CustomTabName("Журнал самовывозов");
-			}
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		filter.SetAndRefilterAtOnce(
+			x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
+			x => x.AllowPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld, PaymentType.cashless, PaymentType.ByCard },
+			x => x.RestrictOnlySelfDelivery = true,
+			x => x.RestrictWithoutSelfDelivery = false,
+			x => x.RestrictHideService = true,
+			x => x.RestrictOnlyService = false
 		);
+		filter.HidenByDefault = true;
+		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(filter, new DefaultEntityConfigurationProvider(), ServicesConfig.CommonServices);
+		tdiMain.AddTab(selfDeliveriesJournal);
 	}
 
 	void ActionCashTransferDocuments_Activated(object sender, System.EventArgs e)

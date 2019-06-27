@@ -1,15 +1,14 @@
 ﻿using System;
 using QS.Project.Filter;
-using QS.Project.Journal;
+using QS.RepresentationModel.GtkUI;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using QS.RepresentationModel.GtkUI;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class OrderJournalFilterViewModel : FilterViewModelBase<OrderJournalFilterViewModel>, IJournalFilter
+	public class OrderJournalFilterViewModel : FilterViewModelBase<OrderJournalFilterViewModel>
 	{
 		public OrderJournalFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
 		{
@@ -43,9 +42,11 @@ namespace Vodovoz.Filters.ViewModels
 			set {
 				if(SetField(ref restrictStatus, value, () => RestrictStatus)) {
 					Update();
+					CanChangeStatus = false;
 				}
 			}
 		}
+		public bool CanChangeStatus { get; private set; } = true;
 
 		private object[] hideStatuses;
 		public virtual object[] HideStatuses {
@@ -73,9 +74,11 @@ namespace Vodovoz.Filters.ViewModels
 			set {
 				if(SetField(ref restrictPaymentType, value, () => RestrictPaymentType)) {
 					Update();
+					CanChangePaymentType = false;
 				}
 			}
 		}
+		public bool CanChangePaymentType { get; private set; } = true;
 
 		private PaymentType[] allowPaymentTypes;
 		public virtual PaymentType[] AllowPaymentTypes {
@@ -94,9 +97,11 @@ namespace Vodovoz.Filters.ViewModels
 				if(SetField(ref restrictCounterparty, value, () => RestrictCounterparty)) {
 					UpdateDeliveryPointRepresentationModel();
 					Update();
+					CanChangeCounterparty = false;
 				}
 			}
 		}
+		public bool CanChangeCounterparty { get; private set; } = true;
 
 		private DeliveryPoint restrictDeliveryPoint;
 		public virtual DeliveryPoint RestrictDeliveryPoint {
@@ -104,9 +109,11 @@ namespace Vodovoz.Filters.ViewModels
 			set {
 				if(SetField(ref restrictDeliveryPoint, value, () => RestrictDeliveryPoint)) {
 					Update();
+					CanChangeDeliveryPoint = false;
 				}
 			}
 		}
+		public bool CanChangeDeliveryPoint { get; private set; } = true;
 
 		private DateTime? restrictStartDate;
 		public virtual DateTime? RestrictStartDate {
@@ -114,9 +121,11 @@ namespace Vodovoz.Filters.ViewModels
 			set {
 				if(SetField(ref restrictStartDate, value, () => RestrictStartDate)) {
 					Update();
+					CanChangeStartDate = false;
 				}
 			}
 		}
+		public bool CanChangeStartDate { get; private set; } = true;
 
 		private DateTime? restrictEndDate;
 		public virtual DateTime? RestrictEndDate {
@@ -124,9 +133,11 @@ namespace Vodovoz.Filters.ViewModels
 			set {
 				if(SetField(ref restrictEndDate, value, () => RestrictEndDate)) {
 					Update();
+					CanChangeEndDate = false;
 				}
 			}
 		}
+		public bool CanChangeEndDate { get; private set; } = true;
 
 		private bool restrictOnlyWithoutCoodinates;
 		public virtual bool RestrictOnlyWithoutCoodinates {
@@ -134,9 +145,11 @@ namespace Vodovoz.Filters.ViewModels
 			set {
 				if(SetField(ref restrictOnlyWithoutCoodinates, value, () => RestrictOnlyWithoutCoodinates)) {
 					Update();
+					CanChangeWithoutCoodinates = false;
 				}
 			}
 		}
+		public bool CanChangeWithoutCoodinates { get; private set; } = true;
 
 		private bool? restrictLessThreeHours;
 		public virtual bool? RestrictLessThreeHours {
@@ -144,9 +157,11 @@ namespace Vodovoz.Filters.ViewModels
 			set {
 				if(SetField(ref restrictLessThreeHours, value, () => RestrictLessThreeHours)) {
 					Update();
+					CanChangeLessThreeHours = false;
 				}
 			}
 		}
+		public bool CanChangeLessThreeHours { get; private set; } = true;
 
 		#region Selfdelivery
 
@@ -159,9 +174,11 @@ namespace Vodovoz.Filters.ViewModels
 						RestrictWithoutSelfDelivery = false;
 					}
 					Update();
+					CanChangeOnlySelfDelivery = false;
 				}
 			}
 		}
+		public bool CanChangeOnlySelfDelivery { get; private set; } = true;
 
 		private bool? restrictWithoutSelfDelivery;
 		public virtual bool? RestrictWithoutSelfDelivery {
@@ -172,11 +189,13 @@ namespace Vodovoz.Filters.ViewModels
 						RestrictOnlySelfDelivery = false;
 					}
 					Update();
+					CanChangeWithoutSelfDelivery = false;
 				}
 			}
 		}
+		public bool CanChangeWithoutSelfDelivery { get; private set; } = true;
 
-		#endregion	
+		#endregion
 
 		#region Services
 
@@ -189,9 +208,11 @@ namespace Vodovoz.Filters.ViewModels
 						RestrictOnlyService = false;
 					}
 					Update();
+					CanChangeHideService = false;
 				}
 			}
 		}
+		public bool CanChangeHideService { get; private set; } = true;
 
 		private bool? restrictOnlyService;
 		public virtual bool? RestrictOnlyService {
@@ -202,9 +223,11 @@ namespace Vodovoz.Filters.ViewModels
 						RestrictHideService = false;
 					}
 					Update();
+					CanChangeOnlyService = false;
 				}
 			}
 		}
+		public bool CanChangeOnlyService { get; private set; } = true;
 
 		#endregion
 
