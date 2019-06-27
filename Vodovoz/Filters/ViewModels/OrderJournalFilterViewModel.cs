@@ -143,10 +143,9 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual bool RestrictOnlyWithoutCoodinates {
 			get => restrictOnlyWithoutCoodinates;
 			set {
-				if(SetField(ref restrictOnlyWithoutCoodinates, value, () => RestrictOnlyWithoutCoodinates)) {
+				if(SetField(ref restrictOnlyWithoutCoodinates, value, () => RestrictOnlyWithoutCoodinates))
 					Update();
-					CanChangeWithoutCoodinates = false;
-				}
+				CanChangeWithoutCoodinates = false;
 			}
 		}
 		public bool CanChangeWithoutCoodinates { get; private set; } = true;

@@ -367,7 +367,9 @@ public partial class MainWindow : Window
 			x => x.RestrictOnlySelfDelivery = true,
 			x => x.RestrictWithoutSelfDelivery = false,
 			x => x.RestrictHideService = true,
-			x => x.RestrictOnlyService = false
+			x => x.RestrictOnlyService = false,
+			x => x.RestrictLessThreeHours = false,
+			x => x.RestrictOnlyWithoutCoodinates = false
 		);
 		filter.HidenByDefault = true;
 		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(filter, new DefaultEntityConfigurationProvider(), ServicesConfig.CommonServices);

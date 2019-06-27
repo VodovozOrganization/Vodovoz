@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NHibernate;
@@ -50,7 +51,6 @@ namespace Vodovoz.Representations
 		Counterparty counterpartyAlias = null;
 		DeliveryPoint deliveryPointAlias = null;
 		Employee authorAlias = null;
-
 
 		IQueryOver<VodovozOrder, VodovozOrder> BaseQuery(Func<IQueryOver<VodovozOrder, VodovozOrder>, IQueryOver<VodovozOrder, VodovozOrder>> func)
 		{
@@ -148,11 +148,11 @@ namespace Vodovoz.Representations
 			return result;
 		};
 
-		public override IJournalAction RowActivatedAction { get => null; protected set { } }
+		public override IEnumerable<IJournalAction> NodeActions => new List<IJournalAction>();
 
 		protected override Func<OrderDlg> CreateDialogFunction => () => throw new ApplicationException();
 
-		protected override Func<SelfDeliveryJournalNode, OrderDlg> OpenDialogFunction => node => throw new ApplicationException();
+		protected override Func<SelfDeliveryJournalNode, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
 
 		public override string FooterInfo {
 			get {
