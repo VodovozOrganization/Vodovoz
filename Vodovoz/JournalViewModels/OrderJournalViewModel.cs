@@ -29,7 +29,7 @@ namespace Vodovoz.JournalViewModels
 		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал заказов";
-			SetOrder<OrderJournalNode>(x => x.DeliveryTime, true);
+			SetOrder<OrderJournalNode>(x => x.CreateDate, true);
 
 			RegisterAliasPropertiesToSearch(
 				() => counterpartyAlias.Name,
@@ -161,6 +161,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => orderAlias.SelfDelivery).WithAlias(() => resultAlias.IsSelfDelivery)
 				   .Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
+				   .Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.CreateDate)
 				   .Select(() => deliveryScheduleAlias.Name).WithAlias(() => resultAlias.DeliveryTime)
 				   .Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
 				   .Select(() => orderAlias.Address1c).WithAlias(() => resultAlias.Address1c)
