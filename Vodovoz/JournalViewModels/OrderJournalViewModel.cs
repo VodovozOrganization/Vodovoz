@@ -24,8 +24,17 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class OrderJournalViewModel : SingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel>
+	public class OrderJournalViewModel : SingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode>
 	{
+		private OrderJournalFilterViewModel filterViewModel;
+		public OrderJournalFilterViewModel FilterViewModel {
+			get { return filterViewModel; }
+			set {
+				filterViewModel = value;
+				Filter = filterViewModel;
+			}
+		}
+
 		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал заказов";
@@ -47,6 +56,7 @@ namespace Vodovoz.JournalViewModels
 				() => orderAlias.OnlineOrder,
 				() => orderAlias.Id
 			);
+			FilterViewModel = filterViewModel;
 		}
 
 		OrderJournalNode resultAlias = null;

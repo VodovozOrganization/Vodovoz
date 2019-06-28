@@ -13,9 +13,18 @@ using NHibernate.Dialect.Function;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class CounterpartyJournalViewModel : SingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
+	public class CounterpartyJournalViewModel : SingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode>
 	{
-		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filter, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filter, entityConfigurationProvider, commonServices)
+		private CounterpartyJournalFilterViewModel filterViewModel;
+		public CounterpartyJournalFilterViewModel FilterViewModel {
+			get { return filterViewModel; }
+			set {
+				filterViewModel = value;
+				Filter = filterViewModel;
+			}
+		}
+
+		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filter, entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал контрагентов";
 			RegisterAliasPropertiesToSearch(
@@ -25,6 +34,7 @@ namespace Vodovoz.JournalViewModels
 				() => counterpartyAlias.INN,
 				() => phoneAlias.DigitsNumber
 			);
+			FilterViewModel = filterViewModel;
 		}
 
 		CounterpartyJournalNode resultAlias = null;
