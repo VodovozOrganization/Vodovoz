@@ -365,13 +365,6 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.DistrictName)
 				   .End();
-			OrmMain.AddObjectDescription<ClientCameFrom>().Dialog<ClientCameFromDlg>().DefaultTableView()
-				   .SearchColumn("Код", x => x.Id.ToString())
-				   .SearchColumn("Название", x => x.Name)
-				   .Column("В архиве?", x => x.IsArchive ? "Да" : "Нет")
-				   .OrderAsc(x => x.IsArchive)
-				   .OrderAsc(x => x.Name)
-				   .End();
 			#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());

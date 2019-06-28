@@ -989,8 +989,6 @@
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.UndeliveriesView.cs" />
     <Compile Include="Dialogs\UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveredOrderCommentsDlg.cs" />
-    <Compile Include="Dialogs\Client\ClientCameFromDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.ClientCameFromDlg.cs" />
     <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.ProductGroupDlg.cs" />
     <Compile Include="Dialogs\OnlineStore\ExportToSiteDlg.cs" />
