@@ -3,15 +3,15 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QS.Project.Repositories;
+using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
@@ -87,8 +87,8 @@ namespace Vodovoz
 
 			UpdateRouteListInfo();
 			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyLoaded(UoW);
-			Entity.UpdateInRouteListAmount(UoW);
+			Entity.UpdateAlreadyLoaded(UoW, new RouteListRepository());
+			Entity.UpdateInRouteListAmount(UoW, new RouteListRepository());
 			carloaddocumentview1.DocumentUoW = UoWGeneric;
 			carloaddocumentview1.SetButtonEditing(editing);
 			if(UoW.IsNew && Entity.Warehouse != null)
@@ -102,7 +102,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			Entity.UpdateAlreadyLoaded(UoW);
+			Entity.UpdateAlreadyLoaded(UoW, new RouteListRepository());
 			var valid = new QSValidation.QSValidator<CarLoadDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;

@@ -11,6 +11,7 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -131,14 +132,16 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add(item);
 		}
 
-		public virtual void FillFromRouteList(IUnitOfWork uow, bool warehouseOnly)
+		public virtual void FillFromRouteList(IUnitOfWork uow, IRouteListRepository routeListRepository, bool warehouseOnly)
 		{
+			if(routeListRepository == null)
+				throw new ArgumentNullException(nameof(routeListRepository));
+
 			ObservableItems.Clear();
 			if(RouteList == null || (Warehouse == null && warehouseOnly))
 				return;
 
-			var goodsAndEquips = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(uow,
-							RouteList, warehouseOnly ? Warehouse : null);
+			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRL(uow, RouteList, warehouseOnly ? Warehouse : null);
 			var nomenclatures = uow.GetById<Nomenclature>(goodsAndEquips.Select(x => x.NomenclatureId).ToArray());
 
 			foreach(var inRoute in goodsAndEquips) {
@@ -153,12 +156,14 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateInRouteListAmount(IUnitOfWork uow)
+		public virtual void UpdateInRouteListAmount(IUnitOfWork uow, IRouteListRepository routeListRepository)
 		{
+			if(routeListRepository == null)
+				throw new ArgumentNullException(nameof(routeListRepository));
+
 			if(RouteList == null)
 				return;
-			var goodsAndEquips = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(
-				uow, RouteList, null);
+			var goodsAndEquips = routeListRepository.GetGoodsAndEquipsInRL(uow, RouteList, null);
 
 			foreach(var item in Items) {
 				var aGoods = goodsAndEquips.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
@@ -184,15 +189,18 @@ namespace Vodovoz.Domain.Documents
 				item.AmountInStock = inStock[item.Nomenclature.Id];
 		}
 
-		public virtual void UpdateAlreadyLoaded(IUnitOfWork uow)
+		public virtual void UpdateAlreadyLoaded(IUnitOfWork uow, IRouteListRepository routeListRepository)
 		{
+			if(routeListRepository == null)
+				throw new ArgumentNullException(nameof(routeListRepository));
+
 			if(!Items.Any() || Warehouse == null)
 				return;
 
-			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(uow, RouteList, this);
+			var inLoaded = routeListRepository.AllGoodsLoaded(uow, RouteList, this);
 
 			foreach(var item in Items) {
-				Repository.Logistics.RouteListRepository.GoodsLoadedListResult found;
+				GoodsLoadedListResult found;
 				found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
 				if(found != null)
 					item.AmountLoaded = found.Amount;

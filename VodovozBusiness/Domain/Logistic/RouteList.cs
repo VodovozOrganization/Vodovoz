@@ -20,10 +20,10 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository.Cash;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 
@@ -614,8 +614,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool ShipIfCan(IUnitOfWork uow)
 		{
-			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(uow, this);
-			var goods = Repository.Logistics.RouteListRepository.GetGoodsAndEquipsInRL(uow, this);
+			var inLoaded = new RouteListRepository().AllGoodsLoaded(uow, this);
+			var goods = new RouteListRepository().GetGoodsAndEquipsInRL(uow, this);
 
 			bool closed = true;
 			foreach(var good in goods) {
@@ -637,7 +637,7 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 
-		public virtual List<Discrepancy> GetDiscrepancies(IList<RouteListControlNotLoadedNode> itemsLoaded, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
+		public virtual List<Discrepancy> GetDiscrepancies(IList<RouteListControlNotLoadedNode> itemsLoaded, List<EntityRepositories.Logistic.ReturnsNode> allReturnsToWarehouse)
 		{
 			List<Discrepancy> result = new List<Discrepancy>();
 
@@ -724,14 +724,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool IsConsistentWithUnloadDocument()
 		{
 			var returnedBottlesNom = int.Parse(MainSupport.BaseParameters.All["returned_bottle_nomenclature_id"]);
-			var bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(
+			var bottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
 				UoW,
 				Id,
 				returnedBottlesNom)
 			.Sum(item => item.Amount);
 
 			var notloadedNomenclatures = NotLoadedNomenclatures();
-			var allReturnsToWarehouse = RouteListRepository.GetReturnsToWarehouse(UoW, Id, Nomenclature.GetCategoriesForShipment());
+			var allReturnsToWarehouse = new RouteListRepository().GetReturnsToWarehouse(UoW, Id, Nomenclature.GetCategoriesForShipment());
 			var discrepancies = GetDiscrepancies(notloadedNomenclatures, allReturnsToWarehouse);
 
 			var hasItemsDiscrepancies = discrepancies.Any(discrepancy => discrepancy.Remainder != 0);
@@ -1083,15 +1083,11 @@ namespace Vodovoz.Domain.Logistic
 			var result = new List<BottlesMovementOperation>();
 			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered && x.Status != RouteListItemStatus.Canceled).ToList();
 
-			foreach(RouteListItem address in addresesDelivered) 
-			{
-				if(address.FillBottleMovementOperation(standartNomenclatures, out BottlesMovementOperation bottlesMovementOperation)) 
-				{
+			foreach(RouteListItem address in addresesDelivered) {
+				if(address.FillBottleMovementOperation(standartNomenclatures, out BottlesMovementOperation bottlesMovementOperation)) {
 					address.Order.BottlesMovementOperation = bottlesMovementOperation;
 					result.Add(bottlesMovementOperation);
-				} 
-				else if(bottlesMovementOperation != null) 
-				{
+				} else if(bottlesMovementOperation != null) {
 					UoW.Delete(bottlesMovementOperation);
 					address.Order.BottlesMovementOperation = null;
 				}
@@ -1135,7 +1131,7 @@ namespace Vodovoz.Domain.Logistic
 
 				operations.ForEach(x => result.Add(x));
 			}
-			return result; 
+			return result;
 		}
 
 		public virtual List<MoneyMovementOperation> UpdateMoneyMovementOperations()
@@ -1646,8 +1642,8 @@ namespace Vodovoz.Domain.Logistic
 		{
 			List<RouteListControlNotLoadedNode> notLoadedNomenclatures = new List<RouteListControlNotLoadedNode>();
 			if(Id > 0) {
-				var loadedNomenclatures = RouteListRepository.AllGoodsLoaded(UoW, this);
-				var nomenclaturesToLoad = RouteListRepository.GetGoodsAndEquipsInRL(UoW, this);
+				var loadedNomenclatures = new RouteListRepository().AllGoodsLoaded(UoW, this);
+				var nomenclaturesToLoad = new RouteListRepository().GetGoodsAndEquipsInRL(UoW, this);
 				foreach(var n in nomenclaturesToLoad) {
 					var loaded = loadedNomenclatures.FirstOrDefault(x => x.NomenclatureId == n.NomenclatureId);
 					decimal loadedAmount = 0;
