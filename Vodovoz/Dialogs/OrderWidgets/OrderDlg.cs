@@ -422,7 +422,7 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 					.AddSetter((c, node) => c.Editable = node.CanEditPrice)
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
-						if(Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.WaitForPayment)//костыль. на Win10 не видна цветная цена, если виджет засерен
+						if(Entity.OrderStatus == OrderStatus.NewOrder || (Entity.OrderStatus == OrderStatus.WaitForPayment && !Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
 							c.ForegroundGdk = colorBlack;
 							if(node.AdditionalAgreement == null) {
