@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Representations;
@@ -72,6 +73,16 @@ namespace Vodovoz.JournalColumnsConfigs
 																  .AddColumn("Расхождение по нал.").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.TotalCashDiff))
 																  .RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 																  .Finish()
+			);
+
+			//ClientCameFromFilterViewModel
+			TreeViewColumnsConfigFactory.Register<ClientCameFromJournalViewModel>(
+				() => FluentColumnsConfig<ClientCameFromJournalNode>.Create()
+																	.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
+																	.AddColumn("Название").AddTextRenderer(n => n.Name)
+																	.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive ? "Да" : "Нет")
+																	.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+																	.Finish()
 			);
 		}
 	}
