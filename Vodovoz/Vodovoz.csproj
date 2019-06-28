@@ -1204,6 +1204,9 @@
     <Compile Include="Filters\GtkViews\ClientCameFromFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ClientCameFromFilterView.cs" />
     <Compile Include="JournalNodes\ClientCameFromJournalNode.cs" />
+    <Compile Include="Dialogs\Client\ClientCameFromViewModel.cs" />
+    <Compile Include="Dialogs\Client\ClientCameFromView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.ClientCameFromView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -24,18 +24,9 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class OrderJournalViewModel : SingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode>
+	public class OrderJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel>
 	{
-		private OrderJournalFilterViewModel filterViewModel;
-		public OrderJournalFilterViewModel FilterViewModel {
-			get { return filterViewModel; }
-			set {
-				filterViewModel = value;
-				Filter = filterViewModel;
-			}
-		}
-
-		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(entityConfigurationProvider, commonServices)
+		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал заказов";
 			SetOrder<OrderJournalNode>(x => x.CreateDate, true);
@@ -56,7 +47,10 @@ namespace Vodovoz.JournalViewModels
 				() => orderAlias.OnlineOrder,
 				() => orderAlias.Id
 			);
-			FilterViewModel = filterViewModel;
+			UpdateOnChanges(
+				typeof(VodovozOrder),
+				typeof(OrderItem)
+			);
 		}
 
 		OrderJournalNode resultAlias = null;

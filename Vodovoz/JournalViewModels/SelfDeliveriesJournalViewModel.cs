@@ -21,22 +21,14 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using Vodovoz.JournalViewModels;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
 {
-	public class SelfDeliveriesJournalViewModel : SingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode>
+	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
 	{
-		private OrderJournalFilterViewModel filterViewModel;
-		public OrderJournalFilterViewModel FilterViewModel {
-			get { return filterViewModel; }
-			set {
-				filterViewModel = value;
-				Filter = filterViewModel;
-			}
-		}
-
-		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(entityConfigurationProvider, commonServices)
+		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал самовывозов";
 			SetOrder<SelfDeliveryJournalNode>(x => x.Date, true);
@@ -48,7 +40,10 @@ namespace Vodovoz.Representations
 				() => authorAlias.Patronymic,
 				() => orderAlias.Id
 			);
-			FilterViewModel = filterViewModel;
+			UpdateOnChanges(
+				typeof(VodovozOrder),
+				typeof(OrderItem)
+			);
 		}
 
 		SelfDeliveryJournalNode resultAlias = null;

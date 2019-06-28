@@ -1021,8 +1021,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionCameFromActivated(object sender, EventArgs e)
 	{
-		ClientCameFromFilterViewModel filter = new ClientCameFromFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
-		filter.HidenByDefault = true;
+		ClientCameFromFilterViewModel filter = new ClientCameFromFilterViewModel(ServicesConfig.CommonServices.InteractiveService) {
+			HidenByDefault = true
+		};
 		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
 		var journal = new ClientCameFromJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices);
 		tdiMain.AddTab(journal);
