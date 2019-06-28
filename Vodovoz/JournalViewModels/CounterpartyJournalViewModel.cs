@@ -24,7 +24,7 @@ namespace Vodovoz.JournalViewModels
 			}
 		}
 
-		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filter, entityConfigurationProvider, commonServices)
+		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал контрагентов";
 			RegisterAliasPropertiesToSearch(

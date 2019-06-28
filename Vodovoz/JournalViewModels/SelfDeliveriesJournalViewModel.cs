@@ -36,7 +36,7 @@ namespace Vodovoz.Representations
 			}
 		}
 
-		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал самовывозов";
 			SetOrder<SelfDeliveryJournalNode>(x => x.Date, true);
