@@ -3,29 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
+using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Repositories;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Project.Repositories;
 using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
-using Vodovoz.ViewModelBased;
-using Vodovoz.Filters.ViewModels;
-using QS.Dialog.GtkUI;
-using QS.Project.Dialogs.GtkUI;
-using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -130,7 +129,7 @@ namespace Vodovoz
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
 			entryMainCounterparty.SetEntitySelectorFactory(new DefaultEntitySelectorFactory<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
-			entryPreviousCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
+			entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
 			entryPreviousCounterparty.SetEntitySelectorFactory(new DefaultEntitySelectorFactory<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
 			entryPreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
 
@@ -139,8 +138,16 @@ namespace Vodovoz
 			deliveryPointView.DeliveryPointUoW = UoWGeneric;
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
 			counterpartydocumentsview.Config(UoWGeneric, Entity);
-			referenceCameFrom.SubjectType = typeof(ClientCameFrom);
-			referenceCameFrom.Binding.AddBinding(Entity, e => e.CameFrom, w => w.Subject).InitializeFromSource();
+
+			ySpecCmbCameFrom.SetRenderTextFunc<ClientCameFrom>(f => f.Name);
+
+			ySpecCmbCameFrom.Sensitive = Entity.Id == 0;
+			ySpecCmbCameFrom.ItemsList = CounterpartyRepository.GetPlacesClientCameFrom(
+				UoW,
+				Entity.CameFrom == null || !Entity.CameFrom.IsArchive
+			);
+
+			ySpecCmbCameFrom.Binding.AddBinding(Entity, f => f.CameFrom, w => w.SelectedItem).InitializeFromSource();
 			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
 			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
 			var filterAccountant = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
@@ -209,8 +216,6 @@ namespace Vodovoz
 			menuActions.Sensitive = !UoWGeneric.IsNew;
 			contactsview1.Visible = false;
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
-			referenceCameFrom.Sensitive = Entity.Id == 0;
-			referenceCameFrom.Sensitive = Entity.Id == 0;
 			enumNeedOfCheque.Visible = lblNeedCheque.Visible = CounterpartyRepository.IsCashPayment(Entity.PaymentMethod);
 			SetVisibilityForCloseDeliveryComments();
 		}
@@ -461,8 +466,7 @@ namespace Vodovoz
 			if(String.IsNullOrWhiteSpace(ytextviewCloseComment.Buffer.Text))
 				return;
 
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"]) 
-			{
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"]) {
 				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
 				return;
 			}
@@ -473,8 +477,7 @@ namespace Vodovoz
 
 		protected void OnButtonEditCloseDeliveryCommentClicked(object sender, EventArgs e)
 		{
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"]) 
-			{
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"]) {
 				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
 				return;
 			}
@@ -487,8 +490,7 @@ namespace Vodovoz
 
 		protected void OnButtonCloseDeliveryClicked(object sender, EventArgs e)
 		{
-			if(!Entity.ToogleDeliveryOption(UoW)) 
-			{
+			if(!Entity.ToogleDeliveryOption(UoW)) {
 				MessageDialogHelper.RunWarningDialog("У вас нет прав для закрытия/открытия поставок");
 				return;
 			}

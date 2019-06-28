@@ -1644,7 +1644,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -7835,6 +7834,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -8492,9 +8492,14 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.Widgets.yEntryReference" id="referenceCameFrom">
+                              <widget class="Gamma.Widgets.ySpecComboBox" id="ySpecCmbCameFrom">
                                 <property name="MemberName" />
-                                <property name="Events">ButtonPressMask</property>
+                                <property name="IsTextCombo">False</property>
+                                <property name="Items" translatable="yes" />
+                                <property name="AddIfNotExist">False</property>
+                                <property name="DefaultFirst">False</property>
+                                <property name="ShowSpecialStateAll">False</property>
+                                <property name="ShowSpecialStateNot">True</property>
                               </widget>
                               <packing>
                                 <property name="Position">1</property>
@@ -8507,10 +8512,9 @@
                             <property name="BottomAttach">2</property>
                             <property name="LeftAttach">2</property>
                             <property name="RightAttach">4</property>
-                            <property name="AutoSize">True</property>
-                            <property name="XOptions">Fill</property>
+                            <property name="AutoSize">False</property>
                             <property name="YOptions">Fill</property>
-                            <property name="XExpand">False</property>
+                            <property name="XExpand">True</property>
                             <property name="XFill">True</property>
                             <property name="XShrink">False</property>
                             <property name="YExpand">False</property>
@@ -9744,7 +9748,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox16">
+                  <widget class="Gtk.HBox" id="hbox18">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
@@ -9820,7 +9824,7 @@
                   <placeholder />
                 </child>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox18">
+                  <widget class="Gtk.HBox" id="hbox20">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
