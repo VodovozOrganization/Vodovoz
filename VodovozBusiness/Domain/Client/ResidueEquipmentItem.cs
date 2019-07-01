@@ -62,13 +62,32 @@ namespace Vodovoz.Domain.Client
 			}
 			movementOperation.Nomenclature = Nomenclature;
 			movementOperation.Amount = Count;
-			if(EquipmentDirection == ResidueEquipmentDirection.ToClient) {
-				movementOperation.IncomingCounterparty = Residue.Customer;
-				movementOperation.WriteoffCounterparty = null;
+			if(Residue.DeliveryPoint == null) {
+				if(EquipmentDirection == ResidueEquipmentDirection.ToClient) {
+					movementOperation.IncomingCounterparty = Residue.Customer;
+					movementOperation.WriteoffCounterparty = null;
+					movementOperation.WriteoffDeliveryPoint = null;
+					movementOperation.IncomingDeliveryPoint = null;
+				} else {
+					movementOperation.WriteoffCounterparty = Residue.Customer;
+					movementOperation.IncomingCounterparty = null;
+					movementOperation.WriteoffDeliveryPoint = null;
+					movementOperation.IncomingDeliveryPoint = null;
+				}
 			} else {
-				movementOperation.WriteoffCounterparty = Residue.Customer;
-				movementOperation.IncomingCounterparty = null;
+				if(EquipmentDirection == ResidueEquipmentDirection.ToClient) {
+					movementOperation.IncomingDeliveryPoint = Residue.DeliveryPoint;
+					movementOperation.IncomingCounterparty = Residue.Customer;
+					movementOperation.WriteoffDeliveryPoint = null;
+					movementOperation.WriteoffCounterparty = null;
+				} else {
+					movementOperation.WriteoffDeliveryPoint = Residue.DeliveryPoint;
+					movementOperation.WriteoffCounterparty = Residue.Customer;
+					movementOperation.IncomingDeliveryPoint = null;
+					movementOperation.IncomingCounterparty = null;
+				}
 			}
+
 		}
 	}
 }
