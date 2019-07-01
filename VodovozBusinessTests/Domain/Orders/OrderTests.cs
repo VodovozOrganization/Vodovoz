@@ -11,6 +11,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
@@ -653,5 +654,36 @@ namespace VodovozBusinessTests.Domain.Orders
 		}
 
 		#endregion
+
+		[Ignore("Слишком много всего в сеттере для точки доставки. Пока не разгрузим - игнор")]
+		[Test(Description = "Проверка обновления точки доставки в ДС на продажу оборудования при смене точки доставки в заказе")]
+		public void UpdateDeliveryPointInSalesAgreement_OnChangeOfDeliveryPointInOrder_UpdatesDeliveryPointInEquipmentSalesAgreement()
+		{
+			// arrange
+			Order testOrder = new Order();
+			DeliveryPoint deliveryPointMock01 = Substitute.For<DeliveryPoint>();
+			testOrder.DeliveryPoint = deliveryPointMock01;
+			DeliveryPoint deliveryPointMock02 = Substitute.For<DeliveryPoint>();
+			OrderAgreement salesAgreement = new OrderAgreement {
+				Id = 1,
+				AdditionalAgreement = new SalesEquipmentAgreement {
+					DeliveryPoint = deliveryPointMock01
+				}
+			};
+			OrderAgreement wsa = new OrderAgreement {
+				Id = 2,
+				AdditionalAgreement = new WaterSalesAgreement {
+					DeliveryPoint = deliveryPointMock01
+				}
+			};
+			testOrder.OrderDocuments = new List<OrderDocument> { salesAgreement, wsa };
+
+			// act
+			testOrder.DeliveryPoint = deliveryPointMock02;
+
+			// assert
+			Assert.That(testOrder.ObservableOrderDocuments.FirstOrDefault(d => d.Id == 1), Is.EqualTo(deliveryPointMock02));
+		}
+
 	}
 }

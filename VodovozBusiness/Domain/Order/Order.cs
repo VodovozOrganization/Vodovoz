@@ -1705,6 +1705,21 @@ namespace Vodovoz.Domain.Orders
 			ChangeOrderContract();
 		}
 
+		/// <summary>
+		/// При смене точки доставки меняем точку доставки в ДС на продажу оборудования,
+		/// которое создано в этом заказе и было сохранено в БД
+		/// </summary>
+		public virtual void UpdateDeliveryPointInSalesAgreement()
+		{
+			var esa = ObservableOrderDocuments.Where(
+				x => x is OrderAgreement
+					&& (x as OrderAgreement).AdditionalAgreement?.Self?.Type == AgreementType.EquipmentSales
+					&& (x as OrderAgreement).Order == this);
+
+			foreach(OrderAgreement aa in esa)
+				aa.AdditionalAgreement.DeliveryPoint = DeliveryPoint;
+		}
+
 		public virtual void SetProxyForOrder()
 		{
 			if(Client == null)

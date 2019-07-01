@@ -1805,14 +1805,7 @@ namespace Vodovoz
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
-			var esa = Entity.ObservableOrderDocuments.Where(
-				x => x is OrderAgreement 
-					&& (x as OrderAgreement).AdditionalAgreement?.Self?.Type == AgreementType.EquipmentSales
-					&& (x as OrderAgreement).Order == Entity
-			);
-
-			foreach(OrderAgreement aa in esa)
-				aa.AdditionalAgreement.DeliveryPoint = DeliveryPoint;
+			Entity.UpdateDeliveryPointInSalesAgreement();
 
 			if(!HasAgreementForDeliveryPoint()) {
 				Order originalOrder = UoW.GetById<Order>(Entity.Id);
