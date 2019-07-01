@@ -1969,12 +1969,6 @@ namespace Vodovoz
 			UpdateUIState();
 		}
 
-		void NewDeliveryPointDlg_EntitySaved(object sender, EntitySavedEventArgs e)
-		{
-			Entity.DeliveryPoint = (e.Entity as DeliveryPoint);
-			UpdateUIState();
-		}
-
 		protected void OnEnumDiverCallTypeChanged(object sender, EventArgs e)
 		{
 			var listDriverCallType = UoW.Session.QueryOver<Order>()
