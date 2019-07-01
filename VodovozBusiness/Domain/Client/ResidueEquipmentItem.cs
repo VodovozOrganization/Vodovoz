@@ -31,11 +31,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Направление передачи оборудования")]
 		public virtual ResidueEquipmentDirection EquipmentDirection {
 			get => equipmentDirection;
-			set {
-				if(SetField(ref equipmentDirection, value, () => EquipmentDirection) && equipmentDirection == ResidueEquipmentDirection.FromClient) {
-					EquipmentDeposit = 0;
-				}
-			}
+			set => SetField(ref equipmentDirection, value, () => EquipmentDirection);
 		}
 
 		private int count;

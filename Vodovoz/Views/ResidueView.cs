@@ -56,7 +56,7 @@ namespace Vodovoz.Views
 					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 0)).Editing()
 				.AddColumn("Залог").AddNumericRenderer(x => x.EquipmentDeposit)
 					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 0))
-					.AddSetter((c, n) => c.Editable = ViewModel.CanEdit && n.EquipmentDirection == ResidueEquipmentDirection.ToClient)
+					.AddSetter((c, n) => c.Editable = ViewModel.CanEdit)
 				.Finish();
 			ytreeviewEquipment.ItemsDataSource = ViewModel.Entity.ObservableEquipmentDepositItems;
 
