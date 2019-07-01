@@ -1949,17 +1949,21 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			var ag = new SalesEquipmentAgreement {
-				Contract = Contract,
-				AgreementNumber = AdditionalAgreement.GetNumberWithType(Contract, AgreementType.EquipmentSales),
-				DeliveryPoint = DeliveryPoint
-			};
-			if(DeliveryDate.HasValue)
-				ag.IssueDate = ag.StartDate = DeliveryDate.Value;
-			if(nom != null)
-				ag.AddEquipment(nom);
+			int agId = 0;
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<SalesEquipmentAgreement>()) {
+				SalesEquipmentAgreement esa = uow.Root;
+				esa.Contract = Contract;
+				esa.AgreementNumber = AdditionalAgreement.GetNumberWithType(Contract, AgreementType.EquipmentSales);
+				esa.DeliveryPoint = DeliveryPoint;
+				if(DeliveryDate.HasValue)
+					esa.IssueDate = esa.StartDate = DeliveryDate.Value;
+				if(nom != null)
+					esa.AddEquipment(nom);
+				uow.Save();
+				agId = esa.Id;
+			}
+			var ag = UoW.GetById<SalesEquipmentAgreement>(agId);
 
-			UoW.Save(ag);
 			CreateOrderAgreementDocument(ag);
 			FillItemsFromAgreement(ag, count, discount, reason, proSet);
 			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType)
