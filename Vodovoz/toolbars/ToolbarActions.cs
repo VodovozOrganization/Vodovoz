@@ -20,6 +20,8 @@ using Vodovoz.ViewModel;
 using Vodovoz.JournalViewModels;
 using QS.DomainModel.Config;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.EntityRepositories.Operations;
 
 public partial class MainWindow : Window
 {
@@ -630,10 +632,22 @@ public partial class MainWindow : Window
 
 	void ActionResidueActivated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<ResidueVM>(),
-			() => new PermissionControlledRepresentationJournal(new ResidueVM()).CustomTabName("Журнал остатков")
+		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
+		IMoneyRepository moneyRepository = new MoneyRepository();
+		IDepositRepository depositRepository = new DepositRepository();
+		IBottlesRepository bottlesRepository = new BottlesRepository();
+		ResidueFilterViewModel filter = new ResidueFilterViewModel(ServicesConfig.InteractiveService);
+		var residueJournalViewModel = new ResidueJournalViewModel(
+			filter,
+			entityConfigurationProvider, 
+			ServicesConfig.EmployeeService, 
+			ServicesConfig.RepresentationEntityPicker,
+			moneyRepository,
+			depositRepository,
+			bottlesRepository,
+			ServicesConfig.CommonServices
 		);
+		tdiMain.AddTab(residueJournalViewModel);
 	}
 
 	void ActionTransferOperationJournal_Activated(object sender, System.EventArgs e)

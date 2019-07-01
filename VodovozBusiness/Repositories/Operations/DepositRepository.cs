@@ -7,70 +7,29 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Repository.Operations
 {
+	[Obsolete("Используйте одноимённый класс из Vodovoz.EntityRepositories.Operations")]
 	public static class DepositRepository
 	{
 		/// <summary>
 		/// Получаем текущие депозиты для точки
 		/// </summary>
 		/// <param name="depositType">Указываем тип депозита, если null то по берем все типы.</param>
+		[Obsolete]
 		public static decimal GetDepositsAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, DepositType? depositType, DateTime? before = null)
 		{
-			DepositOperation operationAlias = null;
-			DepositsQueryResult result = null;
-			var queryResult = UoW.Session.QueryOver<DepositOperation>(() => operationAlias)
-				.Where(() => operationAlias.DeliveryPoint.Id == deliveryPoint.Id);
-			if(before.HasValue)
-				queryResult.Where(() => operationAlias.OperationTime < before);
-			if(depositType.HasValue)
-				queryResult.Where(() => operationAlias.DepositType == depositType);
-
-			var deposits = queryResult.SelectList(list => list
-					.SelectSum(() => operationAlias.ReceivedDeposit).WithAlias(() => result.Received)
-					.SelectSum(() => operationAlias.RefundDeposit).WithAlias(() => result.Refund)
-				).TransformUsing(Transformers.AliasToBean<DepositsQueryResult>()).List<DepositsQueryResult>()
-				.FirstOrDefault()?.Deposits ?? 0;
-			return deposits;
+			return new EntityRepositories.Operations.DepositRepository().GetDepositsAtDeliveryPoint(UoW, deliveryPoint, depositType, before);
 		}
 
+		[Obsolete]
 		public static decimal GetDepositsAtCounterparty(IUnitOfWork UoW, Counterparty counterparty, DepositType? depositType, DateTime? before = null)
 		{
-			DepositOperation operationAlias = null;
-			DepositsQueryResult result = null;
-			var queryResult = UoW.Session.QueryOver<DepositOperation>(() => operationAlias)
-				.Where(() => operationAlias.Counterparty.Id == counterparty.Id);
-			if(before.HasValue)
-				queryResult.Where(() => operationAlias.OperationTime < before);
-			if(depositType.HasValue)
-				queryResult.Where(() => operationAlias.DepositType == depositType);
-
-			var deposits = queryResult.SelectList(list => list
-					.SelectSum(() => operationAlias.ReceivedDeposit).WithAlias(() => result.Received)
-					.SelectSum(() => operationAlias.RefundDeposit).WithAlias(() => result.Refund)
-				).TransformUsing(Transformers.AliasToBean<DepositsQueryResult>()).List<DepositsQueryResult>()
-				.FirstOrDefault()?.Deposits ?? 0;
-			return deposits;
+			return new EntityRepositories.Operations.DepositRepository().GetDepositsAtCounterparty(UoW, counterparty, depositType, before);
 		}
 
+		[Obsolete]
 		public static decimal GetDepositsAtCounterpartyAndDeliveryPoint(IUnitOfWork UoW, Counterparty counterparty, DeliveryPoint deliveryPoint, DepositType? depositType, DateTime? before = null)
 		{
-			DepositOperation operationAlias = null;
-			DepositsQueryResult result = null;
-			var queryResult = UoW.Session.QueryOver(() => operationAlias)
-										 .Where(() => operationAlias.Counterparty == counterparty)
-										 .Where(() => operationAlias.DeliveryPoint == deliveryPoint)
-										 ;
-			if(before.HasValue)
-				queryResult.Where(() => operationAlias.OperationTime < before);
-			if(depositType.HasValue)
-				queryResult.Where(() => operationAlias.DepositType == depositType);
-
-			var deposits = queryResult.SelectList(list => list
-					.SelectSum(() => operationAlias.ReceivedDeposit).WithAlias(() => result.Received)
-					.SelectSum(() => operationAlias.RefundDeposit).WithAlias(() => result.Refund)
-				).TransformUsing(Transformers.AliasToBean<DepositsQueryResult>()).List<DepositsQueryResult>()
-				.FirstOrDefault()?
-				.Deposits ?? 0;
-			return deposits;
+			return new EntityRepositories.Operations.DepositRepository().GetDepositsAtCounterpartyAndDeliveryPoint(UoW, counterparty, deliveryPoint, depositType, before);
 		}
 
 		class DepositsQueryResult

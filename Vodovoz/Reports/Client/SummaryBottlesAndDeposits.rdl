@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>600</Timeout>
         <CommandText>SELECT
@@ -102,11 +102,13 @@
 #equipment deposit if it's residue
 		WHEN docs.doc_name = 'Ввод остатков' THEN
 			(SELECT
-				deposit_residue_equipment
+				SUM(doc_residue_equipment_deposit_items.deposit) AS deposit_residue_equipment
 			FROM
 				doc_residue
+				LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
 			WHERE
-				doc_residue.id = docs.doc_id)
+				doc_residue.id = docs.doc_id
+			GROUP BY doc_residue.id)
 #equipment deposit if its order
 		WHEN docs.doc_name = 'Заказ' THEN
 			IFNULL((SELECT 
@@ -136,41 +138,65 @@
 				AND transfer_operations.id = docs.doc_id)
 	END AS equipment_deposit,
 
-		IF(docs.doc_name = 'Заказ',
+	CASE
+#Оборудование из ввода остатков
+		WHEN docs.doc_name = 'Ввод остатков' THEN
+			(SELECT
+				GROUP_CONCAT(CONCAT(nomenclature.official_name, ' (', doc_residue_equipment_deposit_items.count, ' шт.)') SEPARATOR ', ')
+			FROM
+				doc_residue
+				LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
+				LEFT JOIN nomenclature ON nomenclature.id = doc_residue_equipment_deposit_items.nomenclature_id
+			WHERE
+				doc_residue.id = docs.doc_id AND doc_residue_equipment_deposit_items.direction = 'ToClient'
+			GROUP BY doc_residue.id)
+		WHEN docs.doc_name = 'Заказ' THEN
 			#Если в заказе оборудование записано в старом виде (строки) то выводим только его
 			IF(docs.to_client_text IS NOT NULL,
-					#IF TRUE #старое поле со списком оборудования в виде строки
-					docs.to_client_text,
-					#IF FALSE #новый список оборудования
-					(SELECT 
-						GROUP_CONCAT(
-							CONCAT(
-								nomenclature.name, ' ',
-								CASE
-									WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
-									WHEN order_equipment.own_type = 'Client' THEN '(Собст. клиента)'
-									WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
-									ELSE ''
-								END, ' - ',
-								ROUND(amount),
-								'шт')
-							SEPARATOR ',\n')
-					FROM
-						counterparty_movement_operations
-					LEFT JOIN
-						order_equipment ON order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
-					LEFT JOIN
-						nomenclature ON nomenclature.id = order_equipment.nomenclature_id
-					WHERE
-						order_equipment.order_id = docs.doc_id
-						AND order_equipment.direction = 'Deliver'
-						AND nomenclature.category = 'equipment'
-					)
-			),
-			NULL
-		) AS equipment_to_client,
-		
-		IF(docs.doc_name = 'Заказ',
+				#IF TRUE #старое поле со списком оборудования в виде строки
+				docs.to_client_text,
+				#IF FALSE #новый список оборудования
+				(SELECT 
+					GROUP_CONCAT(
+						CONCAT(
+							nomenclature.name, ' ',
+							CASE
+								WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
+								WHEN order_equipment.own_type = 'Client' THEN '(Собст. клиента)'
+								WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
+								ELSE ''
+							END, ' - ',
+							ROUND(amount),
+							'шт')
+						SEPARATOR ',\n')
+				FROM
+					counterparty_movement_operations
+				LEFT JOIN
+					order_equipment ON order_equipment.counterparty_movement_operation_id = counterparty_movement_operations.id
+				LEFT JOIN
+					nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+				WHERE
+					order_equipment.order_id = docs.doc_id
+					AND order_equipment.direction = 'Deliver'
+					AND nomenclature.category = 'equipment'
+				)
+			)		
+		END AS equipment_to_client,
+
+		CASE
+#Оборудование из ввода остатков
+		WHEN docs.doc_name = 'Ввод остатков' THEN
+			(SELECT
+				GROUP_CONCAT(CONCAT(nomenclature.official_name, ' (', doc_residue_equipment_deposit_items.count, ' шт.)') SEPARATOR ', ')
+			FROM
+				doc_residue
+				LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
+				LEFT JOIN nomenclature ON nomenclature.id = doc_residue_equipment_deposit_items.nomenclature_id
+			WHERE
+				doc_residue.id = docs.doc_id AND doc_residue_equipment_deposit_items.direction = 'FromClient'
+			GROUP BY doc_residue.id)
+#Оборудование из заказа			
+		WHEN docs.doc_name = 'Заказ' THEN
 			#Если в заказе оборудование записано в старом виде (строки) то выводим только его
 			IF(docs.from_client_text IS NOT NULL,
 				#IF TRUE #старое поле со списком оборудования в виде строки
@@ -247,11 +273,9 @@
 						)
 					))
 				
-				)
-				
-			),
-			NULL
-		) AS equipment_from_client
+				)				
+			)
+		END AS equipment_from_client	
 FROM
 #subselect orders
 	(SELECT 
@@ -377,7 +401,8 @@ WHERE
 		OR docs.doc_date &gt;= @startDate)
 	AND (@endDate = ''
 		OR docs.doc_date &lt;= @endDate)
-ORDER BY docs.doc_date;</CommandText>
+ORDER BY docs.doc_date;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="client_id">
             <Value>=Parameters!client_id</Value>
@@ -393,7 +418,7 @@ ORDER BY docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="doc_id">
           <DataField>doc_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -630,63 +655,99 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="StoredEquipments">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	GROUP_CONCAT(IF(client_amount_pickedup &gt; 0, CONCAT(name, ': ', client_amount_pickedup, 'шт'), NULL) SEPARATOR ', ') as we_have_clients_equip,
-    GROUP_CONCAT(IF(duty_and_rent_amount_delivered &gt; 0, CONCAT(name, ': ', duty_and_rent_amount_delivered, 'шт'), NULL) SEPARATOR ', ') as client_have_ours_equip
+	GROUP_CONCAT(IF(client_amount_pickedup &gt; 0, CONCAT(name, ': ', ROUND(client_amount_pickedup, 0), 'шт'), NULL) SEPARATOR ', ') as we_have_clients_equip,
+    GROUP_CONCAT(IF(duty_and_rent_amount_delivered &gt; 0, CONCAT(name, ': ', ROUND(duty_and_rent_amount_delivered, 0), 'шт'), NULL) SEPARATOR ', ') as client_have_ours_equip
 FROM 
-	(SELECT
-		nomenclature.id,
-		nomenclature.name,
-		SUM(clientEquipPickedUp.client_amount_pickedup) as client_amount_pickedup,
-		SUM(OurDutyRentEquipDelivered.duty_amount_delivered) as duty_and_rent_amount_delivered
-	FROM
-		orders
-		LEFT JOIN
-		order_equipment ON orders.id = order_equipment.order_id		
-	#Оборудование в собственности клиента
-		LEFT JOIN
+(
+		SELECT
+			id,
+			name,
+			SUM(client_amount_pickedup) as client_amount_pickedup,
+			SUM(duty_and_rent_amount_delivered) as duty_and_rent_amount_delivered
+		FROM            
 		(
 			SELECT
-                equip_id,
-				ROUND(client_amount_pickedup - client_amount_delivered) as client_amount_pickedup
+				nomenclature.id,
+				nomenclature.name,
+				clientEquipPickedUp.client_amount_pickedup as client_amount_pickedup,
+				OurDutyRentEquipDelivered.duty_amount_delivered as duty_and_rent_amount_delivered
 			FROM
-				(SELECT
-                    inner_order_equipments.id as equip_id,
-					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
-					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
-				FROM
-					counterparty_movement_operations
-					LEFT JOIN
-					order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
-				WHERE
-					inner_order_equipments.own_type = 'Client') as t
-		) as clientEquipPickedUp ON clientEquipPickedUp.equip_id = order_equipment.id
-	#Дежурное оборудование и в аренду - с учётом забора и доставки
-		LEFT JOIN
-		(
+				orders
+				LEFT JOIN
+				order_equipment ON orders.id = order_equipment.order_id		
+			#Оборудование в собственности клиента
+				LEFT JOIN
+				(
+					SELECT
+						equip_id,
+						ROUND(client_amount_pickedup - client_amount_delivered) as client_amount_pickedup
+					FROM
+						(
+							
+							SELECT
+								equip_id,
+								SUM(client_amount_pickedup) as client_amount_pickedup,
+								SUM(client_amount_delivered) as client_amount_delivered
+							FROM
+							(
+								SELECT
+									inner_order_equipments.id as equip_id,
+									IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
+									IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
+								FROM
+									counterparty_movement_operations
+									LEFT JOIN
+									order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
+								WHERE
+									inner_order_equipments.own_type = 'Client'
+							) as a
+							GROUP BY equip_id
+						) as t                
+				) as clientEquipPickedUp ON clientEquipPickedUp.equip_id = order_equipment.id
+			#Дежурное оборудование и в аренду - с учётом забора и доставки
+				LEFT JOIN
+				(
+					SELECT
+						equip_id,
+						ROUND(client_amount_delivered - client_amount_pickedup) as duty_amount_delivered
+					FROM
+						(SELECT
+							inner_order_equipments.id as equip_id,
+							IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
+							IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
+						FROM
+							counterparty_movement_operations
+							LEFT JOIN
+							order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
+						WHERE
+							inner_order_equipments.own_type = 'Duty' OR inner_order_equipments.own_type = 'Rent') as t
+				) as OurDutyRentEquipDelivered ON OurDutyRentEquipDelivered.equip_id = order_equipment.id
+				LEFT JOIN 
+					nomenclature ON nomenclature.id = order_equipment.nomenclature_id			
+			WHERE
+					orders.client_id = @client_id
+				and	order_equipment.nomenclature_id IS NOT NULL
+			UNION ALL        
 			SELECT
-                equip_id,
-				ROUND(client_amount_delivered - client_amount_pickedup) as duty_amount_delivered
+				nomenclature.id as id,
+                nomenclature.name as name,
+				IF(doc_residue_equipment_deposit_items.direction = 'ToClient', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
+				IF(doc_residue_equipment_deposit_items.direction = 'FromClient', counterparty_movement_operations.amount, 0) as duty_and_rent_amount_delivered
 			FROM
-				(SELECT
-                    inner_order_equipments.id as equip_id,
-					IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
-					IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
-				FROM
-					counterparty_movement_operations
-					LEFT JOIN
-					order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
-				WHERE
-					inner_order_equipments.own_type = 'Duty' OR inner_order_equipments.own_type = 'Rent') as t
-		) as OurDutyRentEquipDelivered ON OurDutyRentEquipDelivered.equip_id = order_equipment.id
-        LEFT JOIN 
-		nomenclature ON nomenclature.id = order_equipment.nomenclature_id
-	WHERE
-			orders.client_id = @client_id
-		and	order_equipment.nomenclature_id IS NOT NULL
-	GROUP BY nomenclature.id) as main
+				counterparty_movement_operations
+			LEFT JOIN
+				doc_residue_equipment_deposit_items ON doc_residue_equipment_deposit_items.counterparty_movement_operation_id = counterparty_movement_operations.id
+			LEFT JOIN
+				doc_residue ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
+            LEFT JOIN
+                nomenclature ON nomenclature.id = doc_residue_equipment_deposit_items.nomenclature_id
+			WHERE doc_residue.client_id = @client_id
+		) as all_items        
+	GROUP BY id
+) as main
 WHERE 
 		client_amount_pickedup &gt; 0 
     or 	duty_and_rent_amount_delivered &gt; 0</CommandText>
@@ -696,7 +757,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="we_have_clients_equip">
           <DataField>we_have_clients_equip</DataField>
           <TypeName>System.String</TypeName>
@@ -1658,6 +1719,8 @@ WHERE
                         <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>

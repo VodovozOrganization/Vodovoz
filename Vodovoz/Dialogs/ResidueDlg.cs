@@ -51,8 +51,8 @@ namespace Vodovoz
 			yenumcomboDebtPaymentType.ItemsEnum = typeof(PaymentType);
 			yenumcomboDebtPaymentType.Binding.AddBinding(Entity, e => e.DebtPaymentType, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboDebtPaymentType.Sensitive = disablespinMoneyDebt.Active;
-			disablespinBottlesDeposit.Binding.AddBinding(Entity, e => e.DepositResidueBottels, w => w.ValueAsDecimal).InitializeFromSource();
-			disablespinEquipmentDeposit.Binding.AddBinding(Entity, e => e.DepositResidueEquipment, w => w.ValueAsDecimal).InitializeFromSource();
+			disablespinBottlesDeposit.Binding.AddBinding(Entity, e => e.BottlesDeposit, w => w.ValueAsDecimal).InitializeFromSource();
+			//disablespinEquipmentDeposit.Binding.AddBinding(Entity, e => e.EquipmentDeposit, w => w.ValueAsDecimal).InitializeFromSource();
 			disablespinMoneyDebt.Binding.AddBinding(Entity, e => e.DebtResidue, w => w.ValueAsDecimal).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 		}
@@ -68,7 +68,7 @@ namespace Vodovoz
 			}
 
 			Entity.DeliveryPoint.HaveResidue = true;
-			Entity.UpdateOperations(UoW);
+			//Entity.UpdateOperations(UoW);
 
 			var valid = new QSValidator<Residue> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
