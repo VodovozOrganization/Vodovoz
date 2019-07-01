@@ -728,7 +728,7 @@ FROM
 				LEFT JOIN 
 					nomenclature ON nomenclature.id = order_equipment.nomenclature_id			
 			WHERE
-					orders.client_id = @client_id
+					orders.client_id = @client_id AND (@delivery_point_id = -1 OR orders.delivery_point_id = @delivery_point_id)
 				and	order_equipment.nomenclature_id IS NOT NULL
 			UNION ALL        
 			SELECT
@@ -744,7 +744,7 @@ FROM
 				doc_residue ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
             LEFT JOIN
                 nomenclature ON nomenclature.id = doc_residue_equipment_deposit_items.nomenclature_id
-			WHERE doc_residue.client_id = @client_id
+			WHERE doc_residue.client_id = @client_id AND (@delivery_point_id = -1 OR doc_residue.delivery_point_id = @delivery_point_id)
 		) as all_items        
 	GROUP BY id
 ) as main
@@ -754,6 +754,9 @@ WHERE
         <QueryParameters>
           <QueryParameter Name="client_id">
             <Value>=Parameters!client_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="delivery_point_id">
+            <Value>={?delivery_point_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1719,8 +1722,8 @@ WHERE
                         <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >0pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>

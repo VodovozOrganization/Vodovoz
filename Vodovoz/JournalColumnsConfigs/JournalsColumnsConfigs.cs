@@ -75,7 +75,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//SelfDeliveriesJournalViewModel
+			//ResidueJournalViewModel
 			TreeViewColumnsConfigFactory.Register<ResidueJournalViewModel>(
 				() => FluentColumnsConfig<ResidueJournalNode>.Create()
 					.AddColumn("Документ").AddTextRenderer(node => String.Format("Ввод остатков №{0}", node.Id)).SearchHighlight()
