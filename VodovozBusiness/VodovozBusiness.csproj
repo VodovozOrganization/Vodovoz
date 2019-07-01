@@ -393,8 +393,6 @@
     <Compile Include="DocTemplates\RepairAgreementParser.cs" />
     <Compile Include="Domain\Client\WaterSalesAgreementFixedPrice.cs" />
     <Compile Include="HibernateMapping\Counterparty\WaterSalesAgreementFixedPriceMap.cs" />
-    <Compile Include="HibernateMapping\ResidueMap.cs" />
-    <Compile Include="Domain\Residue.cs" />
     <Compile Include="HibernateMapping\Operations\FuelOperationMap.cs" />
     <Compile Include="Domain\Operations\FuelOperation.cs" />
     <Compile Include="Repositories\Operations\FuelRepository.cs" />
@@ -639,6 +637,15 @@
     <Compile Include="EntityRepositories\Goods\NomenclatureRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IBottlesRepository.cs" />
     <Compile Include="EntityRepositories\Goods\INomenclatureRepository.cs" />
+    <Compile Include="EntityRepositories\Operations\IDepositRepository.cs" />
+    <Compile Include="EntityRepositories\Operations\DepositRepository.cs" />
+    <Compile Include="EntityRepositories\Operations\IMoneyRepository.cs" />
+    <Compile Include="EntityRepositories\Operations\MoneyRepository.cs" />
+    <Compile Include="Domain\Client\Residue.cs" />
+    <Compile Include="Domain\Client\ResidueEquipmentItem.cs" />
+    <Compile Include="HibernateMapping\Counterparty\ResidueMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\ResidueEquipmentDepositItemMap.cs" />
+    <Compile Include="Domain\Client\ResidueEquipmentDirection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

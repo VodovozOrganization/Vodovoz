@@ -818,10 +818,14 @@ namespace Vodovoz
 				.AddClearDependence<MovementDocument>(x => x.MovementWagon);
 
 			DeleteConfig.AddHibernateDeleteInfo<Residue>()
-				.AddDeleteCascadeDependence(x => x.DepositBottlesOperation)
-				.AddDeleteCascadeDependence(x => x.DepositEquipmentOperation)
+				.AddDeleteDependence<ResidueEquipmentDepositItem>(item => item.Residue)
+				.AddDeleteCascadeDependence(x => x.BottlesDepositOperation)
+				.AddDeleteCascadeDependence(x => x.EquipmentDepositOperation)
 				.AddDeleteCascadeDependence(x => x.BottlesMovementOperation)
 				.AddDeleteCascadeDependence(x => x.MoneyMovementOperation);
+
+
+			DeleteConfig.AddHibernateDeleteInfo<ResidueEquipmentDepositItem>();
 
 			#endregion
 
@@ -867,8 +871,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<DepositOperation>()
 				.RequiredCascadeDeletion()
 				.AddDeleteDependence<OrderDepositItem>(x => x.DepositOperation)
-				.AddDeleteDependence<Residue>(x => x.DepositBottlesOperation)
-				.AddDeleteDependence<Residue>(x => x.DepositEquipmentOperation);
+				.AddDeleteDependence<Residue>(x => x.BottlesDepositOperation)
+				.AddDeleteDependence<Residue>(x => x.EquipmentDepositOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<WagesMovementOperations>()
 				.RequiredCascadeDeletion()

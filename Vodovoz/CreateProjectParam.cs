@@ -53,6 +53,8 @@ using Vodovoz.Filters.GtkViews;
 using QS.Dialog.Gtk;
 using QS.Journal.GtkUI;
 using Vodovoz.JournalColumnsConfigs;
+using Vodovoz.ViewModels;
+using Vodovoz.Views;
 
 namespace Vodovoz
 {
@@ -125,13 +127,17 @@ namespace Vodovoz
 			//Регистрация вкладок
 			ViewModelWidgetResolver.Instance
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
-				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>();
+				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>()
+				.RegisterWidgetForTabViewModel<ResidueViewModel, ResidueView>()
+				;
 
 			//Регистрация фильтров
 			ViewModelWidgetResolver.Instance
 				.RegisterWidgetForFilterViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
 				.RegisterWidgetForFilterViewModel<EmployeeFilterViewModel, EmployeeFilterView>()
-				.RegisterWidgetForFilterViewModel<OrderJournalFilterViewModel, OrderFilterView>();
+				.RegisterWidgetForFilterViewModel<OrderJournalFilterViewModel, OrderFilterView>()
+				.RegisterWidgetForFilterViewModel<ResidueFilterViewModel, ResidueFilterView>()
+				;
 
 			TDIMain.TDIWidgetResolver = ViewModelWidgetResolver.Instance;
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

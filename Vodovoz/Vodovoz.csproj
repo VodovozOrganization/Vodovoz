@@ -1197,6 +1197,14 @@
     <Compile Include="Filters\GtkViews\CounterpartyFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CounterpartyFilterView.cs" />
     <Compile Include="JournalNodes\CounterpartyJournalNode.cs" />
+    <Compile Include="ViewModels\ResidueViewModel.cs" />
+    <Compile Include="Views\ResidueView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ResidueView.cs" />
+    <Compile Include="JournalViewModels\ResidueJournalViewModel.cs" />
+    <Compile Include="JournalNodes\ResidueJournalNode.cs" />
+    <Compile Include="Filters\ViewModels\ResidueFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\ResidueFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ResidueFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1402,6 +1410,8 @@
     <Folder Include="JournalViewModels\" />
     <Folder Include="JournalNodes\" />
     <Folder Include="JournalColumnsConfigs\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="Views\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
