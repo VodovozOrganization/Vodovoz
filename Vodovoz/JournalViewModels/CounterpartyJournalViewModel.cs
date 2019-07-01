@@ -13,7 +13,7 @@ using NHibernate.Dialect.Function;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class CounterpartyJournalViewModel : SingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
+	public class CounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
 		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filter, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filter, entityConfigurationProvider, commonServices)
 		{

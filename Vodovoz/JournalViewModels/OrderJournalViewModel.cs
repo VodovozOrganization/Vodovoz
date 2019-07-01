@@ -24,7 +24,7 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class OrderJournalViewModel : SingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel>
+	public class OrderJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel>
 	{
 		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
