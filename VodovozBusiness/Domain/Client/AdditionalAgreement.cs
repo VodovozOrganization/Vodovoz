@@ -165,9 +165,9 @@ namespace Vodovoz.Domain.Client
 			where TAgreement : AdditionalAgreement
 		{
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var maxNumber = uow.Session.QueryOver<NonfreeRentAgreement>()
+				var maxNumber = uow.Session.QueryOver<TAgreement>()
 								   .Where(x => x.Contract.Id == contract.Id)
-				                   .Select(Projections.Max<NonfreeRentAgreement>(y => y.AgreementNumber))
+				                   .Select(Projections.Max<TAgreement>(y => y.AgreementNumber))
 				                   .SingleOrDefault<int>();
 				return maxNumber + 1;
 			}
