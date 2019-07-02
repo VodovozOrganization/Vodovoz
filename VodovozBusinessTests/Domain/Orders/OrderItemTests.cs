@@ -155,5 +155,25 @@ namespace VodovozBusinessTests.Domain.Orders
 			// assert
 			Assert.That(aa.SalesEqipments.FirstOrDefault(e => e.Nomenclature == nomenclatureMock)?.Count, Is.EqualTo(2));
 		}
+
+		[Test(Description = "При установке актуального кол-ва в 0 НДС и сумма становятся 0")]
+		public void PropActualCount_WhenSetTo0_NdsAndCurrentSumAreAlso0()
+		{
+			// arrange
+			Order orderMock = Substitute.For<Order>();
+			OrderItem orderItem = new OrderItem {
+				Order = orderMock,
+				Count = 1,
+				Price = 100,
+				ManualChangingDiscount = 10
+			};
+
+			// act
+			orderItem.ActualCount = 0;
+
+			// assert
+			Assert.That(orderItem.ActualSum, Is.EqualTo(0));
+			Assert.That(orderItem.IncludeNDS, Is.EqualTo(0));
+		}
 	}
 }

@@ -7,8 +7,6 @@ using QS.HistoryLog;
 using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Repositories.Orders;
-using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -127,8 +125,10 @@ namespace Vodovoz.Domain.Orders
 		public virtual int? ActualCount {
 			get => actualCount;
 			set {
-				if(SetField(ref actualCount, value, () => ActualCount))
+				if(SetField(ref actualCount, value, () => ActualCount)) {
+					RecalculateDiscount();
 					RecalculateNDS();
+				}
 			}
 		}
 
@@ -173,8 +173,10 @@ namespace Vodovoz.Domain.Orders
 			get => discountMoney;
 			set {
 				//value = value > Price * CurrentCount ? Price * CurrentCount : value;
-				if(value != discountMoney && value == 0)
+				if(value != discountMoney && value == 0) {
 					DiscountReason = null;
+					IsDiscountInMoney = false;
+				}
 				if(SetField(ref discountMoney, value, () => DiscountMoney))
 					RecalculateNDS();
 			}
@@ -295,10 +297,10 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal ManualChangingDiscount {
 			get => IsDiscountInMoney ? DiscountMoney : Discount;
-			set { 
+			set {
 				CalculateAndSetDiscount(value);
 				if(DiscountByStock != 0) {
-					discountByStock = 0;
+					DiscountByStock = 0;
 					DiscountReason = null;
 				}
 			}
@@ -319,7 +321,18 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			CalculateAndSetDiscount(DiscountSetter);
+			if(CurrentCount == 0)
+				RemoveDiscount();
+			else
+				CalculateAndSetDiscount(DiscountSetter);
+		}
+
+		void RemoveDiscount()
+		{
+			IsDiscountInMoney = false;
+			DiscountReason = null;
+			DiscountMoney = 0;
+			Discount = 0;
 		}
 
 		private void CalculateAndSetDiscount(decimal value)
@@ -333,14 +346,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		private decimal GetPercentDiscount()
-		{
-			if(IsDiscountInMoney) {
-				return ((100 * DiscountMoney) / (Price * CurrentCount));
-			}
-
-			return Discount;
-		}
+		private decimal GetPercentDiscount() => IsDiscountInMoney ? (100 * DiscountMoney) / (Price * CurrentCount) : Discount;
 
 		public void SetDiscountByStock(DiscountReason discountReasonForStockBottle, decimal discountPercent)
 		{
@@ -407,8 +413,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual bool CanEditPrice
-		{
+		public virtual bool CanEditPrice {
 			get {
 				if(PromoSet != null) {
 					return false;
