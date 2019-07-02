@@ -10,7 +10,6 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
@@ -57,8 +56,8 @@ namespace Vodovoz
 			}
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.WriteoffEdit, Entity.WriteoffWarehouse);
-			repEntryEmployee.IsEditable = referenceWarehouse.IsEditable = textComment.Editable = editing;
-			writeoffdocumentitemsview1.Sensitive = editing;
+			repEntryEmployee.IsEditable = textComment.Editable = editing;
+			writeoffdocumentitemsview1.Sensitive = editing && (Entity.WriteoffWarehouse != null || Entity.Client != null);
 
 			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
 			labelTimeStamp.Binding.AddBinding (Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource ();
@@ -66,8 +65,12 @@ namespace Vodovoz
 			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceCounterparty.Binding.AddBinding(Entity, e => e.Client, w => w.Subject).InitializeFromSource();
 
-			referenceWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.WriteoffEdit);
-			referenceWarehouse.Binding.AddBinding (Entity, e => e.WriteoffWarehouse, w => w.Subject).InitializeFromSource ();
+			ySpecCmbWarehouses.ItemsList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.WriteoffEdit);
+			ySpecCmbWarehouses.Binding.AddBinding (Entity, e => e.WriteoffWarehouse, w => w.SelectedItem).InitializeFromSource ();
+			ySpecCmbWarehouses.ItemSelected += (sender, e) => {
+				writeoffdocumentitemsview1.Sensitive = editing && (Entity.WriteoffWarehouse != null || Entity.Client != null);
+			};
+
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.CanEditReference = false;
 			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
@@ -76,7 +79,7 @@ namespace Vodovoz
 			comboType.ItemsEnum = typeof(WriteoffType);
 			referenceDeliveryPoint.Sensitive = referenceCounterparty.Sensitive = (UoWGeneric.Root.Client != null);
 			comboType.EnumItemSelected += (object sender, Gamma.Widgets.ItemSelectedEventArgs e) => {
-				referenceWarehouse.Sensitive = WriteoffType.warehouse.Equals(comboType.SelectedItem);
+				ySpecCmbWarehouses.Sensitive = WriteoffType.warehouse.Equals(comboType.SelectedItem);
 				referenceDeliveryPoint.Sensitive = WriteoffType.counterparty.Equals(comboType.SelectedItem) && UoWGeneric.Root.Client != null;
 				referenceCounterparty.Sensitive = WriteoffType.counterparty.Equals(comboType.SelectedItem);
 			};
@@ -87,6 +90,10 @@ namespace Vodovoz
 				WriteoffType.warehouse;
 
 			writeoffdocumentitemsview1.DocumentUoW = UoWGeneric;
+
+			Entity.ObservableItems.ElementAdded += (aList, aIdx) => ySpecCmbWarehouses.Sensitive = !Entity.ObservableItems.Any();
+			Entity.ObservableItems.ElementRemoved += (aList, aIdx, aObject) => ySpecCmbWarehouses.Sensitive = !Entity.ObservableItems.Any();
+			ySpecCmbWarehouses.Sensitive = editing && !Entity.Items.Any();
 		}
 
 		public override bool Save ()
