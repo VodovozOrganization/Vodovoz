@@ -899,10 +899,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionHistoryLogActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<QS.HistoryLog.Dialogs.HistoryView>(),
-			() => new QS.HistoryLog.Dialogs.HistoryView()
-		);
+		tdiMain.AddTab(new QS.HistoryLog.Dialogs.HistoryView());
 	}
 
 	protected void OnAction45Activated(object sender, EventArgs e)
