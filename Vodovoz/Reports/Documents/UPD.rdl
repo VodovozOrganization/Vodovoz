@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -49,7 +49,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -134,7 +134,8 @@ WHERE
 		orders.order_status = 'Closed',
 		MAX(route_list_addresses.bottles_returned),
 		'    '
-	) AS bottles_in_fact
+	) AS bottles_in_fact,
+	orders.self_delivery AS is_self_delivery
 FROM
 	orders
 		LEFT JOIN
@@ -198,12 +199,48 @@ WHERE
           <DataField>client_kpp</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="use_special_doc_fields">
+          <DataField>use_special_doc_fields</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="special_cargo_receiver">
+          <DataField>special_cargo_receiver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_customer">
+          <DataField>special_customer</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_contract_number">
+          <DataField>special_contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="spectial_kpp">
+          <DataField>spectial_kpp</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_gov_contract">
+          <DataField>special_gov_contract</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="special_delivery_address">
+          <DataField>special_delivery_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <Field Name="org_name">
           <DataField>org_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="org_address">
           <DataField>org_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="del_point_address">
+          <DataField>del_point_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="del_point_address_composite">
+          <DataField>del_point_address_composite</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="org_inn">
@@ -238,45 +275,13 @@ WHERE
           <DataField>leader_patronymic</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="del_point_address">
-          <DataField>del_point_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="bottles_in_fact">
           <DataField>bottles_in_fact</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="del_point_address_composite">
-          <DataField>del_point_address_composite</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="use_special_doc_fields">
-          <DataField>use_special_doc_fields</DataField>
+        <Field Name="is_self_delivery">
+          <DataField>is_self_delivery</DataField>
           <TypeName>System.Boolean</TypeName>
-        </Field>
-        <Field Name="special_cargo_receiver">
-          <DataField>special_cargo_receiver</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="special_customer">
-          <DataField>special_customer</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="special_contract_number">
-          <DataField>special_contract_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="spectial_kpp">
-          <DataField>spectial_kpp</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="special_gov_contract">
-          <DataField>special_gov_contract</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="special_delivery_address">
-          <DataField>special_delivery_address</DataField>
-          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -2388,10 +2393,10 @@ WHERE
         <Top>196.4pt</Top>
       </Table>
       <List Name="List4">
-        <Height>236.54pt</Height>
-        <Width>792.25pt</Width>
-        <Left>2.3pt</Left>
-        <Top>284.8pt</Top>
+        <Height>244.81pt</Height>
+        <Width>793.01pt</Width>
+        <Left>1.50pt</Left>
+        <Top>284.80pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>15.03pt</Height>
@@ -2700,12 +2705,12 @@ WHERE
             </Style>
           </Textbox>
           <Textbox Name="Textbox165">
-            <Height>12pt</Height>
-            <Width>1in</Width>
+            <Height>12.00pt</Height>
+            <Width>72.27pt</Width>
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
-            <Left>25.9pt</Left>
-            <Top>224.8pt</Top>
+            <Left>25.90pt</Left>
+            <Top>224.80pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -3384,7 +3389,7 @@ WHERE
           <Textbox Name="Textbox130">
             <Height>10.50pt</Height>
             <Width>79.06pt</Width>
-            <Value>(подпись клиента)</Value>
+            <Value>="(подпись " + Iif({is_self_delivery},"кладовщика","курьера") + ")"</Value>
             <ZIndex>1</ZIndex>
             <Left>327.4pt</Left>
             <Top>92.7pt</Top>
@@ -3511,6 +3516,20 @@ WHERE
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
           </Textbox>
+          <Textbox Name="Textbox179">
+            <Height>8.25pt</Height>
+            <Width>791.97pt</Width>
+            <Value>="* Обращаем Ваше внимание, что количество возвратной тары не является действительной без подписи " + Iif({is_self_delivery}, "кладовщика", "водителя") + "."</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.00pt</Left>
+            <Top>234.00pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8pt</FontSize>
+            </Style>
+          </Textbox>
         </ReportItems>
         <Style>
           <BorderStyle />
@@ -3581,13 +3600,13 @@ WHERE
         </Style>
       </Textbox>
       <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>54.23pt</Height>
+        <Height>42.20pt</Height>
         <Width>70.73pt</Width>
         <Value>1 - счет-фактура и передаточный документ (акт)
 2 - передаточный документ (акт)</Value>
         <ZIndex>1</ZIndex>
-        <Left>13.20pt</Left>
-        <Top>93.20pt</Top>
+        <Left>13.2pt</Left>
+        <Top>94.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
