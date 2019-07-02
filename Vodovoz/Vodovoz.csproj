@@ -1213,6 +1213,7 @@
     <Compile Include="Filters\ViewModels\ResidueFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\ResidueFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ResidueFilterView.cs" />
+    <Compile Include="Infrastructure\Services\EntityRepresentationSelectorAdapter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
