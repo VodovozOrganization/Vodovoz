@@ -9,8 +9,8 @@ using QSOsm.Osrm;
 using QSOsm.Spuntik;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -20,11 +20,11 @@ namespace Vodovoz.Tools.Logistic
 	/// можно спрашивать сразу последовательный маршрут, от точки А к Б потом к С, потом к Д.
 	/// А так же этот класс кеширует не только время и растояния, но и геометрию движения по дорожной сети.
 	/// </summary>
-	public class RouteGeometryCalculator : IDistanceCalculator
+	public class RouteGeometryCalculator : IDistanceCalculator, IDisposable
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot($"Калькулятор геометрии маршрута");
+		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot($"Калькулятор геометрии маршрута");
 
 		Dictionary<int, int> calculatedRoutes = new Dictionary<int, int>();
 
@@ -185,9 +185,9 @@ namespace Vodovoz.Tools.Logistic
 			if (prepared.Count > 0)
 			{
 				IList<CachedDistance> fromDB;
-				lock(UoW)
+				lock(uow)
 				{
-					fromDB = CachedDistanceRepository.GetCache(UoW, prepared.ToArray());
+					fromDB = CachedDistanceRepository.GetCache(uow, prepared.ToArray());
 				}
 				foreach (var loaded in fromDB)
 				{
@@ -250,9 +250,9 @@ namespace Vodovoz.Tools.Logistic
 			if(distance == null && checkDB)
 			{
 				IList<CachedDistance> list;
-				lock(UoW)
+				lock(uow)
 				{
-					list = CachedDistanceRepository.GetCache(UoW, new[] { new WayHash(fromP, toP) });
+					list = CachedDistanceRepository.GetCache(uow, new[] { new WayHash(fromP, toP) });
 				}
 				distance = list.FirstOrDefault();
 			}
@@ -275,11 +275,11 @@ namespace Vodovoz.Tools.Logistic
 
 			if (needAdd)
 			{
-				lock(UoW)
+				lock(uow)
 				{
 					AddNewCacheDistance(distance);
-					UoW.TrySave(distance);
-					UoW.Commit();
+					uow.TrySave(distance);
+					uow.Commit();
 				}
 			}
 
@@ -322,10 +322,10 @@ namespace Vodovoz.Tools.Logistic
 
 			if(ok)
 			{
-				lock(UoW) {
+				lock(uow) {
 					AddNewCacheDistance(distance);
-					UoW.TrySave(distance);
-					UoW.Commit();
+					uow.TrySave(distance);
+					uow.Commit();
 				}
 				addedCached++;
 				return true;
@@ -335,5 +335,7 @@ namespace Vodovoz.Tools.Logistic
 			totalErrors++;
 			return false;
 		}
+
+		public void Dispose() => uow?.Dispose();
 	}
 }

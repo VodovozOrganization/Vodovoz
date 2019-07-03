@@ -14,6 +14,7 @@ using QS.Report;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic
 {
@@ -213,7 +214,9 @@ namespace Vodovoz.Additions.Logistic
 			map.MarkersEnabled = true;
 
 			GMapOverlay routeOverlay = new GMapOverlay("route");
-			MapDrawingHelper.DrawRoute(routeOverlay, routeList, new Tools.Logistic.RouteGeometryCalculator(Tools.Logistic.DistanceProvider.Osrm));
+			using(var calc = new RouteGeometryCalculator(DistanceProvider.Osrm)) {
+				MapDrawingHelper.DrawRoute(routeOverlay, routeList, calc);
+			}
 			GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 			MapDrawingHelper.DrawAddressesOfRoute(addressesOverlay, routeList);
 			map.Overlays.Add(routeOverlay);
