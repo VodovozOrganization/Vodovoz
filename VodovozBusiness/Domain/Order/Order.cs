@@ -2876,7 +2876,7 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatus(OrderStatus.Closed);
-					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider());
+					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new EntityRepositories.Logistic.RouteListItemRepository());
 				} else
 					ChangeStatus(OrderStatus.OnLoading);
 
@@ -3158,7 +3158,7 @@ namespace Vodovoz.Domain.Orders
 
 			bool isFullyPaid = SelfDeliveryIsFullyPaid();
 
-			UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures);
+			UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository());
 
 			switch(PaymentType) {
 				case PaymentType.cash:
@@ -3192,14 +3192,17 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Создание операций перемещения бутылей для заказов без доставки
 		/// </summary>
-		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures)
+		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, EntityRepositories.Logistic.IRouteListItemRepository routeListItemRepository)
 		{
+			if(routeListItemRepository == null)
+				throw new ArgumentNullException(nameof(routeListItemRepository));
+
 			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
 			//не должны создаваться операции перемещения тары
 			if(IsContractCloser)
 				return;
 
-			if(RouteListItemRepository.HasRouteListItemsForOrder(uow, this))
+			if(routeListItemRepository.HasRouteListItemsForOrder(uow, this))
 				return;
 
 			foreach(OrderItem item in OrderItems)

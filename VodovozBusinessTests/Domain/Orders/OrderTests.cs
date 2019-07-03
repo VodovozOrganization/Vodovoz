@@ -12,9 +12,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
 
 namespace VodovozBusinessTests.Domain.Orders
@@ -27,7 +27,6 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = null;
 			OrganizationRepository.GetOrganizationByPaymentTypeTestGap = null;
-			RouteListItemRepository.HasRouteListItemsForOrderTestGap = null;
 		}
 
 		#region OrderItemsPacks
@@ -544,14 +543,15 @@ namespace VodovozBusinessTests.Domain.Orders
 			Order testOrder = new Order();
 			testOrder.DeliveryDate = DateTime.Now;
 			testOrder.OrderItems = orderItems;
-			RouteListItemRepository.HasRouteListItemsForOrderTestGap = (order) => false;
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+			IRouteListItemRepository repository = Substitute.For<IRouteListItemRepository>();
+			repository.HasRouteListItemsForOrder(uow, testOrder).Returns(false);
 
 			var standartNom = Substitute.For<IStandartNomenclatures>();
 			standartNom.GetForfeitId().Returns(33);
 
 			// act
-			testOrder.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNom);
+			testOrder.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNom, repository);
 
 			// assert
 			Assert.AreEqual(returned, testOrder.BottlesMovementOperation.Returned);

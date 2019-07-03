@@ -648,6 +648,8 @@
     <Compile Include="HibernateMapping\Counterparty\ResidueMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\ResidueEquipmentDepositItemMap.cs" />
     <Compile Include="Domain\Client\ResidueEquipmentDirection.cs" />
+    <Compile Include="EntityRepositories\Logistic\RouteListItemRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\IRouteListItemRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

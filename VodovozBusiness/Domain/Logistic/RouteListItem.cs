@@ -66,9 +66,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual RouteListItem TransferedTo {
 			get => transferedTo;
 			set {
-				SetField(ref transferedTo, value, () => TransferedTo);
-				if(value != null)
-					this.Status = RouteListItemStatus.Transfered;
+				if(SetField(ref transferedTo, value, () => TransferedTo) && value != null)
+					Status = RouteListItemStatus.Transfered;
 			}
 		}
 

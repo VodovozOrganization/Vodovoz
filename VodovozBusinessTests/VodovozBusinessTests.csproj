@@ -111,7 +111,7 @@
     <Folder Include="Domain\" />
     <Folder Include="Domain\Fuel\" />
     <Folder Include="Domain\Orders\" />
-    <Folder Include="Domain\RouteList\" />
+    <Folder Include="Domain\Logistic\" />
     <Folder Include="Domain\Client\" />
     <Folder Include="Domain\Payments\" />
     <Folder Include="Domain\Goods\" />
@@ -128,13 +128,14 @@
     <Compile Include="Domain\Orders\OrderTests.cs" />
     <Compile Include="Domain\Orders\OrderItemTests.cs" />
     <Compile Include="AssertsAccumulator.cs" />
-    <Compile Include="Domain\RouteList\RouteListItemTests.cs" />
+    <Compile Include="Domain\Logistic\RouteListItemTests.cs" />
     <Compile Include="Domain\Client\CounterpartyActivityKindTests.cs" />
     <Compile Include="Domain\Payments\PaymentFromTinkoffTests.cs" />
     <Compile Include="Domain\Goods\NomenclatureTests.cs" />
     <Compile Include="Domain\Documents\CarUnloadDocumentTests.cs" />
     <Compile Include="Domain\Documents\SelfDeliveryDocumentTests.cs" />
     <Compile Include="Domain\Documents\CarLoadDocumentTests.cs" />
+    <Compile Include="Domain\Logistic\RouteListTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">

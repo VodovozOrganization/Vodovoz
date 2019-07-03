@@ -557,11 +557,31 @@ namespace Vodovoz.Domain.Logistic
 			return item;
 		}
 
-		public virtual void RemoveAddress(RouteListItem address)
+		public virtual bool TryRemoveAddress(RouteListItem address, out string msg, IRouteListItemRepository routeListItemRepository)
 		{
+			if(routeListItemRepository == null)
+				throw new ArgumentNullException(nameof(routeListItemRepository));
+
+			msg = string.Empty;
+			if(address.WasTransfered) {
+				var from = routeListItemRepository.GetTransferedFrom(UoW, address)?.RouteList?.Id;
+				msg = string.Format(
+					"Адрес \"{0}\" не может быть удалён, т.к. был перенесён из МЛ №{1}. Воспользуйтесь функционалом из вкладки \"Перенос адресов маршрутных листов\" для возврата этого адреса в исходный МЛ.",
+					address.Order.DeliveryPoint?.ShortAddress,
+					from.HasValue ? from.Value.ToString() : "???"
+				);
+				return false;
+			}
 			address.RemovedFromRoute();
 			UoW.Delete(address);
 			ObservableAddresses.Remove(address);
+			return true;
+		}
+
+		public virtual void RemoveAddress(RouteListItem address)
+		{
+			if(!TryRemoveAddress(address, out string message, new RouteListItemRepository()))
+				throw new NotSupportedException(string.Format("\n\n{0}\n", message));
 		}
 
 		public virtual void CheckAddressOrder()

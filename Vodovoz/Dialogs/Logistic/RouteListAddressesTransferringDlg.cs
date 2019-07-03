@@ -5,27 +5,24 @@ using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog;
+using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSProjectsLib;
+using QS.Project.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
-using QS.Project.Repositories;
-using QS.Dialog.GtkUI;
-using QS.Dialog.Gtk;
 
 namespace Vodovoz
 {
 	public partial class RouteListAddressesTransferringDlg : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
 	{
-		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
 		#region IOrmDialog implementation
 
-		public IUnitOfWork UoW => uow;
+		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
 		public enum OpenParameter { Sender, Receiver }
 
 		#endregion
@@ -204,7 +201,7 @@ namespace Vodovoz
 
 			CheckSensitivities();
 
-			routeListTo.UoW = uow;
+			routeListTo.UoW = UoW;
 
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
 			foreach (var item in routeListTo.Addresses)
@@ -244,10 +241,11 @@ namespace Vodovoz
 					continue;
 				}
 
-				RouteListItem newItem = new RouteListItem(routeListTo, item.Order, item.Status);
-				newItem.WasTransfered = true;
-				newItem.NeedToReload = row.LeftNeedToReload;
-				newItem.WithForwarder = routeListTo.Forwarder != null;
+				RouteListItem newItem = new RouteListItem(routeListTo, item.Order, item.Status) {
+					WasTransfered = true,
+					NeedToReload = row.LeftNeedToReload,
+					WithForwarder = routeListTo.Forwarder != null
+				};
 				routeListTo.ObservableAddresses.Add(newItem);
 
 				item.TransferedTo = newItem;
@@ -268,10 +266,10 @@ namespace Vodovoz
 				messages.AddRange(routeListTo.UpdateMovementOperations());
 			}
 
-			uow.Save (routeListTo);
-			uow.Save (routeListFrom);
+			UoW.Save (routeListTo);
+			UoW.Save (routeListFrom);
 
-			uow.Commit ();
+			UoW.Commit ();
 
 			if(needReloadNotSet.Count > 0)
 				MessageDialogHelper.RunWarningDialog("Для следующих адресов не была указана необходимость загрузки, поэтому они не были перенесены:\n * " +

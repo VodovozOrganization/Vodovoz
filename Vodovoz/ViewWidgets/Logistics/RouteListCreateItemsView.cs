@@ -8,17 +8,19 @@ using Gtk;
 using NHibernate.Criterion;
 using NLog;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
-using QSOrmProject;
+using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
+using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Repositories.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
-using QS.Project.Dialogs.GtkUI;
 
 namespace Vodovoz
 {
@@ -173,7 +175,12 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			RouteListUoW.Root.RemoveAddress(ytreeviewItems.GetSelectedObject() as RouteListItem);
+			if(!RouteListUoW.Root.TryRemoveAddress(ytreeviewItems.GetSelectedObject() as RouteListItem, out string message, new RouteListItemRepository()))
+				MessageDialogHelper.RunWarningDialog(
+					"Невозможно удалить",
+					message,
+					ButtonsType.Ok
+				);
 			CalculateTotal();
 		}
 

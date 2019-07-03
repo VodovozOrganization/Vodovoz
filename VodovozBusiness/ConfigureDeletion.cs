@@ -13,19 +13,19 @@ using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Payments;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.Domain.Fuel;
 
 namespace Vodovoz
 {
@@ -532,7 +532,8 @@ namespace Vodovoz
 				.AddClearDependence<Nomenclature>(x => x.RouteListColumn);
 
 			DeleteConfig.AddHibernateDeleteInfo<RouteListItem>()
-				.AddRemoveFromDependence<RouteList>(x => x.Addresses, x => x.RemoveAddress);
+						.AddRemoveFromDependence<RouteList>(x => x.Addresses, x => x.RemoveAddress)
+						;
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
 

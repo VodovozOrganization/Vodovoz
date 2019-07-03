@@ -336,18 +336,6 @@ namespace Vodovoz
 		}
 		#endregion
 
-		public void OnNewRouteListCreated(object sender, EntitySavedEventArgs args)
-		{
-			var newRouteList = args.Entity as RouteList;
-			foreach(var address in newRouteList.Addresses) {
-				var transferedAddress = Entity.ObservableAddresses.FirstOrDefault(item => item.Order.Id == address.Order.Id);
-				if(transferedAddress != null)
-					Entity.RemoveAddress(transferedAddress);
-			}
-			UpdateNodes();
-			Save();
-		}
-
 		static IChatService GetChatService()
 		{
 			return new ChannelFactory<IChatService>(
