@@ -395,5 +395,11 @@ namespace Vodovoz.Dialogs.Logistic
 				() => new CarsDlg(selected[0].Car)
 			);
 		}
+
+		public override void Destroy()
+		{
+			UoW?.Dispose();
+			base.Destroy();
+		}
 	}
 }

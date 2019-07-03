@@ -157,6 +157,7 @@ namespace Vodovoz
 			gmapWidget.Destroy();
 			if (mapWindow != null)
 				mapWindow.Destroy();
+			uow?.Dispose();
 			base.Destroy();
 		}
 
@@ -404,7 +405,6 @@ namespace Vodovoz
 			}
 			sendDlg.Destroy ();
 		}
-
 	}
 }
 

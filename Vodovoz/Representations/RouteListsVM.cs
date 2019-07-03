@@ -164,55 +164,48 @@ namespace Vodovoz.ViewModel
 
 		//RouteList selectedRouteList;
 
-		private List<RouteListStatus> KeepingDlgStatuses = new List<RouteListStatus>()
-			{
-				RouteListStatus.EnRoute,
-				RouteListStatus.OnClosing,
-				RouteListStatus.MileageCheck,
-				RouteListStatus.Closed
-			};
+		private List<RouteListStatus> KeepingDlgStatuses = new List<RouteListStatus> {
+			RouteListStatus.EnRoute,
+			RouteListStatus.OnClosing,
+			RouteListStatus.MileageCheck,
+			RouteListStatus.Closed
+		};
 
-		private List<RouteListStatus> ControlDlgStatuses = new List<RouteListStatus>()
-			{
-				RouteListStatus.InLoading
-			};
+		private List<RouteListStatus> ControlDlgStatuses = new List<RouteListStatus> {
+			RouteListStatus.InLoading
+		};
 
-		private List<RouteListStatus> TakingMoneyStatuses = new List<RouteListStatus>()
-			{
-				RouteListStatus.OnClosing,
-				RouteListStatus.MileageCheck
-			};
+		private List<RouteListStatus> TakingMoneyStatuses = new List<RouteListStatus> {
+			RouteListStatus.OnClosing,
+			RouteListStatus.MileageCheck
+		};
 
-		private List<RouteListStatus> ClosingDlgStatuses = new List<RouteListStatus>()
-			{
-				RouteListStatus.OnClosing,
-				RouteListStatus.MileageCheck,
-				RouteListStatus.Closed
-			};
+		private List<RouteListStatus> ClosingDlgStatuses = new List<RouteListStatus> {
+			RouteListStatus.OnClosing,
+			RouteListStatus.MileageCheck,
+			RouteListStatus.Closed
+		};
 
-		private List<RouteListStatus> MileageCheckDlgStatuses = new List<RouteListStatus>()
-			{
-				RouteListStatus.OnClosing,
-				RouteListStatus.MileageCheck,
-				RouteListStatus.Closed
-			};
+		private List<RouteListStatus> MileageCheckDlgStatuses = new List<RouteListStatus> {
+			RouteListStatus.OnClosing,
+			RouteListStatus.MileageCheck,
+			RouteListStatus.Closed
+		};
 
-		private List<RouteListStatus> CanDeletedStatuses = new List<RouteListStatus>()
-			{
-				RouteListStatus.New,
-				RouteListStatus.Confirmed,
-				RouteListStatus.InLoading
-			};
+		private List<RouteListStatus> CanDeletedStatuses = new List<RouteListStatus> {
+			RouteListStatus.New,
+			RouteListStatus.Confirmed,
+			RouteListStatus.InLoading
+		};
 
-		private List<RouteListStatus> FuelIssuingStatuses = new List<RouteListStatus>()
-			{
-				RouteListStatus.New,
-				RouteListStatus.Confirmed,
-				RouteListStatus.InLoading,
-				RouteListStatus.EnRoute,
-				RouteListStatus.OnClosing,
-				RouteListStatus.MileageCheck
-			};
+		private List<RouteListStatus> FuelIssuingStatuses = new List<RouteListStatus> {
+			RouteListStatus.New,
+			RouteListStatus.Confirmed,
+			RouteListStatus.InLoading,
+			RouteListStatus.EnRoute,
+			RouteListStatus.OnClosing,
+			RouteListStatus.MileageCheck
+		};
 
 
 		public override IEnumerable<IJournalPopupItem> PopupItems {
@@ -265,8 +258,7 @@ namespace Vodovoz.ViewModel
 							.Where(x => x.Id.IsIn(routeListIds))
 							.List();
 
-						routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) =>
-						{
+						routeLists.Where((arg) => arg.Status == RouteListStatus.Confirmed).ToList().ForEach((routeList) => {
 							if(TDIMain.MainNotebook.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id)) != null) {
 								MessageDialogHelper.RunInfoDialog("Требуется закрыть подчиненную вкладку");
 								isSlaveTabActive = true;
@@ -361,7 +353,7 @@ namespace Vodovoz.ViewModel
 					(selectedItems) => selectedItems.Any(x => FuelIssuingStatuses.Contains((x as RouteListsVMNode).StatusEnum))
 				));
 
-			return result;
+				return result;
 			}
 		}
 	}

@@ -12,6 +12,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -310,7 +311,7 @@ namespace Vodovoz
 				}
 				if(pastPlace == null)
 				{
-					pastPlace = Repository.Logistics.RouteListItemRepository.GetTransferedFrom (UoW, address);
+					pastPlace = new RouteListItemRepository().GetTransferedFrom (UoW, address);
 				}
 
 				if(pastPlace != null)
@@ -328,6 +329,14 @@ namespace Vodovoz
 
 			UoW.Commit ();
 			UpdateNodes ();
+		}
+
+		public override void Destroy()
+		{
+			yentryreferenceRLFrom.RepresentationModel.UoW?.Dispose();
+			yentryreferenceRLTo.RepresentationModel.UoW?.Dispose();
+			UoW?.Dispose();
+			base.Destroy();
 		}
 
 		#endregion

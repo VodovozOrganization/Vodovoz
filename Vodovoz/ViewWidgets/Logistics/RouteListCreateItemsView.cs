@@ -201,8 +201,7 @@ namespace Vodovoz
 
 		protected void AddOrders()
 		{
-
-			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot()) {
+			var filter = new OrdersFilter(RouteListUoW) {
 				ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray()
 			};
 

@@ -64,6 +64,12 @@ namespace Vodovoz
 		{
 			tableReadyForReception.RepresentationModel.UpdateNodes();
 		}
+
+		public override void Destroy()
+		{
+			UoW?.Dispose();
+			base.Destroy();
+		}
 	}
 }
 
