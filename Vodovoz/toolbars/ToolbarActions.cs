@@ -1,7 +1,7 @@
 ﻿using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
+using QS.DomainModel.Config;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
@@ -12,16 +12,14 @@ using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewers;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
-using Vodovoz.JournalViewModels;
-using QS.DomainModel.Config;
-using Vodovoz.Filters.ViewModels;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.EntityRepositories.Operations;
 
 public partial class MainWindow : Window
 {

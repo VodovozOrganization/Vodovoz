@@ -3,7 +3,6 @@ using System.Linq;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Representations;
 
 namespace Vodovoz.JournalViewers
