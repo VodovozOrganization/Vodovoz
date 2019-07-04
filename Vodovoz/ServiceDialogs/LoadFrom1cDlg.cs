@@ -27,7 +27,7 @@ namespace Vodovoz
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot ();
 
 		List<string> IncludeParents = new List<string>{
 			"00000002",
@@ -68,7 +68,7 @@ namespace Vodovoz
 			get {
 				if(banks == null)
 				{
-					banks = BankRepository.ActiveBanks (UoW);
+					banks = BankRepository.ActiveBanks (uow);
 				}
 				return banks;
 			}
@@ -310,9 +310,9 @@ namespace Vodovoz
 			Filter.AddPattern("*.xml");
 			filechooserXML.Filter = Filter;
 
-			DeliverySchedules  = UoW.GetAll<DeliverySchedule>().ToList();
-			unitU 	 = MeasurementUnitsRepository.GetDefaultGoodsUnit(UoW);
-			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(UoW);
+			DeliverySchedules  = uow.GetAll<DeliverySchedule>().ToList();
+			unitU 	 = MeasurementUnitsRepository.GetDefaultGoodsUnit(uow);
+			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(uow);
 
 			vboxChanges.Visible = false;
 			ytreeEntites.ColumnsConfig = ColumnsConfigFactory.Create<ChangedItem>()
@@ -713,7 +713,7 @@ namespace Vodovoz
 			if(client == null)
 				return;
 
-			DeliveryPoint deliveryPoint = DeliveryPointRepository.GetByAddress1c(UoW, client, addressCodeNode?.InnerText, addressNode?.InnerText);
+			DeliveryPoint deliveryPoint = DeliveryPointRepository.GetByAddress1c(uow, client, addressCodeNode?.InnerText, addressNode?.InnerText);
 
 #if SHORT
 			//			if (addressNode?.InnerText != null)
@@ -740,7 +740,7 @@ namespace Vodovoz
 					paymentType = PaymentType.cashless;
 			}
 
-			var reasons = UoW.Session.QueryOver<NonReturnReason>().OrderBy(x => x.Name).Asc.List();
+			var reasons = uow.Session.QueryOver<NonReturnReason>().OrderBy(x => x.Name).Asc.List();
 			NonReturnReason reasonType = reasons.FirstOrDefault(x => x.Name.ToUpper() == "ПРИЧИНА НЕИЗВЕСТНА");
 			if(commentNode != null) {
 				if(commentNode.InnerText.ToUpper().Contains(newAddressString) && reasons.Any(x => x.Name.ToUpper() == newAddressString))
@@ -931,7 +931,7 @@ namespace Vodovoz
 
 			progressbar.Text = "Записываем данные в базу...";
 			logger.Info("Записываем данные в базу...");
-			UoW.Commit ();
+			uow.Commit ();
 			progressbar.Text = "Выполнено";
 			buttonSave.Sensitive = false;
 		}
@@ -943,7 +943,7 @@ namespace Vodovoz
 			progressbar.Text = "Загружаем таблицу существующих контрагентов.";
 			QSMain.WaitRedraw ();
 			var counterpartyCodes1c = CounterpatiesList.Select(c => c.Code1c).ToArray();
-			var ExistCouterpaties = Repository.CounterpartyRepository.GetCounterpartiesByCode1c (UoW, counterpartyCodes1c);
+			var ExistCouterpaties = Repository.CounterpartyRepository.GetCounterpartiesByCode1c (uow, counterpartyCodes1c);
 
 			progressbar.Text = "Сверяем контрагентов...";
 			progressbar.Adjustment.Value = 0;
@@ -964,7 +964,7 @@ namespace Vodovoz
 					if (change != null) {
 						ChangedCounterparties++;
 						Changes.Add(change);
-						UoW.Save(exist);
+						uow.Save(exist);
 					}
 					//FIXME Если понадобится тут нужно реклизовать проверку счетов на изменения.
 					continue;
@@ -983,7 +983,7 @@ namespace Vodovoz
 					if (loaded.DefaultAccount != null && !loaded.Accounts.Contains (loaded.DefaultAccount))
 						loaded.AddAccount (loaded.DefaultAccount);
 					
-					UoW.Save (loaded);
+					uow.Save (loaded);
 				}
 					
 			}
@@ -991,7 +991,7 @@ namespace Vodovoz
 			if (!checkOnlyAddress.Active)
 			{
 				progressbar.Text = "Загружаем таблицу существующих номенклатур.";
-				ExistNomenclatures = UoW.GetAll<Nomenclature>().ToList<Nomenclature>();
+				ExistNomenclatures = uow.GetAll<Nomenclature>().ToList<Nomenclature>();
 
 				progressbar.Text = "Сверяем номенклатуры...";
 				progressbar.Adjustment.Value = 0;
@@ -1015,13 +1015,13 @@ namespace Vodovoz
 					}
 					else
 						NewNomenclatures++;
-					UoW.Save(loaded);
+					uow.Save(loaded);
 				}
 			}
 
 			progressbar.Text = "Загружаем таблицу существующих заказов.";
 			var orderCodes1c = OrdersList.Select(c => c.Code1c).ToArray();
-			var ExistOrders = OrderRepository.GetOrdersByCode1c(UoW, orderCodes1c);
+			var ExistOrders = OrderRepository.GetOrdersByCode1c(uow, orderCodes1c);
 
 			progressbar.Text = "Сверяем заказы...";
 			progressbar.Adjustment.Value = 0;
@@ -1030,7 +1030,7 @@ namespace Vodovoz
 
 			List<Order> OrdersInDataBase = new List<Order>();
 			foreach (var date in LoadedOrderDates)
-				OrdersInDataBase.AddRange(OrderRepository.GetOrdersBetweenDates(UoW, date, date));
+				OrdersInDataBase.AddRange(OrderRepository.GetOrdersBetweenDates(uow, date, date));
 			
 
 			//Проверка заказов
@@ -1054,7 +1054,7 @@ namespace Vodovoz
 				if(!String.IsNullOrWhiteSpace(loaded.Address1cCode) && loaded.DeliveryPoint != null && String.IsNullOrWhiteSpace(loaded.DeliveryPoint.Code1c))
 				{
 					loaded.DeliveryPoint.Code1c = loaded.Address1cCode;
-					UoW.Save(loaded.DeliveryPoint);
+					uow.Save(loaded.DeliveryPoint);
 				}
 					
 				if (checkOnlyAddress.Active)
@@ -1066,7 +1066,7 @@ namespace Vodovoz
 						var newPoint = DeliveryPoint.Create(loaded.Client);
 						newPoint.Address1c = loaded.Address1c;
 						newPoint.Code1c = loaded.Address1cCode;
-						UoW.Save(newPoint);
+						uow.Save(newPoint);
 						NewAddresses++;
 					}
 					continue;
@@ -1106,13 +1106,13 @@ namespace Vodovoz
 
 							change.Title = $"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше подтвержденного";
 							Changes.Add(change);
-							UoW.Session.Evict(exist);
+							uow.Session.Evict(exist);
 							continue;
 						}
 
 						ChangedOrders++;
 						Changes.Add(change);
-						UoW.Save(exist);
+						uow.Save(exist);
 					}
 
 					if(exist.OrderStatus == OrderStatus.Canceled) {
@@ -1121,7 +1121,7 @@ namespace Vodovoz
 						} else {
 							exist.OrderStatus = OrderStatus.NewOrder;
 						}
-						UoW.Save(exist);
+						uow.Save(exist);
 					}
 				}
 				else
@@ -1134,7 +1134,7 @@ namespace Vodovoz
 						&& !String.IsNullOrWhiteSpace(loaded.DeliveryPoint.CompiledAddress))
 						loaded.ChangeStatus(OrderStatus.Accepted);
 
-					UoW.Save (loaded);
+					uow.Save (loaded);
 				}
 			}
 			var notLoaded = GetNotLoadedOrders(OrdersInDataBase);
@@ -1175,7 +1175,7 @@ namespace Vodovoz
 				   && !String.IsNullOrWhiteSpace(order.Code1c))
 				{
 					order.ChangeStatus (OrderStatus.Canceled);
-					UoW.Save (order);
+					uow.Save (order);
 				}
 			}
 
@@ -1191,6 +1191,12 @@ namespace Vodovoz
 				};
 			else
 				return null;
+		}
+
+		public override void Destroy()
+		{
+			uow?.Dispose();
+			base.Destroy();
 		}
 	}
 }

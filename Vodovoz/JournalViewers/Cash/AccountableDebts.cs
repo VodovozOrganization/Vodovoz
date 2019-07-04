@@ -80,7 +80,12 @@ namespace Vodovoz
 
 			var dlg = new UnclosedAdvancesView (accountable, category);
 			OpenNewTab (dlg);
+		}
 
+		public override void Destroy()
+		{
+			UoW?.Dispose();
+			base.Destroy();
 		}
 	}
 }

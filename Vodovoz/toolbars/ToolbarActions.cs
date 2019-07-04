@@ -493,7 +493,6 @@ public partial class MainWindow : Window
 			PermissionControlledRepresentationJournal.GenerateHashName<RouteListsVM>(),
 			() => {
 				var vm = new RouteListsVM();
-				vm.DisposeUoWAction = uow => uow.Dispose();
 				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
 				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"]
 					? Buttons.All
@@ -655,7 +654,8 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			PermissionControlledRepresentationJournal.GenerateHashName<TransferOperationsVM>(),
-			() => new PermissionControlledRepresentationJournal(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки"));
+			() => new PermissionControlledRepresentationJournal(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки")
+		);
 	}
 
 	void ActionDeliveryPrice_Activated(object sender, System.EventArgs e)

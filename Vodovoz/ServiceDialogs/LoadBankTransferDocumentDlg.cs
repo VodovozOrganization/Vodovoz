@@ -688,5 +688,11 @@ namespace Vodovoz
 			while (Application.EventsPending ())
 				Application.RunIteration ();
 		}
+
+		public override void Destroy()
+		{
+			uow?.Dispose();
+			base.Destroy();
+		}
 	}
 }

@@ -86,6 +86,12 @@ namespace Vodovoz.JournalViewers
 		{
 			bottleDebtorVM?.UpdateNodes();
 		}
+
+		public override void Destroy()
+		{
+			bottledebtorsfilter.UoW?.Dispose();
+			base.Destroy();
+		}
 	}
 }
 
