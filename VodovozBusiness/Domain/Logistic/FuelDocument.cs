@@ -198,13 +198,15 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
+			var payerLiters = PayedForFuel.HasValue ? PayedLiters : 0;
+
 			FuelOperation = new FuelOperation() {
 				Driver = Car.IsCompanyHavings ? null : Driver,
 				Car = Car.IsCompanyHavings ? Car : null,
 				Fuel = Fuel,
-				LitersGived = FuelCoupons,
+				LitersGived = FuelCoupons + payerLiters,
 				LitersOutlayed = 0,
-				PayedLiters = PayedForFuel.HasValue ? PayedLiters : 0,
+				PayedLiters = payerLiters,
 				OperationTime = Date
 			};
 		}

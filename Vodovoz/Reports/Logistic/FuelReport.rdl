@@ -768,7 +768,7 @@ FROM
 			WHERE
 				DATE(fuel_operations.date) &gt;= @start_date
 				AND DATE(fuel_operations.date) &lt;= @end_date
-				AND fuel_operations.liters_gived &gt; 0 AND fuel_operations.liters_outlayed = 0
+				AND (fuel_operations.liters_gived &gt; 0 OR fuel_operations.payed_liters &gt; 0) AND fuel_operations.liters_outlayed = 0
 				AND ((@driver_id &lt;&gt; -1 AND fuel_operations.driver_id = @driver_id) 
 						OR (@car_id &lt;&gt; -1 AND fuel_operations.car_id = @car_id))
 			)
