@@ -4,9 +4,7 @@ using Gamma.ColumnConfig;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -81,7 +79,9 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc(TransferOperationDocument updatedSubject) => true;
 
-		public TransferOperationsVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
+		public TransferOperationsVM() {
+			CreateDisposableUoW();
+		}
 
 		public TransferOperationsVM(IUnitOfWork uow)
 		{

@@ -51,7 +51,7 @@ namespace Vodovoz.Representations
 
 		public CallTasksVM(IImageProvider imageProvider)
 		{
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			CreateDisposableUoW();
 			img = imageProvider.GetCrmIndicator(UoW);
 			emptyImg = img.Copy();
 			emptyImg.Fill(0xffffffff);

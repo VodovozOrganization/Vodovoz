@@ -148,8 +148,9 @@ namespace Vodovoz.ViewModel
 			Filter = filter;
 		}
 
-		public RouteListsVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
+		public RouteListsVM()
 		{
+			CreateDisposableUoW();
 			CreateRepresentationFilter = () => new RouteListsFilter(UoW);
 		}
 
