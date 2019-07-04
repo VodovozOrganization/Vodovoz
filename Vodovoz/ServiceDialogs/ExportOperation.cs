@@ -7,7 +7,7 @@ using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.ExportTo1c
 {
-	public class ExportOperation
+	public class ExportOperation : IDisposable
 	{		
 		private readonly IUnitOfWork uow;
 		private readonly DateTime start;
@@ -41,6 +41,11 @@ namespace Vodovoz.ExportTo1c
 				Result.AddOrder(orders[i]);
 				i++;
 			}
+		}
+
+		public void Dispose()
+		{
+			uow?.Dispose();
 		}
 	}
 }

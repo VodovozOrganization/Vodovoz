@@ -4,10 +4,11 @@ using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Repository;
 using Vodovoz.ServiceDialogs.ExportTo1c;
+using System;
 
 namespace Vodovoz.ServiceDialogs
 {
-	public class ExportCounterpartiesTo1C
+	public class ExportCounterpartiesTo1C : IDisposable
 	{
 		private readonly IUnitOfWork uow;
 		private IList<CounterpartyTo1CNode> counterparties;
@@ -34,6 +35,11 @@ namespace Vodovoz.ServiceDialogs
 				Result.AddCounterparty(counterparties[i]);
 				i++;
 			}
+		}
+
+		public void Dispose()
+		{
+			uow?.Dispose();
 		}
 	}
 }
