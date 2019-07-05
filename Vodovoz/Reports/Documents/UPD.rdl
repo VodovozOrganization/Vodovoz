@@ -3389,7 +3389,7 @@ WHERE
           <Textbox Name="Textbox130">
             <Height>10.50pt</Height>
             <Width>79.06pt</Width>
-            <Value>="(подпись " + Iif({is_self_delivery},"кладовщика","курьера") + ")"</Value>
+            <Value>="(подпись " + Iif({is_self_delivery},"кладовщика","водителя") + ")"</Value>
             <ZIndex>1</ZIndex>
             <Left>327.4pt</Left>
             <Top>92.7pt</Top>
