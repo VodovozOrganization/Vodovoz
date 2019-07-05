@@ -2515,7 +2515,7 @@ WHERE
             </Style>
           </Textbox>
           <Line Name="Line3">
-            <Height>147.54pt</Height>
+            <Height>123.50pt</Height>
             <Width>0.02pt</Width>
             <Style>
               <BorderStyle>
@@ -2526,8 +2526,8 @@ WHERE
                 <Default>3pt</Default>
               </BorderWidth>
             </Style>
-            <Left>400.0pt</Left>
-            <Top>80.9pt</Top>
+            <Left>400.00pt</Left>
+            <Top>104.94pt</Top>
           </Line>
           <Textbox Name="Textbox142">
             <Height>13.49pt</Height>
@@ -3389,7 +3389,7 @@ WHERE
           <Textbox Name="Textbox130">
             <Height>10.50pt</Height>
             <Width>79.06pt</Width>
-            <Value>="(подпись " + Iif({is_self_delivery},"кладовщика","водителя") + ")"</Value>
+            <Value>(подпись клиента)</Value>
             <ZIndex>1</ZIndex>
             <Left>327.4pt</Left>
             <Top>92.7pt</Top>
@@ -3423,7 +3423,7 @@ WHERE
           <Textbox Name="Textbox175">
             <Height>10.50pt</Height>
             <Width>79.06pt</Width>
-            <Value>(подпись водителя)</Value>
+            <Value>="(подпись " + Iif({is_self_delivery},"кладовщика","курьера") + ")"</Value>
             <ZIndex>1</ZIndex>
             <Left>551.5pt</Left>
             <Top>92.0pt</Top>
@@ -3519,7 +3519,7 @@ WHERE
           <Textbox Name="Textbox179">
             <Height>8.25pt</Height>
             <Width>791.97pt</Width>
-            <Value>="* Обращаем Ваше внимание, что количество возвратной тары не является действительной без подписи " + Iif({is_self_delivery}, "кладовщика", "водителя") + "."</Value>
+            <Value>="* Обращаем Ваше внимание, что количество возвратной тары не является действительной без подписи " + Iif({is_self_delivery}, "кладовщика", "курьера") + "."</Value>
             <ZIndex>1</ZIndex>
             <Left>0.00pt</Left>
             <Top>234.00pt</Top>

@@ -2370,7 +2370,7 @@ WHERE stored_resource.id = @id1</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox36">
+                    <Textbox Name="Textbox36" >
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2855,7 +2855,7 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
-                      <Value>="Предполагаемое количество возвратной тары: " + {bottles_return} + " бут."</Value>
+                      <Value>="Предполагаемое количество возвратной тары: " + Iif(Fields!bottles_return.IsMissing, 0, {bottles_return}) + " бут."</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -2952,7 +2952,7 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox87">
-                      <Value>=Iif({!self_delivery}, "Водитель", "Кладовщик")</Value>
+                      <Value>=Iif({self_delivery}, "Кладовщик", "Курьер")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -3179,7 +3179,7 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>="* Обращаем Ваше внимание, что количество возвратной тары не является действительной без подписи " + Iif({self_delivery}, "кладовщика", "водителя") + "."</Value>
+                      <Value>="* Обращаем Ваше внимание, что количество возвратной тары не является действительной без подписи " + Iif({self_delivery}, "кладовщика", "курьера") + "."</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
