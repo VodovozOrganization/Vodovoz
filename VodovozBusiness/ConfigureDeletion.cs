@@ -1009,7 +1009,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<FuelExpenseOperation>()
 				.RequiredCascadeDeletion()
 				.AddDeleteDependence<FuelTransferDocument>(item => item.FuelExpenseOperation)
-				.AddDeleteDependence<FuelDocument>(item => item.FuelExpenseOperation);
+				.AddDeleteDependence<FuelDocument>(item => item.FuelExpenseOperation)
+				.AddDeleteDependence<FuelWriteoffDocumentItem>(item => item.FuelExpenseOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelIncomeOperation>()
 				.RequiredCascadeDeletion()
@@ -1018,6 +1019,11 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelTransferOperation>();
 
+			DeleteConfig.AddHibernateDeleteInfo<FuelWriteoffDocument>()
+				.AddDeleteDependenceFromCollection(item => item.FuelWriteoffDocumentItems);
+
+			DeleteConfig.AddHibernateDeleteInfo<FuelWriteoffDocumentItem>()
+				.AddDeleteCascadeDependence(item => item.FuelExpenseOperation);
 
 			#endregion Топливо
 
