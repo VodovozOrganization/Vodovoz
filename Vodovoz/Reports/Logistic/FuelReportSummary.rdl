@@ -3343,7 +3343,7 @@ FROM
 	subdivisions ON subdivisions.id = fuel_writeoff_documents.cash_subdivision_id
 WHERE
 	Date(fuel_writeoff_documents.date) &gt;= @start_date AND Date(fuel_writeoff_documents.date) &lt;= @end_date
-	AND fuel_writeoff_documents.cashier_id = @author
+	AND  (@author = -1 OR fuel_writeoff_documents.cashier_id = @author)
 GROUP BY fuel_writeoff_documents.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">

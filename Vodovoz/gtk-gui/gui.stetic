@@ -81750,7 +81750,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Fuel.FuelWriteoffDocumentView" design-size="488 379">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Fuel.FuelWriteoffDocumentView" design-size="497 379">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -82087,7 +82087,7 @@ not tooltip</property>
               <widget class="Gtk.Label" id="labelExpenseCategory">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Тип списания:</property>
+                <property name="LabelProp" translatable="yes">Статья расхода:</property>
                 <property name="Justify">Right</property>
               </widget>
               <packing>

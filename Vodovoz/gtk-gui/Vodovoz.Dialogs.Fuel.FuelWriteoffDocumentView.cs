@@ -279,7 +279,7 @@ namespace Vodovoz.Dialogs.Fuel
 			this.labelExpenseCategory = new global::Gtk.Label();
 			this.labelExpenseCategory.Name = "labelExpenseCategory";
 			this.labelExpenseCategory.Xalign = 1F;
-			this.labelExpenseCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Тип списания:");
+			this.labelExpenseCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Статья расхода:");
 			this.labelExpenseCategory.Justify = ((global::Gtk.Justification)(1));
 			this.table1.Add(this.labelExpenseCategory);
 			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1[this.labelExpenseCategory]));
