@@ -17,11 +17,15 @@ using NHibernate.Criterion;
 using Vodovoz.EntityRepositories.Fuel;
 using QS.Services;
 using QS.Project.Domain;
+using QS.DomainModel.Config;
+using Vodovoz.Domain.Cash;
+using System.Linq;
 
 namespace Vodovoz.Representations
 {
 	public class FuelDocumentsJournalViewModel : MultipleEntityModelBase<FuelDocumentVMNode>
 	{
+		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 		private readonly IEmployeeService employeeService;
 		private readonly ICommonServices services;
 		private readonly ISubdivisionRepository subdivisionRepository;
@@ -29,12 +33,14 @@ namespace Vodovoz.Representations
 		private readonly IRepresentationEntityPicker representationEntityPicker;
 
 		public FuelDocumentsJournalViewModel(
+			IEntityConfigurationProvider entityConfigurationProvider,
 			IEmployeeService employeeService, 
 			ICommonServices services, 
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository, 
 			IRepresentationEntityPicker representationEntityPicker)
 		{
+			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.services = services ?? throw new ArgumentNullException(nameof(services));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -48,22 +54,29 @@ namespace Vodovoz.Representations
 
 			RegisterIncomeInvoice();
 			RegisterTransferDocument();
-
-
-
+			RegisterWriteoffDocument();
+			
 			UpdateOnChanges(
 				typeof(FuelIncomeInvoice),
 				typeof(FuelIncomeInvoiceItem),
-				typeof(FuelTransferDocument)
+				typeof(FuelTransferDocument),
+				typeof(FuelWriteoffDocument),
+				typeof(FuelWriteoffDocumentItem)
 			);
+
+			AfterSourceFillFunction = (list) => {
+				return list.OrderByDescending(x => x.CreationDate).ToList();
+			};
 
 			TreeViewConfig = FluentColumnsConfig<FuelDocumentVMNode>.Create()
 				.AddColumn("№").AddTextRenderer(node => node.DocumentId.ToString())
 				.AddColumn("Тип").AddTextRenderer(node => node.DisplayName)
 				.AddColumn("Дата").AddTextRenderer(node => node.CreationDate.ToShortDateString())
 				.AddColumn("Автор").AddTextRenderer(node => node.Author)
+				.AddColumn("Сотрудник").AddTextRenderer(node => node.Employee)
 				.AddColumn("Статус").AddTextRenderer(node => node.Status)
 				.AddColumn("Литры").AddTextRenderer(node => node.Liters.ToString("0"))
+				.AddColumn("Статья расх.").AddTextRenderer(node => node.ExpenseCategory)
 
 				.AddColumn("Отправлено из").AddTextRenderer(node => node.SubdivisionFrom)
 				.AddColumn("Время отпр.").AddTextRenderer(node => node.SendTime.HasValue ? node.SendTime.Value.ToShortDateString() : "")
@@ -194,6 +207,68 @@ namespace Vodovoz.Representations
 			//завершение конфигурации
 			fuelTransferConfig.FinishConfiguration();
 		}
+
+		private void RegisterWriteoffDocument()
+		{
+			FuelDocumentVMNode resultAlias = null;
+			var fuelTransferConfig = RegisterEntity<FuelWriteoffDocument>();
+			//функция получения данных
+			fuelTransferConfig.AddDataFunction(() => {
+				IList<FuelDocumentVMNode> fuelWriteoffResultList = new List<FuelDocumentVMNode>();
+
+				FuelWriteoffDocument fuelWriteoffAlias = null;
+				Employee cashierAlias = null;
+				Employee employeeAlias = null;
+				Subdivision subdivisionAlias = null;
+				ExpenseCategory expenseCategoryAlias = null;
+				FuelWriteoffDocumentItem fuelWriteoffItemAlias = null;
+				var fuelWriteoffQuery = UoW.Session.QueryOver<FuelWriteoffDocument>(() => fuelWriteoffAlias);
+
+				fuelWriteoffResultList = fuelWriteoffQuery
+					.Left.JoinQueryOver(() => fuelWriteoffAlias.Cashier, () => cashierAlias)
+					.Left.JoinQueryOver(() => fuelWriteoffAlias.Employee, () => employeeAlias)
+					.Left.JoinQueryOver(() => fuelWriteoffAlias.CashSubdivision, () => subdivisionAlias)
+					.Left.JoinQueryOver(() => fuelWriteoffAlias.ExpenseCategory, () => expenseCategoryAlias)
+					.Left.JoinQueryOver(() => fuelWriteoffAlias.FuelWriteoffDocumentItems, () => fuelWriteoffItemAlias)
+					.SelectList(list => list
+						.SelectGroup(() => fuelWriteoffAlias.Id).WithAlias(() => resultAlias.DocumentId)
+						.Select(() => fuelWriteoffAlias.Date).WithAlias(() => resultAlias.CreationDate)
+						.Select(() => fuelWriteoffAlias.Reason).WithAlias(() => resultAlias.Comment)
+
+						.Select(() => cashierAlias.Name).WithAlias(() => resultAlias.AuthorName)
+						.Select(() => cashierAlias.LastName).WithAlias(() => resultAlias.AuthorSurname)
+						.Select(() => cashierAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+
+						.Select(() => employeeAlias.Name).WithAlias(() => resultAlias.EmployeeName)
+						.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmployeeSurname)
+						.Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmployeePatronymic)
+
+						.Select(() => expenseCategoryAlias.Name).WithAlias(() => resultAlias.ExpenseCategory)
+						.Select(Projections.Sum(Projections.Property(() => fuelWriteoffItemAlias.Liters))).WithAlias(() => resultAlias.Liters)
+
+						.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.SubdivisionFrom)
+					)
+
+					.TransformUsing(Transformers.AliasToBean<FuelDocumentVMNode<FuelWriteoffDocument>>())
+					.List<FuelDocumentVMNode>();
+
+				return fuelWriteoffResultList;
+			});
+
+			fuelTransferConfig.AddViewModelDocumentConfiguration<FuelWriteoffDocumentViewModel>(
+				//функция идентификации документа 
+				(FuelDocumentVMNode node) => node.EntityType == typeof(FuelWriteoffDocument),
+				//заголовок действия для создания нового документа
+				"Акт выдачи топлива",
+				//функция диалога создания документа
+				() => new FuelWriteoffDocumentViewModel(EntityConstructorParam.ForCreate(), entityConfigurationProvider, employeeService, fuelRepository, subdivisionRepository, services),
+				//функция диалога открытия документа
+				(node) => new FuelWriteoffDocumentViewModel(EntityConstructorParam.ForOpen(node.DocumentId), entityConfigurationProvider, employeeService, fuelRepository, subdivisionRepository, services)
+			);
+
+			//завершение конфигурации
+			fuelTransferConfig.FinishConfiguration();
+		}
 	}
 
 	public class FuelDocumentVMNode<TEntity> : FuelDocumentVMNode
@@ -220,6 +295,8 @@ namespace Vodovoz.Representations
 					return "Входящая накладная";
 				} else if(EntityType == typeof(FuelTransferDocument)) {
 					return "Перемещение";
+				} else if(EntityType == typeof(FuelWriteoffDocument)) {
+					return "Акт выдачи";
 				} else {
 					return typeof(FuelTransferDocument).GetAttribute<AppellativeAttribute>(true)?.Nominative;
 				}
@@ -251,6 +328,14 @@ namespace Vodovoz.Representations
 		public string AuthorPatronymic { get; set; }
 		[UseForSearch]
 		public string Author => PersonHelper.PersonNameWithInitials(AuthorSurname, AuthorName, AuthorPatronymic);
+
+		public string EmployeeSurname { get; set; }
+		public string EmployeeName { get; set; }
+		public string EmployeePatronymic { get; set; }
+		[UseForSearch]
+		public string Employee => PersonHelper.PersonNameWithInitials(EmployeeSurname, EmployeeName, EmployeePatronymic);
+
+		public string ExpenseCategory { get; set; }
 
 		[UseForSearch]
 		public string Comment { get; set; }

@@ -1214,6 +1214,17 @@
     <Compile Include="Filters\GtkViews\ResidueFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ResidueFilterView.cs" />
     <Compile Include="Infrastructure\Services\EntityRepresentationSelectorAdapter.cs" />
+    <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelTypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTypeView.cs" />
+    <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelWriteoffDocumentView.cs" />
+    <Compile Include="Dialogs\Cash\ExpenseCategoryViewModel.cs" />
+    <Compile Include="Dialogs\Cash\ExpenseCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
+    <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
+    <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1841,6 +1852,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\FuelTransferDocument.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\FuelWriteoffDocument.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

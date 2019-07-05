@@ -650,6 +650,10 @@
     <Compile Include="Domain\Client\ResidueEquipmentDirection.cs" />
     <Compile Include="EntityRepositories\Logistic\RouteListItemRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IRouteListItemRepository.cs" />
+    <Compile Include="Domain\Fuel\FuelWriteoffDocument.cs" />
+    <Compile Include="Domain\Fuel\FuelWriteoffDocumentItem.cs" />
+    <Compile Include="HibernateMapping\Fuel\FuelWriteoffDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Fuel\FuelWriteoffDocumentItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

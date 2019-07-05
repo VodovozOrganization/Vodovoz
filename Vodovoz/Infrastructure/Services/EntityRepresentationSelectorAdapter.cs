@@ -6,10 +6,13 @@ using QS.Tdi;
 using QS.Project.Dialogs.GtkUI;
 using System.Collections.Generic;
 using QS.Project.Dialogs;
+using System.Collections;
+using QS.DomainModel.Entity;
+using QS.Utilities.Text;
 
 namespace Vodovoz.Infrastructure.Services
 {
-	public class EntityRepresentationSelectorAdapter : IEntitySelector
+	public class EntityRepresentationSelectorAdapter : IEntityAutocompleteSelector
 	{
 		private readonly Type entityType;
 		private readonly IRepresentationModel model;
@@ -17,25 +20,39 @@ namespace Vodovoz.Infrastructure.Services
 
 		public ITdiTab JournalTab { get; private set; }
 
-		public EntityRepresentationSelectorAdapter(string tabName, IRepresentationModel model, bool multipleSelect = false) : base()
+		public EntityRepresentationSelectorAdapter(IRepresentationModel model, string tabName = null, bool multipleSelect = false) : base()
 		{
 			this.model = model ?? throw new ArgumentNullException(nameof(model));
 			this.multipleSelect = multipleSelect;
-			TabName = tabName;
 			if(model.EntityType == null) {
 				throw new ArgumentException("Модель должна иметь информацию о загружаемой сущности");
 			}
+			TabName = tabName;
 			this.entityType = model.EntityType;
+			SetTabName(tabName);
 			Configure();
 		}
 
-		public EntityRepresentationSelectorAdapter(string tabName, Type entityType,  IRepresentationModel model, bool multipleSelect = false)
+		public EntityRepresentationSelectorAdapter(Type entityType,  IRepresentationModel model, string tabName = null, bool multipleSelect = false)
 		{
 			this.entityType = entityType ?? throw new ArgumentNullException(nameof(entityType));
 			this.model = model ?? throw new ArgumentNullException(nameof(model));
 			this.multipleSelect = multipleSelect;
-			TabName = tabName;
+			SetTabName(tabName);
 			Configure();
+		}
+
+		private void SetTabName(string tabName)
+		{
+			if(!string.IsNullOrWhiteSpace(tabName)) {
+				TabName = tabName;
+				return;
+			}
+			var subjectNames = entityType.GetSubjectNames();
+			if(subjectNames == null) {
+				throw new ApplicationException("Невозможно разрешить имя вкладки, не указано имя журнала и не указано имя сущности");
+			}
+			TabName = subjectNames.NominativePlural.StringToTitleCase();
 		}
 
 		private void Configure()
@@ -77,6 +94,7 @@ namespace Vodovoz.Infrastructure.Services
 
 		public bool FailInitialize => JournalTab.FailInitialize;
 
+
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 
@@ -92,6 +110,18 @@ namespace Vodovoz.Infrastructure.Services
 			model.UoW.Dispose();
 		}
 
+		#region IEntityAutocompleteSelector implementation
+
+		public IList Items => model.ItemsList;
+
+		public bool IsActive => model.UoW.IsAlive;
+
+		public void SearchValues(params string[] values)
+		{
+			model.SearchStrings = values;
+		}
+
+		#endregion IEntityAutocompleteSelector implementation
 	}
 
 	public class EntityNode : JournalEntityNodeBase

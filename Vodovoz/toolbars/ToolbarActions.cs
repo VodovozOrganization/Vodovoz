@@ -20,6 +20,16 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
+using Vodovoz.JournalViewModels;
+using QS.DomainModel.Config;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.EntityRepositories.Operations;
+using QS.Project.Journal;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Dialogs.Fuel;
+using QS.Project.Domain;
+using System.Linq;
 
 public partial class MainWindow : Window
 {
@@ -392,9 +402,10 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			RepresentationJournalDialog.GenerateHashName<FuelDocumentsJournalViewModel>(),
 			() => {
+				IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
 				SubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 				FuelRepository fuelRepository = new FuelRepository();
-				var vm = new FuelDocumentsJournalViewModel(ServicesConfig.EmployeeService, ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, ServicesConfig.RepresentationEntityPicker);
+				var vm = new FuelDocumentsJournalViewModel(entityConfigurationProvider, ServicesConfig.EmployeeService, ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, ServicesConfig.RepresentationEntityPicker);
 				return new MultipleEntityJournal("Журнал учета топлива", vm, vm);
 			}
 		);

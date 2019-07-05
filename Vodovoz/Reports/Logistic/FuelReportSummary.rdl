@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>474.3pt</Height>
+    <Height>605.3pt</Height>
     <ReportItems>
       <Textbox Name="Textbox20">
         <Height>22.59pt</Height>
@@ -1784,7 +1784,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelOther") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelTruck") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelLargus") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelGAZelle")</Value>
+                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelOther") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelTruck") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelLargus") + Sum(Iif({fuel_type}=3, {liters_coupons}, 0), "FuelGAZelle") + Sum({liters_diesel}, "FuelWriteoffDocuments")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1830,7 +1830,8 @@
         0
     ),
     "FuelGAZelle"
-)</Value>
+)
+ + Sum({liters_benzin}, "FuelWriteoffDocuments")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1847,7 +1848,7 @@
           </TableRows>
         </Details>
         <Left>281.6pt</Left>
-        <Top>411.4pt</Top>
+        <Top>514.6pt</Top>
       </Table>
       <Table Name="Table5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>FuelGAZelle</DataSetName>
@@ -2427,6 +2428,434 @@
           </TableRows>
         </Footer>
       </Table>
+      <Table Name="Table6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>FuelWriteoffDocuments</DataSetName>
+        <NoRows>Нет данных по актам выдачи топлива</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>69.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>84.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>93.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>151.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>48.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>48.3pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>318.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>13.5pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Value>Акты выдачи:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>7</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>37.7pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Value>Дата выдачи</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox66">
+                      <Value>Кассир</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox71">
+                      <Value>Кому выдано</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox72">
+                      <Value>Статья расхода</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox74">
+                      <Value>Выдано (дизель)</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox75">
+                      <Value>Выдано (бензин)</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox162">
+                      <Value>Основание</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox96">
+                      <Value>=Format({document_date}, "dd/MM/yyyy")</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox100">
+                      <Value>={cashier_fio}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox101">
+                      <Value>={employee_fio}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox102">
+                      <Value>={expense_category}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox104">
+                      <Value>={liters_diesel}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox105">
+                      <Value>={liters_benzin}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox163">
+                      <Value>={reason}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>399.6pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox152">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox153">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox154">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox155">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox157">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum({liters_diesel})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox158">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum({liters_benzin})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox164">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -2884,6 +3313,78 @@ WHERE
         <Field Name="coupons_benzene">
           <DataField>coupons_benzene</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="FuelWriteoffDocuments" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	fuel_writeoff_documents.id as document_id,
+    fuel_writeoff_documents.date as document_date,
+    GET_PERSON_NAME_WITH_INITIALS(cashiers.last_name, cashiers.name, cashiers.patronymic) as cashier_fio,
+	GET_PERSON_NAME_WITH_INITIALS(employees.last_name, employees.name, employees.patronymic) as employee_fio,
+    subdivisions.name as subdivision,
+    fuel_writeoff_documents.reason as reason,
+    IFNULL(IF(fuel_writeoff_document_items.fuel_type_id = 3, fuel_writeoff_document_items.liters, 0), 0) as liters_diesel, 
+    IFNULL(IF(fuel_writeoff_document_items.fuel_type_id = 1, fuel_writeoff_document_items.liters, 0), 0) as liters_benzin,
+    cash_expense_category.name as expense_category
+FROM
+	fuel_writeoff_documents
+		LEFT JOIN
+	cash_expense_category ON cash_expense_category.id = fuel_writeoff_documents.expense_category_id
+		LEFT JOIN
+	fuel_writeoff_document_items ON fuel_writeoff_document_items.fuel_writeoff_document_id = fuel_writeoff_documents.id
+		LEFT JOIN
+	employees as cashiers ON cashiers.id = fuel_writeoff_documents.cashier_id
+    	LEFT JOIN
+	employees ON employees.id = fuel_writeoff_documents.employee_id    
+    	LEFT JOIN
+	subdivisions ON subdivisions.id = fuel_writeoff_documents.cash_subdivision_id
+WHERE
+	Date(fuel_writeoff_documents.date) &gt;= @start_date AND Date(fuel_writeoff_documents.date) &lt;= @end_date
+	AND fuel_writeoff_documents.cashier_id = @author
+GROUP BY fuel_writeoff_documents.id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="author">
+            <Value>={?author}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="document_date">
+          <DataField>document_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="cashier_fio">
+          <DataField>cashier_fio</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="employee_fio">
+          <DataField>employee_fio</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="reason">
+          <DataField>reason</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="liters_benzin">
+          <DataField>liters_benzin</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="liters_diesel">
+          <DataField>liters_diesel</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="expense_category">
+          <DataField>expense_category</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
