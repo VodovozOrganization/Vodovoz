@@ -2160,7 +2160,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>51.20pt</Height>
         <Width>183.72pt</Width>
         <Left>25.7pt</Left>
-        <Top>656.5pt</Top>
+        <Top>664.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2370,7 +2370,7 @@ WHERE stored_resource.id = @id1</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox36" >
+                    <Textbox Name="Textbox36">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2396,7 +2396,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>67.50pt</Height>
         <Width>520.00pt</Width>
         <Left>25.0pt</Left>
-        <Top>585.6pt</Top>
+        <Top>593.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2551,7 +2551,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Height>70.50pt</Height>
         <Width>520.00pt</Width>
         <Left>24.7pt</Left>
-        <Top>512.3pt</Top>
+        <Top>520.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2947,7 +2947,7 @@ WHERE stored_resource.id = @id1</CommandText>
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>15.9pt</Height>
+              <Height>28.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -2961,7 +2961,7 @@ WHERE stored_resource.id = @id1</CommandText>
                           <Top>None</Top>
                           <Bottom>Solid</Bottom>
                         </BorderStyle>
-                        <VerticalAlign>Middle</VerticalAlign>
+                        <VerticalAlign>Bottom</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
