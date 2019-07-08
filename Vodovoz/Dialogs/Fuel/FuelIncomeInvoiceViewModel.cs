@@ -245,5 +245,10 @@ namespace Vodovoz.Dialogs.Fuel
 
 		#endregion FuelBalance
 
+		public override void Dispose()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			base.Dispose();
+		}
 	}
 }

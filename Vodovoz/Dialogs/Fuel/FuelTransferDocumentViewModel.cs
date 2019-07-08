@@ -83,6 +83,14 @@ namespace Vodovoz.Dialogs.Fuel
 		private	void ConfigureExternalUpdateSubscribes()
 		{
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<FuelType>((changeEvent) => UpdateFuelTypes());
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity((changeEvent) => UpdateBalanceCache(),
+				typeof(FuelTransferDocument),
+				typeof(FuelWriteoffDocument),
+				typeof(FuelWriteoffDocumentItem),
+				typeof(FuelIncomeInvoice),
+				typeof(FuelIncomeInvoiceItem)
+			);
+
 		}
 
 		#region Properties
@@ -360,5 +368,11 @@ namespace Vodovoz.Dialogs.Fuel
 		}
 
 		#endregion FuelTypes
+
+		public override void Dispose()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			base.Dispose();
+		}
 	}
 }
