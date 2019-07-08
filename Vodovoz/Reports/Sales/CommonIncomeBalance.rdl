@@ -617,9 +617,10 @@ SELECT
     category
 FROM
     (SELECT 
-            (SUM(CAST(IFNULL(money_movement_operations.money, 0)
-                AS DECIMAL (10 , 2 )) * IF(route_list_addresses.status = 'Completed', 1, 0) + CAST((IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0))
-                AS DECIMAL (10 , 2 )))) AS FactIncome,
+            (
+            SUM(CAST(IFNULL(money_movement_operations.money, 0) AS DECIMAL(10, 2)) 
+            * IF(route_list_addresses.status = 'Completed', 1, 0) )
+            ) AS FactIncome,
             SUM(Orders.TotalOrdersSum) AS PlanedIncome ,
             CI.category
     FROM
