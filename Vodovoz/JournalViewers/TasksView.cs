@@ -127,7 +127,7 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnAssignedEmployeeButtonClicked(object sender, EventArgs e) => representationentryEmployee.OpenSelectDialog("Ответственный :");
 
-		protected void OnEntryreferencevmEmployeeFilterChangedByUser(object sender, EventArgs e)
+		protected void OnRepresentationentryEmployeeChangedByUser(object sender, EventArgs e)
 		{
 			Action<CallTask> action = ((task) => task.AssignedEmployee = representationentryEmployee.Subject as Employee);
 			var tasks = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().ToArray();
@@ -184,7 +184,7 @@ namespace Vodovoz.JournalViewers
 		protected void OnYcheckbuttonAutoUpdateToggled(object sender, EventArgs e)
 		{
 			callTasksVM.NeedUpdate = ycheckbuttonAutoUpdate.Active;
-		} 
+		}
 		#endregion
 	}
 }

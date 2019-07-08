@@ -327,6 +327,7 @@ namespace Vodovoz.JournalViewers
 			this.radiobuttonEditSelected.Toggled += new global::System.EventHandler(this.OnRadiobuttonEditSelectedToggled);
 			this.radiobuttonEditSelected.Clicked += new global::System.EventHandler(this.OnRadiobuttonEditSelectedClicked);
 			this.buttonChandgeEployee.Clicked += new global::System.EventHandler(this.OnAssignedEmployeeButtonClicked);
+			this.representationentryEmployee.ChangedByUser += new global::System.EventHandler(this.OnRepresentationentryEmployeeChangedByUser);
 			this.taskStatusComboBox.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnTaskstateButtonEnumItemClicked);
 			this.buttonCompleteSelected.Clicked += new global::System.EventHandler(this.OnCompleteTaskButtonClicked);
 			this.datepickerDeadlineChange.DateChangedByUser += new global::System.EventHandler(this.OnDatepickerDeadlineChangeDateChangedByUser);

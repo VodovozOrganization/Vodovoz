@@ -71516,6 +71516,7 @@ not tooltip</property>
                   <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="representationentryEmployee">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <signal name="ChangedByUser" handler="OnRepresentationentryEmployeeChangedByUser" />
                   </widget>
                   <packing>
                     <property name="Position">1</property>
