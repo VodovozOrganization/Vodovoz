@@ -1301,4 +1301,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new ProfitabilityBottlesByStockReport())
 		);
 	}
+
+	protected void OnActionPaymentsFromActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<PaymentFrom>(),
+			() => new OrmReference(typeof(PaymentFrom))
+		);
+	}
 }

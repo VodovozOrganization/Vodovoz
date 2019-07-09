@@ -1211,6 +1211,17 @@
         <property name="ShortLabel" translatable="yes">Рентабельность акции "Бутыль"</property>
         <signal name="Activated" handler="OnActionProfitabilityBottlesByStockActivated" />
       </action>
+      <action id="ActionOrdersMainGroup">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Заказы</property>
+        <property name="ShortLabel" translatable="yes">Заказы</property>
+      </action>
+      <action id="ActionPaymentsFrom">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Типы оплаты по карте</property>
+        <property name="ShortLabel" translatable="yes">Типы оплаты по карте</property>
+        <signal name="Activated" handler="OnActionPaymentsFromActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -1322,6 +1333,9 @@
                       <node type="Menuitem" action="ActionCommentTemplates" />
                       <node type="Menuitem" action="ActionFineCommentTemplates" />
                       <node type="Menuitem" action="Action47" />
+                    </node>
+                    <node type="Menu" action="ActionOrdersMainGroup">
+                      <node type="Menuitem" action="ActionPaymentsFrom" />
                     </node>
                   </node>
                   <node type="Menu" action="Action60">
@@ -1644,7 +1658,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -29495,7 +29508,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="994 688">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="994 655">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <signal name="Shown" handler="OnShown" />
@@ -29555,6 +29568,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -29851,30 +29865,6 @@
                                 <property name="TopAttach">2</property>
                                 <property name="BottomAttach">3</property>
                                 <property name="LeftAttach">1</property>
-                                <property name="RightAttach">4</property>
-                                <property name="AutoSize">True</property>
-                                <property name="XOptions">Fill</property>
-                                <property name="YOptions">Fill</property>
-                                <property name="XExpand">False</property>
-                                <property name="XFill">True</property>
-                                <property name="XShrink">False</property>
-                                <property name="YExpand">False</property>
-                                <property name="YFill">True</property>
-                                <property name="YShrink">False</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="Gamma.Widgets.yValidatedEntry" id="entryOnlineOrder">
-                                <property name="MemberName" />
-                                <property name="CanFocus">True</property>
-                                <property name="IsEditable">True</property>
-                                <property name="MaxLength">10</property>
-                                <property name="InvisibleChar">●</property>
-                              </widget>
-                              <packing>
-                                <property name="TopAttach">5</property>
-                                <property name="BottomAttach">6</property>
-                                <property name="LeftAttach">3</property>
                                 <property name="RightAttach">4</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
@@ -30203,6 +30193,68 @@
                               </packing>
                             </child>
                             <child>
+                              <widget class="Gtk.HBox" id="hbxOnlineOrder">
+                                <property name="MemberName" />
+                                <property name="Spacing">6</property>
+                                <child>
+                                  <widget class="Gtk.Label" id="lblOnlineOrder">
+                                    <property name="MemberName" />
+                                    <property name="Xalign">1</property>
+                                    <property name="LabelProp" translatable="yes">Онлайн заказ:</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">0</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gamma.Widgets.yValidatedEntry" id="entOnlineOrder">
+                                    <property name="MemberName" />
+                                    <property name="CanFocus">True</property>
+                                    <property name="IsEditable">True</property>
+                                    <property name="MaxLength">10</property>
+                                    <property name="InvisibleChar">●</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">1</property>
+                                    <property name="AutoSize">False</property>
+                                    <property name="Expand">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="Gamma.Widgets.ySpecComboBox" id="ySpecPaymentFrom">
+                                    <property name="MemberName" />
+                                    <property name="IsTextCombo">False</property>
+                                    <property name="Items" translatable="yes" />
+                                    <property name="AddIfNotExist">False</property>
+                                    <property name="DefaultFirst">False</property>
+                                    <property name="ShowSpecialStateAll">False</property>
+                                    <property name="ShowSpecialStateNot">False</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="Position">2</property>
+                                    <property name="AutoSize">False</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="TopAttach">5</property>
+                                <property name="BottomAttach">6</property>
+                                <property name="LeftAttach">2</property>
+                                <property name="RightAttach">4</property>
+                                <property name="AutoSize">False</property>
+                                <property name="XOptions">Fill</property>
+                                <property name="YOptions">Fill</property>
+                                <property name="XExpand">False</property>
+                                <property name="XFill">True</property>
+                                <property name="XShrink">False</property>
+                                <property name="YExpand">False</property>
+                                <property name="YFill">True</property>
+                                <property name="YShrink">False</property>
+                              </packing>
+                            </child>
+                            <child>
                               <widget class="Gtk.HSeparator" id="hseparator5">
                                 <property name="MemberName" />
                               </widget>
@@ -30434,28 +30486,6 @@
                               <packing>
                                 <property name="TopAttach">9</property>
                                 <property name="BottomAttach">10</property>
-                                <property name="LeftAttach">2</property>
-                                <property name="RightAttach">3</property>
-                                <property name="AutoSize">True</property>
-                                <property name="XOptions">Fill</property>
-                                <property name="YOptions">Fill</property>
-                                <property name="XExpand">False</property>
-                                <property name="XFill">True</property>
-                                <property name="XShrink">False</property>
-                                <property name="YExpand">False</property>
-                                <property name="YFill">True</property>
-                                <property name="YShrink">False</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="Gtk.Label" id="labelOnlineOrder">
-                                <property name="MemberName" />
-                                <property name="Xalign">1</property>
-                                <property name="LabelProp" translatable="yes">Онлайн заказ:</property>
-                              </widget>
-                              <packing>
-                                <property name="TopAttach">5</property>
-                                <property name="BottomAttach">6</property>
                                 <property name="LeftAttach">2</property>
                                 <property name="RightAttach">3</property>
                                 <property name="AutoSize">True</property>

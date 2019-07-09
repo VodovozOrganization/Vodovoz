@@ -4,6 +4,7 @@ using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
 using NHibernate.Cfg;
+using QS.Dialog.Gtk;
 using QS.HistoryLog;
 using QS.Permissions;
 using QS.Print;
@@ -11,6 +12,7 @@ using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using QS.Tdi.Gtk;
 using QS.Widgets.GtkUI;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
@@ -28,6 +30,7 @@ using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
+using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -46,16 +49,11 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
-using QS.Tdi.Gtk;
-using Vodovoz.Dialogs.Fuel;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Filters.GtkViews;
-using QS.Dialog.Gtk;
-using QS.Journal.GtkUI;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.ViewModels;
 using Vodovoz.Views;
-using QS.Project.Journal;
 
 namespace Vodovoz
 {
@@ -291,6 +289,11 @@ namespace Vodovoz
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
 			OrmMain.AddObjectDescription<NonReturnReason>()
+				   .DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.Name)
+				   .End();
+			OrmMain.AddObjectDescription<PaymentFrom>()
 				   .DefaultTableView()
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
