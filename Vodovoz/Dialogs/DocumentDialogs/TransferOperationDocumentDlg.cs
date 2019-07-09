@@ -7,8 +7,8 @@ using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Operations;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Operations;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
@@ -61,7 +61,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			transferoperationdocumentitemview1.DocumentUoW = UoWGeneric;
 
 			if(Entity.FromClient != null)
-				RefreshSpinButtons();
+				RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
 		}
 
 		public override bool Save()
@@ -94,11 +94,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			ySpecCmbDeliveryPointFrom.Sensitive = Entity.FromClient != null;
 			if(Entity.FromClient != null) {
-				ySpecCmbDeliveryPointFrom.SetRenderTextFunc<DeliveryPoint>(d => d.ShortAddress);
+				ySpecCmbDeliveryPointFrom.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{1}: <b>{0}</b>", d.ShortAddress, d.Id));
 				ySpecCmbDeliveryPointFrom.ItemsList = Entity.FromClient.DeliveryPoints;
 				ySpecCmbDeliveryPointFrom.Binding.AddBinding(Entity, t => t.FromDeliveryPoint, w => w.SelectedItem).InitializeFromSource();
-				RefreshSpinButtons();
-				ySpecCmbDeliveryPointFrom.Changed += (s, ea) => RefreshSpinButtons();
+				RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
+				ySpecCmbDeliveryPointFrom.Changed += (s, ea) => RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
 			}
 		}
 
@@ -106,7 +106,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			ySpecCmbDeliveryPointTo.Sensitive = Entity.ToClient != null;
 			if(Entity.ToClient != null) {
-				ySpecCmbDeliveryPointTo.SetRenderTextFunc<DeliveryPoint>(d => d.ShortAddress);
+				ySpecCmbDeliveryPointTo.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{1}: {0}", d.ShortAddress, d.Id));
 				ySpecCmbDeliveryPointTo.ItemsList = Entity.ToClient.DeliveryPoints;
 				ySpecCmbDeliveryPointTo.Binding.AddBinding(Entity, t => t.ToDeliveryPoint, w => w.SelectedItem).InitializeFromSource();
 			}
@@ -115,14 +115,19 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		protected void OnCheckbuttonLockToggled(object sender, EventArgs e)
 		{
 			if(Entity.FromClient != null)
-				RefreshSpinButtons();
+				RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
 		}
 
-		protected void RefreshSpinButtons()
+		protected void RefreshSpinButtons(IBottlesRepository bottlesRepository, IDepositRepository depositRepository)
 		{
-			int bottlesMax = BottlesRepository.GetBottlesAtCouterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, Entity.TimeStamp);
-			decimal depositsBottlesMax = DepositRepository.GetDepositsAtCounterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, DepositType.Bottles, Entity.TimeStamp);
-			decimal depositsEquipmentMax = DepositRepository.GetDepositsAtCounterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, DepositType.Equipment, Entity.TimeStamp);
+			if(depositRepository == null)
+				throw new ArgumentNullException(nameof(depositRepository));
+			if(bottlesRepository == null)
+				throw new ArgumentNullException(nameof(bottlesRepository));
+
+			int bottlesMax = bottlesRepository.GetBottlesAtCouterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, Entity.TimeStamp);
+			decimal depositsBottlesMax = depositRepository.GetDepositsAtCounterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, DepositType.Bottles, Entity.TimeStamp);
+			decimal depositsEquipmentMax = depositRepository.GetDepositsAtCounterpartyAndDeliveryPoint(UoWGeneric, Entity.FromClient, Entity.FromDeliveryPoint, DepositType.Equipment, Entity.TimeStamp);
 
 			if(Entity.OutBottlesOperation != null)
 				spinBottles.Value = Entity.OutBottlesOperation.Returned != 0 ? Entity.OutBottlesOperation.Returned : (Entity.OutBottlesOperation.Delivered * -1);
