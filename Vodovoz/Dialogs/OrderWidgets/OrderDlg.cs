@@ -261,11 +261,8 @@ namespace Vodovoz
 
 			txtOnRouteEditReason.Binding.AddBinding(Entity, e => e.OnRouteEditReason, w => w.Buffer.Text).InitializeFromSource();
 
-			entOnlineOrder.ValidationMode = ValidationType.numeric;
-			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
-
-			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().List();
-			ySpecPaymentFrom.Binding.AddBinding(Entity, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
+			entryOnlineOrder.ValidationMode = ValidationType.numeric;
+			entryOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
@@ -1862,7 +1859,7 @@ namespace Vodovoz
 				(Entity.Client != null &&
 				 (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)
 				);
-			hbxOnlineOrder.Visible = Entity.PaymentType == PaymentType.ByCard;
+			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (Entity.PaymentType == PaymentType.ByCard);
 			if(treeItems.Columns.Any())
 				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
@@ -1953,8 +1950,6 @@ namespace Vodovoz
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
 			Entity.ChangeOrderContract();
-			if(Entity.PaymentType != PaymentType.ByCard)
-				entOnlineOrder.Text = string.Empty;//костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
 		}
 
 		protected void OnSpinDiscountValueChanged(object sender, EventArgs e)

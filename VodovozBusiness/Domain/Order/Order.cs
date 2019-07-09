@@ -306,10 +306,6 @@ namespace Vodovoz.Domain.Orders
 						else
 							NeedCheque = Client?.NeedCheque ?? ChequeResponse.Unknown;
 					}
-					if(PaymentType != PaymentType.ByCard) {
-						OnlineOrder = null;
-						PaymentByCardFrom = null;
-					}
 					//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
 					if(Client != null && OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
 						OnChangePaymentType();
@@ -406,13 +402,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual NonReturnReason TareNonReturnReason {
 			get => tareNonReturnReason;
 			set => SetField(ref tareNonReturnReason, value, () => TareNonReturnReason);
-		}
-
-		PaymentFrom paymentByCardFrom;
-		[Display(Name = "Причина несдачи тары")]
-		public virtual PaymentFrom PaymentByCardFrom {
-			get => paymentByCardFrom;
-			set => SetField(ref paymentByCardFrom, value, () => PaymentByCardFrom);
 		}
 
 		[Display(Name = "Колонка МЛ от клиента")]
@@ -949,12 +938,6 @@ namespace Vodovoz.Domain.Orders
 			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
-
-			if(PaymentType == PaymentType.ByCard && PaymentByCardFrom == null)
-				yield return new ValidationResult(
-					"Выбран тип оплаты по карте. Необходимо указать откуда произведена оплата.",
-					new[] { this.GetPropertyName(o => o.PaymentByCardFrom) }
-				);
 
 			if(
 				ObservableOrderEquipments
