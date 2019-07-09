@@ -372,7 +372,7 @@ LEFT JOIN
 	(SELECT 
 		order_items.order_id AS order_id,
 		SUM(order_items.price * IFNULL(order_items.actual_count, 0)) AS forfeit,
-		SUM(IFNULL(order_items.actual_count, 0)) AS forfeitCount
+		SUM(IFNULL(order_items.actual_count, '')) AS forfeitCount
 	FROM
 		order_items
 	WHERE
@@ -655,7 +655,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="StoredEquipments">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	GROUP_CONCAT(IF(client_amount_pickedup &gt; 0, CONCAT(name, ': ', ROUND(client_amount_pickedup, 0), 'шт'), NULL) SEPARATOR ', ') as we_have_clients_equip,
@@ -760,7 +760,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="we_have_clients_equip">
           <DataField>we_have_clients_equip</DataField>
           <TypeName>System.String</TypeName>
@@ -1722,8 +1722,8 @@ WHERE
                         <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingTop >0pt</PaddingTop>
-                        <PaddingBottom >0pt</PaddingBottom>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
