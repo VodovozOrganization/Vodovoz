@@ -18,6 +18,8 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services;
+using Vodovoz.Domain.Employees;
+using QS.Services;
 
 namespace Vodovoz
 {
@@ -43,7 +45,21 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
+
 			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.SelfDeliveryEdit);
+			var validationResult = CheckPermission(EmployeeRepository.GetEmployeeForCurrentUser(UoW));
+			if(!validationResult.CanRead) {
+				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
+				FailInitialize = true;
+				return;
+			}
+
+			if(!validationResult.CanCreate) {
+				MessageDialogHelper.RunErrorDialog("Нет прав для создания документа отпуска самовывоза");
+				FailInitialize = true;
+				return;
+			}
+
 			ConfigureDlg();
 		}
 
@@ -51,6 +67,14 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
+			var validationResult = CheckPermission(EmployeeRepository.GetEmployeeForCurrentUser(UoW));
+			if(!validationResult.CanRead) {
+				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
+				FailInitialize = true;
+				return;
+			}
+			canEditDocument = validationResult.CanUpdate;
+
 			ConfigureDlg();
 		}
 
@@ -58,16 +82,29 @@ namespace Vodovoz
 		{
 		}
 
+		private IPermissionResult CheckPermission(Employee employee)
+		{
+			IPermissionService permissionService = ServicesConfig.PermissionService;
+			return permissionService.ValidateUserPermission(typeof(SelfDeliveryDocument), Repositories.HumanResources.UserRepository.GetCurrentUser(UoW).Id);
+		}
+
+		private bool canEditDocument;
+
 		void ConfigureDlg()
 		{
+			var validationResult =  CheckPermission(EmployeeRepository.GetEmployeeForCurrentUser(UoW));
+
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
+			vbox4.Sensitive = canEditDocument;
+			buttonCancel.Sensitive = true;
+
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse);
-			yentryrefOrder.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
-			selfdeliverydocumentitemsview1.Sensitive = vBoxBottles.Sensitive = editing;
+			yentryrefOrder.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing && canEditDocument;
+			selfdeliverydocumentitemsview1.Sensitive = vBoxBottles.Sensitive = editing && canEditDocument;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.SelfDeliveryEdit);
