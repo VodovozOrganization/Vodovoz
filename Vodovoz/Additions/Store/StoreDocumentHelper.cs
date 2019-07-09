@@ -40,7 +40,7 @@ namespace Vodovoz.Additions.Store
 			if(warehouses.Any(x => CurrentPermissions.Warehouse[WarehousePermissions.WarehouseView, x] || CurrentPermissions.Warehouse[edit, x]))
 				return false;
 
-			MessageDialogHelper.RunErrorDialog("У вас нет прав на просмотр документов склада '{0}'.", String.Join(";", warehouses.Distinct().Select(x => x.Name)));
+			MessageDialogHelper.RunErrorDialog($"У вас нет прав на просмотр документов склада '{String.Join(";", warehouses.Distinct().Select(x => x.Name))}'.");
 			return true;
 		}
 
