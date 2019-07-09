@@ -654,6 +654,8 @@
     <Compile Include="Domain\Fuel\FuelWriteoffDocumentItem.cs" />
     <Compile Include="HibernateMapping\Fuel\FuelWriteoffDocumentMap.cs" />
     <Compile Include="HibernateMapping\Fuel\FuelWriteoffDocumentItemMap.cs" />
+    <Compile Include="Domain\Order\PaymentFrom.cs" />
+    <Compile Include="HibernateMapping\Order\PaymentFromMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

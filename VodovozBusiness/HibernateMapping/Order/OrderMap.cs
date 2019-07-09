@@ -74,6 +74,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.LastEditor)				.Column("editor_employee_id");
 			References(x => x.LoadAllowedBy)			.Column("load_allowed_employee_id");
 			References(x => x.TareNonReturnReason)		.Column("tare_non_return_reason_id");
+			References(x => x.PaymentByCardFrom)		.Column("payment_from_id");
 
 			HasMany(x => x.OrderDocuments)		.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("attached_to_order_id");
 			HasMany (x => x.OrderDepositItems)	.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");

@@ -653,6 +653,10 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<NonReturnReason>();
 
+			DeleteConfig.AddHibernateDeleteInfo<PaymentFrom>()
+						.AddClearDependence<Order>(x => x.PaymentByCardFrom)
+						;
+
 			#endregion
 
 			#region Недовозы
