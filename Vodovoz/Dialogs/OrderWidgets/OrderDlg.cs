@@ -628,8 +628,6 @@ namespace Vodovoz
 			} else {
 				Entity.SaveEntity(UoWGeneric);
 			}
-
-			UoW.Session.Refresh(Entity);
 			logger.Info("Ok.");
 			UpdateUIState();
 			return true;
