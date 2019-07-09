@@ -7,6 +7,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Report;
+using QSOrmProject;
 using QSReport;
 using QSValidation;
 using Vodovoz.Additions.Store;
@@ -174,27 +175,21 @@ namespace Vodovoz
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			if(UoW.HasChanges) {
-				if(MessageDialogHelper.RunQuestionDialog("Необходимо сохранить документ перед открытием печатной формы, сохранить?")) {
-					UoWGeneric.Save();
-				} else {
-					return;
-				}
-			}
-			var doc = new MovementDocumentRdl(Entity);
-			if(doc is IPrintableRDLDocument) {
-				TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc as IPrintableRDLDocument), this, false);
+			if(!UoWGeneric.HasChanges || CommonDialogs.SaveBeforePrint(typeof(MovementDocument), "документа") && Save()) {
+				var doc = new MovementDocumentRdl(Entity);
+				if(doc is IPrintableRDLDocument)
+					TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc as IPrintableRDLDocument), this, false);
 			}
 		}
 	}
 
 	public class MovementDocumentRdl : IPrintableRDLDocument
 	{
-		public string Title { get; set; } = "Документ перемещения"; 
+		public string Title { get; set; } = "Документ перемещения";
 
 		public MovementDocument Document { get; set; }
 
-		public Dictionary<object, object> Parameters { get; set; } 
+		public Dictionary<object, object> Parameters { get; set; }
 
 		public PrinterType PrintType { get; set; } = PrinterType.RDL;
 
@@ -207,18 +202,16 @@ namespace Vodovoz
 		public ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
+				Title = Document.Title,
 				Identifier = "Documents.MovementOperationDocucment",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "documentId" , Document.Id} ,
-					{ "date" , Document.TimeStamp.ToString("dd/MM/yyyy")} 
+					{ "date" , Document.TimeStamp.ToString("dd/MM/yyyy")}
 				}
 			};
 		}
-		public MovementDocumentRdl(MovementDocument document)
-		{
-				Document = document;
-		}
+		public MovementDocumentRdl(MovementDocument document) => Document = document;
 	}
 }
 
