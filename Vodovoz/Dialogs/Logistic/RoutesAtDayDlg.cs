@@ -67,7 +67,7 @@ namespace Vodovoz
 			private set {
 				hasNoChanges = value;
 
-				ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = ytimeToDelivery.Sensitive = ySpnMin19Btls.Sensitive
+				ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = ytimeToDeliveryFrom.Sensitive = ytimeToDeliveryTo.Sensitive = ySpnMin19Btls.Sensitive
 					= hasNoChanges;
 			}
 		}
@@ -202,7 +202,8 @@ namespace Vodovoz
 
 			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
 
-			ytimeToDelivery.Time = TimeSpan.Parse("23:59:00");
+			ytimeToDeliveryFrom.Time = TimeSpan.Parse("00:00:00");
+			ytimeToDeliveryTo.Time = TimeSpan.Parse("23:59:00");
 			ydateForRoutes.Date = DateTime.Today;
 
 			yspinMaxTime.Binding.AddBinding(optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt);
@@ -621,7 +622,8 @@ namespace Vodovoz
 
 			int.TryParse(ySpnMin19Btls.Text, out int minBtls);
 			ordersAtDay = ordersQuery.Where(x => x.DeliverySchedule != null)
-									 .Where(x => x.DeliverySchedule.To <= ytimeToDelivery.Time)
+									 .Where(x => x.DeliverySchedule.To >= ytimeToDeliveryFrom.Time)
+									 .Where(x => x.DeliverySchedule.To <= ytimeToDeliveryTo.Time)
 									 .Where(x => x.DeliveryPoint != null)
 									 .Where(o => o.TotalDeliveredBottles >= minBtls)
 									 .ToList()
