@@ -3,7 +3,6 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 
@@ -46,9 +45,9 @@ namespace Vodovoz.ViewModel
 
 		#region Конструкторы
 
-		public ProxyDocumentsVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
+		public ProxyDocumentsVM()
 		{
-			//CreateRepresentationFilter = () => new ProxyDocumentFilter(UoW);
+			CreateDisposableUoW();
 		}
 
 		public ProxyDocumentsVM(IUnitOfWork uow) : base()

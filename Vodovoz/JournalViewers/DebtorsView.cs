@@ -3,7 +3,6 @@ using System.Linq;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Representations;
 
 namespace Vodovoz.JournalViewers
@@ -85,6 +84,12 @@ namespace Vodovoz.JournalViewers
 		protected void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
 			bottleDebtorVM?.UpdateNodes();
+		}
+
+		public override void Destroy()
+		{
+			bottledebtorsfilter.UoW?.Dispose();
+			base.Destroy();
 		}
 	}
 }

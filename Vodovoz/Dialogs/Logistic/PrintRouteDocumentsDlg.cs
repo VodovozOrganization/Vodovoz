@@ -226,5 +226,11 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 			EntitiyDocumentsPrinter.PrinterSettings = null;
 		}
+
+		public override void Destroy()
+		{
+			uow?.Dispose();
+			base.Destroy();
+		}
 	}
 }

@@ -34,15 +34,15 @@ namespace Vodovoz
 		{
 			var dateStart = dateperiodpicker1.StartDate;
 			var dateEnd = dateperiodpicker1.EndDate;
-			var exportOperation = new ExportOperation(mode, dateStart, dateEnd);
 
-			this.exportInProgress = true;
-			UpdateExportButtonSensitivity();
-			LongOperationDlg.StartOperation(exportOperation.Run, "", 1, false);
-			this.exportInProgress = false;
-			UpdateExportButtonSensitivity();
-
-			exportData = exportOperation.Result;
+			using(var exportOperation = new ExportOperation(mode, dateStart, dateEnd)) {
+				this.exportInProgress = true;
+				UpdateExportButtonSensitivity();
+				LongOperationDlg.StartOperation(exportOperation.Run, "", 1, false);
+				this.exportInProgress = false;
+				UpdateExportButtonSensitivity();
+				exportData = exportOperation.Result;
+			}
 			this.labelTotalCounterparty.Text = exportData.Objects
 				.OfType<CatalogObjectNode>()
 				.Count(node => node.Type == Common1cTypes.ReferenceCounterparty)
@@ -126,4 +126,3 @@ namespace Vodovoz
 		}
 	}
 }
-

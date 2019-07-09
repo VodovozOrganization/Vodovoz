@@ -1,21 +1,20 @@
 ﻿using System;
-using QS.Project.Journal;
-using Vodovoz.Domain.Client;
-using Vodovoz.JournalNodes;
-using Vodovoz.Filters.ViewModels;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate.Transform;
 using QS.DomainModel.Config;
 using QS.Services;
-using NHibernate;
 using QSContacts;
-using NHibernate.Criterion;
-using NHibernate.Transform;
-using NHibernate.Dialect.Function;
+using Vodovoz.Domain.Client;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalNodes;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class CounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
-		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filter, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filter, entityConfigurationProvider, commonServices)
+		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал контрагентов";
 			RegisterAliasPropertiesToSearch(
@@ -24,6 +23,13 @@ namespace Vodovoz.JournalViewModels
 				() => counterpartyAlias.Name,
 				() => counterpartyAlias.INN,
 				() => phoneAlias.DigitsNumber
+			);
+			UpdateOnChanges(
+				typeof(Counterparty),
+				typeof(CounterpartyContract),
+				typeof(Phone),
+				typeof(Tag),
+				typeof(DeliveryPoint)
 			);
 		}
 

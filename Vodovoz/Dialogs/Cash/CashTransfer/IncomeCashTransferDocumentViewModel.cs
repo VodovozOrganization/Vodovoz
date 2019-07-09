@@ -180,6 +180,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 			OpenRouteListCommand = new DelegateCommand<Income>(
 				(Income parameter) => {
+					if(parameter.RouteListClosing == null) {
+						return;
+					}
 					View.TabParent.OpenTab<RouteListClosingDlg, int>(parameter.RouteListClosing.Id);
 				},
 				(Income parameter) => { return parameter != null && parameter.RouteListClosing != null; }
@@ -238,7 +241,6 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 					//скрываем уже выбранные приходники и отображаем расходники только выбранного подразделения
 					var restriction = Restrictions.On<Income>(x => x.Id).Not.IsIn(existsIncomes);
-					restriction = Restrictions.And(restriction, Restrictions.Where<Income>(x => x.RouteListClosing != null));
 					if(Entity.CashSubdivisionFrom != null) {
 						restriction = Restrictions.And(restriction, Restrictions.Where<Income>(x => x.RelatedToSubdivision == Entity.CashSubdivisionFrom));
 					}

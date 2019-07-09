@@ -266,8 +266,8 @@ namespace Vodovoz
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
-			entityVMEntryClient.SetEntitySelectorFactory(
-				new DefaultEntitySelectorFactory<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices)
+			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices)
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
@@ -422,7 +422,7 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
 					.AddSetter((c, node) => c.Editable = node.CanEditPrice)
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) => {
-						if(Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.WaitForPayment)//костыль. на Win10 не видна цветная цена, если виджет засерен
+						if(Entity.OrderStatus == OrderStatus.NewOrder || (Entity.OrderStatus == OrderStatus.WaitForPayment && !Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
 							c.ForegroundGdk = colorBlack;
 							if(node.AdditionalAgreement == null) {
@@ -731,7 +731,7 @@ namespace Vodovoz
 					return;
 				}
 				IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
-				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures);
+				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository());
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatus(OrderStatus.Closed);
@@ -1805,6 +1805,8 @@ namespace Vodovoz
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)
 		{
+			Entity.UpdateDeliveryPointInSalesAgreement();
+
 			if(!HasAgreementForDeliveryPoint()) {
 				Order originalOrder = UoW.GetById<Order>(Entity.Id);
 				Entity.DeliveryPoint = originalOrder?.DeliveryPoint;
@@ -1966,12 +1968,6 @@ namespace Vodovoz
 				return;
 
 			Entity.ChangeStatus(OrderStatus.WaitForPayment);
-			UpdateUIState();
-		}
-
-		void NewDeliveryPointDlg_EntitySaved(object sender, EntitySavedEventArgs e)
-		{
-			Entity.DeliveryPoint = (e.Entity as DeliveryPoint);
 			UpdateUIState();
 		}
 

@@ -17,7 +17,7 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			entryreferenceNomenclature.SubjectType = typeof(Nomenclature);
-			entryClient.SetEntitySelectorFactory(new DefaultEntitySelectorFactory<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entryClient.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
 		}
 
 		public ClientBalanceFilter(IUnitOfWork uow) : this()

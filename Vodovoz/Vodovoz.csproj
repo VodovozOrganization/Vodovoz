@@ -989,8 +989,6 @@
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.UndeliveriesView.cs" />
     <Compile Include="Dialogs\UndeliveredOrderCommentsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.UndeliveredOrderCommentsDlg.cs" />
-    <Compile Include="Dialogs\Client\ClientCameFromDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.ClientCameFromDlg.cs" />
     <Compile Include="Dialogs\Goods\ProductGroupDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.ProductGroupDlg.cs" />
     <Compile Include="Dialogs\OnlineStore\ExportToSiteDlg.cs" />
@@ -1049,7 +1047,6 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeSelfDeliveryDlg.cs" />
     <Compile Include="Dialogs\Cash\CashIncomeCategoryDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashIncomeCategoryDlg.cs" />
-    <Compile Include="Representations\SelfDeliveriesVM.cs" />
     <Compile Include="Dialogs\Cash\CashExpenseSelfDeliveryDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashExpenseSelfDeliveryDlg.cs" />
     <Compile Include="ReportsParameters\Logistic\OrdersByDistrictsAndDeliverySchedulesReport.cs" />
@@ -1197,6 +1194,17 @@
     <Compile Include="Filters\GtkViews\CounterpartyFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CounterpartyFilterView.cs" />
     <Compile Include="JournalNodes\CounterpartyJournalNode.cs" />
+    <Compile Include="JournalViewModels\SelfDeliveriesJournalViewModel.cs" />
+    <Compile Include="JournalNodes\SelfDeliveryJournalNode.cs" />
+    <Compile Include="Infrastructure\Converters\BooleanInvertedConverted.cs" />
+    <Compile Include="JournalViewModels\ClientCameFromJournalViewModel.cs" />
+    <Compile Include="Filters\ViewModels\ClientCameFromFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\ClientCameFromFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ClientCameFromFilterView.cs" />
+    <Compile Include="JournalNodes\ClientCameFromJournalNode.cs" />
+    <Compile Include="Dialogs\Client\ClientCameFromViewModel.cs" />
+    <Compile Include="Dialogs\Client\ClientCameFromView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Client.ClientCameFromView.cs" />
     <Compile Include="ViewModels\ResidueViewModel.cs" />
     <Compile Include="Views\ResidueView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ResidueView.cs" />
@@ -1205,6 +1213,18 @@
     <Compile Include="Filters\ViewModels\ResidueFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\ResidueFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ResidueFilterView.cs" />
+    <Compile Include="Infrastructure\Services\EntityRepresentationSelectorAdapter.cs" />
+    <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelTypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTypeView.cs" />
+    <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelWriteoffDocumentView.cs" />
+    <Compile Include="Dialogs\Cash\ExpenseCategoryViewModel.cs" />
+    <Compile Include="Dialogs\Cash\ExpenseCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
+    <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
+    <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1829,6 +1849,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bottles\ProfitabilityBottlesByStock.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\FuelTransferDocument.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\FuelWriteoffDocument.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

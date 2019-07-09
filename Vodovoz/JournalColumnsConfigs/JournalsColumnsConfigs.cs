@@ -4,8 +4,10 @@ using Gamma.Utilities;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Representations;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -50,7 +52,29 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
-			
+
+			//SelfDeliveriesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<SelfDeliveriesJournalViewModel>(
+				() => FluentColumnsConfig<SelfDeliveryJournalNode>.Create()
+					.AddColumn("Номер").SetDataProperty(node => node.Id.ToString())
+					.AddColumn("Дата").SetDataProperty(node => node.Date.ToString("d"))
+					.AddColumn("Автор").SetDataProperty(node => node.Author)
+					.AddColumn("Статус").SetDataProperty(node => node.StatusEnum.GetEnumTitle())
+					.AddColumn("Тип оплаты").SetDataProperty(node => node.PaymentTypeEnum.GetEnumTitle())
+					.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
+					.AddColumn("Клиент").SetDataProperty(node => node.Counterparty)
+					.AddColumn("Вариант оплаты").SetDataProperty(node => node.PayOption)
+					.AddColumn("Сумма безнал").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderCashlessSumTotal))
+					.AddColumn("Сумма нал").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderCashSumTotal))
+					.AddColumn("Из них возврат").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.OrderReturnSum))
+					.AddColumn("Касса приход").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashPaid))
+					.AddColumn("Касса возврат").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashReturn))
+					.AddColumn("Касса итог").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.CashTotal))
+					.AddColumn("Расхождение по нал.").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.TotalCashDiff))
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
 			//ResidueJournalViewModel
 			TreeViewColumnsConfigFactory.Register<ResidueJournalViewModel>(
 				() => FluentColumnsConfig<ResidueJournalNode>.Create()
@@ -62,6 +86,16 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Изменил").SetDataProperty(node => node.LastEditor)
 					.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
 					.Finish()
+			);
+
+			//ClientCameFromFilterViewModel
+			TreeViewColumnsConfigFactory.Register<ClientCameFromJournalViewModel>(
+				() => FluentColumnsConfig<ClientCameFromJournalNode>.Create()
+																	.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
+																	.AddColumn("Название").AddTextRenderer(n => n.Name)
+																	.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive ? "Да" : "Нет")
+																	.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+																	.Finish()
 			);
 		}
 	}

@@ -73,6 +73,12 @@ namespace Vodovoz
 			var dlg = new AdvanceReportDlg (expense);
 			OpenNewTab (dlg);
 		}
+
+		public override void Destroy()
+		{
+			UoW?.Dispose();
+			base.Destroy();
+		}
 	}
 }
 

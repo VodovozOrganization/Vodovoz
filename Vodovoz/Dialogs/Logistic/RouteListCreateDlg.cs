@@ -16,9 +16,10 @@ using Vodovoz.Dialogs;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Logistics;
+using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -91,7 +92,7 @@ namespace Vodovoz
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
 			referenceCar.SubjectType = typeof(Car);
-			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
+			referenceCar.ItemsQuery = Repository.Logistics.CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			referenceCar.ChangedByUser += (sender, e) => {
 				if(Entity.Car != null) {
@@ -126,7 +127,7 @@ namespace Vodovoz
 			referenceLogistican.RepresentationModel = new EmployeesVM();
 			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistican, w => w.Subject).InitializeFromSource();
 
-			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
+			speccomboShift.ItemsList = Repository.Logistics.DeliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();
 
 			labelStatus.Binding.AddFuncBinding(Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
@@ -180,7 +181,7 @@ namespace Vodovoz
 
 		void CheckCarLoadDocuments()
 		{
-			if(Entity.Id > 0 && RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any())
+			if(Entity.Id > 0 && new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any())
 				IsEditable = false;
 		}
 
@@ -305,7 +306,9 @@ namespace Vodovoz
 						createroutelistitemsview1.DisableColumnsUpdate = true;
 						newRoute.UpdateAddressOrderInRealRoute(Entity);
 						//Рассчитываем расстояние
-						Entity.RecalculatePlanedDistance(new Tools.Logistic.RouteGeometryCalculator(Tools.Logistic.DistanceProvider.Osrm));
+						using(var calc = new RouteGeometryCalculator(DistanceProvider.Osrm)) {
+							Entity.RecalculatePlanedDistance(calc);
+						}
 						createroutelistitemsview1.DisableColumnsUpdate = false;
 						var noPlan = Entity.Addresses.Count(x => !x.PlanTimeStart.HasValue);
 						if(noPlan > 0)
@@ -344,7 +347,7 @@ namespace Vodovoz
 				return;
 			}
 			if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
-				if(RouteListRepository.GetCarLoadDocuments(UoW, Entity.Id).Any()) {
+				if(new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any()) {
 					MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
 				} else {
 					Entity.ChangeStatus(RouteListStatus.New);

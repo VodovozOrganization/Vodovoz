@@ -5,6 +5,7 @@ using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Documents;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz
 {
@@ -17,7 +18,7 @@ namespace Vodovoz
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<CarLoadDocumentItem>()
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
-				.AddColumn("С/Н оборудования").AddTextRenderer (x => x.Equipment != null ? x.Equipment.Serial : String.Empty)
+				.AddColumn("С/Н оборудования").AddTextRenderer(x => x.Equipment != null ? x.Equipment.Serial : String.Empty)
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("В маршрутнике").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInRouteList))
 				.AddColumn("В других отгрузках").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountLoaded))
@@ -34,7 +35,7 @@ namespace Vodovoz
 
 		public void FillItemsByWarehouse()
 		{
-			if (buttonFillWarehouseItems.Sensitive)
+			if(buttonFillWarehouseItems.Sensitive)
 				buttonFillWarehouseItems.Click();
 		}
 
@@ -43,7 +44,7 @@ namespace Vodovoz
 			buttonFillAllItems.Sensitive = buttonFillWarehouseItems.Sensitive = isEditing;
 		}
 
-		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
+		void YtreeviewItems_Selection_Changed(object sender, EventArgs e)
 		{
 			var selected = ytreeviewItems.GetSelectedObject<CarLoadDocumentItem>();
 			buttonDelete.Sensitive = (selected != null && buttonFillAllItems.Sensitive == true);
@@ -54,11 +55,11 @@ namespace Vodovoz
 		public IUnitOfWorkGeneric<CarLoadDocument> DocumentUoW {
 			get { return documentUoW; }
 			set {
-				if (documentUoW == value)
+				if(documentUoW == value)
 					return;
 				documentUoW = value;
-				if (DocumentUoW.Root.Items == null)
-					DocumentUoW.Root.Items = new List<CarLoadDocumentItem> ();
+				if(DocumentUoW.Root.Items == null)
+					DocumentUoW.Root.Items = new List<CarLoadDocumentItem>();
 
 				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableItems;
 				DocumentUoW.Root.PropertyChanged += DocumentUoW_Root_PropertyChanged;
@@ -74,31 +75,28 @@ namespace Vodovoz
 			buttonFillWarehouseItems.Sensitive = routeExist && warehouseExist;
 		}
 
-		void DocumentUoW_Root_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		void DocumentUoW_Root_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			UpdateButtonState();
 		}
 
 		string CalculateAmountColor(CarLoadDocumentItem item)
 		{
-			if (item.Amount > item.AmountInStock)
+			if(item.Amount > item.AmountInStock)
 				return "red";
-			if(item.Equipment == null)
-			{
-				if (item.AmountInRouteList < item.AmountLoaded + item.Amount)
+			if(item.Equipment == null) {
+				if(item.AmountInRouteList < item.AmountLoaded + item.Amount)
 					return "orange";
-				if (item.AmountInRouteList == item.AmountLoaded + item.Amount)
+				if(item.AmountInRouteList == item.AmountLoaded + item.Amount)
 					return "green";
-				if (item.AmountInRouteList > item.AmountLoaded + item.Amount)
+				if(item.AmountInRouteList > item.AmountLoaded + item.Amount)
 					return "blue";
-			}
-			else
-			{
-				if (1 < item.AmountLoaded + item.Amount)
+			} else {
+				if(1 < item.AmountLoaded + item.Amount)
 					return "orange";
-				if (1 == item.AmountLoaded + item.Amount)
+				if(1 == item.AmountLoaded + item.Amount)
 					return "green";
-				if (1 > item.AmountLoaded + item.Amount)
+				if(1 > item.AmountLoaded + item.Amount)
 					return "blue";
 			}
 			return "black";
@@ -106,7 +104,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			DocumentUoW.Root.ObservableItems.Remove (ytreeviewItems.GetSelectedObject<CarLoadDocumentItem>());
+			DocumentUoW.Root.ObservableItems.Remove(ytreeviewItems.GetSelectedObject<CarLoadDocumentItem>());
 		}
 
 		protected void OnButtonFillWarehouseItemsClicked(object sender, EventArgs e)
@@ -114,7 +112,7 @@ namespace Vodovoz
 			if(DocumentUoW.Root.Items.Any() && !MessageDialogHelper.RunQuestionDialog("Список будет очищен. Продолжить?"))
 				return;
 
-			DocumentUoW.Root.FillFromRouteList(DocumentUoW, false);
+			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), false);
 			if(DocumentUoW.Root.Items.Any(i => !i.Nomenclature.Warehouses.Any())) {
 				string str = "";
 				foreach(var nomenclarure in DocumentUoW.Root.Items.Where(i => !i.Nomenclature.Warehouses.Any()))
@@ -122,10 +120,9 @@ namespace Vodovoz
 				MessageDialogHelper.RunErrorWithSecondaryTextDialog("В МЛ есть номенклатура не привязанная к складу.", str);
 			}
 
-			DocumentUoW.Root.FillFromRouteList(DocumentUoW, true);
-			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW);
-			if (DocumentUoW.Root.Warehouse != null)
-			{
+			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), true);
+			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, new RouteListRepository());
+			if(DocumentUoW.Root.Warehouse != null) {
 				DocumentUoW.Root.UpdateStockAmount(DocumentUoW);
 				UpdateAmounts();
 			}
@@ -135,28 +132,25 @@ namespace Vodovoz
 		{
 			if(DocumentUoW.Root.Items.Any() && !MessageDialogHelper.RunQuestionDialog("Список будет очищен. Продолжить?"))
 				return;
-			DocumentUoW.Root.FillFromRouteList(DocumentUoW, false);
+			DocumentUoW.Root.FillFromRouteList(DocumentUoW, new RouteListRepository(), false);
 
 			var items = DocumentUoW.Root.Items;
 			string errorNomenclatures = string.Empty;
-			foreach (var item in items)
-			{
-				if (item.Nomenclature.Unit == null)
+			foreach(var item in items) {
+				if(item.Nomenclature.Unit == null)
 					errorNomenclatures += string.Format("{0} код {1}{2}",
 						item.Nomenclature.Name, item.Nomenclature.Id, Environment.NewLine);
 			}
-			if (!string.IsNullOrEmpty(errorNomenclatures))
-			{
+			if(!string.IsNullOrEmpty(errorNomenclatures)) {
 				errorNomenclatures = "Не указаны единицы измерения для следующих номенклатур:"
 					+ Environment.NewLine + errorNomenclatures;
 				MessageDialogHelper.RunErrorDialog(errorNomenclatures);
 				DocumentUoW.Root.Items.Clear();
 				return;
-			}	
+			}
 
-			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW);
-			if (DocumentUoW.Root.Warehouse != null)
-			{
+			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW, new RouteListRepository());
+			if(DocumentUoW.Root.Warehouse != null) {
 				DocumentUoW.Root.UpdateStockAmount(DocumentUoW);
 				UpdateAmounts();
 			}
@@ -164,10 +158,9 @@ namespace Vodovoz
 
 		public void UpdateAmounts()
 		{
-			foreach(var item in DocumentUoW.Root.Items)
-			{
+			foreach(var item in DocumentUoW.Root.Items) {
 				item.Amount = item.AmountInRouteList - item.AmountLoaded;
-				if (item.Amount > item.AmountInStock)
+				if(item.Amount > item.AmountInStock)
 					item.Amount = item.AmountInStock;
 			}
 		}

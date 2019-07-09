@@ -4,10 +4,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository.Logistics;
-using QS.DomainModel.UoW;
 
 namespace Vodovoz
 {
@@ -71,7 +68,7 @@ namespace Vodovoz
 			});
 		}
 
-		public void FindDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
+		public void FindDiscrepancies(IList<RouteListItem> items, List<EntityRepositories.Logistic.ReturnsNode> allReturnsToWarehouse)
 		{
 			Items = RouteList.GetDiscrepancies(ItemsLoaded, allReturnsToWarehouse);
 		}

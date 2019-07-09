@@ -13,13 +13,7 @@ namespace Vodovoz
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
-		public bool? UseSlider
-		{
-			get
-			{
-				return null;
-			}
-		}
+		public bool? UseSlider => null;
 
 		public AccountingView ()
 		{
@@ -51,6 +45,11 @@ namespace Vodovoz
 		{
 			accountingFilter.Visible = checkFilter.Active;
 		}
+
+		public override void Destroy()
+		{
+			accountingFilter.UoW?.Dispose();
+			base.Destroy();
+		}
 	}
 }
-

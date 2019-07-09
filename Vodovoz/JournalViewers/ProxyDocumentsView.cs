@@ -2,9 +2,9 @@
 using Gtk;
 using NLog;
 using QS.DomainModel.UoW;
+using QS.Tdi;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
-using QS.Tdi;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 

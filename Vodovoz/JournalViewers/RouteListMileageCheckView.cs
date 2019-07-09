@@ -53,7 +53,13 @@ namespace Vodovoz
 		protected void OnRouteListActivated (object o, Gtk.RowActivatedArgs args)
 		{
 			OnButtonOpenClicked(o, args);
-		}		
+		}
+
+		public override void Destroy()
+		{
+			UoW?.Dispose();
+			base.Destroy();
+		}
 	}
 }
 

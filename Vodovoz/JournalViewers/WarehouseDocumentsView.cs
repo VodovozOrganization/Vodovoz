@@ -170,5 +170,11 @@ namespace Vodovoz
 		{
 			tableDocuments.RepresentationModel.UpdateNodes ();
 		}
+
+		public override void Destroy()
+		{
+			uow?.Dispose();
+			base.Destroy();
+		}
 	}
 }

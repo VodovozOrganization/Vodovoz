@@ -3,6 +3,8 @@ using QS.DomainModel.UoW;
 using NHibernate.Criterion;
 using Vodovoz.Domain.Cash;
 using System.Collections.Generic;
+using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Cash.CashTransfer;
 
 namespace Vodovoz.Repository.Cash
 {
@@ -80,6 +82,22 @@ namespace Vodovoz.Repository.Cash
 								.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
 
 			return income - expense;
+		}
+
+		/// <summary>
+		/// Возвращает сумму находящуюся в перемещении между кассами
+		/// </summary>
+		public static decimal GetCashInTransfering(IUnitOfWork uow)
+		{
+			CashTransferOperation cashTransferOperationAlias = null;
+			CashTransferDocumentBase cashTransferDocumentAlias = null;
+			return uow.Session.QueryOver<CashTransferOperation>(() => cashTransferOperationAlias)
+				.Left.JoinAlias(() => cashTransferOperationAlias.CashTransferDocument, () => cashTransferDocumentAlias)
+				.Where(() => cashTransferDocumentAlias.Status != CashTransferDocumentStatuses.Received)
+				.Where(() => cashTransferDocumentAlias.Status != CashTransferDocumentStatuses.New)
+				.Where(() => cashTransferOperationAlias.ReceiveTime == null)
+				.Select(Projections.Sum<CashTransferOperation>(o => o.TransferedSum))
+				.SingleOrDefault<decimal>();
 		}
 	}
 }

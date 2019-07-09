@@ -129,7 +129,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 				.AddColumn("Сумма").AddTextRenderer(x => x.IncomeMoney.ToShortCurrencyString())
 				.AddColumn("Комментарий").AddTextRenderer(x => x.Comment).AddSetter((cell, node) => cell.Editable = ViewModel.CanEdit)
 				.RowCells().AddSetter<CellRenderer>((cell, node) => {
-					if(node.Income != null && node.Income.RouteListClosing.Status == RouteListStatus.Closed) {
+					if(node.Income?.RouteListClosing != null && node.Income.RouteListClosing.Status == RouteListStatus.Closed) {
 						cell.CellBackgroundGdk = new Gdk.Color(84, 158, 91);
 					} else {
 						cell.CellBackgroundGdk = new Gdk.Color(255, 255, 255);

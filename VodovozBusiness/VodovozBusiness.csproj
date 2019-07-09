@@ -637,6 +637,8 @@
     <Compile Include="EntityRepositories\Goods\NomenclatureRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IBottlesRepository.cs" />
     <Compile Include="EntityRepositories\Goods\INomenclatureRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\RouteListRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\IRouteListRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IDepositRepository.cs" />
     <Compile Include="EntityRepositories\Operations\DepositRepository.cs" />
     <Compile Include="EntityRepositories\Operations\IMoneyRepository.cs" />
@@ -646,6 +648,12 @@
     <Compile Include="HibernateMapping\Counterparty\ResidueMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\ResidueEquipmentDepositItemMap.cs" />
     <Compile Include="Domain\Client\ResidueEquipmentDirection.cs" />
+    <Compile Include="EntityRepositories\Logistic\RouteListItemRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\IRouteListItemRepository.cs" />
+    <Compile Include="Domain\Fuel\FuelWriteoffDocument.cs" />
+    <Compile Include="Domain\Fuel\FuelWriteoffDocumentItem.cs" />
+    <Compile Include="HibernateMapping\Fuel\FuelWriteoffDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Fuel\FuelWriteoffDocumentItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -692,6 +700,7 @@
     <Folder Include="EntityRepositories\Fuel\" />
     <Folder Include="EntityRepositories\Operations\" />
     <Folder Include="EntityRepositories\Goods\" />
+    <Folder Include="EntityRepositories\Logistic\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

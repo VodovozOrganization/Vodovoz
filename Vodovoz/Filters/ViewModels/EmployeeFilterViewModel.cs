@@ -9,7 +9,11 @@ namespace Vodovoz.Filters.ViewModels
 		private EmployeeCategory? category;
 		public virtual EmployeeCategory? Category {
 			get => category;
-			set => SetField(ref category, value, () => Category);
+			set {
+				if(SetField(ref category, value, () => Category)) {
+					Update();
+				}
+			}
 		}
 
 		private EmployeeCategory? restrictCategory;
@@ -19,6 +23,7 @@ namespace Vodovoz.Filters.ViewModels
 			set {
 				if(SetField(ref restrictCategory, value, () => RestrictCategory)) {
 					Category = RestrictCategory;
+					Update();
 				}
 			}
 		}
@@ -28,7 +33,11 @@ namespace Vodovoz.Filters.ViewModels
 		private bool showFired;
 		public virtual bool ShowFired {
 			get => showFired;
-			set => SetField(ref showFired, value, () => ShowFired);
+			set {
+				if(SetField(ref showFired, value, () => ShowFired)) {
+					Update();
+				}
+			}
 		}
 
 		public EmployeeFilterViewModel(ICommonServices services) : base((services ?? throw new ArgumentNullException(nameof(services))).InteractiveService)

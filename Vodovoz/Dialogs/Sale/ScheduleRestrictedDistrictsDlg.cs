@@ -445,5 +445,11 @@ namespace Vodovoz.Dialogs.Logistic
 			if(yTreeGeographicGroups.GetSelectedObject() is GeographicGroup selectedObj && ggList != null)
 				ggList.Remove(selectedObj);
 		}
+
+		public override void Destroy()
+		{
+			uow?.Dispose();
+			base.Destroy();
+		}
 	}
 }

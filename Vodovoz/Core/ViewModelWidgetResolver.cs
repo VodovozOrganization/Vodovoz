@@ -11,6 +11,7 @@ using QS.RepresentationModel;
 using QS.Dialog.GtkUI;
 using QS.Project.Filter;
 using QS.Journal.GtkUI;
+using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.Core
 {
@@ -41,6 +42,10 @@ namespace Vodovoz.Core
 
 			if(JournalViewFactory.TryCreateView(out Widget widget, tab)) {
 				return widget;
+			}
+
+			if(tab is EntityRepresentationSelectorAdapter) {
+				return Resolve((tab as EntityRepresentationSelectorAdapter).JournalTab);
 			}
 
 			Type tabType = tab.GetType();

@@ -11,7 +11,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 
@@ -66,9 +67,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual RouteListItem TransferedTo {
 			get => transferedTo;
 			set {
-				SetField(ref transferedTo, value, () => TransferedTo);
-				if(value != null)
-					this.Status = RouteListItemStatus.Transfered;
+				if(SetField(ref transferedTo, value, () => TransferedTo) && value != null)
+					Status = RouteListItemStatus.Transfered;
 			}
 		}
 
@@ -622,7 +622,7 @@ namespace Vodovoz.Domain.Logistic
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
 			RecalculateTotalCash();
-			var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(uow).GetPrice(Order.BottlesReturn);
+			var bottleDepositPrice = new NomenclatureRepository().GetBottleDeposit(uow).GetPrice(Order.BottlesReturn);
 			PerformanceHelper.AddTimePoint("Получили прайс");
 			RecalculateWages();
 			PerformanceHelper.AddTimePoint("Пересчет");
@@ -713,7 +713,7 @@ namespace Vodovoz.Domain.Logistic
 					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
 			}
 			if(item.WasTransfered) {
-				var transferedFrom = Repository.Logistics.RouteListItemRepository.GetTransferedFrom(RouteList.UoW, item);
+				var transferedFrom = new RouteListItemRepository().GetTransferedFrom(RouteList.UoW, item);
 				if(transferedFrom != null)
 					return string.Format("Заказ из МЛ №{0} водителя {1}.",
 										 transferedFrom.RouteList.Id,
@@ -754,6 +754,7 @@ namespace Vodovoz.Domain.Logistic
 
 				time = time.AddSeconds(RouteList.Addresses[ix].TimeOnPoint);
 			}
+			sputnikCache?.Dispose();
 			return time.TimeOfDay;
 		}
 

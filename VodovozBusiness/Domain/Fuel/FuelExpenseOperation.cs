@@ -30,6 +30,15 @@ namespace Vodovoz.Domain.Fuel
 			set => SetField(ref fuelDocument, value, () => FuelDocument);
 		}
 
+		/// <summary>
+		/// Строка акта списания топлива. Заполняется только если операция создавалась из акта списания
+		/// </summary>
+		private FuelWriteoffDocumentItem fuelWriteoffDocumentItem;
+		[Display(Name = "Строка акта списания топлива")]
+		public virtual FuelWriteoffDocumentItem FuelWriteoffDocumentItem {
+			get => fuelWriteoffDocumentItem;
+			set => SetField(ref fuelWriteoffDocumentItem, value, () => FuelWriteoffDocumentItem);
+		}
 
 		private FuelTransferDocument fuelTransferDocument;
 		/// <summary>

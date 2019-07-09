@@ -111,8 +111,8 @@ namespace Vodovoz.ViewModel
 		}
 
 		public ClientEquipmentBalanceVM ()
-			: this (UnitOfWorkFactory.CreateWithoutRoot ())
 		{
+			CreateDisposableUoW();
 			CreateRepresentationFilter = () => new ClientBalanceFilter (UoW);
 		}
 

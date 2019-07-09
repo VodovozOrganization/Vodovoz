@@ -1,7 +1,7 @@
 ﻿using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
+using QS.DomainModel.Config;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
@@ -12,8 +12,11 @@ using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewers;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
@@ -22,6 +25,11 @@ using QS.DomainModel.Config;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.EntityRepositories.Operations;
+using QS.Project.Journal;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Dialogs.Fuel;
+using QS.Project.Domain;
+using System.Linq;
 
 public partial class MainWindow : Window
 {
@@ -360,25 +368,22 @@ public partial class MainWindow : Window
 		);
 	}
 
-
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			"SelfDeliveryJournal",
-			() => {
-				var filterOrders = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
-				filterOrders.SetAndRefilterAtOnce(
-					x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
-					x => x.AllowPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld, PaymentType.cashless, PaymentType.ByCard },
-					x => x.RestrictSelfDelivery = true,
-					x => x.RestrictWithoutSelfDelivery = false,
-					x => x.RestrictHideService = true,
-					x => x.RestrictOnlyService = false
-				);
-				SelfDeliveriesVM vm = new SelfDeliveriesVM(filterOrders);
-				return new PermissionControlledRepresentationJournal(vm, Buttons.None).CustomTabName("Журнал самовывозов");
-			}
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		filter.SetAndRefilterAtOnce(
+			x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
+			x => x.AllowPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld, PaymentType.cashless, PaymentType.ByCard },
+			x => x.RestrictOnlySelfDelivery = true,
+			x => x.RestrictWithoutSelfDelivery = false,
+			x => x.RestrictHideService = true,
+			x => x.RestrictOnlyService = false,
+			x => x.RestrictLessThreeHours = false,
+			x => x.RestrictOnlyWithoutCoodinates = false
 		);
+		filter.HidenByDefault = true;
+		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(filter, new DefaultEntityConfigurationProvider(), ServicesConfig.CommonServices);
+		tdiMain.AddTab(selfDeliveriesJournal);
 	}
 
 	void ActionCashTransferDocuments_Activated(object sender, System.EventArgs e)
@@ -397,9 +402,10 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			RepresentationJournalDialog.GenerateHashName<FuelDocumentsJournalViewModel>(),
 			() => {
+				IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
 				SubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 				FuelRepository fuelRepository = new FuelRepository();
-				var vm = new FuelDocumentsJournalViewModel(ServicesConfig.EmployeeService, ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, ServicesConfig.RepresentationEntityPicker);
+				var vm = new FuelDocumentsJournalViewModel(entityConfigurationProvider, ServicesConfig.EmployeeService, ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, ServicesConfig.RepresentationEntityPicker);
 				return new MultipleEntityJournal("Журнал учета топлива", vm, vm);
 			}
 		);
@@ -657,7 +663,8 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			PermissionControlledRepresentationJournal.GenerateHashName<TransferOperationsVM>(),
-			() => new PermissionControlledRepresentationJournal(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки"));
+			() => new PermissionControlledRepresentationJournal(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки")
+		);
 	}
 
 	void ActionDeliveryPrice_Activated(object sender, System.EventArgs e)

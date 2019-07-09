@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -11,7 +12,7 @@ namespace Vodovoz.Domain.Cash
 		Nominative = "статья расхода")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class ExpenseCategory : DomainTreeNodeBase<ExpenseCategory>, IDomainObject
+	public class ExpenseCategory : DomainTreeNodeBase<ExpenseCategory>, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -42,6 +43,15 @@ namespace Vodovoz.Domain.Cash
 			Name = String.Empty;
 		}
 
+
+		#region IValidatableObject implementation
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			yield break;
+		}
+
+		#endregion IValidatableObject implementation
 	}
 }
 

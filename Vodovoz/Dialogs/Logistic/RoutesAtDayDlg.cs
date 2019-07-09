@@ -1388,5 +1388,11 @@ namespace Vodovoz
 		{
 			OnButtonDriverSelectAutoClicked(o, args);
 		}
+
+		public override void Destroy()
+		{
+			distanceCalculator?.Dispose();
+			base.Destroy();
+		}
 	}
 }

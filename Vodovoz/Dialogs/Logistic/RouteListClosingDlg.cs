@@ -19,12 +19,12 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -42,7 +42,7 @@ namespace Vodovoz
 		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
 
-		List<RouteListRepository.ReturnsNode> allReturnsToWarehouse;
+		List<EntityRepositories.Logistic.ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
 		int defectiveBottlesReturnedToWarehouse;
@@ -104,7 +104,7 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 			referenceCar.SubjectType = typeof(Car);
-			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
+			referenceCar.ItemsQuery = Repository.Logistics.CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 
 			var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
@@ -130,7 +130,7 @@ namespace Vodovoz
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 
-			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
+			speccomboShift.ItemsList = Repository.Logistics.DeliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
 
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
@@ -183,7 +183,7 @@ namespace Vodovoz
 																   .Where(orderItem => Nomenclature.GetCategoriesForShipment().Any(nom => nom == orderItem.Nomenclature.Category));
 			foreach(var item in returnableOrderItems) {
 				if(allReturnsToWarehouse.All(r => r.NomenclatureId != item.Nomenclature.Id))
-					allReturnsToWarehouse.Add(new RouteListRepository.ReturnsNode {
+					allReturnsToWarehouse.Add(new EntityRepositories.Logistic.ReturnsNode {
 						Name = item.Nomenclature.Name,
 						Trackable = item.Nomenclature.IsSerial,
 						NomenclatureId = item.Nomenclature.Id,
@@ -483,7 +483,7 @@ namespace Vodovoz
 		Nomenclature DefaultBottle {
 			get {
 				if(defaultBottle == null) {
-					var db = NomenclatureRepository.GetDefaultBottle(UoW);
+					var db = new EntityRepositories.Goods.NomenclatureRepository().GetDefaultBottle(UoW);
 					defaultBottle = db ?? throw new Exception("Не найдена номенклатура бутыли по умолчанию, указанная в параметрах приложения: default_bottle_nomenclature");
 				}
 				return defaultBottle;
@@ -912,18 +912,18 @@ namespace Vodovoz
 
 		private void ReloadReturnedToWarehouse()
 		{
-			allReturnsToWarehouse = RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
+			allReturnsToWarehouse = new RouteListRepository().GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
 			var returnedBottlesNom = int.Parse(MainSupport.BaseParameters.All["returned_bottle_nomenclature_id"]);
-			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(
+			bottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
 				UoW,
 				Entity.Id,
 				returnedBottlesNom)
 			.Sum(item => item.Amount);
 
-			defectiveBottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(
+			defectiveBottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
 				UoW,
 				Entity.Id,
-				NomenclatureRepository.NomenclatureOfDefectiveGoods(UoW).Select(n => n.Id).ToArray())
+				new EntityRepositories.Goods.NomenclatureRepository().NomenclatureOfDefectiveGoods(UoW).Select(n => n.Id).ToArray())
 			.Sum(item => item.Amount);
 		}
 

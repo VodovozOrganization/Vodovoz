@@ -1,17 +1,16 @@
-﻿using NSubstitute;
-using NUnit.Framework;
-using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using NSubstitute;
+using NUnit.Framework;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 
-namespace VodovozBusinessTests.Domain.RouteList
+namespace VodovozBusinessTests.Domain.Logistic
 {
 	[TestFixture]
 	public class RouteListItemTests

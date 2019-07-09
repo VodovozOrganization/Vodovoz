@@ -2,6 +2,7 @@
 using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -64,6 +65,9 @@ namespace Vodovoz.Dialogs.Fuel
 
 			buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive).InitializeFromSource();
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
+
+			buttonPrint.Binding.AddBinding(ViewModel, vm => vm.CanPrint, w => w.Sensitive).InitializeFromSource();
+			buttonPrint.Clicked += (sender, e) => ViewModel.PrintCommand.Execute();
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false);
 

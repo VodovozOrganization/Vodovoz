@@ -53,7 +53,7 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		int journalDaysToAft;
-
+		[Obsolete("Нужно выпиливать. Было сделано для запоминания интервала дат в фильтре. Потеряло актульность с введением журнала с динамической подгрузкой.")]
 		[Display (Name = "Дней в фильтре журнала заказов назад")]
 		public virtual int JournalDaysToAft {
 			get { return journalDaysToAft; }
@@ -64,6 +64,7 @@ namespace Vodovoz.Domain.Employees
 
 		int journalDaysToFwd;
 
+		[Obsolete("Нужно выпиливать. Было сделано для запоминания интервала дат в фильтре. Потеряло актульность с введением журнала с динамической подгрузкой.")]
 		[Display(Name = "Дней в фильтре журнала заказов вперёд")]
 		public virtual int JournalDaysToFwd {
 			get { return journalDaysToFwd; }

@@ -1705,6 +1705,21 @@ namespace Vodovoz.Domain.Orders
 			ChangeOrderContract();
 		}
 
+		/// <summary>
+		/// При смене точки доставки меняем точку доставки в ДС на продажу оборудования,
+		/// которое создано в этом заказе и было сохранено в БД
+		/// </summary>
+		public virtual void UpdateDeliveryPointInSalesAgreement()
+		{
+			var esa = ObservableOrderDocuments.Where(
+				x => x is OrderAgreement
+					&& (x as OrderAgreement).AdditionalAgreement?.Self?.Type == AgreementType.EquipmentSales
+					&& (x as OrderAgreement).Order == this);
+
+			foreach(OrderAgreement aa in esa)
+				aa.AdditionalAgreement.DeliveryPoint = DeliveryPoint;
+		}
+
 		public virtual void SetProxyForOrder()
 		{
 			if(Client == null)
@@ -1949,17 +1964,21 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			var ag = new SalesEquipmentAgreement {
-				Contract = Contract,
-				AgreementNumber = AdditionalAgreement.GetNumberWithType(Contract, AgreementType.EquipmentSales),
-				DeliveryPoint = DeliveryPoint
-			};
-			if(DeliveryDate.HasValue)
-				ag.IssueDate = ag.StartDate = DeliveryDate.Value;
-			if(nom != null)
-				ag.AddEquipment(nom);
+			int agId = 0;
+			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<SalesEquipmentAgreement>()) {
+				SalesEquipmentAgreement esa = uow.Root;
+				esa.Contract = Contract;
+				esa.AgreementNumber = AdditionalAgreement.GetNumberWithType(Contract, AgreementType.EquipmentSales);
+				esa.DeliveryPoint = DeliveryPoint;
+				if(DeliveryDate.HasValue)
+					esa.IssueDate = esa.StartDate = DeliveryDate.Value;
+				if(nom != null)
+					esa.AddEquipment(nom);
+				uow.Save();
+				agId = esa.Id;
+			}
+			var ag = UoW.GetById<SalesEquipmentAgreement>(agId);
 
-			UoW.Save(ag);
 			CreateOrderAgreementDocument(ag);
 			FillItemsFromAgreement(ag, count, discount, reason, proSet);
 			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType)
@@ -2857,7 +2876,7 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatus(OrderStatus.Closed);
-					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider());
+					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new EntityRepositories.Logistic.RouteListItemRepository());
 				} else
 					ChangeStatus(OrderStatus.OnLoading);
 
@@ -3139,7 +3158,7 @@ namespace Vodovoz.Domain.Orders
 
 			bool isFullyPaid = SelfDeliveryIsFullyPaid();
 
-			UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures);
+			UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository());
 
 			switch(PaymentType) {
 				case PaymentType.cash:
@@ -3173,14 +3192,17 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Создание операций перемещения бутылей для заказов без доставки
 		/// </summary>
-		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures)
+		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, EntityRepositories.Logistic.IRouteListItemRepository routeListItemRepository)
 		{
+			if(routeListItemRepository == null)
+				throw new ArgumentNullException(nameof(routeListItemRepository));
+
 			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
 			//не должны создаваться операции перемещения тары
 			if(IsContractCloser)
 				return;
 
-			if(RouteListItemRepository.HasRouteListItemsForOrder(uow, this))
+			if(routeListItemRepository.HasRouteListItemsForOrder(uow, this))
 				return;
 
 			foreach(OrderItem item in OrderItems)

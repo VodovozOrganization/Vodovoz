@@ -5,7 +5,6 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -19,8 +18,9 @@ namespace Vodovoz.ViewModel
 
 		#region Конструкторы
 
-		public FinesVM() : this(UnitOfWorkFactory.CreateWithoutRoot ())
+		public FinesVM()
 		{
+			CreateDisposableUoW();
 			CreateRepresentationFilter = () => new FineFilter(UoW);
 		}
 
@@ -39,11 +39,8 @@ namespace Vodovoz.ViewModel
 		#region Свойства
 
 		public virtual FineFilter Filter {
-			get {
-				return RepresentationFilter as FineFilter;
-			}
-			set { RepresentationFilter = value as IRepresentationFilter;
-			}
+			get => RepresentationFilter as FineFilter;
+			set => RepresentationFilter = value as IRepresentationFilter;
 		}
 
 		#endregion
@@ -121,20 +118,13 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Причина штрафа").AddTextRenderer(node => node.FineReason)
 			.Finish();
 
-		public override IColumnsConfig ColumnsConfig {
-			get {
-				return columnsConfig;
-			}
-		}
+		public override IColumnsConfig ColumnsConfig => columnsConfig;
 
 		#endregion
 
 		#region implemented abstract members of RepresentationModelEntityBase
 
-		protected override bool NeedUpdateFunc(Fine updatedSubject)
-		{
-			return true;
-		}
+		protected override bool NeedUpdateFunc(Fine updatedSubject) => true;
 
 		#endregion
 

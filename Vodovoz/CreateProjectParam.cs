@@ -55,6 +55,7 @@ using QS.Journal.GtkUI;
 using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.ViewModels;
 using Vodovoz.Views;
+using QS.Project.Journal;
 
 namespace Vodovoz
 {
@@ -111,6 +112,7 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_confirm_mileage_for_our_GAZelles_Larguses", new PresetUserPermissionSource("can_confirm_mileage_for_our_GAZelles_Larguses", "Разрешение подтверждать киллометраж для наших ГАЗелей и Ларгусов", "Разрешение подтверждать киллометраж для наших ГАЗелей и Ларгусов"));
 			PermissionsSettings.PresetPermissions.Add("can_close_deliveries_for_counterparty", new PresetUserPermissionSource("can_close_deliveries_for_counterparty", "Возможность закрыть поставки для клиента", "Возможность закрыть поставки для клиента"));
 			PermissionsSettings.PresetPermissions.Add("can_edit_cashier_review_comment", new PresetUserPermissionSource("can_edit_cashier_review_comment", "Комментарий по проверке кассы", "Возможность изменять комментарий по проверке кассы"));
+			PermissionsSettings.PresetPermissions.Add("can_edit_fuelwriteoff_document_date", new PresetUserPermissionSource("can_edit_fuelwriteoff_document_date", "Смена даты в акте выдачи топлива", "Возможность изменять дату в акте выдачи топлива"));
 			UserDialog.UserPermissionViewsCreator = delegate {
 				return new List<IUserPermissionTab> {
 					new SubdivisionForUserEntityPermissionWidget()
@@ -128,6 +130,10 @@ namespace Vodovoz
 			ViewModelWidgetResolver.Instance
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
 				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>()
+				.RegisterWidgetForTabViewModel<ClientCameFromViewModel, ClientCameFromView>()
+				.RegisterWidgetForTabViewModel<ExpenseCategoryViewModel, ExpenseCategoryView>()
+				.RegisterWidgetForTabViewModel<FuelTypeViewModel, FuelTypeView>()
+				.RegisterWidgetForTabViewModel<FuelWriteoffDocumentViewModel, FuelWriteoffDocumentView>()
 				.RegisterWidgetForTabViewModel<ResidueViewModel, ResidueView>()
 				;
 
@@ -136,6 +142,7 @@ namespace Vodovoz
 				.RegisterWidgetForFilterViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
 				.RegisterWidgetForFilterViewModel<EmployeeFilterViewModel, EmployeeFilterView>()
 				.RegisterWidgetForFilterViewModel<OrderJournalFilterViewModel, OrderFilterView>()
+				.RegisterWidgetForFilterViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
 				.RegisterWidgetForFilterViewModel<ResidueFilterViewModel, ResidueFilterView>()
 				;
 
@@ -215,7 +222,6 @@ namespace Vodovoz
 				OrmObjectMapping<RepairAgreement>.Create().Dialog<RepairAgreementDlg>(),
 				OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView().SearchColumn("Название", x => x.FullName).End(),
 				OrmObjectMapping<Tag>.Create().Dialog<TagDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<ClientCameFrom>.Create().Dialog<ClientCameFromDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
 				OrmObjectMapping<DocTemplate>.Create().Dialog<DocTemplateDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип", x => x.TemplateType.GetEnumTitle()).End(),
 				OrmObjectMapping<Residue>.Create().Dialog<ResidueDlg>(),
@@ -368,7 +374,7 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.DistrictName)
 				   .End();
-#endregion
+			#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 			OrmMain.ClassMappingList.AddRange(QSContactsMain.GetModuleMaping());

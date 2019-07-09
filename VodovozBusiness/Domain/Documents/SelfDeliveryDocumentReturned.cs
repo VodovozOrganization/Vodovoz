@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]
-	//[HistoryTrace]
+	[HistoryTrace]
 	public class SelfDeliveryDocumentReturned: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -19,19 +19,19 @@ namespace Vodovoz.Domain.Documents
 		SelfDeliveryDocument document;
 
 		public virtual SelfDeliveryDocument Document {
-			get { return document; }
-			set { SetField (ref document, value, () => Document); }
+			get => document;
+			set => SetField(ref document, value, () => Document);
 		}
 
 		Nomenclature nomenclature;
 
 		[Display (Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
+			get => nomenclature;
 			set {
-				SetField (ref nomenclature, value, () => Nomenclature);
+				SetField(ref nomenclature, value, () => Nomenclature);
 
-				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Nomenclature != nomenclature)
+				if(WarehouseMovementOperation != null && WarehouseMovementOperation.Nomenclature != nomenclature)
 					WarehouseMovementOperation.Nomenclature = nomenclature;
 			}
 		}
@@ -40,13 +40,13 @@ namespace Vodovoz.Domain.Documents
 
 		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
-			get { return equipment; }
+			get => equipment;
 			set {
-				SetField (ref equipment, value, () => Equipment);
-				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Equipment != equipment)
+				SetField(ref equipment, value, () => Equipment);
+				if(WarehouseMovementOperation != null && WarehouseMovementOperation.Equipment != equipment)
 					WarehouseMovementOperation.Equipment = equipment;
 
-				if (CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
+				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
 					CounterpartyMovementOperation.Equipment = equipment;
 			}
 		}
@@ -55,22 +55,22 @@ namespace Vodovoz.Domain.Documents
 
 		[Display (Name = "Количество")]
 		public virtual decimal Amount {
-			get { return amount; }
-			set { SetField (ref amount, value, () => Amount); }
+			get => amount;
+			set => SetField(ref amount, value, () => Amount);
 		}
 
 		WarehouseMovementOperation warehouseMovementOperation;
 
-		public virtual WarehouseMovementOperation WarehouseMovementOperation { 
-			get { return warehouseMovementOperation; }
-			set { SetField (ref warehouseMovementOperation, value, () => WarehouseMovementOperation); }
+		public virtual WarehouseMovementOperation WarehouseMovementOperation {
+			get => warehouseMovementOperation;
+			set => SetField(ref warehouseMovementOperation, value, () => WarehouseMovementOperation);
 		}
 
 		CounterpartyMovementOperation counterpartyMovementOperation;
 
 		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
-			get { return counterpartyMovementOperation; }
-			set { SetField (ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
+			get => counterpartyMovementOperation;
+			set => SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation);
 		}
 
 		#region Не сохраняемые
@@ -79,17 +79,17 @@ namespace Vodovoz.Domain.Documents
 
 		[Display (Name = "Уже отгружено")]
 		public virtual decimal AmountUnloaded {
-			get { return amountUnloaded; }
-			set {
-				SetField (ref amountUnloaded, value, () => AmountUnloaded);
-			}
+			get => amountUnloaded;
+			set => SetField(ref amountUnloaded, value, () => AmountUnloaded);
 		}
 
 		public virtual string Title {
 			get{
-				return String.Format("{0} - {1}", 
+				return string.Format(
+					"{0} - {1}", 
 					WarehouseMovementOperation.Nomenclature.Name, 
-					WarehouseMovementOperation.Nomenclature.Unit.MakeAmountShortStr(WarehouseMovementOperation.Amount));
+					WarehouseMovementOperation.Nomenclature.Unit.MakeAmountShortStr(WarehouseMovementOperation.Amount)
+				);
 			}
 		}
 

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Dialog;
-using QS.Report;
-using QSProjectsLib;
-using QSReport;
 using QS.Dialog.GtkUI;
+using QS.Report;
+using QSReport;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -21,19 +18,13 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчёт по движению бутылей (по МЛ)";
-			}
-		}
+		public string Title => "Отчёт по движению бутылей (по МЛ)";
 
 		#endregion
 
 		void OnUpdate(bool hide = false)
 		{
-			if(LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		ReportInfo GetReportInfo()

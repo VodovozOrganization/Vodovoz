@@ -10,6 +10,7 @@ namespace Vodovoz.JournalNodes
 		public OrderStatus StatusEnum { get; set; }
 
 		public DateTime Date { get; set; }
+		public DateTime CreateDate { get; set; }
 		public bool IsSelfDelivery { get; set; }
 		public string DeliveryTime { get; set; }
 		public int BottleAmount { get; set; }

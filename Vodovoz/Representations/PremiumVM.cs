@@ -5,7 +5,6 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.JournalFilters;
@@ -19,8 +18,9 @@ namespace Vodovoz.Representations
 
 		#region Конструкторы
 
-		public PremiumVM() : this(UnitOfWorkFactory.CreateWithoutRoot ())
+		public PremiumVM()
 		{
+			CreateDisposableUoW();
 			CreateRepresentationFilter = () => new PremiumFilter(UoW);
 		}
 
@@ -39,12 +39,8 @@ namespace Vodovoz.Representations
 		#region Свойства
 
 		public virtual PremiumFilter Filter {
-			get {
-				return RepresentationFilter as PremiumFilter;
-			}
-			set {
-				RepresentationFilter = value as IRepresentationFilter;
-			}
+			get => RepresentationFilter as PremiumFilter;
+			set => RepresentationFilter = value as IRepresentationFilter;
 		}
 
 		#endregion
@@ -107,20 +103,13 @@ namespace Vodovoz.Representations
 			.AddColumn("Причина штрафа").AddTextRenderer(node => node.PremiumReason)
 			.Finish();
 
-		public override IColumnsConfig ColumnsConfig {
-			get {
-				return columnsConfig;
-			}
-		}
+		public override IColumnsConfig ColumnsConfig => columnsConfig;
 
 		#endregion
 
 		#region implemented abstract members of RepresentationModelEntityBase
 
-		protected override bool NeedUpdateFunc(Premium updatedSubject)
-		{
-			return true;
-		}
+		protected override bool NeedUpdateFunc(Premium updatedSubject) => true;
 
 		#endregion
 

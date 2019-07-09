@@ -1,5 +1,7 @@
 ﻿using System;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using QS.DomainModel.Entity;
 using QS.Tools;
 using Vodovoz.Domain.Cash;
@@ -47,7 +49,15 @@ namespace Vodovoz.Filters
 
 		public ICriterion GetFilter()
 		{
-			ICriterion result = Restrictions.Where<Expense>(x => x.Date >= StartDate && x.Date <= EndDate);
+			var dateCriterion = Projections.SqlFunction(
+				   new SQLFunctionTemplate(
+					   NHibernateUtil.Date,
+					   "Date(?1)"
+					  ),
+				   NHibernateUtil.Date,
+				   Projections.Property<Expense>(x => x.Date)
+			);
+			ICriterion result = Restrictions.And(Restrictions.Ge(dateCriterion, StartDate), Restrictions.Le(dateCriterion, EndDate));
 
 			if(Employee != null) {
 				result = Restrictions.And(result, Restrictions.Where<Expense>(x => x.Employee == Employee));

@@ -8,12 +8,10 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.DomainModel.UoW;
 using QS.RepresentationModel.GtkUI;
 using QS.Tools;
 using QS.Utilities.Text;
 using QSContacts;
-using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
@@ -51,7 +49,7 @@ namespace Vodovoz.Representations
 
 		public CallTasksVM(IImageProvider imageProvider)
 		{
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			CreateDisposableUoW();
 			img = imageProvider.GetCrmIndicator(UoW);
 			emptyImg = img.Copy();
 			emptyImg.Fill(0xffffffff);

@@ -63,9 +63,10 @@ namespace Vodovoz.ServiceDialogs.Database
 		protected void OnButtonCreateBottleOperationsClicked(object sender, EventArgs e)
 		{
 			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
-			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , standartNomenclatures));
-			if(uow.HasChanges && MessageDialogHelper.RunQuestionDialog("Создано \"{0}\" недостающих операций передвижения бутылей, сохранить изменения?", 
-		                                        orders.Where(x => x.BottlesMovementOperation != null).Count())){
+			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository()));
+			if(uow.HasChanges && MessageDialogHelper.RunQuestionDialog(
+				"Создано \"{0}\" недостающих операций передвижения бутылей, сохранить изменения?",
+				orders.Count(x => x.BottlesMovementOperation != null))){
 				uow.Commit();
 			}
 			OnCloseTab(false);

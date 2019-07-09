@@ -23,14 +23,12 @@ namespace Vodovoz.ServiceDialogs
 
 		protected void OnBtnRunToFileClicked(object sender, EventArgs e)
 		{
-			var exportOperation = new ExportCounterpartiesTo1C();
-
-			this.exportInProgress = true;
-			LongOperationDlg.StartOperation(exportOperation.Run, "", 1, false);
-			this.exportInProgress = false;
-
-			exportData = exportOperation.Result;
-
+			using(var exportOperation = new ExportCounterpartiesTo1C()) {
+				this.exportInProgress = true;
+				LongOperationDlg.StartOperation(exportOperation.Run, "", 1, false);
+				this.exportInProgress = false;
+				exportData = exportOperation.Result;
+			}
 			var hasError = UpdateErrors(exportData.Errors);
 			if(hasError)
 				return;
