@@ -373,7 +373,6 @@ public partial class MainWindow : Window
 		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
 		filter.SetAndRefilterAtOnce(
 			x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
-			x => x.AllowPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.BeveragesWorld, PaymentType.cashless, PaymentType.ByCard },
 			x => x.RestrictOnlySelfDelivery = true,
 			x => x.RestrictWithoutSelfDelivery = false,
 			x => x.RestrictHideService = true,
