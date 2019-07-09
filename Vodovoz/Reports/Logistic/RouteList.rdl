@@ -1566,10 +1566,10 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>160.2pt</Width>
+            <Width>200.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>539.2pt</Width>
+            <Width>499.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -1680,7 +1680,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>При возникновении проблем звонить в офис по тел. 8(981)701-57-32. СВЕРЬ НАКЛАДНЫЕ С МАРШРУТНЫМ ЛИСТОМ ОБЯЗАТЕЛЬНО!</Value>
+                      <Value>При возникновении проблем звонить в офис по телефону 8(981)701-57-32 и 8(981)876-89-52</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1854,7 +1854,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox101">
-                      <Value>ПУСТЫХ:</Value>
+                      <Value>ПУСТЫХ</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1936,7 +1936,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox97">
-                      <Value>БРАК:</Value>
+                      <Value>БРАК</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2018,7 +2018,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox111">
-                      <Value>ПОЛНЫХ:</Value>
+                      <Value>ПОЛНЫХ</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2112,7 +2112,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="RouteList">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	driver.name AS DriverName,
@@ -2149,7 +2149,7 @@ LIMIT 1
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="DriverName">
           <DataField>DriverName</DataField>
           <TypeName>System.String</TypeName>
