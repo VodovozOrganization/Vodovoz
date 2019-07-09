@@ -35,7 +35,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>295.3pt</Height>
+    <Height>309.1pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Income</DataSetName>
@@ -686,7 +686,7 @@
         <Value>Прочие статусы</Value>
         <ZIndex>1</ZIndex>
         <Left>4.8pt</Left>
-        <Top>143.1pt</Top>
+        <Top>151.1pt</Top>
         <Style>
           <FontWeight>Bold</FontWeight>
         </Style>
@@ -1166,7 +1166,7 @@
           </TableRows>
         </Details>
         <Left>6.9pt</Left>
-        <Top>166.4pt</Top>
+        <Top>174.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>

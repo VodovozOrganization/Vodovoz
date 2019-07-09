@@ -35,7 +35,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>254.1pt</Height>
+    <Height>257.6pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Income</DataSetName>
@@ -85,13 +85,13 @@
             <Width>41.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>54.3pt</Width>
+            <Width>47.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>53.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>50.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>57.8pt</Width>
@@ -135,7 +135,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -153,7 +153,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -171,7 +171,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -189,7 +189,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -207,7 +207,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -225,7 +225,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -244,7 +244,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Color>Black</Color>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -263,7 +263,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Color>Black</Color>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -281,7 +281,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -299,7 +299,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -317,7 +317,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -325,7 +325,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value>№ Взаимосвязанного МЛ </Value>
+                      <Value>№ Связанного МЛ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -335,7 +335,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -343,7 +343,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>Неопределенный остаток</Value>
+                      <Value>Неопр. остаток</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -353,7 +353,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -372,7 +372,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -390,7 +390,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -408,7 +408,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -712,7 +712,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BackgroundColor>
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -731,7 +731,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BackgroundColor>
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -888,7 +888,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -909,7 +909,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -930,7 +930,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -951,7 +951,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -972,7 +972,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -993,7 +993,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1159,13 +1159,13 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
             <Width>46.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.7pt</Width>
+            <Width>51.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>56.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>60.8pt</Width>
+            <Width>59.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>73.3pt</Width>
@@ -1189,7 +1189,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1207,7 +1207,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1225,7 +1225,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1243,7 +1243,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1261,7 +1261,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
@@ -1280,7 +1280,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1298,7 +1298,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1316,7 +1316,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1334,7 +1334,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1352,7 +1352,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1370,7 +1370,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1388,7 +1388,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1406,7 +1406,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1414,7 +1414,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>№ Взаимосвязанного МЛ </Value>
+                      <Value>№ Связанного МЛ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1424,7 +1424,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1442,7 +1442,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1460,7 +1460,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1478,7 +1478,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1635,7 +1635,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1780,7 +1780,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1799,7 +1799,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1809,7 +1809,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>159.6pt</Top>
+        <Top>165.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1998,7 +1998,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2019,7 +2019,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2040,7 +2040,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2061,7 +2061,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2082,7 +2082,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2182,11 +2182,11 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
         <Value>Прочие статусы</Value>
         <ZIndex>1</ZIndex>
         <Left>3.2pt</Left>
-        <Top>143.1pt</Top>
+        <Top>148.7pt</Top>
         <Style>
           <FontWeight>Bold</FontWeight>
         </Style>
-        <CanShrink >true</CanShrink>
+        <CanShrink>true</CanShrink>
       </Textbox>
       <Textbox Name="Textbox64">
         <Height>12.00pt</Height>
@@ -2222,7 +2222,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     t.*,
@@ -2230,135 +2230,157 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
         t.TransferedSum,
         0) - t.DepositsSum) AS balance
 FROM
-    (SELECT 
-        route_lists.id AS number,
-        SUM(route_list_addresses.extra_cash) AS extra_cash,
-        CI.cash_income_id ,
-        CI.employee_name ,
-        route_lists.cashier_review_comment,
-        route_lists.closing_comment,
-        GROUP_CONCAT(CONCAT('+', transferML.transferFromML)
-            SEPARATOR ' ') AS TransferedFromML,
-        GROUP_CONCAT(CONCAT('-', transferML.transferToML)
-            SEPARATOR ' ') AS TransferedToML,
-        route_lists.date AS date,
-        CONCAT_WS('', CONCAT(employees.last_name, ' '), IF(employees.name = '', '', CONCAT(LEFT(employees.name, 1), '.')), IF(employees.patronymic = '', '', CONCAT(LEFT(employees.patronymic, 1), '.'))) AS driver,
-        (SUM(CAST(IFNULL(money_movement_operations.money, 0)
-            AS DECIMAL (10 , 2 )) * IF(route_list_addresses.status = 'Completed', 1, 0) + CAST((IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0))
-            AS DECIMAL (10 , 2 )))) AS FactIncome,
-        SUM(Orders.TotalOrdersSum) AS PlanedIncome,
-        IFNULL(nedovoz.nedovoz_sum, 0) AS NedovozSum,
-        IFNULL(Transfered.TotalOrdersSum, 0) AS TransferedSum,
-        SUM(IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0)) AS DepositsSum,
-        CI.CashIncomeDates,
-        CAST((IFNULL(CI.MoneyIncome, 0) - IFNULL(CE.MoneyExpence, 0))
-            AS DECIMAL (10 , 2 )) AS IncMinusExp
-    FROM
-        route_lists
-        LEFT JOIN employees ON route_lists.driver_id = employees.id
-        LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-        LEFT JOIN orders ON route_list_addresses.order_id = orders.id
-        LEFT JOIN money_movement_operations ON money_movement_operations.order_id = orders.id
-        LEFT JOIN deposit_operations ON deposit_operations.order_id = orders.id
-    LEFT JOIN (SELECT 
-        orders.id AS order_id,
-            IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0) AS TotalOrdersSum
-    FROM
-        orders
-    LEFT JOIN order_items ON order_items.order_id = orders.id
-        AND orders.payment_type = 'cash'
-    LEFT JOIN deposit_operations ON deposit_operations.order_id = order_items.order_id
-    LEFT JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
-    WHERE
-        route_list_addresses.transfered_to_id IS NULL
-            AND route_list_addresses.was_transfered = 0
-    GROUP BY orders.id) AS Orders ON Orders.order_id = route_list_addresses.order_id
-    LEFT JOIN (SELECT 
-        route_list_addresses.route_list_id,
-            0 - SUM(order_items.price * (order_items.count - IFNULL(order_items.actual_count, 0))) AS nedovoz_sum
-    FROM
-        route_list_addresses
-    LEFT JOIN orders ON orders.id = route_list_addresses.order_id
-    LEFT JOIN order_items ON order_items.order_id = orders.id
-    LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-    LEFT JOIN order_equipment ON order_equipment.order_id = orders.id
-    WHERE
-        orders.payment_type = 'cash'
-            AND order_items.price &gt; 0
-            AND ((orders.order_status IN ('Canceled' , 'NotDelivered', 'DeliveryCanceled')
-            AND route_list_addresses.status != 'transfered')
-            OR (route_list_addresses.status = 'Completed'
-            AND ((nomenclature.category IN ('water' , 'equipment', 'additional', 'bottle')
-            AND nomenclature.serial = FALSE
-            AND order_items.count != IFNULL(order_items.actual_count, 0))
-            OR order_equipment.confirmed = FALSE)))
-    GROUP BY route_list_addresses.route_list_id) AS nedovoz ON nedovoz.route_list_id = route_lists.id
-    LEFT JOIN (SELECT 
-        internal_trans.route_list_id,
-            SUM(internal_trans.TotalOrdersSum) AS TotalOrdersSum
-    FROM
-        (SELECT 
-        route_list_addresses.id,
-            route_list_addresses.route_list_id,
-            route_list_addresses.status,
-            ROUND(IFNULL(IF(status = 'transfered', 0 - order_items.price * order_items.count * (1 - (order_items.discount / 100)), order_items.price * order_items.count * (1 - (order_items.discount / 100))), 0), 2) AS TotalOrdersSum
-    FROM
-        route_list_addresses
-    LEFT JOIN orders ON orders.id = route_list_addresses.order_id
-    LEFT JOIN order_items ON order_items.order_id = orders.id
-        AND orders.payment_type = 'cash'
-    WHERE
-        (status = 'transfered'
-            OR was_transfered = TRUE)) AS internal_trans
-    GROUP BY internal_trans.route_list_id
-    HAVING TotalOrdersSum != 0) AS Transfered ON Transfered.route_list_id = route_lists.id
-    LEFT JOIN (SELECT 
-        route_list_addresses.id,
-            route_list_addresses.transfered_to_id,
-            route_list_addresses.route_list_id,
-            tranfer_to_route_list.route_list_id AS transferToML,
-            tranfer_from_route_list.route_list_id AS transferFromMl
-    FROM
-        route_list_addresses
-    LEFT JOIN orders ON route_list_addresses.order_id = orders.id
-    LEFT JOIN route_list_addresses AS tranfer_to_route_list ON tranfer_to_route_list.id = route_list_addresses.transfered_to_id
-    LEFT JOIN route_list_addresses AS tranfer_from_route_list ON tranfer_from_route_list.transfered_to_id = route_list_addresses.id
-    WHERE
-        orders.payment_type = 'cash'
-    GROUP BY tranfer_to_route_list.route_list_id , tranfer_from_route_list.route_list_id) AS transferML ON transferML.id = route_list_addresses.id
-    LEFT JOIN (SELECT
-		GROUP_CONCAT(CONCAT_WS
-		(   '',
-			CONCAT(employees.last_name, ' '),
-			IF(employees.name = '',
-				'',
-				CONCAT(LEFT(employees.name, 1), '.')),
-			IF(employees.patronymic = '',
-				'',
-				CONCAT(LEFT(employees.patronymic, 1), '.'))
-		) SEPARATOR ', ' ) AS employee_name,
-        route_list_id,
-        GROUP_CONCAT( cash_income.id SEPARATOR ', ') AS cash_income_id,
-            SUM(IFNULL(cash_income.money, 0)) AS MoneyIncome,
-            GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y')
-                SEPARATOR ', ') AS CashIncomeDates
-    FROM
-        cash_income
-        LEFT JOIN employees ON employees.id = cash_income.employee_id
-    GROUP BY route_list_id) AS CI ON CI.route_list_id = route_lists.id
-    LEFT JOIN (SELECT 
-        route_list_id,
-            SUM(IFNULL(cash_expense.money, 0)) AS MoneyExpence
-    FROM
-        cash_expense
-    WHERE
-        type_operation NOT IN ('EmployeeAdvance' , 'Advance')
-    GROUP BY route_list_id) AS CE ON CE.route_list_id = route_lists.id
-    WHERE
-        route_lists.status IN ('Closed' , 'MileageCheck')
+    (
+        SELECT 
+            route_lists.id AS number,
+            SUM(route_list_addresses.extra_cash) AS extra_cash,
+            CI.cash_income_id ,
+            CI.employee_name ,
+            route_lists.cashier_review_comment,
+            route_lists.closing_comment,
+            GROUP_CONCAT(CONCAT('+', transferML.transferFromML)
+                SEPARATOR ' ') AS TransferedFromML,
+            GROUP_CONCAT(CONCAT('-', transferML.transferToML)
+                SEPARATOR ' ') AS TransferedToML,
+            route_lists.date AS date,
+            CONCAT_WS('', CONCAT(employees.last_name, ' '), IF(employees.name = '', '', CONCAT(LEFT(employees.name, 1), '.')), IF(employees.patronymic = '', '', CONCAT(LEFT(employees.patronymic, 1), '.'))) AS driver,
+            (SUM(CAST(IFNULL(money_movement_operations.money, 0)
+                AS DECIMAL (10 , 2 )) * IF(route_list_addresses.status = 'Completed', 1, 0) + CAST((IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0))
+                AS DECIMAL (10 , 2 )))) AS FactIncome,
+            SUM(Orders.TotalOrdersSum) AS PlanedIncome,
+            IFNULL(nedovoz.nedovoz_sum, 0) AS NedovozSum,
+            IFNULL(Transfered.TotalOrdersSum, 0) AS TransferedSum,
+            SUM(IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0)) AS DepositsSum,
+            CI.CashIncomeDates,
+            CAST((IFNULL(CI.MoneyIncome, 0) - IFNULL(CE.MoneyExpence, 0))
+                AS DECIMAL (10 , 2 )) AS IncMinusExp
+        FROM
+            route_lists
+            LEFT JOIN employees ON route_lists.driver_id = employees.id
+            LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+            LEFT JOIN orders ON route_list_addresses.order_id = orders.id
+            LEFT JOIN money_movement_operations ON money_movement_operations.order_id = orders.id
+            LEFT JOIN deposit_operations ON deposit_operations.order_id = orders.id
+            LEFT JOIN 
+            (
+                SELECT 
+                    orders.id AS order_id,
+                    IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0) AS TotalOrdersSum
+                FROM
+                    orders
+                    LEFT JOIN order_items ON order_items.order_id = orders.id
+                        AND orders.payment_type = 'cash'
+                    LEFT JOIN deposit_operations ON deposit_operations.order_id = order_items.order_id
+                    LEFT JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
+                WHERE
+                    route_list_addresses.transfered_to_id IS NULL
+                    AND route_list_addresses.was_transfered = 0
+                GROUP BY orders.id
+            ) AS Orders ON Orders.order_id = route_list_addresses.order_id
+            LEFT JOIN 
+            (
+                SELECT 
+                    route_list_addresses.route_list_id,
+                    0 - SUM(order_items.price * (order_items.count - IFNULL(order_items.actual_count, 0))) AS nedovoz_sum
+                FROM
+                    route_list_addresses
+                    LEFT JOIN orders ON orders.id = route_list_addresses.order_id
+                    LEFT JOIN order_items ON order_items.order_id = orders.id
+                    LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
+                    LEFT JOIN order_equipment ON order_equipment.order_id = orders.id
+                WHERE
+                    orders.payment_type = 'cash'
+                    AND order_items.price &gt; 0
+                    AND ((orders.order_status IN ('Canceled' , 'NotDelivered', 'DeliveryCanceled')
+                    AND route_list_addresses.status != 'transfered')
+                    OR (route_list_addresses.status = 'Completed'
+                    AND ((nomenclature.category IN ('water' , 'equipment', 'additional', 'bottle')
+                    AND nomenclature.serial = FALSE
+                    AND order_items.count != IFNULL(order_items.actual_count, 0))
+                    OR order_equipment.confirmed = FALSE)))
+                GROUP BY route_list_addresses.route_list_id
+            ) AS nedovoz ON nedovoz.route_list_id = route_lists.id
+            LEFT JOIN 
+            (
+                SELECT 
+                    internal_trans.route_list_id,
+                    SUM(internal_trans.TotalOrdersSum) AS TotalOrdersSum
+                FROM
+                (
+                    SELECT 
+                        route_list_addresses.id,
+                        route_list_addresses.route_list_id,
+                        route_list_addresses.status,
+                        ROUND(IFNULL(IF(status = 'transfered', 0 - order_items.price * order_items.count * (1 - (order_items.discount / 100)), order_items.price * order_items.count * (1 - (order_items.discount / 100))), 0), 2) AS TotalOrdersSum
+                    FROM
+                        route_list_addresses
+                        LEFT JOIN orders ON orders.id = route_list_addresses.order_id
+                        LEFT JOIN order_items ON order_items.order_id = orders.id
+                            AND orders.payment_type = 'cash'
+                    WHERE
+                        status = 'transfered'
+                        OR was_transfered = TRUE
+                ) AS internal_trans
+                GROUP BY internal_trans.route_list_id
+                HAVING TotalOrdersSum != 0
+            ) AS Transfered ON Transfered.route_list_id = route_lists.id
+            LEFT JOIN 
+            (
+                SELECT 
+                    route_list_addresses.id,
+                    route_list_addresses.transfered_to_id,
+                    route_list_addresses.route_list_id,
+                    tranfer_to_route_list.route_list_id AS transferToML,
+                    tranfer_from_route_list.route_list_id AS transferFromMl
+                FROM
+                    route_list_addresses
+                    LEFT JOIN orders ON route_list_addresses.order_id = orders.id
+                    LEFT JOIN route_list_addresses AS tranfer_to_route_list ON tranfer_to_route_list.id = route_list_addresses.transfered_to_id
+                    LEFT JOIN route_list_addresses AS tranfer_from_route_list ON tranfer_from_route_list.transfered_to_id = route_list_addresses.id
+                WHERE
+                    orders.payment_type = 'cash'
+                GROUP BY tranfer_to_route_list.route_list_id , tranfer_from_route_list.route_list_id
+           ) AS transferML ON transferML.id = route_list_addresses.id
+            LEFT JOIN 
+            (
+                SELECT
+                    GROUP_CONCAT(CONCAT_WS
+                    (   '',
+                        CONCAT(employees.last_name, ' '),
+                        IF(employees.name = '',
+                            '',
+                            CONCAT(LEFT(employees.name, 1), '.')),
+                        IF(employees.patronymic = '',
+                            '',
+                            CONCAT(LEFT(employees.patronymic, 1), '.'))
+                    ) SEPARATOR ', ' ) AS employee_name,
+                    route_list_id,
+                    GROUP_CONCAT( cash_income.id SEPARATOR ', ') AS cash_income_id,
+                        SUM(IFNULL(cash_income.money, 0)) AS MoneyIncome,
+                        GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y')
+                            SEPARATOR ', ') AS CashIncomeDates
+                FROM
+                    cash_income
+                    LEFT JOIN employees ON employees.id = cash_income.casher_employee_id
+                GROUP BY route_list_id
+            ) AS CI ON CI.route_list_id = route_lists.id
+            LEFT JOIN 
+            (
+                SELECT 
+                    route_list_id,
+                    SUM(IFNULL(cash_expense.money, 0)) AS MoneyExpence
+                FROM
+                    cash_expense
+                WHERE
+                    type_operation NOT IN ('EmployeeAdvance' , 'Advance')
+                GROUP BY route_list_id
+            ) AS CE ON CE.route_list_id = route_lists.id
+        WHERE
+            route_lists.status IN ('Closed' , 'MileageCheck')
             AND route_lists.date &gt;= @StartDate
             AND route_lists.date &lt;= @EndDate
-    GROUP BY route_lists.id) AS t</CommandText>
+        GROUP BY route_lists.id
+    ) AS t</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -2368,7 +2390,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2439,7 +2461,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="IncomeAllStatus">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id as number,
@@ -2601,7 +2623,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.Int32</TypeName>
