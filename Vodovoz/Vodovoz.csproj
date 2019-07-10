@@ -1225,6 +1225,9 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
     <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
     <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
+    <Compile Include="Additions\ManualEmailSender.cs" />
+    <Compile Include="ServiceDialogs\ResendEmailsDialog.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ResendEmailsDialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

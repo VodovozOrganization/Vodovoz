@@ -1309,4 +1309,10 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new OrmReference(typeof(PaymentFrom))
 		);
 	}
+	
+	protected void OnAction62Activated(object sender, EventArgs e)
+	{
+		var widget = new ResendEmailsDialog();
+		tdiMain.AddTab(widget);
+	}
 }

@@ -104,7 +104,7 @@
       </source>
     </icon-set>
   </icon-factory>
-  <widget class="Gtk.Window" id="MainWindow" design-size="1006 542">
+  <widget class="Gtk.Window" id="MainWindow" design-size="1008 542">
     <action-group name="Default">
       <action id="ActionBaseMenu">
         <property name="Type">Action</property>
@@ -1222,6 +1222,12 @@
         <property name="ShortLabel" translatable="yes">Типы оплаты по карте</property>
         <signal name="Activated" handler="OnActionPaymentsFromActivated" />
       </action>
+      <action id="Action62">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Переотправка почты</property>
+        <property name="ShortLabel" translatable="yes">Переотправка почты</property>
+        <signal name="Activated" handler="OnAction62Activated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -1435,6 +1441,7 @@
                       <node type="Menuitem" action="ActionLoad1cCounterpartyAndDeliveryPoints" />
                       <node type="Menuitem" action="ActionToOnlineStore" />
                       <node type="Menuitem" action="ActionSetDistrictsToDeliveryPoints" />
+                      <node type="Menuitem" action="Action62" />
                     </node>
                     <node type="Separator" />
                     <node type="Menuitem" action="ActionDocTemplates" />
@@ -82538,6 +82545,50 @@ not tooltip</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ServiceDialogs.ResendEmailsDialog" design-size="461 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox2">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="QSWidgetLib.DatePicker" id="datepicker1">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+            <property name="WithTime">False</property>
+            <property name="Date">0</property>
+            <property name="IsEditable">True</property>
+            <property name="AutoSeparation">False</property>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonSendErrorSendedEmails">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Переотправить не отправленные</property>
+            <property name="UseUnderline">True</property>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder />
         </child>
       </widget>
     </child>
