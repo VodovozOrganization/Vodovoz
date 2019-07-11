@@ -76,23 +76,18 @@ namespace VodovozBusinessTests.Domain.Documents
 			bottlesRepository.GetEmptyBottlesFromClientByOrder(uow, nomenclatureRepository, order, 1).ReturnsForAnyArgs(order.ReturnedTare.Value);
 
 			// act
+			selfDelivery01.TareToReturn = 2;
+			selfDelivery01.InitializeDefaultValues(uow, nomenclatureRepository);
 			selfDelivery01.UpdateReceptions(
 				uow,
-				new List<GoodsReceptionVMNode> {
-					new GoodsReceptionVMNode {
-						Amount = 2,
-						NomenclatureId = 99,
-						Category = NomenclatureCategory.bottle
-					}
-				},
 				new List<GoodsReceptionVMNode>(),
 				nomenclatureRepository,
 				bottlesRepository
 			);
 
+			selfDelivery02.InitializeDefaultValues(uow, nomenclatureRepository);
 			selfDelivery02.UpdateReceptions(
 				uow,
-				new List<GoodsReceptionVMNode>(),
 				new List<GoodsReceptionVMNode> {
 					new GoodsReceptionVMNode {
 						Amount = 1,

@@ -46,13 +46,15 @@ namespace Vodovoz
 
 		private global::Vodovoz.SelfDeliveryDocumentItemsView selfdeliverydocumentitemsview1;
 
-		private global::Gtk.VBox vBoxBottles;
+		private global::Gtk.VBox vbox2;
 
-		private global::Gtk.Label lblBottles;
+		private global::Gtk.HBox hbxTareToReturn;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
+		private global::Gtk.Label lblTareToReturn;
 
-		private global::Gamma.GtkWidgets.yTreeView yTreeBottles;
+		private global::Gamma.GtkWidgets.ySpinButton spnTareToReturn;
+
+		private global::Gamma.GtkWidgets.yLabel lblTareReturnedBefore;
 
 		private global::Gtk.VBox vBoxOtherGoods;
 
@@ -62,7 +64,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yTreeView yTreeOtherGoods;
 
-		private global::Gtk.HBox hbox3;
+		private global::Gtk.HBox hbox6;
 
 		private global::Gtk.Button btnAddOtherGoods;
 
@@ -282,40 +284,60 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.selfdeliverydocumentitemsview1]));
 			w22.Position = 0;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.vBoxBottles = new global::Gtk.VBox();
-			this.vBoxBottles.Name = "vBoxBottles";
-			this.vBoxBottles.Spacing = 6;
-			// Container child vBoxBottles.Gtk.Box+BoxChild
-			this.lblBottles = new global::Gtk.Label();
-			this.lblBottles.Name = "lblBottles";
-			this.lblBottles.LabelProp = global::Mono.Unix.Catalog.GetString("Тара на возврат");
-			this.vBoxBottles.Add(this.lblBottles);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vBoxBottles[this.lblBottles]));
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbxTareToReturn = new global::Gtk.HBox();
+			this.hbxTareToReturn.Name = "hbxTareToReturn";
+			this.hbxTareToReturn.Spacing = 6;
+			// Container child hbxTareToReturn.Gtk.Box+BoxChild
+			this.lblTareToReturn = new global::Gtk.Label();
+			this.lblTareToReturn.Name = "lblTareToReturn";
+			this.lblTareToReturn.Xalign = 0F;
+			this.lblTareToReturn.LabelProp = global::Mono.Unix.Catalog.GetString("Тара на возврат:");
+			this.hbxTareToReturn.Add(this.lblTareToReturn);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbxTareToReturn[this.lblTareToReturn]));
 			w23.Position = 0;
 			w23.Expand = false;
-			// Container child vBoxBottles.Gtk.Box+BoxChild
-			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
-			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
-			this.yTreeBottles = new global::Gamma.GtkWidgets.yTreeView();
-			this.yTreeBottles.CanFocus = true;
-			this.yTreeBottles.Name = "yTreeBottles";
-			this.GtkScrolledWindow3.Add(this.yTreeBottles);
-			this.vBoxBottles.Add(this.GtkScrolledWindow3);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vBoxBottles[this.GtkScrolledWindow3]));
-			w25.Position = 1;
-			this.hbox4.Add(this.vBoxBottles);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vBoxBottles]));
+			w23.Fill = false;
+			// Container child hbxTareToReturn.Gtk.Box+BoxChild
+			this.spnTareToReturn = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.spnTareToReturn.CanFocus = true;
+			this.spnTareToReturn.Name = "spnTareToReturn";
+			this.spnTareToReturn.Adjustment.PageIncrement = 10D;
+			this.spnTareToReturn.ClimbRate = 1D;
+			this.spnTareToReturn.Numeric = true;
+			this.spnTareToReturn.ValueAsDecimal = 0m;
+			this.spnTareToReturn.ValueAsInt = 0;
+			this.hbxTareToReturn.Add(this.spnTareToReturn);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbxTareToReturn[this.spnTareToReturn]));
+			w24.Position = 1;
+			this.vbox2.Add(this.hbxTareToReturn);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbxTareToReturn]));
+			w25.Position = 0;
+			w25.Expand = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.lblTareReturnedBefore = new global::Gamma.GtkWidgets.yLabel();
+			this.lblTareReturnedBefore.Name = "lblTareReturnedBefore";
+			this.lblTareReturnedBefore.Xalign = 0F;
+			this.lblTareReturnedBefore.Yalign = 0F;
+			this.lblTareReturnedBefore.UseMarkup = true;
+			this.lblTareReturnedBefore.WidthChars = 0;
+			this.lblTareReturnedBefore.MaxWidthChars = 0;
+			this.vbox2.Add(this.lblTareReturnedBefore);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.lblTareReturnedBefore]));
 			w26.Position = 1;
-			// Container child hbox4.Gtk.Box+BoxChild
+			w26.Expand = false;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.vBoxOtherGoods = new global::Gtk.VBox();
 			this.vBoxOtherGoods.Name = "vBoxOtherGoods";
 			this.vBoxOtherGoods.Spacing = 6;
 			// Container child vBoxOtherGoods.Gtk.Box+BoxChild
 			this.lblOtherGoods = new global::Gtk.Label();
 			this.lblOtherGoods.Name = "lblOtherGoods";
-			this.lblOtherGoods.LabelProp = global::Mono.Unix.Catalog.GetString("ТМЦ на возврат");
+			this.lblOtherGoods.Xalign = 0F;
+			this.lblOtherGoods.LabelProp = global::Mono.Unix.Catalog.GetString("ТМЦ на возврат:");
 			this.vBoxOtherGoods.Add(this.lblOtherGoods);
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vBoxOtherGoods[this.lblOtherGoods]));
 			w27.Position = 0;
@@ -334,10 +356,10 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vBoxOtherGoods[this.GtkScrolledWindow4]));
 			w29.Position = 1;
 			// Container child vBoxOtherGoods.Gtk.Box+BoxChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
+			this.hbox6 = new global::Gtk.HBox();
+			this.hbox6.Name = "hbox6";
+			this.hbox6.Spacing = 6;
+			// Container child hbox6.Gtk.Box+BoxChild
 			this.btnAddOtherGoods = new global::Gtk.Button();
 			this.btnAddOtherGoods.CanFocus = true;
 			this.btnAddOtherGoods.Name = "btnAddOtherGoods";
@@ -346,22 +368,25 @@ namespace Vodovoz
 			global::Gtk.Image w30 = new global::Gtk.Image();
 			w30.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.btnAddOtherGoods.Image = w30;
-			this.hbox3.Add(this.btnAddOtherGoods);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.btnAddOtherGoods]));
+			this.hbox6.Add(this.btnAddOtherGoods);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.btnAddOtherGoods]));
 			w31.Position = 0;
 			w31.Expand = false;
 			w31.Fill = false;
-			this.vBoxOtherGoods.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vBoxOtherGoods[this.hbox3]));
+			this.vBoxOtherGoods.Add(this.hbox6);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vBoxOtherGoods[this.hbox6]));
 			w32.Position = 2;
 			w32.Expand = false;
 			w32.Fill = false;
-			this.hbox4.Add(this.vBoxOtherGoods);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vBoxOtherGoods]));
+			this.vbox2.Add(this.vBoxOtherGoods);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vBoxOtherGoods]));
 			w33.Position = 2;
+			this.hbox4.Add(this.vbox2);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox2]));
+			w34.Position = 1;
 			this.vbox4.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox4]));
-			w34.Position = 2;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox4]));
+			w35.Position = 2;
 			this.Add(this.vbox4);
 			if ((this.Child != null))
 			{

@@ -25,7 +25,7 @@ namespace Vodovoz.Domain.Documents
 	public class SelfDeliveryDocument : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
-			get { return base.TimeStamp; }
+			get => base.TimeStamp;
 			set {
 				base.TimeStamp = value;
 				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
@@ -40,30 +40,30 @@ namespace Vodovoz.Domain.Documents
 		Order order;
 		[Required(ErrorMessage = "Заказ должен быть указан.")]
 		public virtual Order Order {
-			get { return order; }
-			set { SetField(ref order, value, () => Order); }
+			get => order;
+			set => SetField(ref order, value, () => Order);
 		}
 
 		Warehouse warehouse;
 		[Required(ErrorMessage = "Склад должен быть указан.")]
 		public virtual Warehouse Warehouse {
-			get { return warehouse; }
-			set { SetField(ref warehouse, value, () => Warehouse); }
+			get => warehouse;
+			set => SetField(ref warehouse, value, () => Warehouse);
 		}
 
 		string comment;
 
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
-			get { return comment; }
-			set { SetField(ref comment, value, () => Comment); }
+			get => comment;
+			set => SetField(ref comment, value, () => Comment);
 		}
 
 		IList<SelfDeliveryDocumentItem> items = new List<SelfDeliveryDocumentItem>();
 
 		[Display(Name = "Строки")]
 		public virtual IList<SelfDeliveryDocumentItem> Items {
-			get { return items; }
+			get => items;
 			set {
 				SetField(ref items, value, () => Items);
 				observableItems = null;
@@ -84,15 +84,26 @@ namespace Vodovoz.Domain.Documents
 
 		[Display(Name = "Строки возврата")]
 		public virtual IList<SelfDeliveryDocumentReturned> ReturnedItems {
-			get { return returnedItems; }
-			set {
-				SetField(ref returnedItems, value, () => ReturnedItems);
-			}
+			get => returnedItems;
+			set => SetField(ref returnedItems, value, () => ReturnedItems);
 		}
 
 		#region Не сохраняемые
 
+		int defBottleId;
+
 		public virtual string Title => string.Format("Самовывоз №{0} от {1:d}", Id, TimeStamp);
+
+		int returnedTareBefore;
+		[PropertyChangedAlso("ReturnedTareBeforeText")]
+		public virtual int ReturnedTareBefore {
+			get => returnedTareBefore;
+			set => SetField(ref returnedTareBefore, value, () => ReturnedTareBefore);
+		}
+
+		public virtual string ReturnedTareBeforeText => ReturnedTareBefore > 0 ? string.Format("Возвращено другими самовывозами: {0} бут.", ReturnedTareBefore) : string.Empty;
+
+		public virtual int TareToReturn { get; set; }
 
 		#endregion
 
@@ -171,9 +182,26 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateAlreadyUnloaded(IUnitOfWork uow)
+		public virtual void InitializeDefaultValues(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository)
 		{
-			if(Items.Count == 0 || Order == null)
+			if(nomenclatureRepository == null)
+				throw new ArgumentNullException(nameof(nomenclatureRepository));
+
+			defBottleId = nomenclatureRepository.GetDefaultBottle(uow).Id;
+		}
+
+		public virtual void UpdateAlreadyUnloaded(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository, IBottlesRepository bottlesRepository)
+		{
+			if(nomenclatureRepository == null)
+				throw new ArgumentNullException(nameof(nomenclatureRepository));
+			if(bottlesRepository == null)
+				throw new ArgumentNullException(nameof(bottlesRepository));
+
+			if(Order != null)
+				ReturnedTareBefore = bottlesRepository.GetEmptyBottlesFromClientByOrder(uow, nomenclatureRepository, Order, Id);
+			TareToReturn = (int)ReturnedItems.Where(r => r.Nomenclature.Id == defBottleId).Sum(x => x.Amount);
+
+			if(!Items.Any() || Order == null)
 				return;
 
 			var inUnloaded = Repository.Store.SelfDeliveryRepository.NomenclatureUnloaded(uow, Order, this);
@@ -201,7 +229,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateReceptions(IUnitOfWork uow, IList<GoodsReceptionVMNode> bottlesReceptions, IList<GoodsReceptionVMNode> goodsReceptions, INomenclatureRepository nomenclatureRepository, IBottlesRepository bottlesRepository)
+		public virtual void UpdateReceptions(IUnitOfWork uow, IList<GoodsReceptionVMNode> goodsReceptions, INomenclatureRepository nomenclatureRepository, IBottlesRepository bottlesRepository)
 		{
 			if(nomenclatureRepository == null)
 				throw new ArgumentNullException(nameof(nomenclatureRepository));
@@ -209,15 +237,9 @@ namespace Vodovoz.Domain.Documents
 				throw new ArgumentNullException(nameof(bottlesRepository));
 
 			if(Warehouse != null && Warehouse.CanReceiveBottles) {
-				int bottlesReturned = 0;
-				foreach(GoodsReceptionVMNode item in bottlesReceptions) {
-					UpdateReturnedOperation(uow, item.NomenclatureId, item.Amount);
-					var defBottle = nomenclatureRepository.GetDefaultBottle(uow);
-					if(item.NomenclatureId == defBottle.Id)
-						bottlesReturned = item.Amount;
-				}
+				UpdateReturnedOperation(uow, defBottleId, TareToReturn);
 				var emptyBottlesAlreadyReturned = bottlesRepository.GetEmptyBottlesFromClientByOrder(uow, nomenclatureRepository, Order, Id);
-				Order.ReturnedTare = emptyBottlesAlreadyReturned + bottlesReturned;
+				Order.ReturnedTare = emptyBottlesAlreadyReturned + TareToReturn;
 			}
 
 			if(Warehouse != null && Warehouse.CanReceiveEquipment)
