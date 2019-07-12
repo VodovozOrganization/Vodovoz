@@ -773,6 +773,10 @@
       <Project>{E2228A2B-4883-4DD8-8A05-23501F7B8A33}</Project>
       <Name>QS.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Validation\QS.Validation.csproj">
+      <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
+      <Name>QS.Validation</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
