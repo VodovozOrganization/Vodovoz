@@ -19,21 +19,22 @@ namespace Vodovoz.JournalViewModels
 			TabName = "Откуда клиент";
 			SetOrder<ClientCameFromJournalNode>(x => x.Name);
 
-			RegisterAliasPropertiesToSearch(
-				() => clientCameFromAlias.Name,
-				() => clientCameFromAlias.Id
-			);
 			this.commonServices = commonServices;
 			UpdateOnChanges(typeof(ClientCameFrom));
 		}
 
-		ClientCameFrom clientCameFromAlias = null;
-		ClientCameFromJournalNode resultAlias = null;
-
 		protected override Func<IQueryOver<ClientCameFrom>> ItemsSourceQueryFunction => () => {
+			ClientCameFrom clientCameFromAlias = null;
+			ClientCameFromJournalNode resultAlias = null;
+
 			var query = UoW.Session.QueryOver(() => clientCameFromAlias);
 			if(!FilterViewModel.RestrictArchive)
 				query.Where(() => !clientCameFromAlias.IsArchive);
+
+			query.Where(GetSearchCriterion(
+				() => clientCameFromAlias.Name,
+				() => clientCameFromAlias.Id
+			));
 
 			var resultQuery = query
 				.SelectList(list => list
