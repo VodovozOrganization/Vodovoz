@@ -609,9 +609,6 @@
     <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
     <Compile Include="Representations\NomenclatureForSaleVM.cs" />
-    <Compile Include="ViewWidgets\Store\BottleReceptionView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.BottleReceptionView.cs" />
-    <Compile Include="Representations\BottleReceptionVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentTypeDlg.cs" />
     <Compile Include="Representations\RouteListsVM.cs" />
     <Compile Include="JournalFilters\RouteListsFilter.cs" />
