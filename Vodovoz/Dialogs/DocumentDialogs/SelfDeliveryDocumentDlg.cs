@@ -16,8 +16,11 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services;
 
@@ -188,7 +191,7 @@ namespace Vodovoz
 			Entity.UpdateReceptions(UoW, GoodsReceptionList, new NomenclatureRepository(), new BottlesRepository());
 
 			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
-			if(Entity.FullyShiped(UoW, standartNomenclatures))
+			if(Entity.FullyShiped(UoW, standartNomenclatures, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository()))
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 
 			logger.Info("Сохраняем документ самовывоза...");

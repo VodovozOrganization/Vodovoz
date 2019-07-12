@@ -19,6 +19,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
@@ -209,7 +210,7 @@ namespace Vodovoz.Representations
 		{
 			var order = UoW.GetById<VodovozOrder>(orderId);
 
-			if(order.SelfDeliveryIsFullyPaid()) {
+			if(order.SelfDeliveryIsFullyPaid(new CashRepository())) {
 				MessageDialogHelper.RunInfoDialog("Заказ уже оплачен полностью");
 				return;
 			}

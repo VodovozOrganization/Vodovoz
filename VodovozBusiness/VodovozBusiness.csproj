@@ -656,6 +656,11 @@
     <Compile Include="HibernateMapping\Fuel\FuelWriteoffDocumentItemMap.cs" />
     <Compile Include="Domain\Order\PaymentFrom.cs" />
     <Compile Include="HibernateMapping\Order\PaymentFromMap.cs" />
+    <Compile Include="EntityRepositories\Store\SelfDeliveryRepository.cs" />
+    <Compile Include="EntityRepositories\Store\ISelfDeliveryRepository.cs" />
+    <Compile Include="EntityRepositories\Store\ItemInStock.cs" />
+    <Compile Include="EntityRepositories\Cash\CashRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\ICashRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -703,6 +708,8 @@
     <Folder Include="EntityRepositories\Operations\" />
     <Folder Include="EntityRepositories\Goods\" />
     <Folder Include="EntityRepositories\Logistic\" />
+    <Folder Include="EntityRepositories\Store\" />
+    <Folder Include="EntityRepositories\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

@@ -9,6 +9,8 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
 
 namespace Vodovoz.ServiceDialogs.Database
@@ -63,7 +65,7 @@ namespace Vodovoz.ServiceDialogs.Database
 		protected void OnButtonCreateBottleOperationsClicked(object sender, EventArgs e)
 		{
 			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
-			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository()));
+			orders.ForEach(x => x.UpdateBottlesMovementOperationWithoutDelivery(uow , standartNomenclatures, new RouteListItemRepository(), new CashRepository()));
 			if(uow.HasChanges && MessageDialogHelper.RunQuestionDialog(
 				"Создано \"{0}\" недостающих операций передвижения бутылей, сохранить изменения?",
 				orders.Count(x => x.BottlesMovementOperation != null))){

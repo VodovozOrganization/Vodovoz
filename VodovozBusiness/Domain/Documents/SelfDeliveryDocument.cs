@@ -11,8 +11,11 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Documents
@@ -204,7 +207,7 @@ namespace Vodovoz.Domain.Documents
 			if(!Items.Any() || Order == null)
 				return;
 
-			var inUnloaded = Repository.Store.SelfDeliveryRepository.NomenclatureUnloaded(uow, Order, this);
+			var inUnloaded = new SelfDeliveryRepository().NomenclatureUnloaded(uow, Order, this);
 
 			foreach(var item in Items) {
 				if(inUnloaded.ContainsKey(item.Nomenclature.Id))
@@ -274,10 +277,10 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual bool FullyShiped(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures)
+		public virtual bool FullyShiped(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository)
 		{
 			//Проверка текущего документа
-			return Order.TryCloseSelfDeliveryOrder(uow, standartNomenclatures, this);
+			return Order.TryCloseSelfDeliveryOrder(uow, standartNomenclatures, routeListItemRepository, selfDeliveryRepository, cashRepository, this);
 		}
 
 		#endregion
