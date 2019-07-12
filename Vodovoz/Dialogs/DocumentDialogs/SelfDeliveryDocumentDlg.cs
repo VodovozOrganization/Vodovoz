@@ -98,7 +98,7 @@ namespace Vodovoz
 			}
 
 			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository());
-			vbox4.Sensitive = canEditDocument;
+			vbxMain.Sensitive = canEditDocument;
 			buttonCancel.Sensitive = true;
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse);

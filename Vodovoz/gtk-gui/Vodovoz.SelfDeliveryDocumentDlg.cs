@@ -4,7 +4,7 @@ namespace Vodovoz
 {
 	public partial class SelfDeliveryDocumentDlg
 	{
-		private global::Gtk.VBox vbox4;
+		private global::Gtk.VBox vbxMain;
 
 		private global::Gtk.HBox hbox5;
 
@@ -42,7 +42,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDate;
 
-		private global::Gtk.HBox hbox4;
+		private global::Gtk.HBox hbxGoods;
 
 		private global::Vodovoz.SelfDeliveryDocumentItemsView selfdeliverydocumentitemsview1;
 
@@ -75,11 +75,11 @@ namespace Vodovoz
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.SelfDeliveryDocumentDlg";
 			// Container child Vodovoz.SelfDeliveryDocumentDlg.Gtk.Container+ContainerChild
-			this.vbox4 = new global::Gtk.VBox();
-			this.vbox4.Name = "vbox4";
-			this.vbox4.Spacing = 6;
-			this.vbox4.BorderWidth = ((uint)(6));
-			// Container child vbox4.Gtk.Box+BoxChild
+			this.vbxMain = new global::Gtk.VBox();
+			this.vbxMain.Name = "vbxMain";
+			this.vbxMain.Spacing = 6;
+			this.vbxMain.BorderWidth = ((uint)(6));
+			// Container child vbxMain.Gtk.Box+BoxChild
 			this.hbox5 = new global::Gtk.HBox();
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
@@ -127,12 +127,12 @@ namespace Vodovoz
 			w6.Position = 2;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.vbox4.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox5]));
+			this.vbxMain.Add(this.hbox5);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.hbox5]));
 			w7.Position = 0;
 			w7.Expand = false;
 			w7.Fill = false;
-			// Container child vbox4.Gtk.Box+BoxChild
+			// Container child vbxMain.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox();
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
@@ -267,23 +267,23 @@ namespace Vodovoz
 			this.hbox2.Add(this.tableWriteoff);
 			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.tableWriteoff]));
 			w20.Position = 0;
-			this.vbox4.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox2]));
+			this.vbxMain.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.hbox2]));
 			w21.Position = 1;
 			w21.Expand = false;
 			w21.Fill = false;
-			// Container child vbox4.Gtk.Box+BoxChild
-			this.hbox4 = new global::Gtk.HBox();
-			this.hbox4.Name = "hbox4";
-			this.hbox4.Spacing = 6;
-			// Container child hbox4.Gtk.Box+BoxChild
+			// Container child vbxMain.Gtk.Box+BoxChild
+			this.hbxGoods = new global::Gtk.HBox();
+			this.hbxGoods.Name = "hbxGoods";
+			this.hbxGoods.Spacing = 6;
+			// Container child hbxGoods.Gtk.Box+BoxChild
 			this.selfdeliverydocumentitemsview1 = new global::Vodovoz.SelfDeliveryDocumentItemsView();
 			this.selfdeliverydocumentitemsview1.Events = ((global::Gdk.EventMask)(256));
 			this.selfdeliverydocumentitemsview1.Name = "selfdeliverydocumentitemsview1";
-			this.hbox4.Add(this.selfdeliverydocumentitemsview1);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.selfdeliverydocumentitemsview1]));
+			this.hbxGoods.Add(this.selfdeliverydocumentitemsview1);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbxGoods[this.selfdeliverydocumentitemsview1]));
 			w22.Position = 0;
-			// Container child hbox4.Gtk.Box+BoxChild
+			// Container child hbxGoods.Gtk.Box+BoxChild
 			this.vbox2 = new global::Gtk.VBox();
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
@@ -381,13 +381,13 @@ namespace Vodovoz
 			this.vbox2.Add(this.vBoxOtherGoods);
 			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vBoxOtherGoods]));
 			w33.Position = 2;
-			this.hbox4.Add(this.vbox2);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox2]));
+			this.hbxGoods.Add(this.vbox2);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbxGoods[this.vbox2]));
 			w34.Position = 1;
-			this.vbox4.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox4]));
+			this.vbxMain.Add(this.hbxGoods);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.hbxGoods]));
 			w35.Position = 2;
-			this.Add(this.vbox4);
+			this.Add(this.vbxMain);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

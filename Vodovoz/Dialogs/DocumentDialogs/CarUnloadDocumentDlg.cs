@@ -12,6 +12,8 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Store;
 using Vodovoz.ViewWidgets.Store;
@@ -78,15 +80,15 @@ namespace Vodovoz
 			}
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarUnloadEdit, Entity.Warehouse);
+			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository());
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			returnsreceptionview1.Sensitive =
-				bottlereceptionview1.Sensitive =
+				hbxTareToReturn.Sensitive =
 					nonserialequipmentreceptionview1.Sensitive =
 						defectiveitemsreceptionview1.Sensitive = editing;
 
-			bottlereceptionview1.UoW =
-				defectiveitemsreceptionview1.UoW =
-					returnsreceptionview1.UoW = UoW;
+			defectiveitemsreceptionview1.UoW =
+				returnsreceptionview1.UoW = UoW;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			ySpecCmbWarehouses.ItemsList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.CarUnloadEdit);
@@ -97,6 +99,9 @@ namespace Vodovoz
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 			yentryrefRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
+
+			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
+			spnTareToReturn.Binding.AddBinding(Entity, e => e.TareToReturn, w => w.ValueAsInt).InitializeFromSource();
 
 			defectiveitemsreceptionview1.Warehouse = returnsreceptionview1.Warehouse = Entity.Warehouse;
 
@@ -190,18 +195,16 @@ namespace Vodovoz
 
 		private void UpdateWidgetsVisible()
 		{
-			bottlereceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
+			lblTareReturnedBefore.Visible = Entity.RouteList != null;
+			hbxTareToReturn.Visible = Entity.RouteList != null && Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
 			nonserialequipmentreceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
 		}
 
 		void LoadReception()
 		{
 			foreach(var item in Entity.Items) {
-				var bottle = bottlereceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
-				if(bottle != null) {
-					bottle.Amount = (int)item.MovementOperation.Amount;
+				if(Entity.IsDefaultBottle(item))
 					continue;
-				}
 
 				if(defectiveitemsreceptionview1.Items.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id))
 					continue;
@@ -260,28 +263,20 @@ namespace Vodovoz
 				}
 				returnsreceptionview1.AddItem(newItem);
 			}
-
-			foreach(var item in bottlereceptionview1.Items) {
-				var returned = Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == item.NomenclatureId);
-				item.Amount = returned != null ? (int)returned.MovementOperation.Amount : 0;
-			}
 		}
 
 		bool UpdateReceivedItemsOnEntity()
 		{
 			//Собираем список всего на возврат из разных виджетов.
 			var tempItemList = new List<InternalItem>();
-			foreach(var node in bottlereceptionview1.Items) {
-				if(node.Amount == 0)
-					continue;
-
-				var item = new InternalItem {
-					ReciveType = ReciveTypes.Bottle,
-					NomenclatureId = node.NomenclatureId,
-					Amount = node.Amount
-				};
-				tempItemList.Add(item);
-			}
+			if(Entity.TareToReturn > 0)
+				tempItemList.Add(
+					new InternalItem {
+						ReciveType = ReciveTypes.Bottle,
+						NomenclatureId = Entity.DefBottleId,
+						Amount = Entity.TareToReturn
+					}
+				);
 
 			var defectiveItemsList = new List<InternalItem>();
 			foreach(var node in defectiveitemsreceptionview1.Items) {
@@ -432,6 +427,7 @@ namespace Vodovoz
 		{
 			SetupForNewRouteList();
 			FillOtherReturnsTable();
+			Entity.ReturnedEmptyBottlesBefore(UoW, new RouteListRepository());
 		}
 		#endregion
 
