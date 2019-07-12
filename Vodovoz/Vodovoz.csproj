@@ -1225,6 +1225,9 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
     <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
     <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
+    <Compile Include="Dialogs\Phones\PhonesViewModel.cs" />
+    <Compile Include="Dialogs\Phones\PhonesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Phones.PhonesView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1432,6 +1435,7 @@
     <Folder Include="JournalColumnsConfigs\" />
     <Folder Include="ViewModels\" />
     <Folder Include="Views\" />
+    <Folder Include="Dialogs\Phones\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

@@ -12150,6 +12150,7 @@
                     <property name="Visible">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Информация</property>
+                    <property name="Active">True</property>
                     <property name="DrawIndicator">False</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -13151,10 +13152,9 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="QSContacts.PhonesView" id="phonesview1">
+                              <widget class="Vodovoz.Dialogs.Phones.PhonesView" id="phonesview1">
                                 <property name="MemberName" />
                                 <property name="Events">ButtonPressMask</property>
-                                <property name="IsReadOnly">False</property>
                               </widget>
                               <packing>
                                 <property name="TopAttach">7</property>
@@ -29568,7 +29568,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -82531,6 +82530,47 @@ not tooltip</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Phones.PhonesView" design-size="397 53">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.VBox" id="vboxPhones">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <placeholder />
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">False</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonAddPhone">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextAndIcon</property>
+            <property name="Icon">stock:add Menu</property>
+            <property name="Label" translatable="yes">Добавить</property>
+            <property name="UseUnderline">True</property>
           </widget>
           <packing>
             <property name="Position">1</property>
