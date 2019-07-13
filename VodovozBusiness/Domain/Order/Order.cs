@@ -1007,24 +1007,21 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string Title => string.Format("Заказ №{0} от {1:d}", Id, DeliveryDate);
 
-		public virtual int TotalDeliveredBottles => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
+		public virtual int Total19LBottlesToDeliver => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
-		public virtual int TotalDeliveredBottlesSix => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
+		public virtual int Total6LBottlesToDeliver => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
 
-		public virtual int TotalDeliveredBottlesSmall => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
+		public virtual int Total600mlBottlesToDeliver => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
 
 		public virtual int TotalWeight => (int)OrderItems.Sum(x => x.Count * x.Nomenclature.Weight);
+
+		public virtual double TotalVolume => OrderItems.Sum(x => x.Count * x.Nomenclature.Volume);
 
 		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
 
 		[Display(Name = "Наличных к получению")]
 		public virtual decimal OrderCashSum {
-			get {
-				if(PaymentType != PaymentType.cash && PaymentType != PaymentType.BeveragesWorld) {
-					return 0;
-				}
-				return OrderSumTotal - OrderSumReturnTotal;
-			}
+			get => PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld ? OrderSumTotal - OrderSumReturnTotal : 0;
 			protected set {; }
 		}
 
@@ -1187,10 +1184,10 @@ namespace Vodovoz.Domain.Orders
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
 			decimal discountForStock = 0m;
 
-			if(bottlesByStock == TotalDeliveredBottles) {
+			if(bottlesByStock == Total19LBottlesToDeliver) {
 				discountForStock = 10m;
 			}
-			if(bottlesByStock > TotalDeliveredBottles) {
+			if(bottlesByStock > Total19LBottlesToDeliver) {
 				discountForStock = 20m;
 			}
 
@@ -3544,7 +3541,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int CalculateTimeOnPoint(bool hasForwarder)
 		{
 			int byFormula = 3 * 60; //На подпись документво 3 мин.
-			int bottels = TotalDeliveredBottles;
+			int bottels = Total19LBottlesToDeliver;
 			if(!hasForwarder)
 				byFormula += CalculateGoDoorCount(bottels, 2) * 100; //100 секун(5/3 минуты) на 2 бутыли без экспедитора.
 			else
@@ -3561,7 +3558,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns>Вес</returns>
 		/// <param name="includeGoods">Если <c>true</c>, то в расчёт веса будут включены товары.</param>
 		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт веса будет включено оборудование.</param>
-		public virtual double GetWeight(bool includeGoods = true, bool includeEquipment = true)
+		public virtual double FullWeight(bool includeGoods = true, bool includeEquipment = true)
 		{
 			double weight = 0;
 			if(includeGoods)
@@ -3570,6 +3567,23 @@ namespace Vodovoz.Domain.Orders
 				weight += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Weight * x.Count);
 			return weight;
+		}
+
+		/// <summary>
+		/// Расчёт объёма товаров и оборудования к клиенту для этого заказа
+		/// </summary>
+		/// <returns>Объём</returns>
+		/// <param name="includeGoods">Если <c>true</c>, то в расчёт веса будут включены товары.</param>
+		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт веса будет включено оборудование.</param>
+		public virtual double FullVolume(bool includeGoods = true, bool includeEquipment = true)
+		{
+			double volume = 0;
+			if(includeGoods)
+				volume += OrderItems.Sum(x => x.Nomenclature.Volume * x.Count);
+			if(includeEquipment)
+				volume += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
+										 .Sum(x => x.Nomenclature.Volume * x.Count);
+			return volume;
 		}
 
 		#endregion

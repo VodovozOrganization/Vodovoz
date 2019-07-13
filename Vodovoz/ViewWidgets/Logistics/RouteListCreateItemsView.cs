@@ -102,8 +102,8 @@ namespace Vodovoz
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
 			.AddColumn("Заказ").SetDataProperty(node => node.Order.Id)
-			.AddColumn("Адрес").AddTextRenderer(node => node.Order.DeliveryPoint == null ? "Точка доставки не установлена" : String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
-			.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
+			.AddColumn("Адрес").AddTextRenderer(node => node.Order.DeliveryPoint == null ? "Точка доставки не установлена" : string.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
+			.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? string.Empty : node.Order.DeliverySchedule.Name);
 			if(goodsColumnsCount != goodsColumns.Length) {
 				goodsColumnsCount = goodsColumns.Length;
 
@@ -269,8 +269,9 @@ namespace Vodovoz
 				.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(i => i.Count);
 
-			labelSum.LabelProp = String.Format("Всего бутылей: {0}", total);
+			labelSum.LabelProp = string.Format("Всего бутылей: {0}", total);
 			UpdateWeightInfo();
+			UpdateVolumeInfo();
 		}
 
 		public virtual void UpdateWeightInfo()
@@ -280,9 +281,22 @@ namespace Vodovoz
 								   ? RouteListUoW.Root.Car.MaxWeight.ToString()
 								   : " ?";
 				string weight = RouteListUoW.Root.HasOverweight()
-											? String.Format("<span foreground = \"red\">Перегруз на {0} кг.</span>", RouteListUoW.Root.Overweight())
-											: String.Format("<span foreground = \"blue\">Вес груза: {0}/{1} кг.</span>", RouteListUoW.Root.GetTotalWeight(), maxWeight);
+											? string.Format("<span foreground = \"red\">Перегруз на {0} кг.</span>", RouteListUoW.Root.Overweight())
+											: string.Format("<span foreground = \"green\">Вес груза: {0}/{1} кг.</span>", RouteListUoW.Root.GetTotalWeight(), maxWeight);
 				lblWeight.LabelProp = weight;
+			}
+		}
+
+		public virtual void UpdateVolumeInfo()
+		{
+			if(RouteListUoW != null && RouteListUoW.Root.Car != null) {
+				string maxVolume = RouteListUoW.Root.Car.MaxVolume > 0
+								   ? RouteListUoW.Root.Car.MaxVolume.ToString()
+								   : " ?";
+				string volume = RouteListUoW.Root.HasVolumeExecess()
+											? string.Format("<span foreground = \"red\">Объём груза превышен на {0} м<sup>3</sup>.</span>", RouteListUoW.Root.VolumeExecess())
+											: string.Format("<span foreground = \"green\">Объём груза: {0}/{1} м<sup>3</sup>.</span>", RouteListUoW.Root.GetTotalVolume(), maxVolume);
+				lblVolume.LabelProp = volume;
 			}
 		}
 

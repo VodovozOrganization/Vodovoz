@@ -12,7 +12,6 @@
     <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
     <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
     <widget-library name="../../../QSProjects/Modules/QSContacts/bin/Debug/QSContacts.dll" />
-    <widget-library name="../../../QSProjects/QSValidation/bin/Debug/QSValidation.dll" />
     <widget-library name="../../../My-FyiReporting/RdlGtkViewer/RdlGtkViewer/bin/Debug/RdlGtkViewer.exe" />
     <widget-library name="../../../QSProjects/QSReport/bin/Debug/QSReport.dll" />
     <widget-library name="../../../GammaBinding/GammaBinding/bin/Debug/GammaBinding.dll" />
@@ -26,10 +25,8 @@
     <widget-library name="../../../QSProjects/QS.HistoryLog.Gtk/bin/Debug/QS.HistoryLog.Gtk.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
     <widget-library name="../../../VodovozService/EmailService/bin/Debug/Email.dll" />
-    <widget-library name="../../../QSProjects/QS.Project/bin/Debug/QS.Project.dll" />
-    <widget-library name="../../../QSProjects/QS.Report/bin/Debug/QS.Report.dll" />
     <widget-library name="../../../QSProjects/QS.Project.Gtk/bin/Debug/QS.Project.Gtk.dll" />
-    <widget-library name="../../../QSProjects/QS.HistoryLog/bin/Debug/QS.HistoryLog.dll" />
+    <widget-library name="../../../QSProjects/QSValidation/bin/Debug/QSValidation.dll" />
     <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
@@ -4189,7 +4186,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="776 548">
+  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="1068 557">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -4685,7 +4682,7 @@
                       <widget class="Gamma.GtkWidgets.ySpinButton" id="maxVolumeSpin">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
-                        <property name="Upper">999</property>
+                        <property name="Upper">250</property>
                         <property name="PageIncrement">10</property>
                         <property name="StepIncrement">1</property>
                         <property name="ClimbRate">1</property>
@@ -5364,7 +5361,7 @@
                   <widget class="Gtk.Label" id="maxVolumeLabel">
                     <property name="MemberName" />
                     <property name="Xalign">1</property>
-                    <property name="LabelProp" translatable="yes">Объём груза (м&lt;sup&gt;2&lt;/sup&gt;):</property>
+                    <property name="LabelProp" translatable="yes">Объём груза (м&lt;sup&gt;3&lt;/sup&gt;):</property>
                     <property name="UseMarkup">True</property>
                   </widget>
                   <packing>
@@ -6936,13 +6933,12 @@
                           <widget class="Gamma.GtkWidgets.ySpinButton" id="spinVolume">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
-                            <property name="Upper">999</property>
-                            <property name="PageIncrement">10</property>
-                            <property name="StepIncrement">1</property>
-                            <property name="ClimbRate">1</property>
+                            <property name="Upper">5</property>
+                            <property name="PageIncrement">1</property>
+                            <property name="StepIncrement">0.001</property>
+                            <property name="ClimbRate">0.001</property>
                             <property name="Digits">3</property>
                             <property name="Numeric">True</property>
-                            <property name="Value">3</property>
                             <property name="ValueAsDecimal">0</property>
                             <property name="ValueAsInt">0</property>
                           </widget>
@@ -20088,7 +20084,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="lblWeight">
+              <widget class="Gtk.Label" id="lblVolume">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
                 <property name="UseMarkup">True</property>
@@ -20096,6 +20092,20 @@
               <packing>
                 <property name="PackType">End</property>
                 <property name="Position">4</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="lblWeight">
+                <property name="MemberName" />
+                <property name="Xalign">0</property>
+                <property name="UseMarkup">True</property>
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">5</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -43637,7 +43647,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1162 578">
+  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1256 578">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -44506,7 +44516,9 @@ not tooltip</property>
                     <child>
                       <widget class="Gtk.Label" id="labelSelected">
                         <property name="MemberName" />
-                        <property name="LabelProp" translatable="yes">Адресов не выбрано</property>
+                        <property name="LabelProp" translatable="yes">Адресов
+не выбрано</property>
+                        <property name="Justify">Center</property>
                       </widget>
                       <packing>
                         <property name="Position">1</property>

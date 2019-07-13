@@ -1637,12 +1637,13 @@ namespace Vodovoz.Domain.Logistic
 			return result.ToArray();
 		}
 
+		#region Вес
 		/// <summary>
 		/// Полный вес товаров и оборудования в маршрутном листе
 		/// </summary>
 		/// <returns>Вес в килограммах</returns>
 		public virtual double GetTotalWeight() => Addresses.Where(item => item.Status != RouteListItemStatus.Transfered)
-														   .Sum(item => item.Order.GetWeight());
+														   .Sum(item => item.Order.FullWeight());
 		/// <summary>
 		/// Проверка на перегруз автомобиля
 		/// </summary>
@@ -1654,6 +1655,27 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		/// <returns>Возрат значения перегруза в килограммах.</returns>
 		public virtual double Overweight() => HasOverweight() ? Math.Round(GetTotalWeight() - Car.MaxWeight, 2) : 0;
+		#endregion Вес
+
+		#region Объём
+		/// <summary>
+		/// Полный объём товаров и оборудования в маршрутном листе
+		/// </summary>
+		/// <returns>Объём в кубических метрах</returns>
+		public virtual double GetTotalVolume() => Addresses.Where(item => item.Status != RouteListItemStatus.Transfered)
+														   .Sum(item => item.Order.FullVolume());
+		/// <summary>
+		/// Проверка на превышение объёма груза автомобиля
+		/// </summary>
+		/// <returns><c>true</c>, если имеется превышение объёма, <c>false</c> в остальных случаях.</returns>
+		public virtual bool HasVolumeExecess() => Car.MaxVolume < GetTotalVolume();
+
+		/// <summary>
+		/// Величина, на оторую превышен объём груза
+		/// </summary>
+		/// <returns>Возрат значения превышения объёма груза в метрах кубических.</returns>
+		public virtual double VolumeExecess() => HasVolumeExecess() ? Math.Round(GetTotalVolume() - Car.MaxVolume, 3) : 0;
+		#endregion Объём
 
 		/// <summary>
 		/// Нода с номенклатурами и различными количествами после погрузки МЛ на складе

@@ -883,5 +883,85 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(orderUnderTest.BottlesMovementOperation.Delivered, Is.EqualTo(41));
 			Assert.That(orderUnderTest.BottlesMovementOperation.Returned, Is.EqualTo(10));
 		}
+
+		static IEnumerable NomenclatureSettingsForVolume()
+		{
+			yield return new object[] { false, false, 0d };
+			yield return new object[] { false, true, 1.2d };
+			yield return new object[] { true, false, 0.7d };
+			yield return new object[] { true, true, 1.9d };
+		}
+		[TestCaseSource(nameof(NomenclatureSettingsForVolume))]
+		[Test(Description = "Считаем полный объём груза, либо отдельно товаров или оборудования в заказе")]
+		public void FullVolume_WhenPassCommandToCalculateOrderItemsOrEquipmentOrBoth_CanCalculatesFullVolumeOrVolumeOfItemsOrEquipmentSeparately(bool countOrderItems, bool countOrderEquipment, double result)
+		{
+			Nomenclature nomenclatureMockOrderItem = Substitute.For<Nomenclature>();
+			nomenclatureMockOrderItem.Volume.Returns(.35d);
+
+			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
+			nomenclatureMockOrderEquipment.Volume.Returns(.40d);
+
+			OrderItem orderItem = new OrderItem {
+				Nomenclature = nomenclatureMockOrderItem,
+				Count = 2
+			};
+
+			OrderEquipment orderEquipment = new OrderEquipment {
+				Nomenclature = nomenclatureMockOrderEquipment,
+				Count = 3,
+				Direction = Direction.Deliver
+			};
+
+			Order orderUnderTest = new Order {
+				OrderItems = new List<OrderItem> { orderItem },
+				OrderEquipments = new List<OrderEquipment> { orderEquipment },
+			};
+
+			// arrange
+			var vol = orderUnderTest.FullVolume(countOrderItems, countOrderEquipment);
+
+			// assert
+			Assert.That(Math.Round(vol, 4), Is.EqualTo(Math.Round(result, 4)));
+		}
+
+		static IEnumerable NomenclatureSettingsForWeight()
+		{
+			yield return new object[] { false, false, 0.0d };
+			yield return new object[] { false, true, 1.6d };
+			yield return new object[] { true, false, 2.4d };
+			yield return new object[] { true, true, 4.0d };
+		}
+		[TestCaseSource(nameof(NomenclatureSettingsForWeight))]
+		[Test(Description = "Считаем полный объём груза, либо отдельно товаров или оборудования в заказе")]
+		public void FullWeight_WhenPassCommandToCalculateOrderItemsOrEquipmentOrBoth_CalculatesFullWeightOrWeightOfItemsOrEquipmentSeparately(bool countOrderItems, bool countOrderEquipment, double result)
+		{
+			Nomenclature nomenclatureMockOrderItem = Substitute.For<Nomenclature>();
+			nomenclatureMockOrderItem.Weight.Returns(.3d);
+
+			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
+			nomenclatureMockOrderEquipment.Weight.Returns(1.6d);
+
+			OrderItem orderItem = new OrderItem {
+				Nomenclature = nomenclatureMockOrderItem,
+				Count = 8
+			};
+
+			OrderEquipment orderEquipment = new OrderEquipment {
+				Nomenclature = nomenclatureMockOrderEquipment,
+				Count = 1,
+				Direction = Direction.Deliver
+			};
+
+			Order orderUnderTest = new Order {
+				OrderItems = new List<OrderItem> { orderItem },
+				OrderEquipments = new List<OrderEquipment> { orderEquipment },
+			};
+
+			// arrange
+			var weight = orderUnderTest.FullWeight(countOrderItems, countOrderEquipment);
+
+			// assert
+			Assert.That(Math.Round(weight, 4), Is.EqualTo(Math.Round(result, 4)));
+		}
 	}
 }
