@@ -96,17 +96,14 @@ namespace Vodovoz.Dialogs.Phones
 			hBox.Add(entryName);
 			hBox.SetChildPacking(entryName, true, true, 0, PackType.Start);
 
-			if(!viewModel.ReadOnly) 
-			{
-				yButton deleteButton = new yButton();
-				Image image = new Image();
-				image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-delete", IconSize.Menu);
-				deleteButton.Image = image;
-				deleteButton.Clicked += (sender, e) => viewModel.DeleteItemCommand.Execute(hBox.Data["phone"] as Phone);
-				deleteButton.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
-				hBox.Add(deleteButton);
-				hBox.SetChildPacking(deleteButton, false, false, 0, PackType.Start);
-			}
+			yButton deleteButton = new yButton();
+			Image image = new Image();
+			image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-delete", IconSize.Menu);
+			deleteButton.Image = image;
+			deleteButton.Clicked += (sender, e) => viewModel.DeleteItemCommand.Execute(hBox.Data["phone"] as Phone);
+			deleteButton.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+			hBox.Add(deleteButton);
+			hBox.SetChildPacking(deleteButton, false, false, 0, PackType.Start);
 			
 			hBox.Data.Add("phone", newPhone); //Для свзяки виджета и телефона
 			hBox.ShowAll();
