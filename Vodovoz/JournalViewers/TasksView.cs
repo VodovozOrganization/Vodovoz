@@ -30,7 +30,6 @@ namespace Vodovoz.JournalViewers
 		public void ConfigureDlg()
 		{
 			EmployeesVM employeeVM = new EmployeesVM();
-			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
 			representationentryEmployee.RepresentationModel = employeeVM;
 			calltaskfilterview.Refiltered += (sender, e) => UpdateStatistics();
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
