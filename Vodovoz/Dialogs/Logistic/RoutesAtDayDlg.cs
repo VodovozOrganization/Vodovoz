@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gamma.Widgets;
@@ -26,10 +27,10 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories.Sale;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz
@@ -379,8 +380,21 @@ namespace Vodovoz
 		void UpdateSelectedInfo(List<GMapMarker> selected)
 		{
 			var orders = selected.Select(x => x.Tag).OfType<Order>();
-			var selectedBottle = orders.Sum(o => o.TotalDeliveredBottles);
-			labelSelected.LabelProp = string.Format("Выбрано адресов: {0}\nБутылей: {1}", orders.Count(), selectedBottle);
+			if(!orders.Any()) {
+				labelSelected.Markup = "Адресов\nне выбрано";
+				menuAddToRL.Sensitive = false;
+				return;
+			}
+			var selectedBottle = orders.Sum(o => o.Total19LBottlesToDeliver);
+			var selectedKilos = orders.Sum(o => o.TotalWeight);
+			var selectedCbm = orders.Sum(o => o.TotalVolume);
+			labelSelected.Markup = string.Format(
+				"{0} адр.; {1} бут.;\n{2} кг; {3} м<sup>3</sup>",
+				orders.Count(),
+				selectedBottle,
+				selectedKilos,
+				selectedCbm
+			);
 			menuAddToRL.Sensitive = selected.Any() && routesAtDay.Any() && !checkShowCompleted.Active;
 		}
 
@@ -450,32 +464,32 @@ namespace Vodovoz
 		string GetRowBottles(object row)
 		{
 			if(row is RouteList rl) {
-				var bottles = rl.Addresses.Sum(x => x.Order.TotalDeliveredBottles);
+				var bottles = rl.Addresses.Sum(x => x.Order.Total19LBottlesToDeliver);
 				return FormatOccupancy(bottles, rl.Car.MinBottles, rl.Car.MaxBottles);
 			}
 
 			if(row is RouteListItem rli)
-				return rli.Order.TotalDeliveredBottles.ToString();
+				return rli.Order.Total19LBottlesToDeliver.ToString();
 			return null;
 		}
 
 		string GetRowBottlesSix(object row)
 		{
 			if(row is RouteList rl)
-				return rl.Addresses.Sum(x => x.Order.TotalDeliveredBottlesSix).ToString();
+				return rl.Addresses.Sum(x => x.Order.Total6LBottlesToDeliver).ToString();
 
 			if(row is RouteListItem rli)
-				return rli.Order.TotalDeliveredBottlesSix.ToString();
+				return rli.Order.Total6LBottlesToDeliver.ToString();
 			return null;
 		}
 
 		string GetRowBottlesSmall(object row)
 		{
 			if(row is RouteList rl)
-				return rl.Addresses.Sum(x => x.Order.TotalDeliveredBottlesSmall).ToString();
+				return rl.Addresses.Sum(x => x.Order.Total600mlBottlesToDeliver).ToString();
 
 			if(row is RouteListItem rli)
-				return rli.Order.TotalDeliveredBottlesSmall.ToString();
+				return rli.Order.Total600mlBottlesToDeliver.ToString();
 			return null;
 		}
 
@@ -625,7 +639,7 @@ namespace Vodovoz
 									 .Where(x => x.DeliverySchedule.To >= ytimeToDeliveryFrom.Time)
 									 .Where(x => x.DeliverySchedule.To <= ytimeToDeliveryTo.Time)
 									 .Where(x => x.DeliveryPoint != null)
-									 .Where(o => o.TotalDeliveredBottles >= minBtls)
+									 .Where(o => o.Total19LBottlesToDeliver >= minBtls)
 									 .ToList()
 									 ;
 
@@ -643,7 +657,7 @@ namespace Vodovoz
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
 			MainClass.progressBarWin.ProgressAdd();
 
-			var routesQuery1 = RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
+			var routesQuery1 = new RouteListRepository().GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(UoW.Session);
 			if(!checkShowCompleted.Active)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
@@ -651,7 +665,7 @@ namespace Vodovoz
 				.Fetch(SelectMode.Undefined, x => x.Addresses)
 				.Future();
 
-			var routesQuery2 = RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
+			var routesQuery2 = new RouteListRepository().GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(UoW.Session);
 			if(!checkShowCompleted.Active)
 				routesQuery2.Where(x => x.Status == RouteListStatus.New);
@@ -671,11 +685,11 @@ namespace Vodovoz
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", ydateForRoutes.Date);
-			DriversAtDay = AtWorkRepository.GetDriversAtDay(UoW, ydateForRoutes.Date);
+			DriversAtDay = Repository.Logistics.AtWorkRepository.GetDriversAtDay(UoW, ydateForRoutes.Date);
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем экспедиторов на {0:d}...", ydateForRoutes.Date);
-			ForwardersAtDay = AtWorkRepository.GetForwardersAtDay(UoW, ydateForRoutes.Date);
+			ForwardersAtDay = Repository.Logistics.AtWorkRepository.GetForwardersAtDay(UoW, ydateForRoutes.Date);
 
 			MainClass.progressBarWin.ProgressAdd();
 			UpdateAddressesOnMap();
@@ -712,16 +726,16 @@ namespace Vodovoz
 
 			//добавляем маркеры адресов заказов
 			foreach(var order in ordersAtDay.Select(x => x).Where(x => !x.IsService)) {
-				totalBottlesCountAtDay += order.TotalDeliveredBottles;
+				totalBottlesCountAtDay += order.Total19LBottlesToDeliver;
 				var route = routesAtDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
 
 				if(route == null) {
 					addressesWithoutRoutes++;
-					bottlesWithoutRL += order.TotalDeliveredBottles;
+					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
 				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
-					PointMarkerShape shape = GetMarkerShape(order.TotalDeliveredBottles);
+					PointMarkerShape shape = GetMarkerShape(order.Total19LBottlesToDeliver);
 
 					PointMarkerType type = PointMarkerType.black;
 					if(route == null) {
@@ -752,12 +766,12 @@ namespace Vodovoz
 					};
 
 					string ttText = order.DeliveryPoint.ShortAddress;
-					if(order.TotalDeliveredBottles > 0)
-						ttText += string.Format("\nБутылей 19л: {0}", order.TotalDeliveredBottles);
-					if(order.TotalDeliveredBottlesSix > 0)
-						ttText += string.Format("\nБутылей 6л: {0}", order.TotalDeliveredBottlesSix);
-					if(order.TotalDeliveredBottlesSmall > 0)
-						ttText += string.Format("\nБутылей 0,6л: {0}", order.TotalDeliveredBottlesSmall);
+					if(order.Total19LBottlesToDeliver > 0)
+						ttText += string.Format("\nБутылей 19л: {0}", order.Total19LBottlesToDeliver);
+					if(order.Total6LBottlesToDeliver > 0)
+						ttText += string.Format("\nБутылей 6л: {0}", order.Total6LBottlesToDeliver);
+					if(order.Total600mlBottlesToDeliver > 0)
+						ttText += string.Format("\nБутылей 0,6л: {0}", order.Total600mlBottlesToDeliver);
 
 					ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 						order.DeliverySchedule?.Name ?? "Не назначено",
@@ -897,10 +911,14 @@ namespace Vodovoz
 		{
 			var menu = new Menu();
 			foreach(var route in routesAtDay) {
-				var name = string.Format("№{0} - {1}", route.Id, route.Driver.ShortName);
+				var carrierInfo = string.Format("№{0} - {1}", route.Id, route.Driver.ShortName);
 				if(route.GeographicGroups.Any())
-					name = string.Concat(name, " (", route.GeographicGroups.FirstOrDefault().Name, ')');
-				var item = new MenuItemId<RouteList>(name) {
+					carrierInfo = string.Concat(carrierInfo, " (", route.GeographicGroups.FirstOrDefault().Name, ')');
+				carrierInfo = string.Concat(
+					carrierInfo,
+					string.Format("; {0} кг; {1} куб.м.", route.Car?.MaxWeight, route.Car?.MaxVolume)
+				);
+				var item = new MenuItemId<RouteList>(carrierInfo) {
 					ID = route
 				};
 				item.Activated += AddToRLItem_Activated;
@@ -943,11 +961,14 @@ namespace Vodovoz
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
 
-			if(route.HasOverweight()) {
-				MessageDialogHelper.RunWarningDialog(
-					string.Format("Автомобиль '{0}' в МЛ №{1} перегружен на {2} кг.", route.Car.Title, route.Id, route.Overweight())
-				);
-			}
+			StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}' в МЛ №{1}:", route.Car.Title, route.Id));
+			if(route.HasOverweight())
+				warningMsg.Append(string.Format("\n\t- перегружен на {0} кг", route.Overweight()));
+			if(route.HasVolumeExecess())
+				warningMsg.Append(string.Format("\n\t- объём груза превышен на {0} м<sup>3</sup>", route.VolumeExecess()));
+
+			if(route.HasOverweight() || route.HasVolumeExecess())
+				MessageDialogHelper.RunWarningDialog(warningMsg.ToString());
 		}
 
 		void RecalculateOnLoadTime()
@@ -1140,7 +1161,7 @@ namespace Vodovoz
 			logger.Info("Получаем авто для водителей...");
 			MainClass.progressBarWin.ProgressStart(2);
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
-			var allCars = CarRepository.GetCarsbyDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
+			var allCars = Repository.Logistics.CarRepository.GetCarsbyDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 			MainClass.progressBarWin.ProgressAdd();
 
 			foreach(var driver in addDrivers) {
@@ -1286,7 +1307,7 @@ namespace Vodovoz
 		{
 			var SelectDriverCar = new OrmReference(
 				UoW,
-				CarRepository.ActiveCompanyCarsQuery()
+				Repository.Logistics.CarRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
 			SelectDriverCar.Tag = driver;

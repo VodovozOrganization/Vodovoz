@@ -16,7 +16,7 @@ namespace Vodovoz.Dialogs.Phones
 		#region Properties
 
 		public IList<PhoneType> PhoneTypes;
-		public event Action PhonesListReplaced;
+		public event Action PhonesListReplaced; //Убрать
 
 		private GenericObservableList<Phone> phonesList ;
 		public virtual GenericObservableList<Phone> PhonesList {

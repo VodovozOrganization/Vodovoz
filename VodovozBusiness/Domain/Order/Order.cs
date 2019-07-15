@@ -21,15 +21,14 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository;
-using Vodovoz.Repository.Cash;
 using Vodovoz.Repository.Client;
-using Vodovoz.Repository.Logistics;
-using Vodovoz.Repository.Store;
 using Vodovoz.Services;
 using Vodovoz.Tools.Orders;
 
@@ -1008,24 +1007,21 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string Title => string.Format("Заказ №{0} от {1:d}", Id, DeliveryDate);
 
-		public virtual int TotalDeliveredBottles => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
+		public virtual int Total19LBottlesToDeliver => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
-		public virtual int TotalDeliveredBottlesSix => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
+		public virtual int Total6LBottlesToDeliver => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol6L).Sum(x => x.Count);
 
-		public virtual int TotalDeliveredBottlesSmall => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
+		public virtual int Total600mlBottlesToDeliver => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol600ml).Sum(x => x.Count);
 
 		public virtual int TotalWeight => (int)OrderItems.Sum(x => x.Count * x.Nomenclature.Weight);
+
+		public virtual double TotalVolume => OrderItems.Sum(x => x.Count * x.Nomenclature.Volume);
 
 		public virtual string RowColor => PreviousOrder == null ? "black" : "red";
 
 		[Display(Name = "Наличных к получению")]
 		public virtual decimal OrderCashSum {
-			get {
-				if(PaymentType != PaymentType.cash && PaymentType != PaymentType.BeveragesWorld) {
-					return 0;
-				}
-				return OrderSumTotal - OrderSumReturnTotal;
-			}
+			get => PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld ? OrderSumTotal - OrderSumReturnTotal : 0;
 			protected set {; }
 		}
 
@@ -1103,7 +1099,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual int TotalWaterBottles => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
-		public virtual bool CanBeMovedFromClosedToAcepted => RouteListItemRepository.WasOrderInAnyRouteList(UoW, this)
+		public virtual bool CanBeMovedFromClosedToAcepted => new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
 																 && UserPermissionRepository.CurrentUserPresetPermissions["can_move_order_from_closed_to_acepted"];
 
 		#endregion
@@ -1188,10 +1184,10 @@ namespace Vodovoz.Domain.Orders
 			var bottlesByStock = byActualCount ? BottlesByStockActualCount : BottlesByStockCount;
 			decimal discountForStock = 0m;
 
-			if(bottlesByStock == TotalDeliveredBottles) {
+			if(bottlesByStock == Total19LBottlesToDeliver) {
 				discountForStock = 10m;
 			}
-			if(bottlesByStock > TotalDeliveredBottles) {
+			if(bottlesByStock > Total19LBottlesToDeliver) {
 				discountForStock = 20m;
 			}
 
@@ -1212,7 +1208,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if((OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
 				&& PaymentType == PaymentType.cashless
-				&& !EmailRepository.HaveSendedEmail(Id, OrderDocumentType.Bill)) {
+				&& !Repositories.EmailRepository.HaveSendedEmail(Id, OrderDocumentType.Bill)) {
 				//Проверка должен ли формироваться счет для текущего заказа
 				return GetRequirementDocTypes().Contains(OrderDocumentType.Bill);
 			}
@@ -1263,7 +1259,7 @@ namespace Vodovoz.Domain.Orders
 			var oldContract = Contract;
 
 			//Нахождение подходящего существующего договора
-			var actualContract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+			var actualContract = Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 
 			//Нахождение договора созданного в текущем заказе, 
 			//который можно изменить под необходимые параметры
@@ -1296,7 +1292,7 @@ namespace Vodovoz.Domain.Orders
 			) {
 				using(var uowContract = UnitOfWorkFactory.CreateForRoot<CounterpartyContract>(Contract.Id, $"Изменение договора в заказе")) {
 					uowContract.Root.ContractType = DocTemplateRepository.GetContractTypeForPaymentType(Client.PersonType, PaymentType);
-					uowContract.Root.Organization = OrganizationRepository.GetOrganizationByPaymentType(uowContract, Client.PersonType, PaymentType);
+					uowContract.Root.Organization = Repository.OrganizationRepository.GetOrganizationByPaymentType(uowContract, Client.PersonType, PaymentType);
 					uowContract.Save();
 				}
 				UoW.Session.Refresh(Contract);
@@ -1510,9 +1506,9 @@ namespace Vodovoz.Domain.Orders
 		//Выбирает договор соответствующий форме оплаты если такой найден
 		public virtual void ChangeContractOnChangePaymentType()
 		{
-			var org = OrganizationRepository.GetOrganizationByPaymentType(UoW, Client.PersonType, PaymentType);
+			var org = Repository.OrganizationRepository.GetOrganizationByPaymentType(UoW, Client.PersonType, PaymentType);
 			if((Contract == null || Contract.Organization.Id != org.Id) && Client != null)
-				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				Contract = Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 		}
 
 		public virtual bool HasActualWaterSaleAgreementByDeliveryPoint()
@@ -1561,7 +1557,7 @@ namespace Vodovoz.Domain.Orders
 					Price = nomenclature.GetPrice(1)
 				});
 			} else {
-				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature(uow, nomenclature);
+				Equipment eq = Repository.EquipmentRepository.GetEquipmentForSaleByNomenclature(uow, nomenclature);
 				ObservableOrderItems.AddWithReturn(new OrderItem {
 					Order = this,
 					AdditionalAgreement = agreement,
@@ -1662,7 +1658,7 @@ namespace Vodovoz.Domain.Orders
 				Price = nomenclature.GetPrice(1)
 			});
 
-			Nomenclature followingNomenclature = NomenclatureRepository.GetNomenclatureToAddWithMaster(UoW);
+			Nomenclature followingNomenclature = new NomenclatureRepository().GetNomenclatureToAddWithMaster(UoW);
 			if(quantityOfFollowingNomenclatures > 0 && !ObservableOrderItems.Any(i => i.Nomenclature.Id == followingNomenclature.Id))
 				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
 		}
@@ -1946,7 +1942,7 @@ namespace Vodovoz.Domain.Orders
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
 		{
 			if(Contract == null) {
-				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				Contract = Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 				if(Contract == null) {
 					Contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
 					AddContractDocument(Contract);
@@ -1959,7 +1955,7 @@ namespace Vodovoz.Domain.Orders
 		private WaterSalesAgreement CreateWaterSalesAgreement(Nomenclature nom)
 		{
 			if(Contract == null)
-				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				Contract = Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 
 			UoW.Session.Refresh(Contract);
 			WaterSalesAgreement wsa = Contract.GetWaterSalesAgreement(DeliveryPoint, nom);
@@ -1974,7 +1970,7 @@ namespace Vodovoz.Domain.Orders
 		void CreateSalesEquipmentAgreementAndAddEquipment(Nomenclature nom, int count, decimal discount, DiscountReason reason, PromotionalSet proSet)
 		{
 			if(Contract == null) {
-				Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				Contract = Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 				if(Contract == null) {
 					Contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
 					AddContractDocument(Contract);
@@ -1998,7 +1994,7 @@ namespace Vodovoz.Domain.Orders
 
 			CreateOrderAgreementDocument(ag);
 			FillItemsFromAgreement(ag, count, discount, reason, proSet);
-			CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType)
+			Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType)
 										  .AdditionalAgreements
 										  .Add(ag);
 		}
@@ -2693,7 +2689,7 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="guilty">Виновный в недовезении заказа</param>
 		public virtual void SetUndeliveredStatus(GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
-			var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(UoW, this);
+			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
 
 			switch(OrderStatus) {
 				case OrderStatus.NewOrder:
@@ -2763,7 +2759,7 @@ namespace Vodovoz.Domain.Orders
 			   || initialStatus == newStatus)
 				return;
 
-			var undeliveries = UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
+			var undeliveries = Repositories.UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, this);
 			if(undeliveries.Any()) {
 				var text = string.Format(
 					"сменил(а) статус заказа\nс \"{0}\" на \"{1}\"",
@@ -2853,22 +2849,22 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual void SelfDeliveryAcceptCashPaid()
 		{
-			decimal totalCashPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id);
-			decimal totalCashReturn = CashRepository.GetExpenseReturnSumForOrder(UoW, Id);
+			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
 			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn);
 		}
 
 		public virtual void AcceptSelfDeliveryIncomeCash(decimal incomeCash, int? incomeExcludedDoc = null)
 		{
-			decimal totalCashPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id, incomeExcludedDoc) + incomeCash;
-			decimal totalCashReturn = CashRepository.GetExpenseReturnSumForOrder(UoW, Id);
+			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id, incomeExcludedDoc) + incomeCash;
+			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
 			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn);
 		}
 
 		public virtual void AcceptSelfDeliveryExpenseCash(decimal expenseCash, int? expenseExcludedDoc = null)
 		{
-			decimal totalCashPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id);
-			decimal totalCashReturn = CashRepository.GetExpenseReturnSumForOrder(UoW, Id, expenseExcludedDoc) + expenseCash;
+			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id, expenseExcludedDoc) + expenseCash;
 			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn);
 		}
 
@@ -2888,12 +2884,12 @@ namespace Vodovoz.Domain.Orders
 			if((incomeCash - expenseCash) != OrderCashSum)
 				return;
 
-			bool isFullyLoad = IsFullyShippedSelfDeliveryOrder(UoW);
+			bool isFullyLoad = IsFullyShippedSelfDeliveryOrder(UoW, new SelfDeliveryRepository());
 
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatus(OrderStatus.Closed);
-					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new EntityRepositories.Logistic.RouteListItemRepository());
+					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository());
 				} else
 					ChangeStatus(OrderStatus.OnLoading);
 
@@ -2907,9 +2903,12 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Проверяет полностью ли оплачен самовывоз и возвращены все деньги
 		/// </summary>
-		public virtual bool SelfDeliveryIsFullyPaid()
+		public virtual bool SelfDeliveryIsFullyPaid(ICashRepository cashRepository)
 		{
-			decimal totalCash = GetSelfDeliveryTotalPayedCash();
+			if(cashRepository == null)
+				throw new ArgumentNullException(nameof(cashRepository));
+
+			decimal totalCash = GetSelfDeliveryTotalPayedCash(cashRepository);
 
 			return OrderCashSum == totalCash;
 		}
@@ -2919,7 +2918,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool SelfDeliveryIsFullyIncomePaid()
 		{
-			decimal totalPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalPaid =new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
 
 			return OrderSumTotal == totalPaid;
 		}
@@ -2929,15 +2928,18 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool SelfDeliveryIsFullyExpenseReturned()
 		{
-			decimal totalReturned = CashRepository.GetExpenseReturnSumForOrder(UoW, Id);
+			decimal totalReturned = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
 
 			return OrderSumReturnTotal == totalReturned;
 		}
 
-		private decimal GetSelfDeliveryTotalPayedCash()
+		private decimal GetSelfDeliveryTotalPayedCash(ICashRepository cashRepository)
 		{
-			decimal totalCashPaid = CashRepository.GetIncomePaidSumForOrder(UoW, Id);
-			decimal totalCashReturn = CashRepository.GetExpenseReturnSumForOrder(UoW, Id);
+			if(cashRepository == null)
+				throw new ArgumentNullException(nameof(cashRepository));
+
+			decimal totalCashPaid = cashRepository.GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalCashReturn = cashRepository.GetExpenseReturnSumForOrder(UoW, Id);
 
 			return totalCashPaid - totalCashReturn;
 		}
@@ -3047,17 +3049,20 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanSetOrderAsEditable => SetOrderAsEditableStatuses.Contains(OrderStatus);
 
-		public virtual bool IsFullyShippedSelfDeliveryOrder(IUnitOfWork uow, SelfDeliveryDocument closingDocument = null)
+		public virtual bool IsFullyShippedSelfDeliveryOrder(IUnitOfWork uow, ISelfDeliveryRepository selfDeliveryRepository, SelfDeliveryDocument closingDocument = null)
 		{
+			if(selfDeliveryRepository == null)
+				throw new ArgumentNullException(nameof(selfDeliveryRepository));
+
 			if(!SelfDelivery)
 				return false;
 
 			var categoriesForShipping = Nomenclature.GetCategoriesForShipment();
 			var oItemsGrps = OrderItems.Where(x => categoriesForShipping.Contains(x.Nomenclature.Category))
-										.GroupBy(i => i.Nomenclature.Id, i => i.Count);
+									   .GroupBy(i => i.Nomenclature.Id, i => i.Count);
 			var oEquipmentGrps = OrderEquipments.Where(x => categoriesForShipping.Contains(x.Nomenclature.Category))
-											   .Where(x => x.Direction == Direction.Deliver)
-											   .GroupBy(i => i.Nomenclature.Id, i => i.Count);
+												.Where(x => x.Direction == Direction.Deliver)
+												.GroupBy(i => i.Nomenclature.Id, i => i.Count);
 			var nomGrp = oItemsGrps.ToDictionary(g => g.Key, g => g.Sum());
 
 			foreach(var g in oEquipmentGrps) {
@@ -3067,9 +3072,9 @@ namespace Vodovoz.Domain.Orders
 					nomGrp.Add(g.Key, g.Sum());
 			}
 
-			// Закрывает заказ и создает операцию движения бутылей если все товары в заказе отгружены
+			// Разрешает закрыть заказ и создать операцию движения бутылей если все товары в заказе отгружены
 			bool canCloseOrder = true;
-			var unloadedNoms = SelfDeliveryRepository.OrderNomenclaturesUnloaded(uow, this, closingDocument);
+			var unloadedNoms = selfDeliveryRepository.OrderNomenclaturesUnloaded(uow, this, closingDocument);
 			foreach(var nGrp in nomGrp) {
 				decimal totalCount = default(decimal);
 				if(unloadedNoms.ContainsKey(nGrp.Key))
@@ -3084,7 +3089,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void UpdateSelfDeliveryActualCounts(SelfDeliveryDocument notSavedDocument = null)
 		{
-			var loadedDictionary = SelfDeliveryRepository.OrderNomenclaturesLoaded(UoW, this);
+			var loadedDictionary = new SelfDeliveryRepository().OrderNomenclaturesLoaded(UoW, this);
 			if(notSavedDocument != null && notSavedDocument.Id <= 0) {//если id > 0, то такой документ был учтён при получении словаря из репозитория
 				foreach(var item in notSavedDocument.Items) {
 					if(loadedDictionary.ContainsKey(item.Nomenclature.Id))
@@ -3168,14 +3173,26 @@ namespace Vodovoz.Domain.Orders
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
 		/// склада все отгружено, и произведена оплата
 		/// </summary>
-		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, SelfDeliveryDocument closingDocument = null)
+		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, SelfDeliveryDocument closingDocument = null)
 		{
-			if(!IsFullyShippedSelfDeliveryOrder(uow, closingDocument) || OrderStatus != OrderStatus.OnLoading)
+			if(routeListItemRepository == null)
+				throw new ArgumentNullException(nameof(routeListItemRepository));
+			if(selfDeliveryRepository == null)
+				throw new ArgumentNullException(nameof(selfDeliveryRepository));
+			if(cashRepository == null)
+				throw new ArgumentNullException(nameof(cashRepository));
+
+			bool isNotShipped = !IsFullyShippedSelfDeliveryOrder(uow, selfDeliveryRepository, closingDocument);
+
+			if(!isNotShipped)
+				UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, routeListItemRepository, cashRepository);
+			else
 				return false;
 
-			bool isFullyPaid = SelfDeliveryIsFullyPaid();
+			if(OrderStatus != OrderStatus.OnLoading)
+				return false;
 
-			UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository());
+			bool isFullyPaid = SelfDeliveryIsFullyPaid(cashRepository);
 
 			switch(PaymentType) {
 				case PaymentType.cash:
@@ -3209,10 +3226,12 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Создание операций перемещения бутылей для заказов без доставки
 		/// </summary>
-		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, EntityRepositories.Logistic.IRouteListItemRepository routeListItemRepository)
+		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ICashRepository cashRepository)
 		{
 			if(routeListItemRepository == null)
 				throw new ArgumentNullException(nameof(routeListItemRepository));
+			if(cashRepository == null)
+				throw new ArgumentNullException(nameof(cashRepository));
 
 			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
 			//не должны создаваться операции перемещения тары
@@ -3223,18 +3242,20 @@ namespace Vodovoz.Domain.Orders
 				return;
 
 			foreach(OrderItem item in OrderItems)
-				item.ActualCount = item.Count;
+				if(!item.ActualCount.HasValue)
+					item.ActualCount = item.Count;
 
-			int amountDelivered = OrderItems
-									.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-									.Sum(item => item.ActualCount.Value);
+			int amountDelivered = OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
+											.Sum(item => item.ActualCount.Value);
 
-			int forfeitId = standartNomenclatures.GetForfeitId();
-			int forfeitCount = OrderItems.Where(i => i.Nomenclature.Id == forfeitId)
-										 .Select(i => i.ActualCount.Value)
-										 .Sum();
+			int forfeitQuantity = 0;
 
-			if(amountDelivered != 0 || ReturnedTare > 0 || forfeitCount > 0) {
+			if(SelfDeliveryIsFullyPaid(cashRepository))
+				forfeitQuantity = OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
+											.Select(i => i.ActualCount.Value)
+											.Sum();
+
+			if(amountDelivered != 0 || ReturnedTare > 0 || forfeitQuantity > 0) {
 				if(BottlesMovementOperation == null) {
 					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
@@ -3244,7 +3265,7 @@ namespace Vodovoz.Domain.Orders
 				}
 				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 				BottlesMovementOperation.Delivered = amountDelivered;
-				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault() + forfeitCount;
+				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault() + forfeitQuantity;
 				uow.Save(BottlesMovementOperation);
 			} else if(BottlesMovementOperation != null) {
 				uow.Delete(BottlesMovementOperation);
@@ -3274,7 +3295,7 @@ namespace Vodovoz.Domain.Orders
 			nomenclaturesNeedUpdate = new List<Nomenclature>();
 			if(AddCertificates && DeliveryDate.HasValue) {
 				IList<Certificate> newList = new List<Certificate>();
-				foreach(var item in NomenclatureRepository.GetDictionaryWithCertificatesForNomenclatures(UoW, OrderItems.Select(i => i.Nomenclature).ToArray())) {
+				foreach(var item in new NomenclatureRepository().GetDictionaryWithCertificatesForNomenclatures(UoW, OrderItems.Select(i => i.Nomenclature).ToArray())) {
 					if(item.Value.All(c => c.IsArchive || c.ExpirationDate.HasValue && c.ExpirationDate.Value < DeliveryDate))
 						nomenclaturesNeedUpdate.Add(item.Key);
 					else
@@ -3520,7 +3541,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int CalculateTimeOnPoint(bool hasForwarder)
 		{
 			int byFormula = 3 * 60; //На подпись документво 3 мин.
-			int bottels = TotalDeliveredBottles;
+			int bottels = Total19LBottlesToDeliver;
 			if(!hasForwarder)
 				byFormula += CalculateGoDoorCount(bottels, 2) * 100; //100 секун(5/3 минуты) на 2 бутыли без экспедитора.
 			else
@@ -3537,7 +3558,7 @@ namespace Vodovoz.Domain.Orders
 		/// <returns>Вес</returns>
 		/// <param name="includeGoods">Если <c>true</c>, то в расчёт веса будут включены товары.</param>
 		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт веса будет включено оборудование.</param>
-		public virtual double GetWeight(bool includeGoods = true, bool includeEquipment = true)
+		public virtual double FullWeight(bool includeGoods = true, bool includeEquipment = true)
 		{
 			double weight = 0;
 			if(includeGoods)
@@ -3546,6 +3567,23 @@ namespace Vodovoz.Domain.Orders
 				weight += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
 										 .Sum(x => x.Nomenclature.Weight * x.Count);
 			return weight;
+		}
+
+		/// <summary>
+		/// Расчёт объёма товаров и оборудования к клиенту для этого заказа
+		/// </summary>
+		/// <returns>Объём</returns>
+		/// <param name="includeGoods">Если <c>true</c>, то в расчёт веса будут включены товары.</param>
+		/// <param name="includeEquipment">Если <c>true</c>, то в расчёт веса будет включено оборудование.</param>
+		public virtual double FullVolume(bool includeGoods = true, bool includeEquipment = true)
+		{
+			double volume = 0;
+			if(includeGoods)
+				volume += OrderItems.Sum(x => x.Nomenclature.Volume * x.Count);
+			if(includeEquipment)
+				volume += OrderEquipments.Where(x => x.Direction == Direction.Deliver)
+										 .Sum(x => x.Nomenclature.Volume * x.Count);
+			return volume;
 		}
 
 		#endregion

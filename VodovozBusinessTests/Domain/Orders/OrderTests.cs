@@ -7,15 +7,18 @@ using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Cash;
 
 namespace VodovozBusinessTests.Domain.Orders
 {
@@ -540,18 +543,24 @@ namespace VodovozBusinessTests.Domain.Orders
 		public void Check_Bottle_Movement_Operation_Update_Without_Delivery(List<OrderItem> orderItems, int delivered, int returned)
 		{
 			// arrange
-			Order testOrder = new Order();
-			testOrder.DeliveryDate = DateTime.Now;
-			testOrder.OrderItems = orderItems;
+			Order testOrder = new Order {
+				Id = 1,
+				DeliveryDate = DateTime.Now,
+				OrderItems = orderItems
+			};
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
-			IRouteListItemRepository repository = Substitute.For<IRouteListItemRepository>();
-			repository.HasRouteListItemsForOrder(uow, testOrder).Returns(false);
+			testOrder.UoW = uow;
+			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
+			routeListItemRepository.HasRouteListItemsForOrder(uow, testOrder).Returns(false);
+			ICashRepository cashRepository = Substitute.For<ICashRepository>();
+			cashRepository.GetIncomePaidSumForOrder(uow, testOrder.Id).Returns(111);
+			cashRepository.GetExpenseReturnSumForOrder(uow, testOrder.Id).Returns(111);
 
 			var standartNom = Substitute.For<IStandartNomenclatures>();
 			standartNom.GetForfeitId().Returns(33);
 
 			// act
-			testOrder.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNom, repository);
+			testOrder.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNom, routeListItemRepository, cashRepository);
 
 			// assert
 			Assert.AreEqual(returned, testOrder.BottlesMovementOperation.Returned);
@@ -685,5 +694,274 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(testOrder.ObservableOrderDocuments.FirstOrDefault(d => d.Id == 1), Is.EqualTo(deliveryPointMock02));
 		}
 
+		[Test(Description = "Если кол-во отгруженных товаров по документам самовывоза совпадает с кол-вом товаров в заказе, то возвращается true")]
+		public void IsFullyShippedSelfDeliveryOrder_IfQuantityOfUnloadedGoodsIsTheSameAsQuantityOfGoodsInOrder_ThenMethodReturnsTrue()
+		{
+			Nomenclature nomenclatureMock01 = Substitute.For<Nomenclature>();
+			nomenclatureMock01.Category.Returns(NomenclatureCategory.bottle);
+			nomenclatureMock01.Id.Returns(33);
+
+			Nomenclature nomenclatureMock02 = Substitute.For<Nomenclature>();
+			nomenclatureMock02.Category.Returns(NomenclatureCategory.equipment);
+			nomenclatureMock02.Id.Returns(111);
+
+			Nomenclature nomenclatureMock03 = Substitute.For<Nomenclature>();
+			nomenclatureMock03.Category.Returns(NomenclatureCategory.water);
+			nomenclatureMock03.Id.Returns(1);
+
+			OrderItem orderItemMock01 = Substitute.For<OrderItem>();
+			orderItemMock01.Nomenclature.Returns(nomenclatureMock01);
+			orderItemMock01.Count.Returns(3);
+
+			OrderItem orderItemMock02 = Substitute.For<OrderItem>();
+			orderItemMock02.Nomenclature.Returns(nomenclatureMock02);
+			orderItemMock02.Count.Returns(1);
+
+			OrderItem orderItemMock03 = Substitute.For<OrderItem>();
+			orderItemMock03.Nomenclature.Returns(nomenclatureMock03);
+			orderItemMock03.Count.Returns(31);
+
+			OrderEquipment orderEquipmentMock01 = Substitute.For<OrderEquipment>();
+			orderEquipmentMock01.Nomenclature.Returns(nomenclatureMock02);
+			orderEquipmentMock01.Count.Returns(1);
+			orderEquipmentMock01.Direction.Returns(Direction.Deliver);
+
+			OrderEquipment orderEquipmentMock02 = Substitute.For<OrderEquipment>();
+			orderEquipmentMock02.Nomenclature.Returns(nomenclatureMock03);
+			orderEquipmentMock02.Count.Returns(5);
+			orderEquipmentMock02.Direction.Returns(Direction.PickUp);
+
+			Order orderUnderTest = new Order {
+				SelfDelivery = true,
+				OrderItems = new List<OrderItem> { orderItemMock01, orderItemMock02, orderItemMock03 },
+				OrderEquipments = new List<OrderEquipment> { orderEquipmentMock01, orderEquipmentMock02 }
+			};
+
+			SelfDeliveryDocument selfDeliveryDocumentMock = Substitute.For<SelfDeliveryDocument>();
+
+			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+			ISelfDeliveryRepository repository = Substitute.For<ISelfDeliveryRepository>();
+			repository.OrderNomenclaturesUnloaded(uow, orderUnderTest, selfDeliveryDocumentMock).Returns(
+				new Dictionary<int, decimal> {
+					{ 33, 3 },
+					{ 111, 2 },
+					{ 1, 31 }
+				}
+			);
+
+			// arrange
+			var res = orderUnderTest.IsFullyShippedSelfDeliveryOrder(uow, repository, selfDeliveryDocumentMock);
+
+			// assert
+			Assert.That(res, Is.True);
+		}
+
+
+		[Test(Description = "Создание новой операции перемещения бутылей в самовывозе и не учёт неустоек в подсчёте общего кол-ва возвращённых бутылей, если самовывоз не полностью оплачен")]
+		public void UpdateBottlesMovementOperationWithoutDelivery_CreatesNewBottleMovementOperationAndIgnoreForfeits_WhenTheSelfDeliveryIsNotFullyPaid()
+		{
+			Order orderUnderTest = new Order {
+				Id = 1,
+				DeliveryDate = new DateTime(2000, 01, 02),
+				SelfDelivery = true,
+				IsContractCloser = false,
+				ReturnedTare = 1
+			};
+
+			SelfDeliveryDocument selfDeliveryDocumentMock = Substitute.For<SelfDeliveryDocument>();
+
+			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+			orderUnderTest.UoW = uow;
+			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
+			routeListItemRepository.HasRouteListItemsForOrder(uow, orderUnderTest).Returns(false);
+			IStandartNomenclatures standartNomenclatures = Substitute.For<IStandartNomenclatures>();
+			ICashRepository cashRepository = Substitute.For<ICashRepository>();
+			cashRepository.GetIncomePaidSumForOrder(uow, orderUnderTest.Id).Returns(111m);
+			cashRepository.GetExpenseReturnSumForOrder(uow, orderUnderTest.Id).Returns(112m);
+
+			// arrange
+			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNomenclatures, routeListItemRepository, cashRepository);
+
+			// assert
+			Assert.That(orderUnderTest.BottlesMovementOperation.Order, Is.EqualTo(orderUnderTest));
+			Assert.That(orderUnderTest.BottlesMovementOperation.OperationTime.Year, Is.EqualTo(2000));
+			Assert.That(orderUnderTest.BottlesMovementOperation.Returned, Is.EqualTo(1));
+		}
+
+		[Test(Description = "Создание новой операции перемещения бутылей в самовывозе и не учёт неустоек в подсчёте общего кол-ва возвращённых бутылей, если самовывоз не полностью оплачен")]
+		public void UpdateBottlesMovementOperationWithoutDelivery_CreatesNewBottleMovementOperationAndNoIgnoreForfeits_WhenTheSelfDeliveryIsFullyPaid()
+		{
+			Nomenclature nomenclatureMock01 = Substitute.For<Nomenclature>();
+			nomenclatureMock01.Id.Returns(100);
+			OrderItem orderItem01 = new OrderItem {
+				Nomenclature = nomenclatureMock01,
+				Count = 15
+			};
+			Order orderUnderTest = new Order {
+				Id = 1,
+				DeliveryDate = new DateTime(2000, 01, 02),
+				SelfDelivery = true,
+				IsContractCloser = false,
+				OrderItems = new List<OrderItem> { orderItem01 },
+				ReturnedTare = 1
+			};
+
+			SelfDeliveryDocument selfDeliveryDocumentMock = Substitute.For<SelfDeliveryDocument>();
+
+			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+			orderUnderTest.UoW = uow;
+			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
+			routeListItemRepository.HasRouteListItemsForOrder(uow, orderUnderTest).Returns(false);
+			IStandartNomenclatures standartNomenclatures = Substitute.For<IStandartNomenclatures>();
+			standartNomenclatures.GetForfeitId().Returns(100);
+			ICashRepository cashRepository = Substitute.For<ICashRepository>();
+			cashRepository.GetIncomePaidSumForOrder(uow, orderUnderTest.Id).Returns(1m);
+			cashRepository.GetExpenseReturnSumForOrder(uow, orderUnderTest.Id).Returns(1m);
+
+			// arrange
+			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNomenclatures, routeListItemRepository, cashRepository);
+
+			// assert
+			Assert.That(orderUnderTest.BottlesMovementOperation.Order, Is.EqualTo(orderUnderTest));
+			Assert.That(orderUnderTest.BottlesMovementOperation.OperationTime.Year, Is.EqualTo(2000));
+			Assert.That(orderUnderTest.BottlesMovementOperation.Returned, Is.EqualTo(16));
+		}
+
+		[Test(Description = "Обновление существующей операции перемещения бутылей в самовывозе с обновлением полей даты, доставлено и возвращено, при условии полной оплаты в кассе")]
+		public void UpdateBottlesMovementOperationWithoutDelivery_UpdatesExistingBottleMovementOperationAndNoIgnoreForfeits_WhenTheSelfDeliveryIsFullyPaid()
+		{
+			Nomenclature nomenclatureMock01 = Substitute.For<Nomenclature>();
+			nomenclatureMock01.Id.Returns(50);
+
+			Nomenclature nomenclatureMock03 = Substitute.For<Nomenclature>();
+			nomenclatureMock03.Category.Returns(NomenclatureCategory.water);
+			nomenclatureMock03.IsDisposableTare.Returns(false);
+			nomenclatureMock03.Id.Returns(14);
+
+			OrderItem orderItem01 = new OrderItem {
+				Nomenclature = nomenclatureMock01,
+				Count = 7
+			};
+
+			OrderItem orderItem02 = new OrderItem {
+				Nomenclature = nomenclatureMock03,
+				Count = 41
+			};
+
+			Order orderUnderTest = new Order {
+				Id = 1,
+				BottlesMovementOperation = new BottlesMovementOperation {
+					OperationTime = DateTime.Now,
+					Delivered = -1,
+					Returned = -1
+				},
+				DeliveryDate = new DateTime(1999, 05, 12),
+				SelfDelivery = true,
+				IsContractCloser = false,
+				OrderItems = new List<OrderItem> { orderItem01, orderItem02 },
+				ReturnedTare = 3
+			};
+
+			SelfDeliveryDocument selfDeliveryDocumentMock = Substitute.For<SelfDeliveryDocument>();
+
+			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+			orderUnderTest.UoW = uow;
+			IRouteListItemRepository routeListItemRepository = Substitute.For<IRouteListItemRepository>();
+			routeListItemRepository.HasRouteListItemsForOrder(uow, orderUnderTest).Returns(false);
+			IStandartNomenclatures standartNomenclatures = Substitute.For<IStandartNomenclatures>();
+			standartNomenclatures.GetForfeitId().Returns(50);
+			ICashRepository cashRepository = Substitute.For<ICashRepository>();
+			cashRepository.GetIncomePaidSumForOrder(uow, 1).Returns(22);
+			cashRepository.GetExpenseReturnSumForOrder(uow, 1).Returns(22);
+
+			// arrange
+			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNomenclatures, routeListItemRepository, cashRepository);
+
+			// assert
+			Assert.That(orderUnderTest.BottlesMovementOperation.Order, Is.Null);
+			Assert.That(orderUnderTest.BottlesMovementOperation.OperationTime.Year, Is.EqualTo(1999));
+			Assert.That(orderUnderTest.BottlesMovementOperation.Delivered, Is.EqualTo(41));
+			Assert.That(orderUnderTest.BottlesMovementOperation.Returned, Is.EqualTo(10));
+		}
+
+		static IEnumerable NomenclatureSettingsForVolume()
+		{
+			yield return new object[] { false, false, 0d };
+			yield return new object[] { false, true, 1.2d };
+			yield return new object[] { true, false, 0.7d };
+			yield return new object[] { true, true, 1.9d };
+		}
+		[TestCaseSource(nameof(NomenclatureSettingsForVolume))]
+		[Test(Description = "Считаем полный объём груза, либо отдельно товаров или оборудования в заказе")]
+		public void FullVolume_WhenPassCommandToCalculateOrderItemsOrEquipmentOrBoth_CanCalculatesFullVolumeOrVolumeOfItemsOrEquipmentSeparately(bool countOrderItems, bool countOrderEquipment, double result)
+		{
+			Nomenclature nomenclatureMockOrderItem = Substitute.For<Nomenclature>();
+			nomenclatureMockOrderItem.Volume.Returns(.35d);
+
+			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
+			nomenclatureMockOrderEquipment.Volume.Returns(.40d);
+
+			OrderItem orderItem = new OrderItem {
+				Nomenclature = nomenclatureMockOrderItem,
+				Count = 2
+			};
+
+			OrderEquipment orderEquipment = new OrderEquipment {
+				Nomenclature = nomenclatureMockOrderEquipment,
+				Count = 3,
+				Direction = Direction.Deliver
+			};
+
+			Order orderUnderTest = new Order {
+				OrderItems = new List<OrderItem> { orderItem },
+				OrderEquipments = new List<OrderEquipment> { orderEquipment },
+			};
+
+			// arrange
+			var vol = orderUnderTest.FullVolume(countOrderItems, countOrderEquipment);
+
+			// assert
+			Assert.That(Math.Round(vol, 4), Is.EqualTo(Math.Round(result, 4)));
+		}
+
+		static IEnumerable NomenclatureSettingsForWeight()
+		{
+			yield return new object[] { false, false, 0.0d };
+			yield return new object[] { false, true, 1.6d };
+			yield return new object[] { true, false, 2.4d };
+			yield return new object[] { true, true, 4.0d };
+		}
+		[TestCaseSource(nameof(NomenclatureSettingsForWeight))]
+		[Test(Description = "Считаем полный объём груза, либо отдельно товаров или оборудования в заказе")]
+		public void FullWeight_WhenPassCommandToCalculateOrderItemsOrEquipmentOrBoth_CalculatesFullWeightOrWeightOfItemsOrEquipmentSeparately(bool countOrderItems, bool countOrderEquipment, double result)
+		{
+			Nomenclature nomenclatureMockOrderItem = Substitute.For<Nomenclature>();
+			nomenclatureMockOrderItem.Weight.Returns(.3d);
+
+			Nomenclature nomenclatureMockOrderEquipment = Substitute.For<Nomenclature>();
+			nomenclatureMockOrderEquipment.Weight.Returns(1.6d);
+
+			OrderItem orderItem = new OrderItem {
+				Nomenclature = nomenclatureMockOrderItem,
+				Count = 8
+			};
+
+			OrderEquipment orderEquipment = new OrderEquipment {
+				Nomenclature = nomenclatureMockOrderEquipment,
+				Count = 1,
+				Direction = Direction.Deliver
+			};
+
+			Order orderUnderTest = new Order {
+				OrderItems = new List<OrderItem> { orderItem },
+				OrderEquipments = new List<OrderEquipment> { orderEquipment },
+			};
+
+			// arrange
+			var weight = orderUnderTest.FullWeight(countOrderItems, countOrderEquipment);
+
+			// assert
+			Assert.That(Math.Round(weight, 4), Is.EqualTo(Math.Round(result, 4)));
+		}
 	}
 }

@@ -8,7 +8,7 @@ namespace Vodovoz.Dialogs.Phones
 
 		private global::Gtk.VBox vboxPhones;
 
-		private global::Gtk.Button buttonAddPhone;
+		private global::Gamma.GtkWidgets.yButton buttonAddPhone;
 
 		protected virtual void Build()
 		{
@@ -30,13 +30,13 @@ namespace Vodovoz.Dialogs.Phones
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonAddPhone = new global::Gtk.Button();
+			this.buttonAddPhone = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddPhone.CanFocus = true;
 			this.buttonAddPhone.Name = "buttonAddPhone";
 			this.buttonAddPhone.UseUnderline = true;
 			this.buttonAddPhone.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			global::Gtk.Image w2 = new global::Gtk.Image();
-			w2.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "add", global::Gtk.IconSize.Menu);
+			w2.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.buttonAddPhone.Image = w2;
 			this.vbox1.Add(this.buttonAddPhone);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonAddPhone]));

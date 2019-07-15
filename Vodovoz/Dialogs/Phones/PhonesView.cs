@@ -37,6 +37,8 @@ namespace Vodovoz.Dialogs.Phones
 				return;
 
 			buttonAddPhone.Clicked += (sender, e) => viewModel.AddItemCommand.Execute();
+			buttonAddPhone.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+
 			viewModel.PhonesList.PropertyChanged += (sender, e) => Redraw();
 			Redraw();
 		}
@@ -54,7 +56,7 @@ namespace Vodovoz.Dialogs.Phones
 			phoneDataCombo.SetRenderTextFunc((PhoneType x) => x.Name);
 			phoneDataCombo.ItemsList = viewModel.PhoneTypes;
 			phoneDataCombo.Binding.AddBinding(newPhone, e => e.NumberType, w => w.SelectedItem).InitializeFromSource();
-			phoneDataCombo.Sensitive = !viewModel.ReadOnly;
+			phoneDataCombo.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 			hBox.Add(phoneDataCombo);
 			hBox.SetChildPacking(phoneDataCombo, true, true, 0, PackType.Start);
 
@@ -67,6 +69,7 @@ namespace Vodovoz.Dialogs.Phones
 			phoneDataEntry.Tag = newPhone;
 			phoneDataEntry.WidthChars = 19;
 			phoneDataEntry.Binding.AddBinding(newPhone, e => e.Number, w => w.Text).InitializeFromSource();
+			phoneDataEntry.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
 			hBox.Add(phoneDataEntry);
 			hBox.SetChildPacking(phoneDataEntry,true,true,0,PackType.Start);
 
@@ -78,7 +81,7 @@ namespace Vodovoz.Dialogs.Phones
 			additionalDataEntry.WidthRequest = 50;
 			additionalDataEntry.MaxLength = 10;
 			additionalDataEntry.Binding.AddBinding(newPhone, e => e.Additional, w => w.Text).InitializeFromSource();
-			additionalDataEntry.Sensitive = !viewModel.ReadOnly;
+			additionalDataEntry.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
 			hBox.Add(additionalDataEntry);
 			hBox.SetChildPacking(additionalDataEntry, false, false, 0, PackType.Start);
 
@@ -89,18 +92,18 @@ namespace Vodovoz.Dialogs.Phones
 			var entryName = new yEntry();
 			entryName.MaxLength = 150;
 			entryName.Binding.AddBinding(newPhone, e => e.Name, w => w.Text).InitializeFromSource();
-			entryName.Sensitive = !viewModel.ReadOnly;
+			entryName.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
 			hBox.Add(entryName);
 			hBox.SetChildPacking(entryName, true, true, 0, PackType.Start);
 
 			if(!viewModel.ReadOnly) 
 			{
-				Button deleteButton = new Button();
+				yButton deleteButton = new yButton();
 				Image image = new Image();
 				image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-delete", IconSize.Menu);
 				deleteButton.Image = image;
 				deleteButton.Clicked += (sender, e) => viewModel.DeleteItemCommand.Execute(hBox.Data["phone"] as Phone);
-				deleteButton.Sensitive = !viewModel.ReadOnly;
+				deleteButton.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 				hBox.Add(deleteButton);
 				hBox.SetChildPacking(deleteButton, false, false, 0, PackType.Start);
 			}

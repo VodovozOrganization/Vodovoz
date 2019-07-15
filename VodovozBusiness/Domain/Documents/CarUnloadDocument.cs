@@ -6,11 +6,14 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -82,11 +85,32 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref comment, value, () => Comment);
 		}
 
-		public virtual string Title => String.Format("Разгрузка автомобиля №{0} от {1:d}", Id, TimeStamp);
+		#region Не сохраняемые
+
+		public virtual int DefBottleId { get; protected set; }
+
+		public virtual string Title => string.Format("Разгрузка автомобиля №{0} от {1:d}", Id, TimeStamp);
+
+		int returnedTareBefore;
+		[PropertyChangedAlso("ReturnedTareBeforeText")]
+		public virtual int ReturnedTareBefore {
+			get => returnedTareBefore;
+			set => SetField(ref returnedTareBefore, value, () => ReturnedTareBefore);
+		}
+
+		public virtual string ReturnedTareBeforeText => ReturnedTareBefore > 0 ? string.Format("Возвращено другими разгрузками: {0} бут.", ReturnedTareBefore) : string.Empty;
+
+		int tareToReturn;
+		public virtual int TareToReturn {
+			get => tareToReturn;
+			set => SetField(ref tareToReturn, value, () => TareToReturn);
+		}
+
+		#endregion
 
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Author == null)
 				yield return new ValidationResult("Не указан кладовщик.",
@@ -123,10 +147,17 @@ namespace Vodovoz.Domain.Documents
 					"Имеются продублированные заявки на сервис.",
 					new[] { this.GetPropertyName(o => o.Items) }
 				);
-
 		}
 
 		#endregion
+
+		public virtual void InitializeDefaultValues(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository)
+		{
+			if(nomenclatureRepository == null)
+				throw new ArgumentNullException(nameof(nomenclatureRepository));
+
+			DefBottleId = nomenclatureRepository.GetDefaultBottle(uow).Id;
+		}
 
 		public virtual void AddItem(CarUnloadDocumentItem item)
 		{
@@ -164,6 +195,22 @@ namespace Vodovoz.Domain.Documents
 					}
 				}
 			}
+		}
+
+		public virtual void ReturnedEmptyBottlesBefore(IUnitOfWork uow, IRouteListRepository routeListRepository)
+		{
+			if(routeListRepository == null)
+				throw new ArgumentNullException(nameof(routeListRepository));
+
+			ReturnedTareBefore = routeListRepository.BottlesUnloadedByCarUnloadedDocuments(uow, DefBottleId, RouteList.Id, Id);
+		}
+
+		public virtual bool IsDefaultBottle(CarUnloadDocumentItem item)
+		{
+			if(item.MovementOperation?.Nomenclature.Id != DefBottleId)
+				return false;
+			TareToReturn += (int)(item.MovementOperation?.Amount ?? 0);
+			return true;
 		}
 	}
 }

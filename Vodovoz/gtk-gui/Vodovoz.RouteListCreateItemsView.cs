@@ -20,6 +20,8 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelSum;
 
+		private global::Gtk.Label lblVolume;
+
 		private global::Gtk.Label lblWeight;
 
 		protected virtual void Build()
@@ -103,21 +105,32 @@ namespace Vodovoz
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
+			this.lblVolume = new global::Gtk.Label();
+			this.lblVolume.Name = "lblVolume";
+			this.lblVolume.Xalign = 0F;
+			this.lblVolume.UseMarkup = true;
+			this.hbox1.Add(this.lblVolume);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lblVolume]));
+			w9.PackType = ((global::Gtk.PackType)(1));
+			w9.Position = 4;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.lblWeight = new global::Gtk.Label();
 			this.lblWeight.Name = "lblWeight";
 			this.lblWeight.Xalign = 0F;
 			this.lblWeight.UseMarkup = true;
 			this.hbox1.Add(this.lblWeight);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lblWeight]));
-			w9.PackType = ((global::Gtk.PackType)(1));
-			w9.Position = 4;
-			w9.Expand = false;
-			w9.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w10.Position = 1;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lblWeight]));
+			w10.PackType = ((global::Gtk.PackType)(1));
+			w10.Position = 5;
 			w10.Expand = false;
 			w10.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

@@ -47,6 +47,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
@@ -732,7 +733,7 @@ namespace Vodovoz
 					return;
 				}
 				IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
-				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository());
+				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository(), new CashRepository());
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatus(OrderStatus.Closed);

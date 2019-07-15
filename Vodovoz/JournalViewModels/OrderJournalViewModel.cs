@@ -31,41 +31,24 @@ namespace Vodovoz.JournalViewModels
 			TabName = "Журнал заказов";
 			SetOrder<OrderJournalNode>(x => x.CreateDate, true);
 
-			RegisterAliasPropertiesToSearch(
-				() => counterpartyAlias.Name,
-				() => deliveryPointAlias.City,
-				() => deliveryPointAlias.Street,
-				() => deliveryPointAlias.Building,
-				() => authorAlias.Name,
-				() => authorAlias.LastName,
-				() => authorAlias.Patronymic,
-				() => lastEditorAlias.Name,
-				() => lastEditorAlias.LastName,
-				() => lastEditorAlias.Patronymic,
-				() => orderAlias.LastEditedTime,
-				() => orderAlias.DriverCallId,
-				() => orderAlias.OnlineOrder,
-				() => orderAlias.Id
-			);
 			UpdateOnChanges(
 				typeof(VodovozOrder),
 				typeof(OrderItem)
 			);
 		}
 
-		OrderJournalNode resultAlias = null;
-		VodovozOrder orderAlias = null;
-		Nomenclature nomenclatureAlias = null;
-		OrderItem orderItemAlias = null;
-		Counterparty counterpartyAlias = null;
-		DeliveryPoint deliveryPointAlias = null;
-		DeliverySchedule deliveryScheduleAlias = null;
-		Employee authorAlias = null;
-		Employee lastEditorAlias = null;
-		ScheduleRestrictedDistrict districtAlias = null;
-
 		protected override Func<IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => () => {
-
+			OrderJournalNode resultAlias = null;
+			VodovozOrder orderAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			OrderItem orderItemAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			DeliverySchedule deliveryScheduleAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+			ScheduleRestrictedDistrict districtAlias = null;
+		
 			Nomenclature sanitizationNomenclature = new NomenclatureRepository().GetSanitisationNomenclature(UoW);
 
 			var query = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias);
@@ -160,6 +143,21 @@ namespace Vodovoz.JournalViewModels
 				 .JoinAlias(o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				 .Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias);
 
+			query.Where(GetSearchCriterion(
+				() => orderAlias.Id,
+				() => counterpartyAlias.Name,
+				() => deliveryPointAlias.CompiledAddress,
+				() => authorAlias.Name,
+				() => authorAlias.LastName,
+				() => authorAlias.Patronymic,
+				() => lastEditorAlias.Name,
+				() => lastEditorAlias.LastName,
+				() => lastEditorAlias.Patronymic,
+				() => orderAlias.DriverCallId,
+				() => orderAlias.OnlineOrder,
+				() => orderAlias.Id
+			));
+
 			var resultQuery = query
 				.SelectList(list => list
 				   .Select(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
@@ -180,6 +178,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => orderAlias.OnlineOrder).WithAlias(() => resultAlias.OnlineOrder)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 				   .Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)
+				   .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompilledAddress)
 				   .Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
 				   .Select(() => deliveryPointAlias.Street).WithAlias(() => resultAlias.Street)
 				   .Select(() => deliveryPointAlias.Building).WithAlias(() => resultAlias.Building)

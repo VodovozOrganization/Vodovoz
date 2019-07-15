@@ -1,5 +1,4 @@
 ﻿using System;
-using QS.Project.Journal;
 using Vodovoz.Domain.Client;
 using Vodovoz.JournalNodes;
 using QS.DomainModel.Config;
@@ -31,11 +30,6 @@ namespace Vodovoz.JournalViewModels
 		: base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал остатков";
-			RegisterAliasPropertiesToSearch(
-				() => residueAlias.Id,
-				() => counterpartyAlias.Name,
-				() => deliveryPointAlias.CompiledAddress
-			);
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.representationEntityPicker = representationEntityPicker ?? throw new ArgumentNullException(nameof(representationEntityPicker));
 			this.moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
@@ -46,13 +40,6 @@ namespace Vodovoz.JournalViewModels
 			SetOrder<ResidueJournalNode>(x => x.Date, true);
 		}
 
-		Counterparty counterpartyAlias = null;
-		Employee authorAlias = null;
-		Employee lastEditorAlias = null;
-		ResidueJournalNode resultAlias = null;
-		Residue residueAlias = null;
-		DeliveryPoint deliveryPointAlias = null;
-
 		private readonly IEmployeeService employeeService;
 		private readonly IRepresentationEntityPicker representationEntityPicker;
 		private readonly IMoneyRepository moneyRepository;
@@ -61,6 +48,13 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICommonServices commonServices;
 
 		protected override Func<IQueryOver<Residue>> ItemsSourceQueryFunction => () => {
+			Counterparty counterpartyAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
+			ResidueJournalNode resultAlias = null;
+			Residue residueAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+
 			var residueQuery = UoW.Session.QueryOver<Residue>(() => residueAlias)
 				.JoinQueryOver(() => residueAlias.Customer, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => residueAlias.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -85,6 +79,12 @@ namespace Vodovoz.JournalViewModels
 					residueQuery.Where(Restrictions.Le(dateCriterion, FilterViewModel.EndDate.Value));
 				}
 			}
+
+			residueQuery.Where(GetSearchCriterion(
+				() => residueAlias.Id,
+				() => counterpartyAlias.Name,
+				() => deliveryPointAlias.CompiledAddress
+			));
 
 			var resultQuery = residueQuery
 				.SelectList(list => list

@@ -724,7 +724,8 @@ namespace Vodovoz
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.labelSelected = new global::Gtk.Label();
 			this.labelSelected.Name = "labelSelected";
-			this.labelSelected.LabelProp = global::Mono.Unix.Catalog.GetString("Адресов не выбрано");
+			this.labelSelected.LabelProp = global::Mono.Unix.Catalog.GetString("Адресов\nне выбрано");
+			this.labelSelected.Justify = ((global::Gtk.Justification)(2));
 			this.hbox3.Add(this.labelSelected);
 			global::Gtk.Box.BoxChild w62 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.labelSelected]));
 			w62.Position = 1;

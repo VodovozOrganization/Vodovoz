@@ -372,6 +372,8 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			phonesview1.ViewModel.RemoveEmpty();
+
 			if(!Entity.CoordinatesExist && !MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 				return false;
 
@@ -384,8 +386,7 @@ namespace Vodovoz
 								Gtk.ButtonsType.YesNo
 							))
 				return false;
-
-			phonesview1.ViewModel.RemoveEmpty();
+				
 			UoWGeneric.Save();
 			return true;
 		}

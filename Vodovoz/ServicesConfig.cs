@@ -4,6 +4,7 @@ using QSValidation;
 using QS.Permissions;
 using Vodovoz.Infrastructure.Journal;
 using QS.Services;
+using QS.Validation;
 
 namespace Vodovoz
 {

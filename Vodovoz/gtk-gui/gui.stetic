@@ -12,7 +12,6 @@
     <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
     <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
     <widget-library name="../../../QSProjects/Modules/QSContacts/bin/Debug/QSContacts.dll" />
-    <widget-library name="../../../QSProjects/QSValidation/bin/Debug/QSValidation.dll" />
     <widget-library name="../../../My-FyiReporting/RdlGtkViewer/RdlGtkViewer/bin/Debug/RdlGtkViewer.exe" />
     <widget-library name="../../../QSProjects/QSReport/bin/Debug/QSReport.dll" />
     <widget-library name="../../../GammaBinding/GammaBinding/bin/Debug/GammaBinding.dll" />
@@ -26,10 +25,8 @@
     <widget-library name="../../../QSProjects/QS.HistoryLog.Gtk/bin/Debug/QS.HistoryLog.Gtk.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
     <widget-library name="../../../VodovozService/EmailService/bin/Debug/Email.dll" />
-    <widget-library name="../../../QSProjects/QS.Project/bin/Debug/QS.Project.dll" />
-    <widget-library name="../../../QSProjects/QS.Report/bin/Debug/QS.Report.dll" />
     <widget-library name="../../../QSProjects/QS.Project.Gtk/bin/Debug/QS.Project.Gtk.dll" />
-    <widget-library name="../../../QSProjects/QS.HistoryLog/bin/Debug/QS.HistoryLog.dll" />
+    <widget-library name="../../../QSProjects/QSValidation/bin/Debug/QSValidation.dll" />
     <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
@@ -104,7 +101,7 @@
       </source>
     </icon-set>
   </icon-factory>
-  <widget class="Gtk.Window" id="MainWindow" design-size="1006 542">
+  <widget class="Gtk.Window" id="MainWindow" design-size="1008 542">
     <action-group name="Default">
       <action id="ActionBaseMenu">
         <property name="Type">Action</property>
@@ -1222,6 +1219,12 @@
         <property name="ShortLabel" translatable="yes">Типы оплаты по карте</property>
         <signal name="Activated" handler="OnActionPaymentsFromActivated" />
       </action>
+      <action id="Action62">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Переотправка почты</property>
+        <property name="ShortLabel" translatable="yes">Переотправка почты</property>
+        <signal name="Activated" handler="OnAction62Activated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -1435,6 +1438,7 @@
                       <node type="Menuitem" action="ActionLoad1cCounterpartyAndDeliveryPoints" />
                       <node type="Menuitem" action="ActionToOnlineStore" />
                       <node type="Menuitem" action="ActionSetDistrictsToDeliveryPoints" />
+                      <node type="Menuitem" action="Action62" />
                     </node>
                     <node type="Separator" />
                     <node type="Menuitem" action="ActionDocTemplates" />
@@ -4181,7 +4185,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="776 548">
+  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="1068 557">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -4677,7 +4681,7 @@
                       <widget class="Gamma.GtkWidgets.ySpinButton" id="maxVolumeSpin">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
-                        <property name="Upper">999</property>
+                        <property name="Upper">250</property>
                         <property name="PageIncrement">10</property>
                         <property name="StepIncrement">1</property>
                         <property name="ClimbRate">1</property>
@@ -5356,7 +5360,7 @@
                   <widget class="Gtk.Label" id="maxVolumeLabel">
                     <property name="MemberName" />
                     <property name="Xalign">1</property>
-                    <property name="LabelProp" translatable="yes">Объём груза (м&lt;sup&gt;2&lt;/sup&gt;):</property>
+                    <property name="LabelProp" translatable="yes">Объём груза (м&lt;sup&gt;3&lt;/sup&gt;):</property>
                     <property name="UseMarkup">True</property>
                   </widget>
                   <packing>
@@ -6928,13 +6932,12 @@
                           <widget class="Gamma.GtkWidgets.ySpinButton" id="spinVolume">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
-                            <property name="Upper">999</property>
-                            <property name="PageIncrement">10</property>
-                            <property name="StepIncrement">1</property>
-                            <property name="ClimbRate">1</property>
+                            <property name="Upper">5</property>
+                            <property name="PageIncrement">1</property>
+                            <property name="StepIncrement">0.001</property>
+                            <property name="ClimbRate">0.001</property>
                             <property name="Digits">3</property>
                             <property name="Numeric">True</property>
-                            <property name="Value">3</property>
                             <property name="ValueAsDecimal">0</property>
                             <property name="ValueAsInt">0</property>
                           </widget>
@@ -20080,7 +20083,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="lblWeight">
+              <widget class="Gtk.Label" id="lblVolume">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
                 <property name="UseMarkup">True</property>
@@ -20088,6 +20091,20 @@
               <packing>
                 <property name="PackType">End</property>
                 <property name="Position">4</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="lblWeight">
+                <property name="MemberName" />
+                <property name="Xalign">0</property>
+                <property name="UseMarkup">True</property>
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">5</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -33049,47 +33066,6 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.BottleReceptionView" design-size="300 300">
-    <property name="MemberName" />
-    <property name="Visible">False</property>
-    <child>
-      <widget class="Gtk.Frame" id="frameBottles">
-        <property name="MemberName" />
-        <property name="ShadowType">None</property>
-        <child>
-          <widget class="Gtk.Alignment" id="GtkAlignment2">
-            <property name="MemberName" />
-            <property name="Xalign">0</property>
-            <property name="Yalign">0</property>
-            <property name="LeftPadding">12</property>
-            <child>
-              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
-                <property name="MemberName" />
-                <property name="ShadowType">In</property>
-                <child>
-                  <widget class="QSOrmProject.RepresentationTreeView" id="ytreeBottles">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="ShowScrollbars">True</property>
-                  </widget>
-                </child>
-              </widget>
-            </child>
-          </widget>
-        </child>
-        <child>
-          <widget class="Gtk.Label" id="GtkLabel3">
-            <property name="MemberName" />
-            <property name="LabelProp" translatable="yes">&lt;b&gt;Тара на возврат&lt;/b&gt;</property>
-            <property name="UseMarkup">True</property>
-          </widget>
-          <packing>
-            <property name="type">label_item</property>
-          </packing>
-        </child>
-      </widget>
-    </child>
-  </widget>
   <widget class="Gtk.Bin" id="Vodovoz.EquipmentTypeDlg" design-size="342 129">
     <property name="MemberName" />
     <property name="Visible">False</property>
@@ -33239,47 +33215,6 @@
             <property name="PackType">End</property>
             <property name="Position">1</property>
             <property name="AutoSize">False</property>
-          </packing>
-        </child>
-      </widget>
-    </child>
-  </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.BottleReceptionView" design-size="300 300">
-    <property name="MemberName" />
-    <property name="Visible">False</property>
-    <child>
-      <widget class="Gtk.Frame" id="frameBottles">
-        <property name="MemberName" />
-        <property name="ShadowType">None</property>
-        <child>
-          <widget class="Gtk.Alignment" id="GtkAlignment2">
-            <property name="MemberName" />
-            <property name="Xalign">0</property>
-            <property name="Yalign">0</property>
-            <property name="LeftPadding">12</property>
-            <child>
-              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
-                <property name="MemberName" />
-                <property name="ShadowType">In</property>
-                <child>
-                  <widget class="QSOrmProject.RepresentationTreeView" id="ytreeBottles">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="ShowScrollbars">True</property>
-                  </widget>
-                </child>
-              </widget>
-            </child>
-          </widget>
-        </child>
-        <child>
-          <widget class="Gtk.Label" id="GtkLabel3">
-            <property name="MemberName" />
-            <property name="LabelProp" translatable="yes">&lt;b&gt;Тара на возврат&lt;/b&gt;</property>
-            <property name="UseMarkup">True</property>
-          </widget>
-          <packing>
-            <property name="type">label_item</property>
           </packing>
         </child>
       </widget>
@@ -40073,11 +40008,11 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.SelfDeliveryDocumentDlg" design-size="710 374">
+  <widget class="Gtk.Bin" id="Vodovoz.SelfDeliveryDocumentDlg" design-size="512 357">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
-      <widget class="Gtk.VBox" id="vbox4">
+      <widget class="Gtk.VBox" id="vbxMain">
         <property name="MemberName" />
         <property name="Spacing">6</property>
         <property name="BorderWidth">6</property>
@@ -40396,7 +40331,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.HBox" id="hbox4">
+          <widget class="Gtk.HBox" id="hbxGoods">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
@@ -40410,89 +40345,18 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.VBox" id="vBoxBottles">
+              <widget class="Gtk.VBox" id="vbox2">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.Label" id="lblBottles">
-                    <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes">Тара на возврат</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">0</property>
-                    <property name="AutoSize">False</property>
-                    <property name="Expand">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow3">
-                    <property name="MemberName" />
-                    <property name="ShadowType">In</property>
-                    <child>
-                      <widget class="Gamma.GtkWidgets.yTreeView" id="yTreeBottles">
-                        <property name="MemberName" />
-                        <property name="CanFocus">True</property>
-                        <property name="ShowScrollbars">True</property>
-                      </widget>
-                    </child>
-                  </widget>
-                  <packing>
-                    <property name="Position">1</property>
-                    <property name="AutoSize">False</property>
-                  </packing>
-                </child>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.VBox" id="vBoxOtherGoods">
-                <property name="MemberName" />
-                <property name="Spacing">6</property>
-                <child>
-                  <widget class="Gtk.Label" id="lblOtherGoods">
-                    <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes">ТМЦ на возврат</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">0</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
-                    <property name="MemberName" />
-                    <property name="ShadowType">In</property>
-                    <child>
-                      <widget class="Gamma.GtkWidgets.yTreeView" id="yTreeOtherGoods">
-                        <property name="MemberName" />
-                        <property name="CanFocus">True</property>
-                        <property name="ShowScrollbars">True</property>
-                      </widget>
-                    </child>
-                  </widget>
-                  <packing>
-                    <property name="Position">1</property>
-                    <property name="AutoSize">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.HBox" id="hbox3">
+                  <widget class="Gtk.HBox" id="hbxTareToReturn">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
-                      <widget class="Gtk.Button" id="btnAddOtherGoods">
+                      <widget class="Gtk.Label" id="lblTareToReturn">
                         <property name="MemberName" />
-                        <property name="CanFocus">True</property>
-                        <property name="Type">TextAndIcon</property>
-                        <property name="Icon">stock:gtk-add Menu</property>
-                        <property name="Label" translatable="yes">ТМЦ</property>
-                        <property name="UseUnderline">True</property>
-                        <signal name="Clicked" handler="OnBtnAddOtherGoodsClicked" />
+                        <property name="Xalign">0</property>
+                        <property name="LabelProp" translatable="yes">Тара на возврат:</property>
                       </widget>
                       <packing>
                         <property name="Position">0</property>
@@ -40502,22 +40366,122 @@ not tooltip</property>
                       </packing>
                     </child>
                     <child>
-                      <placeholder />
+                      <widget class="Gamma.GtkWidgets.ySpinButton" id="spnTareToReturn">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Upper">100</property>
+                        <property name="PageIncrement">10</property>
+                        <property name="StepIncrement">1</property>
+                        <property name="ClimbRate">1</property>
+                        <property name="Numeric">True</property>
+                        <property name="ValueAsDecimal">0</property>
+                        <property name="ValueAsInt">0</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">False</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">False</property>
+                    <property name="Expand">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gamma.GtkWidgets.yLabel" id="lblTareReturnedBefore">
+                    <property name="MemberName" />
+                    <property name="Xalign">0</property>
+                    <property name="Yalign">0</property>
+                    <property name="UseMarkup">True</property>
+                    <property name="WidthChars">0</property>
+                    <property name="MaxWidthChars">0</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">False</property>
+                    <property name="Expand">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.VBox" id="vBoxOtherGoods">
+                    <property name="MemberName" />
+                    <property name="Spacing">6</property>
+                    <child>
+                      <widget class="Gtk.Label" id="lblOtherGoods">
+                        <property name="MemberName" />
+                        <property name="Xalign">0</property>
+                        <property name="LabelProp" translatable="yes">ТМЦ на возврат:</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
                     </child>
                     <child>
-                      <placeholder />
+                      <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
+                        <property name="MemberName" />
+                        <property name="ShadowType">In</property>
+                        <child>
+                          <widget class="Gamma.GtkWidgets.yTreeView" id="yTreeOtherGoods">
+                            <property name="MemberName" />
+                            <property name="CanFocus">True</property>
+                            <property name="ShowScrollbars">True</property>
+                          </widget>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.HBox" id="hbox6">
+                        <property name="MemberName" />
+                        <property name="Spacing">6</property>
+                        <child>
+                          <widget class="Gtk.Button" id="btnAddOtherGoods">
+                            <property name="MemberName" />
+                            <property name="CanFocus">True</property>
+                            <property name="Type">TextAndIcon</property>
+                            <property name="Icon">stock:gtk-add Menu</property>
+                            <property name="Label" translatable="yes">ТМЦ</property>
+                            <property name="UseUnderline">True</property>
+                            <signal name="Clicked" handler="OnBtnAddOtherGoodsClicked" />
+                          </widget>
+                          <packing>
+                            <property name="Position">0</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <placeholder />
+                        </child>
+                        <child>
+                          <placeholder />
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="Position">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
                     </child>
                   </widget>
                   <packing>
                     <property name="Position">2</property>
                     <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
                   </packing>
                 </child>
               </widget>
               <packing>
-                <property name="Position">2</property>
+                <property name="Position">1</property>
                 <property name="AutoSize">False</property>
               </packing>
             </child>
@@ -41413,13 +41377,13 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Vodovoz.BottleReceptionView" id="bottlereceptionview1">
+                  <widget class="Vodovoz.ViewWidgets.Store.DefectiveItemsReceptionView" id="defectiveitemsreceptionview1">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
-                    <property name="AutoSize">False</property>
+                    <property name="AutoSize">True</property>
                   </packing>
                 </child>
                 <child>
@@ -41439,22 +41403,80 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Vodovoz.ViewWidgets.Store.DefectiveItemsReceptionView" id="defectiveitemsreceptionview1">
+              <widget class="Gtk.VBox" id="vbox7">
                 <property name="MemberName" />
-                <property name="Events">ButtonPressMask</property>
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.HBox" id="hbxTareToReturn">
+                    <property name="MemberName" />
+                    <property name="Spacing">6</property>
+                    <child>
+                      <widget class="Gtk.Label" id="lblTareToReturn">
+                        <property name="MemberName" />
+                        <property name="Xalign">0</property>
+                        <property name="LabelProp" translatable="yes">Тара на возврат:</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.ySpinButton" id="spnTareToReturn">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Upper">100</property>
+                        <property name="PageIncrement">10</property>
+                        <property name="StepIncrement">1</property>
+                        <property name="ClimbRate">1</property>
+                        <property name="Numeric">True</property>
+                        <property name="ValueAsDecimal">0</property>
+                        <property name="ValueAsInt">0</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">False</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gamma.GtkWidgets.yLabel" id="lblTareReturnedBefore">
+                    <property name="MemberName" />
+                    <property name="Xalign">0</property>
+                    <property name="Yalign">0</property>
+                    <property name="UseMarkup">True</property>
+                    <property name="WidthChars">0</property>
+                    <property name="MaxWidthChars">0</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Vodovoz.ReturnsReceptionView" id="returnsreceptionview1">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">True</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="Position">1</property>
-                <property name="AutoSize">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Vodovoz.ReturnsReceptionView" id="returnsreceptionview1">
-                <property name="MemberName" />
-                <property name="Events">ButtonPressMask</property>
-              </widget>
-              <packing>
-                <property name="Position">2</property>
                 <property name="AutoSize">False</property>
               </packing>
             </child>
@@ -43624,7 +43646,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1162 578">
+  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1256 578">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -44493,7 +44515,9 @@ not tooltip</property>
                     <child>
                       <widget class="Gtk.Label" id="labelSelected">
                         <property name="MemberName" />
-                        <property name="LabelProp" translatable="yes">Адресов не выбрано</property>
+                        <property name="LabelProp" translatable="yes">Адресов
+не выбрано</property>
+                        <property name="Justify">Center</property>
                       </widget>
                       <packing>
                         <property name="Position">1</property>
@@ -82541,7 +82565,51 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Phones.PhonesView" design-size="397 53">
+  <widget class="Gtk.Bin" id="Vodovoz.ServiceDialogs.ResendEmailsDialog" design-size="461 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox2">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="QSWidgetLib.DatePicker" id="datepicker1">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+            <property name="WithTime">False</property>
+            <property name="Date">0</property>
+            <property name="IsEditable">True</property>
+            <property name="AutoSeparation">False</property>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonSendErrorSendedEmails">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Переотправить не отправленные</property>
+            <property name="UseUnderline">True</property>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder />
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Phones.PhonesView" design-size="397 56">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -82564,11 +82632,11 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.Button" id="buttonAddPhone">
+          <widget class="Gamma.GtkWidgets.yButton" id="buttonAddPhone">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Type">TextAndIcon</property>
-            <property name="Icon">stock:add Menu</property>
+            <property name="Icon">stock:gtk-add Menu</property>
             <property name="Label" translatable="yes">Добавить</property>
             <property name="UseUnderline">True</property>
           </widget>
