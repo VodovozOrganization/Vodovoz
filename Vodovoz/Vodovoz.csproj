@@ -1222,6 +1222,9 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
     <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
     <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
+    <Compile Include="Dialogs\Phones\PhonesViewModel.cs" />
+    <Compile Include="Dialogs\Phones\PhonesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Phones.PhonesView.cs" />
     <Compile Include="Additions\ManualEmailSender.cs" />
     <Compile Include="ServiceDialogs\ResendEmailsDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ResendEmailsDialog.cs" />
@@ -1436,6 +1439,7 @@
     <Folder Include="JournalColumnsConfigs\" />
     <Folder Include="ViewModels\" />
     <Folder Include="Views\" />
+    <Folder Include="Dialogs\Phones\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
