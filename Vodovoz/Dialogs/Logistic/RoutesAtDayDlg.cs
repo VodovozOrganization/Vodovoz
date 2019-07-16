@@ -934,19 +934,9 @@ namespace Vodovoz
 
 			var route = ((MenuItemId<RouteList>)sender).ID;
 
-			foreach(var order in selectedOrders) {
-				if(order.OrderStatus == OrderStatus.InTravelList) {
-					var alreadyIn = routesAtDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
-					if(alreadyIn == null)
-						throw new InvalidProgramException(string.Format("Маршрутный лист, в котором добавлен заказ {0} не найден.", order.Id));
-					if(alreadyIn.Id == route.Id) // Уже в нужном маршрутном листе.
-						continue;
-					var toRemoveAddress = alreadyIn.Addresses.First(x => x.Order.Id == order.Id);
-					if(toRemoveAddress.IndexInRoute == 0)
-						recalculateLoading = true;
-					alreadyIn.RemoveAddress(toRemoveAddress);
-					UoW.Save(alreadyIn);
-					UoW.Commit();
+			foreach(var order in selectedOrders) {				
+				if(!CheckAlreadyAddedAddress(order)) {
+					return;
 				}
 				var item = route.AddAddressFromOrder(order);
 				if(item.IndexInRoute == 0)
@@ -954,7 +944,9 @@ namespace Vodovoz
 			}
 			route.RecalculatePlanTime(distanceCalculator);
 			route.RecalculatePlanedDistance(distanceCalculator);
-			UoW.Save(route);
+			if(!CheckRouteListWasChanged(route)) {
+				return;
+			}
 			SaveRouteList(route);
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			if(recalculateLoading)
@@ -1005,6 +997,9 @@ namespace Vodovoz
 			var row = ytreeRoutes.GetSelectedObject<RouteListItem>();
 			var route = row.RouteList;
 			route.RemoveAddress(row);
+			if(!CheckRouteListWasChanged(route)) {
+				return;
+			}
 			SaveRouteList(route);
 			route.RecalculatePlanTime(distanceCalculator);
 			route.RecalculatePlanedDistance(distanceCalculator);
@@ -1040,6 +1035,27 @@ namespace Vodovoz
 			get {
 				return !HasNoChanges;
 			}
+		}
+
+		private bool CheckAlreadyAddedAddress(Order order)
+		{
+			RouteListRepository routeListRepository = new RouteListRepository();
+			var routeList = routeListRepository.GetRouteListByOrder(UoW, order);
+			if(routeList == null) {
+				return true;
+			}
+			MessageDialogHelper.RunWarningDialog($"Адрес ({order.DeliveryPoint.CompiledAddress}) уже был кем-то добавлен в МЛ ({routeList.Id}). Обновите данные.");
+			return false;
+		}
+
+		private bool CheckRouteListWasChanged(RouteList routeList)
+		{
+			RouteListRepository routeListRepository = new RouteListRepository();
+			if(routeListRepository.RouteListWasChanged(routeList)) {
+				MessageDialogHelper.RunWarningDialog($"МЛ ({routeList.Id}) уже был кем-то изменен. Обновите данные.");
+				return false;
+			}
+			return true;
 		}
 
 		void RebuildAllRoutes()

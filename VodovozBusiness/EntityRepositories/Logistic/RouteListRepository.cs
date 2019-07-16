@@ -308,6 +308,24 @@ namespace Vodovoz.EntityRepositories.Logistic
 			   .Where(x => x.RouteList.Id == routelistId)
 			   .List();
 		}
+
+		public RouteList GetRouteListByOrder(IUnitOfWork uow, Domain.Orders.Order order)
+		{
+			RouteList routeListAlias = null;
+			RouteListItem routeListItemAlias = null;
+			return uow.Session.QueryOver<RouteList>(() => routeListAlias)
+				.Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
+				.Where(() => routeListItemAlias.Order.Id == order.Id)
+				.List().FirstOrDefault();
+		}
+
+		public bool RouteListWasChanged(RouteList routeList)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				var actualRouteList = uow.GetById<RouteList>(routeList.Id);
+				return actualRouteList.Version != routeList.Version;
+			}
+		}
 	}
 
 	#region DTO
