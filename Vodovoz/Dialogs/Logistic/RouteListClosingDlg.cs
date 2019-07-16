@@ -433,7 +433,7 @@ namespace Vodovoz
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered())
 				foreach(var itm in item.Order.OrderItems)
-					itm.ActualCount = null;
+					itm.ActualCount = 0;
 
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();
