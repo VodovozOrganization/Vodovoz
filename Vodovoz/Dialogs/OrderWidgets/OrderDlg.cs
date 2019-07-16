@@ -145,6 +145,7 @@ namespace Vodovoz
 		{
 			templateOrder = UoW.GetById<Order>(id);
 			Entity.Client = templateOrder.Client;
+			Entity.Author = templateOrder.Author;
 			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
 			Entity.Comment = templateOrder.Comment;
 			Entity.CommentLogist = templateOrder.CommentLogist;
