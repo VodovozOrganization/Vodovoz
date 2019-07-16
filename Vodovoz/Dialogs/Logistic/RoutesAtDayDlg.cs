@@ -32,6 +32,11 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Tools.Logistic;
+using QS.DomainModel.Entity;
+using Vodovoz.Domain.Client;
+using NHibernate.Criterion;
+using Order = Vodovoz.Domain.Orders.Order;
+using NhibernateOrder = NHibernate.Criterion.Order;
 
 namespace Vodovoz
 {
@@ -105,11 +110,40 @@ namespace Vodovoz
 			OnloadTime
 		}
 
+		private class GeographicGroupNode : PropertyChangedBase
+		{
+			private bool selected;
+			public virtual bool Selected {
+				get => selected;
+				set => SetField(ref selected, value, () => Selected);
+			}
+
+			private GeographicGroup geographicGroup;
+			public virtual GeographicGroup GeographicGroup {
+				get => geographicGroup;
+				set => SetField(ref geographicGroup, value, () => GeographicGroup);
+			}
+
+			public GeographicGroupNode(GeographicGroup geographicGroup)
+			{
+				GeographicGroup = geographicGroup ?? throw new ArgumentNullException(nameof(geographicGroup));
+			}
+		}
+
+		GenericObservableList<GeographicGroupNode> geographicGroupNodes;
+
 		public RoutesAtDayDlg()
 		{
 			this.Build();
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+
+			ytreeviewGeographicGroup.ColumnsConfig = FluentColumnsConfig<GeographicGroupNode>.Create()
+				.AddColumn("Выбрать").AddToggleRenderer(x => x.Selected).Editing()
+				.AddColumn("Район города").AddTextRenderer(x => x.GeographicGroup.Name)
+				.Finish();
+			geographicGroupNodes = new GenericObservableList<GeographicGroupNode>(UoW.GetAll<GeographicGroup>().ToList().Select(x => new GeographicGroupNode(x)).ToList());
+			ytreeviewGeographicGroup.ItemsDataSource = geographicGroupNodes;
 
 			if(progressOrders.Adjustment == null)
 				progressOrders.Adjustment = new Adjustment(0, 0, 0, 1, 1, 0);
@@ -615,16 +649,28 @@ namespace Vodovoz
 			MainClass.progressBarWin.ProgressStart(5);
 			UoW.Session.Clear();
 
-			var ordersQuery = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
-				.GetExecutableQueryOver(UoW.Session)
-				.Fetch(SelectMode.Fetch, x => x.DeliveryPoint)
+			DeliveryPoint deliveryPointAlias = null;
+			ScheduleRestrictedDistrict scheduleRestrictedDistrictAlias = null;
+			GeographicGroup geographicGroupAlias = null;
+
+			var baseOrderQuery = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
+				.GetExecutableQueryOver(UoW.Session);
+			var selectedGeographicGroup = geographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
+			if(selectedGeographicGroup.Any()) {
+				baseOrderQuery
+				.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.District, () => scheduleRestrictedDistrictAlias)
+				.Left.JoinAlias(() => scheduleRestrictedDistrictAlias.GeographicGroups, () => geographicGroupAlias)
+				.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
+			}
+				
+			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint)
 				.Future();
 
 			OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session)
 				.Fetch(SelectMode.Fetch, x => x.OrderItems)
 				.Future();
-
 			var withoutTime = ordersQuery.Where(x => x.DeliverySchedule == null).ToList();
 			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.CoordinatesExist).ToList();
 			if(withoutTime.Any() || withoutLocation.Any())
@@ -660,18 +706,14 @@ namespace Vodovoz
 				.GetExecutableQueryOver(UoW.Session);
 			if(!checkShowCompleted.Active)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
+			GeographicGroup routeGeographicGroupAlias = null;
+			if(selectedGeographicGroup.Any()) {
+				routesQuery1
+				.Left.JoinAlias(x => x.GeographicGroups, () => routeGeographicGroupAlias)
+				.Where(Restrictions.In(Projections.Property(() => routeGeographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
+			}
 			var routesQuery = routesQuery1
 				.Fetch(SelectMode.Undefined, x => x.Addresses)
-				.Future();
-
-			var routesQuery2 = new RouteListRepository().GetRoutesAtDay(ydateForRoutes.Date)
-				.GetExecutableQueryOver(UoW.Session);
-			if(!checkShowCompleted.Active)
-				routesQuery2.Where(x => x.Status == RouteListStatus.New);
-			routesQuery2
-				.Where(x => x.Status == RouteListStatus.New)
-				.Fetch(SelectMode.Fetch, x => x.Driver)
-				.Fetch(SelectMode.Fetch, x => x.Car)
 				.Future();
 
 			routesAtDay = routesQuery.ToList();
