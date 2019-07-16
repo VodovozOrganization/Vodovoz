@@ -43783,6 +43783,7 @@ not tooltip</property>
                 <child>
                   <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow3">
                     <property name="MemberName" />
+                    <property name="HscrollbarPolicy">Never</property>
                     <property name="ShadowType">In</property>
                     <child>
                       <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewGeographicGroup">
@@ -43794,12 +43795,11 @@ not tooltip</property>
                   </widget>
                   <packing>
                     <property name="BottomAttach">2</property>
-                    <property name="AutoSize">True</property>
-                    <property name="YOptions">Fill</property>
+                    <property name="AutoSize">False</property>
                     <property name="XExpand">True</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
+                    <property name="YExpand">True</property>
                     <property name="YFill">True</property>
                     <property name="YShrink">False</property>
                   </packing>
@@ -43980,13 +43980,12 @@ not tooltip</property>
                 <property name="BottomAttach">2</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
-                <property name="AutoSize">True</property>
-                <property name="YOptions">0</property>
+                <property name="AutoSize">False</property>
                 <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">False</property>
+                <property name="YExpand">True</property>
+                <property name="YFill">True</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>

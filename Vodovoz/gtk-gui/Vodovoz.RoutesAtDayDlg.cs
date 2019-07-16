@@ -212,6 +212,7 @@ namespace Vodovoz
 			// Container child table2.Gtk.Table+TableChild
 			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
+			this.GtkScrolledWindow3.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
 			this.ytreeviewGeographicGroup = new global::Gamma.GtkWidgets.yTreeView();
@@ -221,7 +222,6 @@ namespace Vodovoz
 			this.table2.Add(this.GtkScrolledWindow3);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table2[this.GtkScrolledWindow3]));
 			w7.BottomAttach = ((uint)(2));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
@@ -330,7 +330,6 @@ namespace Vodovoz
 			w15.BottomAttach = ((uint)(2));
 			w15.LeftAttach = ((uint)(3));
 			w15.RightAttach = ((uint)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child table1.Gtk.Table+TableChild
 			this.textOrdersInfo = new global::Gtk.TextView();
 			this.textOrdersInfo.CanFocus = true;

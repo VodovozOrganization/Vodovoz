@@ -993,6 +993,11 @@ namespace Vodovoz
 
 		void AddToRLItem_Activated(object sender, EventArgs e)
 		{
+			if(yspeccomboboxCashSubdivision.IsSelectedNot || ClosingSubdivision == null) {
+				MessageDialogHelper.RunWarningDialog("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
+				return;
+			}
+
 			bool recalculateLoading = false;
 			var selectedOrders = GetSelectedOrders();
 
@@ -1084,15 +1089,10 @@ namespace Vodovoz
 
 		private void SaveRouteList(RouteList routeList)
 		{
-			if(yspeccomboboxCashSubdivision.IsSelectedNot || ClosingSubdivision == null) {
-				MessageDialogHelper.RunWarningDialog("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
-				return;
-			}
 			RebuildAllRoutes();
 			UoW.Save(routeList);
 			UoW.Commit();
 			HasNoChanges = true;
-			FillDialogAtDay();
 		}
 
 		public override bool HasChanges {
