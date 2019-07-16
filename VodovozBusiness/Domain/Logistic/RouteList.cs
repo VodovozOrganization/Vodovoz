@@ -378,6 +378,13 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref printed, value, () => Printed);
 		}
 
+		private bool addressesOrderWasChangedAfterPrinted;
+		[Display(Name = "Был изменен порядок адресов после печати")]
+		public virtual bool AddressesOrderWasChangedAfterPrinted {
+			get => addressesOrderWasChangedAfterPrinted;
+			set => SetField(ref addressesOrderWasChangedAfterPrinted, value, () => AddressesOrderWasChangedAfterPrinted);
+		}
+
 		string mileageComment;
 
 		[Display(Name = "Комментарий к километражу")]
@@ -593,8 +600,12 @@ namespace Vodovoz.Domain.Logistic
 					continue;
 				}
 
-				if(Addresses[i].IndexInRoute != i)
+				if(Addresses[i].IndexInRoute != i) {
+					if(Printed) {
+						AddressesOrderWasChangedAfterPrinted = true;
+					}
 					Addresses[i].IndexInRoute = i;
+				}
 			}
 		}
 

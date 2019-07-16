@@ -31,6 +31,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OnloadTimeFixed).Column("on_load_time_fixed");
 			Map(x => x.PlanedDistance).Column("plan_distance");
 			Map(x => x.Printed).Column("printed");
+			Map(x => x.AddressesOrderWasChangedAfterPrinted).Column("addresses_order_was_changed_after_printed");
 			Map(x => x.RecalculatedDistance).Column("recalculated_distance");
 			Map(x => x.MileageComment).Column("mileage_comment");
 			Map(x => x.MileageCheck).Column("mileage_check");
