@@ -1814,6 +1814,7 @@ namespace Vodovoz
 				Entity.DeliveryPoint = originalOrder?.DeliveryPoint;
 			}
 			CheckSameOrders();
+			Entity.ChangeOrderContract();
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
