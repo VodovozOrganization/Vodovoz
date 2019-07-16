@@ -208,7 +208,6 @@ namespace Vodovoz
 			ydateForRoutes.Date = DateTime.Today;
 
 			yspinMaxTime.Binding.AddBinding(optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt);
-			btnRefresh.Clicked += OnButtonCancelChangesClicked;
 
 			var subdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!subdivisions.Any()) {
@@ -947,6 +946,7 @@ namespace Vodovoz
 						recalculateLoading = true;
 					alreadyIn.RemoveAddress(toRemoveAddress);
 					UoW.Save(alreadyIn);
+					UoW.Commit();
 				}
 				var item = route.AddAddressFromOrder(order);
 				if(item.IndexInRoute == 0)
@@ -955,6 +955,7 @@ namespace Vodovoz
 			route.RecalculatePlanTime(distanceCalculator);
 			route.RecalculatePlanedDistance(distanceCalculator);
 			UoW.Save(route);
+			SaveRouteList(route);
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			if(recalculateLoading)
 				RecalculateOnLoadTime();
@@ -999,25 +1000,12 @@ namespace Vodovoz
 			return orders;
 		}
 
-		protected void OnButtonSaveChangesClicked(object sender, EventArgs e)
-		{
-			Save();
-		}
-
-		protected void OnButtonCancelChangesClicked(object sender, EventArgs e)
-		{
-			UoW.Session.Clear();
-			HasNoChanges = true;
-			FillDialogAtDay();
-		}
-
 		protected void OnButtonRemoveAddressClicked(object sender, EventArgs e)
 		{
 			var row = ytreeRoutes.GetSelectedObject<RouteListItem>();
 			var route = row.RouteList;
 			route.RemoveAddress(row);
-			UoW.Save(route);
-			UpdateAddressesOnMap();
+			SaveRouteList(route);
 			route.RecalculatePlanTime(distanceCalculator);
 			route.RecalculatePlanedDistance(distanceCalculator);
 			RoutesWasUpdated();
@@ -1026,29 +1014,26 @@ namespace Vodovoz
 		protected void OnCheckShowCompletedToggled(object sender, EventArgs e)
 		{
 			FillDialogAtDay();
-			buttonSaveChanges.Sensitive = !checkShowCompleted.Active;
 		}
 
 		#region TDIDialog
 
 		public override bool Save()
 		{
+			return false;
+		}
+
+		private void SaveRouteList(RouteList routeList)
+		{
 			if(yspeccomboboxCashSubdivision.IsSelectedNot || ClosingSubdivision == null) {
 				MessageDialogHelper.RunWarningDialog("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
-				return false;
+				return;
 			}
-			//Перестраиваем все маршруты
 			RebuildAllRoutes();
-			routesAtDay.ToList().ForEach(x => {
-				x.ClosingSubdivision = ClosingSubdivision;
-				UoW.Save(x);
-			});
-			//DriversAtDay.ToList().ForEach(x => uow.Save(x));
-			//ForwardersAtDay.ToList().ForEach(x => uow.Save(x));
+			UoW.Save(routeList);
 			UoW.Commit();
 			HasNoChanges = true;
 			FillDialogAtDay();
-			return true;
 		}
 
 		public override bool HasChanges {
