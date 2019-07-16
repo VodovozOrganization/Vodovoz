@@ -209,7 +209,6 @@ namespace Vodovoz.Domain.Cash.CashTransfer
 
 			try {
 				CashTransferOperation newCashTransferOperation = new CashTransferOperation {
-					CashTransferDocument = this,
 					SubdivisionFrom = CashSubdivisionFrom,
 					SubdivisionTo = CashSubdivisionTo,
 					TransferedSum = TransferedSum,

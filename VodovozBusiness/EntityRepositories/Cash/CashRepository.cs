@@ -89,8 +89,8 @@ namespace Vodovoz.EntityRepositories.Cash
 		{
 			CashTransferOperation cashTransferOperationAlias = null;
 			CashTransferDocumentBase cashTransferDocumentAlias = null;
-			return uow.Session.QueryOver<CashTransferOperation>(() => cashTransferOperationAlias)
-				.Left.JoinAlias(() => cashTransferOperationAlias.CashTransferDocument, () => cashTransferDocumentAlias)
+			return uow.Session.QueryOver<CashTransferDocumentBase>(() => cashTransferDocumentAlias)
+				.Left.JoinAlias(() => cashTransferDocumentAlias.CashTransferOperation, () => cashTransferOperationAlias)
 				.Where(() => cashTransferDocumentAlias.Status != CashTransferDocumentStatuses.Received)
 				.Where(() => cashTransferDocumentAlias.Status != CashTransferDocumentStatuses.New)
 				.Where(() => cashTransferOperationAlias.ReceiveTime == null)
