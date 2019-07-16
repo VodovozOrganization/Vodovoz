@@ -138,11 +138,33 @@ namespace Vodovoz
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
+			Employee currentEmployee = ServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
+			if(currentEmployee == null) {
+				MessageDialogHelper.RunWarningDialog("Ваш пользователь не привязан к сотруднику, продолжение работы невозможно");
+				FailInitialize = true;
+				return;
+			}
+
+			if(currentEmployee.Subdivision == null) {
+				MessageDialogHelper.RunWarningDialog("У сотрудника не указано подразделение, продолжение работы невозможно");
+				FailInitialize = true;
+				return;
+			}
+			GeographicGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
+
 			ytreeviewGeographicGroup.ColumnsConfig = FluentColumnsConfig<GeographicGroupNode>.Create()
 				.AddColumn("Выбрать").AddToggleRenderer(x => x.Selected).Editing()
 				.AddColumn("Район города").AddTextRenderer(x => x.GeographicGroup.Name)
 				.Finish();
 			geographicGroupNodes = new GenericObservableList<GeographicGroupNode>(UoW.GetAll<GeographicGroup>().ToList().Select(x => new GeographicGroupNode(x)).ToList());
+
+			if(employeeGeographicGroup != null) {
+				var foundGeoGroup = geographicGroupNodes.FirstOrDefault(x => x.GeographicGroup.Id == employeeGeographicGroup.Id);
+				if(foundGeoGroup != null) {
+					foundGeoGroup.Selected = true;
+				}
+			}
+
 			ytreeviewGeographicGroup.ItemsDataSource = geographicGroupNodes;
 
 			if(progressOrders.Adjustment == null)
