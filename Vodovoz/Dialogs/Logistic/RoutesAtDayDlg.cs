@@ -703,8 +703,8 @@ namespace Vodovoz
 
 			int.TryParse(ySpnMin19Btls.Text, out int minBtls);
 			ordersAtDay = ordersQuery.Where(x => x.DeliverySchedule != null)
-									 .Where(x => x.DeliverySchedule.To >= ytimeToDeliveryFrom.Time)
-									 .Where(x => x.DeliverySchedule.To <= ytimeToDeliveryTo.Time)
+									 .Where(x => x.DeliverySchedule.From >= ytimeToDeliveryFrom.Time)
+									 .Where(x => x.DeliverySchedule.From <= ytimeToDeliveryTo.Time)
 									 .Where(x => x.DeliveryPoint != null)
 									 .Where(o => o.Total19LBottlesToDeliver >= minBtls)
 									 .ToList()
