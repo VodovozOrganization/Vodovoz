@@ -861,11 +861,16 @@ namespace Vodovoz
 			logger.Info("Ок.");
 		}
 
-		protected void OnYdateForRoutesDateChanged(object sender, EventArgs e)
+		private void Refresh()
 		{
 			FillDialogAtDay();
 			FillFullOrdersInfo();
 			OnTabNameChanged();
+		}
+
+		protected void OnYdateForRoutesDateChanged(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		protected void OnYenumcomboMapTypeChangedByUser(object sender, EventArgs e)
@@ -1011,12 +1016,22 @@ namespace Vodovoz
 				if(item.IndexInRoute == 0)
 					recalculateLoading = true;
 			}
-			route.RecalculatePlanTime(distanceCalculator);
-			route.RecalculatePlanedDistance(distanceCalculator);
 			if(!CheckRouteListWasChanged(route)) {
 				return;
 			}
-			SaveRouteList(route);
+			try {
+				route.RecalculatePlanTime(distanceCalculator);
+				route.RecalculatePlanedDistance(distanceCalculator);
+				SaveRouteList(route);
+			} catch(Exception ex) {
+				MessageDialogHelper.RunErrorDialog("Возникла ошибка при добавлении адресов, возможно из-за одновременного добавления одного адреса несколькими пользователями.\n" +
+					"Данные для формирования будут автоматически обновлены для продолжения работы.\n" +
+					"Повторите попытку добавления адресов.\n" +
+					$"Текст ошибки: {ex.Message}", "Ошибка при добавлении адресов");
+				Refresh();
+				return;
+			}
+
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			if(recalculateLoading)
 				RecalculateOnLoadTime();
@@ -1481,6 +1496,11 @@ namespace Vodovoz
 		{
 			distanceCalculator?.Dispose();
 			base.Destroy();
+		}
+
+		protected void OnBtnRefreshClicked(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 	}
 }

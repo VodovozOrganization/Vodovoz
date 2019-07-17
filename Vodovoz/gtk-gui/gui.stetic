@@ -44484,6 +44484,7 @@ not tooltip</property>
                         <property name="Icon">stock:gtk-refresh Menu</property>
                         <property name="Label" translatable="yes" />
                         <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnBtnRefreshClicked" />
                       </widget>
                       <packing>
                         <property name="Position">0</property>
