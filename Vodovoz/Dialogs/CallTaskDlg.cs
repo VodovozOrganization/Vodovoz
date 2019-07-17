@@ -8,6 +8,7 @@ using Vodovoz.Repositories.Client;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Operations;
 using Vodovoz.ViewModel;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Dialogs
 {
@@ -53,7 +54,8 @@ namespace Vodovoz.Dialogs
 			yentryTareReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			yentryTareReturn.Text = Entity.TareReturn.ToString();
 
-			EmployeesVM employeeVM = new EmployeesVM();
+			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
 			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
 			EmployeeyEntryreferencevm.RepresentationModel = employeeVM;
 
