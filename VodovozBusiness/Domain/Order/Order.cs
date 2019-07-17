@@ -618,13 +618,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref addCertificates, value, () => AddCertificates);
 		}
 
-		int tareFromClientByActionBottle;
-		[Display(Name = "Тара по акции \"Бутыль\" от клиента")]
-		public virtual int TareFromClientByActionBottle {
-			get => tareFromClientByActionBottle;
-			set => SetField(ref tareFromClientByActionBottle, value, () => TareFromClientByActionBottle);
-		}
-
 		#endregion
 
 		public virtual bool CanChangeContractor()

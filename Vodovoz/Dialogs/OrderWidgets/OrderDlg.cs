@@ -244,7 +244,6 @@ namespace Vodovoz
 			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
-			yChkActionBottle.Toggled += YChkActionBottle_Toggled;
 			yEntTareActBtlFromClient.ValidationMode = ValidationType.numeric;
 			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount, w => w.Text, new IntToStringValuableConverter()).InitializeFromSource();
 			yEntTareActBtlFromClient.Changed += OnYEntTareActBtlFromClientChanged;
@@ -381,7 +380,11 @@ namespace Vodovoz
 
 			UpdateUIState();
 
-			yChkActionBottle.Toggled += (sender, e) => ControlsActionBottleAccessibility();
+			yChkActionBottle.Toggled += (sender, e) => {
+				IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
+				Entity.RecalculateStockBottles(standartDiscountsService);
+				ControlsActionBottleAccessibility();
+			};
 
 			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
 			HasChanges = true;
@@ -392,6 +395,7 @@ namespace Vodovoz
 		{
 			bool canAddAction = Entity.CanAddStockBottle() || Entity.IsBottleStock;
 			hboxBottlesByStock.Visible = canAddAction;
+			lblActionBtlTareFromClient.Visible = yEntTareActBtlFromClient.Visible = yChkActionBottle.Active;
 			hboxReturnTare.Visible = !canAddAction;
 			yEntTareActBtlFromClient.Sensitive = canAddAction;
 		}
@@ -1157,12 +1161,6 @@ namespace Vodovoz
 		}
 
 		#endregion
-
-		void YChkActionBottle_Toggled(object sender, EventArgs e)
-		{
-			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
-			Entity.RecalculateStockBottles(standartDiscountsService);
-		}
 
 		void NomenclatureForSaleSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
