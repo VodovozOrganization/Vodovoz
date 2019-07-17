@@ -10,9 +10,10 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.RepresentationModel.GtkUI;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repositories.HumanResources;
 
@@ -34,7 +35,11 @@ namespace Vodovoz.Representations
 			BottleDebtorsVMNode resultAlias = null;
 			Residue residueAlias = null;
 			CallTask taskAlias = null;
+			OrderItem orderItemAlias = null;
 			Domain.Orders.Order orderAlias = null;
+			BottlesMovementOperation lastOrderBottleMovementOperationAlias = null;
+			DiscountReason discountReasonAlias = null;
+			Nomenclature nomenclatureAlias = null;
 
 			var pointsQuery = UoW.Session.QueryOver(() => deliveryPointAlias)
 			.Where(() => deliveryPointAlias.IsActive == true);
@@ -64,8 +69,11 @@ namespace Vodovoz.Representations
 
 			var LastOrderQuery = UoW.Session.QueryOver(() => orderAlias)
 				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointOrderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				//.JoinAlias(c => c.OrderItems, () => orderItemAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				//.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				//.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where((x) => x.DeliveryPoint.Id == deliveryPointAlias.Id)
-				.Select((x) => x.DeliveryDate)
+				.Select(x => x.DeliveryDate)
 				.OrderBy(() => orderAlias.Id).Desc
 				.Take(1);
 
@@ -104,8 +112,8 @@ namespace Vodovoz.Representations
 
 			if(Filter.StartDate != null && Filter.EndDate != null)
 				debtorslist = debtorslist.Where((arg) => Filter.StartDate.Value <= arg.LastOrderDate && arg.LastOrderDate <= Filter.EndDate.Value).ToList();
-			if(Filter.DebtFrom != null && Filter.DebtBy != null)
-				debtorslist = debtorslist.Where((arg) => Filter.DebtFrom.Value <= arg.DebtByAddress && arg.DebtByAddress <= Filter.DebtBy.Value).ToList();
+			if(Filter.DebtBottlesFrom != null && Filter.DebtBottlesTo!= null)
+				debtorslist = debtorslist.Where((arg) => Filter.DebtBottlesFrom.Value <= arg.DebtByAddress && arg.DebtByAddress <= Filter.DebtBottlesTo.Value).ToList();
 
 			SetItemsSource(debtorslist);
 		}
@@ -241,7 +249,7 @@ namespace Vodovoz.Representations
 
 		public PersonType OPF { get; set; }
 
-		public DateTime? LastOrderDate { get; set; }
+		//public LastOrderNode LastOrder { get; set; }
 
 		public int DebtByAddress { get; set; }
 
@@ -258,5 +266,24 @@ namespace Vodovoz.Representations
 		public bool IsTaskExist { get { return ExistTask != null; } }
 
 		public int? ExistTask { get; set; }
+
+		public DateTime? LastOrderDate { get; set; }
+
+		public int? LastOrderBottles { get; set; }
+
+		public int?[] LastOrderNomenclatureIds { get; set; }
+
+		public int?[] LastOrderDiscountReasonIds { get; set; }
 	}
+
+	//public class LastOrderNode
+	//{
+	//	public DateTime? LastOrderDate { get; set; }
+
+	//	public int? LastOrderBottles { get; set; }
+
+	//	public int?[] LastOrderNomenclatureIds { get; set; }
+
+	//	public int?[] LastOrderDiscountReasonIds { get; set; }
+	//}
 }

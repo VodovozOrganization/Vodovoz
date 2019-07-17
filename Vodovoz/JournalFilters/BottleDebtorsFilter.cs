@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.JournalFilters
 {
@@ -13,9 +14,23 @@ namespace Vodovoz.JournalFilters
 		{
 			entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM();
 			entryreferenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM();
+			yentryreferencevmNomenclature.RepresentationModel = new ViewModel.NomenclatureForSaleVM();
+
 			yenumcomboboxOPF.ItemsEnum = typeof(PersonType);
-			yvalidatedentryDebtFrom.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			yvalidatedentryDebtBy.ValidationMode = QSWidgetLib.ValidationType.numeric;
+
+			entryreferenceClient.Changed += (sender, e) => OnRefiltered();
+			yenumcomboboxOPF.ChangedByUser += (sender, e) => OnRefiltered();
+			entryreferenceDeliveryPoint.ChangedByUser += (sender, e) => OnRefiltered();
+			buttonDebtBottleCountOK.Clicked += (sender, e) => OnRefiltered();
+
+			buttonOrderBottleCountOK.Clicked += (sender, e) => OnRefiltered();
+			ydateperiodpickerLastOrder.PeriodChanged += (sender, e) => OnRefiltered();
+			yentryreferencevmNomenclature.ChangedByUser += (sender, e) => OnRefiltered();
+
+			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
+			ycomboboxReason.ItemsList = UoW?.Session.QueryOver<DiscountReason>().List();
+			ycomboboxReason.Changed += (sender, e) => OnRefiltered();
+
 		}
 
 		public Counterparty Client {
@@ -34,8 +49,23 @@ namespace Vodovoz.JournalFilters
 			}
 		}
 
+		public PersonType? OPF{
+			get { return yenumcomboboxOPF.SelectedItem as PersonType?; }
+			set { yenumcomboboxOPF.SelectedItem = value; }
+		}
+
+		public int? DebtBottlesFrom {
+			get { return (int)yspinbuttonDebtForm.Value; }
+			set { yspinbuttonDebtForm.Value = value.Value; }
+		}
+
+		public int? DebtBottlesTo {
+			get { return (int)yspinbuttonDebtTo.Value; }
+			set { yspinbuttonDebtTo.Value = value.Value; }
+		}
+
 		public DateTime? StartDate {
-			get { return ydateperiodpickerLastOrder.StartDateOrNull ; }
+			get { return ydateperiodpickerLastOrder.StartDateOrNull; }
 			set {
 				ydateperiodpickerLastOrder.StartDate = (DateTime)value;
 				ydateperiodpickerLastOrder.Sensitive = false;
@@ -45,36 +75,29 @@ namespace Vodovoz.JournalFilters
 		public DateTime? EndDate {
 			get { return ydateperiodpickerLastOrder.EndDateOrNull; }
 			set {
-				ydateperiodpickerLastOrder.EndDate = (System.DateTime)value;
+				ydateperiodpickerLastOrder.EndDate = (DateTime)value;
 				ydateperiodpickerLastOrder.Sensitive = false;
 			}
 		}
 
-		public PersonType? OPF{
-			get { return yenumcomboboxOPF.SelectedItem as PersonType?; }
-			set { yenumcomboboxOPF.SelectedItem = value; }
+		public int? LastOrderBottlesFrom {
+			get { return (int)yspinbuttonOrderBottlesFrom.Value; }
+			set { yspinbuttonOrderBottlesFrom.Value = value.Value; }
 		}
 
-		public int? DebtFrom {
-			get {
-				try {
-					return Convert.ToInt32(yvalidatedentryDebtFrom.Text);
-				} catch {
-					return null;
-				}
-			}
-				set { yvalidatedentryDebtFrom.Text += value; }
+		public int? LastOrderBottlesTo {
+			get { return (int)yspinbuttonOrderBottlesTo.Value; }
+			set { yspinbuttonOrderBottlesTo.Value = value.Value; }
 		}
 
-		public int? DebtBy {
-			get {
-				try {
-					return Convert.ToInt32(yvalidatedentryDebtBy.Text);
-				} catch {
-					return null;
-				}
-			}
-			set { yvalidatedentryDebtBy.Text += value; }
+		public Nomenclature LastOrderNomenclature {
+			get { return yentryreferencevmNomenclature.Subject as Nomenclature; }
+			set { yentryreferencevmNomenclature.Subject = value; }
+		}
+
+		public DiscountReason DiscountReason {
+			get { return ycomboboxReason.SelectedItem as DiscountReason; }
+			set { ycomboboxReason.SelectedItem = value; }
 		}
 
 		public BottleDebtorsFilter(IUnitOfWork uow) : this()
@@ -85,32 +108,6 @@ namespace Vodovoz.JournalFilters
 		public BottleDebtorsFilter()
 		{
 			this.Build();
-		}
-
-
-		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnYenumcomboboxOPFChangedByUser(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnYdateperiodpickerLastOrderPeriodChangedByUser(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnEntryreferenceDeliveryPointChangedByUser(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnButtonBottleCountOKClicked(object sender, EventArgs e)
-		{
-			OnRefiltered();
 		}
 	}
 }
