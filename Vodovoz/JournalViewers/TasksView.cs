@@ -161,7 +161,10 @@ namespace Vodovoz.JournalViewers
 				return;
 
 			var selectedObjects = representationtreeviewTask.GetSelectedObjects();
-			var selectedObj = selectedObjects?[0];
+			if(selectedObjects == null || !selectedObjects.Any()) {
+				return;
+			}
+			var selectedObj = selectedObjects[0];
 			var selectedNodeId = (selectedObj as CallTaskVMNode)?.Id;
 			if(selectedNodeId == null)
 				return;
