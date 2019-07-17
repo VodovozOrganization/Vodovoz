@@ -51,6 +51,11 @@ namespace Vodovoz.JournalViewers
 			undeliveredOrdersFilter.Refiltered += (sender, e) => Refresh();
 			vm = new UndeliveredOrdersVM(UoW);
 			vm.Filter = undeliveredOrdersFilter;
+			vm.ItemsUpdated += (sender, e) => {
+				yTreeViewUndeliveries.YTreeModel = new RecursiveTreeModel<UndeliveredOrdersVMNode>(vm.Result, x => x.Parent, x => x.Children);
+				yTreeViewUndeliveries.YTreeModel.EmitModelChanged();
+				yTreeViewUndeliveries.ExpandAll();
+			};
 			Refresh();
 		}
 
@@ -72,6 +77,7 @@ namespace Vodovoz.JournalViewers
 		protected void OnSearchEntityTextChanged(object sender, System.EventArgs e)
 		{
 			yTreeViewUndeliveries.SearchHighlightText = searchEntity.Text;
+			vm.SearchString = searchEntity.Text;
 		}
 
 		protected void OnButtonRefreshClicked(object sender, System.EventArgs e)
