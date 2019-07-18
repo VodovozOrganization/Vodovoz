@@ -13,7 +13,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModelBased;
 using Vodovoz.JournalFilters.QueryFilterViews;
 using NHibernate.Criterion;
-using QS.DomainModel.Config;
+using QS.Commands;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Cash;
 using QS.DomainModel.NotifyChange;

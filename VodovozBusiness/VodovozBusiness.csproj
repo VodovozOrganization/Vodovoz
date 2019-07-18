@@ -585,9 +585,6 @@
     <Compile Include="HibernateMapping\Cash\Transfer\IncomeCashTransferedItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\ExpenseCashTransferedItemMap.cs" />
     <Compile Include="ViewModelBased\ViewModelBase.cs" />
-    <Compile Include="ViewModelBased\PropertySubscribedCommandBase.cs" />
-    <Compile Include="ViewModelBased\DelegateCommandGeneric.cs" />
-    <Compile Include="ViewModelBased\DelegateCommand.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
     <Compile Include="ViewModelBased\ViewModelGeneric.cs" />
     <Compile Include="Filters\IncomeFilter.cs" />
