@@ -38,6 +38,7 @@ namespace Vodovoz.Representations
 			Domain.Orders.Order orderAlias = null;
 			Domain.Orders.Order orderAlias2 = null;
 			Domain.Orders.Order orderAlias3= null;
+			Domain.Orders.Order orderAlias4 = null;
 			OrderItem orderItemAlias = null;
 			OrderItem orderItemAlias2 = null;
 
@@ -82,20 +83,26 @@ namespace Vodovoz.Representations
 				.OrderBy(() => orderAlias.Id).Desc
 				.Take(1);
 
+			var LastOrderIdQuery = UoW.Session.QueryOver(() => orderAlias)
+				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointOrderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Where((x) => x.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.And((x) => x.OrderStatus == OrderStatus.Closed)
+				.Select(x => x.Id)
+				.OrderBy(() => orderAlias.Id).Desc
+				.Take(1);
+
 			var LastOrderNomenclatureQuery = UoW.Session.QueryOver(() => orderAlias2)
 				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointOrderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(c => c.OrderItems, () => orderItemAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(c => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where((x) => x.DeliveryPoint.Id == deliveryPointAlias.Id)
 				.And((x) => x.OrderStatus == OrderStatus.Closed)
-				.SelectList(list => list
 				.Select(Projections.SqlFunction(
 					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
 					NHibernateUtil.String,
 					Projections.Property(() => nomenclatureAlias.Id),
 					Projections.Constant(",")))
-				.SelectGroup(() => orderAlias2.Id)
-				)
+				.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery)
 				.OrderBy(() => orderAlias2.Id).Desc
 				.Take(1);
 
