@@ -5,7 +5,7 @@ using QS.Services;
 using QS.ViewModels;
 using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.ViewModelBased;
+using QS.Commands;
 using System.Linq;
 
 namespace Vodovoz.Dialogs.Phones

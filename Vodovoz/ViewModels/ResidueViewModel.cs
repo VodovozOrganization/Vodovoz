@@ -12,7 +12,7 @@ using QSProjectsLib;
 using QS.RepresentationModel.GtkUI;
 using Vodovoz.ViewModel;
 using Vodovoz.Domain.Client;
-using Vodovoz.ViewModelBased;
+using QS.Commands;
 using Vodovoz.Domain.Goods;
 using System.Linq;
 using Vodovoz.JournalFilters;

@@ -4,7 +4,7 @@ using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using QS.ViewModels;
-using Vodovoz.ViewModelBased;
+using QS.Commands;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QS.RepresentationModel.GtkUI;

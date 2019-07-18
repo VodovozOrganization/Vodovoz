@@ -2,7 +2,7 @@
 using QS.ViewModels;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.ViewModelBased;
+using QS.Commands;
 using Vodovoz.Domain.Employees;
 using QS.RepresentationModel.GtkUI;
 using Vodovoz.ViewModel;
