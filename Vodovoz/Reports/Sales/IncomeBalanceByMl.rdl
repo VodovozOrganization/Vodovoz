@@ -28,14 +28,14 @@
           <BorderColor />
           <BorderWidth />
           <FontWeight>Bold</FontWeight>
-          <FontSize>16pt</FontSize>
+          <FontSize>14pt</FontSize>
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>257.6pt</Height>
+    <Height>289.5pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Income</DataSetName>
@@ -52,7 +52,7 @@
             <Width>20.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>54.9pt</Width>
+            <Width>48.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>41.1pt</Width>
@@ -94,7 +94,7 @@
             <Width>58.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.8pt</Width>
+            <Width>65.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>63.6pt</Width>
@@ -118,7 +118,10 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -137,6 +140,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -155,6 +160,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -173,6 +180,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -191,6 +200,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -209,6 +220,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -227,6 +240,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -246,6 +261,8 @@
                         <Color>Black</Color>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -265,6 +282,8 @@
                         <Color>Black</Color>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -283,6 +302,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -301,6 +322,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -319,13 +342,18 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value>№ Связанного МЛ</Value>
+                      <Value>№ 
+Взаимо
+связанного
+МЛ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -337,6 +365,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -356,13 +386,16 @@
                         <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox105">
-                      <Value>ФИО ответственного</Value>
+                      <Value>ФИО
+ответстве
+нного</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -374,6 +407,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -392,6 +427,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -410,6 +447,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
                       </Style>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -421,7 +460,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>39.0pt</Height>
+              <Height>53.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -437,6 +476,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -455,6 +495,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -473,6 +514,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -491,6 +533,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -509,6 +552,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -527,6 +571,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -545,6 +590,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -563,6 +609,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -581,6 +628,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -599,6 +647,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -617,6 +666,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -635,6 +685,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -653,6 +704,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -664,7 +716,7 @@
                       <Value>=Iif( Fields!FactIncome.IsMissing, 0, {FactIncome}) - 
 Iif( Fields!PlanedIncome.IsMissing, 0,  {PlanedIncome}) - 
 Iif( Fields!NedovozSum.IsMissing, 0,  {NedovozSum}) - 
-Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
+Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -675,6 +727,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BackgroundColor>
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -694,6 +747,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BackgroundColor>
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -740,8 +794,8 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>1.6pt</Left>
-        <Top>20.5pt</Top>
+        <Left>0.8pt</Left>
+        <Top>19.0pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -764,6 +818,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -785,6 +840,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -806,6 +862,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -827,6 +884,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -848,6 +906,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -868,6 +927,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1015,6 +1075,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1036,6 +1097,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1057,6 +1119,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1078,6 +1141,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1099,6 +1163,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1123,7 +1188,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
             <Width>19.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.4pt</Width>
+            <Width>39.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>32.8pt</Width>
@@ -1162,10 +1227,10 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
             <Width>51.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>56.1pt</Width>
+            <Width>53.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>59.3pt</Width>
+            <Width>64.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>73.3pt</Width>
@@ -1414,7 +1479,10 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>№ Связанного МЛ</Value>
+                      <Value>№ 
+Взаимо
+связанного
+МЛ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1432,7 +1500,9 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>ФИО ответственного</Value>
+                      <Value>ФИО
+ответстве
+нного</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1491,7 +1561,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>26.9pt</Height>
+              <Height>43.1pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1507,6 +1577,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1525,6 +1596,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1543,6 +1615,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1561,6 +1634,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1581,6 +1655,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1599,6 +1674,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1617,6 +1693,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1654,6 +1731,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1672,6 +1750,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1690,6 +1769,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1708,6 +1788,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1726,6 +1807,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1744,6 +1826,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1762,6 +1845,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1809,7 +1893,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>165.2pt</Top>
+        <Top>179.6pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1832,6 +1916,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1853,6 +1938,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1874,6 +1960,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1895,6 +1982,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1914,6 +2002,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <Value>
                       </Value>
@@ -1937,6 +2026,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1958,6 +2048,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1978,6 +2069,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2104,6 +2196,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2125,6 +2218,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2146,6 +2240,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2167,6 +2262,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2182,9 +2278,13 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
         <Value>Прочие статусы</Value>
         <ZIndex>1</ZIndex>
         <Left>3.2pt</Left>
-        <Top>148.7pt</Top>
+        <Top>163.1pt</Top>
         <Style>
           <FontWeight>Bold</FontWeight>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <CanShrink>true</CanShrink>
       </Textbox>
@@ -2197,6 +2297,10 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
         <Top>4.60pt</Top>
         <Style>
           <FontWeight>Bold</FontWeight>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
@@ -2212,8 +2316,11 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
         <Width>3in</Width>
         <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
         <Style>
-          <FontSize>10pt</FontSize>
+          <FontSize>8pt</FontSize>
           <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
@@ -2222,7 +2329,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum})</Value>
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     t.*,
@@ -2234,7 +2341,7 @@ FROM
         SELECT 
             route_lists.id AS number,
             SUM(route_list_addresses.extra_cash) AS extra_cash,
-            CI.cash_income_id ,
+            IFNULL(CI.cash_income_id, "-") AS cash_income_id,
             CI.employee_name ,
             route_lists.cashier_review_comment,
             route_lists.closing_comment,
@@ -2251,7 +2358,26 @@ FROM
             IFNULL(nedovoz.nedovoz_sum, 0) AS NedovozSum,
             IFNULL(Transfered.TotalOrdersSum, 0) AS TransferedSum,
             SUM(IFNULL(deposit_operations.received_deposit, 0) - IFNULL(deposit_operations.refund_deposit, 0)) AS DepositsSum,
-            CI.CashIncomeDates,
+            CASE
+                WHEN
+                    (
+                        SELECT 
+                            route_list_addresses.id 
+                        FROM 
+                            route_list_addresses 
+                        WHERE 
+                            route_list_addresses.route_list_id = route_lists.id 
+                            AND route_list_addresses.transfered_to_id IS NULL 
+                            AND route_list_addresses.status != "Canceled" 
+                        LIMIT 1
+                    ) IS NULL THEN "Отмена"
+                WHEN 
+                    CI.CashIncomeDates IS NOT NULL THEN CI.CashIncomeDates
+                WHEN
+                    route_lists.status = "MileageCheck" THEN "км"
+                ELSE 
+                    "б/н"
+            END AS CashIncomeDates,
             CAST((IFNULL(CI.MoneyIncome, 0) - IFNULL(CE.MoneyExpence, 0))
                 AS DECIMAL (10 , 2 )) AS IncMinusExp
         FROM
@@ -2269,12 +2395,12 @@ FROM
                 FROM
                     orders
                     LEFT JOIN order_items ON order_items.order_id = orders.id
-                        AND orders.payment_type = 'cash'
+                        AND orders.payment_type IN ('cash','BeveragesWorld')
                     LEFT JOIN deposit_operations ON deposit_operations.order_id = order_items.order_id
                     LEFT JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
                 WHERE
-                    route_list_addresses.transfered_to_id IS NULL
-                    AND route_list_addresses.was_transfered = 0
+                    #route_list_addresses.transfered_to_id IS NULL
+                    route_list_addresses.was_transfered = 0
                 GROUP BY orders.id
             ) AS Orders ON Orders.order_id = route_list_addresses.order_id
             LEFT JOIN 
@@ -2357,7 +2483,7 @@ FROM
                     route_list_id,
                     GROUP_CONCAT( cash_income.id SEPARATOR ', ') AS cash_income_id,
                         SUM(IFNULL(cash_income.money, 0)) AS MoneyIncome,
-                        GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y')
+                        GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%y')
                             SEPARATOR ', ') AS CashIncomeDates
                 FROM
                     cash_income
@@ -2390,7 +2516,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2425,7 +2551,7 @@ FROM
         </Field>
         <Field Name="CashIncomeDates">
           <DataField>CashIncomeDates</DataField>
-          <TypeName>System.String</TypeName>
+          <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="IncMinusExp">
           <DataField>IncMinusExp</DataField>
@@ -2593,7 +2719,7 @@ FROM
                     ) SEPARATOR ', ' ) AS employee_name,
                     GROUP_CONCAT( cash_income.id SEPARATOR ', ') AS cash_income_id,
                     SUM(IFNULL(cash_income.money, 0)) as MoneyIncome,
-                    GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%Y' ) SEPARATOR ', ') as CashIncomeDates
+                    GROUP_CONCAT(DISTINCT DATE_FORMAT(cash_income.date, '%d.%m.%y' ) SEPARATOR ', ') as CashIncomeDates
                 FROM cash_income
                 LEFT JOIN employees ON employees.id = cash_income.employee_id
                 GROUP BY
