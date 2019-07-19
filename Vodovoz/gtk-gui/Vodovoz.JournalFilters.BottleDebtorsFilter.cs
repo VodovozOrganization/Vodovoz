@@ -72,6 +72,7 @@ namespace Vodovoz.JournalFilters
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -101,7 +102,7 @@ namespace Vodovoz.JournalFilters
 			this.hboxBottleDebtCount.Name = "hboxBottleDebtCount";
 			this.hboxBottleDebtCount.Spacing = 6;
 			// Container child hboxBottleDebtCount.Gtk.Box+BoxChild
-			this.yspinbuttonDebtForm = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.yspinbuttonDebtForm = new global::Gamma.GtkWidgets.ySpinButton(-100D, 100D, 1D);
 			this.yspinbuttonDebtForm.CanFocus = true;
 			this.yspinbuttonDebtForm.Name = "yspinbuttonDebtForm";
 			this.yspinbuttonDebtForm.Adjustment.PageIncrement = 10D;
@@ -122,7 +123,7 @@ namespace Vodovoz.JournalFilters
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hboxBottleDebtCount.Gtk.Box+BoxChild
-			this.yspinbuttonDebtTo = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.yspinbuttonDebtTo = new global::Gamma.GtkWidgets.ySpinButton(-100D, 100D, 1D);
 			this.yspinbuttonDebtTo.CanFocus = true;
 			this.yspinbuttonDebtTo.Name = "yspinbuttonDebtTo";
 			this.yspinbuttonDebtTo.Adjustment.PageIncrement = 10D;
@@ -231,7 +232,7 @@ namespace Vodovoz.JournalFilters
 			this.hboxBottlesCount.Name = "hboxBottlesCount";
 			this.hboxBottlesCount.Spacing = 6;
 			// Container child hboxBottlesCount.Gtk.Box+BoxChild
-			this.yspinbuttonOrderBottlesFrom = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.yspinbuttonOrderBottlesFrom = new global::Gamma.GtkWidgets.ySpinButton(-100D, 100D, 1D);
 			this.yspinbuttonOrderBottlesFrom.CanFocus = true;
 			this.yspinbuttonOrderBottlesFrom.Name = "yspinbuttonOrderBottlesFrom";
 			this.yspinbuttonOrderBottlesFrom.Adjustment.PageIncrement = 10D;
@@ -252,7 +253,7 @@ namespace Vodovoz.JournalFilters
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child hboxBottlesCount.Gtk.Box+BoxChild
-			this.yspinbuttonOrderBottlesTo = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.yspinbuttonOrderBottlesTo = new global::Gamma.GtkWidgets.ySpinButton(-100D, 100D, 1D);
 			this.yspinbuttonOrderBottlesTo.CanFocus = true;
 			this.yspinbuttonOrderBottlesTo.Name = "yspinbuttonOrderBottlesTo";
 			this.yspinbuttonOrderBottlesTo.Adjustment.PageIncrement = 10D;

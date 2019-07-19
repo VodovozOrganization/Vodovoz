@@ -72011,6 +72011,7 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonDebtForm">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
+                    <property name="Lower">-100</property>
                     <property name="Upper">100</property>
                     <property name="PageIncrement">10</property>
                     <property name="StepIncrement">1</property>
@@ -72040,6 +72041,7 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonDebtTo">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
+                    <property name="Lower">-100</property>
                     <property name="Upper">100</property>
                     <property name="PageIncrement">10</property>
                     <property name="StepIncrement">1</property>
@@ -72220,6 +72222,7 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonOrderBottlesFrom">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
+                    <property name="Lower">-100</property>
                     <property name="Upper">100</property>
                     <property name="PageIncrement">10</property>
                     <property name="StepIncrement">1</property>
@@ -72249,6 +72252,7 @@ not tooltip</property>
                   <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonOrderBottlesTo">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
+                    <property name="Lower">-100</property>
                     <property name="Upper">100</property>
                     <property name="PageIncrement">10</property>
                     <property name="StepIncrement">1</property>
