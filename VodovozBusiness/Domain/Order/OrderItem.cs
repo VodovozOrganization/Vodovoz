@@ -344,6 +344,10 @@ namespace Vodovoz.Domain.Orders
 
 		void RemoveDiscount()
 		{
+			if(DiscountMoney > 0) {
+				OriginalDiscountMoney = DiscountMoney;
+				OriginalDiscountReason = DiscountReason;
+			}
 			IsDiscountInMoney = false;
 			DiscountReason = null;
 			DiscountMoney = 0;
