@@ -448,10 +448,12 @@ namespace Vodovoz.Domain.Logistic
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatus(OrderStatus.Shipped);
 					Order.TimeDelivered = DateTime.Now;
+					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(OrderStatus.OnTheWay);
 					Order.TimeDelivered = null;
+					RestoreOrder();
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.ChangeStatus(OrderStatus.NotDelivered);
@@ -634,15 +636,34 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual void FillCountsOnCanceled()
 		{
-			foreach(var item in Order.OrderItems)
+			foreach(var item in Order.OrderItems) {
+				item.OriginalDiscountMoney = item.DiscountMoney > 0 ? (decimal?)item.DiscountMoney : null;
+				item.OriginalDiscountReason = item.DiscountMoney > 0 ? item.DiscountReason : null;
 				item.ActualCount = 0;
-
+			}
 			foreach(var equip in Order.OrderEquipments)
 				equip.ActualCount = 0;
 
 			foreach(var deposit in Order.OrderDepositItems)
 				deposit.ActualCount = 0;
+		}
 
+		private void RestoreOrder()
+		{
+			foreach(var item in Order.OrderItems) {
+				item.IsDiscountInMoney = true;
+				item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
+				item.DiscountReason = item.OriginalDiscountReason;
+				item.OriginalDiscountMoney = null;
+				item.OriginalDiscountReason = null;
+				item.ActualCount = item.Count;
+			}
+
+			foreach(var equip in Order.OrderEquipments)
+				equip.ActualCount = equip.Count;
+
+			foreach(var deposit in Order.OrderDepositItems)
+				deposit.ActualCount = deposit.Count;
 		}
 
 		public virtual bool FillBottleMovementOperation(IStandartNomenclatures standartNomenclatures , out BottlesMovementOperation bottlesMovementOperation)
