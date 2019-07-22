@@ -83,6 +83,7 @@ namespace Vodovoz.ViewModel
 		public EmployeesVM()
 		{
 			CreateDisposableUoW();
+			CreateRepresentationFilter = () => new EmployeeFilterViewModel(ServicesConfig.CommonServices) { ShowFired = false };
 		}
 
 		public EmployeesVM(IUnitOfWork uow)
