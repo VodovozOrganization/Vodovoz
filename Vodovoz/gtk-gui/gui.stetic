@@ -29585,7 +29585,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -71858,10 +71857,6 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="Visible">False</property>
                 <property name="Events">ButtonPressMask</property>
-                <property name="DebtBottlesFrom">0</property>
-                <property name="DebtBottlesTo">0</property>
-                <property name="LastOrderBottlesFrom">0</property>
-                <property name="LastOrderBottlesTo">0</property>
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -71949,7 +71944,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.JournalFilters.BottleDebtorsFilter" design-size="691 155">
+  <widget class="Gtk.Bin" id="Vodovoz.JournalFilters.BottleDebtorsFilter" design-size="1052 155">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -72008,21 +72003,18 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonDebtForm">
+                  <widget class="Gamma.Widgets.yValidatedEntry" id="yvalidatedentryDebtFrom">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Lower">-100</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
-                    <property name="ValueAsDecimal">0</property>
-                    <property name="ValueAsInt">0</property>
+                    <property name="IsEditable">True</property>
+                    <property name="InvisibleChar">•</property>
+                    <signal name="Changed" handler="OnYvalidatedentryDebtFromChanged" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>
-                    <property name="AutoSize">False</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
                   </packing>
                 </child>
                 <child>
@@ -72038,21 +72030,18 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonDebtTo">
+                  <widget class="Gamma.Widgets.yValidatedEntry" id="yvalidatedentryDebtTo">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Lower">-100</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
-                    <property name="ValueAsDecimal">0</property>
-                    <property name="ValueAsInt">0</property>
+                    <property name="IsEditable">True</property>
+                    <property name="InvisibleChar">•</property>
+                    <signal name="Changed" handler="OnYvalidatedentryDebtToChanged" />
                   </widget>
                   <packing>
                     <property name="Position">2</property>
-                    <property name="AutoSize">False</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
                   </packing>
                 </child>
                 <child>
@@ -72219,21 +72208,18 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonOrderBottlesFrom">
+                  <widget class="Gamma.Widgets.yValidatedEntry" id="yvalidatedentryBottlesFrom">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Lower">-100</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
-                    <property name="ValueAsDecimal">0</property>
-                    <property name="ValueAsInt">0</property>
+                    <property name="IsEditable">True</property>
+                    <property name="InvisibleChar">•</property>
+                    <signal name="Changed" handler="OnYvalidatedentryBottlesFromChanged" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>
-                    <property name="AutoSize">False</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
                   </packing>
                 </child>
                 <child>
@@ -72249,21 +72235,18 @@ not tooltip</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonOrderBottlesTo">
+                  <widget class="Gamma.Widgets.yValidatedEntry" id="yvalidatedentryBottlesTo">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Lower">-100</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
-                    <property name="ValueAsDecimal">0</property>
-                    <property name="ValueAsInt">0</property>
+                    <property name="IsEditable">True</property>
+                    <property name="InvisibleChar">•</property>
+                    <signal name="Changed" handler="OnYvalidatedentryBottlesToChanged" />
                   </widget>
                   <packing>
                     <property name="Position">2</property>
-                    <property name="AutoSize">False</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
                   </packing>
                 </child>
                 <child>

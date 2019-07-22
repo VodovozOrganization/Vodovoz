@@ -171,8 +171,10 @@ namespace Vodovoz.Representations
 				filteredList = filteredList.Where(x => x.LastOrderDiscountReasonIds != null && x.LastOrderDiscountReasonIds.Contains(Filter.DiscountReason.Id.ToString()));
 			if(Filter.StartDate != null && Filter.EndDate != null)
 				filteredList = filteredList.Where((arg) => Filter.StartDate.Value <= arg.LastOrderDate && arg.LastOrderDate <= Filter.EndDate.Value);
-			if(Filter.DebtBottlesFrom != null && Filter.DebtBottlesTo!= null)
-				filteredList = filteredList.Where((arg) => Filter.DebtBottlesFrom.Value <= arg.DebtByAddress && arg.DebtByAddress <= Filter.DebtBottlesTo.Value);
+			if(Filter.DebtBottlesFrom != null)
+				filteredList = filteredList.Where((arg) => Filter.DebtBottlesFrom.Value <= arg.DebtByAddress);
+			if(Filter.DebtBottlesTo != null)
+				filteredList = filteredList.Where((arg) => arg.DebtByAddress <= Filter.DebtBottlesTo.Value);
 			if(Filter.LastOrderBottlesFrom != null)
 				filteredList = filteredList.Where(arg => arg.LastOrderBottles >= Filter.LastOrderBottlesFrom);
 			if(Filter.LastOrderBottlesTo != null)
@@ -194,9 +196,6 @@ namespace Vodovoz.Representations
 			.AddColumn("Долг по таре (по клиенту)").AddTextRenderer(node => node.DebtByClient.ToString())
 			.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidue ? "есть" : "нет")
 			.AddColumn("Резерв").AddTextRenderer(node => node.Reserve.ToString())
-			.AddColumn("Nom").AddTextRenderer(node => node.LastOrderNomenclatureIds)
-			.AddColumn("Dis").AddTextRenderer(node => node.LastOrderDiscountReasonIds)
-			.AddColumn("Bottles").AddTextRenderer(node => node.LastOrderBottles.ToString())
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 

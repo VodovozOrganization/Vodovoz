@@ -14,11 +14,11 @@ namespace Vodovoz.JournalFilters
 
 		private global::Gtk.HBox hboxBottleDebtCount;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonDebtForm;
+		private global::Gamma.Widgets.yValidatedEntry yvalidatedentryDebtFrom;
 
 		private global::Gtk.Label label6;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonDebtTo;
+		private global::Gamma.Widgets.yValidatedEntry yvalidatedentryDebtTo;
 
 		private global::Gtk.Button buttonDebtBottleCountOK;
 
@@ -38,11 +38,11 @@ namespace Vodovoz.JournalFilters
 
 		private global::Gtk.HBox hboxBottlesCount;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonOrderBottlesFrom;
+		private global::Gamma.Widgets.yValidatedEntry yvalidatedentryBottlesFrom;
 
 		private global::Gtk.Label label8;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonOrderBottlesTo;
+		private global::Gamma.Widgets.yValidatedEntry yvalidatedentryBottlesTo;
 
 		private global::Gtk.Button buttonOrderBottleCountOK;
 
@@ -102,17 +102,16 @@ namespace Vodovoz.JournalFilters
 			this.hboxBottleDebtCount.Name = "hboxBottleDebtCount";
 			this.hboxBottleDebtCount.Spacing = 6;
 			// Container child hboxBottleDebtCount.Gtk.Box+BoxChild
-			this.yspinbuttonDebtForm = new global::Gamma.GtkWidgets.ySpinButton(-100D, 100D, 1D);
-			this.yspinbuttonDebtForm.CanFocus = true;
-			this.yspinbuttonDebtForm.Name = "yspinbuttonDebtForm";
-			this.yspinbuttonDebtForm.Adjustment.PageIncrement = 10D;
-			this.yspinbuttonDebtForm.ClimbRate = 1D;
-			this.yspinbuttonDebtForm.Numeric = true;
-			this.yspinbuttonDebtForm.ValueAsDecimal = 0m;
-			this.yspinbuttonDebtForm.ValueAsInt = 0;
-			this.hboxBottleDebtCount.Add(this.yspinbuttonDebtForm);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxBottleDebtCount[this.yspinbuttonDebtForm]));
+			this.yvalidatedentryDebtFrom = new global::Gamma.Widgets.yValidatedEntry();
+			this.yvalidatedentryDebtFrom.CanFocus = true;
+			this.yvalidatedentryDebtFrom.Name = "yvalidatedentryDebtFrom";
+			this.yvalidatedentryDebtFrom.IsEditable = true;
+			this.yvalidatedentryDebtFrom.InvisibleChar = '•';
+			this.hboxBottleDebtCount.Add(this.yvalidatedentryDebtFrom);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxBottleDebtCount[this.yvalidatedentryDebtFrom]));
 			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
 			// Container child hboxBottleDebtCount.Gtk.Box+BoxChild
 			this.label6 = new global::Gtk.Label();
 			this.label6.Name = "label6";
@@ -123,17 +122,16 @@ namespace Vodovoz.JournalFilters
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hboxBottleDebtCount.Gtk.Box+BoxChild
-			this.yspinbuttonDebtTo = new global::Gamma.GtkWidgets.ySpinButton(-100D, 100D, 1D);
-			this.yspinbuttonDebtTo.CanFocus = true;
-			this.yspinbuttonDebtTo.Name = "yspinbuttonDebtTo";
-			this.yspinbuttonDebtTo.Adjustment.PageIncrement = 10D;
-			this.yspinbuttonDebtTo.ClimbRate = 1D;
-			this.yspinbuttonDebtTo.Numeric = true;
-			this.yspinbuttonDebtTo.ValueAsDecimal = 0m;
-			this.yspinbuttonDebtTo.ValueAsInt = 0;
-			this.hboxBottleDebtCount.Add(this.yspinbuttonDebtTo);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxBottleDebtCount[this.yspinbuttonDebtTo]));
+			this.yvalidatedentryDebtTo = new global::Gamma.Widgets.yValidatedEntry();
+			this.yvalidatedentryDebtTo.CanFocus = true;
+			this.yvalidatedentryDebtTo.Name = "yvalidatedentryDebtTo";
+			this.yvalidatedentryDebtTo.IsEditable = true;
+			this.yvalidatedentryDebtTo.InvisibleChar = '•';
+			this.hboxBottleDebtCount.Add(this.yvalidatedentryDebtTo);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxBottleDebtCount[this.yvalidatedentryDebtTo]));
 			w5.Position = 2;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child hboxBottleDebtCount.Gtk.Box+BoxChild
 			this.buttonDebtBottleCountOK = new global::Gtk.Button();
 			this.buttonDebtBottleCountOK.CanFocus = true;
@@ -232,17 +230,16 @@ namespace Vodovoz.JournalFilters
 			this.hboxBottlesCount.Name = "hboxBottlesCount";
 			this.hboxBottlesCount.Spacing = 6;
 			// Container child hboxBottlesCount.Gtk.Box+BoxChild
-			this.yspinbuttonOrderBottlesFrom = new global::Gamma.GtkWidgets.ySpinButton(-100D, 100D, 1D);
-			this.yspinbuttonOrderBottlesFrom.CanFocus = true;
-			this.yspinbuttonOrderBottlesFrom.Name = "yspinbuttonOrderBottlesFrom";
-			this.yspinbuttonOrderBottlesFrom.Adjustment.PageIncrement = 10D;
-			this.yspinbuttonOrderBottlesFrom.ClimbRate = 1D;
-			this.yspinbuttonOrderBottlesFrom.Numeric = true;
-			this.yspinbuttonOrderBottlesFrom.ValueAsDecimal = 0m;
-			this.yspinbuttonOrderBottlesFrom.ValueAsInt = 0;
-			this.hboxBottlesCount.Add(this.yspinbuttonOrderBottlesFrom);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.yspinbuttonOrderBottlesFrom]));
+			this.yvalidatedentryBottlesFrom = new global::Gamma.Widgets.yValidatedEntry();
+			this.yvalidatedentryBottlesFrom.CanFocus = true;
+			this.yvalidatedentryBottlesFrom.Name = "yvalidatedentryBottlesFrom";
+			this.yvalidatedentryBottlesFrom.IsEditable = true;
+			this.yvalidatedentryBottlesFrom.InvisibleChar = '•';
+			this.hboxBottlesCount.Add(this.yvalidatedentryBottlesFrom);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.yvalidatedentryBottlesFrom]));
 			w16.Position = 0;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child hboxBottlesCount.Gtk.Box+BoxChild
 			this.label8 = new global::Gtk.Label();
 			this.label8.Name = "label8";
@@ -253,17 +250,16 @@ namespace Vodovoz.JournalFilters
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child hboxBottlesCount.Gtk.Box+BoxChild
-			this.yspinbuttonOrderBottlesTo = new global::Gamma.GtkWidgets.ySpinButton(-100D, 100D, 1D);
-			this.yspinbuttonOrderBottlesTo.CanFocus = true;
-			this.yspinbuttonOrderBottlesTo.Name = "yspinbuttonOrderBottlesTo";
-			this.yspinbuttonOrderBottlesTo.Adjustment.PageIncrement = 10D;
-			this.yspinbuttonOrderBottlesTo.ClimbRate = 1D;
-			this.yspinbuttonOrderBottlesTo.Numeric = true;
-			this.yspinbuttonOrderBottlesTo.ValueAsDecimal = 0m;
-			this.yspinbuttonOrderBottlesTo.ValueAsInt = 0;
-			this.hboxBottlesCount.Add(this.yspinbuttonOrderBottlesTo);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.yspinbuttonOrderBottlesTo]));
+			this.yvalidatedentryBottlesTo = new global::Gamma.Widgets.yValidatedEntry();
+			this.yvalidatedentryBottlesTo.CanFocus = true;
+			this.yvalidatedentryBottlesTo.Name = "yvalidatedentryBottlesTo";
+			this.yvalidatedentryBottlesTo.IsEditable = true;
+			this.yvalidatedentryBottlesTo.InvisibleChar = '•';
+			this.hboxBottlesCount.Add(this.yvalidatedentryBottlesTo);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.yvalidatedentryBottlesTo]));
 			w18.Position = 2;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child hboxBottlesCount.Gtk.Box+BoxChild
 			this.buttonOrderBottleCountOK = new global::Gtk.Button();
 			this.buttonOrderBottleCountOK.CanFocus = true;
@@ -374,6 +370,10 @@ namespace Vodovoz.JournalFilters
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.yvalidatedentryDebtFrom.Changed += new global::System.EventHandler(this.OnYvalidatedentryDebtFromChanged);
+			this.yvalidatedentryDebtTo.Changed += new global::System.EventHandler(this.OnYvalidatedentryDebtToChanged);
+			this.yvalidatedentryBottlesFrom.Changed += new global::System.EventHandler(this.OnYvalidatedentryBottlesFromChanged);
+			this.yvalidatedentryBottlesTo.Changed += new global::System.EventHandler(this.OnYvalidatedentryBottlesToChanged);
 		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -12,6 +13,12 @@ namespace Vodovoz.JournalFilters
 	{
 		protected override void ConfigureWithUow()
 		{
+			yvalidatedentryDebtTo.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			yvalidatedentryDebtFrom.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			yvalidatedentryBottlesTo.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			yvalidatedentryBottlesFrom.ValidationMode = QSWidgetLib.ValidationType.numeric;
+
+		
 			entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM();
 			entryreferenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM();
 			yentryreferencevmNomenclature.RepresentationModel = new ViewModel.NomenclatureForSaleVM();
@@ -54,15 +61,6 @@ namespace Vodovoz.JournalFilters
 			set { yenumcomboboxOPF.SelectedItem = value; }
 		}
 
-		public int? DebtBottlesFrom {
-			get { return (int)yspinbuttonDebtForm.Value; }
-			set { yspinbuttonDebtForm.Value = value.Value; }
-		}
-
-		public int? DebtBottlesTo {
-			get { return (int)yspinbuttonDebtTo.Value; }
-			set { yspinbuttonDebtTo.Value = value.Value; }
-		}
 
 		public DateTime? StartDate {
 			get { return ydateperiodpickerLastOrder.StartDateOrNull; }
@@ -80,15 +78,13 @@ namespace Vodovoz.JournalFilters
 			}
 		}
 
-		public int? LastOrderBottlesFrom {
-			get { return (int)yspinbuttonOrderBottlesFrom.Value; }
-			set { yspinbuttonOrderBottlesFrom.Value = value.Value; }
-		}
+		public int? DebtBottlesFrom { get; set; }
 
-		public int? LastOrderBottlesTo {
-			get { return (int)yspinbuttonOrderBottlesTo.Value; }
-			set { yspinbuttonOrderBottlesTo.Value = value.Value; }
-		}
+		public int? DebtBottlesTo { get; set; }
+
+		public int? LastOrderBottlesFrom { get; set; }
+
+		public int? LastOrderBottlesTo { get; set; }
 
 		public Nomenclature LastOrderNomenclature {
 			get { return yentryreferencevmNomenclature.Subject as Nomenclature; }
@@ -108,6 +104,30 @@ namespace Vodovoz.JournalFilters
 		public BottleDebtorsFilter()
 		{
 			this.Build();
+		}
+
+		protected void OnYvalidatedentryDebtFromChanged(object sender, EventArgs e)
+		{
+			if(Int32.TryParse(yvalidatedentryDebtFrom.Text, out int result))
+				DebtBottlesFrom = result;
+		}
+
+		protected void OnYvalidatedentryDebtToChanged(object sender, EventArgs e)
+		{
+			if(Int32.TryParse(yvalidatedentryDebtTo.Text, out int result))
+				DebtBottlesTo = result;
+		}
+
+		protected void OnYvalidatedentryBottlesFromChanged(object sender, EventArgs e)
+		{
+			if(Int32.TryParse(yvalidatedentryBottlesFrom.Text, out int result))
+				LastOrderBottlesFrom = result;
+		}
+
+		protected void OnYvalidatedentryBottlesToChanged(object sender, EventArgs e)
+		{
+			if(Int32.TryParse(yvalidatedentryBottlesTo.Text, out int result))
+				LastOrderBottlesTo = result;
 		}
 	}
 }
