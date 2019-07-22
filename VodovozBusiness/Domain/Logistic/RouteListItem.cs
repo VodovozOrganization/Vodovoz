@@ -651,11 +651,13 @@ namespace Vodovoz.Domain.Logistic
 		private void RestoreOrder()
 		{
 			foreach(var item in Order.OrderItems) {
-				item.IsDiscountInMoney = true;
-				item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
-				item.DiscountReason = item.OriginalDiscountReason;
-				item.OriginalDiscountMoney = null;
-				item.OriginalDiscountReason = null;
+				if(item.OriginalDiscountMoney.HasValue) {
+					item.IsDiscountInMoney = true;
+					item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
+					item.DiscountReason = item.OriginalDiscountReason;
+					item.OriginalDiscountMoney = null;
+					item.OriginalDiscountReason = null;
+				}
 				item.ActualCount = item.Count;
 			}
 
