@@ -29713,7 +29713,7 @@
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">3</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vboxInfo">
                 <property name="MemberName" />
@@ -33522,75 +33522,7 @@
               <placeholder />
             </child>
             <child>
-              <widget class="Gtk.HBox" id="hbox1">
-                <property name="MemberName" />
-                <property name="Spacing">6</property>
-                <child>
-                  <widget class="Gtk.Button" id="buttonDelivered">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="Type">TextOnly</property>
-                    <property name="Label" translatable="yes">Доставлен</property>
-                    <property name="UseUnderline">True</property>
-                    <signal name="Clicked" handler="OnButtonDeliveredClicked" />
-                  </widget>
-                  <packing>
-                    <property name="Position">0</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Button" id="buttonNotDelivered">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="Type">TextOnly</property>
-                    <property name="Label" translatable="yes">Полностью недовезен</property>
-                    <property name="UseUnderline">True</property>
-                    <signal name="Clicked" handler="OnButtonNotDeliveredClicked" />
-                  </widget>
-                  <packing>
-                    <property name="Position">1</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Button" id="buttonDeliveryCanceled">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="Type">TextOnly</property>
-                    <property name="Label" translatable="yes">Доставка отменена</property>
-                    <property name="UseUnderline">True</property>
-                    <signal name="Clicked" handler="OnButtonDeliveryCanseledClicked" />
-                  </widget>
-                  <packing>
-                    <property name="Position">2</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
-                  </packing>
-                </child>
-              </widget>
-              <packing>
-                <property name="TopAttach">3</property>
-                <property name="BottomAttach">4</property>
-                <property name="LeftAttach">1</property>
-                <property name="RightAttach">3</property>
-                <property name="AutoSize">False</property>
-                <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
-                <property name="XFill">True</property>
-                <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">True</property>
-                <property name="YShrink">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.HBox" id="hbox2">
+              <widget class="Gtk.HBox" id="hbox3">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
@@ -33669,6 +33601,23 @@
                     <property name="AutoSize">False</property>
                   </packing>
                 </child>
+                <child>
+                  <widget class="Gamma.Widgets.ySpecComboBox" id="ySpecPaymentFrom">
+                    <property name="MemberName" />
+                    <property name="IsTextCombo">False</property>
+                    <property name="Items" translatable="yes" />
+                    <property name="AddIfNotExist">False</property>
+                    <property name="DefaultFirst">False</property>
+                    <property name="ShowSpecialStateAll">False</property>
+                    <property name="ShowSpecialStateNot">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -33679,6 +33628,74 @@
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.HBox" id="hbox5">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.Button" id="buttonDelivered">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Доставлен</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonDeliveredClicked" />
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Button" id="buttonNotDelivered">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Полностью недовезен</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonNotDeliveredClicked" />
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Button" id="buttonDeliveryCanceled">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Доставка отменена</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonDeliveryCanseledClicked" />
+                  </widget>
+                  <packing>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">3</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -33952,7 +33969,7 @@
               </widget>
             </child>
             <child>
-              <widget class="Gtk.Label" id="GtkLabel7">
+              <widget class="Gtk.Label" id="GtkLabel9">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">&lt;b&gt;Товары к клиенту&lt;/b&gt;</property>
                 <property name="UseMarkup">True</property>
@@ -33968,7 +33985,7 @@
           </packing>
         </child>
         <child>
-          <widget class="Gtk.HBox" id="hbox3">
+          <widget class="Gtk.HBox" id="hbox7">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
@@ -33976,7 +33993,7 @@
                 <property name="MemberName" />
                 <property name="ShadowType">None</property>
                 <child>
-                  <widget class="Gtk.Alignment" id="GtkAlignment5">
+                  <widget class="Gtk.Alignment" id="GtkAlignment7">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
                     <property name="Yalign">0</property>
@@ -33990,7 +34007,7 @@
                   </widget>
                 </child>
                 <child>
-                  <widget class="Gtk.Label" id="GtkLabel9">
+                  <widget class="Gtk.Label" id="GtkLabel13">
                     <property name="MemberName" />
                     <property name="LabelProp" translatable="yes">&lt;b&gt;Оборудование&lt;/b&gt;</property>
                     <property name="UseMarkup">True</property>
@@ -34016,7 +34033,7 @@
             <property name="MemberName" />
             <property name="ShadowType">None</property>
             <child>
-              <widget class="Gtk.Alignment" id="GtkAlignment7">
+              <widget class="Gtk.Alignment" id="GtkAlignment11">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
                 <property name="Yalign">0</property>
@@ -34040,7 +34057,7 @@
               </widget>
             </child>
             <child>
-              <widget class="Gtk.Label" id="GtkLabel13">
+              <widget class="Gtk.Label" id="GtkLabel17">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">&lt;b&gt;Возврат залогов&lt;/b&gt;</property>
                 <property name="UseMarkup">True</property>
