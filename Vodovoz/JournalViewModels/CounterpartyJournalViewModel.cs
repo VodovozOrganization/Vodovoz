@@ -95,18 +95,12 @@ namespace Vodovoz.JournalViewModels
 				   .Select(c => c.INN).WithAlias(() => resultAlias.INN)
 				   .Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
 				   .SelectSubQuery(contractsSubquery).WithAlias(() => resultAlias.Contracts)
-			   .Select(Projections.SqlFunction(
-				   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
-				   NHibernateUtil.String,
-					   Projections.Property(() => phoneAlias.Number),
-				   Projections.Constant("\n"))
-				   ).WithAlias(() => resultAlias.Phones)
-			   .Select(Projections.SqlFunction(
-					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+				   .Select(Projections.SqlFunction(
+					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
 					   NHibernateUtil.String,
-					   Projections.Property(() => phoneAlias.DigitsNumber),
+						   Projections.Property(() => phoneAlias.Number),
 					   Projections.Constant("\n"))
-				   ).WithAlias(() => resultAlias.PhonesDigits)
+					   ).WithAlias(() => resultAlias.Phones)			   
 					.SelectSubQuery(addressSubquery).WithAlias(() => resultAlias.Addresses)
 					.SelectSubQuery(tagsSubquery).WithAlias(() => resultAlias.Tags)
 				)
