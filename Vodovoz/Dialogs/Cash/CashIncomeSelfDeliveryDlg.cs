@@ -51,6 +51,15 @@ namespace Vodovoz.Dialogs.Cash
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Income>(id);
+
+			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Income))) {
+
+				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
+				FailInitialize = true;
+				return;
+			}
+			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
+
 			ConfigureDlg();
 		}
 
