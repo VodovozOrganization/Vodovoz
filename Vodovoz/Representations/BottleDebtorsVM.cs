@@ -94,7 +94,7 @@ namespace Vodovoz.Representations
 				.JoinAlias(c => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where(() => deliveryPointOrderAlias.Id == deliveryPointAlias.Id)
 				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT(?2,?1,?2))"),
 					NHibernateUtil.String,
 					Projections.Property(() => nomenclatureAlias.Id),
 					Projections.Constant(",")))
@@ -109,7 +109,7 @@ namespace Vodovoz.Representations
 				.Where(() => deliveryPointOrderAlias.Id == deliveryPointAlias.Id)
 				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT(?2,?1,?2))"),
 					NHibernateUtil.String,
 					Projections.Property(() => discountReasonAlias.Id),
 					Projections.Constant(",")))
@@ -166,9 +166,9 @@ namespace Vodovoz.Representations
 			IEnumerable<BottleDebtorsVMNode> filteredList = debtorslist;
 
 			if(Filter.LastOrderNomenclature != null)
-				filteredList = filteredList.Where(x => x.LastOrderNomenclatureIds.Contains(Filter.LastOrderNomenclature.Id.ToString()));
+				filteredList = filteredList.Where(x =>x.LastOrderNomenclatureIds != null && x.LastOrderNomenclatureIds.Contains("," + Filter.LastOrderNomenclature.Id.ToString() + ","));
 			if(Filter.DiscountReason != null)
-				filteredList = filteredList.Where(x => x.LastOrderDiscountReasonIds != null && x.LastOrderDiscountReasonIds.Contains(Filter.DiscountReason.Id.ToString()));
+				filteredList = filteredList.Where(x => x.LastOrderDiscountReasonIds != null && x.LastOrderDiscountReasonIds.Contains("," + Filter.DiscountReason.Id.ToString() + ","));
 			if(Filter.StartDate != null && Filter.EndDate != null)
 				filteredList = filteredList.Where((arg) => Filter.StartDate.Value <= arg.LastOrderDate && arg.LastOrderDate <= Filter.EndDate.Value);
 			if(Filter.DebtBottlesFrom != null)
@@ -192,10 +192,12 @@ namespace Vodovoz.Representations
 			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName)
 			.AddColumn("ОПФ").AddTextRenderer(node => node.OPF.GetEnumTitle())
 			.AddColumn("Последний заказ по адресу").AddTextRenderer(node => node.LastOrderDate != null ? node.LastOrderDate.Value.ToString("dd / MM / yyyy") : String.Empty)
+			.AddColumn("Кол-во отгруженных в последнюю реализацию бутылей").AddTextRenderer(node => (node.LastOrderBottles ?? 0).ToString())
 			.AddColumn("Долг по таре (по адресу)").AddTextRenderer(node => node.DebtByAddress.ToString())
 			.AddColumn("Долг по таре (по клиенту)").AddTextRenderer(node => node.DebtByClient.ToString())
 			.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidue ? "есть" : "нет")
 			.AddColumn("Резерв").AddTextRenderer(node => node.Reserve.ToString())
+			.AddColumn("Nom").AddTextRenderer(node => node.LastOrderNomenclatureIds)
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 

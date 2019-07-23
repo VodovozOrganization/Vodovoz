@@ -5,12 +5,16 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.JournalFilters
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class BottleDebtorsFilter : RepresentationFilterBase<BottleDebtorsFilter>
 	{
+		IUnitOfWork nomenclatureUoW;
+
 		protected override void ConfigureWithUow()
 		{
 			yvalidatedentryDebtTo.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -18,10 +22,16 @@ namespace Vodovoz.JournalFilters
 			yvalidatedentryBottlesTo.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			yvalidatedentryBottlesFrom.ValidationMode = QSWidgetLib.ValidationType.numeric;
 
-		
 			entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM();
 			entryreferenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM();
-			yentryreferencevmNomenclature.RepresentationModel = new ViewModel.NomenclatureForSaleVM();
+			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(
+						new EntityRepresentationAdapterFactory(typeof(Nomenclature),
+						() => {
+							var vm = new ViewModel.NomenclatureForSaleVM(new NomenclatureRepFilter(UnitOfWorkFactory.CreateWithoutRoot()));
+							vm.Filter.AvailableCategories = Nomenclature.GetCategoriesForSale();
+							return vm;
+						})
+			);
 
 			yenumcomboboxOPF.ItemsEnum = typeof(PersonType);
 
@@ -32,7 +42,7 @@ namespace Vodovoz.JournalFilters
 
 			buttonOrderBottleCountOK.Clicked += (sender, e) => OnRefiltered();
 			ydateperiodpickerLastOrder.PeriodChanged += (sender, e) => OnRefiltered();
-			yentryreferencevmNomenclature.ChangedByUser += (sender, e) => OnRefiltered();
+			entityviewmodelentryNomenclature.ChangedByUser += (sender, e) => OnRefiltered();
 
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ItemsList = UoW?.Session.QueryOver<DiscountReason>().List();
@@ -87,8 +97,8 @@ namespace Vodovoz.JournalFilters
 		public int? LastOrderBottlesTo { get; set; }
 
 		public Nomenclature LastOrderNomenclature {
-			get { return yentryreferencevmNomenclature.Subject as Nomenclature; }
-			set { yentryreferencevmNomenclature.Subject = value; }
+			get { return entityviewmodelentryNomenclature.Subject as Nomenclature; }
+			set { entityviewmodelentryNomenclature.Subject = value; }
 		}
 
 		public DiscountReason DiscountReason {
@@ -129,5 +139,6 @@ namespace Vodovoz.JournalFilters
 			if(Int32.TryParse(yvalidatedentryBottlesTo.Text, out int result))
 				LastOrderBottlesTo = result;
 		}
+
 	}
 }

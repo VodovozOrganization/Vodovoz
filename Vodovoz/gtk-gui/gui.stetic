@@ -1662,7 +1662,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -61048,7 +61047,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.JournalViewers.UndeliveriesView" design-size="836 385">
+  <widget class="Gtk.Bin" id="Vodovoz.JournalViewers.UndeliveriesView" design-size="1054 385">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -71792,7 +71791,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.JournalViewers.DebtorsView" design-size="648 502">
+  <widget class="Gtk.Bin" id="Vodovoz.JournalViewers.DebtorsView" design-size="1052 502">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -71944,7 +71943,7 @@ not tooltip</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.JournalFilters.BottleDebtorsFilter" design-size="1052 155">
+  <widget class="Gtk.Bin" id="Vodovoz.JournalFilters.BottleDebtorsFilter" design-size="1052 168">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -72204,6 +72203,28 @@ not tooltip</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <child>
+              <widget class="QS.Widgets.GtkUI.EntityViewModelEntry" id="entityviewmodelentryNomenclature">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="CanEditReference">False</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.HBox" id="hboxBottlesCount">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
@@ -72364,7 +72385,7 @@ not tooltip</property>
                 <property name="AddIfNotExist">False</property>
                 <property name="DefaultFirst">False</property>
                 <property name="ShowSpecialStateAll">False</property>
-                <property name="ShowSpecialStateNot">False</property>
+                <property name="ShowSpecialStateNot">True</property>
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -72390,27 +72411,6 @@ not tooltip</property>
                 <property name="EndDate">0</property>
               </widget>
               <packing>
-                <property name="LeftAttach">1</property>
-                <property name="RightAttach">2</property>
-                <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
-                <property name="XExpand">False</property>
-                <property name="XFill">True</property>
-                <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">True</property>
-                <property name="YShrink">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferencevmNomenclature">
-                <property name="MemberName" />
-                <property name="Events">ButtonPressMask</property>
-              </widget>
-              <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>

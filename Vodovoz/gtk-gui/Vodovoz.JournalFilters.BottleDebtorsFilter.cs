@@ -36,6 +36,8 @@ namespace Vodovoz.JournalFilters
 
 		private global::Gtk.Table table2;
 
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entityviewmodelentryNomenclature;
+
 		private global::Gtk.HBox hboxBottlesCount;
 
 		private global::Gamma.Widgets.yValidatedEntry yvalidatedentryBottlesFrom;
@@ -57,8 +59,6 @@ namespace Vodovoz.JournalFilters
 		private global::Gamma.Widgets.ySpecComboBox ycomboboxReason;
 
 		private global::Gamma.Widgets.yDatePeriodPicker ydateperiodpickerLastOrder;
-
-		private global::Gamma.Widgets.yEntryReferenceVM yentryreferencevmNomenclature;
 
 		protected virtual void Build()
 		{
@@ -226,6 +226,19 @@ namespace Vodovoz.JournalFilters
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
 			// Container child table2.Gtk.Table+TableChild
+			this.entityviewmodelentryNomenclature = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
+			this.entityviewmodelentryNomenclature.Events = ((global::Gdk.EventMask)(256));
+			this.entityviewmodelentryNomenclature.Name = "entityviewmodelentryNomenclature";
+			this.entityviewmodelentryNomenclature.CanEditReference = false;
+			this.table2.Add(this.entityviewmodelentryNomenclature);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table2[this.entityviewmodelentryNomenclature]));
+			w16.TopAttach = ((uint)(2));
+			w16.BottomAttach = ((uint)(3));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
 			this.hboxBottlesCount = new global::Gtk.HBox();
 			this.hboxBottlesCount.Name = "hboxBottlesCount";
 			this.hboxBottlesCount.Spacing = 6;
@@ -236,19 +249,19 @@ namespace Vodovoz.JournalFilters
 			this.yvalidatedentryBottlesFrom.IsEditable = true;
 			this.yvalidatedentryBottlesFrom.InvisibleChar = '•';
 			this.hboxBottlesCount.Add(this.yvalidatedentryBottlesFrom);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.yvalidatedentryBottlesFrom]));
-			w16.Position = 0;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.yvalidatedentryBottlesFrom]));
+			w17.Position = 0;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child hboxBottlesCount.Gtk.Box+BoxChild
 			this.label8 = new global::Gtk.Label();
 			this.label8.Name = "label8";
 			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString("до");
 			this.hboxBottlesCount.Add(this.label8);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.label8]));
-			w17.Position = 1;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.label8]));
+			w18.Position = 1;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child hboxBottlesCount.Gtk.Box+BoxChild
 			this.yvalidatedentryBottlesTo = new global::Gamma.Widgets.yValidatedEntry();
 			this.yvalidatedentryBottlesTo.CanFocus = true;
@@ -256,85 +269,85 @@ namespace Vodovoz.JournalFilters
 			this.yvalidatedentryBottlesTo.IsEditable = true;
 			this.yvalidatedentryBottlesTo.InvisibleChar = '•';
 			this.hboxBottlesCount.Add(this.yvalidatedentryBottlesTo);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.yvalidatedentryBottlesTo]));
-			w18.Position = 2;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.yvalidatedentryBottlesTo]));
+			w19.Position = 2;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child hboxBottlesCount.Gtk.Box+BoxChild
 			this.buttonOrderBottleCountOK = new global::Gtk.Button();
 			this.buttonOrderBottleCountOK.CanFocus = true;
 			this.buttonOrderBottleCountOK.Name = "buttonOrderBottleCountOK";
 			this.buttonOrderBottleCountOK.UseUnderline = true;
 			this.buttonOrderBottleCountOK.Label = global::Mono.Unix.Catalog.GetString("Ок");
-			global::Gtk.Image w19 = new global::Gtk.Image();
-			w19.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-find", global::Gtk.IconSize.Menu);
-			this.buttonOrderBottleCountOK.Image = w19;
+			global::Gtk.Image w20 = new global::Gtk.Image();
+			w20.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-find", global::Gtk.IconSize.Menu);
+			this.buttonOrderBottleCountOK.Image = w20;
 			this.hboxBottlesCount.Add(this.buttonOrderBottleCountOK);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.buttonOrderBottleCountOK]));
-			w20.Position = 3;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hboxBottlesCount[this.buttonOrderBottleCountOK]));
+			w21.Position = 3;
+			w21.Expand = false;
+			w21.Fill = false;
 			this.table2.Add(this.hboxBottlesCount);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table2[this.hboxBottlesCount]));
-			w21.TopAttach = ((uint)(3));
-			w21.BottomAttach = ((uint)(4));
-			w21.LeftAttach = ((uint)(1));
-			w21.RightAttach = ((uint)(2));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table2[this.hboxBottlesCount]));
+			w22.TopAttach = ((uint)(3));
+			w22.BottomAttach = ((uint)(4));
+			w22.LeftAttach = ((uint)(1));
+			w22.RightAttach = ((uint)(2));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.label10 = new global::Gtk.Label();
 			this.label10.Name = "label10";
 			this.label10.LabelProp = global::Mono.Unix.Catalog.GetString("ТМЦ в посл. заказе:");
 			this.table2.Add(this.label10);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table2[this.label10]));
-			w22.TopAttach = ((uint)(2));
-			w22.BottomAttach = ((uint)(3));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table2[this.label10]));
+			w23.TopAttach = ((uint)(2));
+			w23.BottomAttach = ((uint)(3));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Последн. заказ :");
 			this.table2.Add(this.label3);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table2[this.label3]));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table2[this.label3]));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.label7 = new global::Gtk.Label();
 			this.label7.Name = "label7";
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("Бутылей От");
 			this.table2.Add(this.label7);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table2[this.label7]));
-			w24.TopAttach = ((uint)(3));
-			w24.BottomAttach = ((uint)(4));
-			w24.XOptions = ((global::Gtk.AttachOptions)(4));
-			w24.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table2[this.label7]));
+			w25.TopAttach = ((uint)(3));
+			w25.BottomAttach = ((uint)(4));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
+			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.label9 = new global::Gtk.Label();
 			this.label9.Name = "label9";
 			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString("Основание скидки:");
 			this.table2.Add(this.label9);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table2[this.label9]));
-			w25.TopAttach = ((uint)(1));
-			w25.BottomAttach = ((uint)(2));
-			w25.XOptions = ((global::Gtk.AttachOptions)(4));
-			w25.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table2[this.label9]));
+			w26.TopAttach = ((uint)(1));
+			w26.BottomAttach = ((uint)(2));
+			w26.XOptions = ((global::Gtk.AttachOptions)(4));
+			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.ycomboboxReason = new global::Gamma.Widgets.ySpecComboBox();
 			this.ycomboboxReason.Name = "ycomboboxReason";
 			this.ycomboboxReason.AddIfNotExist = false;
 			this.ycomboboxReason.DefaultFirst = false;
 			this.ycomboboxReason.ShowSpecialStateAll = false;
-			this.ycomboboxReason.ShowSpecialStateNot = false;
+			this.ycomboboxReason.ShowSpecialStateNot = true;
 			this.table2.Add(this.ycomboboxReason);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table2[this.ycomboboxReason]));
-			w26.TopAttach = ((uint)(1));
-			w26.BottomAttach = ((uint)(2));
-			w26.LeftAttach = ((uint)(1));
-			w26.RightAttach = ((uint)(2));
-			w26.XOptions = ((global::Gtk.AttachOptions)(4));
-			w26.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table2[this.ycomboboxReason]));
+			w27.TopAttach = ((uint)(1));
+			w27.BottomAttach = ((uint)(2));
+			w27.LeftAttach = ((uint)(1));
+			w27.RightAttach = ((uint)(2));
+			w27.XOptions = ((global::Gtk.AttachOptions)(4));
+			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.ydateperiodpickerLastOrder = new global::Gamma.Widgets.yDatePeriodPicker();
 			this.ydateperiodpickerLastOrder.Events = ((global::Gdk.EventMask)(256));
@@ -342,19 +355,7 @@ namespace Vodovoz.JournalFilters
 			this.ydateperiodpickerLastOrder.StartDate = new global::System.DateTime(0);
 			this.ydateperiodpickerLastOrder.EndDate = new global::System.DateTime(0);
 			this.table2.Add(this.ydateperiodpickerLastOrder);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table2[this.ydateperiodpickerLastOrder]));
-			w27.LeftAttach = ((uint)(1));
-			w27.RightAttach = ((uint)(2));
-			w27.XOptions = ((global::Gtk.AttachOptions)(4));
-			w27.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.yentryreferencevmNomenclature = new global::Gamma.Widgets.yEntryReferenceVM();
-			this.yentryreferencevmNomenclature.Events = ((global::Gdk.EventMask)(256));
-			this.yentryreferencevmNomenclature.Name = "yentryreferencevmNomenclature";
-			this.table2.Add(this.yentryreferencevmNomenclature);
-			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table2[this.yentryreferencevmNomenclature]));
-			w28.TopAttach = ((uint)(2));
-			w28.BottomAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table2[this.ydateperiodpickerLastOrder]));
 			w28.LeftAttach = ((uint)(1));
 			w28.RightAttach = ((uint)(2));
 			w28.XOptions = ((global::Gtk.AttachOptions)(4));
