@@ -1429,7 +1429,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 res.*,
@@ -1437,7 +1437,7 @@ res.*,
 FROM
 (
 SELECT 
-     ROUND(IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0)) AS plan ,
+     ROUND(IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) - IFNULL(deposit_operations.refund_deposit, 0)) AS plan ,
      ROUND(inc.fact_income) AS fact,
      inc.employee_name,
      orders.id AS order_id,
@@ -1491,7 +1491,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="CashIncomeDates">
           <DataField>CashIncomeDates</DataField>
           <TypeName>System.String</TypeName>
