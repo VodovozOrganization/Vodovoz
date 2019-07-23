@@ -2391,7 +2391,7 @@ FROM
             (
                 SELECT 
                     orders.id AS order_id,
-                    IFNULL(ROUND(SUM(order_items.price * order_items.count * (1 - (order_items.discount / 100))), 2), 0) + IFNULL(deposit_operations.received_deposit, 0) AS TotalOrdersSum
+                    IFNULL(ROUND(SUM(order_items.price * order_items.count - order_items.discount_money), 2), 0) + IFNULL(deposit_operations.received_deposit, 0) AS TotalOrdersSum
                 FROM
                     orders
                     LEFT JOIN order_items ON order_items.order_id = orders.id
