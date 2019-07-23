@@ -197,7 +197,6 @@ namespace Vodovoz.Representations
 			.AddColumn("Долг по таре (по клиенту)").AddTextRenderer(node => node.DebtByClient.ToString())
 			.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidue ? "есть" : "нет")
 			.AddColumn("Резерв").AddTextRenderer(node => node.Reserve.ToString())
-			.AddColumn("Nom").AddTextRenderer(node => node.LastOrderNomenclatureIds)
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 
