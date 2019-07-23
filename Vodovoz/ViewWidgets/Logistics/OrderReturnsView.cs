@@ -264,6 +264,10 @@ namespace Vodovoz
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding.AddBinding(routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
 
+			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().List();
+			ySpecPaymentFrom.Binding.AddBinding(routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
+			ySpecPaymentFrom.Binding.AddFuncBinding(routeListItem.Order, e => e.PaymentType == PaymentType.ByCard, w => w.Visible).InitializeFromSource();
+
 			entryOnlineOrder.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			entryOnlineOrder.Binding.AddBinding(routeListItem.Order, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
