@@ -229,6 +229,14 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref photo, value, () => Photo);
 		}
 
+		private string fuelCardNumber;
+		[Display(Name = "Номер топливной карты")]
+		public virtual string FuelCardNumber {
+			get => fuelCardNumber;
+			set => SetField(ref fuelCardNumber, value, () => FuelCardNumber);
+		}
+
+
 		IList<GeographicGroup> geographicGroups = new List<GeographicGroup>();
 		[Display(Name = "Группа района")]
 		public virtual IList<GeographicGroup> GeographicGroups {
@@ -250,10 +258,22 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);
 
+		public virtual bool CanHaveFuelCard => 
+			((TypeOfUse == CarTypeOfUse.GAZelle || TypeOfUse == CarTypeOfUse.Largus) && IsCompanyHavings)
+			|| TypeOfUse == CarTypeOfUse.Truck 
+			|| IsRaskat;
+
 		public Car()
 		{
 			Model = String.Empty;
 			RegistrationNumber = String.Empty;
+		}
+
+		public virtual void CheckFuelCard()
+		{
+			if(!CanHaveFuelCard) {
+				FuelCardNumber = null;
+			}
 		}
 
 		#region IValidatableObject implementation
@@ -279,6 +299,10 @@ namespace Vodovoz.Domain.Logistic
 
 			if(cars.Any())
 				yield return new ValidationResult("Автомобиль уже существует", new[] { "Duplication" });
+
+			if(CanHaveFuelCard && string.IsNullOrWhiteSpace(FuelCardNumber)) {
+				yield return new ValidationResult("Необходимо ввести номер топливной карты");
+			}
 		}
 
 		#endregion
