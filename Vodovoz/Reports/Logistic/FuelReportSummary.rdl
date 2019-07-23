@@ -49,10 +49,13 @@
             <Width>69.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.9pt</Width>
+            <Width>69.0pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>64.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.4pt</Width>
+            <Width>40.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>164.5pt</Width>
@@ -73,7 +76,7 @@
             <Width>76.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>159.6pt</Width>
+            <Width>97.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -103,6 +106,23 @@
                     <Textbox Name="Textbox30">
                       <Value>Дата МЛ</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox73">
+                      <Value>Номер ТК</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -267,7 +287,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format(Fields!date.Value, "dd.MM.yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -284,7 +304,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>=Format(Fields!route_list_date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format(Fields!route_list_date.Value, "dd.MM.yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -295,6 +315,23 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox76">
+                      <Value>={fuel_card_number}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -419,7 +456,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>=Format(Fields!last_edit_date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format({last_edit_date}, "dd.MM.yyyy HH:mm")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -429,6 +466,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <Format >HH:mm</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -467,6 +505,19 @@
                       </Style>
                       <Value>
                       </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox86">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -596,10 +647,13 @@
             <Width>69.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.9pt</Width>
+            <Width>69.2pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>64.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.1pt</Width>
+            <Width>40.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>163.6pt</Width>
@@ -620,7 +674,7 @@
             <Width>76.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>160.3pt</Width>
+            <Width>99.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -650,6 +704,23 @@
                     <Textbox Name="Textbox124">
                       <Value>Дата МЛ</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox93">
+                      <Value>Номер ТК</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -814,7 +885,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox80">
-                      <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format(Fields!date.Value, "dd.MM.yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -831,7 +902,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox81">
-                      <Value>=Format(Fields!route_list_date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format(Fields!route_list_date.Value, "dd.MM.yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -842,6 +913,23 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox103">
+                      <Value>={fuel_card_number}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -966,7 +1054,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox89">
-                      <Value>=Format(Fields!last_edit_date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format({last_edit_date}, "dd.MM.yyyy HH:mm")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1014,6 +1102,19 @@
                       </Style>
                       <Value>
                       </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox106">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1143,10 +1244,13 @@
             <Width>69.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.9pt</Width>
+            <Width>69.1pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>65.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.5pt</Width>
+            <Width>39.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>162.8pt</Width>
@@ -1167,7 +1271,7 @@
             <Width>76.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>159.0pt</Width>
+            <Width>99.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1197,6 +1301,23 @@
                     <Textbox Name="Textbox125">
                       <Value>Дата МЛ</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox116">
+                      <Value>Номер ТК</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1361,7 +1482,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox110">
-                      <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format(Fields!date.Value, "dd.MM.yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1378,7 +1499,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox111">
-                      <Value>=Format(Fields!route_list_date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format(Fields!route_list_date.Value, "dd.MM.yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1389,6 +1510,23 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox146">
+                      <Value>={fuel_card_number}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1513,7 +1651,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox119">
-                      <Value>=Format(Fields!last_edit_date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format({last_edit_date}, "dd.MM.yyyy HH:mm")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1561,6 +1699,19 @@
                       </Style>
                       <Value>
                       </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox156">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1865,10 +2016,13 @@
             <Width>69.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.9pt</Width>
+            <Width>69.7pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>64.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.5pt</Width>
+            <Width>40.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>162.8pt</Width>
@@ -1889,7 +2043,7 @@
             <Width>76.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>158.4pt</Width>
+            <Width>99.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1917,7 +2071,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>10</ColSpan>
+                  <ColSpan>11</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1946,6 +2100,23 @@
                     <Textbox Name="Textbox6">
                       <Value>Дата МЛ</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox159">
+                      <Value>Номер ТК</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2110,7 +2281,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format(Fields!date.Value, "dd.MM.yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2127,7 +2298,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>=Format(Fields!route_list_date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format(Fields!route_list_date.Value, "dd.MM.yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2138,6 +2309,23 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox160">
+                      <Value>={fuel_card_number}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2262,7 +2450,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>=Format(Fields!last_edit_date.Value, "dd/MM/yyyy")</Value>
+                      <Value>=Format({last_edit_date}, "dd.MM.yyyy HH:mm")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2310,6 +2498,19 @@
                       </Style>
                       <Value>
                       </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox161">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2457,8 +2658,8 @@
           <TableColumn>
             <Width>48.3pt</Width>
           </TableColumn>
-          <TableColumn >
-            <Width>318.2pt</Width>
+          <TableColumn>
+            <Width>313.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -2597,7 +2798,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox162">
                       <Value>Основание</Value>
@@ -2628,7 +2829,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox96">
-                      <Value>=Format({document_date}, "dd/MM/yyyy")</Value>
+                      <Value>=Format({document_date}, "dd.MM.yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2726,7 +2927,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox163">
                       <Value>={reason}</Value>
@@ -2836,7 +3037,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox164">
                       <Value>
@@ -2879,7 +3080,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="FuelOther">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     fuel_documents.date AS date,
@@ -2892,7 +3093,8 @@
     cars.reg_number AS reg_number ,
     IFNULL(author.last_name,'') AS author_name ,
     IFNULL(last_editor.last_name,'') AS last_editor_name,
-    IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
+    fuel_documents.last_edit_date AS last_edit_date,
+    cars.fuel_card_number as fuel_card_number
  
 FROM 
 	fuel_documents
@@ -2927,7 +3129,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -2970,12 +3172,16 @@ WHERE
         </Field>
         <Field Name="last_edit_date">
           <DataField>last_edit_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="fuel_card_number">
+          <DataField>fuel_card_number</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="FuelTruck">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     fuel_documents.date AS date,
@@ -2988,7 +3194,8 @@ WHERE
     cars.reg_number AS reg_number ,
     IFNULL(author.last_name,'') AS author_name ,
     IFNULL(last_editor.last_name,'') AS last_editor_name,
-    IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
+    fuel_documents.last_edit_date AS last_edit_date,
+    cars.fuel_card_number as fuel_card_number
  
 FROM 
 	fuel_documents
@@ -3022,7 +3229,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -3065,12 +3272,16 @@ WHERE
         </Field>
         <Field Name="last_edit_date">
           <DataField>last_edit_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="fuel_card_number">
+          <DataField>fuel_card_number</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="FuelGAZelle">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	fuel_documents.date AS date,
@@ -3083,7 +3294,8 @@ WHERE
 	cars.reg_number AS reg_number ,
 	IFNULL(author.last_name,'') AS author_name ,
 	IFNULL(last_editor.last_name,'') AS last_editor_name,
-	IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
+	fuel_documents.last_edit_date AS last_edit_date,
+                cars.fuel_card_number as fuel_card_number
  
 FROM 
 	fuel_documents
@@ -3118,7 +3330,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -3161,12 +3373,16 @@ WHERE
         </Field>
         <Field Name="last_edit_date">
           <DataField>last_edit_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="fuel_card_number">
+          <DataField>fuel_card_number</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="FuelLargus">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	fuel_documents.date AS date,
@@ -3179,7 +3395,8 @@ WHERE
     cars.reg_number AS reg_number ,
     IFNULL(author.last_name,'') AS author_name ,
     IFNULL(last_editor.last_name,'') AS last_editor_name,
-    IFNULL(fuel_documents.last_edit_date,'') AS last_edit_date
+    fuel_documents.last_edit_date AS last_edit_date,
+    cars.fuel_card_number as fuel_card_number
  
 FROM 
 	fuel_documents
@@ -3213,7 +3430,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -3256,6 +3473,10 @@ WHERE
         </Field>
         <Field Name="last_edit_date">
           <DataField>last_edit_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="fuel_card_number">
+          <DataField>fuel_card_number</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -3316,8 +3537,8 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="FuelWriteoffDocuments" >
-      <Query>
+    <DataSet Name="FuelWriteoffDocuments">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	fuel_writeoff_documents.id as document_id,
@@ -3357,7 +3578,7 @@ GROUP BY fuel_writeoff_documents.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="document_date">
           <DataField>document_date</DataField>
           <TypeName>System.DateTime</TypeName>
