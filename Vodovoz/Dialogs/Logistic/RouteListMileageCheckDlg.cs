@@ -93,6 +93,11 @@ namespace Vodovoz
 
 			ytreeviewAddresses.ItemsDataSource = items;
 			entryMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Text).InitializeFromSource();
+
+			if(Entity.Status == RouteListStatus.Closed) {
+				vboxRouteList.Sensitive = false;
+				buttonSave.Sensitive = false;
+			}
 		}
 
 		#endregion
