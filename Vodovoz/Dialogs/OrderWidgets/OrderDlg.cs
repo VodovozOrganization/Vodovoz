@@ -47,6 +47,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
@@ -144,6 +145,7 @@ namespace Vodovoz
 		{
 			templateOrder = UoW.GetById<Order>(id);
 			Entity.Client = templateOrder.Client;
+			Entity.Author = templateOrder.Author;
 			Entity.DeliveryPoint = templateOrder.DeliveryPoint;
 			Entity.Comment = templateOrder.Comment;
 			Entity.CommentLogist = templateOrder.CommentLogist;
@@ -242,7 +244,6 @@ namespace Vodovoz
 			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
-			yChkActionBottle.Toggled += YChkActionBottle_Toggled;
 			yEntTareActBtlFromClient.ValidationMode = ValidationType.numeric;
 			yEntTareActBtlFromClient.Binding.AddBinding(Entity, e => e.BottlesByStockCount, w => w.Text, new IntToStringValuableConverter()).InitializeFromSource();
 			yEntTareActBtlFromClient.Changed += OnYEntTareActBtlFromClientChanged;
@@ -261,8 +262,11 @@ namespace Vodovoz
 
 			txtOnRouteEditReason.Binding.AddBinding(Entity, e => e.OnRouteEditReason, w => w.Buffer.Text).InitializeFromSource();
 
-			entryOnlineOrder.ValidationMode = ValidationType.numeric;
-			entryOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			entOnlineOrder.ValidationMode = ValidationType.numeric;
+			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+
+			ySpecPaymentFrom.ItemsList = UoW.Session.QueryOver<PaymentFrom>().List();
+			ySpecPaymentFrom.Binding.AddBinding(Entity, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
@@ -376,7 +380,11 @@ namespace Vodovoz
 
 			UpdateUIState();
 
-			yChkActionBottle.Toggled += (sender, e) => ControlsActionBottleAccessibility();
+			yChkActionBottle.Toggled += (sender, e) => {
+				IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
+				Entity.RecalculateStockBottles(standartDiscountsService);
+				ControlsActionBottleAccessibility();
+			};
 
 			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
 			HasChanges = true;
@@ -387,6 +395,7 @@ namespace Vodovoz
 		{
 			bool canAddAction = Entity.CanAddStockBottle() || Entity.IsBottleStock;
 			hboxBottlesByStock.Visible = canAddAction;
+			lblActionBtlTareFromClient.Visible = yEntTareActBtlFromClient.Visible = yChkActionBottle.Active;
 			hboxReturnTare.Visible = !canAddAction;
 			yEntTareActBtlFromClient.Sensitive = canAddAction;
 		}
@@ -625,8 +634,6 @@ namespace Vodovoz
 			} else {
 				Entity.SaveEntity(UoWGeneric);
 			}
-
-			UoW.Session.Refresh(Entity);
 			logger.Info("Ok.");
 			UpdateUIState();
 			return true;
@@ -731,7 +738,7 @@ namespace Vodovoz
 					return;
 				}
 				IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
-				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository());
+				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository(), new CashRepository());
 				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatus(OrderStatus.Closed);
@@ -1154,12 +1161,6 @@ namespace Vodovoz
 		}
 
 		#endregion
-
-		void YChkActionBottle_Toggled(object sender, EventArgs e)
-		{
-			IStandartDiscountsService standartDiscountsService = new BaseParametersProvider();
-			Entity.RecalculateStockBottles(standartDiscountsService);
-		}
 
 		void NomenclatureForSaleSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
@@ -1812,6 +1813,7 @@ namespace Vodovoz
 				Entity.DeliveryPoint = originalOrder?.DeliveryPoint;
 			}
 			CheckSameOrders();
+			Entity.ChangeOrderContract();
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
@@ -1859,7 +1861,7 @@ namespace Vodovoz
 				(Entity.Client != null &&
 				 (Entity.Client.PersonType == PersonType.legal || Entity.PaymentType == PaymentType.cashless)
 				);
-			labelOnlineOrder.Visible = entryOnlineOrder.Visible = (Entity.PaymentType == PaymentType.ByCard);
+			hbxOnlineOrder.Visible = Entity.PaymentType == PaymentType.ByCard;
 			if(treeItems.Columns.Any())
 				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
@@ -1950,6 +1952,8 @@ namespace Vodovoz
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
 		{
 			Entity.ChangeOrderContract();
+			if(Entity.PaymentType != PaymentType.ByCard)
+				entOnlineOrder.Text = string.Empty;//костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
 		}
 
 		protected void OnSpinDiscountValueChanged(object sender, EventArgs e)

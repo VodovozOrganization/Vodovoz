@@ -35,7 +35,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>295.3pt</Height>
+    <Height>309.1pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Income</DataSetName>
@@ -686,7 +686,7 @@
         <Value>Прочие статусы</Value>
         <ZIndex>1</ZIndex>
         <Left>4.8pt</Left>
-        <Top>143.1pt</Top>
+        <Top>151.1pt</Top>
         <Style>
           <FontWeight>Bold</FontWeight>
         </Style>
@@ -1054,8 +1054,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
-                      <Value>
-=Switch({order_status} = 'NewOrder', 'Новый', Fields!order_status.Value = 'Accepted', 'Принят', Fields!order_status.Value = 'HoldedFine', 'Принят', Fields!order_status.Value = 'InTravelList', 'В маршрутном листе', Fields!order_status.Value = 'OnLoading', 'На погрузке', Fields!order_status.Value = 'OnTheWay', 'В пути', Fields!order_status.Value = 'Shipped', 'Доставлен', Fields!order_status.Value = 'UnloadingOnStock', 'Выгрузка на складе', Fields!order_status.Value = 'ReportNotClosed', 'Отчет не закрыт', Fields!order_status.Value = 'Closed', 'Закрыт', Fields!order_status.Value = 'Canceled', 'Отменен', Fields!order_status.Value = 'NotDelivered', 'Недовоз', Fields!order_status.Value = 'DeliveryCanceled', 'Доставка отменена', Fields!order_status.Value = 'WaitForPayment', 'Ожидание оплаты')</Value>
+                      <Value>=Switch({order_status} = 'NewOrder', 'Новый', Fields!order_status.Value = 'Accepted', 'Принят', Fields!order_status.Value = 'HoldedFine', 'Принят', Fields!order_status.Value = 'InTravelList', 'В маршрутном листе', Fields!order_status.Value = 'OnLoading', 'На погрузке', Fields!order_status.Value = 'OnTheWay', 'В пути', Fields!order_status.Value = 'Shipped', 'Доставлен', Fields!order_status.Value = 'UnloadingOnStock', 'Выгрузка на складе', Fields!order_status.Value = 'ReportNotClosed', 'Отчет не закрыт', Fields!order_status.Value = 'Closed', 'Закрыт', Fields!order_status.Value = 'Canceled', 'Отменен', Fields!order_status.Value = 'NotDelivered', 'Недовоз', Fields!order_status.Value = 'DeliveryCanceled', 'Доставка отменена', Fields!order_status.Value = 'WaitForPayment', 'Ожидание оплаты')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1166,7 +1165,7 @@
           </TableRows>
         </Details>
         <Left>6.9pt</Left>
-        <Top>166.4pt</Top>
+        <Top>174.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>

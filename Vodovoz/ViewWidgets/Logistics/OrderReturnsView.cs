@@ -23,6 +23,7 @@ using Vodovoz.JournalFilters;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 using QS.Dialog;
+using QS.Project.Repositories;
 
 namespace Vodovoz
 {
@@ -194,8 +195,11 @@ namespace Vodovoz
 			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualGoodsTotalSum ?? 0);
 		}
 
+		bool canEditPrices;
+
 		protected void Configure()
 		{
+			canEditPrices = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_price_discount_from_route_list"];
 			orderNode = new OrderNode(routeListItem.Order);
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
@@ -224,11 +228,12 @@ namespace Vodovoz
 				.AddColumn("Цена")
 					.AddNumericRenderer(node => node.Price).Digits(2).WidthChars(10)
 						.Adjustment(new Adjustment(0, 0, 99999, 1, 100, 0))
-						.AddSetter((cell, node) => cell.Editable = node.HasPrice)
+						.AddSetter((cell, node) => cell.Editable = node.HasPrice && canEditPrices)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.ManualChangingDiscount).Editing(true)
+					.AddNumericRenderer(node => node.ManualChangingDiscount)
+					.AddSetter((cell, node) => cell.Editable = canEditPrices)
 					.AddSetter(
 						(c, n) => c.Adjustment = n.IsDiscountInMoney
 									? new Adjustment(0, 0, (double)n.Price * n.ActualCount, 1, 100, 1)
@@ -353,6 +358,7 @@ namespace Vodovoz
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
 			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed);
+			routeListItem.RestoreOrder();
 			routeListItem.FirstFillClosing(UoW);
 			UpdateListsSentivity();
 			UpdateButtonsState();

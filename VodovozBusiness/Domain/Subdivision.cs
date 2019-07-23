@@ -130,6 +130,18 @@ namespace Vodovoz
 			return result;
 		}
 
+		public virtual GeographicGroup GetGeographicGroup()
+		{
+			if(GeographicGroup == null) {
+				if(ParentSubdivision == null) {
+					return null;
+				}
+				return ParentSubdivision.GetGeographicGroup();
+			} else {
+				return GeographicGroup;
+			}
+		}
+
 		#endregion
 
 		public Subdivision() { }

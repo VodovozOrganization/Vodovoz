@@ -653,6 +653,10 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<NonReturnReason>();
 
+			DeleteConfig.AddHibernateDeleteInfo<PaymentFrom>()
+						.AddClearDependence<Order>(x => x.PaymentByCardFrom)
+						;
+
 			#endregion
 
 			#region Недовозы
@@ -962,7 +966,6 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(item => item.ExpenseOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CommonCashTransferDocument>()
-				.AddDeleteDependence<CashTransferOperation>(item => item.CashTransferDocument)
 				.AddDeleteCascadeDependence(item => item.IncomeOperation)
 				.AddDeleteCascadeDependence(item => item.ExpenseOperation);
 

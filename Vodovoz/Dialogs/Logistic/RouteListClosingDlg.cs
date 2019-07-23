@@ -94,6 +94,10 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			if(Entity.AddressesOrderWasChangedAfterPrinted) {
+				MessageDialogHelper.RunInfoDialog("<span color=\"red\">ВНИМАНИЕ!</span> Порядок адресов в Мл был изменен!");
+			}
+
 			permissioncommentview.UoW = UoW;
 			permissioncommentview.Title = "Комментарий по проверке закрытия МЛ: ";
 			permissioncommentview.Comment = Entity.CashierReviewComment;
@@ -429,7 +433,7 @@ namespace Vodovoz
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered())
 				foreach(var itm in item.Order.OrderItems)
-					itm.ActualCount = null;
+					itm.ActualCount = 0;
 
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();

@@ -19,6 +19,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
@@ -32,33 +33,24 @@ namespace Vodovoz.Representations
 		{
 			TabName = "Журнал самовывозов";
 			SetOrder<SelfDeliveryJournalNode>(x => x.Date, true);
-
-			RegisterAliasPropertiesToSearch(
-				() => counterpartyAlias.Name,
-				() => authorAlias.Name,
-				() => authorAlias.LastName,
-				() => authorAlias.Patronymic,
-				() => orderAlias.Id
-			);
 			UpdateOnChanges(
 				typeof(VodovozOrder),
 				typeof(OrderItem)
 			);
 		}
 
-		SelfDeliveryJournalNode resultAlias = null;
-		VodovozOrder orderAlias = null;
-		Nomenclature nomenclatureAlias = null;
-		OrderItem orderItemAlias = null;
-		OrderDepositItem orderDepositItemAlias = null;
-		Income incomeAlias = null;
-		Expense expenseAlias = null;
-		Counterparty counterpartyAlias = null;
-		DeliveryPoint deliveryPointAlias = null;
-		Employee authorAlias = null;
+		protected override Func<IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => () => {
+			SelfDeliveryJournalNode resultAlias = null;
+			VodovozOrder orderAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			OrderItem orderItemAlias = null;
+			OrderDepositItem orderDepositItemAlias = null;
+			Income incomeAlias = null;
+			Expense expenseAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			Employee authorAlias = null;
 
-		IQueryOver<VodovozOrder, VodovozOrder> BaseQuery(Func<IQueryOver<VodovozOrder, VodovozOrder>, IQueryOver<VodovozOrder, VodovozOrder>> func)
-		{
 			var query = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
 								   .Where(() => orderAlias.SelfDelivery)
 								   .Where(() => !orderAlias.IsService);
@@ -85,7 +77,7 @@ namespace Vodovoz.Representations
 			if(FilterViewModel.RestrictEndDate != null)
 				query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 
-			var result = query
+			query
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias)
@@ -95,61 +87,56 @@ namespace Vodovoz.Representations
 				.JoinEntityAlias(() => incomeAlias, () => orderAlias.Id == incomeAlias.Order.Id, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => expenseAlias, () => orderAlias.Id == expenseAlias.Order.Id, JoinType.LeftOuterJoin);
 
-			if(func == null)
-				return result;
-			return func(result);
-		}
+			query.Where(GetSearchCriterion(
+				() => counterpartyAlias.Name,
+				() => authorAlias.Name,
+				() => authorAlias.LastName,
+				() => authorAlias.Patronymic,
+				() => orderAlias.Id
+			));
 
-		IQueryOver<VodovozOrder, VodovozOrder> SelectNodes(IQueryOver<VodovozOrder, VodovozOrder> query)
-		{
 			var result = query.SelectList(list => list
-										   .SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
-										   .Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
-										   .Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
-										   .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
-										   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
-										   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
-										   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
-										   .Select(() => orderAlias.PayAfterShipment).WithAlias(() => resultAlias.PayAfterLoad)
-										   .Select(() => orderAlias.PaymentType).WithAlias(() => resultAlias.PaymentTypeEnum)
-										   .Select(Projections.Sum(
-												   Projections.Conditional(
-													   Restrictions.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L),
-													   Projections.Property(() => orderItemAlias.Count),
-													Projections.Constant(0, NHibernateUtil.Int32)
-												)
-											)).WithAlias(() => resultAlias.BottleAmount)
-										   .Select(Projections.Sum(
-												Projections.SqlFunction(
-													new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?2, ?1) * ?3 - ?4"),
-													NHibernateUtil.Decimal,
-													Projections.Property(() => orderItemAlias.Count),
-													Projections.Property(() => orderItemAlias.ActualCount),
-													Projections.Property(() => orderItemAlias.Price),
-													Projections.Property(() => orderItemAlias.DiscountMoney)
-												   )
-											)).WithAlias(() => resultAlias.OrderSum)
-										   .Select(Projections.Sum(
-												Projections.SqlFunction(
-													new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?2, ?1) * ?3"),
-													NHibernateUtil.Decimal,
-													Projections.Property(() => orderDepositItemAlias.Count),
-													Projections.Property(() => orderItemAlias.ActualCount),
-													Projections.Property(() => orderDepositItemAlias.Deposit)
-												   )
-											)).WithAlias(() => resultAlias.OrderReturnSum)
-										   .Select(Projections.Property(() => incomeAlias.Money)).WithAlias(() => resultAlias.CashPaid)
-										   .Select(Projections.Property(() => expenseAlias.Money)).WithAlias(() => resultAlias.CashReturn)
-										)
-										.OrderBy(x => x.DeliveryDate).Desc.ThenBy(x => x.Id).Desc
-										.TransformUsing(Transformers.AliasToBean<SelfDeliveryJournalNode>())
-										;
+					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.Date)
+					.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.StatusEnum)
+					.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
+					.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+					.Select(() => orderAlias.PayAfterShipment).WithAlias(() => resultAlias.PayAfterLoad)
+					.Select(() => orderAlias.PaymentType).WithAlias(() => resultAlias.PaymentTypeEnum)
+					.Select(Projections.Sum(
+						   Projections.Conditional(
+							   Restrictions.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L),
+							   Projections.Property(() => orderItemAlias.Count),
+							Projections.Constant(0, NHibernateUtil.Int32)
+						)
+					)).WithAlias(() => resultAlias.BottleAmount)
+					.Select(Projections.Sum(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?2, ?1) * ?3 - ?4"),
+							NHibernateUtil.Decimal,
+							Projections.Property(() => orderItemAlias.Count),
+							Projections.Property(() => orderItemAlias.ActualCount),
+							Projections.Property(() => orderItemAlias.Price),
+							Projections.Property(() => orderItemAlias.DiscountMoney)
+						   )
+					)).WithAlias(() => resultAlias.OrderSum)
+					.Select(Projections.Sum(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?2, ?1) * ?3"),
+							NHibernateUtil.Decimal,
+							Projections.Property(() => orderDepositItemAlias.Count),
+							Projections.Property(() => orderItemAlias.ActualCount),
+							Projections.Property(() => orderDepositItemAlias.Deposit)
+						   )
+					)).WithAlias(() => resultAlias.OrderReturnSum)
+					.Select(Projections.Property(() => incomeAlias.Money)).WithAlias(() => resultAlias.CashPaid)
+					.Select(Projections.Property(() => expenseAlias.Money)).WithAlias(() => resultAlias.CashReturn)
+				)
+				.OrderBy(x => x.DeliveryDate).Desc.ThenBy(x => x.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<SelfDeliveryJournalNode>());
 
-			return result;
-		}
-
-		protected override Func<IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => () => {
-			var result = BaseQuery(SelectNodes);
 			return result;
 		};
 
@@ -161,7 +148,7 @@ namespace Vodovoz.Representations
 
 		public override string FooterInfo {
 			get {
-				var lst = BaseQuery(SelectNodes).List<SelfDeliveryJournalNode>();
+				var lst = ItemsSourceQueryFunction().List<SelfDeliveryJournalNode>();
 				StringBuilder sb = new StringBuilder();
 				sb.Append("Сумма БН: <b>").Append(lst.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
 				sb.Append("Сумма нал: <b>").Append(lst.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
@@ -223,7 +210,7 @@ namespace Vodovoz.Representations
 		{
 			var order = UoW.GetById<VodovozOrder>(orderId);
 
-			if(order.SelfDeliveryIsFullyPaid()) {
+			if(order.SelfDeliveryIsFullyPaid(new CashRepository())) {
 				MessageDialogHelper.RunInfoDialog("Заказ уже оплачен полностью");
 				return;
 			}

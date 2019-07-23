@@ -305,9 +305,10 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionEmployeeActivated(object sender, EventArgs e)
 	{
+		EmployeeFilterViewModel employeeFilter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 		tdiMain.OpenTab(
 			PermissionControlledRepresentationJournal.GenerateHashName<EmployeesVM>(),
-			() => new PermissionControlledRepresentationJournal(new EmployeesVM())
+			() => new PermissionControlledRepresentationJournal(new EmployeesVM(employeeFilter))
 		);
 	}
 
@@ -1300,5 +1301,19 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			QSReport.ReportViewDlg.GenerateHashName<ProfitabilityBottlesByStockReport>(),
 			() => new QSReport.ReportViewDlg(new ProfitabilityBottlesByStockReport())
 		);
+	}
+
+	protected void OnActionPaymentsFromActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<PaymentFrom>(),
+			() => new OrmReference(typeof(PaymentFrom))
+		);
+	}
+	
+	protected void OnAction62Activated(object sender, EventArgs e)
+	{
+		var widget = new ResendEmailsDialog();
+		tdiMain.AddTab(widget);
 	}
 }

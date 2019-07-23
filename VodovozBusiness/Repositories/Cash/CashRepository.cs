@@ -1,103 +1,58 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using NHibernate.Criterion;
 using Vodovoz.Domain.Cash;
-using System.Collections.Generic;
-using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Cash.CashTransfer;
 
 namespace Vodovoz.Repository.Cash
 {
-	public class CashRepository
+	[Obsolete("Используйте одноимённый класс из Vodovoz.EntityRepositories.Cash")]
+	public static class CashRepository
 	{
-
+		[Obsolete]
 		public static decimal GetIncomePaidSumForOrder(IUnitOfWork uow, int orderId, int? excludedIncomeDoc = null)
 		{
-			var query = uow.Session.QueryOver<Income>().Where(x => x.Order.Id == orderId);
-			if(excludedIncomeDoc != null) {
-				query.Where(x => x.Id != excludedIncomeDoc);
-			}
-			return query.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
+			return new EntityRepositories.Cash.CashRepository().GetIncomePaidSumForOrder(uow, orderId, excludedIncomeDoc);
 		}
 
+		[Obsolete]
 		public static decimal GetExpenseReturnSumForOrder(IUnitOfWork uow, int orderId, int? excludedExpenseDoc = null)
 		{
-			var query = uow.Session.QueryOver<Expense>().Where(x => x.Order.Id == orderId);
-			if(excludedExpenseDoc != null) {
-				query.Where(x => x.Id != excludedExpenseDoc);
-			}
-			return query.Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
+			return new EntityRepositories.Cash.CashRepository().GetExpenseReturnSumForOrder(uow, orderId, excludedExpenseDoc);
 		}
 
-		public static decimal CurrentCash (IUnitOfWork uow)
+		[Obsolete]
+		public static decimal CurrentCash(IUnitOfWork uow)
 		{
-			decimal expense = uow.Session.QueryOver<Expense>()
-				.Select (Projections.Sum<Expense> (o => o.Money)).SingleOrDefault<decimal> ();
-
-			decimal income = uow.Session.QueryOver<Income>()
-				.Select (Projections.Sum<Income> (o => o.Money)).SingleOrDefault<decimal> ();
-
-			return income - expense;
+			return new EntityRepositories.Cash.CashRepository().CurrentCash(uow);
 		}
 
+		[Obsolete]
 		public static decimal CurrentCashForSubdivision(IUnitOfWork uow, Subdivision subdivision)
 		{
-			decimal expense = uow.Session.QueryOver<Expense>()
-				.Where(x => x.RelatedToSubdivision == subdivision)
-				.Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
-
-			decimal income = uow.Session.QueryOver<Income>()
-				.Where(x => x.RelatedToSubdivision == subdivision)
-				.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
-
-			return income - expense;
+			return new EntityRepositories.Cash.CashRepository().CurrentCashForSubdivision(uow, subdivision);
 		}
 
+		[Obsolete]
 		public static Income GetIncomeByRouteList(IUnitOfWork uow, int routeListId)
 		{
-			return uow.Session.QueryOver<Income>()
-				.Where(inc => inc.RouteListClosing.Id == routeListId)
-				.Where(inc => inc.TypeOperation == IncomeType.DriverReport)
-				.Take(1).SingleOrDefault();
+			return new EntityRepositories.Cash.CashRepository().GetIncomeByRouteList(uow, routeListId);
 		}
 
+		[Obsolete]
 		public static Expense GetExpenseByRouteListId(IUnitOfWork uow, int routeListId)
 		{
-			return uow.Session.QueryOver<Expense>()
-				.Where(exp => exp.RouteListClosing.Id == routeListId)
-				.Where(exp => exp.TypeOperation == ExpenseType.Expense)
-				.Take(1).SingleOrDefault();
+			return new EntityRepositories.Cash.CashRepository().GetExpenseByRouteListId(uow, routeListId);
 		}
 
+		[Obsolete]
 		public static decimal CurrentRouteListCash(IUnitOfWork uow, int routeListId)
 		{
-			decimal expense = uow.Session.QueryOver<Expense>()
-			                     .Where(exp => exp.RouteListClosing.Id == routeListId)
-			                     .Where(exp => exp.TypeOperation == ExpenseType.Expense)
-								 .Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
-
-			decimal income = uow.Session.QueryOver<Income>()
-			                    .Where(exp => exp.RouteListClosing.Id == routeListId)
-			                    .Where(exp => exp.TypeOperation == IncomeType.DriverReport)
-								.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
-
-			return income - expense;
+			return new EntityRepositories.Cash.CashRepository().CurrentRouteListCash(uow, routeListId);
 		}
 
-		/// <summary>
-		/// Возвращает сумму находящуюся в перемещении между кассами
-		/// </summary>
+		[Obsolete]
 		public static decimal GetCashInTransfering(IUnitOfWork uow)
 		{
-			CashTransferOperation cashTransferOperationAlias = null;
-			CashTransferDocumentBase cashTransferDocumentAlias = null;
-			return uow.Session.QueryOver<CashTransferOperation>(() => cashTransferOperationAlias)
-				.Left.JoinAlias(() => cashTransferOperationAlias.CashTransferDocument, () => cashTransferDocumentAlias)
-				.Where(() => cashTransferDocumentAlias.Status != CashTransferDocumentStatuses.Received)
-				.Where(() => cashTransferDocumentAlias.Status != CashTransferDocumentStatuses.New)
-				.Where(() => cashTransferOperationAlias.ReceiveTime == null)
-				.Select(Projections.Sum<CashTransferOperation>(o => o.TransferedSum))
-				.SingleOrDefault<decimal>();
+			return new EntityRepositories.Cash.CashRepository().GetCashInTransfering(uow);
 		}
 	}
 }

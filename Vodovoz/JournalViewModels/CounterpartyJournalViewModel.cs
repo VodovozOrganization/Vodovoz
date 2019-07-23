@@ -17,13 +17,6 @@ namespace Vodovoz.JournalViewModels
 		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал контрагентов";
-			RegisterAliasPropertiesToSearch(
-				() => counterpartyAlias.Id,
-				() => counterpartyAlias.VodovozInternalId,
-				() => counterpartyAlias.Name,
-				() => counterpartyAlias.INN,
-				() => phoneAlias.DigitsNumber
-			);
 			UpdateOnChanges(
 				typeof(Counterparty),
 				typeof(CounterpartyContract),
@@ -33,15 +26,16 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
-		CounterpartyJournalNode resultAlias = null;
-		Counterparty counterpartyAlias = null;
-		Counterparty counterpartyAliasForSubquery = null;
-		CounterpartyContract contractAlias = null;
-		Phone phoneAlias = null;
-		DeliveryPoint addressAlias = null;
-		Tag tagAliasForSubquery = null;
-
 		protected override Func<IQueryOver<Counterparty>> ItemsSourceQueryFunction => () => {
+			CounterpartyJournalNode resultAlias = null;
+			Counterparty counterpartyAlias = null;
+			Counterparty counterpartyAliasForSubquery = null;
+			CounterpartyContract contractAlias = null;
+			Phone phoneAlias = null;
+			DeliveryPoint addressAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			Tag tagAliasForSubquery = null;
+
 			var query = UoW.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
 			if(FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {
@@ -81,31 +75,37 @@ namespace Vodovoz.JournalViewModels
 				query.JoinAlias(c => c.Tags, () => tagAliasForSubquery)
 					 .Where(() => tagAliasForSubquery.Id == FilterViewModel.Tag.Id);
 
-			var counterpartyResultQuery = query
-				.JoinAlias(c => c.Phones, () => phoneAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.SelectList(list => list
+			query
+				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
+				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias);
+
+			query.Where(GetSearchCriterion(
+				() => counterpartyAlias.Id,
+				() => counterpartyAlias.VodovozInternalId,
+				() => counterpartyAlias.Name,
+				() => counterpartyAlias.INN,
+				() => phoneAlias.DigitsNumber,
+				() => deliveryPointAlias.CompiledAddress
+			));
+
+			var counterpartyResultQuery = query.SelectList(list => list
 				   .SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
 				   .SelectGroup(c => c.VodovozInternalId).WithAlias(() => resultAlias.InternalId)
 				   .Select(c => c.Name).WithAlias(() => resultAlias.Name)
 				   .Select(c => c.INN).WithAlias(() => resultAlias.INN)
 				   .Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
 				   .SelectSubQuery(contractsSubquery).WithAlias(() => resultAlias.Contracts)
-			   .Select(Projections.SqlFunction(
-				   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
-				   NHibernateUtil.String,
-					   Projections.Property(() => phoneAlias.Number),
-				   Projections.Constant("\n"))
-				   ).WithAlias(() => resultAlias.Phones)
-			   .Select(Projections.SqlFunction(
-					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+				   .Select(Projections.SqlFunction(
+					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
 					   NHibernateUtil.String,
-					   Projections.Property(() => phoneAlias.DigitsNumber),
+						   Projections.Property(() => phoneAlias.Number),
 					   Projections.Constant("\n"))
-				   ).WithAlias(() => resultAlias.PhonesDigits)
+					   ).WithAlias(() => resultAlias.Phones)			   
 					.SelectSubQuery(addressSubquery).WithAlias(() => resultAlias.Addresses)
 					.SelectSubQuery(tagsSubquery).WithAlias(() => resultAlias.Tags)
 				)
-				.TransformUsing(Transformers.AliasToBean<CounterpartyJournalNode>());
+				.TransformUsing(Transformers.AliasToBean<CounterpartyJournalNode>())
+				;
 
 			return counterpartyResultQuery;
 		};

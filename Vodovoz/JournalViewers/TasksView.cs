@@ -30,7 +30,6 @@ namespace Vodovoz.JournalViewers
 		public void ConfigureDlg()
 		{
 			EmployeesVM employeeVM = new EmployeesVM();
-			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
 			representationentryEmployee.RepresentationModel = employeeVM;
 			calltaskfilterview.Refiltered += (sender, e) => UpdateStatistics();
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
@@ -162,7 +161,10 @@ namespace Vodovoz.JournalViewers
 				return;
 
 			var selectedObjects = representationtreeviewTask.GetSelectedObjects();
-			var selectedObj = selectedObjects?[0];
+			if(selectedObjects == null || !selectedObjects.Any()) {
+				return;
+			}
+			var selectedObj = selectedObjects[0];
 			var selectedNodeId = (selectedObj as CallTaskVMNode)?.Id;
 			if(selectedNodeId == null)
 				return;

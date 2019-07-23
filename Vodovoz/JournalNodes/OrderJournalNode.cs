@@ -27,7 +27,8 @@ namespace Vodovoz.JournalNodes
 
 		public string Address1c { get; set; }
 
-		public string Address => IsSelfDelivery ? "Самовывоз" : string.Format("{0}, {1} д.{2}", City, Street, Building);
+		public string CompilledAddress { get; set; }
+		public string Address => IsSelfDelivery ? "Самовывоз" : CompilledAddress;
 
 		public string AuthorLastName { get; set; }
 		public string AuthorName { get; set; }

@@ -609,9 +609,6 @@
     <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
     <Compile Include="Representations\NomenclatureForSaleVM.cs" />
-    <Compile Include="ViewWidgets\Store\BottleReceptionView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.BottleReceptionView.cs" />
-    <Compile Include="Representations\BottleReceptionVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentTypeDlg.cs" />
     <Compile Include="Representations\RouteListsVM.cs" />
     <Compile Include="JournalFilters\RouteListsFilter.cs" />
@@ -1225,6 +1222,12 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
     <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
     <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
+    <Compile Include="Dialogs\Phones\PhonesViewModel.cs" />
+    <Compile Include="Dialogs\Phones\PhonesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Phones.PhonesView.cs" />
+    <Compile Include="Additions\ManualEmailSender.cs" />
+    <Compile Include="ServiceDialogs\ResendEmailsDialog.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ResendEmailsDialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1255,10 +1258,6 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QSContacts\QSContacts.csproj">
       <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
       <Name>QSContacts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSValidation\QSValidation.csproj">
-      <Project>{CE5179E8-3172-4C08-9FE3-9C48C58A3831}</Project>
-      <Name>QSValidation</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSSaaS\QSSaaS.csproj">
       <Project>{4B502FE5-D419-4B5C-9276-0A25EF2F508A}</Project>
@@ -1356,6 +1355,14 @@
       <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
       <Name>QS.HistoryLog</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSValidation\QSValidation.csproj">
+      <Project>{CE5179E8-3172-4C08-9FE3-9C48C58A3831}</Project>
+      <Name>QSValidation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Validation\QS.Validation.csproj">
+      <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
+      <Name>QS.Validation</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />
@@ -1432,6 +1439,7 @@
     <Folder Include="JournalColumnsConfigs\" />
     <Folder Include="ViewModels\" />
     <Folder Include="Views\" />
+    <Folder Include="Dialogs\Phones\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

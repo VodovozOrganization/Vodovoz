@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.Repository
 {
@@ -146,13 +147,4 @@ namespace Vodovoz.Repository
 			return result;
 		}
 	}
-
-	class ItemInStock
-	{
-		public int Id { get; set; }
-		public decimal Amount => Added - Removed;
-		public decimal Added { get; set; }
-		public decimal Removed { get; set; }
-	}
 }
-

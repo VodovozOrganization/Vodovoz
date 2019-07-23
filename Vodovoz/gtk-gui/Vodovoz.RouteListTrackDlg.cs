@@ -244,7 +244,7 @@ namespace Vodovoz
 			this.gmapWidget.NegativeMode = false;
 			this.gmapWidget.HasFrame = false;
 			this.gmapWidget.Bearing = 0F;
-			this.gmapWidget.Zoom = 9;
+			this.gmapWidget.Zoom = 9D;
 			this.gmapWidget.RoutesEnabled = true;
 			this.gmapWidget.PolygonsEnabled = false;
 			this.gmapWidget.MarkersEnabled = true;
@@ -256,7 +256,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vboxRight]));
 			w24.Position = 1;
 			this.Add(this.hbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.label2.Hide();

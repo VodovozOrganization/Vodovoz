@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gamma.Widgets;
@@ -26,11 +27,16 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories.Sale;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Tools.Logistic;
+using QS.DomainModel.Entity;
+using Vodovoz.Domain.Client;
+using NHibernate.Criterion;
+using Order = Vodovoz.Domain.Orders.Order;
+using NhibernateOrder = NHibernate.Criterion.Order;
 
 namespace Vodovoz
 {
@@ -67,7 +73,7 @@ namespace Vodovoz
 			private set {
 				hasNoChanges = value;
 
-				ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = ytimeToDelivery.Sensitive = ySpnMin19Btls.Sensitive
+				ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = ytimeToDeliveryFrom.Sensitive = ytimeToDeliveryTo.Sensitive = ySpnMin19Btls.Sensitive
 					= hasNoChanges;
 			}
 		}
@@ -104,11 +110,62 @@ namespace Vodovoz
 			OnloadTime
 		}
 
+		private class GeographicGroupNode : PropertyChangedBase
+		{
+			private bool selected;
+			public virtual bool Selected {
+				get => selected;
+				set => SetField(ref selected, value, () => Selected);
+			}
+
+			private GeographicGroup geographicGroup;
+			public virtual GeographicGroup GeographicGroup {
+				get => geographicGroup;
+				set => SetField(ref geographicGroup, value, () => GeographicGroup);
+			}
+
+			public GeographicGroupNode(GeographicGroup geographicGroup)
+			{
+				GeographicGroup = geographicGroup ?? throw new ArgumentNullException(nameof(geographicGroup));
+			}
+		}
+
+		GenericObservableList<GeographicGroupNode> geographicGroupNodes;
+
 		public RoutesAtDayDlg()
 		{
 			this.Build();
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+
+			Employee currentEmployee = ServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
+			if(currentEmployee == null) {
+				MessageDialogHelper.RunWarningDialog("Ваш пользователь не привязан к сотруднику, продолжение работы невозможно");
+				FailInitialize = true;
+				return;
+			}
+
+			if(currentEmployee.Subdivision == null) {
+				MessageDialogHelper.RunWarningDialog("У сотрудника не указано подразделение, продолжение работы невозможно");
+				FailInitialize = true;
+				return;
+			}
+			GeographicGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
+
+			ytreeviewGeographicGroup.ColumnsConfig = FluentColumnsConfig<GeographicGroupNode>.Create()
+				.AddColumn("Выбрать").AddToggleRenderer(x => x.Selected).Editing()
+				.AddColumn("Район города").AddTextRenderer(x => x.GeographicGroup.Name)
+				.Finish();
+			geographicGroupNodes = new GenericObservableList<GeographicGroupNode>(UoW.GetAll<GeographicGroup>().ToList().Select(x => new GeographicGroupNode(x)).ToList());
+
+			if(employeeGeographicGroup != null) {
+				var foundGeoGroup = geographicGroupNodes.FirstOrDefault(x => x.GeographicGroup.Id == employeeGeographicGroup.Id);
+				if(foundGeoGroup != null) {
+					foundGeoGroup.Selected = true;
+				}
+			}
+
+			ytreeviewGeographicGroup.ItemsDataSource = geographicGroupNodes;
 
 			if(progressOrders.Adjustment == null)
 				progressOrders.Adjustment = new Adjustment(0, 0, 0, 1, 1, 0);
@@ -202,11 +259,11 @@ namespace Vodovoz
 
 			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
 
-			ytimeToDelivery.Time = TimeSpan.Parse("23:59:00");
+			ytimeToDeliveryFrom.Time = TimeSpan.Parse("00:00:00");
+			ytimeToDeliveryTo.Time = TimeSpan.Parse("23:59:00");
 			ydateForRoutes.Date = DateTime.Today;
 
 			yspinMaxTime.Binding.AddBinding(optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt);
-			btnRefresh.Clicked += OnButtonCancelChangesClicked;
 
 			var subdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!subdivisions.Any()) {
@@ -378,8 +435,21 @@ namespace Vodovoz
 		void UpdateSelectedInfo(List<GMapMarker> selected)
 		{
 			var orders = selected.Select(x => x.Tag).OfType<Order>();
-			var selectedBottle = orders.Sum(o => o.TotalDeliveredBottles);
-			labelSelected.LabelProp = string.Format("Выбрано адресов: {0}\nБутылей: {1}", orders.Count(), selectedBottle);
+			if(!orders.Any()) {
+				labelSelected.Markup = "Адресов\nне выбрано";
+				menuAddToRL.Sensitive = false;
+				return;
+			}
+			var selectedBottle = orders.Sum(o => o.Total19LBottlesToDeliver);
+			var selectedKilos = orders.Sum(o => o.TotalWeight);
+			var selectedCbm = orders.Sum(o => o.TotalVolume);
+			labelSelected.Markup = string.Format(
+				"{0} адр.; {1} бут.;\n{2} кг; {3} м<sup>3</sup>",
+				orders.Count(),
+				selectedBottle,
+				selectedKilos,
+				selectedCbm
+			);
 			menuAddToRL.Sensitive = selected.Any() && routesAtDay.Any() && !checkShowCompleted.Active;
 		}
 
@@ -449,32 +519,32 @@ namespace Vodovoz
 		string GetRowBottles(object row)
 		{
 			if(row is RouteList rl) {
-				var bottles = rl.Addresses.Sum(x => x.Order.TotalDeliveredBottles);
+				var bottles = rl.Addresses.Sum(x => x.Order.Total19LBottlesToDeliver);
 				return FormatOccupancy(bottles, rl.Car.MinBottles, rl.Car.MaxBottles);
 			}
 
 			if(row is RouteListItem rli)
-				return rli.Order.TotalDeliveredBottles.ToString();
+				return rli.Order.Total19LBottlesToDeliver.ToString();
 			return null;
 		}
 
 		string GetRowBottlesSix(object row)
 		{
 			if(row is RouteList rl)
-				return rl.Addresses.Sum(x => x.Order.TotalDeliveredBottlesSix).ToString();
+				return rl.Addresses.Sum(x => x.Order.Total6LBottlesToDeliver).ToString();
 
 			if(row is RouteListItem rli)
-				return rli.Order.TotalDeliveredBottlesSix.ToString();
+				return rli.Order.Total6LBottlesToDeliver.ToString();
 			return null;
 		}
 
 		string GetRowBottlesSmall(object row)
 		{
 			if(row is RouteList rl)
-				return rl.Addresses.Sum(x => x.Order.TotalDeliveredBottlesSmall).ToString();
+				return rl.Addresses.Sum(x => x.Order.Total600mlBottlesToDeliver).ToString();
 
 			if(row is RouteListItem rli)
-				return rli.Order.TotalDeliveredBottlesSmall.ToString();
+				return rli.Order.Total600mlBottlesToDeliver.ToString();
 			return null;
 		}
 
@@ -601,16 +671,28 @@ namespace Vodovoz
 			MainClass.progressBarWin.ProgressStart(5);
 			UoW.Session.Clear();
 
-			var ordersQuery = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
-				.GetExecutableQueryOver(UoW.Session)
-				.Fetch(SelectMode.Fetch, x => x.DeliveryPoint)
+			DeliveryPoint deliveryPointAlias = null;
+			ScheduleRestrictedDistrict scheduleRestrictedDistrictAlias = null;
+			GeographicGroup geographicGroupAlias = null;
+
+			var baseOrderQuery = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
+				.GetExecutableQueryOver(UoW.Session);
+			var selectedGeographicGroup = geographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
+			if(selectedGeographicGroup.Any()) {
+				baseOrderQuery
+				.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.District, () => scheduleRestrictedDistrictAlias)
+				.Left.JoinAlias(() => scheduleRestrictedDistrictAlias.GeographicGroups, () => geographicGroupAlias)
+				.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
+			}
+				
+			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint)
 				.Future();
 
 			OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(UoW.Session)
 				.Fetch(SelectMode.Fetch, x => x.OrderItems)
 				.Future();
-
 			var withoutTime = ordersQuery.Where(x => x.DeliverySchedule == null).ToList();
 			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.CoordinatesExist).ToList();
 			if(withoutTime.Any() || withoutLocation.Any())
@@ -621,9 +703,10 @@ namespace Vodovoz
 
 			int.TryParse(ySpnMin19Btls.Text, out int minBtls);
 			ordersAtDay = ordersQuery.Where(x => x.DeliverySchedule != null)
-									 .Where(x => x.DeliverySchedule.To <= ytimeToDelivery.Time)
+									 .Where(x => x.DeliverySchedule.From >= ytimeToDeliveryFrom.Time)
+									 .Where(x => x.DeliverySchedule.From <= ytimeToDeliveryTo.Time)
 									 .Where(x => x.DeliveryPoint != null)
-									 .Where(o => o.TotalDeliveredBottles >= minBtls)
+									 .Where(o => o.Total19LBottlesToDeliver >= minBtls)
 									 .ToList()
 									 ;
 
@@ -641,22 +724,18 @@ namespace Vodovoz
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
 			MainClass.progressBarWin.ProgressAdd();
 
-			var routesQuery1 = RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
+			var routesQuery1 = new RouteListRepository().GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(UoW.Session);
 			if(!checkShowCompleted.Active)
 				routesQuery1.Where(x => x.Status == RouteListStatus.New);
+			GeographicGroup routeGeographicGroupAlias = null;
+			if(selectedGeographicGroup.Any()) {
+				routesQuery1
+				.Left.JoinAlias(x => x.GeographicGroups, () => routeGeographicGroupAlias)
+				.Where(Restrictions.In(Projections.Property(() => routeGeographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
+			}
 			var routesQuery = routesQuery1
 				.Fetch(SelectMode.Undefined, x => x.Addresses)
-				.Future();
-
-			var routesQuery2 = RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
-				.GetExecutableQueryOver(UoW.Session);
-			if(!checkShowCompleted.Active)
-				routesQuery2.Where(x => x.Status == RouteListStatus.New);
-			routesQuery2
-				.Where(x => x.Status == RouteListStatus.New)
-				.Fetch(SelectMode.Fetch, x => x.Driver)
-				.Fetch(SelectMode.Fetch, x => x.Car)
 				.Future();
 
 			routesAtDay = routesQuery.ToList();
@@ -669,11 +748,11 @@ namespace Vodovoz
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", ydateForRoutes.Date);
-			DriversAtDay = AtWorkRepository.GetDriversAtDay(UoW, ydateForRoutes.Date);
+			DriversAtDay = Repository.Logistics.AtWorkRepository.GetDriversAtDay(UoW, ydateForRoutes.Date);
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем экспедиторов на {0:d}...", ydateForRoutes.Date);
-			ForwardersAtDay = AtWorkRepository.GetForwardersAtDay(UoW, ydateForRoutes.Date);
+			ForwardersAtDay = Repository.Logistics.AtWorkRepository.GetForwardersAtDay(UoW, ydateForRoutes.Date);
 
 			MainClass.progressBarWin.ProgressAdd();
 			UpdateAddressesOnMap();
@@ -710,16 +789,16 @@ namespace Vodovoz
 
 			//добавляем маркеры адресов заказов
 			foreach(var order in ordersAtDay.Select(x => x).Where(x => !x.IsService)) {
-				totalBottlesCountAtDay += order.TotalDeliveredBottles;
+				totalBottlesCountAtDay += order.Total19LBottlesToDeliver;
 				var route = routesAtDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
 
 				if(route == null) {
 					addressesWithoutRoutes++;
-					bottlesWithoutRL += order.TotalDeliveredBottles;
+					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
 
 				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
-					PointMarkerShape shape = GetMarkerShape(order.TotalDeliveredBottles);
+					PointMarkerShape shape = GetMarkerShape(order.Total19LBottlesToDeliver);
 
 					PointMarkerType type = PointMarkerType.black;
 					if(route == null) {
@@ -750,12 +829,12 @@ namespace Vodovoz
 					};
 
 					string ttText = order.DeliveryPoint.ShortAddress;
-					if(order.TotalDeliveredBottles > 0)
-						ttText += string.Format("\nБутылей 19л: {0}", order.TotalDeliveredBottles);
-					if(order.TotalDeliveredBottlesSix > 0)
-						ttText += string.Format("\nБутылей 6л: {0}", order.TotalDeliveredBottlesSix);
-					if(order.TotalDeliveredBottlesSmall > 0)
-						ttText += string.Format("\nБутылей 0,6л: {0}", order.TotalDeliveredBottlesSmall);
+					if(order.Total19LBottlesToDeliver > 0)
+						ttText += string.Format("\nБутылей 19л: {0}", order.Total19LBottlesToDeliver);
+					if(order.Total6LBottlesToDeliver > 0)
+						ttText += string.Format("\nБутылей 6л: {0}", order.Total6LBottlesToDeliver);
+					if(order.Total600mlBottlesToDeliver > 0)
+						ttText += string.Format("\nБутылей 0,6л: {0}", order.Total600mlBottlesToDeliver);
 
 					ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 						order.DeliverySchedule?.Name ?? "Не назначено",
@@ -782,11 +861,16 @@ namespace Vodovoz
 			logger.Info("Ок.");
 		}
 
-		protected void OnYdateForRoutesDateChanged(object sender, EventArgs e)
+		private void Refresh()
 		{
 			FillDialogAtDay();
 			FillFullOrdersInfo();
 			OnTabNameChanged();
+		}
+
+		protected void OnYdateForRoutesDateChanged(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 
 		protected void OnYenumcomboMapTypeChangedByUser(object sender, EventArgs e)
@@ -895,10 +979,14 @@ namespace Vodovoz
 		{
 			var menu = new Menu();
 			foreach(var route in routesAtDay) {
-				var name = string.Format("№{0} - {1}", route.Id, route.Driver.ShortName);
+				var carrierInfo = string.Format("№{0} - {1}", route.Id, route.Driver.ShortName);
 				if(route.GeographicGroups.Any())
-					name = string.Concat(name, " (", route.GeographicGroups.FirstOrDefault().Name, ')');
-				var item = new MenuItemId<RouteList>(name) {
+					carrierInfo = string.Concat(carrierInfo, " (", route.GeographicGroups.FirstOrDefault().Name, ')');
+				carrierInfo = string.Concat(
+					carrierInfo,
+					string.Format("; {0} кг; {1} куб.м.", route.Car?.MaxWeight, route.Car?.MaxVolume)
+				);
+				var item = new MenuItemId<RouteList>(carrierInfo) {
 					ID = route
 				};
 				item.Activated += AddToRLItem_Activated;
@@ -910,42 +998,54 @@ namespace Vodovoz
 
 		void AddToRLItem_Activated(object sender, EventArgs e)
 		{
+			if(yspeccomboboxCashSubdivision.IsSelectedNot || ClosingSubdivision == null) {
+				MessageDialogHelper.RunWarningDialog("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
+				return;
+			}
+
 			bool recalculateLoading = false;
 			var selectedOrders = GetSelectedOrders();
 
 			var route = ((MenuItemId<RouteList>)sender).ID;
 
-			foreach(var order in selectedOrders) {
-				if(order.OrderStatus == OrderStatus.InTravelList) {
-					var alreadyIn = routesAtDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
-					if(alreadyIn == null)
-						throw new InvalidProgramException(string.Format("Маршрутный лист, в котором добавлен заказ {0} не найден.", order.Id));
-					if(alreadyIn.Id == route.Id) // Уже в нужном маршрутном листе.
-						continue;
-					var toRemoveAddress = alreadyIn.Addresses.First(x => x.Order.Id == order.Id);
-					if(toRemoveAddress.IndexInRoute == 0)
-						recalculateLoading = true;
-					alreadyIn.RemoveAddress(toRemoveAddress);
-					UoW.Save(alreadyIn);
+			foreach(var order in selectedOrders) {				
+				if(!CheckAlreadyAddedAddress(order)) {
+					return;
 				}
 				var item = route.AddAddressFromOrder(order);
 				if(item.IndexInRoute == 0)
 					recalculateLoading = true;
 			}
-			route.RecalculatePlanTime(distanceCalculator);
-			route.RecalculatePlanedDistance(distanceCalculator);
-			UoW.Save(route);
+			if(!CheckRouteListWasChanged(route)) {
+				return;
+			}
+			try {
+				route.RecalculatePlanTime(distanceCalculator);
+				route.RecalculatePlanedDistance(distanceCalculator);
+				SaveRouteList(route);
+			} catch(Exception ex) {
+				MessageDialogHelper.RunErrorDialog("Возникла ошибка при добавлении адресов, возможно из-за одновременного добавления одного адреса несколькими пользователями.\n" +
+					"Данные для формирования будут автоматически обновлены для продолжения работы.\n" +
+					"Повторите попытку добавления адресов.\n" +
+					$"Текст ошибки: {ex.Message}", "Ошибка при добавлении адресов");
+				Refresh();
+				return;
+			}
+
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			if(recalculateLoading)
 				RecalculateOnLoadTime();
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
 
-			if(route.HasOverweight()) {
-				MessageDialogHelper.RunWarningDialog(
-					string.Format("Автомобиль '{0}' в МЛ №{1} перегружен на {2} кг.", route.Car.Title, route.Id, route.Overweight())
-				);
-			}
+			StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}' в МЛ №{1}:", route.Car.Title, route.Id));
+			if(route.HasOverweight())
+				warningMsg.Append(string.Format("\n\t- перегружен на {0} кг", route.Overweight()));
+			if(route.HasVolumeExecess())
+				warningMsg.Append(string.Format("\n\t- объём груза превышен на {0} м<sup>3</sup>", route.VolumeExecess()));
+
+			if(route.HasOverweight() || route.HasVolumeExecess())
+				MessageDialogHelper.RunWarningDialog(warningMsg.ToString());
 		}
 
 		void RecalculateOnLoadTime()
@@ -976,25 +1076,15 @@ namespace Vodovoz
 			return orders;
 		}
 
-		protected void OnButtonSaveChangesClicked(object sender, EventArgs e)
-		{
-			Save();
-		}
-
-		protected void OnButtonCancelChangesClicked(object sender, EventArgs e)
-		{
-			UoW.Session.Clear();
-			HasNoChanges = true;
-			FillDialogAtDay();
-		}
-
 		protected void OnButtonRemoveAddressClicked(object sender, EventArgs e)
 		{
 			var row = ytreeRoutes.GetSelectedObject<RouteListItem>();
 			var route = row.RouteList;
 			route.RemoveAddress(row);
-			UoW.Save(route);
-			UpdateAddressesOnMap();
+			if(!CheckRouteListWasChanged(route)) {
+				return;
+			}
+			SaveRouteList(route);
 			route.RecalculatePlanTime(distanceCalculator);
 			route.RecalculatePlanedDistance(distanceCalculator);
 			RoutesWasUpdated();
@@ -1003,35 +1093,48 @@ namespace Vodovoz
 		protected void OnCheckShowCompletedToggled(object sender, EventArgs e)
 		{
 			FillDialogAtDay();
-			buttonSaveChanges.Sensitive = !checkShowCompleted.Active;
 		}
 
 		#region TDIDialog
 
 		public override bool Save()
 		{
-			if(yspeccomboboxCashSubdivision.IsSelectedNot || ClosingSubdivision == null) {
-				MessageDialogHelper.RunWarningDialog("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
-				return false;
-			}
-			//Перестраиваем все маршруты
+			return false;
+		}
+
+		private void SaveRouteList(RouteList routeList)
+		{
 			RebuildAllRoutes();
-			routesAtDay.ToList().ForEach(x => {
-				x.ClosingSubdivision = ClosingSubdivision;
-				UoW.Save(x);
-			});
-			//DriversAtDay.ToList().ForEach(x => uow.Save(x));
-			//ForwardersAtDay.ToList().ForEach(x => uow.Save(x));
+			UoW.Save(routeList);
 			UoW.Commit();
 			HasNoChanges = true;
-			FillDialogAtDay();
-			return true;
 		}
 
 		public override bool HasChanges {
 			get {
 				return !HasNoChanges;
 			}
+		}
+
+		private bool CheckAlreadyAddedAddress(Order order)
+		{
+			RouteListRepository routeListRepository = new RouteListRepository();
+			var routeList = routeListRepository.GetRouteListByOrder(UoW, order);
+			if(routeList == null) {
+				return true;
+			}
+			MessageDialogHelper.RunWarningDialog($"Адрес ({order.DeliveryPoint.CompiledAddress}) уже был кем-то добавлен в МЛ ({routeList.Id}). Обновите данные.");
+			return false;
+		}
+
+		private bool CheckRouteListWasChanged(RouteList routeList)
+		{
+			RouteListRepository routeListRepository = new RouteListRepository();
+			if(routeListRepository.RouteListWasChanged(routeList)) {
+				MessageDialogHelper.RunWarningDialog($"МЛ ({routeList.Id}) уже был кем-то изменен. Обновите данные.");
+				return false;
+			}
+			return true;
 		}
 
 		void RebuildAllRoutes()
@@ -1138,7 +1241,7 @@ namespace Vodovoz
 			logger.Info("Получаем авто для водителей...");
 			MainClass.progressBarWin.ProgressStart(2);
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
-			var allCars = CarRepository.GetCarsbyDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
+			var allCars = Repository.Logistics.CarRepository.GetCarsbyDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
 			MainClass.progressBarWin.ProgressAdd();
 
 			foreach(var driver in addDrivers) {
@@ -1284,7 +1387,7 @@ namespace Vodovoz
 		{
 			var SelectDriverCar = new OrmReference(
 				UoW,
-				CarRepository.ActiveCompanyCarsQuery()
+				Repository.Logistics.CarRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
 			SelectDriverCar.Tag = driver;
@@ -1393,6 +1496,11 @@ namespace Vodovoz
 		{
 			distanceCalculator?.Dispose();
 			base.Destroy();
+		}
+
+		protected void OnBtnRefreshClicked(object sender, EventArgs e)
+		{
+			Refresh();
 		}
 	}
 }

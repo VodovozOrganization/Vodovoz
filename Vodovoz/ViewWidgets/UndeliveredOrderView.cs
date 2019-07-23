@@ -321,6 +321,7 @@ namespace Vodovoz.ViewWidgets
 					return;
 				}
 				newOrder = undelivery.NewOrder = UoW.GetById<Order>(selectedId);
+				newOrder.Author = this.oldOrder.Author;
 				SetLabelsAcordingToNewOrder();
 				undelivery.NewDeliverySchedule = newOrder.DeliverySchedule;
 			};

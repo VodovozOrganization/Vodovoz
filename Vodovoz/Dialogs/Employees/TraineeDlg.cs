@@ -70,7 +70,7 @@ namespace Vodovoz.Dialogs.Employees
 			phonesView.UoW = UoWGeneric;
 			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
 			if(Entity.Phones == null) {
-				Entity.Phones = new List<Phone>();
+				Entity.Phones = new List<QSContacts.Phone>();
 			}
 			phonesView.Phones = Entity.Phones;
 

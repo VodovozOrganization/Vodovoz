@@ -80,8 +80,11 @@ namespace Vodovoz.ViewModel
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
-		public EmployeesVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
-		{ }
+		public EmployeesVM()
+		{
+			CreateDisposableUoW();
+			CreateRepresentationFilter = () => new EmployeeFilterViewModel(ServicesConfig.CommonServices) { ShowFired = false };
+		}
 
 		public EmployeesVM(IUnitOfWork uow)
 		{

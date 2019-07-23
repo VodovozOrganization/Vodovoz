@@ -17,9 +17,11 @@ using QS.Tdi.Gtk;
 using QSOsm.DTO;
 using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Dialogs.Phones;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -45,7 +47,7 @@ namespace Vodovoz
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.DeliveryPricePanelView };
 		public override bool HasChanges {
 			get {
-				phonesview1.RemoveEmpty();
+				phonesview1.ViewModel.RemoveEmpty();
 				return base.HasChanges;
 			}
 			set => base.HasChanges = value;
@@ -92,8 +94,9 @@ namespace Vodovoz
 			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
 			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
 
-			phonesview1.UoW = UoW;
-			phonesview1.PhonesList = Entity.ObservablePhones;
+			phonesview1.ViewModel = new PhonesViewModel(new GtkInteractiveService(), UoW);
+			phonesview1.ViewModel.PhonesList = Entity.ObservablePhones;
+
 			ShowResidue();
 
 			ySpecCmbCategory.ItemsList = UoW.Session.QueryOver<DeliveryPointCategory>().Where(c => !c.IsArchive).List().OrderBy(c => c.Name);
@@ -369,6 +372,8 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			phonesview1.ViewModel.RemoveEmpty();
+
 			if(!Entity.CoordinatesExist && !MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 				return false;
 
@@ -381,8 +386,7 @@ namespace Vodovoz
 								Gtk.ButtonsType.YesNo
 							))
 				return false;
-
-			phonesview1.RemoveEmpty();
+				
 			UoWGeneric.Save();
 			return true;
 		}

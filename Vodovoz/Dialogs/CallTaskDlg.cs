@@ -8,6 +8,7 @@ using Vodovoz.Repositories.Client;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Operations;
 using Vodovoz.ViewModel;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Dialogs
 {
@@ -53,7 +54,8 @@ namespace Vodovoz.Dialogs
 			yentryTareReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			yentryTareReturn.Text = Entity.TareReturn.ToString();
 
-			EmployeesVM employeeVM = new EmployeesVM();
+			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
 			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
 			EmployeeyEntryreferencevm.RepresentationModel = employeeVM;
 
@@ -129,9 +131,9 @@ namespace Vodovoz.Dialogs
 			if(Entity.DeliveryPoint == null)
 				return;
 			OrderDlg orderDlg = new OrderDlg();
-			orderDlg.Entity.Client = Entity.Counterparty;
+			orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
 			orderDlg.Entity.UpdateClientDefaultParam();
-			orderDlg.Entity.DeliveryPoint = Entity.DeliveryPoint;
+			orderDlg.Entity.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(Entity.DeliveryPoint.Id);
 			TabParent.AddTab(orderDlg , this);
 		}
 

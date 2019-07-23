@@ -7,15 +7,20 @@ using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
+using QS.Services;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.DataService;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services;
 
@@ -25,11 +30,8 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		public override bool HasChanges => BottlesReceptionList.Sum(x => x.Amount) >= 0
-															   || GoodsReceptionList.Sum(x => x.Amount) >= 0
-															   || base.HasChanges;
+		public override bool HasChanges => GoodsReceptionList.Sum(x => x.Amount) >= 0 || base.HasChanges;
 
-		GenericObservableList<GoodsReceptionVMNode> BottlesReceptionList;
 		GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
 		public SelfDeliveryDocumentDlg()
@@ -43,7 +45,22 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
+
 			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.SelfDeliveryEdit);
+			var validationResult = CheckPermission(EmployeeRepository.GetEmployeeForCurrentUser(UoW));
+			if(!validationResult.CanRead) {
+				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
+				FailInitialize = true;
+				return;
+			}
+
+			if(!validationResult.CanCreate) {
+				MessageDialogHelper.RunErrorDialog("Нет прав для создания документа отпуска самовывоза");
+				FailInitialize = true;
+				return;
+			}
+
+			canEditDocument = true;
 			ConfigureDlg();
 		}
 
@@ -51,6 +68,14 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
+			var validationResult = CheckPermission(EmployeeRepository.GetEmployeeForCurrentUser(UoW));
+			if(!validationResult.CanRead) {
+				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
+				FailInitialize = true;
+				return;
+			}
+			canEditDocument = validationResult.CanUpdate;
+
 			ConfigureDlg();
 		}
 
@@ -58,16 +83,30 @@ namespace Vodovoz
 		{
 		}
 
+		private IPermissionResult CheckPermission(Employee employee)
+		{
+			IPermissionService permissionService = ServicesConfig.PermissionService;
+			return permissionService.ValidateUserPermission(typeof(SelfDeliveryDocument), Repositories.HumanResources.UserRepository.GetCurrentUser(UoW).Id);
+		}
+
+		private bool canEditDocument;
+
 		void ConfigureDlg()
 		{
+			var validationResult = CheckPermission(EmployeeRepository.GetEmployeeForCurrentUser(UoW));
+
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
 				return;
 			}
 
+			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository());
+			vbxMain.Sensitive = canEditDocument;
+			buttonCancel.Sensitive = true;
+
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse);
-			yentryrefOrder.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
-			selfdeliverydocumentitemsview1.Sensitive = vBoxBottles.Sensitive = editing;
+			yentryrefOrder.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing && canEditDocument;
+			selfdeliverydocumentitemsview1.Sensitive = hbxTareToReturn.Sensitive = editing && canEditDocument;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.SelfDeliveryEdit);
@@ -84,19 +123,13 @@ namespace Vodovoz
 
 			UpdateOrderInfo();
 			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyUnloaded(UoW);
+			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(), new BottlesRepository());
 			selfdeliverydocumentitemsview1.DocumentUoW = UoWGeneric;
 			//bottlereceptionview1.UoW = UoW;
 			UpdateWidgets();
+			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
+			spnTareToReturn.Binding.AddBinding(Entity, e => e.TareToReturn, w => w.ValueAsInt).InitializeFromSource();
 
-			IColumnsConfig bottlesColumnsConfig = FluentColumnsConfig<GoodsReceptionVMNode>.Create()
-				.AddColumn("Номенклатура").AddTextRenderer(node => node.Name)
-				.AddColumn("Кол-во").AddNumericRenderer(node => node.Amount).WidthChars(3)
-				.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
-				.Editing(true)
-				.AddColumn("")
-				.Finish();
-			yTreeBottles.ColumnsConfig = bottlesColumnsConfig;
 			FillTrees();
 
 			IColumnsConfig goodsColumnsConfig = FluentColumnsConfig<GoodsReceptionVMNode>.Create()
@@ -123,20 +156,12 @@ namespace Vodovoz
 											  .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 											 ).TransformUsing(Transformers.AliasToBean<GoodsReceptionVMNode>())
 								  .List<GoodsReceptionVMNode>();
-			BottlesReceptionList = new GenericObservableList<GoodsReceptionVMNode>(orderBottles);
-			yTreeBottles.ItemsDataSource = BottlesReceptionList;
-
 			if(Entity.ReturnedItems.Any())
 				LoadReturned();
 		}
 
 		void LoadReturned()
 		{
-			foreach(GoodsReceptionVMNode item in BottlesReceptionList) {
-				var returned = Entity.ReturnedItems.FirstOrDefault(x => x.Nomenclature.Id == item.NomenclatureId);
-				item.Amount = returned != null ? (int)returned.Amount : 0;
-			}
-
 			GoodsReceptionList.Clear();
 			foreach(var item in Entity.ReturnedItems) {
 				if(item.Nomenclature.Category != NomenclatureCategory.bottle)
@@ -163,10 +188,10 @@ namespace Vodovoz
 			}
 
 			Entity.UpdateOperations(UoW);
-			Entity.UpdateReceptions(UoW, BottlesReceptionList, GoodsReceptionList, new NomenclatureRepository(), new BottlesRepository());
+			Entity.UpdateReceptions(UoW, GoodsReceptionList, new NomenclatureRepository(), new BottlesRepository());
 
 			IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
-			if(Entity.FullyShiped(UoW, standartNomenclatures))
+			if(Entity.FullyShiped(UoW, standartNomenclatures, new RouteListItemRepository(), new SelfDeliveryRepository(), new CashRepository()))
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 
 			logger.Info("Сохраняем документ самовывоза...");
@@ -198,7 +223,7 @@ namespace Vodovoz
 			UpdateOrderInfo();
 			Entity.FillByOrder();
 			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyUnloaded(UoW);
+			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(), new BottlesRepository());
 			UpdateAmounts();
 		}
 
@@ -206,7 +231,7 @@ namespace Vodovoz
 		{
 			Entity.FillByOrder();
 			Entity.UpdateStockAmount(UoW);
-			Entity.UpdateAlreadyUnloaded(UoW);
+			Entity.UpdateAlreadyUnloaded(UoW, new NomenclatureRepository(), new BottlesRepository());
 			UpdateAmounts();
 			UpdateWidgets();
 		}
@@ -221,7 +246,7 @@ namespace Vodovoz
 		{
 			bool bottles = Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
 			bool goods = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
-			vBoxBottles.Visible = bottles;
+			hbxTareToReturn.Visible = bottles;
 			vBoxOtherGoods.Visible = goods;
 		}
 

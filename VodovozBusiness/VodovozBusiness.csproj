@@ -585,9 +585,6 @@
     <Compile Include="HibernateMapping\Cash\Transfer\IncomeCashTransferedItemMap.cs" />
     <Compile Include="HibernateMapping\Cash\Transfer\ExpenseCashTransferedItemMap.cs" />
     <Compile Include="ViewModelBased\ViewModelBase.cs" />
-    <Compile Include="ViewModelBased\PropertySubscribedCommandBase.cs" />
-    <Compile Include="ViewModelBased\DelegateCommandGeneric.cs" />
-    <Compile Include="ViewModelBased\DelegateCommand.cs" />
     <Compile Include="ViewModelBased\IViewModelBasedDialog.cs" />
     <Compile Include="ViewModelBased\ViewModelGeneric.cs" />
     <Compile Include="Filters\IncomeFilter.cs" />
@@ -654,6 +651,13 @@
     <Compile Include="Domain\Fuel\FuelWriteoffDocumentItem.cs" />
     <Compile Include="HibernateMapping\Fuel\FuelWriteoffDocumentMap.cs" />
     <Compile Include="HibernateMapping\Fuel\FuelWriteoffDocumentItemMap.cs" />
+    <Compile Include="Domain\Order\PaymentFrom.cs" />
+    <Compile Include="HibernateMapping\Order\PaymentFromMap.cs" />
+    <Compile Include="EntityRepositories\Store\SelfDeliveryRepository.cs" />
+    <Compile Include="EntityRepositories\Store\ISelfDeliveryRepository.cs" />
+    <Compile Include="EntityRepositories\Store\ItemInStock.cs" />
+    <Compile Include="EntityRepositories\Cash\CashRepository.cs" />
+    <Compile Include="EntityRepositories\Cash\ICashRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -701,6 +705,8 @@
     <Folder Include="EntityRepositories\Operations\" />
     <Folder Include="EntityRepositories\Goods\" />
     <Folder Include="EntityRepositories\Logistic\" />
+    <Folder Include="EntityRepositories\Store\" />
+    <Folder Include="EntityRepositories\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
@@ -770,6 +776,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj">
       <Project>{E2228A2B-4883-4DD8-8A05-23501F7B8A33}</Project>
       <Name>QS.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Validation\QS.Validation.csproj">
+      <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
+      <Name>QS.Validation</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

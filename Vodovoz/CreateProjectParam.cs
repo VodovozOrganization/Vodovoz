@@ -4,6 +4,7 @@ using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
 using NHibernate.Cfg;
+using QS.Dialog.Gtk;
 using QS.HistoryLog;
 using QS.Permissions;
 using QS.Print;
@@ -11,6 +12,7 @@ using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using QS.Tdi.Gtk;
 using QS.Widgets.GtkUI;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
@@ -28,6 +30,7 @@ using Vodovoz.Dialogs.Cash.CashTransfer;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Employees;
+using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -46,16 +49,11 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
-using QS.Tdi.Gtk;
-using Vodovoz.Dialogs.Fuel;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Filters.GtkViews;
-using QS.Dialog.Gtk;
-using QS.Journal.GtkUI;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.ViewModels;
 using Vodovoz.Views;
-using QS.Project.Journal;
 
 namespace Vodovoz
 {
@@ -113,6 +111,7 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_close_deliveries_for_counterparty", new PresetUserPermissionSource("can_close_deliveries_for_counterparty", "Возможность закрыть поставки для клиента", "Возможность закрыть поставки для клиента"));
 			PermissionsSettings.PresetPermissions.Add("can_edit_cashier_review_comment", new PresetUserPermissionSource("can_edit_cashier_review_comment", "Комментарий по проверке кассы", "Возможность изменять комментарий по проверке кассы"));
 			PermissionsSettings.PresetPermissions.Add("can_edit_fuelwriteoff_document_date", new PresetUserPermissionSource("can_edit_fuelwriteoff_document_date", "Смена даты в акте выдачи топлива", "Возможность изменять дату в акте выдачи топлива"));
+			PermissionsSettings.PresetPermissions.Add("can_edit_price_discount_from_route_list", new PresetUserPermissionSource("can_edit_price_discount_from_route_list", "Изменение цены и скидки в закрытии МЛ", "Возможность изменять цену и скидку в заказе из закрытия МЛ"));
 			UserDialog.UserPermissionViewsCreator = delegate {
 				return new List<IUserPermissionTab> {
 					new SubdivisionForUserEntityPermissionWidget()
@@ -291,6 +290,11 @@ namespace Vodovoz
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
 			OrmMain.AddObjectDescription<NonReturnReason>()
+				   .DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.Name)
+				   .End();
+			OrmMain.AddObjectDescription<PaymentFrom>()
 				   .DefaultTableView()
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)

@@ -182,6 +182,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private decimal? originalDiscountMoney;
+		[Display(Name = "Скидки на товар которая была установлена до отмены заказа")]
+		public virtual decimal? OriginalDiscountMoney {
+			get => originalDiscountMoney;
+			set => SetField(ref originalDiscountMoney, value, () => OriginalDiscountMoney);
+		}
+
 		private decimal discountByStock;
 		[Display(Name = "Скидка по акции")]
 		public virtual decimal DiscountByStock {
@@ -204,6 +211,14 @@ namespace Vodovoz.Domain.Orders
 			get => discountReason;
 			set => SetField(ref discountReason, value, () => DiscountReason);
 		}
+
+		private DiscountReason originalDiscountReason;
+		[Display(Name = "Основание скидки на товар до отмены заказа")]
+		public virtual DiscountReason OriginalDiscountReason {
+			get => originalDiscountReason;
+			set => SetField(ref originalDiscountReason, value, () => OriginalDiscountReason);
+		}
+
 
 		CounterpartyMovementOperation counterpartyMovementOperation;
 
@@ -329,6 +344,10 @@ namespace Vodovoz.Domain.Orders
 
 		void RemoveDiscount()
 		{
+			if(DiscountMoney > 0) {
+				OriginalDiscountMoney = DiscountMoney;
+				OriginalDiscountReason = DiscountReason;
+			}
 			IsDiscountInMoney = false;
 			DiscountReason = null;
 			DiscountMoney = 0;

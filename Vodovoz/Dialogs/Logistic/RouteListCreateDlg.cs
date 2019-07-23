@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
@@ -109,7 +110,7 @@ namespace Vodovoz
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false
 			);
-			referenceDriver.RepresentationModel = new EmployeesVM();
+			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
@@ -265,26 +266,20 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			if(buttonAccept.Label == "Подтвердить" && Entity.HasOverweight()) {
+			StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}':", Entity.Car.Title));
+			if(Entity.HasOverweight())
+				warningMsg.Append(string.Format("\n\t- перегружен на {0} кг", Entity.Overweight()));
+			if(Entity.HasVolumeExecess())
+				warningMsg.Append(string.Format("\n\t- объём груза превышен на {0} м<sup>3</sup>", Entity.VolumeExecess()));
+
+			if(buttonAccept.Label == "Подтвердить" && (Entity.HasOverweight() || Entity.HasVolumeExecess())) {
 				if(UserPermissionRepository.CurrentUserPresetPermissions["can_confirm_routelist_with_overweight"]) {
-					if(
-						!MessageDialogHelper.RunQuestionDialog(
-							String.Format(
-								"Вы перегрузили '{0}' на {1} кг.\nВы уверены что хотите подтвердить маршрутный лист?",
-								Entity.Car.Title,
-								Entity.Overweight()
-							)
-						)
-					)
+					warningMsg.AppendLine("\nВы уверены что хотите подтвердить маршрутный лист?");
+					if(!MessageDialogHelper.RunQuestionDialog(warningMsg.ToString()))
 						return;
 				} else {
-					MessageDialogHelper.RunWarningDialog(
-						String.Format(
-							"Вы перегрузили '{0}' на {1} кг.\nПодтвердить маршрутный лист нельзя.",
-							Entity.Car.Title,
-							Entity.Overweight()
-						)
-					);
+					warningMsg.AppendLine("\nПодтвердить маршрутный лист нельзя.");
+					MessageDialogHelper.RunWarningDialog(warningMsg.ToString());
 					return;
 				}
 			}
@@ -360,6 +355,7 @@ namespace Vodovoz
 		protected void OnReferenceCarChanged(object sender, EventArgs e)
 		{
 			createroutelistitemsview1.UpdateWeightInfo();
+			createroutelistitemsview1.UpdateVolumeInfo();
 		}
 
 		protected void OnReferenceCarChangedByUser(object sender, EventArgs e)

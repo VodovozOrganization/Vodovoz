@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
@@ -20,19 +22,28 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
+using NLog;
 
 namespace Vodovoz.Representations
 {
 	public class UndeliveredOrdersVM
 	{
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
 		public UndeliveredOrdersFilter Filter { get; set; }
 		public IUnitOfWork UoW { get; set; }
+
+		public event EventHandler ItemsUpdated;
 
 		#region IRepresentationModel implementation
 
 		int undeliveryToShow = 0;
 		int currUser = 0;
-		public IList<UndeliveredOrdersVMNode> Result { get; set; }
+		private IList<UndeliveredOrdersVMNode> result;
+		public IList<UndeliveredOrdersVMNode> Result {
+			get => filtredItemsList ?? result;
+			set => result = value;
+		}
 
 		public virtual void UpdateNodes()
 		{
@@ -483,21 +494,155 @@ namespace Vodovoz.Representations
 		{
 			this.undeliveryToShow = undeliveryToShow;
 		}
+
+		private void RaiseItemsUpdated()
+		{
+			ItemsUpdated?.Invoke(this, EventArgs.Empty);
+		}
+
+		#region Поиск
+
+		List<UndeliveredOrdersVMNode> filtredItemsList;
+
+		public virtual IEnumerable<string> SearchFields {
+			get {
+				foreach(var prop in typeof(UndeliveredOrdersVMNode).GetProperties()) {
+					var att = prop.GetCustomAttributes(typeof(UseForSearchAttribute), true).FirstOrDefault();
+					if(att != null)
+						yield return prop.Name;
+				}
+			}
+		}
+
+		public bool SearchFieldsExist {
+			get {
+				return SearchFields.Any();
+			}
+		}
+
+		public bool CanEntryFastSelect => false;
+
+		string[] searchStrings;
+
+		public string[] SearchStrings {
+			get {
+				return searchStrings;
+			}
+			set {
+				if(searchStrings != null && value != null && searchStrings.SequenceEqual(value))
+					return;
+
+				if(value != null && value.Any(x => String.IsNullOrEmpty(x)))
+					searchStrings = value.Where(x => !String.IsNullOrEmpty(x)).ToArray();
+				else
+					searchStrings = value;
+
+				OnSearchRefilter();
+			}
+		}
+
+		public string SearchString {
+			get {
+				return SearchStrings != null && SearchStrings.Length > 0
+					? SearchStrings[0] : String.Empty;
+			}
+			set {
+				SearchStrings = new string[] { value };
+			}
+		}
+
+		private PropertyInfo[] searchPropCache;
+
+		protected virtual PropertyInfo[] SearchPropCache {
+			get {
+				if(searchPropCache != null)
+					return searchPropCache;
+
+				searchPropCache = typeof(UndeliveredOrdersVMNode).GetProperties()
+					.Where(prop => prop.GetCustomAttributes(typeof(UseForSearchAttribute), true).Length > 0)
+					.ToArray();
+
+				return searchPropCache;
+			}
+		}
+
+		protected void OnSearchRefilter()
+		{
+			if(searchThread != null && searchThread.IsAlive) {
+				searchThread.Abort();
+				searchThread = null;
+			}
+
+			if(SearchStrings == null || SearchStrings.Length == 0) {
+				filtredItemsList = null;
+				RaiseItemsUpdated();
+			} else {
+				if(Result.Count > 100) {
+					searchThread = new Thread(RefilterList);
+					searchThread.Start();
+				} else
+					RefilterList();
+			}
+		}
+
+		Thread searchThread;
+
+		void RefilterList()
+		{
+			var filtredParam = String.Join(", ", SearchStrings.Select(x => String.Format("<{0}>", x)));
+			logger.Info("Фильтрация таблицы по {0}...", filtredParam);
+			DateTime searchStarted = DateTime.Now;
+			var newList = Result.AsParallel().Where(SearchFilterFunc).ToList();
+			filtredItemsList = newList;
+
+			var delay = DateTime.Now.Subtract(searchStarted);
+			logger.Debug("Поиск нашел {0} элементов за {1} секунд.", newList.Count, delay.TotalSeconds);
+			logger.Info("Ок");
+			Gtk.Application.Invoke(delegate {
+				RaiseItemsUpdated();
+			});
+		}
+
+		public bool SearchFilterNodeFunc(object item, string key)
+		{
+			foreach(var prop in SearchPropCache) {
+				string Str = (prop.GetValue(item, null) ?? String.Empty).ToString();
+				if(Str.IndexOf(key, StringComparison.CurrentCultureIgnoreCase) > -1) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private bool SearchFilterFunc(UndeliveredOrdersVMNode item)
+		{
+			foreach(var searchString in SearchStrings) {
+				bool found = false;
+				foreach(var prop in SearchPropCache) {
+					string Str = (prop.GetValue(item, null) ?? String.Empty).ToString();
+					if(Str.IndexOf(searchString, StringComparison.CurrentCultureIgnoreCase) > -1) {
+						found = true;
+						break;
+					}
+				}
+				if(!found)
+					return false;
+			}
+			return true;
+		}
+
+		#endregion
 	}
 
 	public class UndeliveredOrdersVMNode
 	{
 		public int Id { get; set; }
 		public int NumberInList { get; set; }
+		public bool IsComment { get; set; }
+		public virtual string StrId { get => NumberInList.ToString(); set {; } }
+		public UndeliveryStatus StatusEnum { get; set; }
 		[UseForSearch]
 		[SearchHighlight]
-
-		public bool IsComment { get; set; }
-
-		public virtual string StrId { get => NumberInList.ToString(); set {; } }
-
-		public UndeliveryStatus StatusEnum { get; set; }
-
 		public virtual string DriverName { get => OldRouteListDriverName ?? "Заказ\nне в МЛ"; set {; } }
 		[UseForSearch]
 		[SearchHighlight]
@@ -505,13 +650,15 @@ namespace Vodovoz.Representations
 		[UseForSearch]
 		[SearchHighlight]
 		public virtual string Client { get; set; }
+		[UseForSearch]
+		[SearchHighlight]
 		public virtual string ClientAndAddress => String.Format("{0}\n{1}", Client, Address);
 		[UseForSearch]
 		[SearchHighlight]
 		public virtual string Reason { get; set; }
-		public virtual string OldOrderAuthor { get => PersonHelper.PersonNameWithInitials(OldOrderAuthorLastName, OldOrderAuthorFirstName, OldOrderAuthorMidleName); set {; } }
 		[UseForSearch]
 		[SearchHighlight]
+		public virtual string OldOrderAuthor { get => PersonHelper.PersonNameWithInitials(OldOrderAuthorLastName, OldOrderAuthorFirstName, OldOrderAuthorMidleName); set {; } }
 		public virtual string Guilty { get; set; }
 
 		public virtual string UndeliveredOrderItems {
@@ -544,14 +691,16 @@ namespace Vodovoz.Representations
 			set {; } 
 		}
 
-		[UseForSearch]
-		[SearchHighlight]
 		public virtual string TransferDateTime { 
 			get => NewOrderId > 0 ? NewOrderDeliveryDate?.ToString("d MMM\n") + NewOrderDeliverySchedule + "\n№" + NewOrderId.ToString() : "Новый заказ\nне создан"; 
 			set {; } 
 		}
 		public virtual string ActionWithInvoice { get => NewOrderId > 0 ? NewOrderId.ToString() : "Новый заказ\nне создан"; set {; } }
+		[UseForSearch]
+		[SearchHighlight]
 		public virtual string Registrator { get => PersonHelper.PersonNameWithInitials(RegistratorLastName, RegistratorFirstName, RegistratorMidleName); set {; } }
+		[UseForSearch]
+		[SearchHighlight]
 		public virtual string UndeliveryAuthor { get => PersonHelper.PersonNameWithInitials(AuthorLastName, AuthorFirstName, AuthorMidleName); set {; } }
 		public virtual string Status { get => UndeliveryStatus.GetEnumTitle(); set {; } }
 		public virtual string FinedPeople { get => Fined ?? "Не выставлено"; set {; } }

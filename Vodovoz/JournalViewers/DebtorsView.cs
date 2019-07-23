@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gtk;
+using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Representations;
@@ -8,7 +9,7 @@ using Vodovoz.Representations;
 namespace Vodovoz.JournalViewers
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DebtorsView : QS.Dialog.Gtk.TdiTabBase
+	public partial class DebtorsView : SingleUowTabBase
 	{
 		BottleDebtorsVM bottleDebtorVM;
 
@@ -22,6 +23,7 @@ namespace Vodovoz.JournalViewers
 		void ConfigureWidget()
 		{
 			bottledebtorsfilter.UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = bottledebtorsfilter.UoW;
 			bottleDebtorVM = new BottleDebtorsVM(bottledebtorsfilter);
 			treeviewDebtors.RepresentationModel = bottleDebtorVM;
 			treeviewDebtors.Selection.Mode = SelectionMode.Multiple;
@@ -90,6 +92,12 @@ namespace Vodovoz.JournalViewers
 		{
 			bottledebtorsfilter.UoW?.Dispose();
 			base.Destroy();
+		}
+
+		public override void Dispose()
+		{
+			UoW?.Dispose();
+			base.Dispose();
 		}
 	}
 }
