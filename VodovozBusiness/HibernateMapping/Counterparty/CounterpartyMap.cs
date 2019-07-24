@@ -43,6 +43,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.SpecialDeliveryAddress).Column("special_delivery_address");
 			Map(x => x.RingUpPhone).Column("ringup_phone");
 			Map(x => x.NeedCheque).Column("need_cheque").CustomType<ChequeResponseStringType>();
+			Map(x => x.Torg2Count).Column("torg2_count");
+			Map(x => x.TTNCount).Column("ttn_count");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
 			References(x => x.Accountant).Column("accountant_id");

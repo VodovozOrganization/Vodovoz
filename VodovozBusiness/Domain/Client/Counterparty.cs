@@ -417,6 +417,7 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref firstOrder, value, () => FirstOrder);
 		}
 
+		#region ОсобаяПечать
 		bool useSpecialDocFields;
 
 		[Display(Name = "Особая печать документов ")]
@@ -466,6 +467,22 @@ namespace Vodovoz.Domain.Client
 			get => deliveryAddress;
 			set => SetField(ref deliveryAddress, value, () => SpecialDeliveryAddress);
 		}
+
+		int? ttnCount;
+		[Display(Name = "Кол-во ТТН")]
+		public virtual int? TTNCount{
+			get => ttnCount;
+			set => SetField(ref ttnCount, value, () => TTNCount);
+		}
+
+		int? torg2Count;
+		[Display(Name = "Кол-во Торг-2")]
+		public virtual int? Torg2Count{
+			get => torg2Count;
+			set => SetField(ref torg2Count, value, () => Torg2Count);
+		}
+
+		#endregion ОсобаяПечать
 
 		ChequeResponse? needCheque;
 		[Display(Name = "Требуется печать чека")]
