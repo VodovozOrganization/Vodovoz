@@ -413,6 +413,7 @@
     <DataSet Name="Orders">
       <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>200</Timeout>
         <CommandText>SELECT * FROM
 (
 	SELECT
