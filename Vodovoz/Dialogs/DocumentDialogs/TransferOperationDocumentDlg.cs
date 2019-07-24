@@ -94,7 +94,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			ySpecCmbDeliveryPointFrom.Sensitive = Entity.FromClient != null;
 			if(Entity.FromClient != null) {
-				ySpecCmbDeliveryPointFrom.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{1}: <b>{0}</b>", d.ShortAddress, d.Id));
+				ySpecCmbDeliveryPointFrom.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{1}: {0}", d.ShortAddress, d.Id));
 				ySpecCmbDeliveryPointFrom.ItemsList = Entity.FromClient.DeliveryPoints;
 				ySpecCmbDeliveryPointFrom.Binding.AddBinding(Entity, t => t.FromDeliveryPoint, w => w.SelectedItem).InitializeFromSource();
 				RefreshSpinButtons(new BottlesRepository(), new DepositRepository());
