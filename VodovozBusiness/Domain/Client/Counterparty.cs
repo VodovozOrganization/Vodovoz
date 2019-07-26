@@ -477,9 +477,23 @@ namespace Vodovoz.Domain.Client
 
 		int? torg2Count;
 		[Display(Name = "Кол-во Торг-2")]
-		public virtual int? Torg2Count{
+		public virtual int? Torg2Count {
 			get => torg2Count;
 			set => SetField(ref torg2Count, value, () => Torg2Count);
+		}
+
+		string okpo;
+		[Display(Name = "ОКПО")]
+		public virtual string OKPO {
+			get => okpo;
+			set => SetField(ref okpo, value, () => OKPO);
+		}
+
+		string okdp;
+		[Display(Name = "ОКДП")]
+		public virtual string OKDP{
+			get => okdp;
+			set => SetField(ref okdp, value, () => OKDP);
 		}
 
 		#endregion ОсобаяПечать

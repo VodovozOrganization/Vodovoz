@@ -183,6 +183,8 @@ namespace Vodovoz
 			yentryGovContract.Binding.AddBinding(Entity, e => e.GovContract, w => w.Text).InitializeFromSource();
 			yentrySpecialDeliveryAddress.Binding.AddBinding(Entity, e => e.SpecialDeliveryAddress, w => w.Text).InitializeFromSource();
 			buttonLoadFromDP.Clicked += ButtonLoadFromDP_Clicked;
+			yentryOKDP.Binding.AddBinding(Entity, e => e.OKDP, w => w.Text).InitializeFromSource();
+			yentryOKPO.Binding.AddBinding(Entity, e => e.OKPO, w => w.Text).InitializeFromSource();
 
 			int?[] docCount = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 			yspeccomboboxTTNCount.ItemsList = docCount;
