@@ -658,6 +658,7 @@
     <Compile Include="EntityRepositories\Store\ItemInStock.cs" />
     <Compile Include="EntityRepositories\Cash\CashRepository.cs" />
     <Compile Include="EntityRepositories\Cash\ICashRepository.cs" />
+    <Compile Include="Domain\Order\Documents\TransportInvoiceDocument.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

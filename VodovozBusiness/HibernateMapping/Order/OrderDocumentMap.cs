@@ -9,7 +9,7 @@ namespace Vodovoz.HibernateMapping
 		{
 			Table ("order_documents");
 			Not.LazyLoad ();
-
+			
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			DiscriminateSubClassesOnColumn ("type");
 			References (x => x.Order).Column ("order_id");
@@ -211,6 +211,14 @@ namespace Vodovoz.HibernateMapping
 		{
 			DiscriminatorValue("ProductCertificate");
 			References(x => x.Certificate).Column("certificate_id");
+		}
+	}
+
+	public class TransportInvoiceDocumentMap : SubclassMap<TransportInvoiceDocument>
+	{
+		public TransportInvoiceDocumentMap()
+		{
+			DiscriminatorValue("TransportInvoice");
 		}
 	}
 }
