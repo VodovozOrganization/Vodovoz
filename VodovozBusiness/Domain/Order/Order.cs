@@ -3416,6 +3416,12 @@ namespace Vodovoz.Domain.Orders
 				case OrderDocumentType.EquipmentReturn:
 					newDoc = new EquipmentReturnDocument();
 					break;
+				case OrderDocumentType.TransportInvoice:
+					newDoc = new TransportInvoiceDocument();
+					break;
+				case OrderDocumentType.Torg2:
+					newDoc = new Torg2Document();
+					break;
 				default:
 					throw new NotImplementedException();
 			}
