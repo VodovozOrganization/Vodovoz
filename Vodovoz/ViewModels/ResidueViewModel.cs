@@ -1,22 +1,21 @@
 ﻿using System;
-using QS.Project.Domain;
-using QS.Services;
-using QS.ViewModels;
-using Vodovoz.Domain;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.EntityRepositories.Operations;
-using QS.Utilities;
-using Vodovoz.Domain.Operations;
-using QSProjectsLib;
-using QS.RepresentationModel.GtkUI;
-using Vodovoz.ViewModel;
-using Vodovoz.Domain.Client;
-using QS.Commands;
-using Vodovoz.Domain.Goods;
 using System.Linq;
-using Vodovoz.JournalFilters;
+using QS.Commands;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Domain;
+using QS.RepresentationModel.GtkUI;
+using QS.Services;
+using QS.Utilities;
+using QS.ViewModels;
+using QSProjectsLib;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalFilters;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.ViewModels
 {
@@ -28,13 +27,13 @@ namespace Vodovoz.ViewModels
 		private readonly IDepositRepository depositRepository;
 		private readonly IMoneyRepository moneyRepository;
 
-		public ResidueViewModel(IEntityConstructorParam ctorParam, 
+		public ResidueViewModel(IEntityConstructorParam ctorParam,
 			IEmployeeService employeeService,
 			IRepresentationEntityPicker entityPicker,
 			IBottlesRepository bottlesRepository,
 			IDepositRepository depositRepository,
-			IMoneyRepository moneyRepository, 
-			ICommonServices commonServices) 
+			IMoneyRepository moneyRepository,
+			ICommonServices commonServices)
 		: base(ctorParam, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -59,9 +58,9 @@ namespace Vodovoz.ViewModels
 
 		private void ConfigureEntityPropertyChanges()
 		{
-			OnEntityPropertyChanged(UpdateDeliveryPointsVM, e => e.Customer);
-			OnEntityPropertyChanged(UpdateResidue, 
-				e => e.DeliveryPoint, 
+			OnEntityPropertyChanged(
+				UpdateResidue,
+				e => e.DeliveryPoint,
 				e => e.Customer
 			);
 		}
@@ -82,14 +81,15 @@ namespace Vodovoz.ViewModels
 		{
 			Entity.LastEditAuthor = CurrentEmployee;
 			Entity.LastEditTime = DateTime.Now;
-			Entity.DeliveryPoint.HaveResidue = true;
+			if(Entity.DeliveryPoint != null)
+				Entity.DeliveryPoint.HaveResidue = true;
 			Entity.UpdateOperations(UoW, bottlesRepository, moneyRepository, depositRepository, CommonServices.ValidationService);
 
 			base.BeforeSave();
 		}
 
-		private string  currentBottlesDebt;
-		public virtual string  CurrentBottlesDebt {
+		private string currentBottlesDebt;
+		public virtual string CurrentBottlesDebt {
 			get => currentBottlesDebt;
 			set => SetField(ref currentBottlesDebt, value, () => CurrentBottlesDebt);
 		}
@@ -110,21 +110,6 @@ namespace Vodovoz.ViewModels
 		public virtual string CurrentMoneyDebt {
 			get => currentMoneyDebt;
 			set => SetField(ref currentMoneyDebt, value, () => CurrentMoneyDebt);
-		}
-
-		private IRepresentationModel deliveryPointsVM;
-		public virtual IRepresentationModel DeliveryPointsVM {
-			get => deliveryPointsVM;
-			set => SetField(ref deliveryPointsVM, value, () => DeliveryPointsVM);
-		}
-
-		private void UpdateDeliveryPointsVM()
-		{
-			if(Entity.Customer == null) {
-				DeliveryPointsVM = null;
-			} else {
-				DeliveryPointsVM = new ClientDeliveryPointsVM(UoW, Entity.Customer);
-			}
 		}
 
 		private void UpdateResidue()

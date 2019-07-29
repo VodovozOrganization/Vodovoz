@@ -1,6 +1,6 @@
 ﻿using System;
-using QS.Utilities.Text;
 using QS.Project.Journal;
+using QS.Utilities.Text;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.JournalNodes
@@ -11,7 +11,7 @@ namespace Vodovoz.JournalNodes
 
 		public DateTime Date { get; set; }
 
-		public string DateString { get { return Date.ToShortDateString() + " " + Date.ToShortTimeString(); } }
+		public string DateString => Date.ToShortDateString() + " " + Date.ToShortTimeString();
 
 		public string Counterparty { get; set; }
 
@@ -23,14 +23,18 @@ namespace Vodovoz.JournalNodes
 		public string AuthorName { get; set; }
 		public string AuthorPatronymic { get; set; }
 
-		public string Author { get { return PersonHelper.PersonNameWithInitials(AuthorSurname, AuthorName, AuthorPatronymic); } }
+		public string Author => PersonHelper.PersonNameWithInitials(AuthorSurname, AuthorName, AuthorPatronymic);
 
 		public string LastEditorSurname { get; set; }
 		public string LastEditorName { get; set; }
 		public string LastEditorPatronymic { get; set; }
 
-		public string LastEditor { get { return PersonHelper.PersonNameWithInitials(LastEditorSurname, LastEditorName, LastEditorPatronymic); } }
+		public string LastEditor => PersonHelper.PersonNameWithInitials(LastEditorSurname, LastEditorName, LastEditorPatronymic);
 
-		public string DeliveryPoint { get; set; }
+		string deliveryPoint;
+		public string DeliveryPoint {
+			get => deliveryPoint ?? "Самовывоз";
+			set => deliveryPoint = value;
+		}
 	}
 }
