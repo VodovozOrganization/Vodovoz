@@ -147,6 +147,16 @@ namespace Vodovoz.Tools.Orders
 					}
 				)
 			);
+
+			//Torg2
+			rules.Add(
+				new Rule(
+					key => GetConditionForTorg2(key),
+					new[] {
+						OrderDocumentType.Torg2
+					}
+				)
+			);
 		}
 
 		static bool GetConditionForInvoice(OrderStateKey key)
@@ -165,6 +175,11 @@ namespace Vodovoz.Tools.Orders
 			} else {
 				return (cashless || byCard || cash || courierByCard) && accepted;
 			}
+		}
+
+		static bool GetConditionForTorg2(OrderStateKey key)
+		{
+			return key.Order.Client.Torg2Count.HasValue;
 		}
 
 		static bool GetConditionForTransportInvoice(OrderStateKey key)

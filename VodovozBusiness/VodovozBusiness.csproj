@@ -659,6 +659,7 @@
     <Compile Include="EntityRepositories\Cash\CashRepository.cs" />
     <Compile Include="EntityRepositories\Cash\ICashRepository.cs" />
     <Compile Include="Domain\Order\Documents\TransportInvoiceDocument.cs" />
+    <Compile Include="Domain\Order\Documents\Torg2Document.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

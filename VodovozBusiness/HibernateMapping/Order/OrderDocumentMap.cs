@@ -221,4 +221,12 @@ namespace Vodovoz.HibernateMapping
 			DiscriminatorValue("TransportInvoice");
 		}
 	}
+
+	public class Torg2DocumentMap : SubclassMap<Torg2Document>
+	{
+		public Torg2DocumentMap()
+		{
+			DiscriminatorValue("Torg2");
+		}
+	}
 }

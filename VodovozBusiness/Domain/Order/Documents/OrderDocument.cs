@@ -134,7 +134,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		ProductCertificate,
 		[DocumentOfOrder]
 		[Display(Name = "Товарно-транспортная накладная")]
-		TransportInvoice
+		TransportInvoice,
+		[DocumentOfOrder]
+		[Display(Name = "ТОРГ-2")]
+		Torg2
 	}
 
 	public interface ITemplateOdtDocument
