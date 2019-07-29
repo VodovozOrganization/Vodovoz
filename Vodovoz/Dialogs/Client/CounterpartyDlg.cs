@@ -24,6 +24,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -182,6 +183,14 @@ namespace Vodovoz
 			yentryGovContract.Binding.AddBinding(Entity, e => e.GovContract, w => w.Text).InitializeFromSource();
 			yentrySpecialDeliveryAddress.Binding.AddBinding(Entity, e => e.SpecialDeliveryAddress, w => w.Text).InitializeFromSource();
 			buttonLoadFromDP.Clicked += ButtonLoadFromDP_Clicked;
+			yentryOKDP.Binding.AddBinding(Entity, e => e.OKDP, w => w.Text).InitializeFromSource();
+			yentryOKPO.Binding.AddBinding(Entity, e => e.OKPO, w => w.Text).InitializeFromSource();
+
+			int?[] docCount = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+			yspeccomboboxTTNCount.ItemsList = docCount;
+			yspeccomboboxTorg2Count.ItemsList = docCount;
+			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
 
 			//Setting Contacts
 			contactsview1.CounterpartyUoW = UoWGeneric;
