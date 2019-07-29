@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Representations;
@@ -77,13 +78,13 @@ namespace Vodovoz.JournalColumnsConfigs
 			//ResidueJournalViewModel
 			TreeViewColumnsConfigFactory.Register<ResidueJournalViewModel>(
 				() => FluentColumnsConfig<ResidueJournalNode>.Create()
-					.AddColumn("Документ").AddTextRenderer(node => string.Format("Ввод остатков №{0}", node.Id)).SearchHighlight()
-					.AddColumn("Дата").AddTextRenderer(node => node.DateString)
-					.AddColumn("Контрагент").AddTextRenderer(NodeType => NodeType.Counterparty)
-					.AddColumn("Точка доставки").AddTextRenderer(NodeType => NodeType.DeliveryPoint)
-					.AddColumn("Автор").AddTextRenderer(node => node.Author)
-					.AddColumn("Изменил").AddTextRenderer(node => node.LastEditor)
-					.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : string.Empty)
+					.AddColumn("Документ").AddTextRenderer(node => String.Format("Ввод остатков №{0}", node.Id)).SearchHighlight()
+					.AddColumn("Дата").SetDataProperty(node => node.DateString)
+					.AddColumn("Контрагент").SetDataProperty(NodeType => NodeType.Counterparty)
+					.AddColumn("Точка доставки").SetDataProperty(NodeType => NodeType.DeliveryPoint)
+					.AddColumn("Автор").SetDataProperty(node => node.Author)
+					.AddColumn("Изменил").SetDataProperty(node => node.LastEditor)
+					.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
 					.Finish()
 			);
 

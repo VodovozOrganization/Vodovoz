@@ -38,9 +38,6 @@ namespace Vodovoz.JournalViewModels
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			SetOrder<ResidueJournalNode>(x => x.Date, true);
-			UpdateOnChanges(
-				typeof(Residue)
-			);
 		}
 
 		private readonly IEmployeeService employeeService;

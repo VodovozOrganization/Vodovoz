@@ -84,7 +84,7 @@ namespace Vodovoz.Views
 
 		private global::Gamma.Widgets.yDatePicker ypickerDocDate;
 
-		private global::Gamma.Widgets.ySpecComboBox ySpecCmbDeliveryPoint;
+		private global::QS.Widgets.GtkUI.RepresentationEntry yreferenceDeliveryPoint;
 
 		protected virtual void Build()
 		{
@@ -533,15 +533,11 @@ namespace Vodovoz.Views
 			w40.XOptions = ((global::Gtk.AttachOptions)(4));
 			w40.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ySpecCmbDeliveryPoint = new global::Gamma.Widgets.ySpecComboBox();
-			this.ySpecCmbDeliveryPoint.Name = "ySpecCmbDeliveryPoint";
-			this.ySpecCmbDeliveryPoint.AddIfNotExist = false;
-			this.ySpecCmbDeliveryPoint.DefaultFirst = false;
-			this.ySpecCmbDeliveryPoint.ShowSpecialStateAll = false;
-			this.ySpecCmbDeliveryPoint.ShowSpecialStateNot = true;
-			this.ySpecCmbDeliveryPoint.NameForSpecialStateNot = "Самовывоз";
-			this.table1.Add(this.ySpecCmbDeliveryPoint);
-			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.table1[this.ySpecCmbDeliveryPoint]));
+			this.yreferenceDeliveryPoint = new global::QS.Widgets.GtkUI.RepresentationEntry();
+			this.yreferenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
+			this.yreferenceDeliveryPoint.Name = "yreferenceDeliveryPoint";
+			this.table1.Add(this.yreferenceDeliveryPoint);
+			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.table1[this.yreferenceDeliveryPoint]));
 			w41.TopAttach = ((uint)(2));
 			w41.BottomAttach = ((uint)(3));
 			w41.LeftAttach = ((uint)(1));
@@ -558,7 +554,6 @@ namespace Vodovoz.Views
 			}
 			this.tableInfo.Hide();
 			this.Hide();
-			this.entryClient.Changed += new global::System.EventHandler(this.OnEntryClientChanged);
 		}
 	}
 }

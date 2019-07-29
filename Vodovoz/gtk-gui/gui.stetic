@@ -1662,7 +1662,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -50816,7 +50815,6 @@ not tooltip</property>
                         <property name="DefaultFirst">False</property>
                         <property name="ShowSpecialStateAll">False</property>
                         <property name="ShowSpecialStateNot">True</property>
-                        <property name="NameForSpecialStateNot">Самовывоз</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">1</property>
@@ -51120,7 +51118,6 @@ not tooltip</property>
                         <property name="DefaultFirst">False</property>
                         <property name="ShowSpecialStateAll">False</property>
                         <property name="ShowSpecialStateNot">True</property>
-                        <property name="NameForSpecialStateNot">Самовывоз</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">1</property>
@@ -81472,7 +81469,6 @@ not tooltip</property>
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="CanEditReference">False</property>
-                <signal name="Changed" handler="OnEntryClientChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -82088,15 +82084,9 @@ not tooltip</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.ySpecComboBox" id="ySpecCmbDeliveryPoint">
+              <widget class="QS.Widgets.GtkUI.RepresentationEntry" id="yreferenceDeliveryPoint">
                 <property name="MemberName" />
-                <property name="IsTextCombo">False</property>
-                <property name="Items" translatable="yes" />
-                <property name="AddIfNotExist">False</property>
-                <property name="DefaultFirst">False</property>
-                <property name="ShowSpecialStateAll">False</property>
-                <property name="ShowSpecialStateNot">True</property>
-                <property name="NameForSpecialStateNot">Самовывоз</property>
+                <property name="Events">ButtonPressMask</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
