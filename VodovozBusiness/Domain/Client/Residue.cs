@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Services;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
-using System.Linq;
-using Vodovoz.Tools;
-using QS.Services;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
 {
@@ -36,7 +36,6 @@ namespace Vodovoz.Domain.Client
 		Counterparty customer;
 
 		[Display (Name = "Контрагент")]
-		[Required(ErrorMessage = "Контрагент должен быть указан.")]
 		public virtual Counterparty Customer {
 			get { return customer; }
 			set {
@@ -49,7 +48,6 @@ namespace Vodovoz.Domain.Client
 		DeliveryPoint deliveryPoint;
 
 		[Display (Name = "Точка доставки")]
-		[Required (ErrorMessage = "Точка доставки должна быть указана.")]
 		public virtual DeliveryPoint DeliveryPoint {
 			get { return deliveryPoint; }
 			set { SetField (ref deliveryPoint, value, () => DeliveryPoint);}
@@ -348,17 +346,13 @@ namespace Vodovoz.Domain.Client
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Customer == null) {
-				yield return new ValidationResult("Должен быть заполнен контрагент");
-			}
-
-			if(Date == null) {
-				yield return new ValidationResult("Должна быть заполнена дата");
-			}
+			if(Customer == null) 
+				yield return new ValidationResult(
+					"Должен быть заполнен контрагент",
+					new[] { this.GetPropertyName(o => o.Customer) }
+				);
 		}
 
 		#endregion IValidableObject implementation
-
 	}
 }
-

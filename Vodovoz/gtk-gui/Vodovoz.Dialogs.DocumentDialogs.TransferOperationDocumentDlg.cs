@@ -364,6 +364,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.ySpecCmbDeliveryPointFrom.DefaultFirst = false;
 			this.ySpecCmbDeliveryPointFrom.ShowSpecialStateAll = false;
 			this.ySpecCmbDeliveryPointFrom.ShowSpecialStateNot = true;
+			this.ySpecCmbDeliveryPointFrom.NameForSpecialStateNot = "Самовывоз";
 			this.tableSender.Add(this.ySpecCmbDeliveryPointFrom);
 			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.tableSender[this.ySpecCmbDeliveryPointFrom]));
 			w25.TopAttach = ((uint)(1));
@@ -552,6 +553,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			this.ySpecCmbDeliveryPointTo.DefaultFirst = false;
 			this.ySpecCmbDeliveryPointTo.ShowSpecialStateAll = false;
 			this.ySpecCmbDeliveryPointTo.ShowSpecialStateNot = true;
+			this.ySpecCmbDeliveryPointTo.NameForSpecialStateNot = "Самовывоз";
 			this.tableReceiver.Add(this.ySpecCmbDeliveryPointTo);
 			global::Gtk.Table.TableChild w43 = ((global::Gtk.Table.TableChild)(this.tableReceiver[this.ySpecCmbDeliveryPointTo]));
 			w43.TopAttach = ((uint)(1));
