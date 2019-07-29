@@ -2345,6 +2345,11 @@ namespace Vodovoz
 
 		void UpdateButtonState()
 		{
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_edit_order"]) {
+				buttonEditOrder.Sensitive = false;
+				buttonEditOrder.TooltipText = "Нет права на редактирование";
+			}
+
 			if(Entity.CanSetOrderAsAccepted) {
 				buttonAcceptOrder.Visible = true;
 				buttonEditOrder.Visible = false;
