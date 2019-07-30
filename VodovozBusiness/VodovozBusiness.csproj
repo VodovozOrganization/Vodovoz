@@ -660,6 +660,20 @@
     <Compile Include="EntityRepositories\Cash\ICashRepository.cs" />
     <Compile Include="Domain\Order\Documents\TransportInvoiceDocument.cs" />
     <Compile Include="Domain\Order\Documents\Torg2Document.cs" />
+    <Compile Include="Domain\Complaints\Complaint.cs" />
+    <Compile Include="Domain\Complaints\ComplaintSource.cs" />
+    <Compile Include="Domain\Complaints\ComplaintDiscussion.cs" />
+    <Compile Include="Domain\Complaints\ComplaintDiscussionComment.cs" />
+    <Compile Include="Domain\Complaints\ComplaintFile.cs" />
+    <Compile Include="Domain\Complaints\ComplaintGuiltyItem.cs" />
+    <Compile Include="Domain\Complaints\ComplaintGuiltyTypes.cs" />
+    <Compile Include="Domain\Complaints\ComplaintStatuses.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintDiscussionMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintDiscussionCommentMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintFileMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintGuiltyItemMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintSourceMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -709,6 +723,8 @@
     <Folder Include="EntityRepositories\Logistic\" />
     <Folder Include="EntityRepositories\Store\" />
     <Folder Include="EntityRepositories\Cash\" />
+    <Folder Include="Domain\Complaints\" />
+    <Folder Include="HibernateMapping\Complaints\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

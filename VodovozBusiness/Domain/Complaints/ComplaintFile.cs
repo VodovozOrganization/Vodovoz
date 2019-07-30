@@ -1,0 +1,38 @@
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using QS.HistoryLog;
+
+namespace Vodovoz.Domain.Complaints
+{
+	[Appellative(Gender = GrammaticalGender.Neuter,
+		NominativePlural = "комментарии к обсуждению жалобы",
+		Nominative = "комментарий к обсуждению жалобы"
+	)]
+	[HistoryTrace]
+	public class ComplaintFile : PropertyChangedBase, IDomainObject
+	{
+		public int Id { get; set; }
+
+		private string fileStorageId;
+		[Display(Name = "Идентификатор файла в системе хранения")]
+		public virtual string FileStorageId {
+			get => fileStorageId;
+			set => SetField(ref fileStorageId, value, () => FileStorageId);
+		}
+
+		private Complaint complaint;
+		[Display(Name = "Жалоба")]
+		public virtual Complaint Complaint {
+			get => complaint;
+			set => SetField(ref complaint, value, () => Complaint);
+		}
+
+		private ComplaintDiscussionComment complaintDiscussionComment;
+		[Display(Name = "Комментарий к обсуждению жалобы")]
+		public virtual ComplaintDiscussionComment ComplaintDiscussionComment {
+			get => complaintDiscussionComment;
+			set => SetField(ref complaintDiscussionComment, value, () => ComplaintDiscussionComment);
+		}
+	}
+}
