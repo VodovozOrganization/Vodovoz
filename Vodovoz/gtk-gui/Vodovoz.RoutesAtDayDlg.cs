@@ -140,6 +140,7 @@ namespace Vodovoz
 			this.vbox5.Spacing = 6;
 			// Container child vbox5.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(6)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -827,6 +828,7 @@ namespace Vodovoz
 			this.buttonOpen.Clicked += new global::System.EventHandler(this.OnButtonOpenClicked);
 			this.buttonRebuildRoute.Clicked += new global::System.EventHandler(this.OnButtonRebuildRouteClicked);
 			this.buttonRemoveAddress.Clicked += new global::System.EventHandler(this.OnButtonRemoveAddressClicked);
+			this.btnRefresh.Clicked += new global::System.EventHandler(this.OnBtnRefreshClicked);
 			this.checkShowDistricts.Toggled += new global::System.EventHandler(this.OnCheckShowDistrictsToggled);
 			this.yenumcomboMapType.ChangedByUser += new global::System.EventHandler(this.OnYenumcomboMapTypeChangedByUser);
 			this.buttonMapHelp.Clicked += new global::System.EventHandler(this.OnButtonMapHelpClicked);

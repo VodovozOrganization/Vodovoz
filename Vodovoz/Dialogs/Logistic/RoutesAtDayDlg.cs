@@ -12,8 +12,10 @@ using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
 using Gtk;
 using NHibernate;
+using NHibernate.Criterion;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Utilities;
 using QSOrmProject;
@@ -22,6 +24,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -32,9 +35,6 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Tools.Logistic;
-using QS.DomainModel.Entity;
-using Vodovoz.Domain.Client;
-using NHibernate.Criterion;
 using Order = Vodovoz.Domain.Orders.Order;
 using NhibernateOrder = NHibernate.Criterion.Order;
 
@@ -384,6 +384,20 @@ namespace Vodovoz
 				}
 			}
 
+			if(args.Event.Button == 3 && addressesOverlay.Markers.FirstOrDefault(m => m.IsMouseOver)?.Tag is Order order) {
+				Menu popupMenu = new Menu();
+				var item = new MenuItem(string.Format("Открыть {0}", order));
+				item.Activated += (sender, e) => {
+					var dlg = new OrderDlg(order);
+					dlg.UoWGeneric.CanCheckIfDirty = false;
+					dlg.HasChanges = false;
+					dlg.SetDlgToReadOnly();
+					OpenSlaveTab(dlg);
+				};
+				popupMenu.Add(item);
+				popupMenu.ShowAll();
+				popupMenu.Popup();
+			}
 		}
 
 		void OnPoligonSelectionUpdated()
@@ -685,7 +699,7 @@ namespace Vodovoz
 				.Left.JoinAlias(() => scheduleRestrictedDistrictAlias.GeographicGroups, () => geographicGroupAlias)
 				.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
 			}
-				
+
 			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint)
 				.Future();
 
@@ -1008,7 +1022,7 @@ namespace Vodovoz
 
 			var route = ((MenuItemId<RouteList>)sender).ID;
 
-			foreach(var order in selectedOrders) {				
+			foreach(var order in selectedOrders) {
 				if(!CheckAlreadyAddedAddress(order)) {
 					return;
 				}
