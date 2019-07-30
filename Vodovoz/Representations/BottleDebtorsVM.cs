@@ -240,7 +240,7 @@ namespace Vodovoz.Representations
 						var selectedNodes = selectedItems.Cast<BottleDebtorsVMNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null) {
-							OpenReport(selectedNode.AddressId);
+							OpenReport(selectedNode.ClientId, selectedNode.AddressId);
 						}
 					}
 				));
