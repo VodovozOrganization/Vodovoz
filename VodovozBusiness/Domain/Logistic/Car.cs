@@ -258,22 +258,10 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);
 
-		public virtual bool CanHaveFuelCard => 
-			((TypeOfUse == CarTypeOfUse.GAZelle || TypeOfUse == CarTypeOfUse.Largus) && IsCompanyHavings)
-			|| TypeOfUse == CarTypeOfUse.Truck 
-			|| IsRaskat;
-
 		public Car()
 		{
 			Model = String.Empty;
 			RegistrationNumber = String.Empty;
-		}
-
-		public virtual void CheckFuelCard()
-		{
-			if(!CanHaveFuelCard) {
-				FuelCardNumber = null;
-			}
 		}
 
 		#region IValidatableObject implementation
@@ -300,7 +288,7 @@ namespace Vodovoz.Domain.Logistic
 			if(cars.Any())
 				yield return new ValidationResult("Автомобиль уже существует", new[] { "Duplication" });
 
-			if(CanHaveFuelCard && string.IsNullOrWhiteSpace(FuelCardNumber)) {
+			if(string.IsNullOrWhiteSpace(FuelCardNumber)) {
 				yield return new ValidationResult("Необходимо ввести номер топливной карты");
 			}
 		}

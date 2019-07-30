@@ -855,10 +855,6 @@ namespace Vodovoz
 					+ Entity.FuelDocuments.Select(x => x.FuelOperation.LitersGived).Sum() - spentFuel));
 			}
 
-			if(Entity.Car.CanHaveFuelCard) {
-				text.Add($"Номер топливной карты: {Entity.Car.FuelCardNumber}");
-			}
-
 			ytextviewFuelInfo.Buffer.Text = string.Join("\n", text);
 		}
 
