@@ -19,7 +19,7 @@ namespace Vodovoz
 {
 	public partial class RouteListAddressesTransferringDlg : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		#region IOrmDialog implementation
 
@@ -37,16 +37,16 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public RouteListAddressesTransferringDlg (RouteList routeList, OpenParameter param) : this ()
+		public RouteListAddressesTransferringDlg(RouteList routeList, OpenParameter param) : this()
 		{
-			var rl = UoW.GetById<RouteList> (routeList.Id);
-			switch (param) {
-			case OpenParameter.Sender:
-				yentryreferenceRLFrom.Subject = rl;
-				break;
-			case OpenParameter.Receiver:
-				yentryreferenceRLTo.Subject = rl;
-				break;
+			var rl = UoW.GetById<RouteList>(routeList.Id);
+			switch(param) {
+				case OpenParameter.Sender:
+					yentryreferenceRLFrom.Subject = rl;
+					break;
+				case OpenParameter.Receiver:
+					yentryreferenceRLTo.Subject = rl;
+					break;
 			}
 		}
 		#endregion
@@ -55,55 +55,67 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			var vmFrom = new RouteListsVM ();
-			vmFrom.Filter.OnlyStatuses = new [] {
-				RouteListStatus.EnRoute,
-				RouteListStatus.OnClosing
-			};
+			var filterFrom = new RouteListsFilter(UoW);
+			filterFrom.SetAndRefilterAtOnce(
+				f => f.OnlyStatuses = new[] {
+					RouteListStatus.EnRoute,
+					RouteListStatus.OnClosing
+				},
+				f => f.SetFilterDates(
+					DateTime.Today.AddDays(-3),
+					DateTime.Today.AddDays(1)
+				)
+			);
+			var vmFrom = new RouteListsVM(filterFrom);
 			GC.KeepAlive(vmFrom);
-			vmFrom.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
 			yentryreferenceRLFrom.RepresentationModel = vmFrom;
 			yentryreferenceRLFrom.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
-			var vmTo = new RouteListsVM ();
-			vmTo.Filter.OnlyStatuses = new [] {
-				RouteListStatus.New,
-				RouteListStatus.InLoading,
-				RouteListStatus.EnRoute,
-				RouteListStatus.OnClosing
-			};
-			vmTo.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
+			var filterTo = new RouteListsFilter(UoW);
+			filterTo.SetAndRefilterAtOnce(
+				f => f.OnlyStatuses = new[] {
+					RouteListStatus.New,
+					RouteListStatus.InLoading,
+					RouteListStatus.EnRoute,
+					RouteListStatus.OnClosing
+				},
+				f => f.SetFilterDates(
+					DateTime.Today.AddDays(-3),
+					DateTime.Today.AddDays(1)
+				)
+			);
+			var vmTo = new RouteListsVM(filterTo);
 			yentryreferenceRLTo.RepresentationModel = vmTo;
 			yentryreferenceRLTo.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
 			yentryreferenceRLFrom.Changed += YentryreferenceRLFrom_Changed;
-			yentryreferenceRLTo	 .Changed += YentryreferenceRLTo_Changed;
+			yentryreferenceRLTo.Changed += YentryreferenceRLTo_Changed;
 
 			//Для каждой TreeView нужен свой экземпляр ColumnsConfig
-			ytreeviewRLFrom	.ColumnsConfig = GetColumnsConfig(false);
-			ytreeviewRLTo	.ColumnsConfig = GetColumnsConfig(true);
+			ytreeviewRLFrom.ColumnsConfig = GetColumnsConfig(false);
+			ytreeviewRLTo.ColumnsConfig = GetColumnsConfig(true);
 
-			ytreeviewRLFrom .Selection.Mode = Gtk.SelectionMode.Multiple;
-			ytreeviewRLTo	.Selection.Mode = Gtk.SelectionMode.Multiple;
+			ytreeviewRLFrom.Selection.Mode = Gtk.SelectionMode.Multiple;
+			ytreeviewRLTo.Selection.Mode = Gtk.SelectionMode.Multiple;
 
-			ytreeviewRLFrom .Selection.Changed += YtreeviewRLFrom_OnSelectionChanged;
-			ytreeviewRLTo	.Selection.Changed += YtreeviewRLTo_OnSelectionChanged;
+			ytreeviewRLFrom.Selection.Changed += YtreeviewRLFrom_OnSelectionChanged;
+			ytreeviewRLTo.Selection.Changed += YtreeviewRLTo_OnSelectionChanged;
 		}
-		
-		void YtreeviewRLFrom_OnSelectionChanged (object sender, EventArgs e)
+
+		void YtreeviewRLFrom_OnSelectionChanged(object sender, EventArgs e)
 		{
 			CheckSensitivities();
 		}
 
-		void YtreeviewRLTo_OnSelectionChanged (object sender, EventArgs e)
+		void YtreeviewRLTo_OnSelectionChanged(object sender, EventArgs e)
 		{
 			CheckSensitivities();
 
-			buttonRevert.Sensitive = ytreeviewRLTo.GetSelectedObjects<RouteListItemNode> ()
-				.Any (x => x.WasTransfered);
+			buttonRevert.Sensitive = ytreeviewRLTo.GetSelectedObjects<RouteListItemNode>()
+				.Any(x => x.WasTransfered);
 		}
 
-		private IColumnsConfig GetColumnsConfig (bool isRightPanel)
+		private IColumnsConfig GetColumnsConfig(bool isRightPanel)
 		{
 			var colorGreen = new Gdk.Color(0x44, 0xcc, 0x49);
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
@@ -120,80 +132,77 @@ namespace Vodovoz
 					  .AddSetter((c, n) => c.Sensitive = n.WasTransfered);
 			else
 				config.AddColumn("Нужна загрузка")
-				      .AddToggleRenderer(x => x.LeftNeedToReload).Radio()
-				      .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-				      .AddTextRenderer(x => "Да")
-				      .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-				      .AddToggleRenderer(x => x.LeftNotNeedToReload).Radio()
-				      .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
-				      .AddTextRenderer(x => "Нет")
-				      .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered);
+					  .AddToggleRenderer(x => x.LeftNeedToReload).Radio()
+					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
+					  .AddTextRenderer(x => "Да")
+					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
+					  .AddToggleRenderer(x => x.LeftNotNeedToReload).Radio()
+					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
+					  .AddTextRenderer(x => "Нет")
+					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered);
 
 			return config.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
 				.RowCells().AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.WasTransfered ? colorGreen : colorWhite)
 				.Finish();
 		}
 
-		void YentryreferenceRLFrom_Changed (object sender, EventArgs e)
+		void YentryreferenceRLFrom_Changed(object sender, EventArgs e)
 		{
-			if (yentryreferenceRLFrom.Subject == null)
-			{
+			if(yentryreferenceRLFrom.Subject == null) {
 				ytreeviewRLFrom.ItemsDataSource = null;
 				return;
 			}
-			
+
 			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
 			RouteList routeListTo = yentryreferenceRLTo.Subject as RouteList;
 
-			if (DomainHelper.EqualDomainObjects(routeListFrom, routeListTo)) {
+			if(DomainHelper.EqualDomainObjects(routeListFrom, routeListTo)) {
 				yentryreferenceRLFrom.Subject = null;
-				MessageDialogHelper.RunErrorDialog ("Вы дурачёк?", "Вы не можете забирать адреса из того же МЛ, в который собираетесь передавать.");
+				MessageDialogHelper.RunErrorDialog("Вы дурачёк?", "Вы не можете забирать адреса из того же МЛ, в который собираетесь передавать.");
 				return;
 			}
 
-			if (TabParent != null) {
-				var tab = TabParent.FindTab (DialogHelper.GenerateDialogHashName<RouteList> (routeListFrom.Id));
+			if(TabParent != null) {
+				var tab = TabParent.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeListFrom.Id));
 
-				if (!(tab is RouteListClosingDlg)) { 
-					if (tab != null) {
-						MessageDialogHelper.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
+				if(!(tab is RouteListClosingDlg)) {
+					if(tab != null) {
+						MessageDialogHelper.RunErrorDialog("Маршрутный лист уже открыт в другой вкладке");
 						yentryreferenceRLFrom.Subject = null;
 						return;
 					}
 				}
 			}
-			
+
 			CheckSensitivities();
 
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
-			foreach (var item in routeListFrom.Addresses)
-				items.Add(new RouteListItemNode{RouteListItem = item});
+			foreach(var item in routeListFrom.Addresses)
+				items.Add(new RouteListItemNode { RouteListItem = item });
 			ytreeviewRLFrom.ItemsDataSource = items;
 		}
 
-		void YentryreferenceRLTo_Changed (object sender, EventArgs e)
+		void YentryreferenceRLTo_Changed(object sender, EventArgs e)
 		{
-			if (yentryreferenceRLTo.Subject == null)
-			{
+			if(yentryreferenceRLTo.Subject == null) {
 				ytreeviewRLTo.ItemsDataSource = null;
 				return;
 			}
-			
+
 			RouteList routeListTo = yentryreferenceRLTo.Subject as RouteList;
 			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
 
-			if(DomainHelper.EqualDomainObjects (routeListFrom, routeListTo))
-			{
+			if(DomainHelper.EqualDomainObjects(routeListFrom, routeListTo)) {
 				yentryreferenceRLTo.Subject = null;
-				MessageDialogHelper.RunErrorDialog ("Вы дурачёк?", "Вы не можете передавать адреса в тот же МЛ, из которого забираете.");
+				MessageDialogHelper.RunErrorDialog("Вы дурачёк?", "Вы не можете передавать адреса в тот же МЛ, из которого забираете.");
 				return;
 			}
 
-			if (TabParent != null) {
-				var tab = TabParent.FindTab (DialogHelper.GenerateDialogHashName<RouteList> (routeListTo.Id));
-				if (!(tab is RouteListClosingDlg)) {
-					if (tab != null) {
-						MessageDialogHelper.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
+			if(TabParent != null) {
+				var tab = TabParent.FindTab(DialogHelper.GenerateDialogHashName<RouteList>(routeListTo.Id));
+				if(!(tab is RouteListClosingDlg)) {
+					if(tab != null) {
+						MessageDialogHelper.RunErrorDialog("Маршрутный лист уже открыт в другой вкладке");
 						yentryreferenceRLTo.Subject = null;
 						return;
 					}
@@ -205,8 +214,8 @@ namespace Vodovoz
 			routeListTo.UoW = UoW;
 
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
-			foreach (var item in routeListTo.Addresses)
-				items.Add(new RouteListItemNode{RouteListItem = item});
+			foreach(var item in routeListTo.Addresses)
+				items.Add(new RouteListItemNode { RouteListItem = item });
 			ytreeviewRLTo.ItemsDataSource = items;
 		}
 
@@ -216,28 +225,26 @@ namespace Vodovoz
 			YentryreferenceRLTo_Changed(null, null);
 		}
 
-		protected void OnButtonTransferClicked (object sender, EventArgs e)
+		protected void OnButtonTransferClicked(object sender, EventArgs e)
 		{
 			//Дополнительные проверки
-			RouteList routeListTo 	= yentryreferenceRLTo.Subject as RouteList;
+			RouteList routeListTo = yentryreferenceRLTo.Subject as RouteList;
 			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
 			var messages = new List<string>();
 
-			if (routeListTo == null || routeListFrom == null || routeListTo.Id == routeListFrom.Id)
+			if(routeListTo == null || routeListFrom == null || routeListTo.Id == routeListFrom.Id)
 				return;
 
 			List<RouteListItemNode> needReloadNotSet = new List<RouteListItemNode>();
-			
-			foreach (var row in ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>())
-			{
+
+			foreach(var row in ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>()) {
 				RouteListItem item = row?.RouteListItem;
 				logger.Debug("Проверка адреса с номером {0}", item?.Id.ToString() ?? "Неправильный адрес");
 
-				if (item == null || item.Status == RouteListItemStatus.Transfered)
+				if(item == null || item.Status == RouteListItemStatus.Transfered)
 					continue;
 
-				if(!row.LeftNeedToReload && !row.LeftNotNeedToReload)
-				{
+				if(!row.LeftNeedToReload && !row.LeftNotNeedToReload) {
 					needReloadNotSet.Add(row);
 					continue;
 				}
@@ -251,90 +258,81 @@ namespace Vodovoz
 
 				item.TransferedTo = newItem;
 
-				if (routeListTo.ClosingFilled)
-					newItem.FirstFillClosing (UoW);
-				UoW.Save (item);
-				UoW.Save (newItem);
+				if(routeListTo.ClosingFilled)
+					newItem.FirstFillClosing(UoW);
+				UoW.Save(item);
+				UoW.Save(newItem);
 			}
 
-			if(routeListFrom.Status == RouteListStatus.Closed)
-			{
+			if(routeListFrom.Status == RouteListStatus.Closed) {
 				messages.AddRange(routeListFrom.UpdateMovementOperations());
 			}
 
-			if(routeListTo.Status == RouteListStatus.Closed)
-			{
+			if(routeListTo.Status == RouteListStatus.Closed) {
 				messages.AddRange(routeListTo.UpdateMovementOperations());
 			}
 
-			UoW.Save (routeListTo);
-			UoW.Save (routeListFrom);
+			UoW.Save(routeListTo);
+			UoW.Save(routeListFrom);
 
-			UoW.Commit ();
+			UoW.Commit();
 
 			if(needReloadNotSet.Count > 0)
 				MessageDialogHelper.RunWarningDialog("Для следующих адресов не была указана необходимость загрузки, поэтому они не были перенесены:\n * " +
-				                                    String.Join("\n * ", needReloadNotSet.Select(x => x.Address))
+													String.Join("\n * ", needReloadNotSet.Select(x => x.Address))
 												   );
 			if(messages.Count > 0)
 				MessageDialogHelper.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
 
 			UpdateNodes();
-			CheckSensitivities ();
+			CheckSensitivities();
 		}
 
-		private void CheckSensitivities ()
+		private void CheckSensitivities()
 		{
 			bool routeListToIsSelected = yentryreferenceRLTo.Subject != null;
-			bool existToTransfer = ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode> ().Any (x => x.Status != RouteListItemStatus.Transfered);
+			bool existToTransfer = ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>().Any(x => x.Status != RouteListItemStatus.Transfered);
 
 			buttonTransfer.Sensitive = existToTransfer && routeListToIsSelected;
 		}
 
-		protected void OnButtonRevertClicked (object sender, EventArgs e)
+		protected void OnButtonRevertClicked(object sender, EventArgs e)
 		{
-			var toRevert = ytreeviewRLTo.GetSelectedObjects<RouteListItemNode> ()
-			                            .Where (x => x.WasTransfered).Select (x => x.RouteListItem);
-			foreach(var address in toRevert)
-			{
-				if(address.Status == RouteListItemStatus.Transfered)
-				{
-					MessageDialogHelper.RunWarningDialog (String.Format ("Адрес {0} сам перенесен в МЛ №{1}. Отмена этого переноса не возможна. Сначала нужно отменить перенос в {1} МЛ.", address?.Order?.DeliveryPoint.ShortAddress, address.TransferedTo?.RouteList.Id));
+			var toRevert = ytreeviewRLTo.GetSelectedObjects<RouteListItemNode>()
+										.Where(x => x.WasTransfered).Select(x => x.RouteListItem);
+			foreach(var address in toRevert) {
+				if(address.Status == RouteListItemStatus.Transfered) {
+					MessageDialogHelper.RunWarningDialog(String.Format("Адрес {0} сам перенесен в МЛ №{1}. Отмена этого переноса не возможна. Сначала нужно отменить перенос в {1} МЛ.", address?.Order?.DeliveryPoint.ShortAddress, address.TransferedTo?.RouteList.Id));
 					continue;
 				}
 
 				RouteListItem pastPlace = null;
-				if (yentryreferenceRLFrom.Subject != null)
-				{
+				if(yentryreferenceRLFrom.Subject != null) {
 					pastPlace = (yentryreferenceRLFrom.Subject as RouteList)
-						.Addresses.FirstOrDefault (x => x.TransferedTo != null && x.TransferedTo.Id == address.Id);
+						.Addresses.FirstOrDefault(x => x.TransferedTo != null && x.TransferedTo.Id == address.Id);
 				}
-				if(pastPlace == null)
-				{
-					pastPlace = new RouteListItemRepository().GetTransferedFrom (UoW, address);
+				if(pastPlace == null) {
+					pastPlace = new RouteListItemRepository().GetTransferedFrom(UoW, address);
 				}
 
-				if(pastPlace != null)
-				{
-					pastPlace.SetStatusWithoutOrderChange (address.Status);
+				if(pastPlace != null) {
+					pastPlace.SetStatusWithoutOrderChange(address.Status);
 					pastPlace.DriverBottlesReturned = address.DriverBottlesReturned;
 					pastPlace.TransferedTo = null;
-					if (pastPlace.RouteList.ClosingFilled)
-						pastPlace.FirstFillClosing (UoW);
-					UoW.Save (pastPlace);
+					if(pastPlace.RouteList.ClosingFilled)
+						pastPlace.FirstFillClosing(UoW);
+					UoW.Save(pastPlace);
 				}
-				address.RouteList.ObservableAddresses.Remove (address);
-				UoW.Save (address.RouteList);
+				address.RouteList.ObservableAddresses.Remove(address);
+				UoW.Save(address.RouteList);
 			}
 
-			UoW.Commit ();
-			UpdateNodes ();
+			UoW.Commit();
+			UpdateNodes();
 		}
 
 		public override void Destroy()
 		{
-			yentryreferenceRLFrom.RepresentationModel.UoW?.Dispose();
-			yentryreferenceRLTo.RepresentationModel.UoW?.Dispose();
 			UoW?.Dispose();
 			base.Destroy();
 		}
@@ -342,7 +340,8 @@ namespace Vodovoz
 		#endregion
 	}
 
-	public class RouteListItemNode {
+	public class RouteListItemNode
+	{
 		public string Id => RouteListItem.Order.Id.ToString();
 		public string Date => RouteListItem.Order.DeliveryDate.Value.ToString("d");
 		public string Address => RouteListItem.Order.DeliveryPoint?.ShortAddress ?? "Нет адреса";
@@ -351,8 +350,7 @@ namespace Vodovoz
 		public bool NeedToReload {
 			get => RouteListItem.NeedToReload;
 			set {
-				if(RouteListItem.WasTransfered)
-				{
+				if(RouteListItem.WasTransfered) {
 					RouteListItem.NeedToReload = value;
 					RouteListItem.RouteList.UoW.Save(RouteListItem);
 					RouteListItem.RouteList.UoW.Commit();
@@ -390,7 +388,7 @@ namespace Vodovoz
 					.Sum(bot => bot.Count)
 					.ToString();
 			}
-		
+
 		}
 
 		public RouteListItem RouteListItem { get; set; }
