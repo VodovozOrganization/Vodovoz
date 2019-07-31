@@ -85,7 +85,6 @@ namespace Vodovoz
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
-			comboTypeOfUse.Changed += ComboTypeOfUse_Changed;
 
 			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Car));
 			if(!UoWGeneric.IsNew) {
@@ -104,9 +103,6 @@ namespace Vodovoz
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
 				.Finish();
 			yTreeGeographicGroups.ItemsDataSource = Entity.ObservableGeographicGroups;
-			//yTreeGeographicGroups.Selection.Changed += (sender, e) => ControlsAccessibility();
-
-			hboxFuelCard.Visible = Entity.CanHaveFuelCard;
 		}
 
 		bool CarTypeIsEditable() => Entity.Id == 0;
@@ -122,7 +118,6 @@ namespace Vodovoz
 
 			logger.Info("Сохраняем автомобиль...");
 			try {
-				Entity.CheckFuelCard();
 				UoWGeneric.Save();
 				if(UoWGeneric.IsNew) {
 					attachmentFiles.ItemId = UoWGeneric.Root.Id;
@@ -137,12 +132,6 @@ namespace Vodovoz
 			return true;
 
 		}
-
-		private void ComboTypeOfUse_Changed(object sender, EventArgs e)
-		{
-			hboxFuelCard.Visible = Entity.CanHaveFuelCard;
-		}
-
 
 		protected void OnRadiobuttonMainToggled(object sender, EventArgs e)
 		{
