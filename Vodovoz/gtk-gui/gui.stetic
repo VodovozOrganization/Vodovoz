@@ -40646,7 +40646,7 @@ not tooltip</property>
                       <widget class="Gamma.GtkWidgets.ySpinButton" id="spnTareToReturn">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
-                        <property name="Upper">100</property>
+                        <property name="Upper">9999</property>
                         <property name="PageIncrement">10</property>
                         <property name="StepIncrement">1</property>
                         <property name="ClimbRate">1</property>
