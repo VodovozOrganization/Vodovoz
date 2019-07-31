@@ -68,9 +68,9 @@ namespace Vodovoz
 			enumTareVolume.Binding.AddBinding(Entity, e => e.TareVolume, w => w.SelectedItemOrNull).InitializeFromSource();
 			ycheckDisposableTare.Binding.AddBinding(Entity, e => e.IsDisposableTare, w => w.Active).InitializeFromSource();
 
-			enumEquipmentSubtype.Visible = Entity.Category == NomenclatureCategory.equipment;
-			enumEquipmentSubtype.ItemsEnum = typeof(SubtypeOfEquipmentCategory);
-			enumEquipmentSubtype.Binding.AddBinding(Entity, e => e.SubTypeOfEquipmentCategory, w => w.SelectedItem).InitializeFromSource();
+			enumSaleCategory.Visible = Entity.Category == NomenclatureCategory.equipment;
+			enumSaleCategory.ItemsEnum = typeof(SaleCategory);
+			enumSaleCategory.Binding.AddBinding(Entity, e => e.SaleCategory, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			enumDepositType.Visible = Entity.Category == NomenclatureCategory.deposit;
 			enumDepositType.ItemsEnum = typeof(TypeOfDepositCategory);
@@ -79,7 +79,8 @@ namespace Vodovoz
 			comboMobileCatalog.ItemsEnum = typeof(MobileCatalog);
 			comboMobileCatalog.Binding.AddBinding(Entity, e => e.MobileCatalog, w => w.SelectedItem).InitializeFromSource();
 
-			labelSubType.Visible = (Entity.Category == NomenclatureCategory.deposit || Entity.Category == NomenclatureCategory.equipment);
+			lblSaleCategory.Visible = Nomenclature.GetCategoriesWithSaleCategory().Contains(Entity.Category);
+			lblSubType.Visible = Entity.Category == NomenclatureCategory.deposit;
 
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			yentryOfficialName.Binding.AddBinding(Entity, e => e.OfficialName, w => w.Text).InitializeFromSource();
@@ -235,9 +236,10 @@ namespace Vodovoz
 
 		protected void ConfigureInputs(NomenclatureCategory selected)
 		{
-			enumDepositType.Visible = selected == NomenclatureCategory.deposit;
-			enumEquipmentSubtype.Visible = radioEuqpment.Sensitive = selected == NomenclatureCategory.equipment;
-			labelSubType.Visible = (selected == NomenclatureCategory.deposit || selected == NomenclatureCategory.equipment);
+			radioEquipment.Sensitive = selected == NomenclatureCategory.equipment;
+			enumSaleCategory.Visible = lblSaleCategory.Visible = Nomenclature.GetCategoriesWithSaleCategory().Contains(selected);
+			enumDepositType.Visible = lblSubType.Visible = selected == NomenclatureCategory.deposit;
+
 			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 			spinVolume.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 			lblPercentForMaster.Visible = spinPercentForMaster.Visible = (selected == NomenclatureCategory.master);
@@ -272,9 +274,9 @@ namespace Vodovoz
 				notebook1.CurrentPage = 1;
 		}
 
-		protected void OnRadioEuqpmentToggled(object sender, EventArgs e)
+		protected void OnRadioEquipmentToggled(object sender, EventArgs e)
 		{
-			if(radioEuqpment.Active)
+			if(radioEquipment.Active)
 				notebook1.CurrentPage = 2;
 		}
 
@@ -398,6 +400,12 @@ namespace Vodovoz
 		{
 			if(selectedWarehouse != null)
 				Entity.ObservableWarehouses.Remove(selectedWarehouse);
+		}
+
+		protected void OnEnumTypeChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.Id == 0 && Nomenclature.GetCategoriesWithSaleCategory().Contains(Entity.Category))
+				Entity.SaleCategory = SaleCategory.notForSale;
 		}
 	}
 }

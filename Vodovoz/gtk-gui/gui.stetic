@@ -1662,7 +1662,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5717,6 +5716,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Цены</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5764,7 +5764,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.RadioButton" id="radioEuqpment">
+              <widget class="Gtk.RadioButton" id="radioEquipment">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Оборудование</property>
@@ -5772,7 +5772,7 @@
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
                 <property name="Group">group1</property>
-                <signal name="Toggled" handler="OnRadioEuqpmentToggled" />
+                <signal name="Toggled" handler="OnRadioEquipmentToggled" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -6166,6 +6166,7 @@
                                 <property name="UseShortTitle">False</property>
                                 <property name="DefaultFirst">True</property>
                                 <signal name="Changed" handler="OnEnumTypeChanged" />
+                                <signal name="ChangedByUser" handler="OnEnumTypeChangedByUser" />
                               </widget>
                               <packing>
                                 <property name="Position">0</property>
@@ -6173,9 +6174,9 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gtk.Label" id="labelSubType">
+                              <widget class="Gtk.Label" id="lblSaleCategory">
                                 <property name="MemberName" />
-                                <property name="LabelProp" translatable="yes">Подтип</property>
+                                <property name="LabelProp" translatable="yes">Доступность для продажи</property>
                               </widget>
                               <packing>
                                 <property name="Position">1</property>
@@ -6185,7 +6186,7 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.Widgets.yEnumComboBox" id="enumEquipmentSubtype">
+                              <widget class="Gamma.Widgets.yEnumComboBox" id="enumSaleCategory">
                                 <property name="MemberName" />
                                 <property name="IsTextCombo">False</property>
                                 <property name="Items" translatable="yes" />
@@ -6197,6 +6198,18 @@
                               </widget>
                               <packing>
                                 <property name="Position">2</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Label" id="lblSubType">
+                                <property name="MemberName" />
+                                <property name="LabelProp" translatable="yes">Подтип</property>
+                              </widget>
+                              <packing>
+                                <property name="Position">3</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>
@@ -6215,10 +6228,8 @@
                                 <signal name="Changed" handler="OnEnumTypeChanged" />
                               </widget>
                               <packing>
-                                <property name="Position">3</property>
-                                <property name="AutoSize">True</property>
-                                <property name="Expand">False</property>
-                                <property name="Fill">False</property>
+                                <property name="Position">4</property>
+                                <property name="AutoSize">False</property>
                               </packing>
                             </child>
                           </widget>
@@ -6809,8 +6820,9 @@
                             <property name="LeftAttach">2</property>
                             <property name="RightAttach">3</property>
                             <property name="AutoSize">False</property>
+                            <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
-                            <property name="XExpand">True</property>
+                            <property name="XExpand">False</property>
                             <property name="XFill">True</property>
                             <property name="XShrink">False</property>
                             <property name="YExpand">False</property>
@@ -6936,9 +6948,8 @@
                             <property name="LeftAttach">3</property>
                             <property name="RightAttach">4</property>
                             <property name="AutoSize">False</property>
-                            <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
-                            <property name="XExpand">False</property>
+                            <property name="XExpand">True</property>
                             <property name="XFill">True</property>
                             <property name="XShrink">False</property>
                             <property name="YExpand">False</property>
@@ -7711,7 +7722,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox5">
+                  <widget class="Gtk.HBox" id="hbox7">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
@@ -51348,7 +51359,7 @@ not tooltip</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEnumComboBox" id="cmbEquipmentSubtype">
+          <widget class="Gamma.Widgets.yEnumComboBox" id="cmbSaleCategory">
             <property name="MemberName" />
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
@@ -51356,7 +51367,7 @@ not tooltip</property>
             <property name="ShowSpecialStateNot">False</property>
             <property name="UseShortTitle">False</property>
             <property name="DefaultFirst">True</property>
-            <signal name="ChangedByUser" handler="OnCmbEquipmentSubtypeChangedByUser" />
+            <signal name="ChangedByUser" handler="OnCmbSaleCategoryChangedByUser" />
           </widget>
           <packing>
             <property name="LeftAttach">2</property>

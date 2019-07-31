@@ -6,8 +6,8 @@ using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Repositories;
 using QSBusinessCommon.Domain;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -20,12 +20,8 @@ namespace Vodovoz.ViewModel
 	{
 
 		public NomenclatureRepFilter Filter {
-			get {
-				return RepresentationFilter as NomenclatureRepFilter;
-			}
-			set {
-				RepresentationFilter = value as IRepresentationFilter;
-			}
+			get => RepresentationFilter as NomenclatureRepFilter;
+			set => RepresentationFilter = value as IRepresentationFilter;
 		}
 
 		#region implemented abstract members of RepresentationModelBase
@@ -69,9 +65,18 @@ namespace Vodovoz.ViewModel
 			}
 			itemsQuery.Where(n => n.Category.IsIn(Filter.SelectedCategories));
 
-			if(Filter.SelectedCategories.Count() == 1 && Filter.SelectedCategories.Contains(NomenclatureCategory.equipment))
-				itemsQuery.Where(n => n.SubTypeOfEquipmentCategory.IsIn(Filter.SelectedSubCategories));
-				
+			if(Filter.SelectedCategories.Count() == 1 && Nomenclature.GetCategoriesWithSaleCategory().Contains(Filter.SelectedCategories.FirstOrDefault()))
+				itemsQuery.Where(n => n.SaleCategory.IsIn(Filter.SelectedSubCategories));
+
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_add_spares_to_order"])
+				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.spare_parts && n.SaleCategory == SaleCategory.notForSale));
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_add_bottles_to_order"])
+				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.bottle && n.SaleCategory == SaleCategory.notForSale));
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_add_materials_to_order"])
+				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.material && n.SaleCategory == SaleCategory.notForSale));
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_add_equipment_not_for_sale_to_order"])
+				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.equipment && n.SaleCategory == SaleCategory.notForSale));
+
 			itemsQuery.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
 				.Where(() => !nomenclatureAlias.IsSerial)
 				.SelectList(list => list
@@ -107,9 +112,7 @@ namespace Vodovoz.ViewModel
 			.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
 			.Finish();
 
-		public override IColumnsConfig ColumnsConfig {
-			get { return columnsConfig; }
-		}
+		public override IColumnsConfig ColumnsConfig => columnsConfig;
 
 		#endregion
 
@@ -129,10 +132,7 @@ namespace Vodovoz.ViewModel
 
 		#region implemented abstract members of RepresentationModelWithoutEntityBase
 
-		protected override bool NeedUpdateFunc(object updatedSubject)
-		{
-			return true;
-		}
+		protected override bool NeedUpdateFunc(object updatedSubject) => true;
 
 		#endregion
 	}
@@ -145,28 +145,21 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		public string Name { get; set; }
 		public NomenclatureCategory Category { get; set; }
-		public decimal InStock { get { return Added - Removed; } }
+		public decimal InStock => Added - Removed;
 		public int? Reserved { get; set; }
-		public decimal Available { get { return InStock - Reserved.GetValueOrDefault(); } }
+		public decimal Available => InStock - Reserved.GetValueOrDefault();
 		public decimal Added { get; set; }
 		public decimal Removed { get; set; }
 		public string UnitName { get; set; }
 		public short UnitDigits { get; set; }
 		public bool IsEquipmentWithSerial { get; set; }
-		private string Format(decimal value)
-		{
-			return String.Format("{0:F" + UnitDigits + "} {1}", value, UnitName);
-		}
+		private string Format(decimal value) => string.Format("{0:F" + UnitDigits + "} {1}", value, UnitName);
 
-		private bool UsedStock {
-			get {
-				return Nomenclature.GetCategoriesForGoods().Contains(Category);
-			}
-		}
+		private bool UsedStock => Nomenclature.GetCategoriesForGoods().Contains(Category);
 
-		public string InStockText { get { return UsedStock ? Format(InStock) : String.Empty; } }
-		public string ReservedText { get { return UsedStock && Reserved.HasValue ? Format(Reserved.Value) : String.Empty; } }
-		public string AvailableText { get { return UsedStock ? Format(Available) : String.Empty; } }
+		public string InStockText => UsedStock ? Format(InStock) : string.Empty;
+		public string ReservedText => UsedStock && Reserved.HasValue ? Format(Reserved.Value) : string.Empty;
+		public string AvailableText => UsedStock ? Format(Available) : string.Empty;
 	}
 }
 

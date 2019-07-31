@@ -12,8 +12,8 @@ namespace Vodovoz.JournalFilters
 		protected override void ConfigureWithUow()
 		{
 			enumcomboCategory.ItemsEnum = typeof(NomenclatureCategory);
-			cmbEquipmentSubtype.ItemsEnum = typeof(SubtypeOfEquipmentCategory);
-			cmbEquipmentSubtype.Visible = DefaultSelectedCategory == NomenclatureCategory.equipment;
+			cmbSaleCategory.ItemsEnum = typeof(SaleCategory);
+			cmbSaleCategory.Visible = Nomenclature.GetCategoriesWithSaleCategory().Contains(DefaultSelectedCategory);
 			chkShowDilers.Visible = DefaultSelectedCategory == NomenclatureCategory.water;
 			OnRefiltered();
 			UpdateVisibility();
@@ -54,13 +54,13 @@ namespace Vodovoz.JournalFilters
 			}
 		}
 
-		SubtypeOfEquipmentCategory defaultSelectedSubCategory;
+		SaleCategory defaultSelectedSaleCategory;
 
-		public SubtypeOfEquipmentCategory DefaultSelectedSubCategory {
-			get { return defaultSelectedSubCategory; }
+		public SaleCategory DefaultSelectedSaleCategory {
+			get { return defaultSelectedSaleCategory; }
 			set {
-				defaultSelectedSubCategory = value;
-				cmbEquipmentSubtype.SelectedItem = value;
+				defaultSelectedSaleCategory = value;
+				cmbSaleCategory.SelectedItem = value;
 			}
 		}
 
@@ -83,14 +83,12 @@ namespace Vodovoz.JournalFilters
 			}
 		}
 
-		public SubtypeOfEquipmentCategory[] SelectedSubCategories {
+		public SaleCategory[] SelectedSubCategories {
 			get {
-				var selected = cmbEquipmentSubtype.SelectedItem as SubtypeOfEquipmentCategory?;
-				if(selected == null) {
-					return Enum.GetValues(typeof(SubtypeOfEquipmentCategory)).OfType<SubtypeOfEquipmentCategory>().ToArray();
-				} else {
-					return new SubtypeOfEquipmentCategory[] { (SubtypeOfEquipmentCategory)cmbEquipmentSubtype.SelectedItem };
-				}
+				var selected = cmbSaleCategory.SelectedItem as SaleCategory?;
+				if(selected == null)
+					return Enum.GetValues(typeof(SaleCategory)).OfType<SaleCategory>().ToArray();
+				return new SaleCategory[] { (SaleCategory)cmbSaleCategory.SelectedItem };
 			}
 		}
 
@@ -98,14 +96,14 @@ namespace Vodovoz.JournalFilters
 		{
 			enumcomboCategory.ClearEnumHideList();
 			var hidingCategories = Enum.GetValues(typeof(NomenclatureCategory)).OfType<NomenclatureCategory>().ToList();
-			hidingCategories.RemoveAll(x => AvailableCategories.Contains(x));
+			hidingCategories.RemoveAll(AvailableCategories.Contains);
 			enumcomboCategory.AddEnumToHideList(hidingCategories.Cast<object>().ToArray());
 		}
 
 		void SetVisibilityOfSubcategory()
 		{
-			cmbEquipmentSubtype.Visible = enumcomboCategory.SelectedItem != null
-				&& (NomenclatureCategory)enumcomboCategory.SelectedItem == NomenclatureCategory.equipment;
+			cmbSaleCategory.Visible = enumcomboCategory.SelectedItem != null
+				&& Nomenclature.GetCategoriesWithSaleCategory().Contains((NomenclatureCategory)enumcomboCategory.SelectedItem);
 		}
 
 		protected void OnEnumcomboCategoryChangedByUser(object sender, EventArgs e)
@@ -126,7 +124,7 @@ namespace Vodovoz.JournalFilters
 			OnRefiltered();
 		}
 
-		protected void OnCmbEquipmentSubtypeChangedByUser(object sender, EventArgs e)
+		protected void OnCmbSaleCategoryChangedByUser(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}

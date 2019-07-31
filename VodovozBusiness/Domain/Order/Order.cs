@@ -959,7 +959,7 @@ namespace Vodovoz.Domain.Orders
 				ObservableOrderEquipments
 			   .Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
 			   .Where(x => x.DirectionReason == DirectionReason.None && x.OwnType != OwnTypes.Duty)
-			   .Any(x => x.Nomenclature?.SubTypeOfEquipmentCategory != SubtypeOfEquipmentCategory.forSale)
+			   .Any(x => x.Nomenclature?.SaleCategory != SaleCategory.forSale)
 			  )
 				yield return new ValidationResult("У оборудования в заказе должна быть указана причина забор-доставки.");
 

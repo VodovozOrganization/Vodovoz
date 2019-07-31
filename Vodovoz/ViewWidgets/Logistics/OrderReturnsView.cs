@@ -137,7 +137,7 @@ namespace Vodovoz
 			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForEditOrderFromRL(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.deposit,
-				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
+				x => x.DefaultSelectedSaleCategory = SaleCategory.forSale
 			);
 			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
 				Mode = JournalSelectMode.Single,

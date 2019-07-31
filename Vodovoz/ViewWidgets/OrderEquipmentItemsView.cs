@@ -138,13 +138,13 @@ namespace Vodovoz.ViewWidgets
 					     n.Nomenclature?.Category == NomenclatureCategory.equipment
 					     && n.Reason != Reason.Rent
 					     && n.OwnType != OwnTypes.Duty
-					     && n.Nomenclature?.SubTypeOfEquipmentCategory != SubtypeOfEquipmentCategory.forSale;
+					     && n.Nomenclature?.SaleCategory != SaleCategory.forSale;
 				})
 				.AddSetter((c, n) => {
 					c.BackgroundGdk = (n.Nomenclature?.Category == NomenclatureCategory.equipment
 									   && n.DirectionReason == DirectionReason.None
 				                       && n.OwnType != OwnTypes.Duty
-				                       && n.Nomenclature?.SubTypeOfEquipmentCategory != SubtypeOfEquipmentCategory.forSale)
+				                       && n.Nomenclature?.SaleCategory != SaleCategory.forSale)
 						? colorLightRed
 						: colorWhite;
 				})
@@ -241,13 +241,13 @@ namespace Vodovoz.ViewWidgets
 						n.Nomenclature?.Category == NomenclatureCategory.equipment
 					     && n.Reason != Reason.Rent
 					     && n.OwnType != OwnTypes.Duty
-					     && n.Nomenclature?.SubTypeOfEquipmentCategory != SubtypeOfEquipmentCategory.forSale;
+					     && n.Nomenclature?.SaleCategory != SaleCategory.forSale;
 				})
 				.AddSetter((c, n) => {
 					c.BackgroundGdk = (n.Nomenclature?.Category == NomenclatureCategory.equipment
 									   && n.DirectionReason == DirectionReason.None
 				                       && n.OwnType != OwnTypes.Duty
-				                       && n.Nomenclature?.SubTypeOfEquipmentCategory != SubtypeOfEquipmentCategory.forSale)
+				                       && n.Nomenclature?.SaleCategory != SaleCategory.forSale)
 						? colorLightRed
 						: colorWhite;
 				})
@@ -337,7 +337,7 @@ namespace Vodovoz.ViewWidgets
 			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
-				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale
+				x => x.DefaultSelectedSaleCategory = SaleCategory.notForSale
 			);
 			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
 				Mode = JournalSelectMode.Single,
@@ -373,7 +373,7 @@ namespace Vodovoz.ViewWidgets
 			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
-				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.notForSale
+				x => x.DefaultSelectedSaleCategory = SaleCategory.notForSale
 			);
 			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new NomenclatureForSaleVM(nomenclatureFilter)) {
 				Mode = JournalSelectMode.Single,
