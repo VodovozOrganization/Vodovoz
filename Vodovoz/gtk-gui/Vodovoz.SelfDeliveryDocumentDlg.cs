@@ -302,7 +302,7 @@ namespace Vodovoz
 			w23.Expand = false;
 			w23.Fill = false;
 			// Container child hbxTareToReturn.Gtk.Box+BoxChild
-			this.spnTareToReturn = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.spnTareToReturn = new global::Gamma.GtkWidgets.ySpinButton(0D, 9999D, 1D);
 			this.spnTareToReturn.CanFocus = true;
 			this.spnTareToReturn.Name = "spnTareToReturn";
 			this.spnTareToReturn.Adjustment.PageIncrement = 10D;
