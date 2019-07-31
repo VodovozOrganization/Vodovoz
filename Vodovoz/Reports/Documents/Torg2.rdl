@@ -4,7 +4,7 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>3000.4mm</PageHeight>
+  <PageHeight>279.4mm</PageHeight>
   <PageWidth>215.9mm</PageWidth>
   <Width>400.00mm</Width>
   <TopMargin>5mm</TopMargin>
@@ -633,8 +633,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox563">
-                      <Value>
-                      </Value>
+                      <Value>=First({room_str}, "OrderDocument")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -643,8 +642,8 @@
                           <Top>None</Top>
                           <Bottom>Solid</Bottom>
                         </BorderStyle>
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Top</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Bottom</VerticalAlign>
                         <BorderColor />
                         <BorderWidth>
                           <Default>2pt</Default>
@@ -655,7 +654,7 @@
                         </BorderWidth>
                         <BackgroundColor>White</BackgroundColor>
                         <FontWeight>Lighter</FontWeight>
-                        <FontSize>8pt</FontSize>
+                        <FontSize>11pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1118,7 +1117,7 @@
                           <Left>2pt</Left>
                         </BorderWidth>
                         <BackgroundColor>White</BackgroundColor>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -10970,7 +10969,7 @@
                         <FontSize>10pt</FontSize>
                         <VerticalAlign>Bottom</VerticalAlign>
                         <TextDecoration>None</TextDecoration>
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -11005,7 +11004,7 @@
                         <VerticalAlign>Bottom</VerticalAlign>
                         <BackgroundColor>White</BackgroundColor>
                         <TextDecoration>None</TextDecoration>
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -12437,7 +12436,7 @@
   </DataSources>
   <DataSets>
     <DataSet Name="OrderDocument">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     order_documents.id AS document_id,
@@ -12451,12 +12450,28 @@
     IFNULL(counterparty.special_cargo_receiver,delivery_points.compiled_address_short) AS cargo_receiver,
     IFNULL(counterparty.special_customer,counterparty.name) AS customer,
     counterparty.OKDP,
-    counterparty.OKPO
+    counterparty.OKPO,
+    CONCAT
+    (
+        CASE
+            WHEN delivery_points.room_type = 'Apartment' THEN "Квартира"
+            WHEN delivery_points.room_type = 'Office' THEN "Офис"
+            WHEN delivery_points.room_type = 'Store' THEN "Склад"
+            WHEN delivery_points.room_type = 'Room' THEN "Помещение"
+            WHEN delivery_points.room_type = 'Chamber' THEN "Комната"
+            WHEN delivery_points.room_type = 'Section' THEN "Секция"
+            ELSE ' '
+        END,
+        ' №',
+        delivery_points.room
+    ) AS room_str,
+    counterparty_contract.subnumber AS contract_number,
+    counterparty_contract.issue_date AS contract_date
 FROM
     order_documents
     LEFT JOIN orders ON orders.id = order_documents.order_id
     LEFT JOIN counterparty ON counterparty.id = orders.client_id
-    LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = counterparty.id
+    LEFT JOIN counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
     LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
     LEFT JOIN delivery_point_categories ON delivery_point_categories.id = delivery_points.delivery_point_category_id
     LEFT JOIN organizations ON organizations.id = (SELECT base_parameters.str_value FROM base_parameters WHERE base_parameters.name = 'main_organization_id' LIMIT 1)
@@ -12469,7 +12484,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="document_id">
           <DataField>document_id</DataField>
         </Field>
@@ -12503,10 +12518,19 @@ WHERE
         <Field Name="lead_last_name">
           <DataField>lead_last_name</DataField>
         </Field>
+        <Field Name="room_str">
+          <DataField>room_str</DataField>
+        </Field>
+        <Field Name="contract_number">
+          <DataField>contract_number</DataField>
+        </Field>
+        <Field Name="contract_date">
+          <DataField>contract_date</DataField>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="document_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
