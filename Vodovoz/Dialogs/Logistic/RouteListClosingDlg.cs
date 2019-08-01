@@ -962,7 +962,7 @@ namespace Vodovoz
 			UoW.Save();
 
 
-			if(messages.Count > 0)
+			if(messages.Any())
 				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
 		}
 
@@ -981,7 +981,8 @@ namespace Vodovoz
 
 			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput);
 
-			if(cashExpense != null) UoW.Save(cashExpense);
+			if(cashExpense != null)
+				UoW.Save(cashExpense);
 			cashExpense.UpdateWagesOperations(UoW);
 			UoW.Save();
 

@@ -1200,6 +1200,12 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string[] ManualCashOperations(ref Income cashIncome, ref Expense cashExpense, decimal casheInput)
 		{
 			var messages = new List<string>();
+
+			if(Cashier?.Subdivision == null) {
+				messages.Add("Создающий кассовые документы пользователь - не привязан к сотруднику!");
+				return messages.ToArray();
+			}
+
 			if(casheInput > 0) {
 				cashIncome = new Income {
 					IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW),
@@ -1210,7 +1216,7 @@ namespace Vodovoz.Domain.Logistic
 					Description = $"Дополнение к МЛ №{this.Id} от {Date:d}",
 					Money = Math.Round(casheInput, 0, MidpointRounding.AwayFromZero),
 					RouteListClosing = this,
-					RelatedToSubdivision = ClosingSubdivision
+					RelatedToSubdivision = Cashier.Subdivision
 				};
 
 				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money:C0}");
@@ -1225,7 +1231,7 @@ namespace Vodovoz.Domain.Logistic
 					Description = $"Дополнение к МЛ #{this.Id} от {Date:d}",
 					Money = Math.Round(-casheInput, 0, MidpointRounding.AwayFromZero),
 					RouteListClosing = this,
-					RelatedToSubdivision = ClosingSubdivision
+					RelatedToSubdivision = Cashier.Subdivision
 				};
 				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money:C0}");
 			}
@@ -1236,6 +1242,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput)
 		{
 			string message;
+			if(Cashier?.Subdivision == null) 
+				return "Создающий кассовый документ пользователь - не привязан к сотруднику!";
 
 			cashExpense = new Expense {
 				ExpenseCategory = CategoryRepository.EmployeeSalaryExpenseCategory(UoW),
@@ -1246,7 +1254,7 @@ namespace Vodovoz.Domain.Logistic
 				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}",
 				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
 				RouteListClosing = this,
-				RelatedToSubdivision = ClosingSubdivision
+				RelatedToSubdivision = Cashier.Subdivision
 			};
 
 			message = $"Создан расходный ордер на сумму {cashExpense.Money:C0}";
@@ -1456,6 +1464,12 @@ namespace Vodovoz.Domain.Logistic
 			if(different == 0M) {
 				return messages.ToArray();
 			}
+
+			if(Cashier?.Subdivision == null) {
+				messages.Add("Создающий кассовые документы пользователь - не привязан к сотруднику!");
+				return messages.ToArray();
+			}
+
 			if(different > 0) {
 				cashIncome = new Income {
 					IncomeCategory = CategoryRepository.RouteListClosingIncomeCategory(UoW),
@@ -1466,7 +1480,7 @@ namespace Vodovoz.Domain.Logistic
 					Description = $"Закрытие МЛ №{Id} от {Date:d}",
 					Money = Math.Round(different, 2, MidpointRounding.AwayFromZero),
 					RouteListClosing = this,
-					RelatedToSubdivision = ClosingSubdivision
+					RelatedToSubdivision = Cashier.Subdivision
 				};
 				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money}");
 			} else {
@@ -1479,7 +1493,7 @@ namespace Vodovoz.Domain.Logistic
 					Description = $"Закрытие МЛ #{Id} от {Date:d}",
 					Money = Math.Round(-different, 2, MidpointRounding.AwayFromZero),
 					RouteListClosing = this,
-					RelatedToSubdivision = ClosingSubdivision
+					RelatedToSubdivision = Cashier.Subdivision
 				};
 				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money}");
 			}
