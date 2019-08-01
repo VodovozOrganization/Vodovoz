@@ -117,8 +117,6 @@ namespace Vodovoz
 				Configure.ConfigureDeletion();
 				PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
 
-				VodovozService.Chats.ChatMain.ChatServer = "vod-srv.qsolution.ru:9000";
-
 				if(MainSupport.BaseParameters.All.ContainsKey("email_send_enabled_database") && MainSupport.BaseParameters.All.ContainsKey("email_service_address")) {
 					if(MainSupport.BaseParameters.All["email_send_enabled_database"] == LoginDialog.BaseName) {
 						EmailServiceSetting.Init(MainSupport.BaseParameters.All["email_service_address"]);

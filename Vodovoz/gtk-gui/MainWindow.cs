@@ -371,8 +371,6 @@ public partial class MainWindow
 
 	private global::Gtk.Toolbar toolbarMain;
 
-	private global::Vodovoz.UnreadedMessagesWidget unreadedMessagesWidget;
-
 	private global::Gtk.Toolbar toolbarSub;
 
 	private global::QS.Tdi.Gtk.TdiNotebook tdiMain;
@@ -417,27 +415,27 @@ public partial class MainWindow
 		this.ActionServices.ShortLabel = global::Mono.Unix.Catalog.GetString("Сервис");
 		w1.Add(this.ActionServices, null);
 		this.ActionLogistics = new global::Gtk.RadioAction("ActionLogistics", global::Mono.Unix.Catalog.GetString("Логистика"), null, "logistic", 0);
-		this.ActionLogistics.Group = this.ActionOrders.Group;
+		this.ActionLogistics.Group = this.ActionServices.Group;
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString("Логистика");
 		w1.Add(this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction("ActionStock", global::Mono.Unix.Catalog.GetString("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionLogistics.Group;
+		this.ActionStock.Group = this.ActionServices.Group;
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString("Склад");
 		w1.Add(this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction("ActionCash", global::Mono.Unix.Catalog.GetString("Касса"), null, "cash", 0);
-		this.ActionCash.Group = this.ActionLogistics.Group;
+		this.ActionCash.Group = this.ActionServices.Group;
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString("Касса");
 		w1.Add(this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction("ActionAccounting", global::Mono.Unix.Catalog.GetString("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionLogistics.Group;
+		this.ActionAccounting.Group = this.ActionServices.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString("Бухгалтерия");
 		w1.Add(this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction("ActionReports", global::Mono.Unix.Catalog.GetString("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionLogistics.Group;
+		this.ActionReports.Group = this.ActionAccounting.Group;
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчеты");
 		w1.Add(this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction("ActionArchive", global::Mono.Unix.Catalog.GetString("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionLogistics.Group;
+		this.ActionArchive.Group = this.ActionReports.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString("Архив");
 		w1.Add(this.ActionArchive, null);
 		this.ActionOrg = new global::Gtk.Action("ActionOrg", global::Mono.Unix.Catalog.GetString("Организации"), null, null);
@@ -574,7 +572,7 @@ public partial class MainWindow
 		this.ActionToolBarIcon.ShortLabel = global::Mono.Unix.Catalog.GetString("Только иконки");
 		w1.Add(this.ActionToolBarIcon, null);
 		this.ActionToolBarBoth = new global::Gtk.RadioAction("ActionToolBarBoth", global::Mono.Unix.Catalog.GetString("Иконки и Текст"), null, null, 0);
-		this.ActionToolBarBoth.Group = this.ActionToolBarText.Group;
+		this.ActionToolBarBoth.Group = this.ActionToolBarIcon.Group;
 		this.ActionToolBarBoth.ShortLabel = global::Mono.Unix.Catalog.GetString("Иконки и Текст");
 		w1.Add(this.ActionToolBarBoth, null);
 		this.ActionIconsExtraSmall = new global::Gtk.RadioAction("ActionIconsExtraSmall", global::Mono.Unix.Catalog.GetString("Очень маленькие иконки"), null, null, 0);
@@ -654,7 +652,7 @@ public partial class MainWindow
 		this.ActionForwarderWageReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарплаты экспедиторов");
 		w1.Add(this.ActionForwarderWageReport, null);
 		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "employees", 0);
-		this.ActionStaff.Group = this.ActionLogistics.Group;
+		this.ActionStaff.Group = this.ActionArchive.Group;
 		this.ActionStaff.ShortLabel = global::Mono.Unix.Catalog.GetString("Кадры");
 		w1.Add(this.ActionStaff, null);
 		this.ActionDriversWageBalance = new global::Gtk.Action("ActionDriversWageBalance", global::Mono.Unix.Catalog.GetString("Баланс водителей"), null, null);
@@ -877,7 +875,7 @@ public partial class MainWindow
 		this.ActionNotFullyLoadedRouteLists.ShortLabel = global::Mono.Unix.Catalog.GetString("Недопогруженные МЛ");
 		w1.Add(this.ActionNotFullyLoadedRouteLists, null);
 		this.ActionCRM = new global::Gtk.RadioAction("ActionCRM", global::Mono.Unix.Catalog.GetString("Работа с кл."), null, "CRM", 0);
-		this.ActionCRM.Group = this.ActionLogistics.Group;
+		this.ActionCRM.Group = this.ActionArchive.Group;
 		this.ActionCRM.ShortLabel = global::Mono.Unix.Catalog.GetString("Работа с кл.");
 		w1.Add(this.ActionCRM, null);
 		this.ActionForShipment = new global::Gtk.Action("ActionForShipment", global::Mono.Unix.Catalog.GetString("Товары для отгрузки"), null, null);
@@ -1119,19 +1117,11 @@ public partial class MainWindow
 		this.hbox2.Add(this.toolbarMain);
 		global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.toolbarMain]));
 		w3.Position = 0;
-		// Container child hbox2.Gtk.Box+BoxChild
-		this.unreadedMessagesWidget = new global::Vodovoz.UnreadedMessagesWidget();
-		this.unreadedMessagesWidget.Events = ((global::Gdk.EventMask)(256));
-		this.unreadedMessagesWidget.Name = "unreadedMessagesWidget";
-		this.hbox2.Add(this.unreadedMessagesWidget);
-		global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.unreadedMessagesWidget]));
+		this.vbox1.Add(this.hbox2);
+		global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
 		w4.Position = 1;
 		w4.Expand = false;
-		this.vbox1.Add(this.hbox2);
-		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-		w5.Position = 1;
-		w5.Expand = false;
-		w5.Fill = false;
+		w4.Fill = false;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.UIManager.AddUiFromString("<ui><toolbar name=\'toolbarSub\'/></ui>");
 		this.toolbarSub = ((global::Gtk.Toolbar)(this.UIManager.GetWidget("/toolbarSub")));
@@ -1140,10 +1130,10 @@ public partial class MainWindow
 		this.toolbarSub.ToolbarStyle = ((global::Gtk.ToolbarStyle)(1));
 		this.toolbarSub.IconSize = ((global::Gtk.IconSize)(2));
 		this.vbox1.Add(this.toolbarSub);
-		global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.toolbarSub]));
-		w6.Position = 2;
-		w6.Expand = false;
-		w6.Fill = false;
+		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.toolbarSub]));
+		w5.Position = 2;
+		w5.Expand = false;
+		w5.Fill = false;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.tdiMain = new global::QS.Tdi.Gtk.TdiNotebook();
 		this.tdiMain.Name = "tdiMain";
@@ -1151,8 +1141,8 @@ public partial class MainWindow
 		this.tdiMain.ShowTabs = false;
 		this.tdiMain.Scrollable = true;
 		this.vbox1.Add(this.tdiMain);
-		global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.tdiMain]));
-		w7.Position = 3;
+		global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.tdiMain]));
+		w6.Position = 3;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.statusbarMain = new global::Gtk.Statusbar();
 		this.statusbarMain.Name = "statusbarMain";
@@ -1161,44 +1151,44 @@ public partial class MainWindow
 		this.labelUser = new global::Gtk.Label();
 		this.labelUser.Name = "labelUser";
 		this.statusbarMain.Add(this.labelUser);
-		global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelUser]));
-		w8.Position = 0;
-		w8.Expand = false;
-		w8.Fill = false;
+		global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelUser]));
+		w7.Position = 0;
+		w7.Expand = false;
+		w7.Fill = false;
 		// Container child statusbarMain.Gtk.Box+BoxChild
 		this.labelStatus = new global::Gtk.Label();
 		this.labelStatus.Name = "labelStatus";
 		this.statusbarMain.Add(this.labelStatus);
-		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelStatus]));
-		w9.PackType = ((global::Gtk.PackType)(1));
-		w9.Position = 2;
-		w9.Expand = false;
-		w9.Fill = false;
+		global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelStatus]));
+		w8.PackType = ((global::Gtk.PackType)(1));
+		w8.Position = 2;
+		w8.Expand = false;
+		w8.Fill = false;
 		// Container child statusbarMain.Gtk.Box+BoxChild
 		this.progressStatus = new global::Gtk.ProgressBar();
 		this.progressStatus.Name = "progressStatus";
 		this.statusbarMain.Add(this.progressStatus);
-		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.progressStatus]));
-		w10.PackType = ((global::Gtk.PackType)(1));
-		w10.Position = 3;
+		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.progressStatus]));
+		w9.PackType = ((global::Gtk.PackType)(1));
+		w9.Position = 3;
 		this.vbox1.Add(this.statusbarMain);
-		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
-		w11.PackType = ((global::Gtk.PackType)(1));
-		w11.Position = 4;
-		w11.Expand = false;
-		w11.Fill = false;
+		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
+		w10.PackType = ((global::Gtk.PackType)(1));
+		w10.Position = 4;
+		w10.Expand = false;
+		w10.Fill = false;
 		this.hbox1.Add(this.vbox1);
-		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox1]));
-		w12.Position = 0;
+		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox1]));
+		w11.Position = 0;
 		// Container child hbox1.Gtk.Box+BoxChild
 		this.infopanel = new global::Vodovoz.SidePanel.InfoPanel();
 		this.infopanel.Events = ((global::Gdk.EventMask)(256));
 		this.infopanel.Name = "infopanel";
 		this.hbox1.Add(this.infopanel);
-		global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.infopanel]));
-		w13.Position = 1;
-		w13.Expand = false;
-		w13.Fill = false;
+		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.infopanel]));
+		w12.Position = 1;
+		w12.Expand = false;
+		w12.Fill = false;
 		this.Add(this.hbox1);
 		if ((this.Child != null))
 		{

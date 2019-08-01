@@ -1486,15 +1486,7 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Vodovoz.UnreadedMessagesWidget" id="unreadedMessagesWidget">
-                    <property name="MemberName" />
-                    <property name="Events">ButtonPressMask</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">1</property>
-                    <property name="AutoSize">False</property>
-                    <property name="Expand">False</property>
-                  </packing>
+                  <placeholder />
                 </child>
               </widget>
               <packing>
@@ -1662,6 +1654,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -41948,6 +41941,7 @@ not tooltip</property>
                 <child>
                   <widget class="Gtk.Button" id="buttonChat">
                     <property name="MemberName" />
+                    <property name="Visible">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Type">TextAndIcon</property>
                     <property name="Icon">resource:chat-icon.png</property>
@@ -41965,6 +41959,7 @@ not tooltip</property>
                 <child>
                   <widget class="Gtk.Button" id="buttonSendMessage">
                     <property name="MemberName" />
+                    <property name="Visible">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Type">TextAndIcon</property>
                     <property name="Icon">resource:document-send.png</property>
