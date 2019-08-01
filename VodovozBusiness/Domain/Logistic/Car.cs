@@ -6,6 +6,7 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using QS.Project.Repositories;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
@@ -257,6 +258,7 @@ namespace Vodovoz.Domain.Logistic
 		#endregion
 
 		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);
+		public virtual bool CanEditFuelCardNumber => UserPermissionRepository.CurrentUserPresetPermissions["can_change_fuel_card_number"];
 
 		public Car()
 		{
@@ -287,10 +289,6 @@ namespace Vodovoz.Domain.Logistic
 
 			if(cars.Any())
 				yield return new ValidationResult("Автомобиль уже существует", new[] { "Duplication" });
-
-			if(string.IsNullOrWhiteSpace(FuelCardNumber)) {
-				yield return new ValidationResult("Необходимо ввести номер топливной карты");
-			}
 		}
 
 		#endregion

@@ -61,7 +61,7 @@ namespace Vodovoz.Domain.Logistic
 					if(Id == 0 || oldDriver != driver)
 						Forwarder = GetDefaultForwarder(driver);
 				}
-			}
+ 			}
 		}
 
 		Employee forwarder;
@@ -531,9 +531,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void ChangeFuelDocumentsOnChangeDriver(Employee oldDriver)
 		{
-			if(oldDriver == null || Driver == oldDriver || !FuelDocuments.Any()) {
+			if(Driver == null || oldDriver == null || Driver == oldDriver || !FuelDocuments.Any())
 				return;
-			}
 
 			foreach(FuelDocument item in ObservableFuelDocuments) {
 				item.Driver = Driver;

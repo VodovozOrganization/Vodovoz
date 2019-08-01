@@ -1,14 +1,16 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using Vodovoz.Domain.Permissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.Domain.Fuel
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		Nominative = "операция списания топлива",
 		NominativePlural = "операции списания топлива")]
+	[HistoryTrace]
 	public class FuelExpenseOperation : PropertyChangedBase, IDomainObject, ISubdivisionEntity
 	{
 		public virtual int Id { get; set; }
@@ -70,5 +72,7 @@ namespace Vodovoz.Domain.Fuel
 			get => fuelLiters;
 			set => SetField(ref fuelLiters, value, () => FuelLiters);
 		}
+
+		public virtual string Title => string.Format("{0} №{1}", this.GetType().GetSubjectName(), Id);
 	}
 }

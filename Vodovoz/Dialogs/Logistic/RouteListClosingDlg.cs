@@ -23,7 +23,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
-using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 
@@ -326,12 +325,17 @@ namespace Vodovoz
 		{
 			var config = ColumnsConfigFactory.Create<FuelDocument>();
 
-			config
-				.AddColumn("Дата").AddTextRenderer(node => node.Date.ToShortDateString())
-				.AddColumn("Литры").AddNumericRenderer(node => node.FuelOperation.LitersGived)
-						.Adjustment(new Adjustment(0, -100000, 100000, 10, 100, 10))
-				.AddColumn("").AddTextRenderer()
-				.RowCells();
+			config.AddColumn("Дата")
+					.AddTextRenderer(node => node.Date.ToShortDateString())
+				  .AddColumn("Литры")
+					.AddNumericRenderer(node => node.FuelOperation.LitersGived)
+					.Adjustment(new Adjustment(0, -100000, 100000, 10, 100, 10))
+				  .AddColumn("№ ТК")
+					.AddTextRenderer(n => n.FuelCardNumber)
+					.Editable(Entity.Car.CanEditFuelCardNumber)
+				  .AddColumn("")
+					.AddTextRenderer()
+				  .RowCells();
 
 			ytreeviewFuelDocuments.ColumnsConfig = config.Finish();
 		}

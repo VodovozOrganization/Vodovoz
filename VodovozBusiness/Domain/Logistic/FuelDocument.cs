@@ -1,23 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using NLog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Domain.Fuel;
-using NLog;
-using Vodovoz.Tools;
-using Vodovoz.Repository.Cash;
 using Vodovoz.EntityRepositories.Fuel;
-using Vodovoz.Repositories;
+using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repository.Cash;
+using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Logistic
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "документы выдачи топлива",
 		Nominative = "документ выдачи топлива")]
+	[HistoryTrace]
 	public class FuelDocument : BusinessObjectBase<FuelDocument>, IDomainObject, IValidatableObject
 	{
 		Logger logger = LogManager.GetCurrentClassLogger();
@@ -81,7 +82,7 @@ namespace Vodovoz.Domain.Logistic
 
 		private decimal literCost;
 
-
+		[IgnoreHistoryTrace]
 		[Display(Name = "Стоимость литра топлива")]
 		public virtual decimal LiterCost {
 			get { return literCost; }
@@ -143,19 +144,24 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref subdivision, value, () => Subdivision);
 		}
 
+		string fuelCardNumber;
+		[Display(Name = "Номер топливной карты")]
+		public virtual string FuelCardNumber {
+			get => fuelCardNumber;
+			set => SetField(ref fuelCardNumber, value, () => FuelCardNumber);
+		}
 
 		public virtual decimal PayedLiters {
 			get {
-				if(Fuel == null || Fuel.Cost <= 0 || !PayedForFuel.HasValue) {
+				if(Fuel == null || Fuel.Cost <= 0 || !PayedForFuel.HasValue)
 					return 0;
-				}
-
 				return Math.Round(PayedForFuel.Value / Fuel.Cost, 2, MidpointRounding.AwayFromZero);
 			}
 		}
 
-		public FuelDocument()
-		{ }
+		public FuelDocument() { }
+
+		public virtual string Title => string.Format("{0} №{1}", this.GetType().GetSubjectName(), Id);
 
 		public virtual void CreateOperations(IFuelRepository fuelRepository)
 		{
@@ -198,15 +204,15 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 
-			var payerLiters = PayedForFuel.HasValue ? PayedLiters : 0;
+			var litersPaid = PayedForFuel.HasValue ? PayedLiters : 0;
 
 			FuelOperation = new FuelOperation() {
 				Driver = Car.IsCompanyHavings ? null : Driver,
 				Car = Car.IsCompanyHavings ? Car : null,
 				Fuel = Fuel,
-				LitersGived = FuelCoupons + payerLiters,
+				LitersGived = FuelCoupons + litersPaid,
 				LitersOutlayed = 0,
-				PayedLiters = payerLiters,
+				PayedLiters = litersPaid,
 				OperationTime = Date
 			};
 		}
