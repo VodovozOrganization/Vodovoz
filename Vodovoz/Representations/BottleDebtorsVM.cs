@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentNHibernate.Utils;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -20,7 +19,7 @@ using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Representations
 {
-	public class BottleDebtorsVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<DeliveryPoint, BottleDebtorsVMNode>
+	public class BottleDebtorsVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<DeliveryPoint, BottleDebtorJournalNode>
 	{
 		public BottleDebtorsFilter Filter {
 			get { return RepresentationFilter as BottleDebtorsFilter; }
@@ -30,23 +29,21 @@ namespace Vodovoz.Representations
 		public override void UpdateNodes()
 		{
 			DeliveryPoint deliveryPointAlias = null;
-			DeliveryPoint deliveryPointOrderAlias = null;
 			Counterparty counterpartyAlias = null;
+			BottlesMovementOperation bottleMovementOperationAlias = null;
 			BottlesMovementOperation bottlesMovementAlias = null;
-			BottleDebtorsVMNode resultAlias = null;
+			BottleDebtorJournalNode resultAlias = null;
 			Residue residueAlias = null;
 			CallTask taskAlias = null;
 			Domain.Orders.Order orderAlias = null;
+			Domain.Orders.Order lastOrderAlias = null;
 			OrderItem orderItemAlias = null;
-
-			BottlesMovementOperation lastOrderBottleMovementOperationAlias = null;
 			DiscountReason discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			var pointsQuery = UoW.Session.QueryOver(() => deliveryPointAlias)
-			.Where(() => deliveryPointAlias.IsActive == true);
+			var ordersQuery = UoW.Session.QueryOver(() => orderAlias);
 
-			var bottleDebtByAddressQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
+			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
 			.Where(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
@@ -55,12 +52,15 @@ namespace Vodovoz.Representations
 					Projections.Sum(() => bottlesMovementAlias.Delivered)}
 				));
 
-			var residueQuery = UoW.Session.QueryOver(() => residueAlias)
+			var residueQuery = QueryOver.Of(() => residueAlias)
 			.Where(() => residueAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-			.Select((res) => res.Id)
+			.Select(Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "IF(?1 IS NOT NULL,'есть', 'нет')"),
+				NHibernateUtil.String,
+				Projections.Property(() => residueAlias.Id)))
 			.Take(1);
 
-			var bottleDebtByClientQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
+			var bottleDebtByClientQuery = QueryOver.Of(() => bottlesMovementAlias)
 			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
@@ -70,79 +70,70 @@ namespace Vodovoz.Representations
 				));
 
 
+			var TaskExistQuery = QueryOver.Of(() => taskAlias)
+				.Where(x => x.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.And(() => taskAlias.IsTaskComplete == false)
+				.Select(Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "IF(?1 IS NOT NULL,'grey', 'black')"),
+					NHibernateUtil.String,
+					Projections.Property(() => taskAlias.Id)))
+				.Take(1);
+
 			#region LastOrder
 
-			var LastOrderIdQuery = UoW.Session.QueryOver(() => orderAlias)
-				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointOrderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where(() => deliveryPointOrderAlias.Id == deliveryPointAlias.Id)
+			var LastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
+				.Where(() => lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
 				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.Select(Projections.Property<Domain.Orders.Order>(p => p.Id))
 				.OrderByAlias(() => orderAlias.DeliveryDate).Desc
 				.Take(1);
 
-			var LastOrderDateQuery = UoW.Session.QueryOver(() => orderAlias)
-				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointOrderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where(() => deliveryPointOrderAlias.Id == deliveryPointAlias.Id)
-				.Select(x => x.DeliveryDate)
-				.WithSubquery.WhereProperty(p => p.Id).Eq((QueryOver<Domain.Orders.Order>)LastOrderIdQuery)
-				.OrderBy(() => orderAlias.Id).Desc
-				.Take(1);
+			var LastOrderNomenclatures = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Select(Projections.Property(() => nomenclatureAlias.Id))
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.And(() => Filter.LastOrderNomenclature.Id == nomenclatureAlias.Id);
 
-			var LastOrderNomenclatureQuery = UoW.Session.QueryOver(() => orderAlias)
-				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointOrderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(c => c.OrderItems, () => orderItemAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(c => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where(() => deliveryPointOrderAlias.Id == deliveryPointAlias.Id)
-				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT(?2,?1,?2))"),
-					NHibernateUtil.String,
-					Projections.Property(() => nomenclatureAlias.Id),
-					Projections.Constant(",")))
-				.WithSubquery.WhereProperty(p => p.Id).Eq((QueryOver<Domain.Orders.Order>)LastOrderIdQuery)
-				.OrderBy(x => x.Id).Desc
-				.Take(1);
-
-			var LastOrderDiscountQuery = UoW.Session.QueryOver(() => orderAlias)
-				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointOrderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(c => c.OrderItems, () => orderItemAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(c => orderItemAlias.DiscountReason, () => discountReasonAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where(() => deliveryPointOrderAlias.Id == deliveryPointAlias.Id)
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
-				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT(?2,?1,?2))"),
-					NHibernateUtil.String,
-					Projections.Property(() => discountReasonAlias.Id),
-					Projections.Constant(",")))
-				.WithSubquery.WhereProperty(p => p.Id).Eq((QueryOver<Domain.Orders.Order>)LastOrderIdQuery)
-				.OrderBy(() => orderAlias.Id).Asc
-				.Take(1);
-
-			var LastOrderBottlesQuery = UoW.Session.QueryOver(() => orderAlias)
-				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointOrderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(c => orderAlias.BottlesMovementOperation, () => lastOrderBottleMovementOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where(() => deliveryPointOrderAlias.Id == deliveryPointAlias.Id)
-				.And((x) => x.OrderStatus == OrderStatus.Closed)
-				.Select((x) => lastOrderBottleMovementOperationAlias.Delivered)
-				.WithSubquery.WhereProperty(p => p.Id).Eq((QueryOver<Domain.Orders.Order>)LastOrderIdQuery)
-				.OrderBy(() => orderAlias.Id).Asc
-				.Take(1);
+			var LastOrderDiscount = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Select(Projections.Property(() => discountReasonAlias.Id))
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.And(() => Filter.DiscountReason.Id == discountReasonAlias.Id);
 
 			#endregion LastOrder
-			var TaskExistQuery = UoW.Session.QueryOver(() => taskAlias)
-				.Where(x => x.DeliveryPoint.Id == deliveryPointAlias.Id)
-				.And(() => taskAlias.IsTaskComplete == false)
-				.Select(x => x.Id)
-				.Take(1);
+
+			#region Filter
 
 			if(Filter.Client != null)
-				pointsQuery = pointsQuery.Where((arg) => arg.Counterparty.Id == Filter.Client.Id);
+				ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == Filter.Client.Id);
 			if(Filter.Address != null)
-				pointsQuery = pointsQuery.Where((arg) => arg.Id == Filter.Address.Id);
+				ordersQuery = ordersQuery.Where((arg) => arg.Id == Filter.Address.Id);
 			if(Filter.OPF != null)
-				pointsQuery = pointsQuery.Where( () => counterpartyAlias.PersonType == Filter.OPF.Value);
+				ordersQuery = ordersQuery.Where( () => counterpartyAlias.PersonType == Filter.OPF.Value);
+			if(Filter.LastOrderNomenclature != null)
+				ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderNomenclatures);
+			if(Filter.DiscountReason != null)
+				ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderDiscount);
+			if(Filter.LastOrderBottlesFrom != null)
+				ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered >= Filter.LastOrderBottlesFrom.Value);
+			if(Filter.LastOrderBottlesTo != null)
+				ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= Filter.LastOrderBottlesTo.Value);
+			if(Filter.StartDate != null)
+				ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= Filter.StartDate);
+			if(Filter.StartDate != null)
+				ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= Filter.EndDate);
+			if(Filter.DebtBottlesFrom != null)
+				ordersQuery = ordersQuery.WithSubquery.WhereValue(Filter.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
+			if(Filter.DebtBottlesTo != null)
+				ordersQuery = ordersQuery.WithSubquery.WhereValue(Filter.DebtBottlesTo.Value).Gt(bottleDebtByAddressQuery);
 
-			var debtorslist = pointsQuery
-				.JoinAlias(c => c.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+
+			#endregion Filter
+
+			var debtorslist = ordersQuery
+				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.RightOuterJoin)
+				.JoinAlias(c => c.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList(list => list
 				   .Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.AddressId)
 				   .Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.ClientId)
@@ -150,53 +141,31 @@ namespace Vodovoz.Representations
 				   .Select(() => deliveryPointAlias.ShortAddress).WithAlias(() => resultAlias.AddressName)
 				   .Select(() => deliveryPointAlias.BottleReserv).WithAlias(() => resultAlias.Reserve)
 				   .Select(() => counterpartyAlias.PersonType).WithAlias(() => resultAlias.OPF)
-				   .SelectSubQuery((QueryOver<Domain.Orders.Order>)LastOrderDateQuery).WithAlias(() => resultAlias.LastOrderDate)
-				   .SelectSubQuery((QueryOver<Domain.Orders.Order>)LastOrderNomenclatureQuery).WithAlias(() => resultAlias.LastOrderNomenclatureIds)
-				   .SelectSubQuery((QueryOver<Domain.Orders.Order>)LastOrderDiscountQuery).WithAlias(() => resultAlias.LastOrderDiscountReasonIds)
-				   .SelectSubQuery((QueryOver<Domain.Orders.Order>)LastOrderBottlesQuery).WithAlias(() => resultAlias.LastOrderBottles)
-				   .SelectSubQuery((QueryOver<Residue>)residueQuery).WithAlias(() => resultAlias.Residue)
-				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
-				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
-				   .SelectSubQuery((QueryOver<CallTask>)TaskExistQuery).WithAlias(() => resultAlias.ExistTask)
-					 )				
-				   .TransformUsing(Transformers.AliasToBean<BottleDebtorsVMNode>())
-				.OrderBy(x => x.Counterparty.Id).Desc
-				.List<BottleDebtorsVMNode>();
-
-			IEnumerable<BottleDebtorsVMNode> filteredList = debtorslist;
-
-			if(Filter.LastOrderNomenclature != null)
-				filteredList = filteredList.Where(x =>x.LastOrderNomenclatureIds != null && x.LastOrderNomenclatureIds.Contains("," + Filter.LastOrderNomenclature.Id.ToString() + ","));
-			if(Filter.DiscountReason != null)
-				filteredList = filteredList.Where(x => x.LastOrderDiscountReasonIds != null && x.LastOrderDiscountReasonIds.Contains("," + Filter.DiscountReason.Id.ToString() + ","));
-			if(Filter.StartDate != null && Filter.EndDate != null)
-				filteredList = filteredList.Where((arg) => Filter.StartDate.Value <= arg.LastOrderDate && arg.LastOrderDate <= Filter.EndDate.Value);
-			if(Filter.DebtBottlesFrom != null)
-				filteredList = filteredList.Where((arg) => Filter.DebtBottlesFrom.Value <= arg.DebtByAddress);
-			if(Filter.DebtBottlesTo != null)
-				filteredList = filteredList.Where((arg) => arg.DebtByAddress <= Filter.DebtBottlesTo.Value);
-			if(Filter.LastOrderBottlesFrom != null)
-				filteredList = filteredList.Where(arg => arg.LastOrderBottles >= Filter.LastOrderBottlesFrom);
-			if(Filter.LastOrderBottlesTo != null)
-				filteredList = filteredList.Where(arg => arg.LastOrderBottles <= Filter.LastOrderBottlesTo);
-
-
-			debtorslist = filteredList.ToList();
+				   .Select(() => bottleMovementOperationAlias.Delivered).WithAlias(() => resultAlias.LastOrderBottles)
+				   .Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.LastOrderDate)
+				   .SelectSubQuery(residueQuery).WithAlias(() => resultAlias.IsResidueExist)
+				   .SelectSubQuery(bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
+				   .SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
+				   .SelectSubQuery(TaskExistQuery).WithAlias(() => resultAlias.RowColor)
+					 )
+				.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery)
+				.TransformUsing(Transformers.AliasToBean<BottleDebtorJournalNode>())
+				.List<BottleDebtorJournalNode>();
 
 			SetItemsSource(debtorslist);
 		}
 
-		readonly IColumnsConfig columnsConfig = FluentColumnsConfig<BottleDebtorsVMNode>.Create()
-			.AddColumn("Номер").AddTextRenderer(x => x.AddressId.ToString())
+		readonly IColumnsConfig columnsConfig = FluentColumnsConfig<BottleDebtorJournalNode>.Create()
+			.AddColumn("Номер").AddNumericRenderer(x => x.AddressId)
 			.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
 			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName)
 			.AddColumn("ОПФ").AddTextRenderer(node => node.OPF.GetEnumTitle())
 			.AddColumn("Последний заказ по адресу").AddTextRenderer(node => node.LastOrderDate != null ? node.LastOrderDate.Value.ToString("dd / MM / yyyy") : String.Empty)
-			.AddColumn("Кол-во отгруженных в последнюю реализацию бутылей").AddTextRenderer(node => (node.LastOrderBottles ?? 0).ToString())
-			.AddColumn("Долг по таре (по адресу)").AddTextRenderer(node => node.DebtByAddress.ToString())
-			.AddColumn("Долг по таре (по клиенту)").AddTextRenderer(node => node.DebtByClient.ToString())
-			.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidue ? "есть" : "нет")
-			.AddColumn("Резерв").AddTextRenderer(node => node.Reserve.ToString())
+			.AddColumn("Кол-во отгруженных в последнюю реализацию бутылей").AddNumericRenderer(node => node.LastOrderBottles)
+			.AddColumn("Долг по таре (по адресу)").AddNumericRenderer(node => node.DebtByAddress)
+			.AddColumn("Долг по таре (по клиенту)").AddNumericRenderer(node => node.DebtByClient)
+			.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidueExist)
+			.AddColumn("Резерв").AddNumericRenderer(node => node.Reserve)
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 
@@ -227,7 +196,7 @@ namespace Vodovoz.Representations
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Акт по бутылям и залогам(по клиенту)",
 					(selectedItems) => {
-						var selectedNodes = selectedItems.Cast<BottleDebtorsVMNode>();
+						var selectedNodes = selectedItems.Cast<BottleDebtorJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null) {
 							OpenReport(selectedNode.ClientId);
@@ -237,7 +206,7 @@ namespace Vodovoz.Representations
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Акт по бутылям и залогам(по точке доставки)",
 					(selectedItems) => {
-						var selectedNodes = selectedItems.Cast<BottleDebtorsVMNode>();
+						var selectedNodes = selectedItems.Cast<BottleDebtorJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null) {
 							OpenReport(selectedNode.ClientId, selectedNode.AddressId);
@@ -247,7 +216,7 @@ namespace Vodovoz.Representations
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Создать задачу",
 					(selectedItems) => {
-						var selectedNodes = selectedItems.Cast<BottleDebtorsVMNode>();
+						var selectedNodes = selectedItems.Cast<BottleDebtorJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null) {
 							CreateTask(selectedNodes.ToArray());
@@ -278,7 +247,7 @@ namespace Vodovoz.Representations
 				() => new QSReport.ReportViewDlg(reportInfo));
 		}
 
-		public int CreateTask(BottleDebtorsVMNode[] bottleDebtors)
+		public int CreateTask(BottleDebtorJournalNode[] bottleDebtors)
 		{
 			int newTaskCount = 0;
 			foreach(var item in bottleDebtors) {
@@ -299,7 +268,7 @@ namespace Vodovoz.Representations
 		}
 	}
 
-	public class BottleDebtorsVMNode
+	public class BottleDebtorJournalNode
 	{
 		[UseForSearch]
 		[SearchHighlight]
@@ -324,22 +293,12 @@ namespace Vodovoz.Representations
 
 		public int Reserve { get; set; }
 
-		public string RowColor { get { return IsTaskExist ? "grey" : "black"; } }
-
-		public bool IsResidue { get { return Residue != null; } }
-
-		public int? Residue { get; set; }
-
-		public bool IsTaskExist { get { return ExistTask != null; } }
-
-		public int? ExistTask { get; set; }
+		public string RowColor { get; set; } = "black";
 
 		public DateTime? LastOrderDate { get; set; }
 
 		public int? LastOrderBottles { get; set; }
 
-		public string LastOrderNomenclatureIds { get; set; }
-
-		public string LastOrderDiscountReasonIds { get; set; }
+		public string IsResidueExist { get; set; } = "нет";
 	}
 }

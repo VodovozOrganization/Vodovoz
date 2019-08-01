@@ -137,7 +137,7 @@ namespace Vodovoz.Filters
 		DeadlinePeriod
 	}
 
-	public enum SortingParamType //TODO : придумать как переделать на рефлексию
+	public enum SortingParamType
 	{
 		[Display(Name = "Клиент")]
 		Client,
