@@ -7,6 +7,7 @@ using QS.Project.Domain;
 using Vodovoz.Domain.Orders;
 using QSBanks;
 using QSBusinessCommon.Domain;
+using QS.Banks.Domain;
 
 namespace Vodovoz.Domain.Permissions
 {

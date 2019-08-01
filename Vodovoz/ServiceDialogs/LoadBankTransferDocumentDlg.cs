@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Gtk;
+using QS.Banks.Domain;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSBanks;

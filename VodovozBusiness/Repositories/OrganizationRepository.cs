@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QSBanks;
 using QSSupportLib;

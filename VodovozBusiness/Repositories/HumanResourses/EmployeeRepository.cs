@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
+using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QSBanks;
 using Vodovoz.Domain.Employees;

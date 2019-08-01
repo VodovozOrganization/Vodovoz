@@ -45,6 +45,7 @@ using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QS.DomainModel.Config;
 using Vodovoz.JournalViewModels;
+using QS.Banks.Domain;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {

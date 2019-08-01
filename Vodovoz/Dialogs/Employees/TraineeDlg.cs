@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NLog;
+using QS.Banks.Domain;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;

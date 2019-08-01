@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NLog;
+using QS.Banks.Domain;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSBanks;

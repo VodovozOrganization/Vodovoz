@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Banks.Domain;
 using QSBanks;
 using Vodovoz.Domain.Client;
 

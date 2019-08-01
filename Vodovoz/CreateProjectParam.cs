@@ -54,6 +54,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.ViewModels;
 using Vodovoz.Views;
+using QS.Banks.Domain;
 
 namespace Vodovoz
 {
@@ -391,16 +392,16 @@ namespace Vodovoz
 			ImagePrinter.InitPrinter();
 
 			//Настройка ParentReference
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, QSBanks.Account> {
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, Account> {
 				AddNewChild = (o, a) => o.AddAccount(a)
 			});
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Counterparty, QSBanks.Account> {
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Counterparty, Account> {
 				AddNewChild = (c, a) => c.AddAccount(a)
 			});
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Employee, QSBanks.Account> {
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Employee, Account> {
 				AddNewChild = (c, a) => c.AddAccount(a)
 			});
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Trainee, QSBanks.Account> {
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Trainee, Account> {
 				AddNewChild = (c, a) => c.AddAccount(a)
 			});
 		}

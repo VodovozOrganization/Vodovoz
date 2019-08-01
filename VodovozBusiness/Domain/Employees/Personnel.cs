@@ -6,6 +6,7 @@ using System.Data.Bindings.Utilities;
 using System.Linq;
 using System.Reflection;
 using NLog;
+using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
