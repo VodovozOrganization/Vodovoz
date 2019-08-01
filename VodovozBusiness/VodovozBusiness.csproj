@@ -674,6 +674,8 @@
     <Compile Include="HibernateMapping\Complaints\ComplaintFileMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintGuiltyItemMap.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintSourceMap.cs" />
+    <Compile Include="Domain\Complaints\ComplaintResult.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintResultMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

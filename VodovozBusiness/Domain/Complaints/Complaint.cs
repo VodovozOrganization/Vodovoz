@@ -7,6 +7,8 @@ using Gdk;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Orders;
 using System.Collections.Generic;
+using Vodovoz.Domain.Employees;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -23,6 +25,34 @@ namespace Vodovoz.Domain.Complaints
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		public virtual int Id { get; set; }
+
+		private Employee createdBy;
+		[Display(Name = "Кем создан")]
+		public virtual Employee CreatedBy {
+			get => createdBy;
+			set => SetField(ref createdBy, value, () => CreatedBy);
+		}
+
+		private DateTime creationDate;
+		[Display(Name = "Дата создания")]
+		public virtual DateTime CreationDate {
+			get => creationDate;
+			set => SetField(ref creationDate, value, () => CreationDate);
+		}
+
+		private Employee changedBy;
+		[Display(Name = "Кем изменен")]
+		public virtual Employee ChangedBy {
+			get => changedBy;
+			set => SetField(ref changedBy, value, () => ChangedBy);
+		}
+
+		private DateTime changedDate;
+		[Display(Name = "Дата изменения")]
+		public virtual DateTime ChangedDate {
+			get => changedDate;
+			set => SetField(ref changedDate, value, () => ChangedDate);
+		}
 
 		private Counterparty counterparty;
 		[Display(Name = "Клиент")]
@@ -46,7 +76,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		private Order order;
-		[Display(Name = "Текст жалобы")]
+		[Display(Name = "Заказ")]
 		public virtual Order Order {
 			get => order;
 			set => SetField(ref order, value, () => Order);
@@ -71,6 +101,76 @@ namespace Vodovoz.Domain.Complaints
 		public virtual ComplaintStatuses Status {
 			get => status;
 			set => SetField(ref status, value, () => Status);
+		}
+
+		private DateTime plannedCompletionDate;
+		[Display(Name = "Дата планируемого завершения")]
+		public virtual DateTime PlannedCompletionDate {
+			get => plannedCompletionDate;
+			set => SetField(ref plannedCompletionDate, value, () => PlannedCompletionDate);
+		}
+
+		private string resultText;
+		[Display(Name = "Результат")]
+		public virtual string ResultText {
+			get => resultText;
+			set => SetField(ref resultText, value, () => ResultText);
+		}
+
+		private ComplaintResult complaintResult;
+		[Display(Name = "Результат")]
+		public virtual ComplaintResult ComplaintResult {
+			get => complaintResult;
+			set => SetField(ref complaintResult, value, () => ComplaintResult);
+		}
+
+		IList<Fine> fines = new List<Fine>();
+		[Display(Name = "Штрафы")]
+		public virtual IList<Fine> Fines {
+			get => fines;
+			set => SetField(ref fines, value, () => Fines);
+		}
+
+		GenericObservableList<Fine> observableFines;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Fine> ObservableFines {
+			get {
+				if(observableFines == null)
+					observableFines = new GenericObservableList<Fine>(Fines);
+				return observableFines;
+			}
+		}
+
+		IList<ComplaintDiscussion> complaintDiscussions = new List<ComplaintDiscussion>();
+		[Display(Name = "Обсуждения")]
+		public virtual IList<ComplaintDiscussion> ComplaintDiscussions {
+			get => complaintDiscussions;
+			set => SetField(ref complaintDiscussions, value, () => ComplaintDiscussions);
+		}
+
+		GenericObservableList<ComplaintDiscussion> observableComplaintDiscussions;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ComplaintDiscussion> ObservableComplaintDiscussions {
+			get {
+				if(observableComplaintDiscussions == null)
+					observableComplaintDiscussions = new GenericObservableList<ComplaintDiscussion>(ComplaintDiscussions);
+				return observableComplaintDiscussions;
+			}
+		}
+
+		public virtual void AddFine(Fine fine)
+		{
+			if(ObservableFines.Contains(fine)) {
+				return;
+			}
+			ObservableFines.Add(fine);
+		}
+
+		public virtual void RemoveFine(Fine fine)
+		{
+			if(ObservableFines.Contains(fine)) {
+				ObservableFines.Remove(fine);
+			}
 		}
 
 		#region IValidatableObject implementation
