@@ -64,6 +64,7 @@
     <Compile Include="ViewModels\Complaints\CreateInnerComplaintViewModel.cs" />
     <Compile Include="ViewModels\Complaints\GuiltyItemsViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintDiscussionViewModel.cs" />
+    <Compile Include="ViewModels\FilesViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

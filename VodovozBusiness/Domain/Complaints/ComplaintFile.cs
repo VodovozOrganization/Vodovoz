@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Complaints
 	[HistoryTrace]
 	public class ComplaintFile : PropertyChangedBase, IDomainObject
 	{
-		public int Id { get; set; }
+		public virtual int Id { get; set; }
 
 		private string fileStorageId;
 		[Display(Name = "Идентификатор файла в системе хранения")]
@@ -33,6 +33,13 @@ namespace Vodovoz.Domain.Complaints
 		public virtual ComplaintDiscussionComment ComplaintDiscussionComment {
 			get => complaintDiscussionComment;
 			set => SetField(ref complaintDiscussionComment, value, () => ComplaintDiscussionComment);
+		}
+
+		private byte[] byteFile;
+		[Display(Name = "Файл")]
+		public virtual byte[] ByteFile{
+			get => byteFile;
+			set => SetField(ref byteFile, value, () => ByteFile);
 		}
 	}
 }

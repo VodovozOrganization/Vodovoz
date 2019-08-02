@@ -192,7 +192,7 @@ namespace Vodovoz.Domain.Complaints
 
 		#region IValidatableObject implementation
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(ComplaintSource == null) {
 				yield return new ValidationResult("Необходимо выбрать источник");

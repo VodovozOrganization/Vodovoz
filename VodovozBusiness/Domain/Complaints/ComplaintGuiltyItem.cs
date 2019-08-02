@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Complaints
 	[HistoryTrace]
 	public class ComplaintGuiltyItem : PropertyChangedBase, IDomainObject
 	{
-		public int Id { get; set; }
+		public virtual int Id { get; set; }
 
 		private Complaint complaint;
 		[Display(Name = "Жалоба")]

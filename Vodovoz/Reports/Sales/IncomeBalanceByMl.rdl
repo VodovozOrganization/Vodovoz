@@ -956,7 +956,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=SUM({IncMinusExp})</Value>
+                      <Value>=SUM({FactIncome})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -2329,7 +2329,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     t.*,
@@ -2516,7 +2516,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>

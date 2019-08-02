@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Complaints
 	[EntityPermission]
 	public class ComplaintDiscussionComment : PropertyChangedBase, IDomainObject
 	{
-		public int Id { get; set; }
+		public virtual int Id { get; set; }
 
 		private ComplaintDiscussion complaintDiscussion;
 		[Display(Name = "Обсуждение жалобы")]
