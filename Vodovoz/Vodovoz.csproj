@@ -1237,6 +1237,10 @@
     <Compile Include="Infrastructure\Services\IEntityRepresentationSelectorFactory.cs" />
     <Compile Include="Filters\GtkViews\FineFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FineFilterView.cs" />
+    <Compile Include="Views\Complaints\CreateComplaintView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.CreateComplaintView.cs" />
+    <Compile Include="Views\Complaints\CreateInnerComplaintView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.CreateInnerComplaintView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

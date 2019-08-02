@@ -72,6 +72,9 @@ namespace Vodovoz.Views.Complaints
 
 			buttonAttachFine.Clicked += (sender, e) => { ViewModel.AttachFineCommand.Execute(); };
 			buttonAttachFine.Binding.AddBinding(ViewModel, vm => vm.CanAttachFine, w => w.Sensitive).InitializeFromSource();
+
+			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
 		}
 	}
 }
