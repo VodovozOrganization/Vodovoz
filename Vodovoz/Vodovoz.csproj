@@ -1143,8 +1143,6 @@
     <Compile Include="Filters\RepresentationFilterViewModelBase.cs" />
     <Compile Include="Infrastructure\Converters\DecimalToStringConverter.cs" />
     <Compile Include="ServicesConfig.cs" />
-    <Compile Include="Infrastructure\Services\IEmployeeService.cs" />
-    <Compile Include="Infrastructure\Services\EmployeeService.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelIncomeInvoiceView.cs" />
@@ -1186,7 +1184,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PermissionCommentView.cs" />
     <Compile Include="ReportsParameters\Bottles\ProfitabilityBottlesByStockReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ProfitabilityBottlesByStockReport.cs" />
-    <Compile Include="JournalViewModels\CounterpartyJournalViewModel.cs" />
     <Compile Include="Filters\ViewModels\CounterpartyJournalFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\CounterpartyFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CounterpartyFilterView.cs" />
@@ -1210,7 +1207,6 @@
     <Compile Include="Filters\ViewModels\ResidueFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\ResidueFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ResidueFilterView.cs" />
-    <Compile Include="Infrastructure\Services\EntityRepresentationSelectorAdapter.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeView.cs" />
@@ -1220,7 +1216,6 @@
     <Compile Include="Dialogs\Cash\ExpenseCategoryViewModel.cs" />
     <Compile Include="Dialogs\Cash\ExpenseCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
-    <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
     <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
     <Compile Include="Dialogs\Phones\PhonesViewModel.cs" />
     <Compile Include="Dialogs\Phones\PhonesView.cs" />
@@ -1228,6 +1223,9 @@
     <Compile Include="Additions\ManualEmailSender.cs" />
     <Compile Include="ServiceDialogs\ResendEmailsDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ResendEmailsDialog.cs" />
+    <Compile Include="Views\Complaints\ComplaintView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintView.cs" />
+    <Compile Include="JournalViewModels\CounterpartyJournalViewModel.cs" />
     <Compile Include="JournalViewers\UndeliveriesViewOpener.cs" />
     <Compile Include="Views\Employees\FineTemplateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineTemplateView.cs" />
@@ -1459,6 +1457,7 @@
     <Folder Include="ViewModels\" />
     <Folder Include="Views\" />
     <Folder Include="Dialogs\Phones\" />
+    <Folder Include="Views\Complaints\" />
     <Folder Include="Views\Employees\" />
   </ItemGroup>
   <ItemGroup>
