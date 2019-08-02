@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -29,5 +31,23 @@ namespace Vodovoz.Domain.Complaints
 			get => comment;
 			set => SetField(ref comment, value, () => Comment);
 		}
+
+		IList<ComplaintFile> files = new List<ComplaintFile>();
+		[Display(Name = "Приложенные файлы")]
+		public virtual IList<ComplaintFile> Files {
+			get => files;
+			set => SetField(ref files, value, () => Files);
+		}
+
+		GenericObservableList<ComplaintFile> observableFiles;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ComplaintFile> ObservableFiles {
+			get {
+				if(observableFiles == null)
+					observableFiles = new GenericObservableList<ComplaintFile>(Files);
+				return observableFiles;
+			}
+		}
+
 	}
 }

@@ -14,6 +14,8 @@ namespace Vodovoz.HibernateMapping.Complaints
 
 			References(x => x.ComplaintDiscussion).Column("complaint_discussion_id");
 			Map(x => x.Comment).Column("comment");
+
+			HasMany(x => x.Files).Cascade.All().Inverse().LazyLoad().KeyColumn("complaint_discussion_comment_id");
 		}
 	}
 }
