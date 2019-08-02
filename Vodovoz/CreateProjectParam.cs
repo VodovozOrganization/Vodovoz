@@ -176,7 +176,7 @@ namespace Vodovoz
 			OrmConfig.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
 				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(HibernateMapping.OrganizationMap)),
-				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
+				System.Reflection.Assembly.GetAssembly (typeof(Bank)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSContactsMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
 			},
