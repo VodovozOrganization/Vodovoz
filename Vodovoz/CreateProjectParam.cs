@@ -54,6 +54,8 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.ViewModels;
 using Vodovoz.Views;
+using Vodovoz.ViewModels.Employees;
+using Vodovoz.Views.Employees;
 using QS.Banks.Domain;
 
 namespace Vodovoz
@@ -136,6 +138,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelTypeViewModel, FuelTypeView>()
 				.RegisterWidgetForTabViewModel<FuelWriteoffDocumentViewModel, FuelWriteoffDocumentView>()
 				.RegisterWidgetForTabViewModel<ResidueViewModel, ResidueView>()
+				.RegisterWidgetForTabViewModel<FineTemplateViewModel, FineTemplateView>()
 				;
 
 			//Регистрация фильтров

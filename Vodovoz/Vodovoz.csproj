@@ -1228,6 +1228,17 @@
     <Compile Include="Additions\ManualEmailSender.cs" />
     <Compile Include="ServiceDialogs\ResendEmailsDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ResendEmailsDialog.cs" />
+    <Compile Include="JournalViewers\UndeliveriesViewOpener.cs" />
+    <Compile Include="Views\Employees\FineTemplateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineTemplateView.cs" />
+    <Compile Include="Views\Employees\FineView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineView.cs" />
+    <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
+    <Compile Include="Infrastructure\Services\EntityRepresentationSelectorAdapter.cs" />
+    <Compile Include="Infrastructure\Services\EntityRepresentationSelectorFactory.cs" />
+    <Compile Include="Infrastructure\Services\IEntityRepresentationSelectorFactory.cs" />
+    <Compile Include="Filters\GtkViews\FineFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FineFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1363,6 +1374,10 @@
       <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
       <Name>QS.Validation</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
+      <Project>{EF73674E-B8D5-461B-A072-AC73231C82B2}</Project>
+      <Name>VodovozViewModels</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
       <Name>QS.Banks</Name>
@@ -1444,6 +1459,7 @@
     <Folder Include="ViewModels\" />
     <Folder Include="Views\" />
     <Folder Include="Dialogs\Phones\" />
+    <Folder Include="Views\Employees\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

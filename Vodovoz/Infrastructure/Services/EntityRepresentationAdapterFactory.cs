@@ -16,12 +16,12 @@ namespace Vodovoz.Infrastructure.Services
 			this.tabName = tabName;
 		}
 
-		public IEntityAutocompleteSelector CreateAutocompleteSelector()
+		public IEntityAutocompleteSelector CreateAutocompleteSelector(bool multipleSelect = false)
 		{
-			return new EntityRepresentationSelectorAdapter(EntityType, modelFunc(), tabName);
+			return new EntityRepresentationSelectorAdapter(EntityType, modelFunc(), tabName, multipleSelect);
 		}
 
-		public IEntitySelector CreateSelector()
+		public IEntitySelector CreateSelector(bool multipleSelect = false)
 		{
 			return CreateAutocompleteSelector();
 		}

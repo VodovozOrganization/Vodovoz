@@ -192,6 +192,21 @@ namespace Vodovoz.Domain.Employees
 
 		#region Методы
 
+		public virtual void UpdateItems()
+		{
+			Employee driver = RouteList?.Driver;
+			FineItem item = null;
+			ObservableItems.Clear();
+			if(driver != null) {
+				item = ObservableItems.FirstOrDefault(x => x.Employee == driver);
+				if(item != null) {
+					ObservableItems.Add(item);
+				} else {
+					AddItem(driver);
+				}
+			}
+		}
+
 		public virtual void AddItem(Employee employee)
 		{
 			var item = new FineItem() {
@@ -199,6 +214,13 @@ namespace Vodovoz.Domain.Employees
 				Fine = this
 			};
 			ObservableItems.Add(item);
+		}
+
+		public virtual void RemoveItem(FineItem item)
+		{
+			if(ObservableItems.Contains(item)) {
+				ObservableItems.Remove(item);
+			}
 		}
 
 		public virtual void AddNomenclature(Dictionary<Nomenclature, decimal> nomenclatureAmounts)
