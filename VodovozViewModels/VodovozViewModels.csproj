@@ -62,6 +62,7 @@
     <Compile Include="JournalNodes\FineJournalNode.cs" />
     <Compile Include="ViewModels\Complaints\CreateComplaintViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateInnerComplaintViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\GuiltyItemsViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

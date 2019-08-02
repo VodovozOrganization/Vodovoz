@@ -158,6 +158,23 @@ namespace Vodovoz.Domain.Complaints
 			}
 		}
 
+		IList<ComplaintGuiltyItem> guilties = new List<ComplaintGuiltyItem>();
+		[Display(Name = "Виновные в жалобе")]
+		public virtual IList<ComplaintGuiltyItem> Guilties {
+			get => guilties;
+			set => SetField(ref guilties, value, () => Guilties);
+		}
+
+		GenericObservableList<ComplaintGuiltyItem> observableGuilties;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ComplaintGuiltyItem> ObservableGuilties {
+			get {
+				if(observableGuilties == null)
+					observableGuilties = new GenericObservableList<ComplaintGuiltyItem>(Guilties);
+				return observableGuilties;
+			}
+		}
+
 		public virtual void AddFine(Fine fine)
 		{
 			if(ObservableFines.Contains(fine)) {

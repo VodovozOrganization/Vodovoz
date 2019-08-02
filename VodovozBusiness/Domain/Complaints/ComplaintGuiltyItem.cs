@@ -1,15 +1,15 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Complaints
 {
-	[Appellative(Gender = GrammaticalGender.Neuter,
-		NominativePlural = "комментарии к обсуждению жалобы",
-		Nominative = "комментарий к обсуждению жалобы"
-	)]
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "виновные в жалобе",
+		Nominative = "виновный в жалобе",
+		Prepositional = "виновном в жалобе",
+		PrepositionalPlural = "виновных в жалобе")]
 	[HistoryTrace]
 	public class ComplaintGuiltyItem : PropertyChangedBase, IDomainObject
 	{
@@ -43,8 +43,6 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref subdivision, value, () => Subdivision);
 		}
 
-		public ComplaintGuiltyItem()
-		{
-		}
+		public ComplaintGuiltyItem() { }
 	}
 }
