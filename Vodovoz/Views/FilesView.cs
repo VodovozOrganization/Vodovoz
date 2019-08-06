@@ -44,20 +44,22 @@ namespace Vodovoz.Views
 			ytreeviewFiles.Binding.AddBinding(viewModel, e => e.FilesList, w => w.ItemsDataSource).InitializeFromSource();
 
 			ytreeviewFiles.RowActivated += (o, args) => viewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<ComplaintFile>());
-
-			DestroyEvent += (o, args) => ViewModel.DeleteTempFiles();
 		}
 
 		protected void ConfigureMenu()
 		{
+			if(ytreeviewFiles.GetSelectedObject() == null)
+				return;
+
 			var menu = new Menu();
 
 			var deleteFile = new MenuItem("Удалить файл");
 			deleteFile.Activated += (s, args) => viewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
-			menu.Append(deleteFile);
-			deleteFile.Show();
+			menu.Add(deleteFile);
+			deleteFile.Visible = true;
+			menu.ShowAll();
+			menu.Popup();
 
-			deleteFile.Show();
 		}
 
 		protected void KeystrokeHandler(object o, ButtonReleaseEventArgs args)

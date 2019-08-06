@@ -57,6 +57,7 @@ using Vodovoz.Views;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.Views.Employees;
 using QS.Banks.Domain;
+using System.IO;
 
 namespace Vodovoz
 {
@@ -408,6 +409,43 @@ namespace Vodovoz
 			ParentReferenceConfig.AddActions(new ParentReferenceActions<Trainee, Account> {
 				AddNewChild = (c, a) => c.AddAccount(a)
 			});
+		}
+
+		public static void CreateTempDir()
+		{
+			var userId = QSMain.User?.Id;
+
+			if(userId == null)
+				return;
+
+			var tempVodUserPath = Path.Combine(Path.GetTempPath(), "Vodovoz", userId.ToString());
+			DirectoryInfo dirInfo = new DirectoryInfo(tempVodUserPath);
+
+			if(!dirInfo.Exists) 
+				dirInfo.Create();
+		}
+
+		public static void ClearTempDir()
+		{
+			var userId = QSMain.User?.Id;
+
+			if(userId == null)
+				return;
+
+			var tempVodUserPath = Path.Combine(Path.GetTempPath(), "Vodovoz", userId.ToString());
+			DirectoryInfo dirInfo = new DirectoryInfo(tempVodUserPath);
+
+			if(dirInfo.Exists) 
+			{
+				foreach(FileInfo file in dirInfo.EnumerateFiles()) {
+					file.Delete();
+				}
+				foreach(DirectoryInfo dir in dirInfo.EnumerateDirectories()) {
+					dir.Delete(true);
+				}
+
+				dirInfo.Delete();
+			}
 		}
 
 		public static void SetupAppFromBase()
