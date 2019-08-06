@@ -5,14 +5,14 @@ namespace Vodovoz.Domain.Complaints
 {
 	public enum ComplaintGuiltyTypes
 	{
-		[Display(Name = "Нет")]
-		None,
 		[Display(Name = "Клиент")]
 		Client,
 		[Display(Name = "Подразделение")]
 		Subdivision,
 		[Display(Name = "Сотрудник")]
-		Employee
+		Employee,
+		[Display(Name = "Нет")]
+		None
 	}
 
 	public class ComplaintGuiltyTypesStringType : NHibernate.Type.EnumStringType
