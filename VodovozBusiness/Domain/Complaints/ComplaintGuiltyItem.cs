@@ -22,9 +22,9 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref complaint, value, () => Complaint);
 		}
 
-		private ComplaintGuiltyTypes guiltyType;
+		private ComplaintGuiltyTypes? guiltyType;
 		[Display(Name = "Виновник")]
-		public virtual ComplaintGuiltyTypes GuiltyType {
+		public virtual ComplaintGuiltyTypes? GuiltyType {
 			get => guiltyType;
 			set => SetField(ref guiltyType, value, () => GuiltyType);
 		}
@@ -44,5 +44,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		public ComplaintGuiltyItem() { }
+
+		public virtual string GetGuiltySubdivisionOrEmployee => Subdivision?.Name ?? Employee?.Name;
 	}
 }

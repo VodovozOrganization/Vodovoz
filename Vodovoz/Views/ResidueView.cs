@@ -21,6 +21,7 @@ namespace Vodovoz.Views
 
 		private void ConfigureDlg()
 		{
+			guiltyitemsview2.ViewModel = ViewModel.GuiltyItemsVM;
 			ypickerDocDate.Binding.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
 			var counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
