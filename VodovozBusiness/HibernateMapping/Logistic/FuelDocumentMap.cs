@@ -16,9 +16,10 @@ namespace Vodovoz
 			Map (x => x.PayedForFuel).Column ("payed_for_fuel");
 			Map (x => x.FuelCoupons).Column ("fuel_coupons");
 			Map (x => x.LiterCost)	 .Column ("liter_cost");
-			Map (x => x.LastEditDate).Column("last_edit_date");
+			Map(x => x.LastEditDate).Column("last_edit_date");
+			Map(x => x.FuelCardNumber).Column("fuel_card");
 
-			References (x => x.Car)				.Column ("car_id");
+			References(x => x.Car)				.Column ("car_id");
 			References (x => x.Fuel)			.Column ("fuel_type_id");
 			References (x => x.Driver)			.Column ("driver_id");
 			References (x => x.RouteList)		.Column ("route_list_id");

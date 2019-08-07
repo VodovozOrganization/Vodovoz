@@ -10,7 +10,7 @@ namespace Vodovoz.JournalFilters
 
 		private global::Gamma.GtkWidgets.yCheckButton chkShowDilers;
 
-		private global::Gamma.Widgets.yEnumComboBox cmbEquipmentSubtype;
+		private global::Gamma.Widgets.yEnumComboBox cmbSaleCategory;
 
 		private global::Gamma.Widgets.yEnumComboBox enumcomboCategory;
 
@@ -24,6 +24,7 @@ namespace Vodovoz.JournalFilters
 			this.Name = "Vodovoz.JournalFilters.NomenclatureRepFilter";
 			// Container child Vodovoz.JournalFilters.NomenclatureRepFilter.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(5)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -53,14 +54,14 @@ namespace Vodovoz.JournalFilters
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.cmbEquipmentSubtype = new global::Gamma.Widgets.yEnumComboBox();
-			this.cmbEquipmentSubtype.Name = "cmbEquipmentSubtype";
-			this.cmbEquipmentSubtype.ShowSpecialStateAll = true;
-			this.cmbEquipmentSubtype.ShowSpecialStateNot = false;
-			this.cmbEquipmentSubtype.UseShortTitle = false;
-			this.cmbEquipmentSubtype.DefaultFirst = true;
-			this.table1.Add(this.cmbEquipmentSubtype);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.cmbEquipmentSubtype]));
+			this.cmbSaleCategory = new global::Gamma.Widgets.yEnumComboBox();
+			this.cmbSaleCategory.Name = "cmbSaleCategory";
+			this.cmbSaleCategory.ShowSpecialStateAll = true;
+			this.cmbSaleCategory.ShowSpecialStateNot = false;
+			this.cmbSaleCategory.UseShortTitle = false;
+			this.cmbSaleCategory.DefaultFirst = true;
+			this.table1.Add(this.cmbSaleCategory);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.cmbSaleCategory]));
 			w3.LeftAttach = ((uint)(2));
 			w3.RightAttach = ((uint)(3));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -93,7 +94,7 @@ namespace Vodovoz.JournalFilters
 			}
 			this.Hide();
 			this.enumcomboCategory.ChangedByUser += new global::System.EventHandler(this.OnEnumcomboCategoryChangedByUser);
-			this.cmbEquipmentSubtype.ChangedByUser += new global::System.EventHandler(this.OnCmbEquipmentSubtypeChangedByUser);
+			this.cmbSaleCategory.ChangedByUser += new global::System.EventHandler(this.OnCmbSaleCategoryChangedByUser);
 			this.chkShowDilers.Toggled += new global::System.EventHandler(this.OnChkShowDilersToggled);
 			this.chkOnlyDisposableTare.Toggled += new global::System.EventHandler(this.OnChkOnlyDisposableTareToggled);
 		}

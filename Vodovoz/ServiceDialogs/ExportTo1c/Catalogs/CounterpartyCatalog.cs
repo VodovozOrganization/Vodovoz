@@ -96,20 +96,22 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				)
 			);
 
-			if(counterparty.MainCounterparty != null)
+			if(counterparty.MainCounterparty != null && counterparty.MainCounterparty.PersonType != PersonType.natural)
 			{
 				properties.Add(
-					new PropertyNode("ГоловнойКонтрагент",
-					                 Common1cTypes.ReferenceCounterparty,
-					                 exportData.CounterpartyCatalog.CreateReferenceTo(counterparty.MainCounterparty)
+					new PropertyNode(
+						"ГоловнойКонтрагент",
+					    Common1cTypes.ReferenceCounterparty,
+					    exportData.CounterpartyCatalog.CreateReferenceTo(counterparty.MainCounterparty)
 					)
 				);
 			}
 			else
 			{
 				properties.Add(
-					new PropertyNode("ГоловнойКонтрагент",
-									 Common1cTypes.ReferenceCounterparty
+					new PropertyNode(
+						"ГоловнойКонтрагент",
+						Common1cTypes.ReferenceCounterparty
 					)
 				);
 			}

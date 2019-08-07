@@ -214,18 +214,22 @@ namespace Vodovoz.Domain.Goods
 				if(SetField(ref category, value, () => Category)) {
 					if(Category != NomenclatureCategory.equipment)
 						IsSerial = false;
+
 					if(Category != NomenclatureCategory.water)
 						TareVolume = null;
+
+					if(!GetCategoriesWithSaleCategory().Contains(value))
+						SaleCategory = null;
 				}
 			}
 		}
 
-		SubtypeOfEquipmentCategory? subTypeOfEquipmentCategory;
+		SaleCategory? saleCategory;
 
-		[Display(Name = "Подкатегория товаров")]
-		public virtual SubtypeOfEquipmentCategory? SubTypeOfEquipmentCategory {
-			get { return subTypeOfEquipmentCategory; }
-			set { SetField(ref subTypeOfEquipmentCategory, value, () => SubTypeOfEquipmentCategory);}
+		[Display(Name = "Доступность для продаж")]
+		public virtual SaleCategory? SaleCategory {
+			get { return saleCategory; }
+			set { SetField(ref saleCategory, value, () => SaleCategory); }
 		}
 
 		TypeOfDepositCategory? typeOfDepositCategory;
@@ -346,7 +350,7 @@ namespace Vodovoz.Domain.Goods
 			get { return dependsOnNomenclature; }
 			set { SetField(ref dependsOnNomenclature, value, () => DependsOnNomenclature); }
 		}
-		
+
 		private double percentForMaster;
 
 		[Display(Name = "Процент зарплаты мастера")]
@@ -592,7 +596,7 @@ namespace Vodovoz.Domain.Goods
 				CreatedBy = Vodovoz.Repositories.HumanResources.UserRepository.GetCurrentUser(UoW);
 			}
 		}
-		
+
 		public Nomenclature()
 		{
 			Category = NomenclatureCategory.water;
@@ -638,10 +642,11 @@ namespace Vodovoz.Domain.Goods
 					string.Format("Не указан тип оборудования."),
 					new[] { this.GetPropertyName(o => o.Type) });
 
-			if(Category == NomenclatureCategory.equipment && SubTypeOfEquipmentCategory == null)
+			if(GetCategoriesWithSaleCategory().Contains(category) && SaleCategory == null)
 				yield return new ValidationResult(
-					string.Format("Не указан подтип оборудования (для продажи или нет)."),
-					new[] { this.GetPropertyName(o => o.SubTypeOfEquipmentCategory) });
+					"Не указана \"Доступность для продажи\"",
+					new[] { this.GetPropertyName(o => o.SaleCategory) }
+				);
 
 			if(Category == NomenclatureCategory.deposit && TypeOfDepositCategory == null)
 				yield return new ValidationResult(
@@ -675,23 +680,22 @@ namespace Vodovoz.Domain.Goods
 				if(DependsOnNomenclature.DependsOnNomenclature != null)
 					yield return new ValidationResult(
 						string.Format("Номенклатура '{0}' указанная в качеcтве основной для цен этой номеклатуры, сама зависит от '{1}'",
-						              DependsOnNomenclature.ShortOrFullName, DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName),
+									  DependsOnNomenclature.ShortOrFullName, DependsOnNomenclature.DependsOnNomenclature.ShortOrFullName),
 						new[] { this.GetPropertyName(o => o.DependsOnNomenclature) });
 			}
 
-			if(Code1c != null && Code1c.StartsWith(PrefixOfCode1c))
-			{
+			if(Code1c != null && Code1c.StartsWith(PrefixOfCode1c)) {
 				if(Code1c.Length != LengthOfCode1c)
 					yield return new ValidationResult(
 						string.Format("Код 1с с префиксом автоформирования '{0}', должен содержать {1}-символов.",
-						              PrefixOfCode1c, LengthOfCode1c),
+									  PrefixOfCode1c, LengthOfCode1c),
 						new[] { this.GetPropertyName(o => o.Code1c) });
 
 				var next = NomenclatureRepository.GetNextCode1c(UoW);
 				if(string.Compare(Code1c, next) > 0)
 					yield return new ValidationResult(
 						string.Format("Код 1с использует префикс автоматического формирования кодов '{0}'. При этом пропускает некоторое количество значений. Используйте в качестве следующего кода {1} или оставьте это поле пустым для автозаполенения.",
-						              PrefixOfCode1c, next),
+									  PrefixOfCode1c, next),
 						new[] { this.GetPropertyName(o => o.Code1c) });
 			}
 
@@ -708,6 +712,21 @@ namespace Vodovoz.Domain.Goods
 
 		public static string PrefixOfCode1c = "ДВ";
 		public static int LengthOfCode1c = 10;
+
+		/// <summary>
+		/// Категории товаров к которым применима категория продажи
+		/// (доступность для продаж) "<see cref="SaleCategory"/>"
+		/// </summary>
+		/// <returns>Массив <see cref="NomenclatureCategory"/> к которым может применяться <see cref="SaleCategory"/></returns>
+		public static NomenclatureCategory[] GetCategoriesWithSaleCategory()
+		{
+			return new[] {
+				NomenclatureCategory.equipment,
+				NomenclatureCategory.material,
+				NomenclatureCategory.bottle,
+				NomenclatureCategory.spare_parts
+			};
+		}
 
 		public static NomenclatureCategory[] GetCategoriesForShipment()
 		{
@@ -742,25 +761,17 @@ namespace Vodovoz.Domain.Goods
 
 		public static NomenclatureCategory[] GetCategoriesForSaleToOrder()
 		{
-			List<NomenclatureCategory> forSale = new List<NomenclatureCategory>(
-				new[] {
-					NomenclatureCategory.additional,
-					NomenclatureCategory.equipment,
-					NomenclatureCategory.water,
-					NomenclatureCategory.rent,
-					NomenclatureCategory.deposit,
-					NomenclatureCategory.service
-				}
-			);
-
-			if(UserPermissionRepository.CurrentUserPresetPermissions["can_add_spares_to_order"])
-				forSale.Add(NomenclatureCategory.spare_parts);
-			if(UserPermissionRepository.CurrentUserPresetPermissions["can_add_bottles_to_order"])
-				forSale.Add(NomenclatureCategory.bottle);
-			if(UserPermissionRepository.CurrentUserPresetPermissions["can_add_materials_to_order"])
-				forSale.Add(NomenclatureCategory.material);
-
-			return forSale.ToArray();
+			return new[] {
+				NomenclatureCategory.additional,
+				NomenclatureCategory.equipment,
+				NomenclatureCategory.water,
+				NomenclatureCategory.rent,
+				NomenclatureCategory.deposit,
+				NomenclatureCategory.service,
+				NomenclatureCategory.spare_parts,
+				NomenclatureCategory.bottle,
+				NomenclatureCategory.material
+			};
 		}
 
 		/// <summary>
@@ -795,12 +806,12 @@ namespace Vodovoz.Domain.Goods
 		public static NomenclatureCategory[] GetCategoriesForGoods()
 		{
 			return new[] {
-				NomenclatureCategory.bottle, 
+				NomenclatureCategory.bottle,
 				NomenclatureCategory.additional,
-				NomenclatureCategory.equipment, 
+				NomenclatureCategory.equipment,
 				NomenclatureCategory.material,
-				NomenclatureCategory.spare_parts, 
-				NomenclatureCategory.water, 
+				NomenclatureCategory.spare_parts,
+				NomenclatureCategory.water,
 			};
 		}
 
@@ -885,7 +896,7 @@ namespace Vodovoz.Domain.Goods
 	/// <summary>
 	/// Подтип категории "Товары"
 	/// </summary>
-	public enum SubtypeOfEquipmentCategory
+	public enum SaleCategory
 	{
 		[Display(Name = "На продажу")]
 		forSale,
@@ -911,9 +922,9 @@ namespace Vodovoz.Domain.Goods
 		}
 	}
 
-	public class SubtypeOfEquipmentCategoryStringType : NHibernate.Type.EnumStringType
+	public class SaleCategoryStringType : NHibernate.Type.EnumStringType
 	{
-		public SubtypeOfEquipmentCategoryStringType() : base(typeof(SubtypeOfEquipmentCategory))
+		public SaleCategoryStringType() : base(typeof(SaleCategory))
 		{
 		}
 	}

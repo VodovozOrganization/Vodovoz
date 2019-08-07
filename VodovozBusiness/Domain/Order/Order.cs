@@ -959,7 +959,7 @@ namespace Vodovoz.Domain.Orders
 				ObservableOrderEquipments
 			   .Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
 			   .Where(x => x.DirectionReason == DirectionReason.None && x.OwnType != OwnTypes.Duty)
-			   .Any(x => x.Nomenclature?.SubTypeOfEquipmentCategory != SubtypeOfEquipmentCategory.forSale)
+			   .Any(x => x.Nomenclature?.SaleCategory != SaleCategory.forSale)
 			  )
 				yield return new ValidationResult("У оборудования в заказе должна быть указана причина забор-доставки.");
 
@@ -996,7 +996,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsLoadedFrom1C => !string.IsNullOrEmpty(Code1c);
 
-		public override string ToString() => string.Format("Заказ №{0}({1})", Id, Code1c);
+		public override string ToString() => IsLoadedFrom1C ? string.Format("Заказ №{0}({1})", Id, Code1c) : string.Format("Заказ №{0}", Id);
 
 		public virtual string Title => string.Format("Заказ №{0} от {1:d}", Id, DeliveryDate);
 

@@ -1136,7 +1136,7 @@ namespace Vodovoz
 			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.water,
-				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
+				x => x.DefaultSelectedSaleCategory = SaleCategory.forSale
 			);
 			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
 				Mode = JournalSelectMode.Single,
@@ -2345,6 +2345,11 @@ namespace Vodovoz
 
 		void UpdateButtonState()
 		{
+			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_edit_order"]) {
+				buttonEditOrder.Sensitive = false;
+				buttonEditOrder.TooltipText = "Нет права на редактирование";
+			}
+
 			if(Entity.CanSetOrderAsAccepted) {
 				buttonAcceptOrder.Visible = true;
 				buttonEditOrder.Visible = false;

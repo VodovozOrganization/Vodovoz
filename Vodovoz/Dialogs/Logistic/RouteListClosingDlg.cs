@@ -23,7 +23,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
-using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 
@@ -326,12 +325,17 @@ namespace Vodovoz
 		{
 			var config = ColumnsConfigFactory.Create<FuelDocument>();
 
-			config
-				.AddColumn("Дата").AddTextRenderer(node => node.Date.ToShortDateString())
-				.AddColumn("Литры").AddNumericRenderer(node => node.FuelOperation.LitersGived)
-						.Adjustment(new Adjustment(0, -100000, 100000, 10, 100, 10))
-				.AddColumn("").AddTextRenderer()
-				.RowCells();
+			config.AddColumn("Дата")
+					.AddTextRenderer(node => node.Date.ToShortDateString())
+				  .AddColumn("Литры")
+					.AddNumericRenderer(node => node.FuelOperation.LitersGived)
+					.Adjustment(new Adjustment(0, -100000, 100000, 10, 100, 10))
+				  .AddColumn("№ ТК")
+					.AddTextRenderer(n => n.FuelCardNumber)
+					.Editable(Entity.Car.CanEditFuelCardNumber)
+				  .AddColumn("")
+					.AddTextRenderer()
+				  .RowCells();
 
 			ytreeviewFuelDocuments.ColumnsConfig = config.Finish();
 		}
@@ -855,6 +859,8 @@ namespace Vodovoz
 					+ Entity.FuelDocuments.Select(x => x.FuelOperation.LitersGived).Sum() - spentFuel));
 			}
 
+			text.Add($"Номер топливной карты: {Entity.Car.FuelCardNumber}");
+
 			ytextviewFuelInfo.Buffer.Text = string.Join("\n", text);
 		}
 
@@ -956,7 +962,7 @@ namespace Vodovoz
 			UoW.Save();
 
 
-			if(messages.Count > 0)
+			if(messages.Any())
 				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
 		}
 
@@ -975,7 +981,8 @@ namespace Vodovoz
 
 			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput);
 
-			if(cashExpense != null) UoW.Save(cashExpense);
+			if(cashExpense != null)
+				UoW.Save(cashExpense);
 			cashExpense.UpdateWagesOperations(UoW);
 			UoW.Save();
 

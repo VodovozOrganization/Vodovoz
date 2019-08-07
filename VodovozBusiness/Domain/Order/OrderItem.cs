@@ -357,10 +357,10 @@ namespace Vodovoz.Domain.Orders
 		private void CalculateAndSetDiscount(decimal value)
 		{
 			if(IsDiscountInMoney) {
-				DiscountMoney = value > Price * CurrentCount ? Price * CurrentCount : value;
+				DiscountMoney = value > Price * CurrentCount ? Price * CurrentCount : (value < 0 ? 0 : value);
 				Discount = (100 * DiscountMoney) / (Price * CurrentCount);
 			} else {
-				Discount = value > 100 ? 100 : value;
+				Discount = value > 100 ? 100 : (value < 0 ? 0 : value);
 				DiscountMoney = Price * CurrentCount * Discount / 100;
 			}
 		}

@@ -55,25 +55,28 @@
             <Width>35.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>103.5pt</Width>
+            <Width>112.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>141.2pt</Width>
+            <Width>127.9pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>52.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>58.1pt</Width>
+            <Width>55.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.7pt</Width>
+            <Width>67.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.8pt</Width>
+            <Width>62.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.6pt</Width>
+            <Width>61.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>316.1pt</Width>
+            <Width>235.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -118,6 +121,22 @@
                     <Textbox Name="Textbox4">
                       <Value>Адрес</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Заказ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -268,6 +287,21 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>=Fields!orderId.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
@@ -287,7 +321,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>=Fields!BottleCount.Value</Value>
+                      <Value>=Fields!mainBottleCount.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -303,7 +337,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>=Fields!Price.Value</Value>
+                      <Value>=Fields!mainPrice.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -318,7 +352,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>=Fields!PricePerOne.Value</Value>
+                      <Value>=Fields!mainMinPrice.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -341,6 +375,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >10pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -378,27 +413,47 @@
     <DataSet Name="Orders">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-	MainOrders.id,
-	counterparty.name as CounterpartyName,
-    IF(MainOrders.self_delivery, 'Самовывоз', delivery_points.compiled_address_short) as AddressShort,
-	MainOrders.delivery_date as DeliveryDate,
-    BottlesTable.bottle_count as BottleCount,
-    BottlesTable.smallest_price as Price,
-    BottlesTable.minPrice as PricePerOne,
-    counterparty.comment as comment
-FROM
-	orders as MainOrders
-    #Подсчет кол-ва всех бутылей и наименьшей цены в заказе 
-    LEFT JOIN 
+        <Timeout>200</Timeout>
+        <CommandText>SELECT * FROM
+(
+	SELECT
+		MainOrders.id AS orderId,
+		MainOrders.delivery_point_id AS delivery_point_id,
+		MainOrders.client_id AS counterparty_id,
+		counterparty.name as CounterpartyName,
+		IF(MainOrders.self_delivery, 'Самовывоз', delivery_points.compiled_address_short) as AddressShort,
+		MainOrders.delivery_date as DeliveryDate,	    
+		SUM(order_items.count) as mainBottleCount,		
+		Min(order_items.price) as mainPrice,	    
 		(
+			# Нахождение минимальной цены по количеству
+			SELECT 
+				nomenclature_price.price
+			FROM
+				nomenclature_price
+			WHERE 
+				nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */ 
+				AND nomenclature_price.min_count &lt;= SUM(order_items.count)
+			ORDER BY nomenclature_price.price ASC LIMIT 1 
+		) as mainMinPrice,
+	    counterparty.comment as comment
+	FROM
+		orders as MainOrders	    
+		LEFT JOIN order_items ON order_items.order_id = MainOrders.id
+		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+		LEFT JOIN counterparty ON MainOrders.client_id = counterparty.id
+		LEFT JOIN delivery_points ON MainOrders.delivery_point_id = delivery_points.id	    
+	WHERE
+		nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
+		AND (MainOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
+		AND (@DateFrom = '' OR Date(MainOrders.delivery_date) &gt;= @DateFrom) AND (@DateTo = '' OR Date(MainOrders.delivery_date) &lt;= @DateTo)
+	    
+		#Нахождение только последнего по дате заказа
+		AND NOT EXISTS (
 			SELECT
-				order_id,
-                Nom2.category,
-                Nom2.tare_volume,
-				SUM(count) as bottle_count,
-                MIN(price) as smallest_price,
-                (
+				subOrders.id,		
+				Min(subOrderItems.price) as subPrice,	    
+				(
 					# Нахождение минимальной цены по количеству
 					SELECT 
 						nomenclature_price.price
@@ -406,64 +461,29 @@ FROM
 						nomenclature_price
 					WHERE 
 						nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */ 
-						AND nomenclature_price.min_count &lt;= SUM(count)
+						AND nomenclature_price.min_count &lt;= SUM(subOrderItems.count)
 					ORDER BY nomenclature_price.price ASC LIMIT 1 
-				) as minPrice
-			FROM order_items as SumOrderItems
-				LEFT JOIN nomenclature as Nom2 ON SumOrderItems.nomenclature_id = Nom2.id
-			WHERE Nom2.category = 'water' AND Nom2.tare_volume = 'Vol19L'
-            GROUP BY SumOrderItems.order_id
-        ) as BottlesTable ON BottlesTable.order_id = MainOrders.id
-    LEFT JOIN counterparty ON MainOrders.client_id = counterparty.id
-    LEFT JOIN delivery_points ON MainOrders.delivery_point_id = delivery_points.id
-WHERE
-	#Находит только те записи у которых цена ниже чем задана по прайсу
-	BottlesTable.smallest_price &lt; BottlesTable.minPrice
-	AND BottlesTable.smallest_price &gt; 0
-	AND BottlesTable.category = 'water' AND BottlesTable.tare_volume = 'Vol19L'
-	AND (MainOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
-    AND (@DateFrom = '' OR MainOrders.delivery_date &gt;= @DateFrom) AND (@DateTo = '' OR MainOrders.delivery_date &lt;= @DateTo)
-    
-    #Нахождение только последнего по дате заказа
-    AND NOT EXISTS (
-		SELECT 
-			*
-        FROM 
-			orders as SubOrders            
-            LEFT JOIN 
-				(
-					SELECT
-						order_id,
-						Nom2.category,
-                        Nom2.tare_volume,
-						SUM(count) as bottle_count,
-						MIN(price) as smallest_price,
-						(
-							# Нахождение минимальной цены по количеству
-							SELECT 
-								nomenclature_price.price
-							FROM
-								nomenclature_price
-							WHERE 
-								nomenclature_price.nomenclature_id = 1 /* Цены выбираются по номенклатуре Семиозерье 19л (Id = 1) */ 
-								AND nomenclature_price.min_count &lt;= SUM(count)
-							ORDER BY nomenclature_price.price ASC LIMIT 1 
-						) as minPrice
-					FROM order_items as SumOrderItems
-						LEFT JOIN nomenclature as Nom2 ON SumOrderItems.nomenclature_id = Nom2.id
-					WHERE Nom2.category = 'water' AND Nom2.tare_volume = 'Vol19L'
-					GROUP BY SumOrderItems.order_id
-				) as SubBottlesTable ON SubBottlesTable.order_id = SubOrders.id
-        WHERE 
-			MainOrders.delivery_point_id = SubOrders.delivery_point_id
-			AND SubOrders.delivery_date &gt; MainOrders.delivery_date
-            #Находит только те записи у которых цена ниже чем задана по прайсу
-            AND SubBottlesTable.smallest_price &lt; SubBottlesTable.minPrice
-			AND SubBottlesTable.smallest_price &gt; 0
-			AND SubBottlesTable.category = 'water' AND NOT SubBottlesTable.tare_volume = 'Vol19L'
-			AND (SubOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
-    )
-GROUP BY delivery_point_id ORDER BY DeliveryDate DESC, BottlesTable.smallest_price</CommandText>
+				) as subMinPrice
+			FROM
+				orders as subOrders	    
+				LEFT JOIN order_items AS subOrderItems ON subOrderItems.order_id = subOrders.id
+				LEFT JOIN nomenclature AS subNomenclature ON subNomenclature.id = subOrderItems.nomenclature_id	    
+			WHERE
+				subNomenclature.category = 'water' AND subNomenclature.tare_volume = 'Vol19L'
+				AND (subOrders.order_status NOT IN ('Canceled','DeliveryCanceled'))
+				AND MainOrders.delivery_point_id = subOrders.delivery_point_id
+				AND subOrders.delivery_date &gt; MainOrders.delivery_date
+			GROUP BY subOrders.id
+			HAVING 
+				subPrice &lt; subMinPrice
+				AND subPrice &gt; 0
+		)
+	GROUP BY MainOrders.id
+	HAVING 
+		mainPrice &lt; mainMinPrice
+		AND mainPrice &gt; 0
+) AS mainTable
+ORDER BY mainTable.DeliveryDate DESC, mainTable.mainPrice, mainTable.counterparty_id, mainTable.delivery_point_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="DateFrom">
             <Value>=Parameters!dateFrom</Value>
@@ -486,21 +506,25 @@ GROUP BY delivery_point_id ORDER BY DeliveryDate DESC, BottlesTable.smallest_pri
           <DataField>DeliveryDate</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="BottleCount">
-          <DataField>BottleCount</DataField>
+        <Field Name="mainBottleCount">
+          <DataField>mainBottleCount</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="Price">
-          <DataField>Price</DataField>
+        <Field Name="mainPrice">
+          <DataField>mainPrice</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="PricePerOne">
-          <DataField>PricePerOne</DataField>
+        <Field Name="mainMinPrice">
+          <DataField>mainMinPrice</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="comment">
           <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="orderId">
+          <DataField>orderId</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>

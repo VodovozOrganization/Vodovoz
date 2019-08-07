@@ -4,7 +4,6 @@ using Gamma.Utilities;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Representations;
@@ -38,6 +37,22 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
+			TreeViewColumnsConfigFactory.Register<DebtorsJournalViewModel>(
+				() => FluentColumnsConfig<Representations.DebtorJournalNode>.Create()
+					.AddColumn("Номер").AddNumericRenderer(x => x.AddressId)
+					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
+					.AddColumn("Адрес").AddTextRenderer(node => node.AddressName)
+					.AddColumn("ОПФ").AddTextRenderer(node => node.OPF.GetEnumTitle())
+					.AddColumn("Последний заказ по адресу").AddTextRenderer(node => node.LastOrderDate != null ? node.LastOrderDate.Value.ToString("dd / MM / yyyy") : string.Empty)
+					.AddColumn("Кол-во отгруженных в последнюю реализацию бутылей").AddNumericRenderer(node => node.LastOrderBottles)
+					.AddColumn("Долг по таре (по адресу)").AddNumericRenderer(node => node.DebtByAddress)
+					.AddColumn("Долг по таре (по клиенту)").AddNumericRenderer(node => node.DebtByClient)
+					.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidueExist)
+					.AddColumn("Резерв").AddNumericRenderer(node => node.Reserve)
+					.RowCells().AddSetter<CellRendererText>((CellRendererText c, Representations.DebtorJournalNode n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
 			//CounterpartyJournalViewModel
 			TreeViewColumnsConfigFactory.Register<CounterpartyJournalViewModel>(
 				() => FluentColumnsConfig<CounterpartyJournalNode>.Create()
@@ -52,6 +67,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
+				
 
 			//SelfDeliveriesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<SelfDeliveriesJournalViewModel>(
@@ -78,13 +94,13 @@ namespace Vodovoz.JournalColumnsConfigs
 			//ResidueJournalViewModel
 			TreeViewColumnsConfigFactory.Register<ResidueJournalViewModel>(
 				() => FluentColumnsConfig<ResidueJournalNode>.Create()
-					.AddColumn("Документ").AddTextRenderer(node => String.Format("Ввод остатков №{0}", node.Id)).SearchHighlight()
-					.AddColumn("Дата").SetDataProperty(node => node.DateString)
-					.AddColumn("Контрагент").SetDataProperty(NodeType => NodeType.Counterparty)
-					.AddColumn("Точка доставки").SetDataProperty(NodeType => NodeType.DeliveryPoint)
-					.AddColumn("Автор").SetDataProperty(node => node.Author)
-					.AddColumn("Изменил").SetDataProperty(node => node.LastEditor)
-					.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
+					.AddColumn("Документ").AddTextRenderer(node => string.Format("Ввод остатков №{0}", node.Id)).SearchHighlight()
+					.AddColumn("Дата").AddTextRenderer(node => node.DateString)
+					.AddColumn("Контрагент").AddTextRenderer(NodeType => NodeType.Counterparty)
+					.AddColumn("Точка доставки").AddTextRenderer(NodeType => NodeType.DeliveryPoint)
+					.AddColumn("Автор").AddTextRenderer(node => node.Author)
+					.AddColumn("Изменил").AddTextRenderer(node => node.LastEditor)
+					.AddColumn("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : string.Empty)
 					.Finish()
 			);
 

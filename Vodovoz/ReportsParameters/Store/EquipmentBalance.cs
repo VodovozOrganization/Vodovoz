@@ -64,7 +64,7 @@ namespace Vodovoz.ReportsParameters.Store
 		public List<SelectableNomenclatureTypeNode> GenerateEnumCategoryNodes()
 		{
 			var result = new List<SelectableNomenclatureTypeNode>();
-			var categoryList = Enum.GetValues(typeof(SubtypeOfEquipmentCategory)).Cast<SubtypeOfEquipmentCategory>().ToList();
+			var categoryList = Enum.GetValues(typeof(SaleCategory)).Cast<SaleCategory>().ToList();
 			foreach(var cat in categoryList) {
 				var node = new SelectableNomenclatureTypeNode();
 				node.Category = NomenclatureCategory.equipment;
@@ -203,8 +203,8 @@ namespace Vodovoz.ReportsParameters.Store
 					return (Subject as ProductGroup).Id.ToString();
 				}
 
-				if(Subject is SubtypeOfEquipmentCategory) {
-					return ((SubtypeOfEquipmentCategory)Subject).ToString();
+				if(Subject is SaleCategory) {
+					return ((SaleCategory)Subject).ToString();
 				}
 
 				return "";

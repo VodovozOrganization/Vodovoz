@@ -38,7 +38,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.IsDiler).Column("is_diler");
 			Map(x => x.PercentForMaster).Column("percent_for_master");
 			Map(x => x.TypeOfDepositCategory).Column("type_of_deposit").CustomType<TypeOfDepositCategoryStringType>();
-			Map(x => x.SubTypeOfEquipmentCategory).Column("subtype_of_equipment").CustomType<SubtypeOfEquipmentCategoryStringType>();
+			Map(x => x.SaleCategory).Column("subtype_of_equipment").CustomType<SaleCategoryStringType>();
 			Map(x => x.OnlineStoreGuid).Column("online_store_guid");
 			Map(x => x.MinStockCount).Column("min_stock_count");
 			Map(x => x.MobileCatalog).Column("mobile_catalog").CustomType<MobileCatalogStringType>();

@@ -1,13 +1,12 @@
 ﻿using System;
-using QS.Views.GtkUI;
-using Vodovoz.ViewModels;
+using Gamma.ColumnConfig;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
+using QS.Views.GtkUI;
+using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Domain.Client;
-using Gamma.ColumnConfig;
-using QSProjectsLib;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels;
 
 namespace Vodovoz.Views
 {
@@ -29,9 +28,7 @@ namespace Vodovoz.Views
 			entryClient.SetEntityAutocompleteSelectorFactory(counterpartySelectorFactory);
 			buttonOpenSlider.Clicked += OnButtonOpenSliderClicked;
 
-			yreferenceDeliveryPoint.Binding.AddBinding(ViewModel.Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
-			yreferenceDeliveryPoint.Binding.AddBinding(ViewModel, e => e.DeliveryPointsVM, w => w.RepresentationModel).InitializeFromSource();
-			yreferenceDeliveryPoint.Binding.AddBinding(ViewModel, e => e.DeliveryPointsVM, w => w.Sensitive, new NullToBooleanConverter()).InitializeFromSource();
+			ySpecCmbDeliveryPoint.Binding.AddBinding(ViewModel.Entity, r => r.Customer, w => w.Sensitive, new NullToBooleanConverter()).InitializeFromSource();
 
 			yenumcomboDebtPaymentType.ItemsEnum = typeof(PaymentType);
 			yenumcomboDebtPaymentType.Binding.AddBinding(ViewModel.Entity, e => e.DebtPaymentType, w => w.SelectedItem).InitializeFromSource();
@@ -100,7 +97,7 @@ namespace Vodovoz.Views
 		protected void OnButtonOpenSliderClicked(object sender, EventArgs e)
 		{
 			tableInfo.Visible = !tableInfo.Visible;
-			buttonOpenSlider.Label = tableInfo.Visible ? ">" : "<";
+			buttonOpenSlider.Label = !tableInfo.Visible ? "<" : ">";
 		}
 
 		void DisablespinMoneyDebt_ActiveChanged(object sender, EventArgs e)
@@ -108,6 +105,11 @@ namespace Vodovoz.Views
 			yenumcomboDebtPaymentType.Sensitive = disablespinMoneyDebt.Active;
 		}
 
-
+		protected void OnEntryClientChanged(object sender, EventArgs e)
+		{
+			ySpecCmbDeliveryPoint.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{0}: {1}", d.Id, d.ShortAddress));
+			ySpecCmbDeliveryPoint.Binding.AddBinding(ViewModel.Entity.Customer, r => r.DeliveryPoints, w => w.ItemsList).InitializeFromSource();
+			ySpecCmbDeliveryPoint.Binding.AddBinding(ViewModel.Entity, r => r.DeliveryPoint, w => w.SelectedItem).InitializeFromSource();
+		}
 	}
 }

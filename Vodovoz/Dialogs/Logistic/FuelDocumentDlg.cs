@@ -103,6 +103,7 @@ namespace Vodovoz
 			FuelDocument.Fuel = routeList.Car.FuelType;
 			FuelDocument.LiterCost = routeList.Car.FuelType.Cost;
 			FuelDocument.RouteList = routeList;
+			FuelDocument.FuelCardNumber = routeList.Car.FuelCardNumber;
 		}
 
 		private void ConfigureDlg ()
@@ -198,6 +199,7 @@ namespace Vodovoz
 			fuelOutlayed = fc / 100 * routeList.ConfirmedDistance;
 
 			text.Add(string.Format("Израсходовано топлива: {0:f2} л. ({1:f2} л/100км)", fuelOutlayed, fc));
+			text.Add($"Номер топливной карты: {FuelDocument.FuelCardNumber}");
 
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
 		}

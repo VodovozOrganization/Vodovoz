@@ -72,7 +72,7 @@ namespace Vodovoz.Dialogs.Fuel
 
 			OnEntityPropertyChanged(UpdateSubdivisionsTo, e => e.CashSubdivisionFrom);
 			OnEntityPropertyChanged(UpdateSubdivisionsFrom, e => e.CashSubdivisionTo);
-			OnEntityPropertyChanged(UpdateBalanceCache, 
+			OnEntityPropertyChanged(UpdateBalanceCache,
 				e => e.CashSubdivisionFrom,
 				e => e.FuelType
 			);
@@ -80,7 +80,7 @@ namespace Vodovoz.Dialogs.Fuel
 			OnEntityAnyPropertyChanged(() => { OnPropertyChanged(() => CanSave); });
 		}
 
-		private	void ConfigureExternalUpdateSubscribes()
+		private void ConfigureExternalUpdateSubscribes()
 		{
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<FuelType>((changeEvent) => UpdateFuelTypes());
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity((changeEvent) => UpdateBalanceCache(),
@@ -109,7 +109,7 @@ namespace Vodovoz.Dialogs.Fuel
 
 		public bool CanEdit => Entity.Status == FuelTransferDocumentStatuses.New;
 		public bool CanSave => (CanEdit && HasChanges) || sendedNow || receivedNow;
-		public bool CanPrint => !CanEdit && !UoW.IsNew;
+		public bool CanPrint => true;
 
 		private bool sendedNow;
 		[PropertyChangedAlso(nameof(CanSave))]
@@ -196,13 +196,13 @@ namespace Vodovoz.Dialogs.Fuel
 				x => x.CashSubdivisionTo,
 				x => x.TransferedLiters
 			);
-			SendCommand.CanExecuteChanged += (sender, e) => {  OnPropertyChanged(() => CanSend); };
+			SendCommand.CanExecuteChanged += (sender, e) => { OnPropertyChanged(() => CanSend); };
 		}
 
 		private void CreateReceiveCommand()
 		{
 			ReceiveCommand = new DelegateCommand(
-				() => { 
+				() => {
 					Entity.Receive(CurrentEmployee);
 					receivedNow = Entity.Status == FuelTransferDocumentStatuses.Received;
 					OnPropertyChanged(() => CanSave);
@@ -225,8 +225,11 @@ namespace Vodovoz.Dialogs.Fuel
 		{
 			PrintCommand = new DelegateCommand(
 				() => {
+					if((UoW.IsNew && Entity.Id == 0 || sendedNow || receivedNow) && (!AskQuestion("Сохранить изменения перед печатью?") || !Save()))
+						return;
+
 					var reportInfo = new QS.Report.ReportInfo {
-						Title = String.Format($"Документ перемещения №{Entity.Id} от {Entity.CreationTime:d}"),
+						Title = string.Format($"Документ перемещения №{Entity.Id} от {Entity.CreationTime:d}"),
 						Identifier = "Documents.FuelTransferDocument",
 						Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } }
 					};
@@ -234,8 +237,14 @@ namespace Vodovoz.Dialogs.Fuel
 					var report = new QSReport.ReportViewDlg(reportInfo);
 					TabParent.AddTab(report, this, false);
 				},
-				() => Entity.Id != 0
+				() => true
 			);
+		}
+
+		protected override void AfterSave()
+		{
+			receivedNow = sendedNow = false;
+			base.AfterSave();
 		}
 
 		#endregion

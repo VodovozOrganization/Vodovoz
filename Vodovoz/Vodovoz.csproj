@@ -1104,11 +1104,7 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.CallTaskDlg.cs" />
     <Compile Include="JournalViewers\TasksView.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalViewers.TasksView.cs" />
-    <Compile Include="Representations\BottleDebtorsVM.cs" />
-    <Compile Include="JournalViewers\DebtorsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalViewers.DebtorsView.cs" />
-    <Compile Include="JournalFilters\BottleDebtorsFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalFilters.BottleDebtorsFilter.cs" />
+    <Compile Include="Representations\DebtorsJournalViewModel.cs" />
     <Compile Include="Dialogs\Cash\CashTransfer\IncomeCashTransferDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.CashTransfer.IncomeCashTransferDlg.cs" />
     <Compile Include="Dialogs\Cash\CashTransfer\IncomeCashTransferDocumentViewModel.cs" />
@@ -1231,6 +1227,10 @@
     <Compile Include="Additions\ManualEmailSender.cs" />
     <Compile Include="ServiceDialogs\ResendEmailsDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ResendEmailsDialog.cs" />
+    <Compile Include="Filters\ViewModels\DebtorsJournalFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\DebtorsFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DebtorsFilterView.cs" />
+    <Compile Include="JournalNodes\DebtorJournalNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

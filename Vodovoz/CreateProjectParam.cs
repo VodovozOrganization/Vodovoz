@@ -86,9 +86,10 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_set_contract_closer", new PresetUserPermissionSource("can_set_contract_closer", "Установка крыжика 'Закрывашка по контракту'", "Пользователю доступна возможность установки крыжика 'Закрывашка по контракту'."));
 			PermissionsSettings.PresetPermissions.Add("can_can_create_order_in_advance", new PresetUserPermissionSource("can_can_create_order_in_advance", "Проведение накладных задним числом", "Пользователь может создавать заказы с датой доставки более ранней, чем текущая дата."));
 			PermissionsSettings.PresetPermissions.Add("can_create_several_orders_for_date_and_deliv_point", new PresetUserPermissionSource("can_create_several_orders_for_date_and_deliv_point", "Создание нескольких заказов для точки доставки на одну дату доставки.", "Пользователь может создавать несколько заказов для одной и той же точки доставки на одну и туже дату доставки."));
-			PermissionsSettings.PresetPermissions.Add("can_add_spares_to_order", new PresetUserPermissionSource("can_add_spares_to_order", "Продажа запчастей", "Пользователь может добавлять запчасти в заказ на продажу."));
-			PermissionsSettings.PresetPermissions.Add("can_add_bottles_to_order", new PresetUserPermissionSource("can_add_bottles_to_order", "Продажа тары", "Пользователь может добавлять тару в заказ на продажу."));
-			PermissionsSettings.PresetPermissions.Add("can_add_materials_to_order", new PresetUserPermissionSource("can_add_materials_to_order", "Продажа сырья", "Пользователь может добавлять сырьё в заказ на продажу."));
+			PermissionsSettings.PresetPermissions.Add("can_add_spares_to_order", new PresetUserPermissionSource("can_add_spares_to_order", "Продажа запчастей", "Пользователь может добавлять запчасти, которые отмечены как \"Не для продажи\", в заказ на продажу."));
+			PermissionsSettings.PresetPermissions.Add("can_add_bottles_to_order", new PresetUserPermissionSource("can_add_bottles_to_order", "Продажа тары", "Пользователь может добавлять тару, которая отмечена как \"Не для продажи\", в заказ на продажу."));
+			PermissionsSettings.PresetPermissions.Add("can_add_materials_to_order", new PresetUserPermissionSource("can_add_materials_to_order", "Продажа сырья", "Пользователь может добавлять сырьё, которое отмечено как \"Не для продажи\", в заказ на продажу."));
+			PermissionsSettings.PresetPermissions.Add("can_add_equipment_not_for_sale_to_order", new PresetUserPermissionSource("can_add_equipment_not_for_sale_to_order", "Продажа оборудования", "Пользователь может добавлять оборудование, которое отмечено как \"Не для продажи\", в заказ на продажу."));
 			PermissionsSettings.PresetPermissions.Add("can_edit_delivery_schedule", new PresetUserPermissionSource("can_edit_delivery_schedule", "Изменение времени доставки", "Пользователь может изменять время доставки."));
 			PermissionsSettings.PresetPermissions.Add("can_edit_undeliveries", new PresetUserPermissionSource("can_edit_undeliveries", "Изменение недовозов", "Пользователь может изменять недовозы, в т.ч. менять их статус."));
 			PermissionsSettings.PresetPermissions.Add("can_close_undeliveries", new PresetUserPermissionSource("can_close_undeliveries", "Закрытие недовозов", "Пользователь может переводить статус недовоза в \"Закрыт\""));
@@ -112,6 +113,8 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_edit_cashier_review_comment", new PresetUserPermissionSource("can_edit_cashier_review_comment", "Комментарий по проверке кассы", "Возможность изменять комментарий по проверке кассы"));
 			PermissionsSettings.PresetPermissions.Add("can_edit_fuelwriteoff_document_date", new PresetUserPermissionSource("can_edit_fuelwriteoff_document_date", "Смена даты в акте выдачи топлива", "Возможность изменять дату в акте выдачи топлива"));
 			PermissionsSettings.PresetPermissions.Add("can_edit_price_discount_from_route_list", new PresetUserPermissionSource("can_edit_price_discount_from_route_list", "Изменение цены и скидки в закрытии МЛ", "Возможность изменять цену и скидку в заказе из закрытия МЛ"));
+			PermissionsSettings.PresetPermissions.Add("can_edit_order", new PresetUserPermissionSource("can_edit_order", "Изменение заказа", "Для тех, у кого нет права, засеривается кнопка в Заказе \"Редактировать\""));
+			PermissionsSettings.PresetPermissions.Add("can_change_fuel_card_number", new PresetUserPermissionSource("can_change_fuel_card_number", "Изменение номера ТК в карточке автомобиля", string.Empty));
 			UserDialog.UserPermissionViewsCreator = delegate {
 				return new List<IUserPermissionTab> {
 					new SubdivisionForUserEntityPermissionWidget()
@@ -139,6 +142,7 @@ namespace Vodovoz
 			//Регистрация фильтров
 			ViewModelWidgetResolver.Instance
 				.RegisterWidgetForFilterViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
+				.RegisterWidgetForFilterViewModel<DebtorsJournalFilterViewModel, DebtorsFilterView>()
 				.RegisterWidgetForFilterViewModel<EmployeeFilterViewModel, EmployeeFilterView>()
 				.RegisterWidgetForFilterViewModel<OrderJournalFilterViewModel, OrderFilterView>()
 				.RegisterWidgetForFilterViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()

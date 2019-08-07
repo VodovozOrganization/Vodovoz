@@ -22,7 +22,7 @@
       <Textbox Name="Textbox20">
         <Height>22.59pt</Height>
         <Width>815.89pt</Width>
-        <Value>="Отчет по топливу с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " до " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") + Iif({?author} = -1, "", ", сотрудник: " + First({author_name}, "FuelOther"))</Value>
+        <Value>="Отчет по топливу с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") + Iif({?author} = -1, "", ", сотрудник: " + First({author_name}, "FuelOther"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>12.00pt</Top>
@@ -51,7 +51,7 @@
           <TableColumn>
             <Width>69.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>64.6pt</Width>
           </TableColumn>
           <TableColumn>
@@ -118,7 +118,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox73">
                       <Value>Номер ТК</Value>
@@ -318,7 +318,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
                       <Value>={fuel_card_number}</Value>
@@ -466,7 +466,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >HH:mm</Format>
+                        <Format>HH:mm</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -508,7 +508,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox86">
                       <Value>
@@ -649,7 +649,7 @@
           <TableColumn>
             <Width>69.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>64.6pt</Width>
           </TableColumn>
           <TableColumn>
@@ -716,7 +716,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox93">
                       <Value>Номер ТК</Value>
@@ -916,7 +916,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox103">
                       <Value>={fuel_card_number}</Value>
@@ -1105,7 +1105,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox106">
                       <Value>
@@ -1246,7 +1246,7 @@
           <TableColumn>
             <Width>69.1pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>65.1pt</Width>
           </TableColumn>
           <TableColumn>
@@ -1313,7 +1313,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox116">
                       <Value>Номер ТК</Value>
@@ -1513,7 +1513,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox146">
                       <Value>={fuel_card_number}</Value>
@@ -1702,7 +1702,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox156">
                       <Value>
@@ -2018,7 +2018,7 @@
           <TableColumn>
             <Width>69.7pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>64.2pt</Width>
           </TableColumn>
           <TableColumn>
@@ -2112,7 +2112,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox159">
                       <Value>Номер ТК</Value>
@@ -2312,7 +2312,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox160">
                       <Value>={fuel_card_number}</Value>
@@ -2501,7 +2501,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox161">
                       <Value>
@@ -3082,41 +3082,32 @@
     <DataSet Name="FuelOther">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    fuel_documents.date AS date,
-    fuel_documents.fuel_coupons AS liters_coupons,
-    IFNULL(fuel_operations.liters_outlayed,0) AS liters_outlayed,
-    route_lists.id AS route_list_id,
-    route_lists.date AS route_list_date,
-    CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
-    fuel_documents.fuel_type_id AS fuel_type,
-    cars.reg_number AS reg_number ,
-    IFNULL(author.last_name,'') AS author_name ,
-    IFNULL(last_editor.last_name,'') AS last_editor_name,
-    fuel_documents.last_edit_date AS last_edit_date,
-    cars.fuel_card_number as fuel_card_number
- 
-FROM 
-	fuel_documents
-LEFT JOIN
- 	route_lists ON route_lists.id = fuel_documents.route_list_id
-LEFT JOIN
- 	fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-LEFT JOIN 
-	cars ON fuel_documents.car_id = cars.id
-LEFT JOIN
-	employees as driver on driver.id = fuel_documents.driver_id
-LEFT JOIN
- 	employees as author on author.id = fuel_documents.author_id
-LEFT JOIN
- 	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN
-	fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE 
-    (cars.type_of_use = 'Other' or cars.type_of_use is null) AND
-    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; @end_date 
-    AND (@author = -1 OR author_id = @author)
- </CommandText>
+        <CommandText>SELECT
+	fuel_documents.date AS date,
+	fuel_documents.fuel_coupons AS liters_coupons,
+	IFNULL(fuel_operations.liters_outlayed, 0) AS liters_outlayed,
+	route_lists.id AS route_list_id,
+	route_lists.date AS route_list_date,
+	CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
+	fuel_documents.fuel_type_id AS fuel_type,
+	cars.reg_number AS reg_number,
+	GET_PERSON_NAME_WITH_INITIALS(author.last_name, author.name, author.patronymic) AS author_name,
+	GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
+	fuel_documents.last_edit_date AS last_edit_date,
+	fuel_documents.fuel_card AS fuel_card_number
+FROM fuel_documents
+LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
+LEFT JOIN fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
+LEFT JOIN cars ON fuel_documents.car_id = cars.id
+LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
+LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
+LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
+LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
+WHERE (cars.type_of_use = 'Other' OR cars.type_of_use IS NULL)
+	AND fuel_documents.date &gt;= @start_date
+	AND fuel_documents.date &lt; @end_date
+	AND (@author = - 1 OR author_id = @author)
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -3184,39 +3175,31 @@ WHERE
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    fuel_documents.date AS date,
-    fuel_documents.fuel_coupons AS liters_coupons,
-    IFNULL(fuel_operations.liters_outlayed,0) AS liters_outlayed,
-    route_lists.id AS route_list_id,
-    route_lists.date AS route_list_date,
-    CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
-    fuel_documents.fuel_type_id AS fuel_type,
-    cars.reg_number AS reg_number ,
-    IFNULL(author.last_name,'') AS author_name ,
-    IFNULL(last_editor.last_name,'') AS last_editor_name,
-    fuel_documents.last_edit_date AS last_edit_date,
-    cars.fuel_card_number as fuel_card_number
- 
-FROM 
-	fuel_documents
-LEFT JOIN
- 	route_lists ON route_lists.id = fuel_documents.route_list_id
-LEFT JOIN
- 	fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-LEFT JOIN 
-	cars ON fuel_documents.car_id = cars.id
-LEFT JOIN
-	employees as driver on driver.id = fuel_documents.driver_id
-LEFT JOIN
- 	employees as author on author.id = fuel_documents.author_id
-LEFT JOIN
- 	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN
-	fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE 
-    cars.type_of_use = 'Truck' AND
-    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; @end_date 
-    AND (@author = -1 OR author_id = @author)</CommandText>
+	fuel_documents.date AS date,
+	fuel_documents.fuel_coupons AS liters_coupons,
+	IFNULL(fuel_operations.liters_outlayed,0) AS liters_outlayed,
+	route_lists.id AS route_list_id,
+	route_lists.date AS route_list_date,
+	CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
+	fuel_documents.fuel_type_id AS fuel_type,
+	cars.reg_number AS reg_number ,
+	GET_PERSON_NAME_WITH_INITIALS(author.last_name, author.name, author.patronymic) AS author_name,
+	GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
+	fuel_documents.last_edit_date AS last_edit_date,
+	fuel_documents.fuel_card AS fuel_card_number
+FROM fuel_documents
+LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
+LEFT JOIN fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
+LEFT JOIN cars ON fuel_documents.car_id = cars.id
+LEFT JOIN employees as driver on driver.id = fuel_documents.driver_id
+LEFT JOIN employees as author on author.id = fuel_documents.author_id
+LEFT JOIN employees as last_editor on last_editor.id = fuel_documents.last_editor_id
+LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
+WHERE cars.type_of_use = 'Truck'
+	AND fuel_documents.date &gt;= @start_date
+	AND fuel_documents.date &lt; @end_date 
+	AND (@author = -1 OR author_id = @author)
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -3283,40 +3266,31 @@ WHERE
     <DataSet Name="FuelGAZelle">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
+        <CommandText>SELECT 
 	fuel_documents.date AS date,
 	fuel_documents.fuel_coupons AS liters_coupons,
-	IFNULL(fuel_operations.liters_outlayed,0) AS liters_outlayed,
+	IFNULL(fuel_operations.liters_outlayed, 0) AS liters_outlayed,
 	route_lists.id AS route_list_id,
 	route_lists.date AS route_list_date,
 	CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
 	fuel_documents.fuel_type_id AS fuel_type,
-	cars.reg_number AS reg_number ,
-	IFNULL(author.last_name,'') AS author_name ,
-	IFNULL(last_editor.last_name,'') AS last_editor_name,
+	cars.reg_number AS reg_number,
+	GET_PERSON_NAME_WITH_INITIALS(author.last_name, author.name, author.patronymic) AS author_name,
+	GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
 	fuel_documents.last_edit_date AS last_edit_date,
-                cars.fuel_card_number as fuel_card_number
- 
-FROM 
-	fuel_documents
-LEFT JOIN
- 	route_lists ON route_lists.id = fuel_documents.route_list_id
-LEFT JOIN
- 	fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-LEFT JOIN 
-	cars ON fuel_documents.car_id = cars.id
-LEFT JOIN
-	employees as driver on driver.id = fuel_documents.driver_id
-LEFT JOIN
- 	employees as author on author.id = fuel_documents.author_id
-LEFT JOIN
- 	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN
-	fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE 
-	cars.type_of_use = 'GAZelle' AND
-	fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; @end_date 
-	AND (@author = -1 OR author_id = @author)
+	fuel_documents.fuel_card AS fuel_card_number
+FROM fuel_documents
+LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
+LEFT JOIN fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
+LEFT JOIN cars ON fuel_documents.car_id = cars.id
+LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
+LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
+LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
+LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
+WHERE cars.type_of_use = 'GAZelle'
+	AND fuel_documents.date &gt;= @start_date
+	AND fuel_documents.date &lt; @end_date
+	AND (@author = - 1 OR author_id = @author)
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -3384,40 +3358,32 @@ WHERE
     <DataSet Name="FuelLargus">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
+        <CommandText>SELECT 
 	fuel_documents.date AS date,
-    fuel_documents.fuel_coupons AS liters_coupons,
-    IFNULL(fuel_operations.liters_outlayed,0) AS liters_outlayed,
-    route_lists.id AS route_list_id,
-    route_lists.date AS route_list_date,
-    CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
-    fuel_documents.fuel_type_id AS fuel_type,
-    cars.reg_number AS reg_number ,
-    IFNULL(author.last_name,'') AS author_name ,
-    IFNULL(last_editor.last_name,'') AS last_editor_name,
-    fuel_documents.last_edit_date AS last_edit_date,
-    cars.fuel_card_number as fuel_card_number
- 
-FROM 
-	fuel_documents
-LEFT JOIN
- 	route_lists ON route_lists.id = fuel_documents.route_list_id
-LEFT JOIN
- 	fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
-LEFT JOIN 
-	cars ON fuel_documents.car_id = cars.id
-LEFT JOIN
-	employees as driver on driver.id = fuel_documents.driver_id
-LEFT JOIN
- 	employees as author on author.id = fuel_documents.author_id
-LEFT JOIN
- 	employees as last_editor on last_editor.id = fuel_documents.last_editor_id
-LEFT JOIN
-	fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE 
-    cars.type_of_use = 'Largus' AND
-    fuel_documents.date &gt;= @start_date AND fuel_documents.date &lt; @end_date 
-    AND (@author = -1 OR author_id = @author)</CommandText>
+	fuel_documents.fuel_coupons AS liters_coupons,
+	IFNULL(fuel_operations.liters_outlayed, 0) AS liters_outlayed,
+	route_lists.id AS route_list_id,
+	route_lists.date AS route_list_date,
+	CONCAT_WS(' ', driver.last_name, driver.name) AS driver_name,
+	fuel_documents.fuel_type_id AS fuel_type,
+	cars.reg_number AS reg_number,
+	GET_PERSON_NAME_WITH_INITIALS(author.last_name, author.name, author.patronymic) AS author_name,
+	GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
+	fuel_documents.last_edit_date AS last_edit_date,
+	fuel_documents.fuel_card AS fuel_card_number
+FROM fuel_documents
+LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
+LEFT JOIN fuel_operations ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
+LEFT JOIN cars ON fuel_documents.car_id = cars.id
+LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
+LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
+LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
+LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
+WHERE cars.type_of_use = 'Largus'
+	AND fuel_documents.date &gt;= @start_date
+	AND fuel_documents.date &lt; @end_date
+	AND (@author = - 1 OR author_id = @author)
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -3538,7 +3504,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="FuelWriteoffDocuments">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	fuel_writeoff_documents.id as document_id,
@@ -3578,7 +3544,7 @@ GROUP BY fuel_writeoff_documents.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="document_date">
           <DataField>document_date</DataField>
           <TypeName>System.DateTime</TypeName>
