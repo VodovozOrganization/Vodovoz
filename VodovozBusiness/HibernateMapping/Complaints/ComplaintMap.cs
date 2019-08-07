@@ -21,6 +21,8 @@ namespace Vodovoz.HibernateMapping.Complaints
 			Map(x => x.PlannedCompletionDate).Column("planned_completion_date");
 			Map(x => x.Status).Column("status").CustomType<ComplaintStatusesStringType>();
 			Map(x => x.ResultText).Column("result_text");
+			Map(x => x.ComplaintType).Column("type").CustomType<ComplaintTypeStringType>();
+			Map(x => x.ActualCompletionDate).Column("actual_completion_date");
 
 			References(x => x.CreatedBy).Column("created_by_id");
 			References(x => x.ChangedBy).Column("changed_by_id");

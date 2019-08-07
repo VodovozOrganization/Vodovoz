@@ -9,6 +9,7 @@ using Vodovoz.Domain.Orders;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -52,6 +53,13 @@ namespace Vodovoz.Domain.Complaints
 		public virtual DateTime ChangedDate {
 			get => changedDate;
 			set => SetField(ref changedDate, value, () => ChangedDate);
+		}
+
+		private ComplaintType complaintType;
+		[Display(Name = "Тип жалобы")]
+		public virtual ComplaintType ComplaintType {
+			get => complaintType;
+			set => SetField(ref complaintType, value, () => ComplaintType);
 		}
 
 		private Counterparty counterparty;
@@ -111,7 +119,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		private string resultText;
-		[Display(Name = "Результат")]
+		[Display(Name = "Описание результата")]
 		public virtual string ResultText {
 			get => resultText;
 			set => SetField(ref resultText, value, () => ResultText);
@@ -123,6 +131,14 @@ namespace Vodovoz.Domain.Complaints
 			get => complaintResult;
 			set => SetField(ref complaintResult, value, () => ComplaintResult);
 		}
+
+		private DateTime? actualCompletionDate;
+		[Display(Name = "Дата фактического завершения")]
+		public virtual DateTime? ActualCompletionDate {
+			get => actualCompletionDate;
+			set => SetField(ref actualCompletionDate, value, () => ActualCompletionDate);
+		}
+
 
 		IList<Fine> fines = new List<Fine>();
 		[Display(Name = "Штрафы")]
@@ -188,6 +204,22 @@ namespace Vodovoz.Domain.Complaints
 			if(ObservableFines.Contains(fine)) {
 				ObservableFines.Remove(fine);
 			}
+		}
+
+		public virtual void AttachSubdivisionToDiscussions(Subdivision subdivision)
+		{
+			if(subdivision == null) {
+				throw new ArgumentNullException(nameof(subdivision));
+			}
+
+			if(ObservableComplaintDiscussions.Any(x => x.Subdivision.Id == subdivision.Id)) {
+				return;
+			}
+
+			ComplaintDiscussion newDiscussion = new ComplaintDiscussion();
+			newDiscussion.Complaint = this;
+			newDiscussion.Subdivision = subdivision;
+			ObservableComplaintDiscussions.Add(newDiscussion);
 		}
 
 		#region IValidatableObject implementation

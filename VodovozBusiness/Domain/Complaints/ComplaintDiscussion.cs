@@ -67,6 +67,5 @@ namespace Vodovoz.Domain.Complaints
 		public ComplaintDiscussion()
 		{
 		}
-
 	}
 }

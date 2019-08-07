@@ -43,7 +43,7 @@ namespace Vodovoz.ViewModels.Complaints
 						GuiltyType = type,
 						Complaint = Entity,
 					};
-					Entity.ObservableGuilties.Add(guilty);
+					Entity.ObservableGuilty.Add(guilty);
 				},
 				type => true
 			);
@@ -57,7 +57,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private void CreateRemoveGuiltyCommand()
 		{
 			RemoveGuiltyCommand = new DelegateCommand<ComplaintGuiltyItem>(
-				g => Entity.ObservableGuilties.Remove(g),
+				g => Entity.ObservableGuilty.Remove(g),
 				CanRemoveGuilty
 			);
 		}

@@ -51,7 +51,7 @@ namespace Vodovoz.Views.Complaints
 					)
 				.Finish();
 			treeViewGuilty.HeadersVisible = false;
-			treeViewGuilty.Binding.AddBinding(ViewModel.Entity, s => s.ObservableGuilties, w => w.ItemsDataSource).InitializeFromSource();
+			treeViewGuilty.Binding.AddBinding(ViewModel.Entity, s => s.ObservableGuilty, w => w.ItemsDataSource).InitializeFromSource();
 
 			btnRemove.Clicked += (sender, e) => ViewModel.RemoveGuiltyCommand.Execute(GetSelectedGuilty());
 			ViewModel.RemoveGuiltyCommand.CanExecuteChanged += (sender, e) => btnRemove.Sensitive = ViewModel.CanRemoveGuilty(GetSelectedGuilty());
