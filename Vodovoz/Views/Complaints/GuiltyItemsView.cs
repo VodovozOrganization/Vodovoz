@@ -1,6 +1,9 @@
 ﻿using Gamma.ColumnConfig;
+using Gamma.Utilities;
+using QS.Dialog.GtkUI;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -8,53 +11,72 @@ namespace Vodovoz.Views.Complaints
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class GuiltyItemsView : EntityWidgetViewBase<GuiltyItemsViewModel>
 	{
+		public GuiltyItemsView()
+		{
+			this.Build();
+		}
+
 		public GuiltyItemsView(GuiltyItemsViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			ConfigureDlg();
 		}
 
-		void ConfigureDlg()
+		protected override void ConfigureWidget()
 		{
-			enumBtnGuiltySide.ItemsEnum = typeof(ComplaintGuiltyTypes);
-			enumBtnGuiltySide.EnumItemClicked += (sender, e) => ViewModel.AddGuiltyCommand.Execute((ComplaintGuiltyTypes)e.ItemEnum);
+			btnAddGuilty.Binding.AddBinding(ViewModel, vm => vm.CanAddGuilty, w => w.Visible).InitializeFromSource();
 
-			var colorBlack = new Gdk.Color(0, 0, 0);
-			var colorGrey = new Gdk.Color(96, 96, 96);
-			var colorWhite = new Gdk.Color(255, 255, 255);
+			GuiltyItemView wGuiltyItem = null;
+			btnAddGuilty.Clicked += (sender, e) => {
+				ViewModel.AddGuiltyCommand.Execute();
+				CreateGuiltyWidget(ref wGuiltyItem);
+			};
+
+			btnSaveGuilty.Binding.AddBinding(ViewModel, vm => vm.CanEditGuilty, w => w.Visible).InitializeFromSource();
+			btnSaveGuilty.Clicked += (sender, e) => {
+				var err = ValidationHelper.RaiseValidationAndGetResult(ViewModel.CurrentGuiltyVM.Entity);
+				if(err == null) {
+					DestroyGuiltyWidget(wGuiltyItem);
+					ViewModel.SaveGuiltyCommand.Execute();
+				} else {
+					MessageDialogHelper.RunWarningDialog(err);
+				}
+			};
+
+			btnCancel.Binding.AddBinding(ViewModel, vm => vm.CanEditGuilty, w => w.Visible).InitializeFromSource();
+			btnCancel.Clicked += (sender, e) => {
+				DestroyGuiltyWidget(wGuiltyItem);
+				ViewModel.CancelCommand.Execute();
+			};
+
+			btnRemoveGuilty.Clicked += (sender, e) => ViewModel.RemoveGuiltyCommand.Execute(GetSelectedGuilty());
+			btnRemoveGuilty.Binding.AddBinding(ViewModel, vm => vm.CanAddGuilty, w => w.Visible).InitializeFromSource();
+			//btnRemoveGuilty.Binding.AddFuncBinding(ViewModel, vm => vm.RemoveGuiltyCommand.CanExecute(GetSelectedGuilty()), w => w.Sensitive).InitializeFromSource();
+			ViewModel.RemoveGuiltyCommand.CanExecuteChanged += (sender, e) => btnRemoveGuilty.Sensitive = ViewModel.CanRemoveGuilty(GetSelectedGuilty());
+
 			treeViewGuilty.ColumnsConfig = FluentColumnsConfig<ComplaintGuiltyItem>.Create()
 				.AddColumn("Сторона")
 					.HeaderAlignment(0.5f)
-					.AddEnumRenderer(n => n.GuiltyType)
-					.Editing()
+					.AddTextRenderer(n => n.GuiltyType.GetEnumShortTitle())
 				.AddColumn("Отдел ВВ")
 					.HeaderAlignment(0.5f)
-					.AddComboRenderer(n => n.Subdivision)
-					.SetDisplayFunc(x => x.Name)
-					.FillItems(ViewModel.AllDepartments)
-					.AddSetter(
-						(c, n) => {
-							c.Editable = ViewModel.CanAddSubdivision(n);
-							if(n.GuiltyType != ComplaintGuiltyTypes.Subdivision)
-								n.Subdivision = null;
-							if(n.GuiltyType == ComplaintGuiltyTypes.Subdivision && n.Subdivision == null) {
-								c.ForegroundGdk = colorGrey;
-								c.Style = Pango.Style.Italic;
-								c.Text = "(Нажмите для выбора отдела)";
-								c.BackgroundGdk = colorWhite;
-							} else {
-								c.ForegroundGdk = colorBlack;
-								c.Style = Pango.Style.Normal;
-								c.Background = null;
-							}
-						}
-					)
+					.AddTextRenderer(n => n.GetGuiltySubdivisionOrEmployee)
 				.Finish();
 			treeViewGuilty.HeadersVisible = false;
-			treeViewGuilty.Binding.AddBinding(ViewModel.Entity, s => s.ObservableGuilty, w => w.ItemsDataSource).InitializeFromSource();
+			treeViewGuilty.Binding.AddBinding(ViewModel.Entity, s => s.ObservableGuilties, w => w.ItemsDataSource).InitializeFromSource();
+		}
 
-			btnRemove.Clicked += (sender, e) => ViewModel.RemoveGuiltyCommand.Execute(GetSelectedGuilty());
-			ViewModel.RemoveGuiltyCommand.CanExecuteChanged += (sender, e) => btnRemove.Sensitive = ViewModel.CanRemoveGuilty(GetSelectedGuilty());
+		void CreateGuiltyWidget(ref GuiltyItemView wGuiltyItem)
+		{
+			wGuiltyItem = new GuiltyItemView { ViewModel = ViewModel.CurrentGuiltyVM };
+			hbxGuiltyContainer.Add(wGuiltyItem);
+			hbxGuiltyContainer.ShowAll();
+		}
+
+		void DestroyGuiltyWidget(GuiltyItemView wGuiltyItem)
+		{
+			hbxGuiltyContainer.HideAll();
+			hbxGuiltyContainer.Remove(wGuiltyItem);
+			wGuiltyItem.Destroy();
 		}
 
 		ComplaintGuiltyItem GetSelectedGuilty() => treeViewGuilty.GetSelectedObject<ComplaintGuiltyItem>();

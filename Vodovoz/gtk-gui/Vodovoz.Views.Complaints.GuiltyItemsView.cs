@@ -4,15 +4,25 @@ namespace Vodovoz.Views.Complaints
 {
 	public partial class GuiltyItemsView
 	{
-		private global::Gtk.Table table1;
-
-		private global::Gamma.GtkWidgets.yButton btnRemove;
-
-		private global::QSOrmProject.EnumMenuButton enumBtnGuiltySide;
+		private global::Gtk.VBox vbox2;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewGuilty;
+
+		private global::Gtk.HBox hbox1;
+
+		private global::Gamma.GtkWidgets.yButton btnAddGuilty;
+
+		private global::Gtk.HBox hbxGuiltyContainer;
+
+		private global::Gamma.GtkWidgets.yButton btnSaveGuilty;
+
+		private global::Gamma.GtkWidgets.yButton btnCancel;
+
+		private global::Gamma.GtkWidgets.yButton btnRemoveGuilty;
+
+		private global::Gtk.VSeparator vseparator1;
 
 		protected virtual void Build()
 		{
@@ -21,50 +31,88 @@ namespace Vodovoz.Views.Complaints
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Complaints.GuiltyItemsView";
 			// Container child Vodovoz.Views.Complaints.GuiltyItemsView.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
-			this.table1.Name = "table1";
-			this.table1.RowSpacing = ((uint)(6));
-			this.table1.ColumnSpacing = ((uint)(6));
-			// Container child table1.Gtk.Table+TableChild
-			this.btnRemove = new global::Gamma.GtkWidgets.yButton();
-			this.btnRemove.CanFocus = true;
-			this.btnRemove.Name = "btnRemove";
-			this.btnRemove.UseUnderline = true;
-			this.btnRemove.Label = global::Mono.Unix.Catalog.GetString("Удалить");
-			this.table1.Add(this.btnRemove);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.btnRemove]));
-			w1.TopAttach = ((uint)(1));
-			w1.BottomAttach = ((uint)(2));
-			w1.LeftAttach = ((uint)(1));
-			w1.RightAttach = ((uint)(2));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.enumBtnGuiltySide = new global::QSOrmProject.EnumMenuButton();
-			this.enumBtnGuiltySide.CanFocus = true;
-			this.enumBtnGuiltySide.Name = "enumBtnGuiltySide";
-			this.enumBtnGuiltySide.UseUnderline = true;
-			this.enumBtnGuiltySide.UseMarkup = false;
-			this.enumBtnGuiltySide.LabelXAlign = 0F;
-			this.enumBtnGuiltySide.Label = global::Mono.Unix.Catalog.GetString("Добавить");
-			this.table1.Add(this.enumBtnGuiltySide);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.enumBtnGuiltySide]));
-			w2.TopAttach = ((uint)(1));
-			w2.BottomAttach = ((uint)(2));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.VscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.treeViewGuilty = new global::Gamma.GtkWidgets.yTreeView();
 			this.treeViewGuilty.CanFocus = true;
 			this.treeViewGuilty.Name = "treeViewGuilty";
 			this.GtkScrolledWindow.Add(this.treeViewGuilty);
-			this.table1.Add(this.GtkScrolledWindow);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow]));
-			w4.RightAttach = ((uint)(2));
-			this.Add(this.table1);
+			this.vbox2.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow]));
+			w2.Position = 0;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.btnAddGuilty = new global::Gamma.GtkWidgets.yButton();
+			this.btnAddGuilty.CanFocus = true;
+			this.btnAddGuilty.Name = "btnAddGuilty";
+			this.btnAddGuilty.UseUnderline = true;
+			this.btnAddGuilty.Label = global::Mono.Unix.Catalog.GetString("Добавить виновника");
+			this.hbox1.Add(this.btnAddGuilty);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnAddGuilty]));
+			w3.Position = 0;
+			w3.Expand = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.hbxGuiltyContainer = new global::Gtk.HBox();
+			this.hbxGuiltyContainer.Name = "hbxGuiltyContainer";
+			this.hbxGuiltyContainer.Spacing = 6;
+			this.hbox1.Add(this.hbxGuiltyContainer);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.hbxGuiltyContainer]));
+			w4.Position = 1;
+			w4.Expand = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.btnSaveGuilty = new global::Gamma.GtkWidgets.yButton();
+			this.btnSaveGuilty.CanFocus = true;
+			this.btnSaveGuilty.Name = "btnSaveGuilty";
+			this.btnSaveGuilty.UseUnderline = true;
+			this.btnSaveGuilty.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.hbox1.Add(this.btnSaveGuilty);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnSaveGuilty]));
+			w5.Position = 2;
+			w5.Expand = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.btnCancel = new global::Gamma.GtkWidgets.yButton();
+			this.btnCancel.CanFocus = true;
+			this.btnCancel.Name = "btnCancel";
+			this.btnCancel.UseUnderline = true;
+			this.btnCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
+			this.hbox1.Add(this.btnCancel);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnCancel]));
+			w6.Position = 3;
+			w6.Expand = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.btnRemoveGuilty = new global::Gamma.GtkWidgets.yButton();
+			this.btnRemoveGuilty.CanFocus = true;
+			this.btnRemoveGuilty.Name = "btnRemoveGuilty";
+			this.btnRemoveGuilty.UseUnderline = true;
+			this.btnRemoveGuilty.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			this.hbox1.Add(this.btnRemoveGuilty);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnRemoveGuilty]));
+			w7.PackType = ((global::Gtk.PackType)(1));
+			w7.Position = 4;
+			w7.Expand = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.hbox1.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vseparator1]));
+			w8.PackType = ((global::Gtk.PackType)(1));
+			w8.Position = 5;
+			w8.Expand = false;
+			w8.Fill = false;
+			this.vbox2.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
+			w9.Position = 1;
+			w9.Expand = false;
+			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
