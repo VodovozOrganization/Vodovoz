@@ -8,11 +8,14 @@ using Vodovoz.Domain.Complaints;
 using System.Diagnostics;
 using Vodovoz.Repositories.HumanResources;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 
 namespace Vodovoz.ViewModels
 {
 	public class FilesViewModel : UoWWidgetViewModelBase
 	{
+		private IFilePickerService filePicker { get; }
+
 		private GenericObservableList<ComplaintFile> filesList;
 		public virtual GenericObservableList<ComplaintFile> FilesList {
 			get => filesList;
@@ -27,37 +30,40 @@ namespace Vodovoz.ViewModels
 
 		#region Commands
 
-		public DelegateCommand<string> AddItemCommand { get; private set; }
+		public DelegateCommand AddItemCommand { get; private set; }
 		public DelegateCommand<ComplaintFile> OpenItemCommand { get; private set; }
 		public DelegateCommand<ComplaintFile> DeleteItemCommand { get; private set; }
+		public DelegateCommand<ComplaintFile> LoadItemCommand { get; private set; }
 
-		public FilesViewModel(IInteractiveService interactiveService, IUnitOfWork uow) : base(interactiveService)
+		public FilesViewModel(IInteractiveService interactiveService, IFilePickerService filePicker, IUnitOfWork uow) : base(interactiveService)
 		{
 			UoW = uow;
+			this.filePicker = filePicker;
 			CreateCommands();
 		}
 
 		private void CreateCommands()
 		{
-			AddItemCommand = new DelegateCommand<string>(
-				(string filePath) => {
+			AddItemCommand = new DelegateCommand(
+				() => {
 
-					var complaintFile = new ComplaintFile();
-					complaintFile.FileStorageId = Path.GetFileName(filePath);
+					if(filePicker.OpenSelectFilePicker(out string filePath)) 
+					{
+						var complaintFile = new ComplaintFile();
+						complaintFile.FileStorageId = Path.GetFileName(filePath);
 
-					complaintFile.ByteFile = File.ReadAllBytes(filePath);
+						complaintFile.ByteFile = File.ReadAllBytes(filePath);
 
-					if(FilesList == null)
-						FilesList = new GenericObservableList<ComplaintFile>();
-					FilesList.Add(complaintFile);
+						if(FilesList == null)
+							FilesList = new GenericObservableList<ComplaintFile>();
+						FilesList.Add(complaintFile);
+					}
 				},
-				(string file) => { return !ReadOnly; }
+				() => { return !ReadOnly; }
 			);
 
 			DeleteItemCommand = new DelegateCommand<ComplaintFile>(
-				(file) => {
-					FilesList.Remove(file);
-				},
+				(file) => { FilesList.Remove(file); },
 				(file) => { return !ReadOnly; }
 			);
 
@@ -78,6 +84,14 @@ namespace Vodovoz.ViewModels
 					process.StartInfo.FileName = Path.Combine(vodUserTempDir, file.FileStorageId);
 					process.Start();
 				});
+
+			LoadItemCommand = new DelegateCommand<ComplaintFile>(
+				(file) => {
+					if(filePicker.OpenSaveFilePicker(file.FileStorageId, out string filePath))
+						File.WriteAllBytes(filePath, file.ByteFile);
+				},
+				(file) => { return !ReadOnly; }
+			);
 		}
 
 		#endregion Commands

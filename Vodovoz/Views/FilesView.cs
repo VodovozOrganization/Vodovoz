@@ -31,7 +31,7 @@ namespace Vodovoz.Views
 			if(ViewModel == null)
 				return;
 
-			ybuttonAttachFile.Clicked += (sender, e) => SelectFile();
+			ybuttonAttachFile.Clicked += (sender, e) => viewModel.AddItemCommand.Execute();
 			ytreeviewFiles.ButtonReleaseEvent += KeystrokeHandler;
 
 			ytreeviewFiles.ColumnsConfig = FluentColumnsConfig<ComplaintFile>.Create()
@@ -55,40 +55,22 @@ namespace Vodovoz.Views
 
 			var deleteFile = new MenuItem("Удалить файл");
 			deleteFile.Activated += (s, args) => viewModel.DeleteItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
-			menu.Add(deleteFile);
 			deleteFile.Visible = true;
+			menu.Add(deleteFile);
+
+			var saveFile = new MenuItem("Загрузить файл");
+			saveFile.Activated += (s, args) => viewModel.LoadItemCommand.Execute(ytreeviewFiles.GetSelectedObject() as ComplaintFile);
+			saveFile.Visible = true;
+			menu.Add(saveFile);
+
 			menu.ShowAll();
 			menu.Popup();
-
 		}
 
 		protected void KeystrokeHandler(object o, ButtonReleaseEventArgs args)
 		{
 			if(args.Event.Button == 3)
 				ConfigureMenu();
-		}
-
-		protected void SelectFile() //TODO Убрать логику в ViewModel (создать FileService)
-		{
-			FileChooserDialog Chooser = new FileChooserDialog(
-				"Выберите файл для загрузки...",
-				(Window)this.Toplevel,
-				FileChooserAction.Open,
-				"Отмена", ResponseType.Cancel,
-				"Загрузить", ResponseType.Accept
-			);
-
-			Chooser.SelectMultiple = true;
-
-			if((ResponseType)Chooser.Run() == ResponseType.Accept) 
-			{
-				Chooser.Hide();
-				foreach(var filePath in Chooser.Filenames) 
-				{
-					viewModel.AddItemCommand.Execute(filePath);
-				}
-			}
-			Chooser.Destroy();
 		}
 
 	}
