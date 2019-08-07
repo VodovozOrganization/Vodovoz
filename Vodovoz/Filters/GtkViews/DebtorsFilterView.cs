@@ -41,6 +41,8 @@ namespace Vodovoz.Filters.GtkViews
 			yvalidatedentryBottlesFrom.Binding.AddBinding(ViewModel, x => x.LastOrderBottlesFrom, x => x.Text, new IntToStringConverter()).InitializeFromSource();
 			yenumcomboboxOPF.Binding.AddBinding(ViewModel, x => x.OPF, x => x.SelectedItemOrNull).InitializeFromSource();
 			ycomboboxReason.Binding.AddBinding(ViewModel, x => x.DiscountReason, x => x.SelectedItem).InitializeFromSource();
+			ydateperiodpickerLastOrder.Binding.AddBinding(ViewModel, x => x.StartDate, x => x.StartDateOrNull).InitializeFromSource();
+			ydateperiodpickerLastOrder.Binding.AddBinding(ViewModel, x => x.EndDate, x => x.EndDateOrNull).InitializeFromSource();
 		}
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)

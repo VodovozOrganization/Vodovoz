@@ -129,9 +129,9 @@ namespace Vodovoz.Representations
 				if(FilterViewModel.LastOrderBottlesTo != null)
 					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= FilterViewModel.LastOrderBottlesTo.Value);
 				if(FilterViewModel.StartDate != null)
-					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate);
-				if(FilterViewModel.StartDate != null)
-					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.EndDate);
+					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate.Value);
+				if(FilterViewModel.EndDate != null)
+					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= FilterViewModel.EndDate.Value);
 				if(FilterViewModel.DebtBottlesFrom != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
 				if(FilterViewModel.DebtBottlesTo != null)
