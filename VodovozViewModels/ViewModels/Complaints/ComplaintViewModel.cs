@@ -54,6 +54,10 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
 
+			if(ctorParam.IsNewEntity) {
+				AbortOpening("Невозможно создать новую жалобу из текущего диалога, необходимо использовать диалоги создания");
+			}
+
 			CreateCommands();
 		}
 
