@@ -77,7 +77,14 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		public string SubdivisionsInWork => $"В работе у: {string.Join(", ", Entity.ComplaintDiscussions.Select(x => x.Subdivision.Name))}";
+		public string SubdivisionsInWork {
+			get {
+				string inWork = string.Join(", ", Entity.ComplaintDiscussions.Where(x => x.Status == ComplaintStatuses.InProcess).Select(x => x.Subdivision.Name));
+				string okk = Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.InProcess) ? "OKK" : null;
+				string result = string.Join(", ", inWork, okk);
+				return $"В работе у: {result}";
+			}
+		}
 
 		private List<ComplaintSource> complaintSources;
 		public IEnumerable<ComplaintSource> ComplaintSources {
