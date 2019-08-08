@@ -21958,12 +21958,12 @@
             <property name="Spacing">6</property>
             <property name="BorderWidth">6</property>
             <child>
-              <widget class="Gtk.Expander" id="expander1">
+              <widget class="Gtk.Expander" id="xpndRouteListInfo">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Expanded">True</property>
                 <child>
-                  <widget class="Gtk.Table" id="table1">
+                  <widget class="Gtk.Table" id="tblRLInfo">
                     <property name="MemberName" />
                     <property name="NRows">7</property>
                     <property name="NColumns">7</property>
@@ -22711,7 +22711,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.HBox" id="hbox10">
+              <widget class="Gtk.HBox" id="hbxStatistics1">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
@@ -22943,7 +22943,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.HBox" id="hbox9">
+              <widget class="Gtk.HBox" id="hbxStatistics2">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
