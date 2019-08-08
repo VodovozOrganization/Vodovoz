@@ -1256,6 +1256,8 @@
     <Compile Include="SidePanel\InfoViews\ComplaintPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.ComplaintPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\IComplaintsInfoProvider.cs" />
+    <Compile Include="Views\Complaints\ComplaintResultView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

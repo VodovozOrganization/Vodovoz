@@ -1,5 +1,4 @@
-﻿using System;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints

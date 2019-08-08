@@ -1,15 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Client;
-using Gdk;
-using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Orders;
-using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -221,6 +220,8 @@ namespace Vodovoz.Domain.Complaints
 			newDiscussion.Subdivision = subdivision;
 			ObservableComplaintDiscussions.Add(newDiscussion);
 		}
+
+		public virtual string Title => string.Format("Жалоба №{0}", Id);
 
 		#region IValidatableObject implementation
 

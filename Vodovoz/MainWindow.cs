@@ -1376,4 +1376,16 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 		tdiMain.AddTab(complaintSourcesViewModel);
 	}
+
+	protected void OnActionComplaintResultActivated(object sender, EventArgs e)
+	{
+		var complaintResultsViewModel = new SimpleEntityJournalViewModel<ComplaintResult, ComplaintResultViewModel>(
+			x => x.Name,
+			() => new ComplaintResultViewModel(EntityConstructorParam.ForCreate(), ServicesConfig.CommonServices),
+			(node) => new ComplaintResultViewModel(EntityConstructorParam.ForOpen(node.Id), ServicesConfig.CommonServices),
+			new DefaultEntityConfigurationProvider(),
+			ServicesConfig.CommonServices
+		);
+		tdiMain.AddTab(complaintResultsViewModel);
+	}
 }

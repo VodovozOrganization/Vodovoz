@@ -69,6 +69,7 @@
     <Compile Include="JournalViewModels\ComplaintsJournalViewModel.cs" />
     <Compile Include="JournalNodes\ComplaintJournalNode.cs" />
     <Compile Include="ViewModels\Complaints\GuiltyItemViewModel.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintResultViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintSourceViewModel.cs" />
   </ItemGroup>
   <ItemGroup>

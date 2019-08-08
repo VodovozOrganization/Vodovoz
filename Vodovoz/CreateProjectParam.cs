@@ -147,6 +147,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CreateComplaintViewModel, CreateComplaintView>()
 				.RegisterWidgetForTabViewModel<CreateInnerComplaintViewModel, CreateInnerComplaintView>()
 				.RegisterWidgetForTabViewModel<ComplaintSourceViewModel, ComplaintSourceView>()
+				.RegisterWidgetForTabViewModel<ComplaintResultViewModel, ComplaintResultView>()
 				;
 
 			//Регистрация фильтров
