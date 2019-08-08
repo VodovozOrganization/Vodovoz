@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Gtk;
 using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.SidePanel.InfoViews;
 
 namespace Vodovoz.SidePanel
@@ -26,6 +27,8 @@ namespace Vodovoz.SidePanel
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
 					return new CallTaskPanelView(new BaseParametersProvider());
+				case PanelViewType.ComplaintPanelView:
+					return new ComplaintPanelView(new ComplaintsRepository());
 				default:
 					throw new NotSupportedException();
 			}
@@ -46,7 +49,8 @@ namespace Vodovoz.SidePanel
 		DeliveryPricePanelView,
 		UndeliveredOrdersPanelView,
 		EmailsPanelView,
-		CallTaskPanelView
+		CallTaskPanelView,
+		ComplaintPanelView
 	}
 }
 

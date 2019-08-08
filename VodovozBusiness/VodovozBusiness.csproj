@@ -680,6 +680,8 @@
     <Compile Include="Domain\Complaints\ComplaintResult.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintResultMap.cs" />
     <Compile Include="Domain\Complaints\ComplaintType.cs" />
+    <Compile Include="EntityRepositories\Complaints\ComplaintsRepository.cs" />
+    <Compile Include="EntityRepositories\Complaints\IComplaintsRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -731,6 +733,7 @@
     <Folder Include="EntityRepositories\Cash\" />
     <Folder Include="Domain\Complaints\" />
     <Folder Include="HibernateMapping\Complaints\" />
+    <Folder Include="EntityRepositories\Complaints\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
