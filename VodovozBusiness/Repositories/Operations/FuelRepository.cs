@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Linq;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Operations;
-using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using NHibernate.Criterion;
 
 namespace Vodovoz.Repository.Operations
 {
@@ -18,7 +15,8 @@ namespace Vodovoz.Repository.Operations
 			FuelOperation operationAlias = null;
 			FuelQueryResult result = null;
 			var queryResult = UoW.Session.QueryOver<FuelOperation>(() => operationAlias)
-				.Where(() => operationAlias.Fuel.Id == fuel.Id);
+				//.Where(() => operationAlias.Fuel.Id == fuel.Id) - ибо хотят для чего то литры бензина суммировать с литрами дизеля о_О
+				;
 			if(driver != null)
 				queryResult.Where(() => operationAlias.Driver.Id == driver.Id);
 			if(car != null)
@@ -39,13 +37,7 @@ namespace Vodovoz.Repository.Operations
 		{
 			public decimal Gived{get;set;}
 			public decimal Outlayed{get;set;}
-			public decimal FuelBalance{
-				get{
-					return Gived - Outlayed;
-				}
-			}
+			public decimal FuelBalance => Gived - Outlayed;
 		}
 	}
-
-
 }
