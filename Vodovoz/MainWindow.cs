@@ -46,6 +46,14 @@ using Vodovoz.Filters.ViewModels;
 using QS.DomainModel.Config;
 using Vodovoz.JournalViewModels;
 using QS.Banks.Domain;
+using Vodovoz.TempAdapters;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalViewModels.Employees;
+using Vodovoz.FilterViewModels.Employees;
+using QS.Project.Journal;
+using Vodovoz.Domain.Complaints;
+using Vodovoz.ViewModels.Complaints;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -651,6 +659,43 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		if(ActionStaff.Active)
 			SwitchToUI("Vodovoz.toolbars.staff.xml");
+	}
+
+	protected void OnActionComplaintsActivated(object sender, EventArgs e)
+	{
+		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
+		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
+		IEntitySelectorFactory employeeSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Employee), () => new EmployeesVM());
+		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		IEntityAutocompleteSelectorFactory ordersSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order, OrderJournalViewModel, OrderJournalFilterViewModel>(ServicesConfig.CommonServices);
+		IEntitySelectorFactory subdivisionSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Subdivision), () => new SubdivisionsVM());
+
+		/*FineFilterViewModel fineFilter = new FineFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		IEntityAutocompleteSelectorFactory finesSelectorFactory = new EntityAutocompleteSelectorFactory(typeof(Fine),
+			() => new FineJournalViewModel(
+				fineFilter,
+				undeliveriesViewOpener,
+				ServicesConfig.EmployeeService,
+				employeeSelectorFactory,
+				entityConfigurationProvider,
+				ServicesConfig.CommonServices
+			)
+		);*/
+
+		//ComplaintsJournalViewModel complaintsJournalViewModel = ;
+
+		tdiMain.OpenTab(() => {
+			return new ComplaintsJournalViewModel(
+				entityConfigurationProvider,
+				ServicesConfig.CommonServices,
+				undeliveriesViewOpener,
+				ServicesConfig.EmployeeService,
+				employeeSelectorFactory,
+				counterpartySelectorFactory,
+				ordersSelectorFactory,
+				subdivisionSelectorFactory
+			);
+		});
 	}
 
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)
@@ -1311,10 +1356,24 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new OrmReference(typeof(PaymentFrom))
 		);
 	}
-	
+
 	protected void OnAction62Activated(object sender, EventArgs e)
 	{
 		var widget = new ResendEmailsDialog();
 		tdiMain.AddTab(widget);
+	}
+
+	protected void OnActionComplaintSourcesActivated(object sender, EventArgs e)
+	{
+		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
+
+		var complaintSourcesViewModel = new SimpleEntityJournalViewModel<ComplaintSource, ComplaintSourceViewModel>(
+			x => x.Name,
+			() => new ComplaintSourceViewModel(EntityConstructorParam.ForCreate(), ServicesConfig.CommonServices),
+			(node) => new ComplaintSourceViewModel(EntityConstructorParam.ForOpen(node.Id), ServicesConfig.CommonServices),
+			entityConfigurationProvider,
+			ServicesConfig.CommonServices
+		);
+		tdiMain.AddTab(complaintSourcesViewModel);
 	}
 }

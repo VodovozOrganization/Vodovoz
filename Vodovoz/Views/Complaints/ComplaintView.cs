@@ -60,6 +60,9 @@ namespace Vodovoz.Views.Complaints
 			ytextviewComplaintText.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComplaintText.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
+			vboxDicussions.Add(new ComplaintDiscussionsView(ViewModel.DiscussionsViewModel));
+			vboxDicussions.ShowAll();
+
 			ytreeviewFines.ColumnsConfig = FluentColumnsConfig<FineItem>.Create()
 				.AddColumn("№").AddTextRenderer(x => x.Fine.Id.ToString())
 				.AddColumn("Сотрудник").AddTextRenderer(x => x.Employee.ShortName)

@@ -25,6 +25,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
+		private readonly IEntitySelectorFactory subdivisionSelectorFactory;
 		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
@@ -38,11 +39,12 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntitySelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
-			IEntityAutocompleteSelectorFactory finesSelectorFactory,
+			IEntitySelectorFactory subdivisionSelectorFactory,
 			IEntityConfigurationProvider entityConfigurationProvider
 			) : base(ctorParam, commonServices)
 		{
 			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
+			this.subdivisionSelectorFactory = subdivisionSelectorFactory ?? throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -63,6 +65,16 @@ namespace Vodovoz.ViewModels.Complaints
 		void ObservableFines_ListContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(() => FineItems);
+		}
+
+		private ComplaintDiscussionsViewModel discussionsViewModel;
+		public ComplaintDiscussionsViewModel DiscussionsViewModel {
+			get {
+				if(discussionsViewModel == null) {
+					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, UoW, CommonServices, subdivisionSelectorFactory);
+				}
+				return discussionsViewModel;
+			}
 		}
 
 		public string SubdivisionsInWork => $"В работе у: {string.Join(", ", Entity.ComplaintDiscussions.Select(x => x.Subdivision.Name))}";

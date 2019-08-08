@@ -1251,6 +1251,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintDiscussionsView.cs" />
     <Compile Include="Views\Complaints\GuiltyItemView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.GuiltyItemView.cs" />
+    <Compile Include="Views\Complaints\ComplaintSourceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintSourceView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

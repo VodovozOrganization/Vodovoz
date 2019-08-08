@@ -28,7 +28,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory orderSelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory fineSelectorFactory;
+		private readonly IEntitySelectorFactory subdivisionSelectorFactory;
 
 		public ComplaintsJournalViewModel(
 			IEntityConfigurationProvider entityConfigurationProvider, 
@@ -38,7 +38,7 @@ namespace Vodovoz.JournalViewModels
 			IEntitySelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
-			IEntityAutocompleteSelectorFactory fineSelectorFactory
+			IEntitySelectorFactory subdivisionSelectorFactory
 		) : base(entityConfigurationProvider, commonServices)
 		{
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
@@ -48,10 +48,13 @@ namespace Vodovoz.JournalViewModels
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
-			this.fineSelectorFactory = fineSelectorFactory ?? throw new ArgumentNullException(nameof(fineSelectorFactory));
+			this.subdivisionSelectorFactory = subdivisionSelectorFactory ?? throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
 
-			RegisterInnerComplaints();
+			TabName = "Журнал жалоб";
+
 			RegisterComplaints();
+
+			FinishJournalConfiguration();
 		}
 
 		private IQueryOver<Complaint> GetComplaintQuery()
@@ -70,7 +73,9 @@ namespace Vodovoz.JournalViewModels
 			ComplaintDiscussion dicussionAlias = null;
 			Subdivision subdivisionAlias = null;
 
-			var authorProjection = Projections.SqlFunction("GET_PERSON_NAME_WITH_INITIALS", NHibernateUtil.String,
+			var authorProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
+				NHibernateUtil.String,
 				Projections.Property(() => authorAlias.LastName),
 				Projections.Property(() => authorAlias.Name),
 				Projections.Property(() => authorAlias.Patronymic)
@@ -94,7 +99,9 @@ namespace Vodovoz.JournalViewModels
 				Projections.Property(() => counterpartyAlias.Name),
 				Projections.Property(() => deliveryPointAlias.Id));
 
-			var guiltyEmployeeProjection = Projections.SqlFunction("GET_PERSON_NAME_WITH_INITIALS", NHibernateUtil.String,
+			var guiltyEmployeeProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
+				NHibernateUtil.String,
 				Projections.Property(() => guiltyEmployeeAlias.LastName),
 				Projections.Property(() => guiltyEmployeeAlias.Name),
 				Projections.Property(() => guiltyEmployeeAlias.Patronymic)
@@ -102,12 +109,12 @@ namespace Vodovoz.JournalViewModels
 
 			var guiltiesProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(" +
-					"CASE ?1" +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Client)}' THEN 'Клиент'" +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.None)}' THEN 'Нет'" +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Employee)}' THEN ?2" +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Subdivision)}' THEN ?3" +
-						"ELSE o.payment_type\n\t" +
+					"CASE ?1 " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.Client)}' THEN 'Клиент' " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.None)}' THEN 'Нет' " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.Employee)}' THEN ?2 " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.Subdivision)}' THEN ?3 " +
+						"ELSE '' " +
 					"END" +
 					" SEPARATOR ?4)"),
 				NHibernateUtil.String,
@@ -163,68 +170,68 @@ namespace Vodovoz.JournalViewModels
 			return query;
 		}
 
-		private void RegisterInnerComplaints()
-		{
-			var innerComplaintConfig = RegisterEntity<Complaint>(GetComplaintQuery);
-
-			innerComplaintConfig.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => new CreateInnerComplaintViewModel(EntityConstructorParam.ForCreate(), commonServices),
-				//функция диалога открытия документа
-				(ComplaintJournalNode node) => new ComplaintViewModel(
-					EntityConstructorParam.ForOpen(node.Id),
-					commonServices,
-					undeliveriesViewOpener,
-					employeeService,
-					employeeSelectorFactory,
-					counterpartySelectorFactory,
-					orderSelectorFactory,
-					fineSelectorFactory,
-					entityConfigurationProvider
-				),
-				//функция идентификации документа 
-				(ComplaintJournalNode node) => {
-					return node.EntityType == typeof(Complaint);
-				}
-			);
-
-			//завершение конфигурации
-			innerComplaintConfig.FinishConfiguration();
-		}
-
 		private void RegisterComplaints()
 		{
-			var complaintConfig = RegisterEntity<Complaint>(GetComplaintQuery);
-
-			complaintConfig.AddDocumentConfiguration(
-				//функция диалога создания документа
-				() => new CreateComplaintViewModel(
-					EntityConstructorParam.ForCreate(), 
-					counterpartySelectorFactory,
-					orderSelectorFactory,
-					commonServices
-				),
-				//функция диалога открытия документа
-				(ComplaintJournalNode node) => new ComplaintViewModel(
-					EntityConstructorParam.ForOpen(node.Id),
-					commonServices,
-					undeliveriesViewOpener,
-					employeeService,
-					employeeSelectorFactory,
-					counterpartySelectorFactory,
-					orderSelectorFactory,
-					fineSelectorFactory,
-					entityConfigurationProvider
-				),
-				//функция идентификации документа 
-				(ComplaintJournalNode node) => {
-					return node.EntityType == typeof(Complaint);
-				}
-			);
+			var complaintConfig = RegisterEntity<Complaint>(GetComplaintQuery)
+				.AddDocumentConfiguration(
+					//функция диалога создания документа
+					() => new CreateComplaintViewModel(
+						EntityConstructorParam.ForCreate(),
+						employeeService,
+						counterpartySelectorFactory,
+						orderSelectorFactory,
+						commonServices
+					),
+					//функция диалога открытия документа
+					(ComplaintJournalNode node) => new ComplaintViewModel(
+						EntityConstructorParam.ForOpen(node.Id),
+						commonServices,
+						undeliveriesViewOpener,
+						employeeService,
+						employeeSelectorFactory,
+						counterpartySelectorFactory,
+						orderSelectorFactory,
+						subdivisionSelectorFactory,
+						entityConfigurationProvider
+					),
+					//функция идентификации документа 
+					(ComplaintJournalNode node) => {
+						return node.EntityType == typeof(Complaint);
+					},
+					"Клиентская жалоба"
+				)
+				.AddDocumentConfiguration(
+					//функция диалога создания документа
+					() => new CreateInnerComplaintViewModel(EntityConstructorParam.ForCreate(), commonServices),
+					//функция диалога открытия документа
+					(ComplaintJournalNode node) => new ComplaintViewModel(
+						EntityConstructorParam.ForOpen(node.Id),
+						commonServices,
+						undeliveriesViewOpener,
+						employeeService,
+						employeeSelectorFactory,
+						counterpartySelectorFactory,
+						orderSelectorFactory,
+						subdivisionSelectorFactory,
+						entityConfigurationProvider
+					),
+					//функция идентификации документа 
+					(ComplaintJournalNode node) => {
+						return node.EntityType == typeof(Complaint);
+					},
+					"Внутренняя жалоба"
+				);
 
 			//завершение конфигурации
 			complaintConfig.FinishConfiguration();
 		}
 
+		protected override void BeforeItemsUpdated()
+		{
+			foreach(ComplaintJournalNode item in Items) {
+				item.SequenceNumber = Items.IndexOf(item) + 1;
+			}
+			base.BeforeItemsUpdated();
+		}
 	}
 }

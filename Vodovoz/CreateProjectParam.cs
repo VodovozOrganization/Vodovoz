@@ -58,6 +58,8 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.Views.Employees;
 using QS.Banks.Domain;
 using System.IO;
+using Vodovoz.ViewModels.Complaints;
+using Vodovoz.Views.Complaints;
 
 namespace Vodovoz
 {
@@ -141,6 +143,10 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelWriteoffDocumentViewModel, FuelWriteoffDocumentView>()
 				.RegisterWidgetForTabViewModel<ResidueViewModel, ResidueView>()
 				.RegisterWidgetForTabViewModel<FineTemplateViewModel, FineTemplateView>()
+				.RegisterWidgetForTabViewModel<ComplaintViewModel, ComplaintView>()
+				.RegisterWidgetForTabViewModel<CreateComplaintViewModel, CreateComplaintView>()
+				.RegisterWidgetForTabViewModel<CreateInnerComplaintViewModel, CreateInnerComplaintView>()
+				.RegisterWidgetForTabViewModel<ComplaintSourceViewModel, ComplaintSourceView>()
 				;
 
 			//Регистрация фильтров

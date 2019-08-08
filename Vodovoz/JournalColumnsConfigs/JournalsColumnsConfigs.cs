@@ -96,6 +96,27 @@ namespace Vodovoz.JournalColumnsConfigs
 																	.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 																	.Finish()
 			);
+
+			//ComplaintsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ComplaintsJournalViewModel>(
+				() => FluentColumnsConfig<ComplaintJournalNode>.Create()
+					.AddColumn("№ п/п").AddTextRenderer(node => node.SequenceNumber.ToString())
+					.AddColumn("№ жалобы").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Тип").AddTextRenderer(node => node.TypeString)
+					.AddColumn("Дата").AddTextRenderer(node => node.DateString)
+					.AddColumn("Статус").AddTextRenderer(node => node.StatusString)
+					.AddColumn("В работе у").AddTextRenderer(node => node.WorkInSubdivision)
+					.AddColumn("Дата план.\nзавершения").AddTextRenderer(node => node.PlannedCompletionDate)
+					.AddColumn("Клиент и адрес").AddTextRenderer(node => node.ClientNameWithAddress)
+					.AddColumn("Виновный").AddTextRenderer(node => node.Guilties)
+					.AddColumn("Проблема").AddTextRenderer(node => node.ComplaintText)
+					.AddColumn("Автор").AddTextRenderer(node => node.Author)
+					.AddColumn("Штрафы").AddTextRenderer(node => node.Fines)
+					.AddColumn("Результат").AddTextRenderer(node => node.ResultText)
+					.AddColumn("Дата факт.\nзавершения").AddTextRenderer(node => node.ActualCompletionDateString)
+					.AddColumn("Дни").AddTextRenderer(node => node.DaysInWork)
+					.Finish()
+			);
 		}
 	}
 }

@@ -7,7 +7,7 @@ namespace Vodovoz.JournalNodes
 {
 	public class ComplaintJournalNode : JournalEntityNodeBase
 	{
-		protected ComplaintJournalNode(Type entityType) : base(typeof(Complaint))
+		protected ComplaintJournalNode() : base(typeof(Complaint))
 		{
 		}
 
@@ -23,6 +23,8 @@ namespace Vodovoz.JournalNodes
 				return Type.GetEnumTitle();
 			}
 		}
+
+		public int SequenceNumber { get; set; }
 
 		public DateTime Date { get; set; }
 		public string DateString => Date.ToString("dd.MM.yy");

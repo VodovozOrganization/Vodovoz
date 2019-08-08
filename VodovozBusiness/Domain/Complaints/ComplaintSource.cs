@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -12,7 +13,7 @@ namespace Vodovoz.Domain.Complaints
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class ComplaintSource : PropertyChangedBase, IDomainObject
+	public class ComplaintSource : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
@@ -21,6 +22,13 @@ namespace Vodovoz.Domain.Complaints
 		public virtual string Name {
 			get => name;
 			set => SetField(ref name, value, () => Name);
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(string.IsNullOrWhiteSpace(Name)) {
+				yield return new ValidationResult("Необходимо заполнить имя");
+			}
 		}
 	}
 }

@@ -6,6 +6,9 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure.Services;
+
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class CreateComplaintViewModel : EntityTabViewModelBase<Complaint>
@@ -15,18 +18,32 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public CreateComplaintViewModel(
 			IEntityConstructorParam ctorParam,
+			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
 			ICommonServices commonServices
 			) : base(ctorParam, commonServices)
 		{
+			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
+		}
+
+		private Employee currentEmployee;
+		public Employee CurrentEmployee {
+			get {
+				if(currentEmployee == null) {
+					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+				}
+				return currentEmployee;
+			}
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;
 
 		private List<ComplaintSource> complaintSources;
+		private readonly IEmployeeService employeeService;
+
 		public IEnumerable<ComplaintSource> ComplaintSources {
 			get {
 				if(complaintSources == null) {
@@ -34,6 +51,18 @@ namespace Vodovoz.ViewModels.Complaints
 				}
 				return complaintSources;
 			}
+		}
+
+		protected override void BeforeValidation()
+		{
+			if(UoW.IsNew) {
+				Entity.CreatedBy = CurrentEmployee;
+				Entity.CreationDate = DateTime.Now;
+			}
+			Entity.ChangedBy = CurrentEmployee;
+			Entity.ChangedDate = DateTime.Now;
+
+			base.BeforeValidation();
 		}
 	}
 }
