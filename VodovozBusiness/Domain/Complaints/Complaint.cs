@@ -227,12 +227,14 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(ComplaintSource == null) {
-				yield return new ValidationResult("Необходимо выбрать источник");
-			}
-
 			if(string.IsNullOrWhiteSpace(ComplaintText)) {
 				yield return new ValidationResult("Необходимо ввести текст жалобы");
+			}
+
+			if(ComplaintType == ComplaintType.Client) {
+				if(ComplaintSource == null) {
+					yield return new ValidationResult("Необходимо выбрать источник");
+				}
 			}
 		}
 
