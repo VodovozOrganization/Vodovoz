@@ -4,6 +4,7 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -12,10 +13,11 @@ namespace Vodovoz.ViewModels.Complaints
 		readonly ISubdivisionRepository subdivisionRepository;
 		readonly ICommonServices commonServices;
 
-		public GuiltyItemsViewModel(Complaint entity, ICommonServices commonServices, ISubdivisionRepository subdivisionRepository) : base(entity, commonServices)
+		public GuiltyItemsViewModel(Complaint entity, IUnitOfWork uow, ICommonServices commonServices, ISubdivisionRepository subdivisionRepository) : base(entity, commonServices)
 		{
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.commonServices = commonServices;
+			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
 			UpdateAcessibility();
 		}
@@ -26,7 +28,12 @@ namespace Vodovoz.ViewModels.Complaints
 			set => SetField(ref currentGuiltyVM, value, () => CurrentGuiltyVM);
 		}
 
-		public bool CanRemoveGuilty(ComplaintGuiltyItem guilty) => guilty != null;
+		private bool canRemoveGuilty;
+		public virtual bool CanRemoveGuilty {
+			get => canRemoveGuilty;
+			set => SetField(ref canRemoveGuilty, value, () => CanRemoveGuilty);
+		}
+
 
 		bool canEditGuilty;
 		public bool CanEditGuilty {
@@ -95,6 +102,7 @@ namespace Vodovoz.ViewModels.Complaints
 						CurrentGuiltyVM.Entity.Employee = null;
 					if(CurrentGuiltyVM.Entity.GuiltyType != ComplaintGuiltyTypes.Subdivision)
 						CurrentGuiltyVM.Entity.Subdivision = null;
+					CurrentGuiltyVM.Entity.Complaint = Entity;
 					Entity.ObservableGuilties.Add(CurrentGuiltyVM.Entity);
 					ClearItem();
 				},
@@ -125,8 +133,9 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			RemoveGuiltyCommand = new DelegateCommand<ComplaintGuiltyItem>(
 				g => Entity.ObservableGuilties.Remove(g),
-				CanRemoveGuilty
+				g => CanRemoveGuilty
 			);
+			RemoveGuiltyCommand.CanExecuteChangedWith(this, x => x.CanRemoveGuilty);
 		}
 
 		#endregion RemoveGuiltyCommand

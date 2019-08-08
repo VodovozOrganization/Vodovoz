@@ -16,6 +16,7 @@ using QS.DomainModel.Config;
 using QS.Project.Journal;
 using Vodovoz.ViewModels.Employees;
 using QS.DomainModel.Entity;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -27,6 +28,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 		private readonly IEntitySelectorFactory subdivisionSelectorFactory;
 		private readonly IEntityConfigurationProvider entityConfigurationProvider;
+		private readonly ISubdivisionRepository subdivisionRepository;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityAutocompleteSelectorFactory OrderSelectorFactory { get; }
@@ -40,12 +42,14 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
 			IEntitySelectorFactory subdivisionSelectorFactory,
-			IEntityConfigurationProvider entityConfigurationProvider
+			IEntityConfigurationProvider entityConfigurationProvider,
+			ISubdivisionRepository subdivisionRepository
 			) : base(ctorParam, commonServices)
 		{
 			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			this.subdivisionSelectorFactory = subdivisionSelectorFactory ?? throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
+			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
@@ -58,7 +62,17 @@ namespace Vodovoz.ViewModels.Complaints
 				AbortOpening("Невозможно создать новую жалобу из текущего диалога, необходимо использовать диалоги создания");
 			}
 
+			ConfigureEntityChangingRelations();
+
 			CreateCommands();
+		}
+
+		protected void ConfigureEntityChangingRelations()
+		{
+			SetPropertyChangeRelation(e => e.ComplaintType,
+				() => IsInnerComplaint,
+				() => IsClientComplaint
+			);
 		}
 
 		void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)
@@ -75,9 +89,20 @@ namespace Vodovoz.ViewModels.Complaints
 		public ComplaintDiscussionsViewModel DiscussionsViewModel {
 			get {
 				if(discussionsViewModel == null) {
-					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, UoW, CommonServices, subdivisionSelectorFactory);
+					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, this, UoW, CommonServices, subdivisionSelectorFactory);
 				}
 				return discussionsViewModel;
+			}
+		}
+
+		private GuiltyItemsViewModel guiltyItemsViewModel;
+		public GuiltyItemsViewModel GuiltyItemsViewModel {
+			get {
+				if(guiltyItemsViewModel == null) {
+					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, subdivisionRepository);
+				}
+
+				return guiltyItemsViewModel;
 			}
 		}
 
@@ -111,6 +136,10 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).ToList();
+
+		public bool IsInnerComplaint => Entity.ComplaintType == ComplaintType.Inner;
+
+		public bool IsClientComplaint => Entity.ComplaintType == ComplaintType.Client;
 
 		[PropertyChangedAlso(nameof(CanAddFine), nameof(CanAttachFine))]
 		public bool CanEdit => PermissionResult.CanUpdate;

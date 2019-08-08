@@ -50,8 +50,7 @@ namespace Vodovoz.Views.Complaints
 
 			btnRemoveGuilty.Clicked += (sender, e) => ViewModel.RemoveGuiltyCommand.Execute(GetSelectedGuilty());
 			btnRemoveGuilty.Binding.AddBinding(ViewModel, vm => vm.CanAddGuilty, w => w.Visible).InitializeFromSource();
-			//btnRemoveGuilty.Binding.AddFuncBinding(ViewModel, vm => vm.RemoveGuiltyCommand.CanExecute(GetSelectedGuilty()), w => w.Sensitive).InitializeFromSource();
-			ViewModel.RemoveGuiltyCommand.CanExecuteChanged += (sender, e) => btnRemoveGuilty.Sensitive = ViewModel.CanRemoveGuilty(GetSelectedGuilty());
+			btnRemoveGuilty.Binding.AddBinding(ViewModel, vm => vm.CanRemoveGuilty, w => w.Sensitive).InitializeFromSource();
 
 			treeViewGuilty.ColumnsConfig = FluentColumnsConfig<ComplaintGuiltyItem>.Create()
 				.AddColumn("Сторона")
@@ -63,6 +62,7 @@ namespace Vodovoz.Views.Complaints
 				.Finish();
 			treeViewGuilty.HeadersVisible = false;
 			treeViewGuilty.Binding.AddBinding(ViewModel.Entity, s => s.ObservableGuilties, w => w.ItemsDataSource).InitializeFromSource();
+			treeViewGuilty.Selection.Changed += (sender, e) => ViewModel.CanRemoveGuilty = GetSelectedGuilty() != null;
 		}
 
 		void CreateGuiltyWidget(ref GuiltyItemView wGuiltyItem)

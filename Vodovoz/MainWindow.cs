@@ -54,6 +54,7 @@ using Vodovoz.FilterViewModels.Employees;
 using QS.Project.Journal;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -672,8 +673,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		IEntitySelectorFactory employeeSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Employee), () => new EmployeesVM());
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 		IEntityAutocompleteSelectorFactory ordersSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order, OrderJournalViewModel, OrderJournalFilterViewModel>(ServicesConfig.CommonServices);
-		IEntitySelectorFactory subdivisionSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Subdivision), () => new SubdivisionsVM());
-
+		IEntitySelectorFactory subdivisionSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Subdivision), () => new SubdivisionsVM() { WithLeveling = false });
+		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		/*FineFilterViewModel fineFilter = new FineFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
 		IEntityAutocompleteSelectorFactory finesSelectorFactory = new EntityAutocompleteSelectorFactory(typeof(Fine),
 			() => new FineJournalViewModel(
@@ -697,7 +698,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				employeeSelectorFactory,
 				counterpartySelectorFactory,
 				ordersSelectorFactory,
-				subdivisionSelectorFactory
+				subdivisionSelectorFactory,
+				subdivisionRepository
 			);
 		});
 	}

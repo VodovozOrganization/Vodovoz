@@ -14,7 +14,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public GuiltyItemViewModel(ComplaintGuiltyItem entity, ICommonServices commonServices, ISubdivisionRepository subdivisionRepository) : base(entity, commonServices)
 		{
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			//UpdateAcessibility();
 			ConfigureEntityPropertyChanges();
 		}
 

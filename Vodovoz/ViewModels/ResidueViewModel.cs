@@ -57,9 +57,7 @@ namespace Vodovoz.ViewModels
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateResidue();
-			GuiltyItemsVM = new GuiltyItemsViewModel(new Complaint(), commonServices, new SubdivisionRepository()) {
-				UoW = UoW
-			};
+			GuiltyItemsVM = new GuiltyItemsViewModel(new Complaint(), UoW, commonServices, new SubdivisionRepository());
 		}
 
 		public GuiltyItemsViewModel GuiltyItemsVM { get; set; }

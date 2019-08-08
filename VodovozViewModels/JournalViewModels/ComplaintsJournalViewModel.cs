@@ -18,6 +18,9 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Order = Vodovoz.Domain.Orders.Order;
+using NHibernate.Dialect.Function;
+using NHibernate.Transform;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -31,6 +34,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory orderSelectorFactory;
 		private readonly IEntitySelectorFactory subdivisionSelectorFactory;
+		private readonly ISubdivisionRepository subdivisionRepository;
 
 		#region implemrntation of IComplaintsInfoProvider
 
@@ -52,7 +56,8 @@ namespace Vodovoz.JournalViewModels
 			IEntitySelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
-			IEntitySelectorFactory subdivisionSelectorFactory
+			IEntitySelectorFactory subdivisionSelectorFactory,
+			ISubdivisionRepository subdivisionRepository
 		) : base(entityConfigurationProvider, commonServices)
 		{
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
@@ -63,7 +68,7 @@ namespace Vodovoz.JournalViewModels
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			this.subdivisionSelectorFactory = subdivisionSelectorFactory ?? throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
-
+			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			TabName = "Журнал жалоб";
 
 			RegisterComplaints();
@@ -218,7 +223,8 @@ namespace Vodovoz.JournalViewModels
 						counterpartySelectorFactory,
 						orderSelectorFactory,
 						subdivisionSelectorFactory,
-						entityConfigurationProvider
+						entityConfigurationProvider,
+						subdivisionRepository
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {
@@ -239,7 +245,8 @@ namespace Vodovoz.JournalViewModels
 						counterpartySelectorFactory,
 						orderSelectorFactory,
 						subdivisionSelectorFactory,
-						entityConfigurationProvider
+						entityConfigurationProvider,
+						subdivisionRepository
 					),
 					//функция идентификации документа 
 					(ComplaintJournalNode node) => {

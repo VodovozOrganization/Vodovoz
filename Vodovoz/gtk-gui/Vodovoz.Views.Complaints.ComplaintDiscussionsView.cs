@@ -6,6 +6,8 @@ namespace Vodovoz.Views.Complaints
 	{
 		private global::Gtk.VBox vboxWidget;
 
+		private global::Gtk.ScrolledWindow scrolledwindow1;
+
 		private global::Gtk.VBox vboxSubdivisionItems;
 
 		private global::Gtk.HBox hboxButtons;
@@ -23,12 +25,23 @@ namespace Vodovoz.Views.Complaints
 			this.vboxWidget.Name = "vboxWidget";
 			this.vboxWidget.Spacing = 6;
 			// Container child vboxWidget.Gtk.Box+BoxChild
+			this.scrolledwindow1 = new global::Gtk.ScrolledWindow();
+			this.scrolledwindow1.CanFocus = true;
+			this.scrolledwindow1.Name = "scrolledwindow1";
+			this.scrolledwindow1.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.scrolledwindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledwindow1.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w1 = new global::Gtk.Viewport();
+			w1.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport.Gtk.Container+ContainerChild
 			this.vboxSubdivisionItems = new global::Gtk.VBox();
 			this.vboxSubdivisionItems.Name = "vboxSubdivisionItems";
 			this.vboxSubdivisionItems.Spacing = 6;
-			this.vboxWidget.Add(this.vboxSubdivisionItems);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.vboxSubdivisionItems]));
-			w1.Position = 0;
+			w1.Add(this.vboxSubdivisionItems);
+			this.scrolledwindow1.Add(w1);
+			this.vboxWidget.Add(this.scrolledwindow1);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.scrolledwindow1]));
+			w4.Position = 0;
 			// Container child vboxWidget.Gtk.Box+BoxChild
 			this.hboxButtons = new global::Gtk.HBox();
 			this.hboxButtons.Name = "hboxButtons";
@@ -39,20 +52,20 @@ namespace Vodovoz.Views.Complaints
 			this.ybuttonAttachSubdivision.Name = "ybuttonAttachSubdivision";
 			this.ybuttonAttachSubdivision.UseUnderline = true;
 			this.ybuttonAttachSubdivision.Label = global::Mono.Unix.Catalog.GetString("Подключить отдел");
-			global::Gtk.Image w2 = new global::Gtk.Image();
-			w2.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.ybuttonAttachSubdivision.Image = w2;
+			global::Gtk.Image w5 = new global::Gtk.Image();
+			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.ybuttonAttachSubdivision.Image = w5;
 			this.hboxButtons.Add(this.ybuttonAttachSubdivision);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonAttachSubdivision]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonAttachSubdivision]));
+			w6.Position = 2;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.vboxWidget.Add(this.hboxButtons);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxButtons]));
-			w4.PackType = ((global::Gtk.PackType)(1));
-			w4.Position = 1;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxButtons]));
+			w7.PackType = ((global::Gtk.PackType)(1));
+			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{

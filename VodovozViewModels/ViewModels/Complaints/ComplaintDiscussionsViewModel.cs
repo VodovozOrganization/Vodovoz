@@ -8,15 +8,18 @@ using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using QS.Project.Journal.EntitySelector;
 using System.Linq;
+using QS.Tdi;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>
 	{
+		private readonly ITdiTab dialogTab;
 		private readonly IEntitySelectorFactory subdivisionSelectorFactory;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity, 
+			ITdiTab dialogTab,
 			IUnitOfWork uow, 
 			ICommonServices commonServices,
 			IEntitySelectorFactory subdivisionSelectorFactory
@@ -26,6 +29,7 @@ namespace Vodovoz.ViewModels.Complaints
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			FillDiscussionsViewModels();
+			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
 			this.subdivisionSelectorFactory = subdivisionSelectorFactory ?? throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
 		}
 
@@ -35,10 +39,16 @@ namespace Vodovoz.ViewModels.Complaints
 
 		private void ConfigureEntityPropertyChanges()
 		{
-			Entity.ObservableComplaintDiscussions.ListChanged += ObservableComplaintDiscussions_ListChanged;
+			Entity.ObservableComplaintDiscussions.ElementAdded += ObservableComplaintDiscussions_ElementAdded;
+			Entity.ObservableComplaintDiscussions.ElementRemoved += ObservableComplaintDiscussions_ElementRemoved;
 		}
 
-		void ObservableComplaintDiscussions_ListChanged(object aList)
+		void ObservableComplaintDiscussions_ElementAdded(object aList, int[] aIdx)
+		{
+			FillDiscussionsViewModels();
+		}
+
+		void ObservableComplaintDiscussions_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			FillDiscussionsViewModels();
 		}
@@ -98,6 +108,7 @@ namespace Vodovoz.ViewModels.Complaints
 						Subdivision subdivision = UoW.GetById<Subdivision>(selectedNode.Id);
 						Entity.AttachSubdivisionToDiscussions(subdivision);
 					};
+					dialogTab.TabParent.AddSlaveTab(dialogTab, subdivisionSelector);
 				},
 				() => CanAttachSubdivision
 			);

@@ -21,10 +21,22 @@ namespace Vodovoz.Views.Complaints
 			ybuttonAttachSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanAttachSubdivision, w => w.Sensitive).InitializeFromSource();
 			ybuttonAttachSubdivision.Clicked += (sender, e) => ViewModel.AttachSubdivisionCommand.Execute();
 
-			ViewModel.ObservableComplaintDiscussionViewModels.ListChanged += (aList) => GenerateDiscussionViews();
+			ViewModel.ObservableComplaintDiscussionViewModels.ElementAdded += ObservableComplaintDiscussionViewModels_ElementAdded;
+			ViewModel.ObservableComplaintDiscussionViewModels.ElementRemoved += ObservableComplaintDiscussionViewModels_ElementRemoved;
 
 			GenerateDiscussionViews();
 		}
+
+		void ObservableComplaintDiscussionViewModels_ElementAdded(object aList, int[] aIdx)
+		{
+			GenerateDiscussionViews();
+		}
+
+		void ObservableComplaintDiscussionViewModels_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			GenerateDiscussionViews();
+		}
+
 
 		private void GenerateDiscussionViews()
 		{
@@ -36,6 +48,9 @@ namespace Vodovoz.Views.Complaints
 			foreach(ComplaintDiscussionViewModel vm in ViewModel.ObservableComplaintDiscussionViewModels) {
 				var view = new ComplaintDiscussionView(vm);
 				complaintDiscussionViewsBox.Add(view);
+				Box.BoxChild viewBox = (Box.BoxChild)complaintDiscussionViewsBox[view];
+				viewBox.Fill = false;
+				viewBox.Expand = false;
 			}
 
 			vboxSubdivisionItems.Add(complaintDiscussionViewsBox);
