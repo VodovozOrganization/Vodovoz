@@ -682,6 +682,7 @@
     <Compile Include="Domain\Complaints\ComplaintType.cs" />
     <Compile Include="EntityRepositories\Complaints\ComplaintsRepository.cs" />
     <Compile Include="EntityRepositories\Complaints\IComplaintsRepository.cs" />
+    <Compile Include="Services\ISubdivisionService.cs" />
     <Compile Include="EntityRepositories\Employee\EmployeeRepository.cs" />
     <Compile Include="EntityRepositories\Employee\IEmployeeRepository.cs" />
   </ItemGroup>
