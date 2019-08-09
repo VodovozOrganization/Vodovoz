@@ -34,6 +34,13 @@ namespace Vodovoz
 			set => SetField(ref name, value, () => Name);
 		}
 
+		private string shortName;
+		[Display(Name = "Сокращенное наименование")]
+		public virtual string ShortName {
+			get => shortName;
+			set => SetField(ref shortName, value, () => ShortName);
+		}
+
 		private Employee chief;
 
 		[Display(Name = "Начальник подразделения")]
@@ -142,6 +149,29 @@ namespace Vodovoz
 			}
 		}
 
+		public virtual void SetChildsGeographicGroup(GeographicGroup geographicGroup)
+		{
+			if(ParentSubdivision != null || ChildSubdivisions.Any())
+				foreach(var s in ChildSubdivisions) {
+					s.GeographicGroup = GeographicGroup;
+				}
+		}
+
+		public virtual void AddDocumentType(TypeOfEntity typeOfEntity)
+		{
+			if(ObservableDocumentTypes.Contains(typeOfEntity)) {
+				return;
+			}
+			ObservableDocumentTypes.Add(typeOfEntity);
+		}
+
+		public virtual void DeleteDocumentType(TypeOfEntity typeOfEntity)
+		{
+			if(ObservableDocumentTypes.Contains(typeOfEntity)) {
+				ObservableDocumentTypes.Remove(typeOfEntity);
+			}
+		}
+
 		#endregion
 
 		public Subdivision() { }
@@ -159,6 +189,9 @@ namespace Vodovoz
 					"Нельзя указывать 'Дочернее подразделение' в качестве родительского.",
 					new[] { this.GetPropertyName(o => o.ParentSubdivision) }
 				);
+			if(ShortName.Length > 20) {
+				yield return new ValidationResult("Сокращенное наименование не может превышать 20 символов");
+			}
 		}
 
 		#endregion

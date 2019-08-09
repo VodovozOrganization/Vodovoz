@@ -31,32 +31,23 @@ namespace Vodovoz.ViewModels.Complaints
 			);
 		}
 
-		//FIXME переделать репозиторий на зависимость
-		public bool CanCompleteDiscussion => UserPermissionRepository.CurrentUserPresetPermissions["can_complete_complaint_discussion"];
+
 
 		[PropertyChangedAlso(nameof(CanEditDate), nameof(CanEditStatus))]
 		public bool CanEdit => PermissionResult.CanUpdate;
 
 		public bool CanEditDate => CanEdit && CanCompleteDiscussion;
 
+		public string SubdivisionShortName => string.IsNullOrWhiteSpace(Entity.Subdivision.ShortName) ? "?" : Entity.Subdivision.ShortName;
+
 		#region Status
 
 		public virtual ComplaintStatuses[] HiddenStatuses => new[] { ComplaintStatuses.Closed };
 
-		public bool CanEditStatus => CanEdit && CanCompleteDiscussion && Entity.Status != ComplaintStatuses.Closed;
+		public bool CanEditStatus => CanEdit && Entity.Status != ComplaintStatuses.Closed || (CanEdit && UserPermissionRepository.CurrentUserPresetPermissions["can_complete_complaint_discussion"]);
 
-		private IEnumerable<ComplaintStatuses> availableStatuses;
-		public IEnumerable<ComplaintStatuses> AvailableStatuses {
-			get {
-				if(availableStatuses == null) {
-					if(!CanCompleteDiscussion) {
-						availableStatuses = new[] { ComplaintStatuses.InProcess, ComplaintStatuses.Checking };
-					}
-					availableStatuses = Enum.GetValues(typeof(ComplaintStatuses)).Cast<ComplaintStatuses>();
-				}
-				return availableStatuses;
-			}
-		}
+		//FIXME переделать репозиторий на зависимость
+		public bool CanCompleteDiscussion => CanEditStatus && UserPermissionRepository.CurrentUserPresetPermissions["can_complete_complaint_discussion"];
 
 		#endregion Status
 
@@ -129,7 +120,7 @@ namespace Vodovoz.ViewModels.Complaints
 		#region AddCommentCommand
 
 		[PropertyChangedAlso(nameof(CanAddFiles))]
-		public bool CanAddComment => string.IsNullOrWhiteSpace(NewCommentText);
+		public bool CanAddComment => !string.IsNullOrWhiteSpace(NewCommentText);
 
 		public DelegateCommand AddCommentCommand { get; private set; }
 
@@ -142,6 +133,7 @@ namespace Vodovoz.ViewModels.Complaints
 					foreach(ComplaintFile file in newCommentFiles) {
 						newComment.ObservableFiles.Add(file);
 					}
+					newComment.ComplaintDiscussion = Entity;
 					Entity.ObservableComments.Add(newComment);
 					NewCommentText = string.Empty;
 					NewCommentFiles.Clear();

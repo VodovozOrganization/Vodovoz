@@ -11,8 +11,9 @@ using QS.Project.Journal;
 using Vodovoz.Domain;
 using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
-using System.Data.Bindings;
 using QS.Project.Journal.EntitySelector;
+using Gamma.Utilities;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModels.Employees
 {
@@ -38,6 +39,7 @@ namespace Vodovoz.ViewModels.Employees
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
+			UpdateEmployeeList();
 		}
 
 		private void ConfigureEntityPropertyChanges()
@@ -72,6 +74,22 @@ namespace Vodovoz.ViewModels.Employees
 			}
 		}
 
+		public virtual FineTypes FineType {
+			get { return Entity.FineType; }
+			set {
+				Entity.FineType = value;
+				UpdateEmployeeList();
+			}
+		}
+
+		public virtual RouteList RouteList {
+			get { return Entity.RouteList; }
+			set {
+				Entity.RouteList = value;
+				UpdateEmployeeList();
+			}
+		}
+
 		public bool CanEdit => PermissionResult.CanUpdate;
 
 		[PropertyChangedAlso(nameof(CanShowRequestRouteListMessage))]
@@ -81,16 +99,36 @@ namespace Vodovoz.ViewModels.Employees
 
 		public bool CanShowRequestRouteListMessage => IsFuelOverspendingFine && Entity.RouteList == null;
 
-		public bool CanEditFineType => CanEdit && !Entity.ObservableItems.Any();
+		public bool CanEditFineType => CanEdit;
 
 		private void SetDefaultReason()
 		{
 			Entity.FineReasonString = Entity.FineType.GetEnumTitle();
 		}
 
-		private void UpdateItems()
+		private void UpdateEmployeeList()
 		{
+			if(Entity.RouteList != null) {
+				ClearItems(Entity.RouteList.Driver);
+			} else {
+				ClearItems();
+			}
+		}
 
+		private void ClearItems(Employee driver = null)
+		{
+			FineItem item = null;
+			if(driver != null) {
+				item = Entity.ObservableItems.Where(x => x.Employee == driver).FirstOrDefault();
+			}
+			Entity.ObservableItems.Clear();
+			if(driver != null) {
+				if(item != null) {
+					Entity.ObservableItems.Add(item);
+				} else {
+					Entity.AddItem(driver);
+				}
+			}
 		}
 
 		protected override void BeforeSave()
@@ -113,6 +151,10 @@ namespace Vodovoz.ViewModels.Employees
 		private void CreateCommands()
 		{
 			CreateAttachFineCommand();
+			CreateAddFineItemCommand();
+			CreateDivideByAllCommand();
+			CreateSelectReasonTemplateCommand();
+			CreateDeleteFineItemCommand();
 		}
 
 		#region AttachFineCommand
@@ -194,8 +236,10 @@ namespace Vodovoz.ViewModels.Employees
 					};
 					TabParent.AddSlaveTab(this, employeeSelector);
 				},
-				() => true
+				() => Entity.RouteList == null && IsStandartFine
 			);
+			AddFineItemCommand.CanExecuteChangedWith(Entity, x => x.RouteList);
+			AddFineItemCommand.CanExecuteChangedWith(this, x => x.IsStandartFine, x => x.CanEdit);
 		}
 
 		#endregion AddFineItemCommand
@@ -208,8 +252,10 @@ namespace Vodovoz.ViewModels.Employees
 		{
 			DeleteFineItemCommand = new DelegateCommand<FineItem>(
 				Entity.RemoveItem,
-				(item) => item != null && CanEdit && IsStandartFine
+				(item) => item != null && CanEdit && IsStandartFine && Entity.RouteList == null
 			);
+			DeleteFineItemCommand.CanExecuteChangedWith(Entity, x => x.RouteList);
+			DeleteFineItemCommand.CanExecuteChangedWith(this, x => x.IsStandartFine, x => x.CanEdit);
 		}
 
 		#endregion DeleteFineItemCommand

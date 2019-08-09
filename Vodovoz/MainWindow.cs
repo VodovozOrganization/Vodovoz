@@ -55,6 +55,7 @@ using QS.Project.Journal;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.JournalViewModels.Organization;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -673,21 +674,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		IEntitySelectorFactory employeeSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Employee), () => new EmployeesVM());
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 		IEntityAutocompleteSelectorFactory ordersSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order, OrderJournalViewModel, OrderJournalFilterViewModel>(ServicesConfig.CommonServices);
-		IEntitySelectorFactory subdivisionSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Subdivision), () => new SubdivisionsVM() { WithLeveling = false });
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-		/*FineFilterViewModel fineFilter = new FineFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
-		IEntityAutocompleteSelectorFactory finesSelectorFactory = new EntityAutocompleteSelectorFactory(typeof(Fine),
-			() => new FineJournalViewModel(
-				fineFilter,
-				undeliveriesViewOpener,
-				ServicesConfig.EmployeeService,
-				employeeSelectorFactory,
-				entityConfigurationProvider,
-				ServicesConfig.CommonServices
-			)
-		);*/
-
-		//ComplaintsJournalViewModel complaintsJournalViewModel = ;
 
 		tdiMain.OpenTab(() => {
 			return new ComplaintsJournalViewModel(
@@ -698,7 +685,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				employeeSelectorFactory,
 				counterpartySelectorFactory,
 				ordersSelectorFactory,
-				subdivisionSelectorFactory,
 				subdivisionRepository
 			);
 		});

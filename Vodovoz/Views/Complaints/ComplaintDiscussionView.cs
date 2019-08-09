@@ -25,15 +25,13 @@ namespace Vodovoz.Views.Complaints
 
 			ViewModel.PropertyChanged += (sender, e) => { 
 				if(e.PropertyName == nameof(ViewModel.CanEditStatus)) {
-					yenumcomboStatus.ClearEnumHideList();
-					if(!ViewModel.CanEditStatus) {
-						yenumcomboStatus.AddEnumToHideList(ViewModel.HiddenStatuses.Cast<object>().ToArray());
-					}
+					UpdateStatusEnum();
 				}
 			};
 			yenumcomboStatus.ItemsEnum = typeof(ComplaintStatuses);
 			yenumcomboStatus.Binding.AddBinding(ViewModel.Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.CanEditStatus, w => w.Sensitive).InitializeFromSource();
+			UpdateStatusEnum();
 
 			ytreeviewComments.ColumnsConfig = FluentColumnsConfig<object>.Create()
 				.AddColumn("Комментарий").AddTextRenderer(x => GetNodeName(x))
@@ -55,6 +53,15 @@ namespace Vodovoz.Views.Complaints
 
 			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
 			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
+		}
+
+		private void UpdateStatusEnum()
+		{
+			yenumcomboStatus.ClearEnumHideList();
+			if(!ViewModel.CanCompleteDiscussion) {
+				yenumcomboStatus.AddEnumToHideList(ViewModel.HiddenStatuses.Cast<object>().ToArray());
+			}
+			yenumcomboStatus.SelectedItem = ViewModel.Entity.Status;
 		}
 
 		void YtreeviewComments_RowActivated(object o, Gtk.RowActivatedArgs args)

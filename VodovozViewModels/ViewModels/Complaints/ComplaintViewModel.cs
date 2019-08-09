@@ -26,7 +26,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
-		private readonly IEntitySelectorFactory subdivisionSelectorFactory;
 		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 		private readonly ISubdivisionRepository subdivisionRepository;
 
@@ -41,13 +40,11 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntitySelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
-			IEntitySelectorFactory subdivisionSelectorFactory,
 			IEntityConfigurationProvider entityConfigurationProvider,
 			ISubdivisionRepository subdivisionRepository
 			) : base(ctorParam, commonServices)
 		{
 			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
-			this.subdivisionSelectorFactory = subdivisionSelectorFactory ?? throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
@@ -65,6 +62,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ConfigureEntityChangingRelations();
 
 			CreateCommands();
+			TabName = $"Жалоба №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
 		}
 
 		protected void ConfigureEntityChangingRelations()
@@ -73,11 +71,16 @@ namespace Vodovoz.ViewModels.Complaints
 				() => IsInnerComplaint,
 				() => IsClientComplaint
 			);
+
+			SetPropertyChangeRelation(e => e.Status,
+				() => Status
+			);
 		}
 
 		void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)
 		{
 			OnPropertyChanged(() => SubdivisionsInWork);
+			Entity.UpdateComplaintStatus();
 		}
 
 		void ObservableFines_ListContentChanged(object sender, EventArgs e)
@@ -85,11 +88,19 @@ namespace Vodovoz.ViewModels.Complaints
 			OnPropertyChanged(() => FineItems);
 		}
 
+		public virtual ComplaintStatuses Status {
+			get => Entity.Status;
+			set {
+				Entity.Status = value;
+				Entity.ActualCompletionDate = DateTime.Now;
+			}
+		}
+
 		private ComplaintDiscussionsViewModel discussionsViewModel;
 		public ComplaintDiscussionsViewModel DiscussionsViewModel {
 			get {
 				if(discussionsViewModel == null) {
-					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, this, UoW, CommonServices, subdivisionSelectorFactory);
+					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, this, UoW, entityConfigurationProvider, CommonServices);
 				}
 				return discussionsViewModel;
 			}
@@ -108,9 +119,18 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public string SubdivisionsInWork {
 			get {
-				string inWork = string.Join(", ", Entity.ComplaintDiscussions.Where(x => x.Status == ComplaintStatuses.InProcess).Select(x => x.Subdivision.Name));
-				string okk = Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.InProcess) ? "OKK" : null;
-				string result = string.Join(", ", inWork, okk);
+				string inWork = string.Join(", ", Entity.ComplaintDiscussions.Where(x => x.Status == ComplaintStatuses.InProcess).Select(x => x.Subdivision.ShortName));
+				string okk = Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.Checking) ? "OKK" : null;
+				string result;
+				if(!string.IsNullOrWhiteSpace(inWork) && !string.IsNullOrWhiteSpace(okk)) {
+					result = string.Join(", ", inWork, okk);
+				} else if(!string.IsNullOrWhiteSpace(inWork)) {
+					result = inWork;
+				} else if(!string.IsNullOrWhiteSpace(okk)) {
+					result = okk;
+				} else {
+					return "";
+				}
 				return $"В работе у: {result}";
 			}
 		}
@@ -166,7 +186,7 @@ namespace Vodovoz.ViewModels.Complaints
 				() => {
 					var fineFilter = new FineFilterViewModel(commonServices.InteractiveService);
 					fineFilter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
-					var fineJournalViewModel = new FineJournalViewModel(
+					var fineJournalViewModel = new FinesJournalViewModel(
 						fineFilter,
 						undeliveryViewOpener,
 						employeeService,

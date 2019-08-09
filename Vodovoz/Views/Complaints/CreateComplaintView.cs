@@ -23,7 +23,7 @@ namespace Vodovoz.Views.Complaints
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryOrder.SetEntityAutocompleteSelectorFactory(ViewModel.OrderSelectorFactory);
+			entryOrder.SetEntitySelectorFactory(ViewModel.OrderSelectorFactory);
 			entryOrder.Binding.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			entryOrder.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
@@ -37,6 +37,8 @@ namespace Vodovoz.Views.Complaints
 
 			ytextviewComplaintText.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComplaintText.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+
+			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };

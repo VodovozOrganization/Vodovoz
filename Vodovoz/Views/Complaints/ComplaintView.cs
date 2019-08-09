@@ -29,7 +29,7 @@ namespace Vodovoz.Views.Complaints
 			labelName.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
 			yenumcomboStatus.ItemsEnum = typeof(ComplaintStatuses);
-			yenumcomboStatus.Binding.AddBinding(ViewModel.Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboStatus.Binding.AddBinding(ViewModel, e => e.Status, w => w.SelectedItem).InitializeFromSource();
 			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date).InitializeFromSource();

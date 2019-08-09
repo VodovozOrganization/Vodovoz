@@ -359,7 +359,7 @@ namespace Vodovoz.Views.Complaints
 			this.ydatepickerPlannedCompletionDate.Name = "ydatepickerPlannedCompletionDate";
 			this.ydatepickerPlannedCompletionDate.WithTime = false;
 			this.ydatepickerPlannedCompletionDate.Date = new global::System.DateTime(0);
-			this.ydatepickerPlannedCompletionDate.IsEditable = false;
+			this.ydatepickerPlannedCompletionDate.IsEditable = true;
 			this.ydatepickerPlannedCompletionDate.AutoSeparation = false;
 			this.tableFields.Add(this.ydatepickerPlannedCompletionDate);
 			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.tableFields[this.ydatepickerPlannedCompletionDate]));

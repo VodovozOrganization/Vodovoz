@@ -216,9 +216,22 @@ namespace Vodovoz.Domain.Complaints
 			}
 
 			ComplaintDiscussion newDiscussion = new ComplaintDiscussion();
+			newDiscussion.PlannedCompletionDate = DateTime.Today;
 			newDiscussion.Complaint = this;
 			newDiscussion.Subdivision = subdivision;
 			ObservableComplaintDiscussions.Add(newDiscussion);
+		}
+
+		public virtual void UpdateComplaintStatus()
+		{
+			if(Status == ComplaintStatuses.Closed) {
+				return;
+			}
+			if(ObservableComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.Checking)) {
+				Status = ComplaintStatuses.Checking;
+			} else {
+				Status = ComplaintStatuses.InProcess;
+			}
 		}
 
 		public virtual string Title => string.Format("Жалоба №{0}", Id);

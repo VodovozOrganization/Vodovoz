@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Data.Bindings;
+using Gamma.Utilities;
 using QS.Project.Journal;
 using Vodovoz.Domain.Complaints;
 
@@ -10,6 +10,8 @@ namespace Vodovoz.JournalNodes
 		protected ComplaintJournalNode() : base(typeof(Complaint))
 		{
 		}
+
+		public override string Title => $"{TypeString} №{Id} от {DateString}";
 
 		public ComplaintType Type { get; set; }
 		public string TypeString {

@@ -14,8 +14,6 @@ namespace Vodovoz.Views.Complaints
 			ConfigureDlg();
 		}
 
-		private VBox complaintDiscussionViewsBox;
-
 		private void ConfigureDlg()
 		{
 			ybuttonAttachSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanAttachSubdivision, w => w.Sensitive).InitializeFromSource();
@@ -37,23 +35,66 @@ namespace Vodovoz.Views.Complaints
 			GenerateDiscussionViews();
 		}
 
+		Notebook notebookDiscussions;
+
+		private string GetTabName(ComplaintDiscussionViewModel discussionVM)
+		{
+			string tabColor;
+			switch(discussionVM.Entity.Status) {
+				case Domain.Complaints.ComplaintStatuses.Checking:
+					tabColor = "green";
+					break;
+				case Domain.Complaints.ComplaintStatuses.Closed:
+					tabColor = "black";
+					break;
+				default:
+					tabColor = "red";
+					break;
+			}
+			return $"<span foreground = '{tabColor}'><b>{discussionVM.SubdivisionShortName}</b></span>";
+		}
 
 		private void GenerateDiscussionViews()
 		{
-			if(complaintDiscussionViewsBox != null) {
-				complaintDiscussionViewsBox.Destroy();
+			if(notebookDiscussions != null) {
+				notebookDiscussions.Destroy();
 			}
-			complaintDiscussionViewsBox = new VBox();
+			notebookDiscussions = new Notebook();
 
 			foreach(ComplaintDiscussionViewModel vm in ViewModel.ObservableComplaintDiscussionViewModels) {
 				var view = new ComplaintDiscussionView(vm);
+				VBox complaintDiscussionViewsBox = new VBox();
 				complaintDiscussionViewsBox.Add(view);
 				Box.BoxChild viewBox = (Box.BoxChild)complaintDiscussionViewsBox[view];
-				viewBox.Fill = false;
-				viewBox.Expand = false;
+				viewBox.Fill = true;
+				viewBox.Expand = true;
+				var scrolledWindow = new ScrolledWindow();
+				scrolledWindow.Add(complaintDiscussionViewsBox);
+
+				Label tabLabel = new Label() {
+					UseMarkup = true,
+					Markup = GetTabName(vm)
+				};
+
+				vm.Entity.PropertyChanged -= Vm_PropertyChanged;
+				vm.Entity.PropertyChanged += Vm_PropertyChanged;
+
+				void Vm_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+				{
+					if(e.PropertyName == nameof(vm.Entity.Status)) {
+						if(tabLabel == null) {
+							vm.Entity.PropertyChanged += Vm_PropertyChanged;
+							return;
+						}
+
+						tabLabel.Markup = GetTabName(vm);
+					}
+				}
+
+				notebookDiscussions.AppendPage(scrolledWindow, tabLabel);
 			}
 
-			vboxSubdivisionItems.Add(complaintDiscussionViewsBox);
+			vboxSubdivisionItems.Add(notebookDiscussions);
 			vboxSubdivisionItems.ShowAll();
 		}
 	}

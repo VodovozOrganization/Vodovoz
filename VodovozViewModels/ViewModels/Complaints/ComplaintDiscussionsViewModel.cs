@@ -9,20 +9,24 @@ using Vodovoz.Domain.Complaints;
 using QS.Project.Journal.EntitySelector;
 using System.Linq;
 using QS.Tdi;
+using Vodovoz.JournalViewModels.Organization;
+using QS.DomainModel.Config;
+using QS.Project.Journal;
+using Vodovoz.FilterViewModels.Organization;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>
 	{
 		private readonly ITdiTab dialogTab;
-		private readonly IEntitySelectorFactory subdivisionSelectorFactory;
+		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity, 
 			ITdiTab dialogTab,
-			IUnitOfWork uow, 
-			ICommonServices commonServices,
-			IEntitySelectorFactory subdivisionSelectorFactory
+			IUnitOfWork uow,
+			IEntityConfigurationProvider entityConfigurationProvider,
+			ICommonServices commonServices
 		) : base(entity, commonServices)
 		{
 			UoW = uow;
@@ -30,7 +34,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ConfigureEntityPropertyChanges();
 			FillDiscussionsViewModels();
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
-			this.subdivisionSelectorFactory = subdivisionSelectorFactory ?? throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
+			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;
@@ -99,7 +103,10 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			AttachSubdivisionCommand = new DelegateCommand(
 				() => {
-					var subdivisionSelector = subdivisionSelectorFactory.CreateSelector();
+					var filter = new SubdivisionFilterViewModel(CommonServices.InteractiveService);
+					filter.ExcludedSubdivisions = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
+					var subdivisionSelector = new SubdivisionsJournalViewModel(filter, entityConfigurationProvider, CommonServices);
+					subdivisionSelector.SelectionMode = JournalSelectionMode.Single;
 					subdivisionSelector.OnEntitySelectedResult += (sender, e) => {
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
 						if(selectedNode == null) {

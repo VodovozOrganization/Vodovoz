@@ -81,7 +81,7 @@ namespace Vodovoz.Views.Complaints
 			this.ydatepickerPlannedCompletionDate.Name = "ydatepickerPlannedCompletionDate";
 			this.ydatepickerPlannedCompletionDate.WithTime = false;
 			this.ydatepickerPlannedCompletionDate.Date = new global::System.DateTime(0);
-			this.ydatepickerPlannedCompletionDate.IsEditable = false;
+			this.ydatepickerPlannedCompletionDate.IsEditable = true;
 			this.ydatepickerPlannedCompletionDate.AutoSeparation = false;
 			this.hboxFields.Add(this.ydatepickerPlannedCompletionDate);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hboxFields[this.ydatepickerPlannedCompletionDate]));
@@ -139,6 +139,7 @@ namespace Vodovoz.Views.Complaints
 			w10.Position = 2;
 			// Container child vboxWidget.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1.HeightRequest = 70;
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
@@ -149,6 +150,8 @@ namespace Vodovoz.Views.Complaints
 			this.vboxWidget.Add(this.GtkScrolledWindow1);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.GtkScrolledWindow1]));
 			w12.Position = 3;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vboxWidget.Gtk.Box+BoxChild
 			this.hboxButtons = new global::Gtk.HBox();
 			this.hboxButtons.Name = "hboxButtons";

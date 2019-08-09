@@ -7,6 +7,8 @@ using QSProjectsLib;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Representations;
+using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.JournalViewModels.Employees;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -115,6 +117,26 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Результат").AddTextRenderer(node => node.ResultText).XAlign(0f)
 					.AddColumn("Дата факт.\nзавершения").AddTextRenderer(node => node.ActualCompletionDateString).XAlign(0.5f)
 					.AddColumn("Дни").AddTextRenderer(node => node.DaysInWork).XAlign(0.5f)
+					.Finish()
+			);
+
+			//SubdivisionsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<SubdivisionsJournalViewModel>(
+				() => FluentColumnsConfig<SubdivisionJournalNode>.Create()
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName)
+					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+					.Finish()
+			);
+
+			//SubdivisionsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<FinesJournalViewModel>(
+				() => FluentColumnsConfig<FineJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
+					.AddColumn("Сотудники").AddTextRenderer(node => node.EmployeesName)
+					.AddColumn("Сумма штрафа").AddTextRenderer(node => node.FineSumm.ToString())
+					.AddColumn("Причина штрафа").AddTextRenderer(node => node.FineReason)
 					.Finish()
 			);
 		}

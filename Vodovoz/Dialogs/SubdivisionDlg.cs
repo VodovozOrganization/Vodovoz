@@ -41,6 +41,7 @@ namespace Vodovoz
 		{
 			subdivisionentitypermissionwidget.ConfigureDlg(UoW, Entity);
 			yentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text).InitializeFromSource();
 			yentryrefParentSubdivision.SubjectType = typeof(Subdivision);
 			yentryrefParentSubdivision.Binding.AddBinding(Entity, e => e.ParentSubdivision, w => w.Subject).InitializeFromSource();
 			yentryreferenceChief.RepresentationModel = new EmployeesVM();

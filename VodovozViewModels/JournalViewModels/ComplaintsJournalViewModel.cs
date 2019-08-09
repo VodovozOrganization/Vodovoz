@@ -21,6 +21,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using Vodovoz.EntityRepositories.Subdivisions;
+using QS.DomainModel.NotifyChange;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -33,7 +34,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory orderSelectorFactory;
-		private readonly IEntitySelectorFactory subdivisionSelectorFactory;
 		private readonly ISubdivisionRepository subdivisionRepository;
 
 		#region implemrntation of IComplaintsInfoProvider
@@ -56,7 +56,6 @@ namespace Vodovoz.JournalViewModels
 			IEntitySelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
-			IEntitySelectorFactory subdivisionSelectorFactory,
 			ISubdivisionRepository subdivisionRepository
 		) : base(entityConfigurationProvider, commonServices)
 		{
@@ -67,7 +66,6 @@ namespace Vodovoz.JournalViewModels
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
-			this.subdivisionSelectorFactory = subdivisionSelectorFactory ?? throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			TabName = "Журнал жалоб";
 
@@ -113,13 +111,13 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			var subdivisionsProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"),
+				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
 				NHibernateUtil.String,
 				Projections.Property(() => subdivisionAlias.Name),
 				Projections.Constant("\n"));
 
 			var plannedCompletionDateProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DATE_FORMAT(?1, \"%d.%m.%Y\") SEPARATOR ?2)"),
+				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT DATE_FORMAT(?1, \"%d.%m.%Y\") SEPARATOR ?2)"),
 				NHibernateUtil.String,
 				Projections.Property(() => dicussionAlias.PlannedCompletionDate),
 				Projections.Constant("\n"));
@@ -139,7 +137,7 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			var guiltiesProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(" +
+				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT " +
 					"CASE ?1 " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Client)}' THEN 'Клиент' " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.None)}' THEN 'Нет' " +
@@ -155,7 +153,7 @@ namespace Vodovoz.JournalViewModels
 				Projections.Constant("\n"));
 
 			var finesProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(CONCAT(ROUND(?1, 2), ' р.')  SEPARATOR ?2)"),
+				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT CONCAT(ROUND(?1, 2), ' р.')  SEPARATOR ?2)"),
 				NHibernateUtil.String,
 				Projections.Property(() => fineAlias.TotalMoney),
 				Projections.Constant("\n"));
@@ -211,6 +209,7 @@ namespace Vodovoz.JournalViewModels
 						employeeService,
 						counterpartySelectorFactory,
 						orderSelectorFactory,
+						subdivisionRepository,
 						commonServices
 					),
 					//функция диалога открытия документа
@@ -222,7 +221,6 @@ namespace Vodovoz.JournalViewModels
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						orderSelectorFactory,
-						subdivisionSelectorFactory,
 						entityConfigurationProvider,
 						subdivisionRepository
 					),
@@ -230,11 +228,12 @@ namespace Vodovoz.JournalViewModels
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
-					"Клиентская жалоба"
+					"Клиентская жалоба",
+					true
 				)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new CreateInnerComplaintViewModel(EntityConstructorParam.ForCreate(), commonServices),
+					() => new CreateInnerComplaintViewModel(EntityConstructorParam.ForCreate(), employeeService, subdivisionRepository, commonServices),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
 						EntityConstructorParam.ForOpen(node.Id),
@@ -244,7 +243,6 @@ namespace Vodovoz.JournalViewModels
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						orderSelectorFactory,
-						subdivisionSelectorFactory,
 						entityConfigurationProvider,
 						subdivisionRepository
 					),
@@ -252,7 +250,8 @@ namespace Vodovoz.JournalViewModels
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
-					"Внутренняя жалоба"
+					"Внутренняя жалоба",
+					true
 				);
 
 			//завершение конфигурации

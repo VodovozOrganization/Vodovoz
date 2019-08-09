@@ -1256,6 +1256,10 @@
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.ComplaintPanelView.cs" />
     <Compile Include="Views\Complaints\ComplaintResultView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultView.cs" />
+    <Compile Include="Views\Organization\SubdivisionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Organization.SubdivisionView.cs" />
+    <Compile Include="Filters\GtkViews\SubdivisionFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.SubdivisionFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1478,6 +1482,7 @@
     <Folder Include="Dialogs\Phones\" />
     <Folder Include="Views\Complaints\" />
     <Folder Include="Views\Employees\" />
+    <Folder Include="Views\Organization\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

@@ -60,6 +60,10 @@ using QS.Banks.Domain;
 using System.IO;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.Views.Complaints;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.ViewModels.Organization;
+using Vodovoz.Views.Organization;
+using Vodovoz.FilterViewModels.Employees;
 
 namespace Vodovoz
 {
@@ -148,6 +152,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CreateInnerComplaintViewModel, CreateInnerComplaintView>()
 				.RegisterWidgetForTabViewModel<ComplaintSourceViewModel, ComplaintSourceView>()
 				.RegisterWidgetForTabViewModel<ComplaintResultViewModel, ComplaintResultView>()
+				.RegisterWidgetForTabViewModel<SubdivisionViewModel, SubdivisionView>()
+				.RegisterWidgetForTabViewModel<FineViewModel, FineView>()
 				;
 
 			//Регистрация фильтров
@@ -157,6 +163,8 @@ namespace Vodovoz
 				.RegisterWidgetForFilterViewModel<OrderJournalFilterViewModel, OrderFilterView>()
 				.RegisterWidgetForFilterViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
 				.RegisterWidgetForFilterViewModel<ResidueFilterViewModel, ResidueFilterView>()
+				.RegisterWidgetForFilterViewModel<FineFilterViewModel, FineFilterView>()
+				.RegisterWidgetForFilterViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
 				;
 
 			TDIMain.TDIWidgetResolver = ViewModelWidgetResolver.Instance;
