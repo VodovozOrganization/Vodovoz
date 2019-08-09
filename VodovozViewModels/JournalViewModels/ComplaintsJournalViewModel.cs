@@ -60,7 +60,7 @@ namespace Vodovoz.JournalViewModels
 			IEntitySelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
-			ISubdivisionRepository subdivisionRepository
+			ISubdivisionRepository subdivisionRepository,
 			IRouteListItemRepository routeListItemRepository
 		) : base(entityConfigurationProvider, commonServices)
 		{
