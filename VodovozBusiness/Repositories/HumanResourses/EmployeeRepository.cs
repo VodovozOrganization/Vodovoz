@@ -9,6 +9,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Repositories.HumanResources
 {
+	[Obsolete("Используйте одноимённый класс из EntityRepositories.Employee")]
 	public static class EmployeeRepository
 	{
 		public static Employee GetEmployeeForCurrentUser (IUnitOfWork uow)
