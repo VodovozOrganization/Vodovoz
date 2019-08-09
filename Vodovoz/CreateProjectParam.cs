@@ -64,6 +64,7 @@ using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.ViewModels.Organization;
 using Vodovoz.Views.Organization;
 using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.FilterViewModels;
 
 namespace Vodovoz
 {
@@ -158,6 +159,7 @@ namespace Vodovoz
 
 			//Регистрация фильтров
 			ViewModelWidgetResolver.Instance
+				.RegisterWidgetForFilterViewModel<ComplaintFilterViewModel, ComplaintFilterView>()
 				.RegisterWidgetForFilterViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
 				.RegisterWidgetForFilterViewModel<EmployeeFilterViewModel, EmployeeFilterView>()
 				.RegisterWidgetForFilterViewModel<OrderJournalFilterViewModel, OrderFilterView>()

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -22,10 +21,14 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.FilterViewModels;
+using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class ComplaintsJournalViewModel : MultipleEntityJournalViewModelBase<ComplaintJournalNode>, IComplaintsInfoProvider
+	public class ComplaintsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<ComplaintJournalNode, ComplaintFilterViewModel>, IComplaintsInfoProvider
 	{
 		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 		private readonly ICommonServices commonServices;
@@ -36,8 +39,9 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEntityAutocompleteSelectorFactory orderSelectorFactory;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		readonly IRouteListItemRepository routeListItemRepository;
-
-		#region implemrntation of IComplaintsInfoProvider
+		private readonly IEntitySelectorFactory subdivisionSelectorFactory;
+		private readonly ISubdivisionService subdivisionService;
+		private readonly IEmployeeRepository employeeRepository;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -46,9 +50,7 @@ namespace Vodovoz.JournalViewModels
 		public DateTime? EndDate => null;
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
-
-		#endregion implemrntation of IComplaintsInfoProvider
-
+		
 		public ComplaintsJournalViewModel(
 			IEntityConfigurationProvider entityConfigurationProvider,
 			ICommonServices commonServices,
@@ -58,8 +60,12 @@ namespace Vodovoz.JournalViewModels
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
-			IRouteListItemRepository routeListItemRepository
-		) : base(entityConfigurationProvider, commonServices)
+			IRouteListItemRepository routeListItemRepository,
+			IEntitySelectorFactory subdivisionSelectorFactory,
+			ISubdivisionService subdivisionService,
+			IEmployeeRepository employeeRepository,
+			ComplaintFilterViewModel filterViewModel
+		) : base(filterViewModel ,entityConfigurationProvider, commonServices)
 		{
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -70,8 +76,13 @@ namespace Vodovoz.JournalViewModels
 			this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			this.subdivisionSelectorFactory = subdivisionSelectorFactory ?? throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
+			this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService)); ;
+			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)); ;
 
 			TabName = "Журнал жалоб";
+
+			FilterViewModel.SetDefault(employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision);
 
 			RegisterComplaints();
 
@@ -176,7 +187,53 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Employee, () => guiltyEmployeeAlias)
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Subdivision, () => guiltySubdivisionAlias);
 
-			query.Where(GetSearchCriterion(
+			#region Filter
+
+			var dicussionQuery = QueryOver.Of(() => dicussionAlias)
+					.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
+					.Where(() => dicussionAlias.Complaint.Id == complaintAlias.Id);
+
+			if(FilterViewModel != null) 
+			{
+				if(FilterViewModel.Subdivisions != null) 
+				{
+					foreach(ComplaintFilterNode sub in FilterViewModel.Subdivisions) 
+					{
+						if(sub.Subdivision != null) 
+						{
+							if(sub.Subdivision.Id == subdivisionService.GetOkkId()) 
+							{
+								var statusQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == sub.Subdivision.Id)
+										.Select(x => x.Id)
+										.Where(() => dicussionAlias.Status == ComplaintStatuses.Checking);
+
+								query = query.Where(() => dicussionAlias.PlannedCompletionDate >= sub.StartDate)
+									.And(() => complaintAlias.PlannedCompletionDate <= sub.EndDate);
+
+								query = query.WithSubquery.WhereExists(statusQuery);
+
+							} 
+							else 
+							{
+								var filterQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == sub.Subdivision.Id)
+									.Where(() => dicussionAlias.PlannedCompletionDate >= sub.StartDate)
+									.And(() => dicussionAlias.PlannedCompletionDate <= sub.EndDate);
+								query = query.WithSubquery.WhereExists(filterQuery);
+							}
+						}
+					}
+					if(FilterViewModel.ComplaintType != null)
+						query = query.Where(() => complaintAlias.ComplaintType == FilterViewModel.ComplaintType);
+					if(FilterViewModel.ComplaintStatus != null)
+						query = query.Where(() => complaintAlias.Status == FilterViewModel.ComplaintStatus);
+					if(FilterViewModel.Employee != null)
+						query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
+				}
+			}
+
+			#endregion Filter
+
+				query.Where(GetSearchCriterion(
 				() => complaintAlias.Id,
 				() => complaintAlias.ComplaintText,
 				() => complaintAlias.ResultText,
@@ -324,6 +381,5 @@ namespace Vodovoz.JournalViewModels
 					}
 				)
 			);
-		}
 	}
 }

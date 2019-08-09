@@ -1260,6 +1260,9 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Organization.SubdivisionView.cs" />
     <Compile Include="Filters\GtkViews\SubdivisionFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.SubdivisionFilterView.cs" />
+    <Compile Include="SidePanel\InfoProviders\IComplaintsInfoProvider.cs" />
+    <Compile Include="Filters\GtkViews\ComplaintFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

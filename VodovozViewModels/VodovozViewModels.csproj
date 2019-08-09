@@ -78,6 +78,7 @@
     <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />
     <Compile Include="JournalNodes\SubdivisionJournalNode.cs" />
     <Compile Include="FilterViewModels\Organization\SubdivisionFilterViewModel.cs" />
+    <Compile Include="FilterViewModels\ComplaintFilterViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

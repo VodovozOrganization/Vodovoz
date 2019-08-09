@@ -55,6 +55,9 @@ using Vodovoz.ViewModels.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.FilterViewModels;
+using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Employees;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -687,6 +690,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				ordersSelectorFactory,
 				subdivisionRepository,
 				routeListItemRepository
+				new BaseParametersProvider(),
+				new EmployeeRepository(),
+				new ComplaintFilterViewModel(new GtkInteractiveService())
 			);
 		});
 	}
