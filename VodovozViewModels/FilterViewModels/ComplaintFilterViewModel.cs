@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using QS.DomainModel.Entity;
 using QS.Project.Filter;
 using QS.Services;
 using Vodovoz.Domain.Complaints;
@@ -14,22 +10,14 @@ namespace Vodovoz.FilterViewModels
 	{
 		public ComplaintFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
 		{
-		}
-
-		public void SetDefault(Subdivision subdivision)
-		{
-			if(Subdivisions == null)
-				Subdivisions = new GenericObservableList<ComplaintFilterNode> { new ComplaintFilterNode { Subdivision = subdivision } };
-			else if(Subdivisions.FirstOrDefault() == null)
-				Subdivisions.Add(new ComplaintFilterNode { Subdivision = subdivision });
-			else
-				Subdivisions.First().Subdivision = subdivision;
-		}
-
-		private GenericObservableList<ComplaintFilterNode> subdivisions;
-		public virtual GenericObservableList<ComplaintFilterNode> Subdivisions {
-			get => subdivisions;
-			set { SetField(ref subdivisions, value, () => Subdivisions);}
+			UpdateWith(
+				x => x.ComplaintType,
+				x => x.ComplaintStatus,
+				x => x.Employee,
+				x => x.StartDate,
+				x => x.EndDate,
+				x => x.Subdivision
+			);
 		}
 
 		private ComplaintType? complaintType;
@@ -49,10 +37,7 @@ namespace Vodovoz.FilterViewModels
 			get { return employee; }
 			set { SetField(ref employee, value); }
 		}
-	}
 
-	public class ComplaintFilterNode : PropertyChangedBase
-	{
 		private Subdivision subdivision;
 		public virtual Subdivision Subdivision {
 			get => subdivision;
@@ -71,6 +56,6 @@ namespace Vodovoz.FilterViewModels
 			set => SetField(ref endDate, value, () => EndDate);
 		}
 
-		public bool IsEmpty { get { return Subdivision == null; } }
 	}
+
 }

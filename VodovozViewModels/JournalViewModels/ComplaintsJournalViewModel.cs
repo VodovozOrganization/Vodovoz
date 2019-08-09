@@ -82,7 +82,7 @@ namespace Vodovoz.JournalViewModels
 
 			TabName = "Журнал жалоб";
 
-			FilterViewModel.SetDefault(employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision);
+			FilterViewModel.Subdivision = employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision;
 
 			RegisterComplaints();
 
@@ -195,40 +195,32 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel != null) 
 			{
-				if(FilterViewModel.Subdivisions != null) 
-				{
-					foreach(ComplaintFilterNode sub in FilterViewModel.Subdivisions) 
+					if(FilterViewModel.Subdivision.Id == subdivisionService.GetOkkId()) 
 					{
-						if(sub.Subdivision != null) 
-						{
-							if(sub.Subdivision.Id == subdivisionService.GetOkkId()) 
-							{
-								var statusQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == sub.Subdivision.Id)
-										.Select(x => x.Id)
-										.Where(() => dicussionAlias.Status == ComplaintStatuses.Checking);
+						var statusQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
+								.Select(x => x.Id)
+								.Where(() => dicussionAlias.Status == ComplaintStatuses.Checking);
 
-								query = query.Where(() => dicussionAlias.PlannedCompletionDate >= sub.StartDate)
-									.And(() => complaintAlias.PlannedCompletionDate <= sub.EndDate);
+						query = query.Where(() => dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate)
+							.And(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 
-								query = query.WithSubquery.WhereExists(statusQuery);
+						query = query.WithSubquery.WhereExists(statusQuery);
 
-							} 
-							else 
-							{
-								var filterQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == sub.Subdivision.Id)
-									.Where(() => dicussionAlias.PlannedCompletionDate >= sub.StartDate)
-									.And(() => dicussionAlias.PlannedCompletionDate <= sub.EndDate);
-								query = query.WithSubquery.WhereExists(filterQuery);
-							}
-						}
+					} 
+					else 
+					{
+						var filterQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
+							.Where(() => dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate)
+							.And(() => dicussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
+						query = query.WithSubquery.WhereExists(filterQuery);
 					}
+
 					if(FilterViewModel.ComplaintType != null)
 						query = query.Where(() => complaintAlias.ComplaintType == FilterViewModel.ComplaintType);
 					if(FilterViewModel.ComplaintStatus != null)
 						query = query.Where(() => complaintAlias.Status == FilterViewModel.ComplaintStatus);
 					if(FilterViewModel.Employee != null)
 						query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
-				}
 			}
 
 			#endregion Filter
