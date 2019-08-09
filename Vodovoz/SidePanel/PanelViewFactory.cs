@@ -11,8 +11,7 @@ namespace Vodovoz.SidePanel
 	{
 		public static Widget Create(PanelViewType type)
 		{
-			switch (type)
-			{
+			switch(type) {
 				case PanelViewType.CounterpartyView:
 					return new CounterpartyPanelView();
 				case PanelViewType.DeliveryPointView:
@@ -37,20 +36,9 @@ namespace Vodovoz.SidePanel
 		public static IEnumerable<Widget> CreateAll(IEnumerable<PanelViewType> types)
 		{
 			var iterator = types.GetEnumerator();
-			while (iterator.MoveNext())
+			while(iterator.MoveNext())
 				yield return Create(iterator.Current);
 		}
-	}
-
-	public enum PanelViewType{
-		CounterpartyView,
-		DeliveryPointView,
-		AdditionalAgreementPanelView,
-		DeliveryPricePanelView,
-		UndeliveredOrdersPanelView,
-		EmailsPanelView,
-		CallTaskPanelView,
-		ComplaintPanelView
 	}
 }
 

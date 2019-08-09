@@ -8,5 +8,6 @@ namespace Vodovoz.EntityRepositories.Complaints
 	{
 		IList<object[]> GetGuiltyAndCountForDates(IUnitOfWork uow, DateTime? start = null, DateTime? end = null);
 		int GetUnclosedComplaintsCount(IUnitOfWork uow, DateTime? start = null, DateTime? end = null);
+		IList<object[]> GetComplaintsResults(IUnitOfWork uow, DateTime? start = null, DateTime? end = null);
 	}
 }

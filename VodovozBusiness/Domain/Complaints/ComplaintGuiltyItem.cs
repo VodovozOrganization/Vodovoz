@@ -45,6 +45,8 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref subdivision, value, () => Subdivision);
 		}
 
+		public virtual string Title => string.Format("Виновный №{0} в жалобе №{1}", Id, Complaint?.Id);
+
 		public ComplaintGuiltyItem() { }
 
 		public virtual string GetGuiltySubdivisionOrEmployee => Subdivision?.Name ?? Employee?.ShortName;

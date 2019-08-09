@@ -34,10 +34,18 @@ namespace Vodovoz.SidePanel.InfoViews
 				.RowCells()
 					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? wh : gr)
 				.Finish();
+			yTVComplainsResults.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
+				.AddColumn("Итог")
+					.AddTextRenderer(n => n[0] != null ? n[0].ToString() : "(результат не выставлен)")
+					.WrapWidth(150).WrapMode(Pango.WrapMode.WordChar)
+				.AddColumn("Кол-во")
+					.AddTextRenderer(n => n[1].ToString())
+					.WrapWidth(50).WrapMode(Pango.WrapMode.WordChar)
+				.Finish();
 		}
 
-		DateTime StartDate { get; set; }
-		DateTime EndDate { get; set; }
+		DateTime? StartDate { get; set; }
+		DateTime? EndDate { get; set; }
 		IList<object[]> guilties = new List<object[]>();
 
 		#region IPanelView implementation
@@ -50,12 +58,12 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public void Refresh()
 		{
-			StartDate = (InfoProvider as IComplaintsInfoProvider).StartDate;
-			EndDate = (InfoProvider as IComplaintsInfoProvider).EndDate;
+			StartDate = (InfoProvider as IComplaintsInfoProvider)?.StartDate;
+			EndDate = (InfoProvider as IComplaintsInfoProvider)?.EndDate;
 			lblCaption.Markup = string.Format(
-				"<u><b>Сводка по жалобам с\n{0} по {1}.\nВиновны в закрытых жалобах:</b></u>",
-				StartDate.ToString("dd.MM.yyyy"),
-				EndDate.ToString("dd.MM.yyyy")
+				"<u><b>Сводка по жалобам{0}{1}.\nВиновны в закрытых жалобах:</b></u>",
+				StartDate.HasValue ? string.Format("\nс {0} ", StartDate.Value.ToString("dd.MM.yyyy")) : string.Empty,
+				EndDate.HasValue ? string.Format("по {0}", EndDate.Value.ToString("dd.MM.yyyy")) : "\nза всё время"
 			);
 
 			var cnt = complaintsRepository.GetUnclosedComplaintsCount(InfoProvider.UoW);
@@ -67,6 +75,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			guilties = new List<object[]>(complaintsRepository.GetGuiltyAndCountForDates(InfoProvider.UoW, StartDate, EndDate));
 			yTreeView.ItemsDataSource = guilties;
+
+			var results = complaintsRepository.GetComplaintsResults(InfoProvider.UoW, StartDate, EndDate);
+			yTVComplainsResults.SetItemsSource(results);
 		}
 
 		#endregion

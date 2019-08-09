@@ -71,6 +71,9 @@
     <Compile Include="ViewModels\Complaints\GuiltyItemViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintResultViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintSourceViewModel.cs" />
+    <Compile Include="Infrastructure\InfoProviders\IComplaintsInfoProvider.cs" />
+    <Compile Include="Infrastructure\InfoProviders\IInfoProvider.cs" />
+    <Compile Include="Infrastructure\InfoProviders\PanelViewType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -85,6 +88,7 @@
     <Folder Include="FilterViewModels\Employees\" />
     <Folder Include="JournalViewModels\Employees\" />
     <Folder Include="JournalNodes\" />
+    <Folder Include="Infrastructure\InfoProviders\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

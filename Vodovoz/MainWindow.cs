@@ -190,16 +190,18 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
 	{
-		var currentTab = args.Tab;
-		if(currentTab is IInfoProvider)
-			(currentTab as IInfoProvider).CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+		if(args.Tab is IInfoProvider dialogTab)
+			dialogTab.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+		else if(args.Tab is TdiSliderTab journalTab && journalTab.Journal is IInfoProvider journal)
+			journal.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
 	}
 
 	public void OnTdiMainTabClosed(object sender, TabClosedEventArgs args)
 	{
-		var closedTab = args.Tab;
-		if(closedTab is IInfoProvider)
-			infopanel.OnInfoProviderDisposed(closedTab as IInfoProvider);
+		if(args.Tab is IInfoProvider dialogTab)
+			infopanel.OnInfoProviderDisposed(dialogTab);
+		else if(args.Tab is TdiSliderTab journalTab && journalTab.Journal is IInfoProvider journal)
+			infopanel.OnInfoProviderDisposed(journal);
 		if(tdiMain.NPages == 0)
 			infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
 	}
@@ -209,6 +211,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		var currentTab = args.Tab;
 		if(currentTab is IInfoProvider)
 			infopanel.SetInfoProvider(currentTab as IInfoProvider);
+		else if(currentTab is TdiSliderTab && (currentTab as TdiSliderTab).Journal is IInfoProvider)
+			infopanel.SetInfoProvider((currentTab as TdiSliderTab).Journal as IInfoProvider);
 		else
 			infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
 	}

@@ -37,7 +37,7 @@ namespace Vodovoz.EntityRepositories.Complaints
 											  Projections.SqlFunction(
 												  new SQLFunctionTemplate(
 													  NHibernateUtil.String,
-													  "GROUP_CONCAT(CASE ?1 WHEN 'Employee' THEN IFNULL(CONCAT('Сотр: ', GET_PERSON_NAME_WITH_INITIALS(?3,?4,?5)), 'Отдел ВВ') WHEN 'Subdivision' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') WHEN 'Client' THEN 'Клиент' WHEN 'None' THEN 'Нет (не недовоз)' ELSE ?1 END ORDER BY ?1 ASC SEPARATOR '\n')"
+													  "GROUP_CONCAT(CASE ?1 WHEN 'Employee' THEN IFNULL(CONCAT('Сотр: ', GET_PERSON_NAME_WITH_INITIALS(?3,?4,?5)), 'Отдел ВВ') WHEN 'Subdivision' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') WHEN 'Client' THEN 'Клиент' WHEN 'None' THEN 'Нет (не жалоба)' ELSE ?1 END ORDER BY ?1 ASC SEPARATOR '\n')"
 													 ),
 												  NHibernateUtil.String,
 												  Projections.Property(() => guiltyItemAlias.GuiltyType),
@@ -66,6 +66,33 @@ namespace Vodovoz.EntityRepositories.Complaints
 				query.Where(c => c.CreationDate >= start)
 					 .Where(c => c.CreationDate <= end);
 			return query.Select(Projections.Count<Complaint>(c => c.Id)).SingleOrDefault<int>();
+		}
+
+		public IList<object[]> GetComplaintsResults(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
+		{
+			ComplaintResult complaintResultAlias = null;
+
+			var query = uow.Session.QueryOver<Complaint>()
+						   .Left.JoinAlias(c => c.ComplaintResult, () => complaintResultAlias)
+						   ;
+
+			if(start != null && end != null)
+				query.Where(c => c.CreationDate >= start)
+					 .Where(c => c.CreationDate <= end);
+
+			var result = query.SelectList(list => list
+										  .SelectGroup(() => complaintResultAlias.Name)
+										  .Select(
+										  		Projections.SqlFunction(
+													new SQLFunctionTemplate(NHibernateUtil.Int32, "COUNT(IFNULL(?1, 0))"),
+													NHibernateUtil.Int32,
+													Projections.Property(() => complaintResultAlias.Id)
+												)
+										  ))
+							  .List<object[]>()
+							  ;
+
+			return result;
 		}
 	}
 }

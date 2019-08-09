@@ -1,25 +1,27 @@
 ﻿using System;
-using QS.DomainModel.Config;
-using QS.Project.Journal;
-using QS.Services;
-using Vodovoz.JournalNodes;
-using Vodovoz.Domain.Complaints;
 using NHibernate;
-using Vodovoz.ViewModels.Complaints;
-using QS.Project.Domain;
-using Vodovoz.TempAdapters;
-using Vodovoz.Infrastructure.Services;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Client;
 using NHibernate.Criterion;
-using Order = Vodovoz.Domain.Orders.Order;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.DomainModel.Config;
+using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
+using QS.Services;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalNodes;
+using Vodovoz.SidePanel;
+using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Complaints;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class ComplaintsJournalViewModel : MultipleEntityJournalViewModelBase<ComplaintJournalNode>
+	public class ComplaintsJournalViewModel : MultipleEntityJournalViewModelBase<ComplaintJournalNode>, IComplaintsInfoProvider
 	{
 		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 		private readonly ICommonServices commonServices;
@@ -30,8 +32,20 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEntityAutocompleteSelectorFactory orderSelectorFactory;
 		private readonly IEntitySelectorFactory subdivisionSelectorFactory;
 
+		#region implemrntation of IComplaintsInfoProvider
+
+		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+
+		public DateTime? StartDate => null;
+
+		public DateTime? EndDate => null;
+
+		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
+
+		#endregion implemrntation of IComplaintsInfoProvider
+
 		public ComplaintsJournalViewModel(
-			IEntityConfigurationProvider entityConfigurationProvider, 
+			IEntityConfigurationProvider entityConfigurationProvider,
 			ICommonServices commonServices,
 			IUndeliveriesViewOpener undeliveriesViewOpener,
 			IEmployeeService employeeService,
@@ -55,6 +69,18 @@ namespace Vodovoz.JournalViewModels
 			RegisterComplaints();
 
 			FinishJournalConfiguration();
+
+			UpdateOnChanges(
+				typeof(Complaint),
+				typeof(ComplaintGuiltyItem),
+				typeof(ComplaintResult),
+				typeof(Subdivision),
+				typeof(ComplaintDiscussion),
+				typeof(DeliveryPoint),
+				typeof(Fine),
+				typeof(Order)
+			);
+			this.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(sender, new CurrentObjectChangedArgs(null));
 		}
 
 		private IQueryOver<Complaint> GetComplaintQuery()
