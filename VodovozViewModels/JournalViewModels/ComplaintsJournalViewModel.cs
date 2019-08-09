@@ -14,6 +14,7 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.SidePanel;
@@ -21,10 +22,6 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Order = Vodovoz.Domain.Orders.Order;
-using NHibernate.Dialect.Function;
-using NHibernate.Transform;
-using Vodovoz.EntityRepositories.Subdivisions;
-using QS.DomainModel.NotifyChange;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -277,27 +274,29 @@ namespace Vodovoz.JournalViewModels
 
 		protected override void CreatePopupActions()
 		{
-			bool HasOrder(object[] objs)
+
+
+			Order GetOrder(object[] objs)
 			{
 				var selectedNodes = objs.Cast<ComplaintJournalNode>();
 				if(selectedNodes.Count() != 1)
-					return false;
+					return null;
 				var complaint = UoW.GetById<Complaint>(selectedNodes.FirstOrDefault().Id);
-				return complaint?.Order != null;
+				return complaint?.Order;
 			}
 
-			bool HasRouteList(object[] objs)
+			RouteList GetRouteList(object[] objs)
 			{
-				var selectedNodes = objs.Cast<ComplaintJournalNode>();
-				if(selectedNodes.Count() != 1)
-					return false;
-				var complaint = UoW.GetById<Complaint>(selectedNodes.FirstOrDefault().Id);
-				if(complaint?.Order == null)
-					return false;
-
-				var rl = routeListItemRepository.GetRouteListItemForOrder(UoW, complaint.Order)?.RouteList;
-				return rl != null;
+				var order = GetOrder(objs);
+				if(order == null)
+					return null;
+				var rl = routeListItemRepository.GetRouteListItemForOrder(UoW, order)?.RouteList;
+				return rl;
 			}
+
+			bool HasOrder(object[] objs) => GetOrder(objs) != null;
+
+			bool HasRouteList(object[] objs) => GetRouteList(objs) != null;
 
 			PopupActionsList.Add(
 				new JournalAction(
@@ -314,6 +313,7 @@ namespace Vodovoz.JournalViewModels
 					}
 				)
 			);
+
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть маршрутный лист",
