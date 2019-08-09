@@ -260,6 +260,8 @@ namespace Vodovoz
 			{
 				this.Child.ShowAll();
 			}
+			this.buttonChat.Hide();
+			this.buttonSendMessage.Hide();
 			this.label2.Hide();
 			this.GtkScrolledWindow1.Hide();
 			this.Hide();

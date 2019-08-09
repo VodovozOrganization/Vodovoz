@@ -58,10 +58,13 @@ namespace Vodovoz
 			ydatepickerDocIssuedDate.Binding.AddBinding(Entity, e => e.DocIssuedDate, w => w.DateOrNull).InitializeFromSource();
 
 			yentryFuelCardNumber.Binding.AddBinding(Entity, e => e.FuelCardNumber, w => w.Text).InitializeFromSource();
+			yentryFuelCardNumber.Binding.AddFuncBinding(Entity, e => e.CanEditFuelCardNumber, w => w.Sensitive).InitializeFromSource();
 
 			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
-			filter.ShowFired = false;
-			filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
+			filter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.ShowFired = false
+			);
 			dataentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 			dataentryreferenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
@@ -85,7 +88,6 @@ namespace Vodovoz
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
-			comboTypeOfUse.Changed += ComboTypeOfUse_Changed;
 
 			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Car));
 			if(!UoWGeneric.IsNew) {
@@ -104,9 +106,6 @@ namespace Vodovoz
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
 				.Finish();
 			yTreeGeographicGroups.ItemsDataSource = Entity.ObservableGeographicGroups;
-			//yTreeGeographicGroups.Selection.Changed += (sender, e) => ControlsAccessibility();
-
-			hboxFuelCard.Visible = Entity.CanHaveFuelCard;
 		}
 
 		bool CarTypeIsEditable() => Entity.Id == 0;
@@ -122,7 +121,6 @@ namespace Vodovoz
 
 			logger.Info("Сохраняем автомобиль...");
 			try {
-				Entity.CheckFuelCard();
 				UoWGeneric.Save();
 				if(UoWGeneric.IsNew) {
 					attachmentFiles.ItemId = UoWGeneric.Root.Id;
@@ -137,12 +135,6 @@ namespace Vodovoz
 			return true;
 
 		}
-
-		private void ComboTypeOfUse_Changed(object sender, EventArgs e)
-		{
-			hboxFuelCard.Visible = Entity.CanHaveFuelCard;
-		}
-
 
 		protected void OnRadiobuttonMainToggled(object sender, EventArgs e)
 		{

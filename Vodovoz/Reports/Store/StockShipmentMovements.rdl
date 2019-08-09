@@ -1197,6 +1197,8 @@ ORDER BY
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
     </ReportItems>

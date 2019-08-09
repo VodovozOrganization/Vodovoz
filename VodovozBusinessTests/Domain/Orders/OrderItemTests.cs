@@ -175,5 +175,55 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(orderItem.ActualSum, Is.EqualTo(0));
 			Assert.That(orderItem.IncludeNDS, Is.EqualTo(0));
 		}
+
+		static IEnumerable PercentDiscountValues()
+		{
+			yield return new object[] { -10m, 0m };
+			yield return new object[] { 0m, 0m };
+			yield return new object[] { 10m, 10m };
+			yield return new object[] { 110m, 100m };
+		}
+		[Test(Description = "Проверка установки скидки в процентах")]
+		[TestCaseSource(nameof(PercentDiscountValues))]
+		public void ManualChangingDiscount_WhenSetPercentDiscount_ResultDiscountInRange0And100(decimal discount, decimal result)
+		{
+			// arrange
+			OrderItem orderItem = new OrderItem {
+				Count = 1,
+				Price = 100,
+				IsDiscountInMoney = false
+			};
+
+			// act
+			orderItem.ManualChangingDiscount = discount;
+
+			// assert
+			Assert.That(orderItem.Discount, Is.EqualTo(result));
+		}
+
+		static IEnumerable MoneyDiscountValues()
+		{
+			yield return new object[] { -110m, 0m };
+			yield return new object[] { 0m, 0m };
+			yield return new object[] { 200m, 200m };
+			yield return new object[] { 11110m, 2*5000m };
+		}
+		[Test(Description = "Проверка установки скидки в реальных деньгах")]
+		[TestCaseSource(nameof(MoneyDiscountValues))]
+		public void ManualChangingDiscount_WhenSetMoneyDiscount_ThenResultMoneyDiscountInRangeOf0AndMaxOrderSum(decimal discount, decimal result)
+		{
+			// arrange
+			OrderItem orderItem = new OrderItem {
+				Count = 2,
+				Price = 5000,
+				IsDiscountInMoney = true
+			};
+
+			// act
+			orderItem.ManualChangingDiscount = discount;
+
+			// assert
+			Assert.That(orderItem.DiscountMoney, Is.EqualTo(result));
+		}
 	}
 }

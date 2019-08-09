@@ -2,7 +2,6 @@
 using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz.Dialogs.Fuel
 {

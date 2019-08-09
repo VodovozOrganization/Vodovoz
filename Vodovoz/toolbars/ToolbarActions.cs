@@ -262,10 +262,12 @@ public partial class MainWindow : Window
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			"CRM",
-			() => new DebtorsView(), null
-		);
+		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
+		var debtorsJournal = new DebtorsJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices);
+
+		tdiMain.AddTab(debtorsJournal);
+
 	}
 
 

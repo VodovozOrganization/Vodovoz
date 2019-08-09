@@ -51,10 +51,13 @@ namespace Vodovoz.Dialogs.Employees
 			yentryAuthor.Binding.AddBinding(Entity, e => e.Author, w => w.Subject).InitializeFromSource();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<PremiumItem>()
-				.AddColumn("Сотрудник").AddTextRenderer(x => x.Employee.FullName)
-				.AddColumn("Премия").AddNumericRenderer(x => x.Money).Editing().Digits(2)
-				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
-				.AddColumn("Причина штрафа").AddTextRenderer(x => x.Premium.PremiumReasonString)
+				.AddColumn("Сотрудник")
+					.AddTextRenderer(x => x.Employee.FullName)
+				.AddColumn("Премия")
+					.AddNumericRenderer(x => x.Money).Editing().Digits(2)
+					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
+				.AddColumn("Причина премии")
+					.AddTextRenderer(x => x.Premium.PremiumReasonString)
 				.Finish();
 
 			ytreeviewItems.ItemsDataSource = Entity.ObservableItems;

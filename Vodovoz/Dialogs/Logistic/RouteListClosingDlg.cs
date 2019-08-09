@@ -23,7 +23,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
-using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 
@@ -42,7 +41,7 @@ namespace Vodovoz
 		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
 
-		List<EntityRepositories.Logistic.ReturnsNode> allReturnsToWarehouse;
+		List<ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
 		int defectiveBottlesReturnedToWarehouse;
@@ -212,7 +211,7 @@ namespace Vodovoz
 			rightsidepanel1.Panel = vboxHidenPanel;
 			rightsidepanel1.IsHided = true;
 
-			expander1.Expanded = false;
+			xpndRouteListInfo.Expanded = Entity.Status == RouteListStatus.Closed;
 
 			PerformanceHelper.AddTimePoint("Заполнили расхождения");
 
@@ -243,17 +242,17 @@ namespace Vodovoz
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
 
-			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
-			HasChanges = true;
-			UoW.CanCheckIfDirty = false;
-
 			UpdateSensitivity();
 		}
 
 		private void UpdateSensitivity()
 		{
 			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck) {
-				vboxRouteList.Sensitive = false;
+				tblRLInfo.Sensitive = false;
+				routeListAddressesView.Sensitive = false;
+				vboxHidenPanel.Sensitive = false;
+				hbxStatistics1.Sensitive = false;
+				hbxStatistics2.Sensitive = false;
 				buttonSave.Sensitive = false;
 				enummenuRLActions.Sensitive = false;
 
@@ -326,12 +325,17 @@ namespace Vodovoz
 		{
 			var config = ColumnsConfigFactory.Create<FuelDocument>();
 
-			config
-				.AddColumn("Дата").AddTextRenderer(node => node.Date.ToShortDateString())
-				.AddColumn("Литры").AddNumericRenderer(node => node.FuelOperation.LitersGived)
-						.Adjustment(new Adjustment(0, -100000, 100000, 10, 100, 10))
-				.AddColumn("").AddTextRenderer()
-				.RowCells();
+			config.AddColumn("Дата")
+					.AddTextRenderer(node => node.Date.ToShortDateString())
+				  .AddColumn("Литры")
+					.AddNumericRenderer(node => node.FuelOperation.LitersGived)
+					.Adjustment(new Adjustment(0, -100000, 100000, 10, 100, 10))
+				  .AddColumn("№ ТК")
+					.AddTextRenderer(n => n.FuelCardNumber)
+					.Editable(Entity.Car.CanEditFuelCardNumber)
+				  .AddColumn("")
+					.AddTextRenderer()
+				  .RowCells();
 
 			ytreeviewFuelDocuments.ColumnsConfig = config.Finish();
 		}
@@ -851,13 +855,15 @@ namespace Vodovoz
 			}
 
 			if(Entity.Car.FuelType != null) {
-				text.Add(string.Format("Текущий остаток топлива {0:F2} л.", balanceBeforeOp
-					+ Entity.FuelDocuments.Select(x => x.FuelOperation.LitersGived).Sum() - spentFuel));
+				text.Add(
+					string.Format(
+						"Текущий остаток топлива {0:F2} л.",
+						balanceBeforeOp + Entity.FuelDocuments.Select(x => x.FuelOperation.LitersGived).Sum() - spentFuel
+					)
+				);
 			}
 
-			if(Entity.Car.CanHaveFuelCard) {
-				text.Add($"Номер топливной карты: {Entity.Car.FuelCardNumber}");
-			}
+			text.Add($"Номер топливной карты: {Entity.Car.FuelCardNumber}");
 
 			ytextviewFuelInfo.Buffer.Text = string.Join("\n", text);
 		}
@@ -960,7 +966,7 @@ namespace Vodovoz
 			UoW.Save();
 
 
-			if(messages.Count > 0)
+			if(messages.Any())
 				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
 		}
 
@@ -979,7 +985,8 @@ namespace Vodovoz
 
 			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput);
 
-			if(cashExpense != null) UoW.Save(cashExpense);
+			if(cashExpense != null)
+				UoW.Save(cashExpense);
 			cashExpense.UpdateWagesOperations(UoW);
 			UoW.Save();
 

@@ -39,6 +39,22 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
+			TreeViewColumnsConfigFactory.Register<DebtorsJournalViewModel>(
+				() => FluentColumnsConfig<Representations.DebtorJournalNode>.Create()
+					.AddColumn("Номер").AddNumericRenderer(x => x.AddressId)
+					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
+					.AddColumn("Адрес").AddTextRenderer(node => node.AddressName)
+					.AddColumn("ОПФ").AddTextRenderer(node => node.OPF.GetEnumTitle())
+					.AddColumn("Последний заказ по адресу").AddTextRenderer(node => node.LastOrderDate != null ? node.LastOrderDate.Value.ToString("dd / MM / yyyy") : string.Empty)
+					.AddColumn("Кол-во отгруженных в последнюю реализацию бутылей").AddNumericRenderer(node => node.LastOrderBottles)
+					.AddColumn("Долг по таре (по адресу)").AddNumericRenderer(node => node.DebtByAddress)
+					.AddColumn("Долг по таре (по клиенту)").AddNumericRenderer(node => node.DebtByClient)
+					.AddColumn("Ввод остат.").AddTextRenderer(node => node.IsResidueExist)
+					.AddColumn("Резерв").AddNumericRenderer(node => node.Reserve)
+					.RowCells().AddSetter<CellRendererText>((CellRendererText c, Representations.DebtorJournalNode n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
 			//CounterpartyJournalViewModel
 			TreeViewColumnsConfigFactory.Register<CounterpartyJournalViewModel>(
 				() => FluentColumnsConfig<CounterpartyJournalNode>.Create()
@@ -53,6 +69,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
+				
 
 			//SelfDeliveriesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<SelfDeliveriesJournalViewModel>(

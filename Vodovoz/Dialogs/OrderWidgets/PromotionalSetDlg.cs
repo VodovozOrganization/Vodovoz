@@ -94,7 +94,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.water,
-				x => x.DefaultSelectedSubCategory = SubtypeOfEquipmentCategory.forSale
+				x => x.DefaultSelectedSaleCategory = SaleCategory.forSale
 			);
 			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new NomenclatureForSaleVM(nomenclatureFilter)) {
 				Mode = JournalSelectMode.Multiple,

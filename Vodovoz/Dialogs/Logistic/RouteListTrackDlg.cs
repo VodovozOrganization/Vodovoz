@@ -17,11 +17,10 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Chats;
 using Vodovoz.ServiceDialogs.Chat;
 using Vodovoz.ViewModel;
-using VodovozService.Chats;
 
 namespace Vodovoz
 {
-	public partial class RouteListTrackDlg : QS.Dialog.Gtk.TdiTabBase, IChatCallbackObserver
+	public partial class RouteListTrackDlg : QS.Dialog.Gtk.TdiTabBase
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
@@ -43,17 +42,11 @@ namespace Vodovoz
 			yTreeViewDrivers.RepresentationModel.UpdateNodes();
 			yTreeViewDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
-			buttonChat.Sensitive = false;
+			buttonChat.Visible = buttonSendMessage.Visible = false;
 			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
 			if (currentEmployee == null)
 			{
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Чат не будет работать.");
-			}
-			else
-			{
-				if (!ChatCallbackObservable.IsInitiated)
-					ChatCallbackObservable.CreateInstance(currentEmployee.Id);
-				ChatCallbackObservable.GetInstance().AddObserver(this);
 			}
 
 			//Configure map
@@ -89,7 +82,6 @@ namespace Vodovoz
 		void OnSelectionChanged(object sender, EventArgs e)
 		{
 			bool selected = yTreeViewDrivers.Selection.CountSelectedRows() > 0;
-			buttonChat.Sensitive = buttonSendMessage.Sensitive = selected && currentEmployee != null;
 			buttonOpenKeeping.Sensitive = selected;
 			UpdateSelectionOfCar();
 		}
@@ -151,8 +143,6 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
-			if(ChatCallbackObservable.IsInitiated)
-				ChatCallbackObservable.GetInstance().RemoveObserver(this);
 			GLib.Source.Remove(timerId);
 			gmapWidget.Destroy();
 			if (mapWindow != null)
@@ -315,19 +305,6 @@ namespace Vodovoz
 			return System.Drawing.Color.FromArgb(144, trackColors[colorNum]);
 		}
 
-		#region IChatCallbackObserver implementation
-
-		public void HandleChatUpdate()
-		{
-			yTreeViewDrivers.RepresentationModel.UpdateNodes();
-		}
-
-		public int? ChatId { get { return null; } }
-
-		public uint? RequestedRefreshInterval { get { return null; } }
-
-		#endregion
-
 		protected void OnButtonMapInWindowClicked(object sender, EventArgs e)
 		{
 			if (mapWindow == null)
@@ -398,7 +375,7 @@ namespace Vodovoz
 			var selected = yTreeViewDrivers.GetSelectedObjects<WorkingDriverVMNode> ();
 			var drivers = selected.Select (x => x.Id).ToArray();
 			var sendDlg = new SendMessageDlg (drivers);
-			
+
 			if(sendDlg.Run () == (int)Gtk.ResponseType.Ok)
 			{
 				yTreeViewDrivers.RepresentationModel.UpdateNodes ();

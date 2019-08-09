@@ -627,7 +627,7 @@
       <Textbox Name="Textbox20">
         <Height>22.59pt</Height>
         <Width>815.89pt</Width>
-        <Value>="Отчет по бензину с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " до " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") +Iif({?car_id} &lt;&gt; -1, " по машине " + First({reg_number}, "Fuel"), " по водителю" + First({driver}, "Fuel"))  </Value>
+        <Value>="Отчет по бензину с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") +Iif({?car_id} &lt;&gt; -1, " на машину " + First({reg_number}, "Fuel"), " водителю " + First({driver}, "Fuel"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>12.00pt</Top>
@@ -680,58 +680,19 @@
         <CommandText>SELECT
 	TableRows.*,
 	ROUND((@fuel_balance:=@fuel_balance - TableRows.liters_outlayed + TableRows.liters_gived),2) AS balance
-FROM 
+FROM
 	#Выбирается баланс на начало выбранного периода
 	(SELECT
-		(@fuel_balance:=
-		# Выдано:
-			(SELECT
-				IFNULL(SUM(fuel_operations_in.liters_gived), 0) as balance
-			FROM
-				(    
-					SELECT 
-						fuel_operations.id,
-						fuel_operations.date,
-						fuel_operations.driver_id,
-						fuel_operations.liters_gived,
-						fuel_operations.car_id,
-						route_lists.id as route_listID,
-						route_lists.date as route_listDate,
-						route_lists.driver_id as rl_driver
-					FROM fuel_operations
-					LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
-					LEFT JOIN route_lists ON fuel_documents.route_list_id = route_lists.id        
-				) as fuel_operations_in
-			WHERE	
-				DATE(fuel_operations_in.date) &lt; @start_date	
-                AND ((fuel_operations_in.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_in.car_id = @car_id)))
-		-
-		# Потрачено
-			(SELECT
-				IFNULL(SUM(fuel_operations_out.liters_outlayed),0) as balance
-			FROM
-				(    
-					SELECT 
-						fuel_operations.id,
-						fuel_operations.date,
-						fuel_operations.driver_id,
-						fuel_operations.liters_outlayed,
-						fuel_operations.car_id,
-						route_lists.id as route_listID,
-						route_lists.date as route_listDate,
-						route_lists.driver_id as rl_driver
-					FROM fuel_operations
-					LEFT JOIN route_lists ON fuel_operations.id = route_lists.fuel_outlayed_operation_id        
-				) as fuel_operations_out
-			WHERE	
-				DATE(fuel_operations_out.date) &lt; @start_date	
-                AND ((fuel_operations_out.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_out.car_id = @car_id)))
-		) as balance
+		@fuel_balance:= (
+			SELECT IFNULL(SUM(liters_gived), 0) - IFNULL(SUM(liters_outlayed), 0)
+			FROM fuel_operations
+			WHERE DATE(date) &lt; @start_date AND (driver_id = @driver_id OR @car_id &lt;&gt; -1 AND car_id = @car_id)
+		)
 	) as TableBalance,
-	#Конец выбора баланса   
+	#Конец выбора баланса
 	#Выбираются все строки
-	(SELECT 
-		date, 
+	(SELECT
+		date,
 		route_list_id,
 		route_list_date,
 		driver,
@@ -742,23 +703,23 @@ FROM
 		SUM(liters_coupons) as liters_coupons,
 		fuel_type,
 		reg_number
-	FROM 
+	FROM
 		(
 			#Выбираем полученное топливо
-			(SELECT 
+			(SELECT
 				DATE(fuel_operations.date) 	AS date,
 				IFNULL(route_lists.id, 'Коррек-ка') AS route_list_id,
 				route_lists.date AS route_list_date,
 				CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 				delivery_shift.name AS shift,
-                0 as distance, # Расстояние берется из таблицы с потраченным топливом
+				0 as distance, # Расстояние берется из таблицы с потраченным топливом
 				IFNULL(fuel_operations.liters_outlayed,0) 	AS liters_outlayed,
-				IFNULL(fuel_operations.liters_gived,0)	AS liters_gived,
-				fuel_documents.payed_for_fuel 	AS payed_for_fuel,
+				IFNULL(fuel_operations.liters_gived,0) AS liters_gived,
+				fuel_documents.payed_for_fuel AS payed_for_fuel,
 				IFNULL(fuel_documents.fuel_coupons, 0) AS liters_coupons,
-				IFNULL(fuel_operations.fuel_type_id,0) 	AS fuel_type, 		
+				IFNULL(fuel_operations.fuel_type_id,0) AS fuel_type, 		
 				cars.reg_number AS reg_number
-			FROM		
+			FROM
 				fuel_operations
 				LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
 				LEFT JOIN route_lists ON fuel_documents.route_list_id = route_lists.id
@@ -775,7 +736,7 @@ FROM
 			#Конец выбора полученного топлива
 		UNION ALL
 			#Выбираем потраченное топливо
-			(SELECT 
+			(SELECT
 				DATE(fuel_operations.date) 	AS date,
 				IFNULL(route_lists.id, IF(fuel_operations.is_fine,'Штраф','Коррек-ка')) AS route_list_id,
 				route_lists.date AS route_list_date,
@@ -788,7 +749,7 @@ FROM
 				IFNULL(fuel_documents.fuel_coupons, 0) AS liters_coupons,
 				IFNULL(fuel_operations.fuel_type_id,0) 	AS fuel_type, 		
 				cars.reg_number AS reg_number
-			 FROM		
+			 FROM
 				fuel_operations
 				LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
 				LEFT JOIN route_lists ON fuel_operations.id = route_lists.fuel_outlayed_operation_id
@@ -805,8 +766,9 @@ FROM
 			#Конец выбора потраченного топлива
 		) as fuelOperations
 		GROUP BY date, route_list_id ORDER BY date
-	) as TableRows        
-	#Конец выбора всех строк</CommandText>
+	) as TableRows
+	#Конец выбора всех строк
+	;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>

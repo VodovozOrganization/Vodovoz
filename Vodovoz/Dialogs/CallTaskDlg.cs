@@ -30,6 +30,12 @@ namespace Vodovoz.Dialogs
 			ConfigureDlg();
 		}
 
+		public CallTaskDlg(int counterpartyId, int deliveryPointId) : this()
+		{
+			Entity.Counterparty = UoW.GetById<Counterparty>(counterpartyId);
+			Entity.DeliveryPoint = UoW.GetById<DeliveryPoint>(deliveryPointId);
+		}
+
 		public CallTaskDlg(CallTask task) : this(task.Id) { }
 
 		public CallTaskDlg(int callTaskId)
