@@ -3,10 +3,14 @@ using System.Linq;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
+using QS.Banks.Domain;
 using QS.Dialog.Gtk;
+using QS.DomainModel.Config;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi.Gtk;
@@ -22,6 +26,7 @@ using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -29,7 +34,10 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewers;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
@@ -41,21 +49,12 @@ using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.ViewModel;
-using Vodovoz.Filters.ViewModels;
-using QS.DomainModel.Config;
-using Vodovoz.JournalViewModels;
-using QS.Banks.Domain;
 using Vodovoz.TempAdapters;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels.Employees;
-using Vodovoz.FilterViewModels.Employees;
-using QS.Project.Journal;
-using Vodovoz.Domain.Complaints;
+using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.EntityRepositories.Logistic;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -675,6 +674,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 		IEntityAutocompleteSelectorFactory ordersSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order, OrderJournalViewModel, OrderJournalFilterViewModel>(ServicesConfig.CommonServices);
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 
 		tdiMain.OpenTab(() => {
 			return new ComplaintsJournalViewModel(
@@ -685,7 +685,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				employeeSelectorFactory,
 				counterpartySelectorFactory,
 				ordersSelectorFactory,
-				subdivisionRepository
+				subdivisionRepository,
+				routeListItemRepository
 			);
 		});
 	}

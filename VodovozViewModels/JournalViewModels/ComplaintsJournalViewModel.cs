@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -11,6 +12,8 @@ using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.SidePanel;
@@ -35,6 +38,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory orderSelectorFactory;
 		private readonly ISubdivisionRepository subdivisionRepository;
+		readonly IRouteListItemRepository routeListItemRepository;
 
 		#region implemrntation of IComplaintsInfoProvider
 
@@ -57,6 +61,7 @@ namespace Vodovoz.JournalViewModels
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
 			ISubdivisionRepository subdivisionRepository
+			IRouteListItemRepository routeListItemRepository
 		) : base(entityConfigurationProvider, commonServices)
 		{
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
@@ -67,6 +72,8 @@ namespace Vodovoz.JournalViewModels
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			this.routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+
 			TabName = "Журнал жалоб";
 
 			RegisterComplaints();
@@ -81,7 +88,9 @@ namespace Vodovoz.JournalViewModels
 				typeof(ComplaintDiscussion),
 				typeof(DeliveryPoint),
 				typeof(Fine),
-				typeof(Order)
+				typeof(Order),
+				typeof(RouteList),
+				typeof(RouteListItem)
 			);
 			this.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(sender, new CurrentObjectChangedArgs(null));
 		}
@@ -158,7 +167,7 @@ namespace Vodovoz.JournalViewModels
 				Projections.Property(() => fineAlias.TotalMoney),
 				Projections.Constant("\n"));
 
-			var query = UoW.Session.QueryOver<Complaint>(() => complaintAlias)
+			var query = UoW.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
 				.Left.JoinAlias(() => complaintAlias.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(() => complaintAlias.Order, () => orderAlias)
@@ -264,6 +273,57 @@ namespace Vodovoz.JournalViewModels
 				item.SequenceNumber = Items.IndexOf(item) + 1;
 			}
 			base.BeforeItemsUpdated();
+		}
+
+		protected override void CreatePopupActions()
+		{
+			bool HasOrder(object[] objs)
+			{
+				var selectedNodes = objs.Cast<ComplaintJournalNode>();
+				if(selectedNodes.Count() != 1)
+					return false;
+				var complaint = UoW.GetById<Complaint>(selectedNodes.FirstOrDefault().Id);
+				return complaint?.Order != null;
+			}
+
+			bool HasRouteList(object[] objs)
+			{
+				var selectedNodes = objs.Cast<ComplaintJournalNode>();
+				if(selectedNodes.Count() != 1)
+					return false;
+				var complaint = UoW.GetById<Complaint>(selectedNodes.FirstOrDefault().Id);
+				if(complaint?.Order == null)
+					return false;
+
+				var rl = routeListItemRepository.GetRouteListItemForOrder(UoW, complaint.Order)?.RouteList;
+				return rl != null;
+			}
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Открыть заказ",
+					HasOrder,
+					n => true,
+					n => {
+						var selectedNodes = n.Cast<ComplaintJournalNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						/*TabParent.OpenTab(
+							DomainHelper.GenerateDialogHashName<VodovozOrder>(selectedNode.Id),
+							() => new OrderDlg(selectedNode.Id)
+						);*/
+					}
+				)
+			);
+			PopupActionsList.Add(
+				new JournalAction(
+					"Открыть маршрутный лист",
+					HasRouteList,
+					n => true,
+					selectedItems => {
+
+					}
+				)
+			);
 		}
 	}
 }
