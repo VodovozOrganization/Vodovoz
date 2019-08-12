@@ -9,6 +9,9 @@ namespace Vodovoz.Infrastructure.Converters
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
+			if(value == null) {
+				return "";
+			}
 			if(!(value is Employee employee))
 				throw new InvalidOperationException(
 					string.Format(
