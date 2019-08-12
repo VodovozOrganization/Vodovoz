@@ -73,6 +73,7 @@ namespace Vodovoz.ViewModels.Complaints
 			if(UoW.IsNew) {
 				Entity.CreatedBy = CurrentEmployee;
 				Entity.CreationDate = DateTime.Now;
+				Entity.PlannedCompletionDate = DateTime.Today;
 			}
 			Entity.ChangedBy = CurrentEmployee;
 			Entity.ChangedDate = DateTime.Now;
