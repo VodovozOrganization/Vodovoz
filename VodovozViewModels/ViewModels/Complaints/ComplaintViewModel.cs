@@ -54,6 +54,7 @@ namespace Vodovoz.ViewModels.Complaints
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
+			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;;
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
 
 			if(ctorParam.IsNewEntity) {
@@ -79,6 +80,16 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)
+		{
+			OnDiscussionsChanged();
+		}
+
+		void ObservableComplaintDiscussions_ListContentChanged(object sender, EventArgs e)
+		{
+			OnDiscussionsChanged();
+		}
+
+		private void OnDiscussionsChanged()
 		{
 			OnPropertyChanged(() => SubdivisionsInWork);
 			Entity.UpdateComplaintStatus();
@@ -132,8 +143,11 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public string SubdivisionsInWork {
 			get {
-				string inWork = string.Join(", ", Entity.ComplaintDiscussions.Where(x => x.Status == ComplaintStatuses.InProcess).Select(x => x.Subdivision.ShortName));
-				string okk = Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.Checking) ? "OKK" : null;
+				string inWork = string.Join(", ", Entity.ComplaintDiscussions
+					.Where(x => x.Status == ComplaintStatuses.InProcess)
+					.Where(x => !string.IsNullOrWhiteSpace(x.Subdivision?.ShortName))
+					.Select(x => x.Subdivision.ShortName));
+				string okk = (Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.Checking) || !Entity.ComplaintDiscussions.Any()) ? "OKK" : null;
 				string result;
 				if(!string.IsNullOrWhiteSpace(inWork) && !string.IsNullOrWhiteSpace(okk)) {
 					result = string.Join(", ", inWork, okk);
