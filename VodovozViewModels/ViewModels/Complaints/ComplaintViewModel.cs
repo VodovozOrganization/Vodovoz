@@ -34,8 +34,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public ComplaintViewModel(
-			IEntityConstructorParam ctorParam, 
-			ICommonServices commonServices, 
+			IEntityConstructorParam ctorParam,
+			ICommonServices commonServices,
 			IUndeliveriesViewOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
@@ -76,6 +76,26 @@ namespace Vodovoz.ViewModels.Complaints
 
 			SetPropertyChangeRelation(e => e.Status,
 				() => Status
+			);
+
+			SetPropertyChangeRelation(
+				e => e.ChangedBy,
+				() => ChangedByAndDate
+			);
+
+			SetPropertyChangeRelation(
+				e => e.ChangedDate,
+				() => ChangedByAndDate
+			);
+
+			SetPropertyChangeRelation(
+				e => e.CreatedBy,
+				() => CreatedByAndDate
+			);
+
+			SetPropertyChangeRelation(
+				e => e.CreationDate,
+				() => CreatedByAndDate
 			);
 		}
 
@@ -156,11 +176,14 @@ namespace Vodovoz.ViewModels.Complaints
 				} else if(!string.IsNullOrWhiteSpace(okk)) {
 					result = okk;
 				} else {
-					return "";
+					return string.Empty;
 				}
-				return $"В работе у: {result}";
+				return $"В работе у отд. {result}";
 			}
 		}
+
+		public string ChangedByAndDate => string.Format("{0} {1}", Entity.ChangedBy?.ShortName, Entity.ChangedDate.ToString("g"));
+		public string CreatedByAndDate => string.Format("{0} {1}", Entity.CreatedBy?.ShortName, Entity.CreationDate.ToString("g"));
 
 		private List<ComplaintSource> complaintSources;
 		public IEnumerable<ComplaintSource> ComplaintSources {

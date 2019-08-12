@@ -1,15 +1,14 @@
-﻿using QS.Views.GtkUI;
-using Vodovoz.Infrastructure.Converters;
-using Vodovoz.ViewModels.Complaints;
-using Vodovoz.Domain.Complaints;
-using Gamma.ColumnConfig;
-using Vodovoz.Domain.Employees;
-using QSProjectsLib;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.Filters.ViewModels;
+﻿using Gamma.ColumnConfig;
 using QS.DomainModel.Config;
+using QS.Project.Journal.EntitySelector;
+using QS.Views.GtkUI;
+using QSProjectsLib;
+using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -25,8 +24,8 @@ namespace Vodovoz.Views.Complaints
 		private void ConfigureDlg()
 		{
 			ylabelSubdivisions.Binding.AddBinding(ViewModel, vm => vm.SubdivisionsInWork, w => w.LabelProp).InitializeFromSource();
-			ylabelCreatedBy.Binding.AddBinding(ViewModel.Entity, e => e.CreatedBy, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
-			ylabelChangedBy.Binding.AddBinding(ViewModel.Entity, e => e.ChangedBy, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
+			ylabelCreatedBy.Binding.AddBinding(ViewModel, e => e.CreatedByAndDate, w => w.LabelProp).InitializeFromSource();
+			ylabelChangedBy.Binding.AddBinding(ViewModel, e => e.ChangedByAndDate, w => w.LabelProp).InitializeFromSource();
 
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.ComplainantName, w => w.Text).InitializeFromSource();
 			yentryName.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();

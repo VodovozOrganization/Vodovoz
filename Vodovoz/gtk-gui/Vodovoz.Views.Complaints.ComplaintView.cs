@@ -105,6 +105,7 @@ namespace Vodovoz.Views.Complaints
 			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.Views.Complaints.ComplaintView
 			global::Stetic.BinContainer.Attach(this);
+			this.WidthRequest = 800;
 			this.Name = "Vodovoz.Views.Complaints.ComplaintView";
 			// Container child Vodovoz.Views.Complaints.ComplaintView.Gtk.Container+ContainerChild
 			this.hpaned1 = new global::Gtk.HPaned();
@@ -120,6 +121,7 @@ namespace Vodovoz.Views.Complaints
 			w1.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport1.Gtk.Container+ContainerChild
 			this.vboxDicussions = new global::Gtk.VBox();
+			this.vboxDicussions.WidthRequest = 450;
 			this.vboxDicussions.Name = "vboxDicussions";
 			this.vboxDicussions.Spacing = 6;
 			w1.Add(this.vboxDicussions);
@@ -156,7 +158,6 @@ namespace Vodovoz.Views.Complaints
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.buttonSave]));
 			w7.Position = 0;
 			w7.Expand = false;
-			w7.Fill = false;
 			// Container child hboxDialogButtons.Gtk.Box+BoxChild
 			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
@@ -170,7 +171,6 @@ namespace Vodovoz.Views.Complaints
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.buttonCancel]));
 			w9.Position = 1;
 			w9.Expand = false;
-			w9.Fill = false;
 			// Container child hboxDialogButtons.Gtk.Box+BoxChild
 			this.hboxInfo = new global::Gtk.HBox();
 			this.hboxInfo.Name = "hboxInfo";
@@ -182,8 +182,6 @@ namespace Vodovoz.Views.Complaints
 			this.hboxInfo.Add(this.ylabelSubdivisions);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxInfo[this.ylabelSubdivisions]));
 			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
 			// Container child hboxInfo.Gtk.Box+BoxChild
 			this.vseparator1 = new global::Gtk.VSeparator();
 			this.vseparator1.Name = "vseparator1";
@@ -199,8 +197,6 @@ namespace Vodovoz.Views.Complaints
 			this.hboxInfo.Add(this.ylabelCreatedBy);
 			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxInfo[this.ylabelCreatedBy]));
 			w12.Position = 2;
-			w12.Expand = false;
-			w12.Fill = false;
 			// Container child hboxInfo.Gtk.Box+BoxChild
 			this.vseparator2 = new global::Gtk.VSeparator();
 			this.vseparator2.Name = "vseparator2";
@@ -216,14 +212,11 @@ namespace Vodovoz.Views.Complaints
 			this.hboxInfo.Add(this.ylabelChangedBy);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxInfo[this.ylabelChangedBy]));
 			w14.Position = 4;
-			w14.Expand = false;
-			w14.Fill = false;
 			this.hboxDialogButtons.Add(this.hboxInfo);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.hboxInfo]));
 			w15.PackType = ((global::Gtk.PackType)(1));
 			w15.Position = 3;
 			w15.Expand = false;
-			w15.Fill = false;
 			this.vboxComplaint.Add(this.hboxDialogButtons);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hboxDialogButtons]));
 			w16.Position = 0;
