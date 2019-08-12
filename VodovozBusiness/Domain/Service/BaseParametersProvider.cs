@@ -3,7 +3,6 @@ using Gdk;
 using QS.DomainModel.UoW;
 using QSSupportLib;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Services;
 

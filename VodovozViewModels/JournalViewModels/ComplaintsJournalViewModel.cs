@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -12,19 +13,18 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
+using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.FilterViewModels;
-using Vodovoz.Services;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Subdivisions;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -39,7 +39,6 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEntityAutocompleteSelectorFactory orderSelectorFactory;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		readonly IRouteListItemRepository routeListItemRepository;
-		private readonly IEntitySelectorFactory subdivisionSelectorFactory;
 		private readonly ISubdivisionService subdivisionService;
 		private readonly IEmployeeRepository employeeRepository;
 
@@ -61,7 +60,6 @@ namespace Vodovoz.JournalViewModels
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			IRouteListItemRepository routeListItemRepository,
-			IEntitySelectorFactory subdivisionSelectorFactory,
 			ISubdivisionService subdivisionService,
 			IEmployeeRepository employeeRepository,
 			ComplaintFilterViewModel filterViewModel
@@ -76,9 +74,8 @@ namespace Vodovoz.JournalViewModels
 			this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			this.subdivisionSelectorFactory = subdivisionSelectorFactory ?? throw new ArgumentNullException(nameof(subdivisionSelectorFactory));
-			this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService)); ;
-			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository)); ;
+			this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
+			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 
 			TabName = "Журнал жалоб";
 
@@ -194,7 +191,7 @@ namespace Vodovoz.JournalViewModels
 					.Where(() => dicussionAlias.Complaint.Id == complaintAlias.Id);
 
 			if(FilterViewModel != null) {
-				if(FilterViewModel.Subdivision.Id == subdivisionService.GetOkkId()) {
+				if(FilterViewModel.Subdivision?.Id == subdivisionService.GetOkkId()) {
 					var statusQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
 							.Select(x => x.Id)
 							.Where(() => dicussionAlias.Status == ComplaintStatuses.Checking);

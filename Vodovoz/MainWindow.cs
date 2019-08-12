@@ -22,6 +22,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz;
 using Vodovoz.Core;
+using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
@@ -34,7 +35,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
@@ -52,12 +57,6 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.JournalViewModels.Organization;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.FilterViewModels;
-using Vodovoz.Core.DataService;
-using Vodovoz.EntityRepositories.Employees;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -689,7 +688,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				counterpartySelectorFactory,
 				ordersSelectorFactory,
 				subdivisionRepository,
-				routeListItemRepository
+				routeListItemRepository,
 				new BaseParametersProvider(),
 				new EmployeeRepository(),
 				new ComplaintFilterViewModel(new GtkInteractiveService())
