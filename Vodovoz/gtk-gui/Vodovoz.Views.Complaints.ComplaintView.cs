@@ -450,11 +450,13 @@ namespace Vodovoz.Views.Complaints
 			// Container child vboxComplaint.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
+			this.GtkScrolledWindow2.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
 			this.ytextviewComplaintText = new global::Gamma.GtkWidgets.yTextView();
 			this.ytextviewComplaintText.CanFocus = true;
 			this.ytextviewComplaintText.Name = "ytextviewComplaintText";
+			this.ytextviewComplaintText.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindow2.Add(this.ytextviewComplaintText);
 			this.vboxComplaint.Add(this.GtkScrolledWindow2);
 			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.GtkScrolledWindow2]));
@@ -484,11 +486,13 @@ namespace Vodovoz.Views.Complaints
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
+			this.GtkScrolledWindow3.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
 			this.ytextviewResultText = new global::Gamma.GtkWidgets.yTextView();
 			this.ytextviewResultText.CanFocus = true;
 			this.ytextviewResultText.Name = "ytextviewResultText";
+			this.ytextviewResultText.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindow3.Add(this.ytextviewResultText);
 			this.hbox7.Add(this.GtkScrolledWindow3);
 			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.GtkScrolledWindow3]));
