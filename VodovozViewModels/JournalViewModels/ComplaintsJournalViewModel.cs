@@ -205,7 +205,7 @@ namespace Vodovoz.JournalViewModels
 								.JoinAlias(() => dicussionAlias.Complaint, () => complaintAlias)
 								.Select(x => x.Id)
 								.Where(() => dicussionAlias.Status == ComplaintStatuses.Checking || complaintAlias.Status == ComplaintStatuses.Checking)
-								.And(() => dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate)
+								.And(() => FilterViewModel.StartDate == null || dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
 								.And(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 
 						query = query.WithSubquery.WhereExists(statusQuery);
@@ -213,7 +213,7 @@ namespace Vodovoz.JournalViewModels
 					else 
 					{
 						var filterQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
-							.Where(() => dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate)
+							.Where(() => FilterViewModel.StartDate == null || dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
 							.And(() => dicussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 						query = query.WithSubquery.WhereExists(filterQuery);
 					}

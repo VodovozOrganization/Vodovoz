@@ -485,7 +485,7 @@ namespace Vodovoz.Views.Complaints
 			this.ytextviewResultText = new global::Gamma.GtkWidgets.yTextView();
 			this.ytextviewResultText.CanFocus = true;
 			this.ytextviewResultText.Name = "ytextviewResultText";
-			this.ytextviewResultText.WrapMode = ((global::Gtk.WrapMode)(2));
+			this.ytextviewResultText.WrapMode = ((global::Gtk.WrapMode)(3));
 			this.GtkScrolledWindow3.Add(this.ytextviewResultText);
 			this.hbox7.Add(this.GtkScrolledWindow3);
 			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.GtkScrolledWindow3]));
