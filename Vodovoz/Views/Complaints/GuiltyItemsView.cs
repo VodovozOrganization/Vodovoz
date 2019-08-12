@@ -59,6 +59,7 @@ namespace Vodovoz.Views.Complaints
 				.AddColumn("Отдел ВВ")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.GetGuiltySubdivisionOrEmployee)
+				.AddColumn("")
 				.Finish();
 			treeViewGuilty.HeadersVisible = false;
 			treeViewGuilty.Binding.AddBinding(ViewModel.Entity, s => s.ObservableGuilties, w => w.ItemsDataSource).InitializeFromSource();

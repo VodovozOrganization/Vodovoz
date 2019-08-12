@@ -253,7 +253,7 @@ namespace Vodovoz.Views.Complaints
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFields.Gtk.Table+TableChild
 			this.guiltyitemsview = new global::Vodovoz.Views.Complaints.GuiltyItemsView();
-			this.guiltyitemsview.HeightRequest = 150;
+			this.guiltyitemsview.HeightRequest = 125;
 			this.guiltyitemsview.Events = ((global::Gdk.EventMask)(256));
 			this.guiltyitemsview.Name = "guiltyitemsview";
 			this.tableFields.Add(this.guiltyitemsview);

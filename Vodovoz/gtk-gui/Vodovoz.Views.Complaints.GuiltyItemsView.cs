@@ -48,6 +48,7 @@ namespace Vodovoz.Views.Complaints
 			w2.Position = 0;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.WidthRequest = 500;
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
@@ -62,6 +63,7 @@ namespace Vodovoz.Views.Complaints
 			w3.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.hbxGuiltyContainer = new global::Gtk.HBox();
+			this.hbxGuiltyContainer.WidthRequest = 500;
 			this.hbxGuiltyContainer.Name = "hbxGuiltyContainer";
 			this.hbxGuiltyContainer.Spacing = 6;
 			this.hbox1.Add(this.hbxGuiltyContainer);

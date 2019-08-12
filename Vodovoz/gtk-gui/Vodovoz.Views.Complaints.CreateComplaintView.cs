@@ -156,6 +156,7 @@ namespace Vodovoz.Views.Complaints
 			w10.RightAttach = ((uint)(2));
 			// Container child tableFields.Gtk.Table+TableChild
 			this.guiltyitemsview = new global::Vodovoz.Views.Complaints.GuiltyItemsView();
+			this.guiltyitemsview.HeightRequest = 125;
 			this.guiltyitemsview.Events = ((global::Gdk.EventMask)(256));
 			this.guiltyitemsview.Name = "guiltyitemsview";
 			this.tableFields.Add(this.guiltyitemsview);
@@ -164,7 +165,6 @@ namespace Vodovoz.Views.Complaints
 			w11.BottomAttach = ((uint)(12));
 			w11.LeftAttach = ((uint)(1));
 			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableFields.Gtk.Table+TableChild
 			this.labelComplaintText = new global::Gtk.Label();
@@ -192,7 +192,6 @@ namespace Vodovoz.Views.Complaints
 			this.labelGuilty = new global::Gtk.Label();
 			this.labelGuilty.Name = "labelGuilty";
 			this.labelGuilty.Xalign = 1F;
-			this.labelGuilty.Yalign = 0F;
 			this.labelGuilty.LabelProp = global::Mono.Unix.Catalog.GetString("Виновники:");
 			this.tableFields.Add(this.labelGuilty);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableFields[this.labelGuilty]));

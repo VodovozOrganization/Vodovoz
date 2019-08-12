@@ -1,11 +1,10 @@
 ﻿using Gamma.Binding.Core;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
-using Vodovoz.ViewModels.Complaints;
 using Vodovoz.Domain.Employees;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
 {
