@@ -83,6 +83,7 @@ namespace Vodovoz.JournalViewModels
 
 			TabName = "Журнал жалоб";
 
+			FilterViewModel.subdivisionService = subdivisionService;
 			FilterViewModel.Subdivision = employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision;
 
 			RegisterComplaints();

@@ -5,11 +5,14 @@ using QS.Report;
 using QS.Services;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Services;
 
 namespace Vodovoz.FilterViewModels
 {
 	public class ComplaintFilterViewModel : FilterViewModelBase<ComplaintFilterViewModel>
 	{
+		public ISubdivisionService subdivisionService { get; set; }
+
 		public ComplaintFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
 		{
 			UpdateWith(
@@ -43,11 +46,18 @@ namespace Vodovoz.FilterViewModels
 		private Subdivision subdivision;
 		public virtual Subdivision Subdivision {
 			get => subdivision;
-			set => SetField(ref subdivision, value, () => Subdivision);
+			set 
+			{
+				if(value?.Id == subdivisionService?.GetOkkId())
+					complaintStatus = ComplaintStatuses.Checking;
+				else if(value?.Id != null)
+					complaintStatus = ComplaintStatuses.InProcess;
+				SetField(ref subdivision, value, () => Subdivision);
+			}
 		}
 
-		private DateTime startDate = DateTime.Now;
-		public virtual DateTime StartDate {
+		private DateTime? startDate;
+		public virtual DateTime? StartDate {
 			get => startDate;
 			set => SetField(ref startDate, value, () => StartDate);
 		}
