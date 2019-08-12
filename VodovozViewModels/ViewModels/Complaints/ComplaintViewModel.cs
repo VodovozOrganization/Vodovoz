@@ -32,7 +32,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISubdivisionRepository subdivisionRepository;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory OrderSelectorFactory { get; }
 
 		public ComplaintViewModel(
 			IEntityConstructorParam ctorParam, 
@@ -41,13 +40,11 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory orderSelectorFactory,
 			IEntityConfigurationProvider entityConfigurationProvider,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository
 			) : base(ctorParam, commonServices)
 		{
-			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -183,6 +180,15 @@ namespace Vodovoz.ViewModels.Complaints
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 
+		public string GetFineReason() {
+			string result = $"Жалоба №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
+			if(Entity.Counterparty == null && Entity.Order == null) {
+				return result;
+			}
+			string clientName = Entity.Counterparty == null ? Entity.Order.Client.Name : Entity.Counterparty.Name;
+			string clientInfo = $", {clientName}";
+			return result + clientInfo;
+		}
 
 		#region Commands
 
@@ -243,6 +249,7 @@ namespace Vodovoz.ViewModels.Complaints
 						entityConfigurationProvider,
 						CommonServices
 					);
+					fineViewModel.FineReasonString = GetFineReason();
 					fineViewModel.EntitySaved += (sender, e) => {
 						Entity.AddFine(e.Entity as Fine);
 					};

@@ -37,10 +37,9 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
-		private readonly IEntityAutocompleteSelectorFactory orderSelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
-		readonly IRouteListItemRepository routeListItemRepository;
+		private readonly IRouteListItemRepository routeListItemRepository;
 		private readonly ISubdivisionService subdivisionService;
 		private readonly IEmployeeRepository employeeRepository;
 
@@ -59,7 +58,6 @@ namespace Vodovoz.JournalViewModels
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory orderSelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionService subdivisionService,
 			IEmployeeRepository employeeRepository,
@@ -74,7 +72,6 @@ namespace Vodovoz.JournalViewModels
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -267,7 +264,6 @@ namespace Vodovoz.JournalViewModels
 						EntityConstructorParam.ForCreate(),
 						employeeService,
 						counterpartySelectorFactory,
-						orderSelectorFactory,
 						subdivisionRepository,
 						commonServices
 					),
@@ -279,7 +275,6 @@ namespace Vodovoz.JournalViewModels
 						employeeService,
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
-						orderSelectorFactory,
 						entityConfigurationProvider,
 						filePickerService,
 						subdivisionRepository
@@ -302,7 +297,6 @@ namespace Vodovoz.JournalViewModels
 						employeeService,
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
-						orderSelectorFactory,
 						entityConfigurationProvider,
 						filePickerService,
 						subdivisionRepository
@@ -329,8 +323,6 @@ namespace Vodovoz.JournalViewModels
 
 		protected override void CreatePopupActions()
 		{
-
-
 			Order GetOrder(object[] objs)
 			{
 				var selectedNodes = objs.Cast<ComplaintJournalNode>();

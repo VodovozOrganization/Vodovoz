@@ -677,7 +677,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
 		IEntitySelectorFactory employeeSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Employee), () => new EmployeesVM());
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
-		IEntityAutocompleteSelectorFactory ordersSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order, OrderJournalViewModel, OrderJournalFilterViewModel>(ServicesConfig.CommonServices);
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFilePickerService filePickerService = new GtkFilePicker();
@@ -690,7 +689,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				ServicesConfig.EmployeeService,
 				employeeSelectorFactory,
 				counterpartySelectorFactory,
-				ordersSelectorFactory,
 				routeListItemRepository,
 				new BaseParametersProvider(),
 				new EmployeeRepository(),

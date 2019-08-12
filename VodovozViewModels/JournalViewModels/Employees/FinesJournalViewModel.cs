@@ -39,6 +39,8 @@ namespace Vodovoz.JournalViewModels.Employees
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
+			TabName = "Журнал штрафов";
 		}
 
 		protected override Func<IQueryOver<Fine>> ItemsSourceQueryFunction => () => {

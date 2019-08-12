@@ -74,12 +74,17 @@ namespace Vodovoz.ViewModels.Employees
 			}
 		}
 
-		public virtual FineTypes FineType {
+		public FineTypes FineType {
 			get { return Entity.FineType; }
 			set {
 				Entity.FineType = value;
 				UpdateEmployeeList();
 			}
+		}
+
+		public string FineReasonString {
+			get => Entity.FineReasonString;
+			set => Entity.FineReasonString = value;
 		}
 
 		public virtual RouteList RouteList {

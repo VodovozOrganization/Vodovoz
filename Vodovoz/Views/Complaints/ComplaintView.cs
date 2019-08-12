@@ -5,6 +5,11 @@ using Vodovoz.Domain.Complaints;
 using Gamma.ColumnConfig;
 using Vodovoz.Domain.Employees;
 using QSProjectsLib;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.Filters.ViewModels;
+using QS.DomainModel.Config;
+using Vodovoz.Domain.Orders;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -41,7 +46,15 @@ namespace Vodovoz.Views.Complaints
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 			labelCounterparty.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
-			entryOrder.SetEntityAutocompleteSelectorFactory(ViewModel.OrderSelectorFactory);
+			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
+				var filter = new OrderJournalFilterViewModel(ServicesConfig.InteractiveService);
+				if(ViewModel.Entity.Counterparty != null) {
+					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
+				}
+				return new OrderJournalViewModel(filter, new DefaultEntityConfigurationProvider(), ServicesConfig.CommonServices);
+			});
+
+			entryOrder.SetEntityAutocompleteSelectorFactory(orderSelectorFactory);
 			entryOrder.Binding.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			entryOrder.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			entryOrder.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();

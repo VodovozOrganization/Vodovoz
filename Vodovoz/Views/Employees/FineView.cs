@@ -45,7 +45,7 @@ namespace Vodovoz.Views.Employees
 			ybuttonDivideByAll.Binding.AddBinding(ViewModel, vm => vm.IsStandartFine, w => w.Visible).InitializeFromSource();
 			ybuttonDivideByAll.Clicked += (sender, e) => ViewModel.DivideByAllCommand.Execute();
 
-			yentryFineReasonString.Binding.AddBinding(ViewModel.Entity, e => e.FineReasonString, w => w.Text).InitializeFromSource();
+			yentryFineReasonString.Binding.AddBinding(ViewModel, e => e.FineReasonString, w => w.Text).InitializeFromSource();
 			yentryFineReasonString.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			ybuttonGetReasonFromTemplate.Binding.AddBinding(ViewModel, vm => vm.IsStandartFine, w => w.Visible).InitializeFromSource();

@@ -1,7 +1,12 @@
 ﻿using System;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.Filters.ViewModels;
+using QS.DomainModel.Config;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -23,7 +28,15 @@ namespace Vodovoz.Views.Complaints
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryOrder.SetEntitySelectorFactory(ViewModel.OrderSelectorFactory);
+			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
+				var filter = new OrderJournalFilterViewModel(ServicesConfig.InteractiveService);
+				if(ViewModel.Entity.Counterparty != null) {
+					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
+				}
+				return new OrderJournalViewModel(filter, new DefaultEntityConfigurationProvider(), ServicesConfig.CommonServices);
+			});
+
+			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);
 			entryOrder.Binding.AddBinding(ViewModel.Entity, e => e.Order, w => w.Subject).InitializeFromSource();
 			entryOrder.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 

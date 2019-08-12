@@ -15,20 +15,17 @@ namespace Vodovoz.ViewModels.Complaints
 	public class CreateComplaintViewModel : EntityTabViewModelBase<Complaint>
 	{
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
-		public IEntityAutocompleteSelectorFactory OrderSelectorFactory { get; }
 
 		public CreateComplaintViewModel(
 			IEntityConstructorParam ctorParam,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IEntityAutocompleteSelectorFactory orderSelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices
 			) : base(ctorParam, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
-			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			Entity.ComplaintType = ComplaintType.Client;
 			TabName = "Новая клиентская жалоба";
