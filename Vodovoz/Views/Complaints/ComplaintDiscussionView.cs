@@ -33,10 +33,10 @@ namespace Vodovoz.Views.Complaints
 			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.CanEditStatus, w => w.Sensitive).InitializeFromSource();
 			UpdateStatusEnum();
 
-			//ytreeviewComments.ShowExpanders = false;
+			ytreeviewComments.ShowExpanders = false;
 			ytreeviewComments.ColumnsConfig = FluentColumnsConfig<object>.Create()
 				.AddColumn("Комментарий").AddTextRenderer(x => GetNodeName(x))
-				//.AddSetter(SetAlign)
+				.AddSetter(SetAlign)
 				.Finish();
 			var levels = LevelConfigFactory.FirstLevel<ComplaintDiscussionComment, ComplaintFile>(x => x.ComplaintFiles).LastLevel(c => c.ComplaintDiscussionComment).EndConfig();
 			ytreeviewComments.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
@@ -44,7 +44,7 @@ namespace Vodovoz.Views.Complaints
 			ViewModel.Entity.ObservableComments.ListContentChanged += (sender, e) => { 
 				ytreeviewComments.YTreeModel.EmitModelChanged();
 			};
-			//ytreeviewComments.ExpandAll();
+			ytreeviewComments.ExpandAll();
 			ytreeviewComments.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
 
