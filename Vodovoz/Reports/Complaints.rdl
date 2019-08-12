@@ -46,8 +46,11 @@
           </BorderStyle>
         </Style>
         <TableColumns>
+          <TableColumn >
+            <Width>18.8pt</Width>
+          </TableColumn>
           <TableColumn>
-            <Width>23.6pt</Width>
+            <Width>18.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>35.1pt</Width>
@@ -94,10 +97,27 @@
             <TableRow>
               <Height>21.9pt</Height>
               <TableCells>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>№</Value>
+                      <Value>ID</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -345,6 +365,23 @@
             <TableRow>
               <Height>44.3pt</Height>
               <TableCells>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
@@ -655,10 +692,10 @@
     END AS guilties,
     complaints.complaint_text,
     CONCAT_WS('', CONCAT(employees.last_name, ' '), IF(employees.name = '', '', CONCAT(LEFT(employees.name, 1), '.')), IF(employees.patronymic = '', '', CONCAT(LEFT(employees.patronymic, 1), '.'))) AS creator,
-    GROUP_CONCAT(ROUND(fines.total_money,2) SEPARATOR ' ') AS fines,
+    GROUP_CONCAT(DISTINCT ROUND(fines.total_money,2) SEPARATOR ' ') AS fines,
     complaints.result_text,
     complaints.actual_completion_date,
-    DATEDIFF(complaints.actual_completion_date, complaints.planned_completion_date) AS days_at_work
+    DATEDIFF(complaints.actual_completion_date, complaints.creation_date) AS days_at_work
 FROM
     complaints
     LEFT JOIN complaint_discussions ON complaint_discussions.complaint_id = complaints.id
