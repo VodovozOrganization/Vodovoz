@@ -1,17 +1,16 @@
 ﻿using System;
+using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Config;
-using QS.Project.Journal;
+using QS.Project.Domain;
 using QS.Services;
 using Vodovoz.Domain.Employees;
+using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Organization;
-using QS.Project.Domain;
-using Vodovoz.FilterViewModels.Organization;
-using System.Linq;
 
 namespace Vodovoz.JournalViewModels.Organization
 {
@@ -22,6 +21,7 @@ namespace Vodovoz.JournalViewModels.Organization
 		public SubdivisionsJournalViewModel(SubdivisionFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			TabName = "Выбор подразделения";
 		}
 
 		protected override Func<IQueryOver<Subdivision>> ItemsSourceQueryFunction => () => {
