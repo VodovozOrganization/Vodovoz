@@ -1263,6 +1263,8 @@
     <Compile Include="Filters\GtkViews\DebtorsFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DebtorsFilterView.cs" />
     <Compile Include="JournalNodes\DebtorJournalNode.cs" />
+    <Compile Include="Filters\GtkViews\ComplaintFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

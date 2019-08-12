@@ -3,13 +3,12 @@ using Gdk;
 using QS.DomainModel.UoW;
 using QSSupportLib;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Services;
 
 namespace Vodovoz.Core.DataService
 {
-	public class BaseParametersProvider : IStandartNomenclatures , IImageProvider, IStandartDiscountsService , IPersonProvider
+	public class BaseParametersProvider : IStandartNomenclatures , IImageProvider, IStandartDiscountsService , IPersonProvider , ISubdivisionService
 	{
 
 		public int GetForfeitId()
@@ -50,6 +49,14 @@ namespace Vodovoz.Core.DataService
 			int employeeId = int.Parse(MainSupport.BaseParameters.All["сотрудник_по_умолчанию_для_crm"]);
 
 			return uow.GetById<Employee>(employeeId);
+		}
+
+		public int GetOkkId()
+		{
+			if(!MainSupport.BaseParameters.All.ContainsKey("номер_отдела_ОКК")) {
+				throw new InvalidProgramException("В параметрах базы не настроен параметр : номер_отдела_ОКК");
+			}
+			return int.Parse(MainSupport.BaseParameters.All["номер_отдела_ОКК"]);
 		}
 	}
 }

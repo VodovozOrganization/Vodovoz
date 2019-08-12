@@ -74,6 +74,7 @@ namespace Vodovoz.EntityRepositories.Complaints
 
 			var query = uow.Session.QueryOver<Complaint>()
 						   .Left.JoinAlias(c => c.ComplaintResult, () => complaintResultAlias)
+						   .Where(c => c.Status == ComplaintStatuses.Closed)
 						   ;
 
 			if(start != null && end != null)

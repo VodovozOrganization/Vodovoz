@@ -16,11 +16,11 @@ namespace Vodovoz.JournalNodes
 		public ComplaintType Type { get; set; }
 		public string TypeString {
 			get {
-				if(Type == ComplaintType.Inner) {
-					return "ВН";
-				}
-				if(Type == ComplaintType.Client) {
-					return "КЛ";
+				switch(Type) {
+					case ComplaintType.Inner:
+						return "ВН";
+					case ComplaintType.Client:
+						return "КЛ";
 				}
 				return Type.GetEnumTitle();
 			}
