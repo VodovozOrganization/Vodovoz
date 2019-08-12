@@ -42,6 +42,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IRouteListItemRepository routeListItemRepository;
 		private readonly ISubdivisionService subdivisionService;
 		private readonly IEmployeeRepository employeeRepository;
+		private readonly IReportViewOpener reportViewOpener;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -63,7 +64,8 @@ namespace Vodovoz.JournalViewModels
 			IEmployeeRepository employeeRepository,
 			ComplaintFilterViewModel filterViewModel,
 			IFilePickerService filePickerService,
-			ISubdivisionRepository subdivisionRepository
+			ISubdivisionRepository subdivisionRepository,
+			IReportViewOpener reportViewOpener
 		) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
@@ -77,6 +79,7 @@ namespace Vodovoz.JournalViewModels
 			this.routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 
 			TabName = "Журнал жалоб";
 
@@ -371,6 +374,12 @@ namespace Vodovoz.JournalViewModels
 					}
 				)
 			);
+		}
+
+		protected override void CreateNodeActions()
+		{
+			base.CreateNodeActions();
+			NodeActionsList.Add(new JournalAction("Открыть на печатную форму", x => true, x => true, selectedItems => reportViewOpener.OpenReport(this,FilterViewModel.GetReportInfo())));
 		}
 	}
 }

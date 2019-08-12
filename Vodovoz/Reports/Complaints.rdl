@@ -15,14 +15,14 @@
     <Height>31.4pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
-    <ReportItems >
+    <ReportItems>
       <Textbox Name="Textbox28">
         <Height>20.29pt</Height>
         <Width>165.65pt</Width>
         <Value>Отчет по жалобам</Value>
         <ZIndex>1</ZIndex>
-        <Left>5.7pt</Left>
-        <Top>6.1pt</Top>
+        <Left>5.70pt</Left>
+        <Top>6.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -36,7 +36,7 @@
   <Body>
     <Height>88.3pt</Height>
     <Columns>1</Columns>
-    <ReportItems >
+    <ReportItems>
       <Table Name="Table1">
         <DataSetName>Complaint</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -50,16 +50,16 @@
             <Width>23.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.3pt</Width>
+            <Width>35.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>42.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>60.7pt</Width>
+            <Width>47.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>70.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>1in</Width>
@@ -71,25 +71,28 @@
             <Width>58.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>96.2pt</Width>
+            <Width>89.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>60.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.4pt</Width>
+            <Width>47.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>88.0pt</Width>
+            <Width>87.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>61.1pt</Width>
+            <Width>65.8pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>31.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>21.2pt</Height>
+              <Height>21.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -315,6 +318,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>Дни</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -337,6 +357,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -353,6 +375,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -369,6 +393,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -385,6 +411,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -401,6 +429,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -417,6 +447,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -433,6 +465,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -449,6 +483,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -465,7 +501,10 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -481,6 +520,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -497,6 +538,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -513,7 +556,10 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -529,6 +575,25 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>={days_at_work}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>8pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -579,7 +644,7 @@
         WHEN complaints.status = 'Checking' THEN 'На проверке'
         WHEN complaints.status = 'Closed' THEN 'Закрыт'
     END AS complaint_status,
-    GROUP_CONCAT(subdivisions.name SEPARATOR ' ') AS subdivisions,
+    GROUP_CONCAT(DISTINCT subdivisions.name SEPARATOR ' ') AS subdivisions,
     complaints.planned_completion_date,
     CONCAT_WS(', ', counterparty.name, COMPILE_ADDRESS(delivery_points.id)) AS client,
     CASE
@@ -587,12 +652,13 @@
         WHEN complaint_guilty_items.guilty_type = 'Node' THEN 'Нет'
         WHEN complaint_guilty_items.guilty_type = 'Employee' THEN  CONCAT_WS('', CONCAT(guiltyEmployee.last_name, ' '), IF(guiltyEmployee.name = '', '', CONCAT(LEFT(guiltyEmployee.name, 1), '.')), IF(guiltyEmployee.patronymic = '', '', CONCAT(LEFT(guiltyEmployee.patronymic, 1), '.')))
         WHEN complaint_guilty_items.guilty_type = 'Subdivision' THEN guiltySubdivisions.name
-    END AS 'guilties',
+    END AS guilties,
     complaints.complaint_text,
     CONCAT_WS('', CONCAT(employees.last_name, ' '), IF(employees.name = '', '', CONCAT(LEFT(employees.name, 1), '.')), IF(employees.patronymic = '', '', CONCAT(LEFT(employees.patronymic, 1), '.'))) AS creator,
     GROUP_CONCAT(ROUND(fines.total_money,2) SEPARATOR ' ') AS fines,
     complaints.result_text,
-    complaints.actual_completion_date
+    complaints.actual_completion_date,
+    DATEDIFF(complaints.actual_completion_date, complaints.planned_completion_date) AS days_at_work
 FROM
     complaints
     LEFT JOIN complaint_discussions ON complaint_discussions.complaint_id = complaints.id
@@ -606,14 +672,49 @@ FROM
     LEFT JOIN employees ON employees.id = complaints.created_by_id
     LEFT JOIN complaint_fines ON complaint_fines.complaint_id = complaints.id
     LEFT JOIN fines ON complaint_fines.fine_id = fines.id
+WHERE
+    (
+        (
+            @subdivision_id = 0 OR (@subdivision_id = 1
+            AND (@start_date IS NULL OR complaints.planned_completion_date &gt;= @start_date)
+            AND (@end_date IS NULL OR complaints.planned_completion_date &lt;= @end_date))
+        )
+        OR EXISTS
+        (
+            SELECT
+                *
+            FROM 
+                complaint_discussions as disc
+            WHERE
+                disc.complaint_id = complaints.id
+                AND disc.subdivision_id = @subdivision_id
+                AND (@start_date IS NULL OR disc.planned_completion_date &gt;= @start_date)
+                AND (@end_date IS NULL OR disc.planned_completion_date &lt;= @end_date)
+        )
+    )
+    AND (@employee_id = 0 OR complaints.created_by_id = @employee_id)
+    AND (@status = '' OR complaints.status = @status)
+    AND (@type = '' OR complaints.type = @type)
 GROUP BY
     complaints.id</CommandText>
         <QueryParameters>
-          <QueryParameter Name="StartDate">
-            <Value>=Parameters!StartDate</Value>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
           </QueryParameter>
-          <QueryParameter Name="EndDate">
-            <Value>=Parameters!EndDate</Value>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="status">
+            <Value>={?status}</Value>
+          </QueryParameter>
+          <QueryParameter Name="type">
+            <Value>={?type}</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_id">
+            <Value>={?subdivision_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="employee_id">
+            <Value>={?employee_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -657,6 +758,9 @@ GROUP BY
         <Field Name="actual_completion_date">
           <DataField>actual_completion_date</DataField>
         </Field>
+        <Field Name="days_at_work">
+          <DataField>days_at_work</DataField>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -671,4 +775,54 @@ GROUP BY
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <ReportParameters >
+    <ReportParameter Name="subdivision_id">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="employee_id">
+      <DataType>Integer</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="type">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="status">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
 </Report>

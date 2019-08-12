@@ -79,6 +79,7 @@
     <Compile Include="JournalNodes\SubdivisionJournalNode.cs" />
     <Compile Include="FilterViewModels\Organization\SubdivisionFilterViewModel.cs" />
     <Compile Include="FilterViewModels\ComplaintFilterViewModel.cs" />
+    <Compile Include="TempAdapters\IReportViewOpener.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -118,6 +119,10 @@
     <ProjectReference Include="..\..\GammaBinding\GammaUtil\GammaUtil.csproj">
       <Project>{1BF2A638-420D-456C-96A7-36873A0FB894}</Project>
       <Name>GammaUtil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Report\QS.Report.csproj">
+      <Project>{D30A23BF-C5DC-4A1B-95FC-9C2038D46E8E}</Project>
+      <Name>QS.Report</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

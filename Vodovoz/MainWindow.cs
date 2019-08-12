@@ -61,6 +61,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.JournalViewModels.Organization;
 using QS.Project.Services;
 using QS.Dialog.GtkUI;
+using Vodovoz.ViewWidgets;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -694,7 +695,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				new EmployeeRepository(),
 				new ComplaintFilterViewModel(new GtkInteractiveService()),
 				filePickerService,
-				subdivisionRepository
+				subdivisionRepository,
+				new GtkReportViewOpener()
 			);
 		});
 	}
