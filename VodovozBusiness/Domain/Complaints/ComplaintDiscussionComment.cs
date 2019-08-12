@@ -6,6 +6,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.Linq;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -18,6 +19,20 @@ namespace Vodovoz.Domain.Complaints
 	public class ComplaintDiscussionComment : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
+
+		private Employee author;
+		[Display(Name = "Автор")]
+		public virtual Employee Author {
+			get => author;
+			set => SetField(ref author, value, () => Author);
+		}
+
+		private DateTime creationTime;
+		[Display(Name = "Время создания")]
+		public virtual DateTime CreationTime {
+			get => creationTime;
+			set => SetField(ref creationTime, value, () => CreationTime);
+		}
 
 		private ComplaintDiscussion complaintDiscussion;
 		[Display(Name = "Обсуждение жалобы")]

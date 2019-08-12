@@ -10,21 +10,28 @@ using QS.Project.Repositories;
 using System;
 using QS.Project.Services;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintDiscussionViewModel : EntityWidgetViewModelBase<ComplaintDiscussion>
 	{
 		private readonly IFilePickerService filePickerService;
+		private readonly IEmployeeService employeeService;
+		private readonly ICommonServices commonServices;
 
 		public ComplaintDiscussionViewModel(
 			ComplaintDiscussion complaintDiscussion,
 			IFilePickerService filePickerService,
+			IEmployeeService employeeService,
 			ICommonServices commonServices,
 			IUnitOfWork uow
 			) : base(complaintDiscussion, commonServices)
 		{
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			newCommentFiles = new GenericObservableList<ComplaintFile>();
 			UoW = uow;
 			CreateCommands();
@@ -36,6 +43,16 @@ namespace Vodovoz.ViewModels.Complaints
 			SetPropertyChangeRelation(e => e.Status,
 				() => CanEditStatus
 			);
+		}
+
+		private Employee currentEmployee;
+		public Employee CurrentEmployee {
+			get {
+				if(currentEmployee == null) {
+					currentEmployee = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
+				}
+				return currentEmployee;
+			}
 		}
 
 		private FilesViewModel filesViewModel;
@@ -101,6 +118,12 @@ namespace Vodovoz.ViewModels.Complaints
 			AddCommentCommand = new DelegateCommand(
 				() => {
 					var newComment = new ComplaintDiscussionComment();
+					if(CurrentEmployee == null) {
+						ShowWarningMessage("Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
+						return;
+					}
+					newComment.Author = CurrentEmployee;
+					newComment.CreationTime = DateTime.Now;
 					newComment.Comment = NewCommentText;
 					foreach(ComplaintFile file in newCommentFiles) {
 						file.ComplaintDiscussionComment = newComment;

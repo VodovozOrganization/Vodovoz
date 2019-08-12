@@ -61,6 +61,10 @@ namespace Vodovoz.ViewModels.Complaints
 				AbortOpening("Невозможно создать новую жалобу из текущего диалога, необходимо использовать диалоги создания");
 			}
 
+			if(CurrentEmployee == null) {
+				AbortOpening("Невозможно открыть жалобу так как к вашему пользователю не привязан сотрудник");
+			}
+
 			ConfigureEntityChangingRelations();
 
 			CreateCommands();
@@ -120,6 +124,16 @@ namespace Vodovoz.ViewModels.Complaints
 			OnPropertyChanged(() => FineItems);
 		}
 
+		private Employee currentEmployee;
+		public Employee CurrentEmployee {
+			get {
+				if(currentEmployee == null) {
+					currentEmployee = employeeService.GetEmployeeForUser(UoW, commonServices.UserService.CurrentUserId);
+				}
+				return currentEmployee;
+			}
+		}
+
 		public virtual ComplaintStatuses Status {
 			get => Entity.Status;
 			set {
@@ -132,7 +146,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public ComplaintDiscussionsViewModel DiscussionsViewModel {
 			get {
 				if(discussionsViewModel == null) {
-					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, this, UoW, entityConfigurationProvider, filePickerService, CommonServices);
+					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, this, UoW, entityConfigurationProvider, filePickerService, employeeService, CommonServices);
 				}
 				return discussionsViewModel;
 			}

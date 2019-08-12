@@ -14,6 +14,7 @@ using QS.DomainModel.Config;
 using QS.Project.Journal;
 using Vodovoz.FilterViewModels.Organization;
 using QS.Project.Services;
+using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -22,6 +23,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ITdiTab dialogTab;
 		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 		private readonly IFilePickerService filePickerService;
+		private readonly IEmployeeService employeeService;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity, 
@@ -29,10 +31,12 @@ namespace Vodovoz.ViewModels.Complaints
 			IUnitOfWork uow,
 			IEntityConfigurationProvider entityConfigurationProvider,
 			IFilePickerService filePickerService,
+			IEmployeeService employeeService,
 			ICommonServices commonServices
 		) : base(entity, commonServices)
 		{
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
 
@@ -78,7 +82,7 @@ namespace Vodovoz.ViewModels.Complaints
 			if(viewModelsCache.ContainsKey(subdivisionId)) {
 				return viewModelsCache[subdivisionId];
 			}
-			var viewModel = new ComplaintDiscussionViewModel(complaintDiscussion, filePickerService, CommonServices, UoW);
+			var viewModel = new ComplaintDiscussionViewModel(complaintDiscussion, filePickerService, employeeService, CommonServices, UoW);
 			viewModelsCache.Add(subdivisionId, viewModel);
 			return viewModel;
 		}

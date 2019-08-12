@@ -35,6 +35,8 @@ namespace Vodovoz.Views.Complaints
 
 			ytreeviewComments.ShowExpanders = false;
 			ytreeviewComments.ColumnsConfig = FluentColumnsConfig<object>.Create()
+				.AddColumn("Время").AddTextRenderer(x => GetTime(x))
+				.AddColumn("Автор").AddTextRenderer(x => GetAuthor(x))
 				.AddColumn("Комментарий").AddTextRenderer(x => GetNodeName(x))
 				.AddSetter(SetAlign)
 				.Finish();
@@ -78,6 +80,22 @@ namespace Vodovoz.Views.Complaints
 			}
 			if(node is ComplaintFile) {
 				return (node as ComplaintFile).FileStorageId;
+			}
+			return "";
+		}
+
+		private string GetTime(object node)
+		{
+			if(node is ComplaintDiscussionComment) {
+				return (node as ComplaintDiscussionComment).CreationTime.ToShortTimeString();
+			}
+			return "";
+		}
+
+		private string GetAuthor(object node)
+		{
+			if(node is ComplaintDiscussionComment) {
+				return (node as ComplaintDiscussionComment).Author.GetPersonNameWithInitials();
 			}
 			return "";
 		}
