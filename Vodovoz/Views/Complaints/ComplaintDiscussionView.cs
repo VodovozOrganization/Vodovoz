@@ -4,6 +4,7 @@ using Vodovoz.ViewModels.Complaints;
 using Gamma.ColumnConfig;
 using Gamma.Binding;
 using System.Linq;
+using Gtk;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -39,6 +40,7 @@ namespace Vodovoz.Views.Complaints
 				.AddColumn("Автор").AddTextRenderer(x => GetAuthor(x))
 				.AddColumn("Комментарий").AddTextRenderer(x => GetNodeName(x))
 				.AddSetter(SetAlign)
+				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
 			var levels = LevelConfigFactory.FirstLevel<ComplaintDiscussionComment, ComplaintFile>(x => x.ComplaintFiles).LastLevel(c => c.ComplaintDiscussionComment).EndConfig();
 			ytreeviewComments.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
@@ -102,11 +104,6 @@ namespace Vodovoz.Views.Complaints
 
 		private void SetAlign(Gamma.GtkWidgets.Cells.NodeCellRendererText<object> cell, object node)
 		{
-			if(node is ComplaintDiscussionComment) {
-				cell.CellBackgroundGdk = new Gdk.Color(240, 240, 240);
-			} else {
-				cell.CellBackgroundGdk = new Gdk.Color(255, 255, 255);
-			}
 			if(node is ComplaintFile) {
 				cell.Xalign = 1;
 				return;
@@ -114,5 +111,13 @@ namespace Vodovoz.Views.Complaints
 			cell.Xalign = 0;
 		}
 
+		private void SetColor(CellRenderer cell, object node)
+		{
+			if(node is ComplaintDiscussionComment) {
+				cell.CellBackgroundGdk = new Gdk.Color(240, 240, 240);
+			} else {
+				cell.CellBackgroundGdk = new Gdk.Color(255, 255, 255);
+			}
+		}
 	}
 }
