@@ -26,17 +26,15 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewComments;
 
+		private global::Gtk.Table tableNewComment;
+
+		private global::Vodovoz.Views.FilesView filesview;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewComment;
 
-		private global::Gtk.HBox hboxButtons;
-
 		private global::Gamma.GtkWidgets.yButton ybuttonAddComment;
-
-		private global::Gamma.GtkWidgets.yButton ybuttonAddFiles;
-
-		private global::Gamma.GtkWidgets.yButton ybuttonClearFiles;
 
 		protected virtual void Build()
 		{
@@ -138,6 +136,22 @@ namespace Vodovoz.Views.Complaints
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.GtkScrolledWindow]));
 			w10.Position = 2;
 			// Container child vboxWidget.Gtk.Box+BoxChild
+			this.tableNewComment = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
+			this.tableNewComment.Name = "tableNewComment";
+			this.tableNewComment.RowSpacing = ((uint)(6));
+			this.tableNewComment.ColumnSpacing = ((uint)(6));
+			// Container child tableNewComment.Gtk.Table+TableChild
+			this.filesview = new global::Vodovoz.Views.FilesView();
+			this.filesview.WidthRequest = 250;
+			this.filesview.Events = ((global::Gdk.EventMask)(256));
+			this.filesview.Name = "filesview";
+			this.tableNewComment.Add(this.filesview);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableNewComment[this.filesview]));
+			w11.BottomAttach = ((uint)(2));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableNewComment.Gtk.Table+TableChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.HeightRequest = 70;
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -147,53 +161,24 @@ namespace Vodovoz.Views.Complaints
 			this.ytextviewComment.CanFocus = true;
 			this.ytextviewComment.Name = "ytextviewComment";
 			this.GtkScrolledWindow1.Add(this.ytextviewComment);
-			this.vboxWidget.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.GtkScrolledWindow1]));
-			w12.Position = 3;
-			w12.Expand = false;
-			w12.Fill = false;
-			// Container child vboxWidget.Gtk.Box+BoxChild
-			this.hboxButtons = new global::Gtk.HBox();
-			this.hboxButtons.Name = "hboxButtons";
-			this.hboxButtons.Spacing = 6;
-			// Container child hboxButtons.Gtk.Box+BoxChild
+			this.tableNewComment.Add(this.GtkScrolledWindow1);
+			// Container child tableNewComment.Gtk.Table+TableChild
 			this.ybuttonAddComment = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonAddComment.CanFocus = true;
 			this.ybuttonAddComment.Name = "ybuttonAddComment";
 			this.ybuttonAddComment.UseUnderline = true;
 			this.ybuttonAddComment.Label = global::Mono.Unix.Catalog.GetString("Добавить комментарий");
-			this.hboxButtons.Add(this.ybuttonAddComment);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonAddComment]));
-			w13.Position = 0;
-			w13.Expand = false;
-			w13.Fill = false;
-			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.ybuttonAddFiles = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonAddFiles.CanFocus = true;
-			this.ybuttonAddFiles.Name = "ybuttonAddFiles";
-			this.ybuttonAddFiles.UseUnderline = true;
-			this.ybuttonAddFiles.Label = global::Mono.Unix.Catalog.GetString("Прикрепить файлы");
-			this.hboxButtons.Add(this.ybuttonAddFiles);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonAddFiles]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
-			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.ybuttonClearFiles = new global::Gamma.GtkWidgets.yButton();
-			this.ybuttonClearFiles.CanFocus = true;
-			this.ybuttonClearFiles.Name = "ybuttonClearFiles";
-			this.ybuttonClearFiles.UseUnderline = true;
-			this.ybuttonClearFiles.Label = global::Mono.Unix.Catalog.GetString("Удалить файлы");
-			this.hboxButtons.Add(this.ybuttonClearFiles);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.ybuttonClearFiles]));
-			w15.Position = 2;
+			this.tableNewComment.Add(this.ybuttonAddComment);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableNewComment[this.ybuttonAddComment]));
+			w14.TopAttach = ((uint)(1));
+			w14.BottomAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.vboxWidget.Add(this.tableNewComment);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.tableNewComment]));
+			w15.Position = 3;
 			w15.Expand = false;
 			w15.Fill = false;
-			this.vboxWidget.Add(this.hboxButtons);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.hboxButtons]));
-			w16.Position = 4;
-			w16.Expand = false;
-			w16.Fill = false;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{

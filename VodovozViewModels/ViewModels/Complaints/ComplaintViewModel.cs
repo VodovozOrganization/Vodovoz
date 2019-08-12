@@ -17,6 +17,7 @@ using QS.Project.Journal;
 using Vodovoz.ViewModels.Employees;
 using QS.DomainModel.Entity;
 using Vodovoz.EntityRepositories.Subdivisions;
+using QS.Project.Services;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -27,6 +28,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 		private readonly IEntityConfigurationProvider entityConfigurationProvider;
+		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
@@ -41,11 +43,13 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
 			IEntityConfigurationProvider entityConfigurationProvider,
+			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository
 			) : base(ctorParam, commonServices)
 		{
 			OrderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
+			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -100,7 +104,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public ComplaintDiscussionsViewModel DiscussionsViewModel {
 			get {
 				if(discussionsViewModel == null) {
-					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, this, UoW, entityConfigurationProvider, CommonServices);
+					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, this, UoW, entityConfigurationProvider, filePickerService, CommonServices);
 				}
 				return discussionsViewModel;
 			}
@@ -114,6 +118,18 @@ namespace Vodovoz.ViewModels.Complaints
 				}
 
 				return guiltyItemsViewModel;
+			}
+		}
+
+
+		private FilesViewModel filesViewModel;
+		public FilesViewModel FilesViewModel {
+			get {
+				if(filesViewModel == null) {
+					filesViewModel = new FilesViewModel(CommonServices.InteractiveService, filePickerService, UoW);
+				}
+
+				return filesViewModel;
 			}
 		}
 

@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using System.Linq;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -46,6 +47,12 @@ namespace Vodovoz.Domain.Complaints
 				if(observableFiles == null)
 					observableFiles = new GenericObservableList<ComplaintFile>(Files);
 				return observableFiles;
+			}
+		}
+
+		public IList<ComplaintFile> ComplaintFiles {
+			get {
+				return Files.Cast<ComplaintFile>().ToList();
 			}
 		}
 

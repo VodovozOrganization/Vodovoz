@@ -8,18 +8,25 @@ using System.Linq;
 using System.Collections.Generic;
 using QS.Project.Repositories;
 using System;
+using QS.Project.Services;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintDiscussionViewModel : EntityWidgetViewModelBase<ComplaintDiscussion>
 	{
+		private readonly IFilePickerService filePickerService;
+
 		public ComplaintDiscussionViewModel(
 			ComplaintDiscussion complaintDiscussion,
-			ICommonServices commonServices
+			IFilePickerService filePickerService,
+			ICommonServices commonServices,
+			IUnitOfWork uow
 			) : base(complaintDiscussion, commonServices)
 		{
+			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			newCommentFiles = new GenericObservableList<ComplaintFile>();
-			SubscribeFileListChanged();
+			UoW = uow;
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 		}
@@ -31,7 +38,17 @@ namespace Vodovoz.ViewModels.Complaints
 			);
 		}
 
+		private FilesViewModel filesViewModel;
+		public FilesViewModel FilesViewModel {
+			get {
+				if(filesViewModel == null) {
+					filesViewModel = new FilesViewModel(CommonServices.InteractiveService, filePickerService, UoW);
+					filesViewModel.FilesList = NewCommentFiles;
+				}
 
+				return filesViewModel;
+			}
+		}
 
 		[PropertyChangedAlso(nameof(CanEditDate), nameof(CanEditStatus))]
 		public bool CanEdit => PermissionResult.CanUpdate;
@@ -59,67 +76,22 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 		private GenericObservableList<ComplaintFile> newCommentFiles;
+
 		public virtual GenericObservableList<ComplaintFile> NewCommentFiles {
 			get => newCommentFiles;
-			set {
-				if(SetField(ref newCommentFiles, value, () => NewCommentFiles)) {
-					SubscribeFileListChanged();
-				}
-			}
-		}
-
-		private void SubscribeFileListChanged()
-		{
-			newCommentFiles.ListChanged += (aList) => OnPropertyChanged(() => CanClearFiles);
+			set => SetField(ref newCommentFiles, value, () => NewCommentFiles);
 		}
 
 		#region Commands
 
 		private void CreateCommands()
 		{
-			CreateAddFilesCommand();
-			CreateClearFilesCommand();
 			CreateAddCommentCommand();
 			CreateOpenFileCommand();
 		}
 
-		#region AddFilesCommand
-
-		public bool CanAddFiles => CanAddComment;
-
-		public DelegateCommand AddFilesCommand { get; private set; }
-
-		private void CreateAddFilesCommand()
-		{
-			AddFilesCommand = new DelegateCommand(
-				() => { },
-				() => CanAddFiles
-			);
-			AddFilesCommand.CanExecuteChangedWith(this, x => x.CanAddFiles);
-		}
-
-		#endregion AddFilesCommand
-
-		#region ClearFilesCommand
-
-		public bool CanClearFiles => NewCommentFiles.Any();
-
-		public DelegateCommand ClearFilesCommand { get; private set; }
-
-		private void CreateClearFilesCommand()
-		{
-			ClearFilesCommand = new DelegateCommand(
-				() => { },
-				() => CanClearFiles
-			);
-			ClearFilesCommand.CanExecuteChangedWith(this, x => x.CanClearFiles);
-		}
-
-		#endregion ClearFilesCommand
-
 		#region AddCommentCommand
 
-		[PropertyChangedAlso(nameof(CanAddFiles))]
 		public bool CanAddComment => !string.IsNullOrWhiteSpace(NewCommentText);
 
 		public DelegateCommand AddCommentCommand { get; private set; }
@@ -131,6 +103,7 @@ namespace Vodovoz.ViewModels.Complaints
 					var newComment = new ComplaintDiscussionComment();
 					newComment.Comment = NewCommentText;
 					foreach(ComplaintFile file in newCommentFiles) {
+						file.ComplaintDiscussionComment = newComment;
 						newComment.ObservableFiles.Add(file);
 					}
 					newComment.ComplaintDiscussion = Entity;
@@ -153,9 +126,9 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			OpenFileCommand = new DelegateCommand<ComplaintFile>(
 				(file) => {
-					//код открытия файла
+					FilesViewModel.OpenItemCommand.Execute(file);
 				},
-				(file) => file != null
+				(file) => file != null && FilesViewModel.OpenItemCommand.CanExecute(file)
 			);
 		}
 

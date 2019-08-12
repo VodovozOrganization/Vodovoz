@@ -64,7 +64,7 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gamma.GtkWidgets.yLabel labelComplaintText;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewComplaintText;
 
@@ -78,13 +78,15 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewResultText;
 
-		private global::Gtk.HBox hbox4;
+		private global::Vodovoz.Views.FilesView filesview;
+
+		private global::Gtk.HBox hbox5;
 
 		private global::Gamma.GtkWidgets.yLabel labelResult;
 
 		private global::Gamma.Widgets.ySpecComboBox comboboxComplaintResult;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewFines;
 
@@ -424,16 +426,16 @@ namespace Vodovoz.Views.Complaints
 			w30.Expand = false;
 			w30.Fill = false;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
 			this.ytextviewComplaintText = new global::Gamma.GtkWidgets.yTextView();
 			this.ytextviewComplaintText.CanFocus = true;
 			this.ytextviewComplaintText.Name = "ytextviewComplaintText";
-			this.GtkScrolledWindow.Add(this.ytextviewComplaintText);
-			this.vboxComplaint.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.GtkScrolledWindow]));
+			this.GtkScrolledWindow1.Add(this.ytextviewComplaintText);
+			this.vboxComplaint.Add(this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.GtkScrolledWindow1]));
 			w32.Position = 3;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
@@ -469,49 +471,58 @@ namespace Vodovoz.Views.Complaints
 			this.hbox6.Add(this.GtkScrolledWindow2);
 			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.GtkScrolledWindow2]));
 			w36.Position = 0;
+			// Container child hbox6.Gtk.Box+BoxChild
+			this.filesview = new global::Vodovoz.Views.FilesView();
+			this.filesview.WidthRequest = 250;
+			this.filesview.Events = ((global::Gdk.EventMask)(256));
+			this.filesview.Name = "filesview";
+			this.hbox6.Add(this.filesview);
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.filesview]));
+			w37.Position = 1;
+			w37.Expand = false;
 			this.vboxComplaint.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hbox6]));
-			w37.Position = 6;
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hbox6]));
+			w38.Position = 6;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
-			this.hbox4 = new global::Gtk.HBox();
-			this.hbox4.Name = "hbox4";
-			this.hbox4.Spacing = 6;
-			// Container child hbox4.Gtk.Box+BoxChild
+			this.hbox5 = new global::Gtk.HBox();
+			this.hbox5.Name = "hbox5";
+			this.hbox5.Spacing = 6;
+			// Container child hbox5.Gtk.Box+BoxChild
 			this.labelResult = new global::Gamma.GtkWidgets.yLabel();
 			this.labelResult.Name = "labelResult";
 			this.labelResult.LabelProp = global::Mono.Unix.Catalog.GetString("Итог работы:");
-			this.hbox4.Add(this.labelResult);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.labelResult]));
-			w38.Position = 0;
-			w38.Expand = false;
-			w38.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
+			this.hbox5.Add(this.labelResult);
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.labelResult]));
+			w39.Position = 0;
+			w39.Expand = false;
+			w39.Fill = false;
+			// Container child hbox5.Gtk.Box+BoxChild
 			this.comboboxComplaintResult = new global::Gamma.Widgets.ySpecComboBox();
 			this.comboboxComplaintResult.Name = "comboboxComplaintResult";
 			this.comboboxComplaintResult.AddIfNotExist = false;
 			this.comboboxComplaintResult.DefaultFirst = false;
 			this.comboboxComplaintResult.ShowSpecialStateAll = false;
 			this.comboboxComplaintResult.ShowSpecialStateNot = false;
-			this.hbox4.Add(this.comboboxComplaintResult);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.comboboxComplaintResult]));
-			w39.Position = 1;
-			this.vboxComplaint.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hbox4]));
-			w40.Position = 7;
-			w40.Expand = false;
-			w40.Fill = false;
+			this.hbox5.Add(this.comboboxComplaintResult);
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.comboboxComplaintResult]));
+			w40.Position = 1;
+			this.vboxComplaint.Add(this.hbox5);
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hbox5]));
+			w41.Position = 7;
+			w41.Expand = false;
+			w41.Fill = false;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
-			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
-			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
+			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
 			this.ytreeviewFines = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeviewFines.CanFocus = true;
 			this.ytreeviewFines.Name = "ytreeviewFines";
-			this.GtkScrolledWindow1.Add(this.ytreeviewFines);
-			this.vboxComplaint.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.GtkScrolledWindow1]));
-			w42.Position = 8;
+			this.GtkScrolledWindow3.Add(this.ytreeviewFines);
+			this.vboxComplaint.Add(this.GtkScrolledWindow3);
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.GtkScrolledWindow3]));
+			w43.Position = 8;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
 			this.hboxFineButtons = new global::Gtk.HBox();
 			this.hboxFineButtons.Name = "hboxFineButtons";
@@ -523,10 +534,10 @@ namespace Vodovoz.Views.Complaints
 			this.buttonAttachFine.UseUnderline = true;
 			this.buttonAttachFine.Label = global::Mono.Unix.Catalog.GetString("Прикрепить штраф");
 			this.hboxFineButtons.Add(this.buttonAttachFine);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAttachFine]));
-			w43.Position = 0;
-			w43.Expand = false;
-			w43.Fill = false;
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAttachFine]));
+			w44.Position = 0;
+			w44.Expand = false;
+			w44.Fill = false;
 			// Container child hboxFineButtons.Gtk.Box+BoxChild
 			this.buttonAddFine = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddFine.CanFocus = true;
@@ -534,18 +545,18 @@ namespace Vodovoz.Views.Complaints
 			this.buttonAddFine.UseUnderline = true;
 			this.buttonAddFine.Label = global::Mono.Unix.Catalog.GetString("Добавить штраф");
 			this.hboxFineButtons.Add(this.buttonAddFine);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAddFine]));
-			w44.Position = 1;
-			w44.Expand = false;
-			w44.Fill = false;
-			this.vboxComplaint.Add(this.hboxFineButtons);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hboxFineButtons]));
-			w45.Position = 9;
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAddFine]));
+			w45.Position = 1;
 			w45.Expand = false;
 			w45.Fill = false;
+			this.vboxComplaint.Add(this.hboxFineButtons);
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hboxFineButtons]));
+			w46.Position = 9;
+			w46.Expand = false;
+			w46.Fill = false;
 			this.hboxDialog.Add(this.vboxComplaint);
-			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hboxDialog[this.vboxComplaint]));
-			w46.Position = 1;
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.hboxDialog[this.vboxComplaint]));
+			w47.Position = 1;
 			this.Add(this.hboxDialog);
 			if ((this.Child != null))
 			{

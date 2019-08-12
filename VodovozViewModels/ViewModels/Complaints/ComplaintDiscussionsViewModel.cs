@@ -13,6 +13,7 @@ using Vodovoz.JournalViewModels.Organization;
 using QS.DomainModel.Config;
 using QS.Project.Journal;
 using Vodovoz.FilterViewModels.Organization;
+using QS.Project.Services;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -20,21 +21,25 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		private readonly ITdiTab dialogTab;
 		private readonly IEntityConfigurationProvider entityConfigurationProvider;
+		private readonly IFilePickerService filePickerService;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity, 
 			ITdiTab dialogTab,
 			IUnitOfWork uow,
 			IEntityConfigurationProvider entityConfigurationProvider,
+			IFilePickerService filePickerService,
 			ICommonServices commonServices
 		) : base(entity, commonServices)
 		{
+			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
+			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
+			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
+
 			UoW = uow;
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			FillDiscussionsViewModels();
-			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;
@@ -73,7 +78,7 @@ namespace Vodovoz.ViewModels.Complaints
 			if(viewModelsCache.ContainsKey(subdivisionId)) {
 				return viewModelsCache[subdivisionId];
 			}
-			var viewModel = new ComplaintDiscussionViewModel(complaintDiscussion, CommonServices);
+			var viewModel = new ComplaintDiscussionViewModel(complaintDiscussion, filePickerService, CommonServices, UoW);
 			viewModelsCache.Add(subdivisionId, viewModel);
 			return viewModel;
 		}

@@ -23,7 +23,7 @@ namespace Vodovoz.Views.Complaints
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date).InitializeFromSource();
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel, vm => vm.CanEditDate, w => w.Sensitive).InitializeFromSource();
 
-			ViewModel.PropertyChanged += (sender, e) => { 
+			ViewModel.PropertyChanged += (sender, e) => {
 				if(e.PropertyName == nameof(ViewModel.CanEditStatus)) {
 					UpdateStatusEnum();
 				}
@@ -33,23 +33,25 @@ namespace Vodovoz.Views.Complaints
 			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.CanEditStatus, w => w.Sensitive).InitializeFromSource();
 			UpdateStatusEnum();
 
+			//ytreeviewComments.ShowExpanders = false;
 			ytreeviewComments.ColumnsConfig = FluentColumnsConfig<object>.Create()
 				.AddColumn("Комментарий").AddTextRenderer(x => GetNodeName(x))
+				//.AddSetter(SetAlign)
 				.Finish();
-			var levels = LevelConfigFactory.FirstLevel<ComplaintDiscussionComment, ComplaintFile>(x => x.Files).LastLevel(c => c.ComplaintDiscussionComment).EndConfig();
-			ytreeviewComments.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.ObservableComments, levels);
-			ytreeviewComments.Binding.AddBinding(ViewModel.Entity, e => e.ObservableComments, w => w.ItemsDataSource).InitializeFromSource();
+			var levels = LevelConfigFactory.FirstLevel<ComplaintDiscussionComment, ComplaintFile>(x => x.ComplaintFiles).LastLevel(c => c.ComplaintDiscussionComment).EndConfig();
+			ytreeviewComments.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
+
+			ViewModel.Entity.ObservableComments.ListContentChanged += (sender, e) => { 
+				ytreeviewComments.YTreeModel.EmitModelChanged();
+			};
+			//ytreeviewComments.ExpandAll();
 			ytreeviewComments.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			ytreeviewComments.RowActivated += YtreeviewComments_RowActivated;
 
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.NewCommentText, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			ybuttonAddFiles.Clicked += (sender, e) => ViewModel.AddFilesCommand.Execute();
-			ybuttonAddFiles.Binding.AddBinding(ViewModel, vm => vm.CanAddFiles, w => w.Sensitive).InitializeFromSource();
-
-			ybuttonClearFiles.Clicked += (sender, e) => ViewModel.ClearFilesCommand.Execute();
-			ybuttonClearFiles.Binding.AddBinding(ViewModel, vm => vm.CanClearFiles, w => w.Sensitive).InitializeFromSource();
+			filesview.ViewModel = ViewModel.FilesViewModel;
 
 			ybuttonAddComment.Clicked += (sender, e) => ViewModel.AddCommentCommand.Execute();
 			ybuttonAddComment.Binding.AddBinding(ViewModel, vm => vm.CanAddComment, w => w.Sensitive).InitializeFromSource();
@@ -79,5 +81,20 @@ namespace Vodovoz.Views.Complaints
 			}
 			return "";
 		}
+
+		private void SetAlign(Gamma.GtkWidgets.Cells.NodeCellRendererText<object> cell, object node)
+		{
+			if(node is ComplaintDiscussionComment) {
+				cell.CellBackgroundGdk = new Gdk.Color(240, 240, 240);
+			} else {
+				cell.CellBackgroundGdk = new Gdk.Color(255, 255, 255);
+			}
+			if(node is ComplaintFile) {
+				cell.Xalign = 1;
+				return;
+			}
+			cell.Xalign = 0;
+		}
+
 	}
 }

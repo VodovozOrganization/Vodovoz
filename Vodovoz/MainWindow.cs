@@ -57,6 +57,10 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.JournalViewModels.Organization;
+using QS.Project.Services;
+using QS.Dialog.GtkUI;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -676,6 +680,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		IEntityAutocompleteSelectorFactory ordersSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Order, OrderJournalViewModel, OrderJournalFilterViewModel>(ServicesConfig.CommonServices);
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
+		IFilePickerService filePickerService = new GtkFilePicker();
 
 		tdiMain.OpenTab(() => {
 			return new ComplaintsJournalViewModel(
@@ -686,11 +691,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				employeeSelectorFactory,
 				counterpartySelectorFactory,
 				ordersSelectorFactory,
-				subdivisionRepository,
 				routeListItemRepository,
 				new BaseParametersProvider(),
 				new EmployeeRepository(),
-				new ComplaintFilterViewModel(new GtkInteractiveService())
+				new ComplaintFilterViewModel(new GtkInteractiveService()),
+				filePickerService,
+				subdivisionRepository
 			);
 		});
 	}

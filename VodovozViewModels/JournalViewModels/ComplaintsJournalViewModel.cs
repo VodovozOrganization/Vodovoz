@@ -25,11 +25,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.FilterViewModels;
-using Vodovoz.Services;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Subdivisions;
-using System.Linq;
+using QS.Project.Services;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -42,6 +38,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory orderSelectorFactory;
+		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		readonly IRouteListItemRepository routeListItemRepository;
 		private readonly ISubdivisionService subdivisionService;
@@ -63,11 +60,12 @@ namespace Vodovoz.JournalViewModels
 			IEntitySelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory orderSelectorFactory,
-			ISubdivisionRepository subdivisionRepository,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionService subdivisionService,
 			IEmployeeRepository employeeRepository,
-			ComplaintFilterViewModel filterViewModel
+			ComplaintFilterViewModel filterViewModel,
+			IFilePickerService filePickerService,
+			ISubdivisionRepository subdivisionRepository
 		) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
@@ -77,6 +75,7 @@ namespace Vodovoz.JournalViewModels
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.counterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
+			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
@@ -282,6 +281,7 @@ namespace Vodovoz.JournalViewModels
 						counterpartySelectorFactory,
 						orderSelectorFactory,
 						entityConfigurationProvider,
+						filePickerService,
 						subdivisionRepository
 					),
 					//функция идентификации документа 
@@ -304,6 +304,7 @@ namespace Vodovoz.JournalViewModels
 						counterpartySelectorFactory,
 						orderSelectorFactory,
 						entityConfigurationProvider,
+						filePickerService,
 						subdivisionRepository
 					),
 					//функция идентификации документа 
