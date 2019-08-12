@@ -49,9 +49,10 @@ namespace Vodovoz.FilterViewModels
 			set 
 			{
 				if(value?.Id == subdivisionService?.GetOkkId())
-					complaintStatus = ComplaintStatuses.Checking;
+					ComplaintStatus = ComplaintStatuses.Checking;
 				else if(value?.Id != null)
-					complaintStatus = ComplaintStatuses.InProcess;
+					ComplaintStatus = ComplaintStatuses.InProcess;
+
 				SetField(ref subdivision, value, () => Subdivision);
 			}
 		}
