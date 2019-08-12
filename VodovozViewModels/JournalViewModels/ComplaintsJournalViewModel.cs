@@ -25,6 +25,11 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.FilterViewModels;
+using Vodovoz.Services;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Subdivisions;
+using System.Linq;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -190,23 +195,30 @@ namespace Vodovoz.JournalViewModels
 					.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
 					.Where(() => dicussionAlias.Complaint.Id == complaintAlias.Id);
 
-			if(FilterViewModel != null) {
-				if(FilterViewModel.Subdivision?.Id == subdivisionService.GetOkkId()) {
-					var statusQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
-							.Select(x => x.Id)
-							.Where(() => dicussionAlias.Status == ComplaintStatuses.Checking);
+			if(FilterViewModel != null) 
+			{
+				if(FilterViewModel.Subdivision != null) 
+				{
+					if(FilterViewModel.Subdivision.Id == subdivisionService.GetOkkId()) 
+					{
+						var statusQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
+								.JoinAlias(() => dicussionAlias.Complaint, () => complaintAlias)
+								.Select(x => x.Id)
+								.Where(() => dicussionAlias.Status == ComplaintStatuses.Checking || complaintAlias.Status == ComplaintStatuses.Checking)
+								.And(() => dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate)
+								.And(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 
-					query = query.Where(() => dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate)
-						.And(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
-
-					query = query.WithSubquery.WhereExists(statusQuery);
-
-				} else {
-					var filterQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
-						.Where(() => dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate)
-						.And(() => dicussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
-					query = query.WithSubquery.WhereExists(filterQuery);
+						query = query.WithSubquery.WhereExists(statusQuery);
+					} 
+					else 
+					{
+						var filterQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
+							.Where(() => dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate)
+							.And(() => dicussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
+						query = query.WithSubquery.WhereExists(filterQuery);
+					}
 				}
+
 
 				if(FilterViewModel.ComplaintType != null)
 					query = query.Where(() => complaintAlias.ComplaintType == FilterViewModel.ComplaintType);

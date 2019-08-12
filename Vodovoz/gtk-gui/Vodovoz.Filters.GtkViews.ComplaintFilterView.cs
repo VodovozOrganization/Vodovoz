@@ -34,9 +34,9 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Table table3;
 
-		private global::Gtk.Label label3;
+		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferencevmEmployee;
 
-		private global::Gamma.Widgets.yEntryReferenceVM yentryreferencevmEmployee;
+		private global::Gtk.Label label3;
 
 		protected virtual void Build()
 		{
@@ -177,28 +177,25 @@ namespace Vodovoz.Filters.GtkViews
 			this.table3.RowSpacing = ((uint)(6));
 			this.table3.ColumnSpacing = ((uint)(6));
 			// Container child table3.Gtk.Table+TableChild
+			this.entryreferencevmEmployee = new global::QS.Widgets.GtkUI.RepresentationEntry();
+			this.entryreferencevmEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.entryreferencevmEmployee.Name = "entryreferencevmEmployee";
+			this.table3.Add(this.entryreferencevmEmployee);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table3[this.entryreferencevmEmployee]));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table3.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Автор жалобы");
 			this.table3.Add(this.label3);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table3[this.label3]));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table3.Gtk.Table+TableChild
-			this.yentryreferencevmEmployee = new global::Gamma.Widgets.yEntryReferenceVM();
-			this.yentryreferencevmEmployee.Events = ((global::Gdk.EventMask)(256));
-			this.yentryreferencevmEmployee.Name = "yentryreferencevmEmployee";
-			this.table3.Add(this.yentryreferencevmEmployee);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table3[this.yentryreferencevmEmployee]));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table3[this.label3]));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.hbox1.Add(this.table3);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.table3]));
 			w16.Position = 6;
-			w16.Expand = false;
-			w16.Fill = false;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{

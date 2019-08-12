@@ -17,8 +17,8 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void ConfigureDlg()
 		{
-			yentryreferencevmEmployee.RepresentationModel = new EmployeesVM(new EmployeeFilterViewModel(ServicesConfig.CommonServices));
-			yentryreferencevmEmployee.Binding.AddBinding(ViewModel, x => x.Employee, v => v.Subject).InitializeFromSource();
+			entryreferencevmEmployee.RepresentationModel = new EmployeesVM(new EmployeeFilterViewModel(ServicesConfig.CommonServices));
+			entryreferencevmEmployee.Binding.AddBinding(ViewModel, x => x.Employee, v => v.Subject).InitializeFromSource();
 
 			yenumcomboboxType.ItemsEnum = typeof(ComplaintType);
 			yenumcomboboxType.Binding.AddBinding(ViewModel, x => x.ComplaintType, v => v.SelectedItemOrNull).InitializeFromSource();
