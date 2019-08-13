@@ -135,11 +135,43 @@ namespace Vodovoz.JournalViewModels
 				Projections.Property(() => authorAlias.Patronymic)
 			);
 
-			var subdivisionsProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
+			var workInSubdivisionsSubQuery = QueryOver.Of<Subdivision>(() => subdivisionAlias)
+				.Where(() => subdivisionAlias.Id == dicussionAlias.Subdivision.Id)
+				.Where(() => dicussionAlias.Status == ComplaintStatuses.InProcess)
+				.Select(Projections.Conditional(
+					Restrictions.IsNotNull(Projections.Property(() => subdivisionAlias.ShortName)),
+					Projections.Property(() => subdivisionAlias.ShortName),
+					Projections.Constant("?")
+				)
+			);
+
+			var subdivisionsSubqueryProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(?1 SEPARATOR ?2)"),
 				NHibernateUtil.String,
-				Projections.Property(() => subdivisionAlias.Name),
-				Projections.Constant("\n"));
+				Projections.SubQuery(workInSubdivisionsSubQuery),
+				Projections.Constant(", "));
+
+
+
+			var okkProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1)"),
+				NHibernateUtil.String,
+				Projections.Conditional(
+					Restrictions.Eq(Projections.Property(() => dicussionAlias.Status), ComplaintStatuses.Checking),
+					Projections.Constant("ОКК"),
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String, "NULLIF(1,1)"),
+						NHibernateUtil.String
+					)
+				)
+			);
+
+			var workInSubdivisionsProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(',', ?1, ?2)"),
+				NHibernateUtil.String,
+				subdivisionsSubqueryProjection,
+				okkProjection
+			);
 
 			var plannedCompletionDateProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT DATE_FORMAT(?1, \"%d.%m.%Y\") SEPARATOR ?2)"),
@@ -244,7 +276,7 @@ namespace Vodovoz.JournalViewModels
 				.Select(() => complaintAlias.CreationDate).WithAlias(() => resultAlias.Date)
 				.Select(() => complaintAlias.ComplaintType).WithAlias(() => resultAlias.Type)
 				.Select(() => complaintAlias.Status).WithAlias(() => resultAlias.Status)
-				.Select(subdivisionsProjection).WithAlias(() => resultAlias.WorkInSubdivision)
+				.Select(workInSubdivisionsProjection).WithAlias(() => resultAlias.WorkInSubdivision)
 				.Select(plannedCompletionDateProjection).WithAlias(() => resultAlias.PlannedCompletionDate)
 				.Select(counterpartyWithAddressProjection).WithAlias(() => resultAlias.ClientNameWithAddress)
 				.Select(guiltiesProjection).WithAlias(() => resultAlias.Guilties)
@@ -291,7 +323,8 @@ namespace Vodovoz.JournalViewModels
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
-					"Клиентская жалоба"
+					"Клиентская жалоба",
+					new JournalParametersForDocument() { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
 				)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
@@ -312,7 +345,8 @@ namespace Vodovoz.JournalViewModels
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
-					"Внутренняя жалоба"
+					"Внутренняя жалоба",
+					new JournalParametersForDocument() { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
 				);
 
 			//завершение конфигурации

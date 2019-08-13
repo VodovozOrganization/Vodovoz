@@ -492,6 +492,7 @@ namespace Vodovoz.Views.Complaints
 			w40.Position = 0;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.complaintfilesview = new global::Vodovoz.Views.Complaints.ComplaintFilesView();
+			this.complaintfilesview.WidthRequest = 300;
 			this.complaintfilesview.Events = ((global::Gdk.EventMask)(256));
 			this.complaintfilesview.Name = "complaintfilesview";
 			this.hbox7.Add(this.complaintfilesview);
