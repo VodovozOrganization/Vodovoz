@@ -133,8 +133,8 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child table1.Gtk.Table+TableChild
 			this.yenumcomboboxStatus = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxStatus.Name = "yenumcomboboxStatus";
-			this.yenumcomboboxStatus.ShowSpecialStateAll = false;
-			this.yenumcomboboxStatus.ShowSpecialStateNot = true;
+			this.yenumcomboboxStatus.ShowSpecialStateAll = true;
+			this.yenumcomboboxStatus.ShowSpecialStateNot = false;
 			this.yenumcomboboxStatus.UseShortTitle = false;
 			this.yenumcomboboxStatus.DefaultFirst = false;
 			this.table1.Add(this.yenumcomboboxStatus);
@@ -148,8 +148,8 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child table1.Gtk.Table+TableChild
 			this.yenumcomboboxType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxType.Name = "yenumcomboboxType";
-			this.yenumcomboboxType.ShowSpecialStateAll = false;
-			this.yenumcomboboxType.ShowSpecialStateNot = true;
+			this.yenumcomboboxType.ShowSpecialStateAll = true;
+			this.yenumcomboboxType.ShowSpecialStateNot = false;
 			this.yenumcomboboxType.UseShortTitle = false;
 			this.yenumcomboboxType.DefaultFirst = false;
 			this.table1.Add(this.yenumcomboboxType);
