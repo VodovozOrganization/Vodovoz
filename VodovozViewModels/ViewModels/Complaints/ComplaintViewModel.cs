@@ -196,8 +196,8 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		public string ChangedByAndDate => string.Format("{0} {1}", Entity.ChangedBy?.ShortName, Entity.ChangedDate.ToString("g"));
-		public string CreatedByAndDate => string.Format("{0} {1}", Entity.CreatedBy?.ShortName, Entity.CreationDate.ToString("g"));
+		public string ChangedByAndDate => string.Format("Изм: {0} {1}", Entity.ChangedBy?.ShortName, Entity.ChangedDate.ToString("g"));
+		public string CreatedByAndDate => string.Format("Созд: {0} {1}", Entity.CreatedBy?.ShortName, Entity.CreationDate.ToString("g"));
 
 		private List<ComplaintSource> complaintSources;
 		public IEnumerable<ComplaintSource> ComplaintSources {
