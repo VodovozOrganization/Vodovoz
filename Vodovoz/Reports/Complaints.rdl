@@ -46,7 +46,7 @@
           </BorderStyle>
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>18.8pt</Width>
           </TableColumn>
           <TableColumn>
@@ -88,7 +88,7 @@
           <TableColumn>
             <Width>65.8pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>31.1pt</Width>
           </TableColumn>
         </TableColumns>
@@ -97,7 +97,7 @@
             <TableRow>
               <Height>21.9pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
                       <Value>№</Value>
@@ -338,7 +338,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
                       <Value>Дни</Value>
@@ -365,7 +365,7 @@
             <TableRow>
               <Height>44.3pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
                       <Value>=RowNumber()</Value>
@@ -376,8 +376,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -394,8 +394,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -412,8 +412,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -430,8 +430,9 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format >dd/MM/yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -448,8 +449,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -466,8 +467,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -484,8 +485,9 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format >dd/MM/yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -502,8 +504,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -520,8 +522,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -538,10 +540,10 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -557,8 +559,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -575,8 +577,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -593,10 +595,10 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -612,13 +614,14 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format >dd/MM/yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>={days_at_work}</Value>
@@ -629,8 +632,8 @@
                         <FontSize>8pt</FontSize>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -667,7 +670,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Complaint">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     complaints.id,
@@ -755,7 +758,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
         </Field>
@@ -812,7 +815,7 @@ GROUP BY
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="subdivision_id">
       <DataType>Integer</DataType>
       <Nullable>true</Nullable>
