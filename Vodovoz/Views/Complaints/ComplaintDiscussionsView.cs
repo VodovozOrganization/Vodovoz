@@ -28,6 +28,7 @@ namespace Vodovoz.Views.Complaints
 		void ObservableComplaintDiscussionViewModels_ElementAdded(object aList, int[] aIdx)
 		{
 			GenerateDiscussionViews();
+			notebookDiscussions.CurrentPage = notebookDiscussions.NPages - 1;
 		}
 
 		void ObservableComplaintDiscussionViewModels_ElementRemoved(object aList, int[] aIdx, object aObject)
