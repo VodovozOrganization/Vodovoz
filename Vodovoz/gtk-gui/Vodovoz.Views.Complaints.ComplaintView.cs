@@ -82,7 +82,7 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewResultText;
 
-		private global::Vodovoz.Views.FilesView filesview;
+		private global::Vodovoz.Views.Complaints.ComplaintFilesView complaintfilesview;
 
 		private global::Gtk.HBox hbox8;
 
@@ -491,17 +491,19 @@ namespace Vodovoz.Views.Complaints
 			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.GtkScrolledWindow3]));
 			w40.Position = 0;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.filesview = new global::Vodovoz.Views.FilesView();
-			this.filesview.WidthRequest = 250;
-			this.filesview.Events = ((global::Gdk.EventMask)(256));
-			this.filesview.Name = "filesview";
-			this.hbox7.Add(this.filesview);
-			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.filesview]));
+			this.complaintfilesview = new global::Vodovoz.Views.Complaints.ComplaintFilesView();
+			this.complaintfilesview.Events = ((global::Gdk.EventMask)(256));
+			this.complaintfilesview.Name = "complaintfilesview";
+			this.hbox7.Add(this.complaintfilesview);
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.complaintfilesview]));
 			w41.Position = 1;
 			w41.Expand = false;
+			w41.Fill = false;
 			this.vboxComplaint.Add(this.hbox7);
 			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hbox7]));
 			w42.Position = 6;
+			w42.Expand = false;
+			w42.Fill = false;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
 			this.hbox8 = new global::Gtk.HBox();
 			this.hbox8.Name = "hbox8";

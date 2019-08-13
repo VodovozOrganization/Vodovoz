@@ -40,8 +40,7 @@ namespace Vodovoz.Views
 
 			ytreeviewFiles.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 			ybuttonAttachFile.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
-
-			ytreeviewFiles.Binding.AddBinding(viewModel, e => e.FilesList, w => w.ItemsDataSource).InitializeFromSource();
+			ytreeviewFiles.ItemsDataSource = ViewModel.FilesList;
 
 			ytreeviewFiles.RowActivated += (o, args) => viewModel.OpenItemCommand.Execute(ytreeviewFiles.GetSelectedObject<ComplaintFile>());
 		}

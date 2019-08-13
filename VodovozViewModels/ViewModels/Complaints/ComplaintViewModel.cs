@@ -164,13 +164,12 @@ namespace Vodovoz.ViewModels.Complaints
 		}
 
 
-		private FilesViewModel filesViewModel;
-		public FilesViewModel FilesViewModel {
+		private ComplaintFilesViewModel filesViewModel;
+		public ComplaintFilesViewModel FilesViewModel {
 			get {
 				if(filesViewModel == null) {
-					filesViewModel = new FilesViewModel(CommonServices.InteractiveService, filePickerService, UoW);
+					filesViewModel = new ComplaintFilesViewModel(Entity, UoW, filePickerService, CommonServices);
 				}
-
 				return filesViewModel;
 			}
 		}

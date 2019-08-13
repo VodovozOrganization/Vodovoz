@@ -190,6 +190,24 @@ namespace Vodovoz.Domain.Complaints
 			}
 		}
 
+		IList<ComplaintFile> files = new List<ComplaintFile>();
+		[Display(Name = "Файлы")]
+		public virtual IList<ComplaintFile> Files {
+			get => files;
+			set => SetField(ref files, value, () => Files);
+		}
+
+		GenericObservableList<ComplaintFile> observableFiles;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ComplaintFile> ObservableFiles {
+			get {
+				if(observableFiles == null)
+					observableFiles = new GenericObservableList<ComplaintFile>(Files);
+				return observableFiles;
+			}
+		}
+
+
 		public virtual void AddFine(Fine fine)
 		{
 			if(ObservableFines.Contains(fine)) {
@@ -202,6 +220,22 @@ namespace Vodovoz.Domain.Complaints
 		{
 			if(ObservableFines.Contains(fine)) {
 				ObservableFines.Remove(fine);
+			}
+		}
+
+		public virtual void AddFile(ComplaintFile file)
+		{
+			if(ObservableFiles.Contains(file)) {
+				return;
+			}
+			file.Complaint = this;
+			ObservableFiles.Add(file);
+		}
+
+		public virtual void RemoveFile(ComplaintFile file)
+		{
+			if(ObservableFiles.Contains(file)) {
+				ObservableFiles.Remove(file);
 			}
 		}
 

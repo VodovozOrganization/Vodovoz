@@ -80,6 +80,7 @@
     <Compile Include="FilterViewModels\Organization\SubdivisionFilterViewModel.cs" />
     <Compile Include="FilterViewModels\ComplaintFilterViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
