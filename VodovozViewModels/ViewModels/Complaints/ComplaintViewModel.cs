@@ -54,7 +54,7 @@ namespace Vodovoz.ViewModels.Complaints
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			Entity.ObservableComplaintDiscussions.ElementChanged += ObservableComplaintDiscussions_ElementChanged;
-			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;;
+			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged; ;
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
 
 			if(ctorParam.IsNewEntity) {
@@ -138,7 +138,7 @@ namespace Vodovoz.ViewModels.Complaints
 			get => Entity.Status;
 			set {
 				Entity.Status = value;
-				Entity.ActualCompletionDate = DateTime.Now;
+				Entity.ActualCompletionDate = value == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
 			}
 		}
 
@@ -231,7 +231,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 
-		public string GetFineReason() {
+		public string GetFineReason()
+		{
 			string result = $"Жалоба №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
 			if(Entity.Counterparty == null && Entity.Order == null) {
 				return result;

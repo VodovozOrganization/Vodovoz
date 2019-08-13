@@ -88,6 +88,8 @@ namespace Vodovoz.JournalViewModels
 
 			RegisterComplaints();
 
+			SetOrder<Complaint>(c => c.Id, true);
+
 			FinishJournalConfiguration();
 
 			UpdateOnChanges(
@@ -195,12 +197,9 @@ namespace Vodovoz.JournalViewModels
 					.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
 					.Where(() => dicussionAlias.Complaint.Id == complaintAlias.Id);
 
-			if(FilterViewModel != null) 
-			{
-				if(FilterViewModel.Subdivision != null) 
-				{
-					if(FilterViewModel.Subdivision.Id == subdivisionService.GetOkkId()) 
-					{
+			if(FilterViewModel != null) {
+				if(FilterViewModel.Subdivision != null) {
+					if(FilterViewModel.Subdivision.Id == subdivisionService.GetOkkId()) {
 						var statusQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
 								.JoinAlias(() => dicussionAlias.Complaint, () => complaintAlias)
 								.Select(x => x.Id)
@@ -209,9 +208,7 @@ namespace Vodovoz.JournalViewModels
 								.And(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 
 						query = query.WithSubquery.WhereExists(statusQuery);
-					} 
-					else 
-					{
+					} else {
 						var filterQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
 							.Where(() => FilterViewModel.StartDate == null || dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
 							.And(() => dicussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
@@ -230,13 +227,15 @@ namespace Vodovoz.JournalViewModels
 
 			#endregion Filter
 
-			query.Where(GetSearchCriterion(
-			() => complaintAlias.Id,
-			() => complaintAlias.ComplaintText,
-			() => complaintAlias.ResultText,
-			() => counterpartyAlias.Name,
-			() => deliveryPointAlias.CompiledAddress
-		));
+			query.Where(
+					GetSearchCriterion(
+					() => complaintAlias.Id,
+					() => complaintAlias.ComplaintText,
+					() => complaintAlias.ResultText,
+					() => counterpartyAlias.Name,
+					() => deliveryPointAlias.CompiledAddress
+				)
+			);
 
 			query.SelectList(list => list
 				.SelectGroup(() => complaintAlias.Id).WithAlias(() => resultAlias.Id)
@@ -254,7 +253,10 @@ namespace Vodovoz.JournalViewModels
 				.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
 			);
 
-			query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>());
+			query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>())
+				 .OrderBy(n => n.Id)
+				 .Desc()
+				 ;
 
 			return query;
 		}
@@ -380,7 +382,7 @@ namespace Vodovoz.JournalViewModels
 		protected override void CreateNodeActions()
 		{
 			base.CreateNodeActions();
-			NodeActionsList.Add(new JournalAction("Открыть печатную форму", x => true, x => true, selectedItems => reportViewOpener.OpenReport(this,FilterViewModel.GetReportInfo())));
+			NodeActionsList.Add(new JournalAction("Открыть печатную форму", x => true, x => true, selectedItems => reportViewOpener.OpenReport(this, FilterViewModel.GetReportInfo())));
 		}
 	}
 }
