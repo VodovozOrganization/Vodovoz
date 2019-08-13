@@ -26,6 +26,13 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual int Id { get; set; }
 
+		DateTime version;
+		[Display(Name = "Версия")]
+		public virtual DateTime Version {
+			get => version;
+			set => SetField(ref version, value, () => Version);
+		}
+
 		private Employee createdBy;
 		[Display(Name = "Кем создан")]
 		public virtual Employee CreatedBy {

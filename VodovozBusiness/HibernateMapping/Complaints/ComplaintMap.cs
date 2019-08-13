@@ -11,6 +11,9 @@ namespace Vodovoz.HibernateMapping.Complaints
 		{
 			Table("complaints");
 
+			OptimisticLock.Version();
+			Version(x => x.Version).Column("version");
+
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.CreationDate).Column("creation_date");
