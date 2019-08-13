@@ -39,7 +39,6 @@ namespace Vodovoz.Views.Complaints
 				.AddColumn("Время").AddTextRenderer(x => GetTime(x))
 				.AddColumn("Автор").AddTextRenderer(x => GetAuthor(x))
 				.AddColumn("Комментарий").AddTextRenderer(x => GetNodeName(x))
-				.AddSetter(SetAlign)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
 			var levels = LevelConfigFactory.FirstLevel<ComplaintDiscussionComment, ComplaintFile>(x => x.ComplaintFiles).LastLevel(c => c.ComplaintDiscussionComment).EndConfig();
@@ -89,32 +88,27 @@ namespace Vodovoz.Views.Complaints
 		private string GetTime(object node)
 		{
 			if(node is ComplaintDiscussionComment) {
-				return (node as ComplaintDiscussionComment).CreationTime.ToShortTimeString();
+				return (node as ComplaintDiscussionComment).CreationTime.ToShortDateString() + "\n" + (node as ComplaintDiscussionComment).CreationTime.ToShortTimeString();
 			}
+
 			return "";
 		}
 
 		private string GetAuthor(object node)
 		{
 			if(node is ComplaintDiscussionComment) {
-				return (node as ComplaintDiscussionComment).Author.GetPersonNameWithInitials();
+				var author = (node as ComplaintDiscussionComment).Author;
+				var subdivisionName = author.Subdivision != null && !string.IsNullOrWhiteSpace(author.Subdivision.ShortName) ? "\n" + author.Subdivision.ShortName : "";
+				var result = $"{author.GetPersonNameWithInitials()}{subdivisionName}";
+				return result;
 			}
 			return "";
-		}
-
-		private void SetAlign(Gamma.GtkWidgets.Cells.NodeCellRendererText<object> cell, object node)
-		{
-			if(node is ComplaintFile) {
-				cell.Xalign = 1;
-				return;
-			}
-			cell.Xalign = 0;
 		}
 
 		private void SetColor(CellRenderer cell, object node)
 		{
 			if(node is ComplaintDiscussionComment) {
-				cell.CellBackgroundGdk = new Gdk.Color(240, 240, 240);
+				cell.CellBackgroundGdk = new Gdk.Color(230, 230, 245);
 			} else {
 				cell.CellBackgroundGdk = new Gdk.Color(255, 255, 255);
 			}
