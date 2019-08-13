@@ -2606,6 +2606,7 @@ FROM
             WHEN route_lists.status = 'InLoading' THEN 'На погрузке'
             WHEN route_lists.status = 'EnRoute' THEN 'В пути'
             WHEN route_lists.status = 'OnClosing' THEN 'Сдаётся'
+            WHEN route_lists.status = 'Confirmed' THEN 'Подтвержден'
             ELSE route_lists.status
         END
     )
