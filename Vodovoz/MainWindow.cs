@@ -3,11 +3,17 @@ using System.Linq;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
+using QS.Banks.Domain;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
+using QS.DomainModel.Config;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi.Gtk;
 using QSBanks;
@@ -18,10 +24,13 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz;
 using Vodovoz.Core;
+using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OnlineStore;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -29,7 +38,14 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewers;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
@@ -41,10 +57,10 @@ using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
-using Vodovoz.Filters.ViewModels;
-using QS.DomainModel.Config;
-using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewWidgets;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -180,16 +196,18 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
 	{
-		var currentTab = args.Tab;
-		if(currentTab is IInfoProvider)
-			(currentTab as IInfoProvider).CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+		if(args.Tab is IInfoProvider dialogTab)
+			dialogTab.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+		else if(args.Tab is TdiSliderTab journalTab && journalTab.Journal is IInfoProvider journal)
+			journal.CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
 	}
 
 	public void OnTdiMainTabClosed(object sender, TabClosedEventArgs args)
 	{
-		var closedTab = args.Tab;
-		if(closedTab is IInfoProvider)
-			infopanel.OnInfoProviderDisposed(closedTab as IInfoProvider);
+		if(args.Tab is IInfoProvider dialogTab)
+			infopanel.OnInfoProviderDisposed(dialogTab);
+		else if(args.Tab is TdiSliderTab journalTab && journalTab.Journal is IInfoProvider journal)
+			infopanel.OnInfoProviderDisposed(journal);
 		if(tdiMain.NPages == 0)
 			infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
 	}
@@ -199,6 +217,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		var currentTab = args.Tab;
 		if(currentTab is IInfoProvider)
 			infopanel.SetInfoProvider(currentTab as IInfoProvider);
+		else if(currentTab is TdiSliderTab && (currentTab as TdiSliderTab).Journal is IInfoProvider)
+			infopanel.SetInfoProvider((currentTab as TdiSliderTab).Journal as IInfoProvider);
 		else
 			infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
 	}
@@ -525,6 +545,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			CurrentUserSettings.SaveSettings();
 		}
 		toolbarMain.ToolbarStyle = style;
+		tlbComplaints.ToolbarStyle = style;
 		ActionIconsExtraSmall.Sensitive = ActionIconsSmall.Sensitive = ActionIconsMiddle.Sensitive = ActionIconsLarge.Sensitive =
 			style != ToolbarStyle.Text;
 	}
@@ -538,15 +559,19 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		switch(size) {
 			case IconsSize.ExtraSmall:
 				toolbarMain.IconSize = IconSize.SmallToolbar;
+				tlbComplaints.IconSize = IconSize.SmallToolbar;
 				break;
 			case IconsSize.Small:
 				toolbarMain.IconSize = IconSize.LargeToolbar;
+				tlbComplaints.IconSize = IconSize.LargeToolbar;
 				break;
 			case IconsSize.Middle:
 				toolbarMain.IconSize = IconSize.Dnd;
+				tlbComplaints.IconSize = IconSize.Dnd;
 				break;
 			case IconsSize.Large:
 				toolbarMain.IconSize = IconSize.Dialog;
+				tlbComplaints.IconSize = IconSize.Dialog;
 				break;
 		}
 	}
@@ -651,6 +676,38 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			SwitchToUI("Vodovoz.toolbars.staff.xml");
 	}
 
+	protected void OnActionComplaintsActivated(object sender, EventArgs e)
+	{
+		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
+		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
+		IEntitySelectorFactory employeeSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Employee), () => new EmployeesVM());
+		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
+		IFilePickerService filePickerService = new GtkFilePicker();
+
+		tdiMain.OpenTab(
+			() => {
+				return new ComplaintsJournalViewModel(
+					entityConfigurationProvider,
+					ServicesConfig.CommonServices,
+					undeliveriesViewOpener,
+					ServicesConfig.EmployeeService,
+					employeeSelectorFactory,
+					counterpartySelectorFactory,
+					routeListItemRepository,
+					new BaseParametersProvider(),
+					new EmployeeRepository(),
+					new ComplaintFilterViewModel(new GtkInteractiveService()),
+					filePickerService,
+					subdivisionRepository,
+					new GtkReportViewOpener(),
+					new GtkTabsOpener()
+				);
+			}
+		);
+	}
+
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -658,6 +715,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport())
 		);
 	}
+
 	protected void OnActionDriverWagesActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -665,6 +723,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport())
 		);
 	}
+
 	protected void OnActionFuelReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -672,6 +731,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.FuelReport())
 		);
 	}
+
 	protected void OnActionShortfallBattlesActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -679,6 +739,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport())
 		);
 	}
+
 	protected void OnActionWagesOperationsActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1309,10 +1370,36 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new OrmReference(typeof(PaymentFrom))
 		);
 	}
-	
+
 	protected void OnAction62Activated(object sender, EventArgs e)
 	{
 		var widget = new ResendEmailsDialog();
 		tdiMain.AddTab(widget);
+	}
+
+	protected void OnActionComplaintSourcesActivated(object sender, EventArgs e)
+	{
+		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
+
+		var complaintSourcesViewModel = new SimpleEntityJournalViewModel<ComplaintSource, ComplaintSourceViewModel>(
+			x => x.Name,
+			() => new ComplaintSourceViewModel(EntityConstructorParam.ForCreate(), ServicesConfig.CommonServices),
+			(node) => new ComplaintSourceViewModel(EntityConstructorParam.ForOpen(node.Id), ServicesConfig.CommonServices),
+			entityConfigurationProvider,
+			ServicesConfig.CommonServices
+		);
+		tdiMain.AddTab(complaintSourcesViewModel);
+	}
+
+	protected void OnActionComplaintResultActivated(object sender, EventArgs e)
+	{
+		var complaintResultsViewModel = new SimpleEntityJournalViewModel<ComplaintResult, ComplaintResultViewModel>(
+			x => x.Name,
+			() => new ComplaintResultViewModel(EntityConstructorParam.ForCreate(), ServicesConfig.CommonServices),
+			(node) => new ComplaintResultViewModel(EntityConstructorParam.ForOpen(node.Id), ServicesConfig.CommonServices),
+			new DefaultEntityConfigurationProvider(),
+			ServicesConfig.CommonServices
+		);
+		tdiMain.AddTab(complaintResultsViewModel);
 	}
 }

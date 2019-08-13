@@ -7,6 +7,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
+using QS.Banks.Domain;
 
 namespace Vodovoz.Domain.Accounting
 {

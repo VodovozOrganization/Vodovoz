@@ -123,6 +123,8 @@ namespace Vodovoz
 					}
 				}
 
+				CreateTempDir();
+
 				//Запускаем программу
 				MainWin = new MainWindow();
 				progressBarWin = MainWin;
@@ -142,6 +144,7 @@ namespace Vodovoz
 
 			Application.Run ();
 			QSSaaS.Session.StopSessionRefresh ();
+			ClearTempDir();
 		}
 	}
 }

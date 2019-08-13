@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.Banks.Domain;
 using QSBanks;
 
 namespace Vodovoz.LoadFrom1c

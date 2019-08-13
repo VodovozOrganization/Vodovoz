@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using System.IO;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Repositories.HumanResources
@@ -10,6 +11,16 @@ namespace Vodovoz.Repositories.HumanResources
 			return uow.Session.QueryOver<User> ()
 				.Where (u => u.Id == QSProjectsLib.QSMain.User.Id)
 				.SingleOrDefault ();
+		}
+
+		public static string GetTempDirForCurrentUser(IUnitOfWork uow)
+		{
+			var userId = GetCurrentUser(uow)?.Id;
+
+			if(userId == null)
+				return string.Empty;
+
+			return Path.Combine(Path.GetTempPath(), "Vodovoz", userId.ToString());
 		}
 
 		/// <summary>

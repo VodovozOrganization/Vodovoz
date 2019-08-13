@@ -7,7 +7,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Utilities.Text;
-using QSOrmProject;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
 
@@ -18,7 +17,7 @@ namespace Vodovoz.Domain.Employees
 		Nominative = "сотрудник")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class Employee : Personnel, ISpecialRowsRender, IEmployee
+	public class Employee : Personnel, IEmployee
 	{
 		#region Свойства
 
@@ -257,12 +256,6 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult("Для водителя необходимо указать тип расчёта заработной платы.", new[] { this.GetPropertyName(x => x.WageCalcType) });
 				
 		}
-
-		#endregion
-
-		#region ISpecialRowsRender implementation
-
-		public virtual string TextColor { get { return IsFired ? "grey" : "black"; } }
 
 		#endregion
 

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using Vodovoz.Domain.Store;
+
 namespace Vodovoz.EntityRepositories.Subdivisions
 {
 	public interface ISubdivisionRepository
@@ -9,5 +11,11 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		IEnumerable<Subdivision> GetSubdivisionsForDocumentTypes(IUnitOfWork uow, Type[] documentTypes);
 		IEnumerable<Subdivision> GetCashSubdivisions(IUnitOfWork uow);
 		IEnumerable<Subdivision> GetCashSubdivisionsAvailableForUser(IUnitOfWork uow, UserBase user);
+
+		IList<Subdivision> GetAllDepartments(IUnitOfWork uow, bool orderByDescending = false);
+		IEnumerable<Subdivision> GetAvailableSubdivionsForUser(IUnitOfWork uow, Type[] documentsTypes);
+		IList<Subdivision> GetChildDepartments(IUnitOfWork uow, Subdivision parentSubdivision, bool orderByDescending = false);
+		Subdivision GetQCDepartment(IUnitOfWork uow);
+		IList<Warehouse> GetWarehouses(IUnitOfWork uow, Subdivision subdivision, bool orderByDescending = false);
 	}
 }

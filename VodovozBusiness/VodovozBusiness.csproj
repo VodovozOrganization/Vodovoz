@@ -157,6 +157,9 @@
     <Reference Include="CommonServiceLocator">
       <HintPath>..\packages\CommonServiceLocator.2.0.4\lib\net46\CommonServiceLocator.dll</HintPath>
     </Reference>
+    <Reference Include="QS.Banks">
+      <HintPath>..\..\QSProjects\Modules\QS.Banks\bin\Debug\QS.Banks.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -660,6 +663,28 @@
     <Compile Include="EntityRepositories\Cash\ICashRepository.cs" />
     <Compile Include="Domain\Order\Documents\TransportInvoiceDocument.cs" />
     <Compile Include="Domain\Order\Documents\Torg2Document.cs" />
+    <Compile Include="Domain\Complaints\Complaint.cs" />
+    <Compile Include="Domain\Complaints\ComplaintSource.cs" />
+    <Compile Include="Domain\Complaints\ComplaintDiscussion.cs" />
+    <Compile Include="Domain\Complaints\ComplaintDiscussionComment.cs" />
+    <Compile Include="Domain\Complaints\ComplaintFile.cs" />
+    <Compile Include="Domain\Complaints\ComplaintGuiltyItem.cs" />
+    <Compile Include="Domain\Complaints\ComplaintGuiltyTypes.cs" />
+    <Compile Include="Domain\Complaints\ComplaintStatuses.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintDiscussionMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintDiscussionCommentMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintFileMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintGuiltyItemMap.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintSourceMap.cs" />
+    <Compile Include="Domain\Complaints\ComplaintResult.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintResultMap.cs" />
+    <Compile Include="Domain\Complaints\ComplaintType.cs" />
+    <Compile Include="EntityRepositories\Complaints\ComplaintsRepository.cs" />
+    <Compile Include="EntityRepositories\Complaints\IComplaintsRepository.cs" />
+    <Compile Include="Services\ISubdivisionService.cs" />
+    <Compile Include="EntityRepositories\Employee\EmployeeRepository.cs" />
+    <Compile Include="EntityRepositories\Employee\IEmployeeRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -709,6 +734,10 @@
     <Folder Include="EntityRepositories\Logistic\" />
     <Folder Include="EntityRepositories\Store\" />
     <Folder Include="EntityRepositories\Cash\" />
+    <Folder Include="Domain\Complaints\" />
+    <Folder Include="HibernateMapping\Complaints\" />
+    <Folder Include="EntityRepositories\Complaints\" />
+    <Folder Include="EntityRepositories\Employee\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

@@ -9,13 +9,16 @@ using QS.Utilities;
 using QS.ViewModels;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels
 {
@@ -54,7 +57,10 @@ namespace Vodovoz.ViewModels
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateResidue();
+			GuiltyItemsVM = new GuiltyItemsViewModel(new Complaint(), UoW, commonServices, new SubdivisionRepository());
 		}
+
+		public GuiltyItemsViewModel GuiltyItemsVM { get; set; }
 
 		private void ConfigureEntityPropertyChanges()
 		{

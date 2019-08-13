@@ -455,6 +455,7 @@
     <EmbeddedResource Include="icons\menu\CRMLogo.png" />
     <EmbeddedResource Include="icons\map\points\custom\vodonos.png" />
     <EmbeddedResource Include="icons\map\points\custom\marker_shadow.png" />
+    <EmbeddedResource Include="icons\toolbar\complaints.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -633,7 +634,6 @@
     <Compile Include="Dialogs\Cash\CashExpenseCategoryDlg.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListDiscrepancyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListDiscrepancyView.cs" />
-    <Compile Include="SidePanel\InfoProviders\IInfoProvider.cs" />
     <Compile Include="SidePanel\PanelViewContainer.cs" />
     <Compile Include="SidePanel\IPanelView.cs" />
     <Compile Include="SidePanel\PanelViewFactory.cs" />
@@ -1142,8 +1142,6 @@
     <Compile Include="Filters\RepresentationFilterViewModelBase.cs" />
     <Compile Include="Infrastructure\Converters\DecimalToStringConverter.cs" />
     <Compile Include="ServicesConfig.cs" />
-    <Compile Include="Infrastructure\Services\IEmployeeService.cs" />
-    <Compile Include="Infrastructure\Services\EmployeeService.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelIncomeInvoiceView.cs" />
@@ -1185,7 +1183,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PermissionCommentView.cs" />
     <Compile Include="ReportsParameters\Bottles\ProfitabilityBottlesByStockReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ProfitabilityBottlesByStockReport.cs" />
-    <Compile Include="JournalViewModels\CounterpartyJournalViewModel.cs" />
     <Compile Include="Filters\ViewModels\CounterpartyJournalFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\CounterpartyFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CounterpartyFilterView.cs" />
@@ -1209,7 +1206,6 @@
     <Compile Include="Filters\ViewModels\ResidueFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\ResidueFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ResidueFilterView.cs" />
-    <Compile Include="Infrastructure\Services\EntityRepresentationSelectorAdapter.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeView.cs" />
@@ -1219,7 +1215,6 @@
     <Compile Include="Dialogs\Cash\ExpenseCategoryViewModel.cs" />
     <Compile Include="Dialogs\Cash\ExpenseCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Cash.ExpenseCategoryView.cs" />
-    <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
     <Compile Include="Infrastructure\Converters\EmployeeToLastNameWithInitialsConverter.cs" />
     <Compile Include="Dialogs\Phones\PhonesViewModel.cs" />
     <Compile Include="Dialogs\Phones\PhonesView.cs" />
@@ -1227,10 +1222,54 @@
     <Compile Include="Additions\ManualEmailSender.cs" />
     <Compile Include="ServiceDialogs\ResendEmailsDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.ResendEmailsDialog.cs" />
+    <Compile Include="Views\Complaints\ComplaintView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintView.cs" />
+    <Compile Include="JournalViewModels\CounterpartyJournalViewModel.cs" />
+    <Compile Include="JournalViewers\UndeliveriesViewOpener.cs" />
+    <Compile Include="Views\Employees\FineTemplateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineTemplateView.cs" />
+    <Compile Include="Views\Employees\FineView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineView.cs" />
+    <Compile Include="Infrastructure\Services\EntityRepresentationAdapterFactory.cs" />
+    <Compile Include="Infrastructure\Services\EntityRepresentationSelectorAdapter.cs" />
+    <Compile Include="Infrastructure\Services\EntityRepresentationSelectorFactory.cs" />
+    <Compile Include="Infrastructure\Services\IEntityRepresentationSelectorFactory.cs" />
+    <Compile Include="Filters\GtkViews\FineFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.FineFilterView.cs" />
+    <Compile Include="Views\Complaints\CreateComplaintView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.CreateComplaintView.cs" />
+    <Compile Include="Views\Complaints\CreateInnerComplaintView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.CreateInnerComplaintView.cs" />
+    <Compile Include="Views\Complaints\GuiltyItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.GuiltyItemsView.cs" />
+    <Compile Include="Views\Complaints\ComplaintDiscussionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintDiscussionView.cs" />
+    <Compile Include="Views\FilesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.FilesView.cs" />
+    <Compile Include="Views\Complaints\ComplaintDiscussionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintDiscussionsView.cs" />
+    <Compile Include="Views\Complaints\GuiltyItemView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.GuiltyItemView.cs" />
+    <Compile Include="Views\Complaints\ComplaintSourceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintSourceView.cs" />
+    <Compile Include="SidePanel\InfoViews\ComplaintPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.ComplaintPanelView.cs" />
+    <Compile Include="Views\Complaints\ComplaintResultView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintResultView.cs" />
+    <Compile Include="Views\Organization\SubdivisionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Organization.SubdivisionView.cs" />
+    <Compile Include="Filters\GtkViews\SubdivisionFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.SubdivisionFilterView.cs" />
     <Compile Include="Filters\ViewModels\DebtorsJournalFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\DebtorsFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DebtorsFilterView.cs" />
     <Compile Include="JournalNodes\DebtorJournalNode.cs" />
+    <Compile Include="Filters\GtkViews\ComplaintFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ComplaintFilterView.cs" />
+    <Compile Include="ViewWidgets\GtkReportViewOpener.cs" />
+    <Compile Include="Views\Complaints\ComplaintFilesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintFilesView.cs" />
+    <Compile Include="Dialogs\OrderWidgets\GtkTabsOpener.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1366,6 +1405,14 @@
       <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
       <Name>QS.Validation</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
+      <Project>{EF73674E-B8D5-461B-A072-AC73231C82B2}</Project>
+      <Name>VodovozViewModels</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
+      <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
+      <Name>QS.Banks</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />
@@ -1443,6 +1490,9 @@
     <Folder Include="ViewModels\" />
     <Folder Include="Views\" />
     <Folder Include="Dialogs\Phones\" />
+    <Folder Include="Views\Complaints\" />
+    <Folder Include="Views\Employees\" />
+    <Folder Include="Views\Organization\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1872,6 +1922,9 @@
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\Torg2.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Complaints.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

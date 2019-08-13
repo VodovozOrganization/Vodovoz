@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Utilities.Text;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
+using NHibernate.Criterion;
 
 namespace Vodovoz.Representations
 {
@@ -21,11 +22,22 @@ namespace Vodovoz.Representations
 
 		public SubdivisionsVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
 
+		public bool WithLeveling { get; set; } = true;
+
 		public override void UpdateNodes()
 		{
 			Employee chiefAlias = null;
 			SubdivisionVMNode resultAlias = null;
 			var query = UoW.Session.QueryOver<Subdivision>();
+
+			if(!WithLeveling) {
+				var firstLevelSubQuery = QueryOver.Of<Subdivision>().WhereRestrictionOn(x => x.ParentSubdivision).IsNull().Select(x => x.Id);
+				var secondLevelSubquery = QueryOver.Of<Subdivision>().WithSubquery.WhereProperty(x => x.ParentSubdivision.Id).In(firstLevelSubQuery).Select(x => x.Id);
+
+				query
+					.WithSubquery.WhereProperty(x => x.Id).NotIn(firstLevelSubQuery)
+					.WithSubquery.WhereProperty(x => x.Id).NotIn(secondLevelSubquery);
+			}
 
 			allSubdivisionNodes = query
 				.Left.JoinAlias(o => o.Chief, () => chiefAlias)
@@ -40,9 +52,16 @@ namespace Vodovoz.Representations
 				.TransformUsing(Transformers.AliasToBean<SubdivisionVMNode>())
 				.List<SubdivisionVMNode>();
 
-			Result = allSubdivisionNodes.Where(s => s.ParentId == parentId).ToList();
-			foreach(var r in Result)
-				SetChildren(r);
+			if(parentId.HasValue) {
+				Result = allSubdivisionNodes.Where(s => s.ParentId == parentId).ToList();
+			} else {
+				Result = allSubdivisionNodes;
+			}
+
+			if(WithLeveling) {
+				foreach(var r in Result)
+					SetChildren(r);
+			}
 		
 			SetItemsSource(Result);
 		}

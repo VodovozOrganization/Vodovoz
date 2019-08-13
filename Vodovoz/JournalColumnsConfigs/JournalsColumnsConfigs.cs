@@ -7,6 +7,8 @@ using QSProjectsLib;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Representations;
+using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.JournalViewModels.Employees;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -67,7 +69,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
-				
+
 
 			//SelfDeliveriesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<SelfDeliveriesJournalViewModel>(
@@ -112,6 +114,80 @@ namespace Vodovoz.JournalColumnsConfigs
 																	.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive ? "Да" : "Нет")
 																	.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 																	.Finish()
+			);
+
+			//ComplaintsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ComplaintsJournalViewModel>(
+				() => FluentColumnsConfig<ComplaintJournalNode>.Create()
+					.AddColumn("№ п/п").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.SequenceNumber.ToString())
+						.XAlign(0.5f)
+					.AddColumn("№ жалобы").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Id.ToString())
+						.XAlign(0.5f)
+					.AddColumn("Тип").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.TypeString)
+						.XAlign(0.5f)
+					.AddColumn("Дата").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.DateString)
+						.XAlign(0.5f)
+					.AddColumn("Статус").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.StatusString)
+						.XAlign(0.5f)
+					.AddColumn("В работе у").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.WorkInSubdivision)
+						.XAlign(0f)
+					.AddColumn("Дата план.\nзавершения").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.PlannedCompletionDate)
+						.XAlign(0.5f)
+					.AddColumn("Клиент и адрес").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ClientNameWithAddress)
+						.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+						.XAlign(0f)
+					.AddColumn("Виновный").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Guilties)
+						.XAlign(0f)
+					.AddColumn("Проблема").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ComplaintText)
+						.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+						.XAlign(0f)
+					.AddColumn("Автор").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Author)
+						.XAlign(0f)
+					.AddColumn("Штрафы").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Fines)
+						.XAlign(0.5f)
+					.AddColumn("Результат").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ResultText)
+						.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+						.XAlign(0f)
+					.AddColumn("Дата факт.\nзавершения").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ActualCompletionDateString)
+						.XAlign(0.5f)
+					.AddColumn("Дни").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.DaysInWork)
+						.XAlign(0.5f)
+					.Finish()
+			);
+
+			//SubdivisionsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<SubdivisionsJournalViewModel>(
+				() => FluentColumnsConfig<SubdivisionJournalNode>.Create()
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Руководитель").AddTextRenderer(node => node.ChiefName)
+					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+					.Finish()
+			);
+
+			//SubdivisionsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<FinesJournalViewModel>(
+				() => FluentColumnsConfig<FineJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
+					.AddColumn("Сотудники").AddTextRenderer(node => node.EmployeesName)
+					.AddColumn("Сумма штрафа").AddTextRenderer(node => node.FineSumm.ToString())
+					.AddColumn("Причина штрафа").AddTextRenderer(node => node.FineReason)
+					.Finish()
 			);
 		}
 	}

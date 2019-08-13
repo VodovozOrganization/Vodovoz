@@ -54,6 +54,17 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.ViewModels;
 using Vodovoz.Views;
+using Vodovoz.ViewModels.Employees;
+using Vodovoz.Views.Employees;
+using QS.Banks.Domain;
+using System.IO;
+using Vodovoz.ViewModels.Complaints;
+using Vodovoz.Views.Complaints;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.ViewModels.Organization;
+using Vodovoz.Views.Organization;
+using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.FilterViewModels;
 
 namespace Vodovoz
 {
@@ -114,6 +125,7 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_edit_fuelwriteoff_document_date", new PresetUserPermissionSource("can_edit_fuelwriteoff_document_date", "Смена даты в акте выдачи топлива", "Возможность изменять дату в акте выдачи топлива"));
 			PermissionsSettings.PresetPermissions.Add("can_edit_price_discount_from_route_list", new PresetUserPermissionSource("can_edit_price_discount_from_route_list", "Изменение цены и скидки в закрытии МЛ", "Возможность изменять цену и скидку в заказе из закрытия МЛ"));
 			PermissionsSettings.PresetPermissions.Add("can_edit_order", new PresetUserPermissionSource("can_edit_order", "Изменение заказа", "Для тех, у кого нет права, засеривается кнопка в Заказе \"Редактировать\""));
+			PermissionsSettings.PresetPermissions.Add("can_complete_complaint_discussion", new PresetUserPermissionSource("can_complete_complaint_discussion", "Завершение обсуждения в жалобе", "Дает возможность пользователю завершить обсуждение в жалобе"));
 			PermissionsSettings.PresetPermissions.Add("can_change_fuel_card_number", new PresetUserPermissionSource("can_change_fuel_card_number", "Изменение номера ТК в карточке автомобиля", string.Empty));
 			UserDialog.UserPermissionViewsCreator = delegate {
 				return new List<IUserPermissionTab> {
@@ -137,16 +149,27 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelTypeViewModel, FuelTypeView>()
 				.RegisterWidgetForTabViewModel<FuelWriteoffDocumentViewModel, FuelWriteoffDocumentView>()
 				.RegisterWidgetForTabViewModel<ResidueViewModel, ResidueView>()
+				.RegisterWidgetForTabViewModel<FineTemplateViewModel, FineTemplateView>()
+				.RegisterWidgetForTabViewModel<ComplaintViewModel, ComplaintView>()
+				.RegisterWidgetForTabViewModel<CreateComplaintViewModel, CreateComplaintView>()
+				.RegisterWidgetForTabViewModel<CreateInnerComplaintViewModel, CreateInnerComplaintView>()
+				.RegisterWidgetForTabViewModel<ComplaintSourceViewModel, ComplaintSourceView>()
+				.RegisterWidgetForTabViewModel<ComplaintResultViewModel, ComplaintResultView>()
+				.RegisterWidgetForTabViewModel<SubdivisionViewModel, SubdivisionView>()
+				.RegisterWidgetForTabViewModel<FineViewModel, FineView>()
 				;
 
 			//Регистрация фильтров
 			ViewModelWidgetResolver.Instance
+				.RegisterWidgetForFilterViewModel<ComplaintFilterViewModel, ComplaintFilterView>()
 				.RegisterWidgetForFilterViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
 				.RegisterWidgetForFilterViewModel<DebtorsJournalFilterViewModel, DebtorsFilterView>()
 				.RegisterWidgetForFilterViewModel<EmployeeFilterViewModel, EmployeeFilterView>()
 				.RegisterWidgetForFilterViewModel<OrderJournalFilterViewModel, OrderFilterView>()
 				.RegisterWidgetForFilterViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
 				.RegisterWidgetForFilterViewModel<ResidueFilterViewModel, ResidueFilterView>()
+				.RegisterWidgetForFilterViewModel<FineFilterViewModel, FineFilterView>()
+				.RegisterWidgetForFilterViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
 				;
 
 			TDIMain.TDIWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -175,7 +198,7 @@ namespace Vodovoz
 			OrmConfig.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
 				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(HibernateMapping.OrganizationMap)),
-				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
+				System.Reflection.Assembly.GetAssembly (typeof(Bank)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSContactsMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
 			},
@@ -394,18 +417,55 @@ namespace Vodovoz
 			ImagePrinter.InitPrinter();
 
 			//Настройка ParentReference
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, QSBanks.Account> {
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Organization, Account> {
 				AddNewChild = (o, a) => o.AddAccount(a)
 			});
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Counterparty, QSBanks.Account> {
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Counterparty, Account> {
 				AddNewChild = (c, a) => c.AddAccount(a)
 			});
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Employee, QSBanks.Account> {
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Employee, Account> {
 				AddNewChild = (c, a) => c.AddAccount(a)
 			});
-			ParentReferenceConfig.AddActions(new ParentReferenceActions<Trainee, QSBanks.Account> {
+			ParentReferenceConfig.AddActions(new ParentReferenceActions<Trainee, Account> {
 				AddNewChild = (c, a) => c.AddAccount(a)
 			});
+		}
+
+		public static void CreateTempDir()
+		{
+			var userId = QSMain.User?.Id;
+
+			if(userId == null)
+				return;
+
+			var tempVodUserPath = Path.Combine(Path.GetTempPath(), "Vodovoz", userId.ToString());
+			DirectoryInfo dirInfo = new DirectoryInfo(tempVodUserPath);
+
+			if(!dirInfo.Exists) 
+				dirInfo.Create();
+		}
+
+		public static void ClearTempDir()
+		{
+			var userId = QSMain.User?.Id;
+
+			if(userId == null)
+				return;
+
+			var tempVodUserPath = Path.Combine(Path.GetTempPath(), "Vodovoz", userId.ToString());
+			DirectoryInfo dirInfo = new DirectoryInfo(tempVodUserPath);
+
+			if(dirInfo.Exists) 
+			{
+				foreach(FileInfo file in dirInfo.EnumerateFiles()) {
+					file.Delete();
+				}
+				foreach(DirectoryInfo dir in dirInfo.EnumerateDirectories()) {
+					dir.Delete(true);
+				}
+
+				dirInfo.Delete();
+			}
 		}
 
 		public static void SetupAppFromBase()

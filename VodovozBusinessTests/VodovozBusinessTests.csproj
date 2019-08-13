@@ -32,9 +32,6 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.3.12.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="NSubstitute">
-      <HintPath>..\packages\NSubstitute.4.2.0\lib\net46\NSubstitute.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="Antlr3.Runtime">
       <HintPath>..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
@@ -53,7 +50,6 @@
     <Reference Include="GeoAPI.CoordinateSystems">
       <HintPath>..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45\GeoAPI.CoordinateSystems.dll</HintPath>
     </Reference>
-    <Reference Include="System.ComponentModel" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -62,15 +58,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="Castle.Core">
       <HintPath>..\packages\Castle.Core.4.4.0\lib\net45\Castle.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data">
-      <HintPath>..\packages\MySql.Data.8.0.16\lib\net452\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.CoordinateSystems">
-      <HintPath>..\packages\NetTopologySuite.CoordinateSystems.1.15.2\lib\net45\NetTopologySuite.CoordinateSystems.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite">
-      <HintPath>..\packages\NetTopologySuite.Core.1.15.2\lib\net45\NetTopologySuite.dll</HintPath>
     </Reference>
     <Reference Include="Remotion.Linq">
       <HintPath>..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
@@ -93,11 +80,26 @@
     <Reference Include="NHibernate">
       <HintPath>..\packages\NHibernate.5.2.5\lib\net461\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.2\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
     <Reference Include="BouncyCastle.Crypto">
       <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.3\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="NSubstitute">
+      <HintPath>..\packages\NSubstitute.4.2.1\lib\net46\NSubstitute.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite">
+      <HintPath>..\packages\NetTopologySuite.Core.1.15.3\lib\net45\NetTopologySuite.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite.CoordinateSystems">
+      <HintPath>..\packages\NetTopologySuite.CoordinateSystems.1.15.3\lib\net45\NetTopologySuite.CoordinateSystems.dll</HintPath>
+    </Reference>
+    <Reference Include="Renci.SshNet">
+      <HintPath>..\packages\SSH.NET.2016.1.0\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data">
+      <HintPath>..\packages\MySql.Data.8.0.17\lib\net452\MySql.Data.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +179,10 @@
     <ProjectReference Include="..\..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
       <Project>{54F958F5-7E58-4C89-9A04-8835E63B97C3}</Project>
       <Name>System.Data.Bindings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
+      <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
+      <Name>QS.Banks</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

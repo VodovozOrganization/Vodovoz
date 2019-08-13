@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Gtk;
 using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.SidePanel.InfoViews;
 
 namespace Vodovoz.SidePanel
@@ -10,8 +11,7 @@ namespace Vodovoz.SidePanel
 	{
 		public static Widget Create(PanelViewType type)
 		{
-			switch (type)
-			{
+			switch(type) {
 				case PanelViewType.CounterpartyView:
 					return new CounterpartyPanelView();
 				case PanelViewType.DeliveryPointView:
@@ -26,6 +26,8 @@ namespace Vodovoz.SidePanel
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
 					return new CallTaskPanelView(new BaseParametersProvider());
+				case PanelViewType.ComplaintPanelView:
+					return new ComplaintPanelView(new ComplaintsRepository());
 				default:
 					throw new NotSupportedException();
 			}
@@ -34,19 +36,9 @@ namespace Vodovoz.SidePanel
 		public static IEnumerable<Widget> CreateAll(IEnumerable<PanelViewType> types)
 		{
 			var iterator = types.GetEnumerator();
-			while (iterator.MoveNext())
+			while(iterator.MoveNext())
 				yield return Create(iterator.Current);
 		}
-	}
-
-	public enum PanelViewType{
-		CounterpartyView,
-		DeliveryPointView,
-		AdditionalAgreementPanelView,
-		DeliveryPricePanelView,
-		UndeliveredOrdersPanelView,
-		EmailsPanelView,
-		CallTaskPanelView
 	}
 }
 

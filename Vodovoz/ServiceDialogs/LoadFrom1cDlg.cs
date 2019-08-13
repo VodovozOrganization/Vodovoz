@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QSBanks;
 using QSBanks.Repositories;

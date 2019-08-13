@@ -1,23 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using NHibernate.Criterion;
 using QS.DomainModel.UoW;
-using QSSupportLib;
-using System.Linq;
 using Vodovoz.Domain.Store;
-using QS.Project.Domain;
-using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.Repositories.HumanResources
 {
+	[Obsolete("Используйте одноимённый класс из EntityRepositories.Subdivisions")]
 	public static class SubdivisionsRepository
 	{
+		[Obsolete]
 		public static Subdivision GetQCDepartment(IUnitOfWork uow)
 		{
-			var qcDep = "номер_отдела_ОКК";
-			if(!MainSupport.BaseParameters.All.ContainsKey(qcDep))
-				throw new InvalidProgramException("В параметрах базы не указан номер отдела контроля качества [номер_отдела_ОКК]");
-			return uow.GetById<Subdivision>(int.Parse(MainSupport.BaseParameters.All[qcDep]));
+			return new EntityRepositories.Subdivisions.SubdivisionRepository().GetQCDepartment(uow);
 		}
 
 		/// <summary>
@@ -26,11 +20,10 @@ namespace Vodovoz.Repositories.HumanResources
 		/// <returns>Список подразделений</returns>
 		/// <param name="uow">UoW</param>
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
+		[Obsolete]
 		public static IList<Subdivision> GetAllDepartments(IUnitOfWork uow, bool orderByDescending = false)
 		{
-			var query = uow.Session.QueryOver<Subdivision>()
-			   .OrderBy(i => i.Name);
-			return orderByDescending ? query.Desc().List() : query.Asc().List();
+			return new EntityRepositories.Subdivisions.SubdivisionRepository().GetAllDepartments(uow, orderByDescending);
 		}
 
 		/// <summary>
@@ -40,22 +33,19 @@ namespace Vodovoz.Repositories.HumanResources
 		/// <param name="uow">Unit of Work</param>
 		/// <param name="parentSubdivision">Подразделение, список дочерних подразделений которого требуется вернуть</param>
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
+		[Obsolete]
 		public static IList<Subdivision> GetChildDepartments(IUnitOfWork uow, Subdivision parentSubdivision, bool orderByDescending = false)
 		{
-			return GetAllDepartments(uow, orderByDescending).Where(s => s.ParentSubdivision == parentSubdivision).ToList();
+			return new EntityRepositories.Subdivisions.SubdivisionRepository().GetChildDepartments(uow, parentSubdivision, orderByDescending);
 		}
 
 		/// <summary>
 		/// Список подразделений в которых произодится работа с указанными документами
 		/// </summary>
-		public static IList<Subdivision> GetSubdivisionsForDocumentTypes(IUnitOfWork uow, Type[] documentTypes)
+		[Obsolete]
+		public static IEnumerable<Subdivision> GetSubdivisionsForDocumentTypes(IUnitOfWork uow, Type[] documentTypes)
 		{
-			Subdivision subdivisionAlias = null;
-			TypeOfEntity typeOfEntityAlias = null;
-			return uow.Session.QueryOver<Subdivision>(() => subdivisionAlias)
-				.Left.JoinAlias(() => subdivisionAlias.DocumentTypes, () => typeOfEntityAlias)
-				.WhereRestrictionOn(() => typeOfEntityAlias.Type).IsIn(documentTypes.Select(x => x.Name).ToArray())
-				.List();
+			return new EntityRepositories.Subdivisions.SubdivisionRepository().GetSubdivisionsForDocumentTypes(uow, documentTypes);
 		}
 
 		/// <summary>
@@ -65,27 +55,16 @@ namespace Vodovoz.Repositories.HumanResources
 		/// <param name="uow">Uow.</param>
 		/// <param name="subdivision">подразделение</param>
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
+		[Obsolete]
 		public static IList<Warehouse> GetWarehouses(IUnitOfWork uow, Subdivision subdivision, bool orderByDescending = false)
 		{
-			var query = uow.Session.QueryOver<Warehouse>()
-							.Where(w => w.OwningSubdivision == subdivision)
-							.OrderBy(w => w.Name);
-			return orderByDescending ? query.Desc().List() : query.Asc().List();
+			return new EntityRepositories.Subdivisions.SubdivisionRepository().GetWarehouses(uow, subdivision, orderByDescending);
 		}
 
+		[Obsolete]
 		public static IEnumerable<Subdivision> GetAvailableSubdivionsForUser(IUnitOfWork uow, Type[] documentsTypes)
 		{
-			var validationResult = EntitySubdivisionForUserPermissionValidator.Validate(uow, documentsTypes);
-
-			var subdivisionsList = new List<Subdivision>();
-			foreach(var item in documentsTypes) {
-				subdivisionsList.AddRange(validationResult
-					.Where(x => x.GetPermission(item).Read)
-					.Select(x => x.Subdivision)
-				);
-			}
-
-			return subdivisionsList.Distinct();
+			return new EntityRepositories.Subdivisions.SubdivisionRepository().GetAvailableSubdivionsForUser(uow, documentsTypes);
 		}
 	}
 }

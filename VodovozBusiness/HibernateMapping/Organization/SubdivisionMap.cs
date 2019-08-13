@@ -10,6 +10,7 @@ namespace Vodovoz.HibernateMapping
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
+			Map(x => x.ShortName).Column("short_name");
 			References(x => x.Chief).Column("chief_id");
 			References(x => x.ParentSubdivision).Column("parent_subdivision_id");
 			References(x => x.GeographicGroup).Column("geographic_group_id");

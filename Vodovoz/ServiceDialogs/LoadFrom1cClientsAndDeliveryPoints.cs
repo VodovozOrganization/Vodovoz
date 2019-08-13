@@ -15,6 +15,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.LoadFrom1c;
 using QS.Project.Repositories;
+using QS.Banks.Domain;
 
 namespace Vodovoz.ServiceDialogs
 {

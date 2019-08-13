@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
+using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QSBanks;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Repositories.HumanResources
 {
+	[Obsolete("Используйте одноимённый класс из EntityRepositories.Employee")]
 	public static class EmployeeRepository
 	{
 		public static Employee GetEmployeeForCurrentUser (IUnitOfWork uow)
