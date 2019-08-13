@@ -81,6 +81,7 @@
     <Compile Include="FilterViewModels\ComplaintFilterViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
+    <Compile Include="TempAdapters\IGtkTabsOpenerFromComplaintViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

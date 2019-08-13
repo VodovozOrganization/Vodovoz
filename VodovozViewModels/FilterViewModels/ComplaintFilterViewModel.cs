@@ -11,7 +11,7 @@ namespace Vodovoz.FilterViewModels
 {
 	public class ComplaintFilterViewModel : FilterViewModelBase<ComplaintFilterViewModel>
 	{
-		public ISubdivisionService subdivisionService { get; set; }
+		public ISubdivisionService SubdivisionService { get; set; }
 
 		public ComplaintFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
 		{
@@ -48,7 +48,7 @@ namespace Vodovoz.FilterViewModels
 			get => subdivision;
 			set 
 			{
-				if(value?.Id == subdivisionService?.GetOkkId())
+				if(value?.Id == SubdivisionService?.GetOkkId())
 					ComplaintStatus = ComplaintStatuses.Checking;
 				else if(value?.Id != null)
 					ComplaintStatus = ComplaintStatuses.InProcess;

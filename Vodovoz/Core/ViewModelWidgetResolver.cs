@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using Gtk;
 using QS.Dialog.GtkUI;
+using QS.Journal.GtkUI;
 using QS.Project.Filter;
 using QS.RepresentationModel;
 using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.ViewModels;
-using QS.RepresentationModel;
-using QS.Dialog.GtkUI;
-using QS.Project.Filter;
-using QS.Journal.GtkUI;
 using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.Core

@@ -26,6 +26,7 @@ using Vodovoz;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OnlineStore;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -685,23 +686,26 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFilePickerService filePickerService = new GtkFilePicker();
 
-		tdiMain.OpenTab(() => {
-			return new ComplaintsJournalViewModel(
-				entityConfigurationProvider,
-				ServicesConfig.CommonServices,
-				undeliveriesViewOpener,
-				ServicesConfig.EmployeeService,
-				employeeSelectorFactory,
-				counterpartySelectorFactory,
-				routeListItemRepository,
-				new BaseParametersProvider(),
-				new EmployeeRepository(),
-				new ComplaintFilterViewModel(new GtkInteractiveService()),
-				filePickerService,
-				subdivisionRepository,
-				new GtkReportViewOpener()
-			);
-		});
+		tdiMain.OpenTab(
+			() => {
+				return new ComplaintsJournalViewModel(
+					entityConfigurationProvider,
+					ServicesConfig.CommonServices,
+					undeliveriesViewOpener,
+					ServicesConfig.EmployeeService,
+					employeeSelectorFactory,
+					counterpartySelectorFactory,
+					routeListItemRepository,
+					new BaseParametersProvider(),
+					new EmployeeRepository(),
+					new ComplaintFilterViewModel(new GtkInteractiveService()),
+					filePickerService,
+					subdivisionRepository,
+					new GtkReportViewOpener(),
+					new GtkTabsOpener()
+				);
+			}
+		);
 	}
 
 	protected void OnActionSalesReportActivated(object sender, EventArgs e)
@@ -711,6 +715,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport())
 		);
 	}
+
 	protected void OnActionDriverWagesActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -718,6 +723,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.DriverWagesReport())
 		);
 	}
+
 	protected void OnActionFuelReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -725,6 +731,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.FuelReport())
 		);
 	}
+
 	protected void OnActionShortfallBattlesActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -732,6 +739,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.Bottles.ShortfallBattlesReport())
 		);
 	}
+
 	protected void OnActionWagesOperationsActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(

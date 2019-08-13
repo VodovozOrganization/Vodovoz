@@ -270,6 +270,23 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual string Title => string.Format("Жалоба №{0}", Id);
 
+		public virtual string GetFineReason()
+		{
+			string result = $"Жалоба №{Id} от {CreationDate.ToShortDateString()}";
+			if(Counterparty == null && Order == null) {
+				return result;
+			}
+			string clientName = Counterparty == null ? Order.Client.Name : Counterparty.Name;
+			string clientInfo = $", {clientName}";
+			return result + clientInfo;
+		}
+
+		public virtual void Close()
+		{
+			Status = ComplaintStatuses.Closed;
+			ActualCompletionDate = DateTime.Now;
+		}
+
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

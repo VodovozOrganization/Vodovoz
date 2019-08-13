@@ -144,6 +144,7 @@ namespace Vodovoz.Representations
 
 		protected override Func<OrderDlg> CreateDialogFunction => () => throw new ApplicationException();
 
+		//FIXME отделить от GTK
 		protected override Func<SelfDeliveryJournalNode, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
 
 		public override string FooterInfo {

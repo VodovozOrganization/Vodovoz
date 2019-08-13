@@ -1,23 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using QS.Commands;
+using QS.DomainModel.Config;
+using QS.DomainModel.Entity;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
-using System.Linq;
-using QS.Project.Journal.EntitySelector;
-using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
-using QS.Commands;
-using Vodovoz.JournalViewModels.Employees;
-using Vodovoz.FilterViewModels.Employees;
-using Vodovoz.TempAdapters;
-using Vodovoz.Infrastructure.Services;
-using QS.DomainModel.Config;
-using QS.Project.Journal;
-using Vodovoz.ViewModels.Employees;
-using QS.DomainModel.Entity;
 using Vodovoz.EntityRepositories.Subdivisions;
-using QS.Project.Services;
+using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalViewModels.Employees;
+using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -230,17 +231,6 @@ namespace Vodovoz.ViewModels.Complaints
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
 
-		public string GetFineReason()
-		{
-			string result = $"Жалоба №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
-			if(Entity.Counterparty == null && Entity.Order == null) {
-				return result;
-			}
-			string clientName = Entity.Counterparty == null ? Entity.Order.Client.Name : Entity.Counterparty.Name;
-			string clientInfo = $", {clientName}";
-			return result + clientInfo;
-		}
-
 		#region Commands
 
 		private void CreateCommands()
@@ -286,12 +276,12 @@ namespace Vodovoz.ViewModels.Complaints
 
 		#region AddFineCommand
 
-		public DelegateCommand AddFineCommand { get; private set; }
+		public DelegateCommand<ITdiTab> AddFineCommand { get; private set; }
 
 		private void CreateAddFineCommand()
 		{
-			AddFineCommand = new DelegateCommand(
-				() => {
+			AddFineCommand = new DelegateCommand<ITdiTab>(
+				t => {
 					FineViewModel fineViewModel = new FineViewModel(
 						EntityConstructorParam.ForCreate(),
 						undeliveryViewOpener,
@@ -300,13 +290,13 @@ namespace Vodovoz.ViewModels.Complaints
 						entityConfigurationProvider,
 						CommonServices
 					);
-					fineViewModel.FineReasonString = GetFineReason();
+					fineViewModel.FineReasonString = Entity.GetFineReason();
 					fineViewModel.EntitySaved += (sender, e) => {
 						Entity.AddFine(e.Entity as Fine);
 					};
-					TabParent.AddSlaveTab(this, fineViewModel);
+					t.TabParent.AddSlaveTab(t, fineViewModel);
 				},
-				() => CanAddFine
+				t => CanAddFine
 			);
 			AddFineCommand.CanExecuteChangedWith(this, x => CanAddFine);
 		}

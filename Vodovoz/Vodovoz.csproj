@@ -1269,6 +1269,7 @@
     <Compile Include="ViewWidgets\GtkReportViewOpener.cs" />
     <Compile Include="Views\Complaints\ComplaintFilesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintFilesView.cs" />
+    <Compile Include="Dialogs\OrderWidgets\GtkTabsOpener.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

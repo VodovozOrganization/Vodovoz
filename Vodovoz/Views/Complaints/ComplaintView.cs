@@ -97,7 +97,7 @@ namespace Vodovoz.Views.Complaints
 				.Finish();
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
-			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
+			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(this.Tab); };
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
 
 			buttonAttachFine.Clicked += (sender, e) => { ViewModel.AttachFineCommand.Execute(); };

@@ -26,6 +26,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Project.Services;
+using Vodovoz.ViewModels.Employees;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -43,6 +44,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionService subdivisionService;
 		private readonly IEmployeeRepository employeeRepository;
 		private readonly IReportViewOpener reportViewOpener;
+		private readonly IGtkTabsOpenerFromComplaintViewModel gtkDlgOpener;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -65,7 +67,8 @@ namespace Vodovoz.JournalViewModels
 			ComplaintFilterViewModel filterViewModel,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
-			IReportViewOpener reportViewOpener
+			IReportViewOpener reportViewOpener,
+			IGtkTabsOpenerFromComplaintViewModel gtkDialogsOpener
 		) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
@@ -80,10 +83,11 @@ namespace Vodovoz.JournalViewModels
 			this.subdivisionService = subdivisionService ?? throw new ArgumentNullException(nameof(subdivisionService));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
+			this.gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 
 			TabName = "Журнал жалоб";
 
-			FilterViewModel.subdivisionService = subdivisionService;
+			FilterViewModel.SubdivisionService = subdivisionService;
 			FilterViewModel.Subdivision = employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision;
 
 			RegisterComplaints();
@@ -325,13 +329,19 @@ namespace Vodovoz.JournalViewModels
 
 		protected override void CreatePopupActions()
 		{
-			Order GetOrder(object[] objs)
+			Complaint GetComplaint(object[] objs)
 			{
 				var selectedNodes = objs.Cast<ComplaintJournalNode>();
 				if(selectedNodes.Count() != 1)
 					return null;
 				var complaint = UoW.GetById<Complaint>(selectedNodes.FirstOrDefault().Id);
-				return complaint?.Order;
+				return complaint;
+			}
+
+			Order GetOrder(object[] objs)
+			{
+				var complaint = GetComplaint(objs);
+				return GetComplaint(objs)?.Order;
 			}
 
 			RouteList GetRouteList(object[] objs)
@@ -352,14 +362,7 @@ namespace Vodovoz.JournalViewModels
 					"Открыть заказ",
 					HasOrder,
 					n => true,
-					n => {
-						var selectedNodes = n.Cast<ComplaintJournalNode>();
-						var selectedNode = selectedNodes.FirstOrDefault();
-						/*TabParent.OpenTab(
-							DomainHelper.GenerateDialogHashName<VodovozOrder>(selectedNode.Id),
-							() => new OrderDlg(selectedNode.Id)
-						);*/
-					}
+					n => gtkDlgOpener.OpenOrderDlg(this, GetOrder(n).Id)
 				)
 			);
 
@@ -368,8 +371,59 @@ namespace Vodovoz.JournalViewModels
 					"Открыть маршрутный лист",
 					HasRouteList,
 					n => true,
-					selectedItems => {
+					n => gtkDlgOpener.OpenCreateRouteListDlg(this, GetRouteList(n).Id)
+				)
+			);
 
+			PopupActionsList.Add(
+				new JournalAction(
+					"Создать штраф",
+					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate,
+					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate,
+					n => {
+						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
+						ComplaintViewModel currentComplaintVM = null;
+						if(currentComplaintId.HasValue) {
+							currentComplaintVM = new ComplaintViewModel(
+								EntityConstructorParam.ForOpen(currentComplaintId.Value),
+								commonServices,
+								undeliveriesViewOpener,
+								employeeService,
+								employeeSelectorFactory,
+								counterpartySelectorFactory,
+								entityConfigurationProvider,
+								filePickerService,
+								subdivisionRepository
+							);
+							currentComplaintVM.AddFineCommand.Execute(this);
+						}
+					}
+				)
+			);
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Закрыть жалобу",
+					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed,
+					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate,
+					n => {
+						var currentComplaintId = n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Id;
+						ComplaintViewModel currentComplaintVM = null;
+						if(currentComplaintId.HasValue) {
+							currentComplaintVM = new ComplaintViewModel(
+								EntityConstructorParam.ForOpen(currentComplaintId.Value),
+								commonServices,
+								undeliveriesViewOpener,
+								employeeService,
+								employeeSelectorFactory,
+								counterpartySelectorFactory,
+								entityConfigurationProvider,
+								filePickerService,
+								subdivisionRepository
+							);
+							currentComplaintVM.Entity.Close();
+							currentComplaintVM.Save();
+						}
 					}
 				)
 			);
