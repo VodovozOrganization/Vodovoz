@@ -287,8 +287,7 @@ namespace Vodovoz.JournalViewModels
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
-					"Клиентская жалоба",
-					true
+					"Клиентская жалоба"
 				)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
@@ -309,8 +308,7 @@ namespace Vodovoz.JournalViewModels
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
-					"Внутренняя жалоба",
-					true
+					"Внутренняя жалоба"
 				);
 
 			//завершение конфигурации

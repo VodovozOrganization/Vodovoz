@@ -5,6 +5,7 @@ using Gtk;
 using NLog;
 using QS.Banks.Domain;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.Config;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
@@ -12,6 +13,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi.Gtk;
 using QSBanks;
@@ -57,10 +59,6 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.JournalViewModels.Organization;
-using QS.Project.Services;
-using QS.Dialog.GtkUI;
 using Vodovoz.ViewWidgets;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
@@ -546,6 +544,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			CurrentUserSettings.SaveSettings();
 		}
 		toolbarMain.ToolbarStyle = style;
+		tlbComplaints.ToolbarStyle = style;
 		ActionIconsExtraSmall.Sensitive = ActionIconsSmall.Sensitive = ActionIconsMiddle.Sensitive = ActionIconsLarge.Sensitive =
 			style != ToolbarStyle.Text;
 	}
@@ -559,15 +558,19 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		switch(size) {
 			case IconsSize.ExtraSmall:
 				toolbarMain.IconSize = IconSize.SmallToolbar;
+				tlbComplaints.IconSize = IconSize.SmallToolbar;
 				break;
 			case IconsSize.Small:
 				toolbarMain.IconSize = IconSize.LargeToolbar;
+				tlbComplaints.IconSize = IconSize.LargeToolbar;
 				break;
 			case IconsSize.Middle:
 				toolbarMain.IconSize = IconSize.Dnd;
+				tlbComplaints.IconSize = IconSize.Dnd;
 				break;
 			case IconsSize.Large:
 				toolbarMain.IconSize = IconSize.Dialog;
+				tlbComplaints.IconSize = IconSize.Dialog;
 				break;
 		}
 	}
