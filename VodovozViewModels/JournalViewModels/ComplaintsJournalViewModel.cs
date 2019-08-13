@@ -199,23 +199,21 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel != null) {
 				if(FilterViewModel.Subdivision != null) {
-					if(FilterViewModel.Subdivision.Id == subdivisionService.GetOkkId()) {
-						var statusQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
-								.JoinAlias(() => dicussionAlias.Complaint, () => complaintAlias)
-								.Select(x => x.Id)
-								.Where(() => dicussionAlias.Status == ComplaintStatuses.Checking || complaintAlias.Status == ComplaintStatuses.Checking)
-								.And(() => FilterViewModel.StartDate == null || dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
-								.And(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
+					var okkQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
+							.JoinAlias(() => dicussionAlias.Complaint, () => complaintAlias)
+							.Select(x => x.Id)
+							.Where(() => dicussionAlias.Status == ComplaintStatuses.Checking || complaintAlias.Status == ComplaintStatuses.Checking)
+							.And(() => FilterViewModel.StartDate == null || dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
+							.And(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 
-						query = query.WithSubquery.WhereExists(statusQuery);
-					} else {
-						var filterQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
-							.Where(() => FilterViewModel.StartDate == null || dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
-							.And(() => dicussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
-						query = query.WithSubquery.WhereExists(filterQuery);
-					}
+					var commonFilterQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
+						.Where(() => FilterViewModel.StartDate == null || dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
+						.And(() => dicussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
+
+					var resultFilterQuery = FilterViewModel.Subdivision.Id == subdivisionService.GetOkkId() ? okkQuery : commonFilterQuery;
+
+					query = query.WithSubquery.WhereExists(resultFilterQuery);
 				}
-
 
 				if(FilterViewModel.ComplaintType != null)
 					query = query.Where(() => complaintAlias.ComplaintType == FilterViewModel.ComplaintType);
