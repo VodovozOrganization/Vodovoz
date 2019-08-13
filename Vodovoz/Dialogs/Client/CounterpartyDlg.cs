@@ -12,7 +12,6 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
-using QSBanks;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
@@ -25,7 +24,6 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -215,6 +213,10 @@ namespace Vodovoz
 			enumNeedOfCheque.ItemsEnum = typeof(ChequeResponse);
 			enumNeedOfCheque.Binding.AddBinding(Entity, c => c.NeedCheque, w => w.SelectedItemOrNull).InitializeFromSource();
 
+			yEnumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
+			yEnumCounterpartyType.Binding.AddBinding(Entity, c => c.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
+			yEnumCounterpartyType.Changed += YEnumCounterpartyType_Changed;
+
 			//make actions menu
 			var menu = new Gtk.Menu();
 			var menuItem = new Gtk.MenuItem("Все заказы контрагента");
@@ -227,6 +229,7 @@ namespace Vodovoz
 			contactsview1.Visible = false;
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
 			enumNeedOfCheque.Visible = lblNeedCheque.Visible = CounterpartyRepository.IsCashPayment(Entity.PaymentMethod);
+			rbnPrices.Toggled += OnRbnPricesToggled;
 			SetVisibilityForCloseDeliveryComments();
 		}
 
@@ -337,6 +340,29 @@ namespace Vodovoz
 				notebook1.CurrentPage = 7;
 		}
 
+		protected void OnRadioTagsToggled(object sender, EventArgs e)
+		{
+			if(radioTags.Active)
+				notebook1.CurrentPage = 8;
+		}
+
+		protected void OnRadioSpecialDocFieldsToggled(object sender, EventArgs e)
+		{
+			if(radioSpecialDocFields.Active)
+				notebook1.CurrentPage = 9;
+		}
+
+		protected void OnRbnPricesToggled(object sender, EventArgs e)
+		{
+			if(rbnPrices.Active)
+				notebook1.CurrentPage = 10;
+		}
+
+		void YEnumCounterpartyType_Changed(object sender, EventArgs e)
+		{
+			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
+		}
+
 		protected void OnEnumPersonTypeChanged(object sender, EventArgs e)
 		{
 			labelFIO.Visible = entryFIO.Visible = Entity.PersonType == PersonType.natural;
@@ -395,12 +421,6 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnRadioTagsToggled(object sender, EventArgs e)
-		{
-			if(radioTags.Active)
-				notebook1.CurrentPage = 8;
-		}
-
 		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			if(e.Subject is Tag tag)
@@ -430,12 +450,6 @@ namespace Vodovoz
 		protected void OnChkNeedNewBottlesToggled(object sender, EventArgs e)
 		{
 			Entity.NewBottlesNeeded = chkNeedNewBottles.Active;
-		}
-
-		protected void OnRadioSpecialDocFieldsToggled(object sender, EventArgs e)
-		{
-			if(radioSpecialDocFields.Active)
-				notebook1.CurrentPage = 9;
 		}
 
 		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)

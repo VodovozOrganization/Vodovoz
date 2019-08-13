@@ -508,6 +508,13 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
+		CounterpartyType counterpartyType;
+		[Display(Name = "Тип контрагента")]
+		public virtual CounterpartyType CounterpartyType {
+			get => counterpartyType;
+			set => SetField(ref counterpartyType, value, () => CounterpartyType);
+		}
+
 		#region Calculated Properties
 
 		public virtual string RawJurAddress {
@@ -703,6 +710,19 @@ namespace Vodovoz.Domain.Client
 		public PersonTypeStringType() : base(typeof(PersonType)) { }
 	}
 
+	public enum CounterpartyType
+	{
+		[Display(Name = "Покупатель")]
+		Buyer,
+		[Display(Name = "Поставщик")]
+		Supplier
+	}
+
+	public class CounterpartyTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public CounterpartyTypeStringType() : base(typeof(CounterpartyType)) { }
+	}
+
 	public enum DefaultDocumentType
 	{
 		[ItemTitle("УПД")]
@@ -713,6 +733,11 @@ namespace Vodovoz.Domain.Client
 		torg12
 	}
 
+	public class DefaultDocumentTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DefaultDocumentTypeStringType() : base(typeof(DefaultDocumentType)) { }
+	}
+
 	public enum ChequeResponse
 	{
 		[Display(Name = "Не знаю")]
@@ -721,11 +746,6 @@ namespace Vodovoz.Domain.Client
 		Yes,
 		[Display(Name = "Нет")]
 		No
-	}
-
-	public class DefaultDocumentTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public DefaultDocumentTypeStringType() : base(typeof(DefaultDocumentType)) { }
 	}
 
 	public class ChequeResponseStringType : NHibernate.Type.EnumStringType
