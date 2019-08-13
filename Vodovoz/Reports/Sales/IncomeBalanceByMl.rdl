@@ -2444,8 +2444,11 @@ FROM
                         LEFT JOIN order_items ON order_items.order_id = orders.id
                             AND orders.payment_type = 'cash'
                     WHERE
+					(
                         status = 'transfered'
                         OR was_transfered = TRUE
+					)
+                    AND orders.order_status != 'DeliveryCanceled'
                 ) AS internal_trans
                 GROUP BY internal_trans.route_list_id
                 HAVING TotalOrdersSum != 0
