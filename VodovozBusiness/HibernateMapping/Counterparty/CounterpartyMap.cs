@@ -77,6 +77,8 @@ namespace Vodovoz.HibernateMapping
 									  .ParentKeyColumn("counterparty_id")
 									  .ChildKeyColumn("tag_id")
 									  .LazyLoad();
+			HasMany(x => x.SuplierPriceItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
+				.KeyColumn("supplier_id");
 		}
 	}
 }

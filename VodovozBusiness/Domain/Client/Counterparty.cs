@@ -512,7 +512,24 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Тип контрагента")]
 		public virtual CounterpartyType CounterpartyType {
 			get => counterpartyType;
-			set => SetField(ref counterpartyType, value, () => CounterpartyType);
+			set => SetField(ref counterpartyType, value);
+		}
+
+		IList<SuplierPriceItem> suplierPriceItems = new List<SuplierPriceItem>();
+		[Display(Name = "Цены на ТМЦ")]
+		public virtual IList<SuplierPriceItem> SuplierPriceItems {
+			get => suplierPriceItems;
+			set => SetField(ref suplierPriceItems, value);
+		}
+
+		GenericObservableList<SuplierPriceItem> observableSuplierPriceItems;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<SuplierPriceItem> ObservableSuplierPriceItems {
+			get {
+				if(observableSuplierPriceItems == null)
+					observableSuplierPriceItems = new GenericObservableList<SuplierPriceItem>(SuplierPriceItems);
+				return observableSuplierPriceItems;
+			}
 		}
 
 		#region Calculated Properties

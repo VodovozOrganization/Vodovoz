@@ -82,6 +82,7 @@
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpenerFromComplaintViewModel.cs" />
+    <Compile Include="ViewModels\Client\SupplierPricesWidgetViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -100,6 +101,7 @@
     <Folder Include="JournalViewModels\Organization\" />
     <Folder Include="ViewModels\Organization\" />
     <Folder Include="FilterViewModels\Organization\" />
+    <Folder Include="ViewModels\Client\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

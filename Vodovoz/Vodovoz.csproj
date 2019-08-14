@@ -1270,6 +1270,8 @@
     <Compile Include="Views\Complaints\ComplaintFilesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintFilesView.cs" />
     <Compile Include="Dialogs\OrderWidgets\GtkTabsOpener.cs" />
+    <Compile Include="Views\Client\SupplierPricesWidgetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.SupplierPricesWidgetView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1493,6 +1495,7 @@
     <Folder Include="Views\Complaints\" />
     <Folder Include="Views\Employees\" />
     <Folder Include="Views\Organization\" />
+    <Folder Include="Views\Client\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

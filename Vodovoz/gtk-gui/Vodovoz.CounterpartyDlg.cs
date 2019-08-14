@@ -296,6 +296,8 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelSpecialFields;
 
+		private global::Vodovoz.Views.Client.SupplierPricesWidgetView supplierPricesWidget;
+
 		private global::Gtk.Label lblPrices;
 
 		protected virtual void Build()
@@ -493,7 +495,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 9;
+			this.notebook1.CurrentPage = 10;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -1861,14 +1863,18 @@ namespace Vodovoz
 			this.labelSpecialFields.LabelProp = global::Mono.Unix.Catalog.GetString("Данные для документов");
 			this.notebook1.SetTabLabel(this.table3, this.labelSpecialFields);
 			this.labelSpecialFields.ShowAll();
+			// Container child notebook1.Gtk.Notebook+NotebookChild
+			this.supplierPricesWidget = new global::Vodovoz.Views.Client.SupplierPricesWidgetView();
+			this.supplierPricesWidget.Events = ((global::Gdk.EventMask)(256));
+			this.supplierPricesWidget.Name = "supplierPricesWidget";
+			this.notebook1.Add(this.supplierPricesWidget);
+			global::Gtk.Notebook.NotebookChild w145 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.supplierPricesWidget]));
+			w145.Position = 10;
 			// Notebook tab
-			global::Gtk.Label w145 = new global::Gtk.Label();
-			w145.Visible = true;
-			this.notebook1.Add(w145);
 			this.lblPrices = new global::Gtk.Label();
 			this.lblPrices.Name = "lblPrices";
 			this.lblPrices.LabelProp = global::Mono.Unix.Catalog.GetString("Цены");
-			this.notebook1.SetTabLabel(w145, this.lblPrices);
+			this.notebook1.SetTabLabel(this.supplierPricesWidget, this.lblPrices);
 			this.lblPrices.ShowAll();
 			this.vbox2.Add(this.notebook1);
 			global::Gtk.Box.BoxChild w146 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
