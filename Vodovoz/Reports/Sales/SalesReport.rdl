@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>144.0pt</Height>
+    <Height>175.4pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>24.05pt</Height>
@@ -353,7 +353,97 @@
         <CanGrow>true</CanGrow>
         <CanShrink>true</CanShrink>
       </Textbox>
-    </ReportItems>
+      <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid1">
+        <Style >
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns >
+          <TableColumn>
+            <Width>416.0pt</Width>
+          </TableColumn>
+          
+          <TableColumn>
+            <Width>133.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        
+        <Details >
+          <TableRows>
+            
+            <TableRow>
+              <Height>14.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>Фактически забрання тара</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      <BorderColor /><BorderWidth /><VerticalAlign>Middle</VerticalAlign></Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>=First( {fact} , "bottles" )</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      <BorderColor /><BorderWidth /><VerticalAlign>Middle</VerticalAlign></Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left >9.5pt</Left>
+        <Top >128.4pt</Top>
+        <Footer >
+          <TableRows>
+            <TableRow>
+              <Height>13.7pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      <BorderColor /><BorderWidth /><VerticalAlign>Middle</VerticalAlign></Style>
+                      <Value>Планируемая тара</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      <BorderColor /><BorderWidth /></Style>
+                      <Value>=First( {plan} , "bottles" )</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </fyi:Grid>
+                </ReportItems>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -382,7 +472,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	T.counterparty,
@@ -548,7 +638,7 @@ GROUP BY nomenclature_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -790,6 +880,57 @@ FROM
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="bottles" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    SUM(orders.bottles_return) AS plan,
+    ROUND(SUM(IFNULL(route_list_addresses.bottles_returned, self_delivery.fact)), 0) AS fact
+FROM 
+    orders
+    LEFT JOIN route_list_addresses ON route_list_addresses.order_id = orders.id 
+    LEFT JOIN
+    (
+        SELECT
+            SUM(store_self_delivery_document_item.amount) AS fact,
+            store_self_delivery_document.order_id
+        FROM
+            store_self_delivery_document
+            LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.store_self_delivery_document_id = store_self_delivery_document.id
+        WHERE
+            store_self_delivery_document_item.nomenclature_id =
+            (
+                    SELECT
+                        base_parameters.str_value
+                    FROM
+                        base_parameters
+                    WHERE
+                        base_parameters.name = 'default_bottle_nomenclature'
+                    LIMIT 1
+            )
+        GROUP BY store_self_delivery_document.order_id
+    ) AS self_delivery ON self_delivery.order_id = orders.id
+WHERE
+    orders.delivery_date &gt;= @start_date
+    AND orders.delivery_date &lt;= @end_date</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="plan">
+          <DataField>plan</DataField>
+        </Field>
+        <Field Name="fact">
+          <DataField>fact</DataField>
         </Field>
       </Fields>
     </DataSet>
