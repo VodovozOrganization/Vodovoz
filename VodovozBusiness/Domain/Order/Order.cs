@@ -2777,7 +2777,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			SetDepositsActualCounts();
 			if(SelfDelivery) {
-				UpdateDepositOperations(UoW);
+				UpdateDepositOperations();
 				SetActualCountToSelfDelivery();
 			}
 		}
@@ -3603,17 +3603,21 @@ namespace Vodovoz.Domain.Orders
 
 		#region Операции
 
-		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow)
+		public virtual List<DepositOperation> UpdateDepositOperations()
 		{
-			var bottleRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Bottles).Sum(x => x.Total);
-			var equipmentRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == Operations.DepositType.Equipment).Sum(x => x.Total);
-			var operations = UpdateDepositOperations(uow, equipmentRefundDeposit, bottleRefundDeposit);
-			operations.ForEach(x => uow.Save(x));
+			var bottleRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.Total);
+			var equipmentRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.Total);
+			var operations = UpdateDepositOperations(equipmentRefundDeposit, bottleRefundDeposit);
 			return operations;
 		}
 
-		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow, decimal equipmentRefundDeposit, decimal bottleRefundDeposit)
+		public virtual List<DepositOperation> UpdateDepositOperations(decimal equipmentRefundDeposit, decimal bottleRefundDeposit)
 		{
+			if(IsContractCloser == true) {
+				DepositOperations.Clear();
+				return null;
+			}
+
 			var result = new List<DepositOperation>();
 			DepositOperation bottlesOperation = null;
 			DepositOperation equipmentOperation = null;
