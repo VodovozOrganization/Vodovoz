@@ -17,6 +17,7 @@ using QSContacts;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
@@ -471,7 +472,7 @@ namespace Vodovoz.Domain.Client
 
 		int? ttnCount;
 		[Display(Name = "Кол-во ТТН")]
-		public virtual int? TTNCount{
+		public virtual int? TTNCount {
 			get => ttnCount;
 			set => SetField(ref ttnCount, value, () => TTNCount);
 		}
@@ -492,7 +493,7 @@ namespace Vodovoz.Domain.Client
 
 		string okdp;
 		[Display(Name = "ОКДП")]
-		public virtual string OKDP{
+		public virtual string OKDP {
 			get => okdp;
 			set => SetField(ref okdp, value, () => OKDP);
 		}
@@ -516,6 +517,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		IList<SuplierPriceItem> suplierPriceItems = new List<SuplierPriceItem>();
+		[PropertyChangedAlso("PriceNodes")]
 		[Display(Name = "Цены на ТМЦ")]
 		public virtual IList<SuplierPriceItem> SuplierPriceItems {
 			get => suplierPriceItems;
@@ -562,11 +564,44 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		IList<ISupplierPriceNode> priceNodes = new List<ISupplierPriceNode>();
+		public virtual IList<ISupplierPriceNode> PriceNodes {
+			get {
+				var lst = new List<ISupplierPriceNode>();
+				int cnt = 0;
+				foreach(var nom in SuplierPriceItems.Select(i => i.NomenclatureToBuy).Distinct()) {
+					var sNom = new SellingNomenclature {
+						NomenclatureToBuy = nom,
+						Parent = null,
+						PosNr = (++cnt).ToString()
+					};
+
+					var children = SuplierPriceItems.Cast<ISupplierPriceNode>().Where(i => i.NomenclatureToBuy == nom).ToList();
+					foreach(var i in children)
+						i.Parent = sNom;
+					sNom.Children = children;
+					lst.Add(sNom);
+				}
+				return lst;
+			}
+			set => SetField(ref priceNodes, value);
+		}
+
+		GenericObservableList<ISupplierPriceNode> observablePriceNodes;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ISupplierPriceNode> ObservablePriceNodes {
+			get {
+				if(observablePriceNodes == null)
+					observablePriceNodes = new GenericObservableList<ISupplierPriceNode>(PriceNodes);
+				return observablePriceNodes;
+			}
+		}
+
 		#endregion
 
 		#region CloseDelivery
 
-		public virtual void AddCloseDeliveryComment(string comment,IUnitOfWork UoW)
+		public virtual void AddCloseDeliveryComment(string comment, IUnitOfWork UoW)
 		{
 			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			CloseDeliveryComment = employee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": " + comment;
@@ -598,7 +633,7 @@ namespace Vodovoz.Domain.Client
 
 		public virtual bool ToogleDeliveryOption(IUnitOfWork UoW)
 		{
-			return IsDeliveriesClosed ? OperDelivery(UoW) : CloseDelivery(UoW); 
+			return IsDeliveriesClosed ? OperDelivery(UoW) : CloseDelivery(UoW);
 		}
 
 		public virtual string GetCloseDeliveryInfo()
@@ -623,7 +658,7 @@ namespace Vodovoz.Domain.Client
 
 		private bool CheckForINNDuplicate()
 		{
-			IList<Counterparty> counterarties = Repository.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
+			IList<Counterparty> counterarties = CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
 			if(counterarties == null)
 				return false;
 			if(counterarties.Any(x => x.Id != Id))
@@ -769,4 +804,48 @@ namespace Vodovoz.Domain.Client
 	{
 		public ChequeResponseStringType() : base(typeof(ChequeResponse)) { }
 	}
+
+	#region Для уровневого отображения цен поставщика
+
+	public class SellingNomenclature : ISupplierPriceNode
+	{
+		public int Id { get; set; }
+		public Nomenclature NomenclatureToBuy { get; set; }
+		public SupplierPaymentType PaymentType { get; set; }
+		public decimal Price { get; set; }
+		public VAT VAT { get; set; }
+		public PaymentCondition PaymentCondition { get; set; }
+		public DeliveryType DeliveryType { get; set; }
+		public string Comment { get; set; }
+		public AvailabilityForSale AvailabilityForSale { get; set; }
+		public DateTime ChangingDate { get; set; }
+		public Counterparty Supplier { get; set; }
+		public bool IsEditable => false;
+		public string PosNr { get; set; }
+
+		public ISupplierPriceNode Parent { get; set; } = null;
+		public IList<ISupplierPriceNode> Children { get; set; } = new List<ISupplierPriceNode>();
+	}
+
+	public interface ISupplierPriceNode
+	{
+		int Id { get; set; }
+		Nomenclature NomenclatureToBuy { get; set; }
+		SupplierPaymentType PaymentType { get; set; }
+		decimal Price { get; set; }
+		VAT VAT { get; set; }
+		PaymentCondition PaymentCondition { get; set; }
+		DeliveryType DeliveryType { get; set; }
+		string Comment { get; set; }
+		AvailabilityForSale AvailabilityForSale { get; set; }
+		DateTime ChangingDate { get; set; }
+		Counterparty Supplier { get; set; }
+		bool IsEditable { get; }
+		string PosNr { get; set; }
+
+		ISupplierPriceNode Parent { get; set; }
+		IList<ISupplierPriceNode> Children { get; set; }
+	}
+
+	#endregion Для уровневого отображения цен поставщика
 }

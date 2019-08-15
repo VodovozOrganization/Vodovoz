@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NHibernate.Type;
 using QS.DomainModel.Entity;
@@ -19,7 +20,7 @@ namespace Vodovoz.Domain.Client
 		)
 	]
 	[HistoryTrace]
-	public class SuplierPriceItem : PropertyChangedBase, IDomainObject
+	public class SuplierPriceItem : PropertyChangedBase, IDomainObject, ISupplierPriceNode
 	{
 		public virtual int Id { get; set; }
 
@@ -81,7 +82,7 @@ namespace Vodovoz.Domain.Client
 
 		DateTime changingDate;
 		[Display(Name = "Дата изменения")]
-		public virtual DateTime ChangingDate{
+		public virtual DateTime ChangingDate {
 			get => changingDate;
 			set => SetField(ref changingDate, value, () => ChangingDate);
 		}
@@ -104,6 +105,12 @@ namespace Vodovoz.Domain.Client
 				);
 			}
 		}
+
+		public virtual ISupplierPriceNode Parent { get; set; }
+		public virtual IList<ISupplierPriceNode> Children { get; set; }
+
+		public virtual bool IsEditable => true;
+		public virtual string PosNr { get; set; } = string.Empty;
 
 		#endregion Calculatable methods
 	}

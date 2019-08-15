@@ -25,8 +25,10 @@ namespace Vodovoz.ViewModels.Client
 		}
 
 		public bool CanAdd { get; set; }
-		public bool CanEdit { get; set; }
+		public bool CanEdit { get; set; } = false;//задача редактирования пока не актуальна
 		public bool CanRemove { get; set; }
+
+		#region Commands
 
 		#region AddItemCommand
 
@@ -35,7 +37,9 @@ namespace Vodovoz.ViewModels.Client
 		private void CreateAddItemCommand()
 		{
 			AddItemCommand = new DelegateCommand(
-				() => { },
+				() => {
+
+				},
 				() => true
 			);
 		}
@@ -69,6 +73,8 @@ namespace Vodovoz.ViewModels.Client
 		}
 
 		#endregion EditItemCommand
+
+		#endregion Commands
 
 	}
 }

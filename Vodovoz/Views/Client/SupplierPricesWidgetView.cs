@@ -4,6 +4,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.Client;
 using Gamma.Utilities;
 using Gtk;
+using Gamma.Binding;
 
 namespace Vodovoz.Views.Client
 {
@@ -22,50 +23,99 @@ namespace Vodovoz.Views.Client
 
 		protected override void ConfigureWidget()
 		{
-			yTreePrices.ColumnsConfig = FluentColumnsConfig<SuplierPriceItem>.Create()
+			yTreePrices.ColumnsConfig = FluentColumnsConfig<ISupplierPriceNode>.Create()
 				.AddColumn("№")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => "?")
+					.AddTextRenderer(n => n.IsEditable ? string.Empty : n.PosNr)
 				.AddColumn("Код")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n.Id.ToString())
+					.AddTextRenderer(n => n.IsEditable ? string.Empty : n.NomenclatureToBuy.Id.ToString())
 				.AddColumn("ТМЦ")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n.NomenclatureToBuy.ShortOrFullName)
+					.AddTextRenderer(n => n.IsEditable ? string.Empty : n.NomenclatureToBuy.ShortOrFullName)
 				.AddColumn("Ед.изм.")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n.NomenclatureToBuy.Unit.Name)
+					.AddTextRenderer(n => n.IsEditable ? string.Empty : n.NomenclatureToBuy.Unit.Name)
 				.AddColumn("Оплата")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n.PaymentType.GetEnumTitle())
+					.AddTextRenderer(n => !n.IsEditable ? string.Empty : n.PaymentType.GetEnumTitle())
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(n => n.Price).Digits(2).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
-					.Editing(true)
-				.AddColumn("Принадлежность")
+					.AddSetter(
+						(c, n) => {
+							c.Editable = false;
+							if(n.IsEditable)
+								c.Editable = true;
+							else
+								c.Text = string.Empty;
+						}
+					)
+				.AddColumn("НДС")
 					.AddEnumRenderer(n => n.VAT, true)
-					.Editing()
+					.AddSetter(
+						(c, n) => {
+							c.Editable = false;
+							if(n.IsEditable)
+								c.Editable = true;
+							else
+								c.Text = string.Empty;
+						}
+					)
 				.AddColumn("Условия")
 					.AddEnumRenderer(n => n.PaymentCondition, true)
-					.Editing()
+					.AddSetter(
+						(c, n) => {
+							c.Editable = false;
+							if(n.IsEditable)
+								c.Editable = true;
+							else
+								c.Text = string.Empty;
+						}
+					)
 				.AddColumn("Получение")
 					.AddEnumRenderer(n => n.DeliveryType, true)
-					.Editing()
+					.AddSetter(
+						(c, n) => {
+							c.Editable = false;
+							if(n.IsEditable)
+								c.Editable = true;
+							else
+								c.Text = string.Empty;
+						}
+					)
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.Comment)
-					.Editable()
+					.AddSetter(
+						(c, n) => {
+							c.Editable = false;
+							if(n.IsEditable)
+								c.Editable = true;
+							else
+								c.Text = string.Empty;
+						}
+					)
 				.AddColumn("Статус")
 					.AddEnumRenderer(n => n.AvailabilityForSale, true)
-					.Editing()
+					.AddSetter(
+						(c, n) => {
+							c.Editable = false;
+							if(n.IsEditable)
+								c.Editable = true;
+							else
+								c.Text = string.Empty;
+						}
+					)
 				.AddColumn("Изменено")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n.ChangingDate.ToString("G"))
+					.AddTextRenderer(n => !n.IsEditable ? string.Empty : n.ChangingDate.ToString("G"))
 				.AddColumn("")
 				.Finish();
-			yTreePrices.Binding.AddBinding(ViewModel.Entity, s => s.ObservableSuplierPriceItems, w => w.ItemsDataSource).InitializeFromSource();
-			//yTreePrices.Selection.Changed += (sender, e) => ViewModel.CanRemoveGuilty = GetSelectedGuilty() != null;
+
+			yTreePrices.YTreeModel = new RecursiveTreeModel<ISupplierPriceNode>(ViewModel.Entity.ObservablePriceNodes, x => x.Parent, x => x.Children);
+			yTreePrices.ExpandAll();
 
 			btnAdd.Binding.AddBinding(ViewModel, s => s.CanAdd, w => w.Sensitive).InitializeFromSource();
 			btnAdd.Clicked += (s, ea) => ViewModel.AddItemCommand.Execute();
