@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QS.Project.Filter;
 using QS.Report;
 using QS.Services;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 
 namespace Vodovoz.FilterViewModels
@@ -12,6 +14,8 @@ namespace Vodovoz.FilterViewModels
 	public class ComplaintFilterViewModel : FilterViewModelBase<ComplaintFilterViewModel>
 	{
 		public ISubdivisionService SubdivisionService { get; set; }
+
+		public IEmployeeRepository EmployeeRepository { get; set; }
 
 		public ComplaintFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
 		{
@@ -69,6 +73,17 @@ namespace Vodovoz.FilterViewModels
 			set => SetField(ref endDate, value, () => EndDate);
 		}
 
+		public void SelectMyComplaint()
+		{
+			if(EmployeeRepository == null)
+				throw new NullReferenceException("Отсутствует ссылка на EmployeeRepository");
+			Subdivision = null;
+			ComplaintStatus = null;
+			ComplaintType = null;
+			StartDate = DateTime.Now.AddMonths(-3);
+			EndDate = DateTime.Now.AddMonths(3);
+			Employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+		}
 
 		public ReportInfo GetReportInfo()
 		{

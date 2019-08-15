@@ -4,6 +4,8 @@ namespace Vodovoz.Filters.GtkViews
 {
 	public partial class ComplaintFilterView
 	{
+		private global::Gtk.VBox vbox1;
+
 		private global::Gtk.HBox hbox1;
 
 		private global::Gtk.Table table4;
@@ -30,6 +32,12 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxType;
 
+		private global::Gtk.HSeparator hseparator1;
+
+		private global::Gtk.HBox hbox4;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonMyComplaint;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -37,6 +45,10 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.ComplaintFilterView";
 			// Container child Vodovoz.Filters.GtkViews.ComplaintFilterView.Gtk.Container+ContainerChild
+			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -163,7 +175,40 @@ namespace Vodovoz.Filters.GtkViews
 			w12.Position = 2;
 			w12.Expand = false;
 			w12.Fill = false;
-			this.Add(this.hbox1);
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w13.Position = 0;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hseparator1 = new global::Gtk.HSeparator();
+			this.hseparator1.Name = "hseparator1";
+			this.vbox1.Add(this.hseparator1);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hseparator1]));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox4 = new global::Gtk.HBox();
+			this.hbox4.Name = "hbox4";
+			this.hbox4.Spacing = 6;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.ybuttonMyComplaint = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonMyComplaint.CanFocus = true;
+			this.ybuttonMyComplaint.Name = "ybuttonMyComplaint";
+			this.ybuttonMyComplaint.UseUnderline = true;
+			this.ybuttonMyComplaint.Label = global::Mono.Unix.Catalog.GetString("Мои жалобы");
+			this.hbox4.Add(this.ybuttonMyComplaint);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ybuttonMyComplaint]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
+			this.vbox1.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w16.Position = 2;
+			w16.Expand = false;
+			w16.Fill = false;
+			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
