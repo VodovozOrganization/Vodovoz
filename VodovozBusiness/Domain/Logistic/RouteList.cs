@@ -1157,7 +1157,7 @@ namespace Vodovoz.Domain.Logistic
 				var bottleRefundDeposit = Math.Abs(item.BottleDepositsCollected);
 				var equipmentRefundDeposit = Math.Abs(item.EquipmentDepositsCollected);
 
-				var operations = item.Order.UpdateDepositOperations(UoW, equipmentRefundDeposit, bottleRefundDeposit);
+				var operations = item.Order.UpdateDepositOperations(equipmentRefundDeposit, bottleRefundDeposit);
 
 				operations.ForEach(x => result.Add(x));
 			}
