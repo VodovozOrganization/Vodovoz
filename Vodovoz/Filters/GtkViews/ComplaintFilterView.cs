@@ -31,6 +31,8 @@ namespace Vodovoz.Filters.GtkViews
 
 			daterangepicker.Binding.AddBinding(ViewModel, x => x.StartDate, w => w.StartDate).InitializeFromSource();
 			daterangepicker.Binding.AddBinding(ViewModel, x => x.EndDate, w => w.EndDate).InitializeFromSource();
+
+			ybuttonMyComplaint.Clicked += (sender, e) => ViewModel.SelectMyComplaint();
 		}
 	}
 }
