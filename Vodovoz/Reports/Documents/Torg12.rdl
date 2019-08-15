@@ -2876,927 +2876,6 @@ AND orders.id = @order_id;</CommandText>
         <DataSetName>Order</DataSetName>
         <ZIndex>3</ZIndex>
       </List>
-      <List Name="List1">
-        <Height>135pt</Height>
-        <Width>650pt</Width>
-        <Left>10pt</Left>
-        <Top>40.00pt</Top>
-        <Style>
-          <BorderStyle>
-            <Default>None</Default>
-            <Left>None</Left>
-            <Right>None</Right>
-            <Top>None</Top>
-            <Bottom>None</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <ReportItems>
-          <Textbox Name="Textbox1">
-            <Height>22pt</Height>
-            <Width>650pt</Width>
-            <Value>={org_name} + Iif({org_inn} != null and {org_inn} != "", ", ИНН " + {org_inn}, "") + Iif({org_address} != null and {org_address} != "", ", " + {org_address}, "") + Iif({org_phone_number} != null and {org_phone_number} != "", ", тел: " + {org_phone_number}, "") + Iif({org_acc_number} != null and {org_acc_number} != "", ", р/с " + {org_acc_number}, "") + Iif({org_bank_name} != null and {org_bank_name} != "", ", в банке " + {org_bank_name}, "") + Iif({org_bank_bik} != null and {org_bank_bik} != "", ", БИК " + {org_bank_bik}, "") + Iif({org_bank_cor_account} != null and {org_bank_cor_account} != "", ", к/с " + {org_bank_cor_account}, "")</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>0.00pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>9pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox4">
-            <Height>20.00pt</Height>
-            <Width>94.50pt</Width>
-            <Value>Грузополучатель</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>53.20pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>11pt</FontSize>
-              <TextAlign>Right</TextAlign>
-              <FontWeight>Normal</FontWeight>
-              <VerticalAlign>Bottom</VerticalAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox3">
-            <Height>11pt</Height>
-            <Width>650pt</Width>
-            <Value>
-            </Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>29.8pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>9pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox2">
-            <Height>9.76pt</Height>
-            <Width>650pt</Width>
-            <Value>грузоотправитель, адрес, номер телефона, банковские реквизиты</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>22.00pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>7pt</FontSize>
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox177">
-            <Height>9.76pt</Height>
-            <Width>650pt</Width>
-            <Value>структурное подразделение</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>40.5pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>7pt</FontSize>
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox178">
-            <Height>20.00pt</Height>
-            <Width>94.50pt</Width>
-            <Value>Плательщик</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>93.20pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>11pt</FontSize>
-              <TextAlign>Right</TextAlign>
-              <FontWeight>Normal</FontWeight>
-              <VerticalAlign>Bottom</VerticalAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox179">
-            <Height>20.00pt</Height>
-            <Width>94.50pt</Width>
-            <Value>Поставщик</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>73.20pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>11pt</FontSize>
-              <TextAlign>Right</TextAlign>
-              <FontWeight>Normal</FontWeight>
-              <VerticalAlign>Bottom</VerticalAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox180">
-            <Height>20.00pt</Height>
-            <Width>94.50pt</Width>
-            <Value>Основание</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>105.20pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>11pt</FontSize>
-              <TextAlign>Right</TextAlign>
-              <FontWeight>Normal</FontWeight>
-              <VerticalAlign>Bottom</VerticalAlign>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox181">
-            <Height>20.00pt</Height>
-            <Width>555.75pt</Width>
-            <Value>={client_name} + Iif({client_inn} != null and {client_inn} != "", ", ИНН " + {client_inn}, "") + Iif({client_address} != null and {client_address} != "", ", " + {client_address}, "") + Iif({client_phone_number} != null and {client_phone_number} != "", ", тел: " + {client_phone_number}, "") + Iif({client_acc_number} != null and {client_acc_number} != "", ", р/с " + {client_acc_number}, "") + Iif({client_bank_name} != null and {client_bank_name}  != "", ", в банке " + {client_bank_name}, "") + Iif({client_bank_bik} != null and {client_bank_bik} != "", ", БИК " + {client_bank_bik}, "") + Iif({client_bank_cor_account} != null and {client_bank_cor_account} != "", ", к/с " + {client_bank_cor_account}, "")</Value>
-            <ZIndex>1</ZIndex>
-            <Left>94.80pt</Left>
-            <Top>53.20pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>7.5pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox182">
-            <Height>20.00pt</Height>
-            <Width>555.75pt</Width>
-            <Value>={org_name} + 
-Iif({org_inn} != null and {org_inn} != "", ", ИНН " + {org_inn}, "") + 
-Iif({org_address} != null and {org_address} != "", ", " + {org_address}, "") + 
-Iif({org_phone_number} != null and {org_phone_number} != "", ", тел: " + {org_phone_number}, "") + 
-Iif({org_acc_number} != null and {org_acc_number} != "", ", р/с " + {org_acc_number}, "") + 
-Iif({org_bank_name} != null and {org_bank_name} != "", ", в банке " + {org_bank_name}, "") + 
-Iif({org_bank_bik} != null and {org_bank_bik} != "", ", БИК " + {org_bank_bik}, "") + 
-Iif({org_bank_cor_account} != null and {org_bank_cor_account} != "", ", к/с " + {org_bank_cor_account}, "")</Value>
-            <ZIndex>1</ZIndex>
-            <Left>94.80pt</Left>
-            <Top>73.20pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>7.5pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox183">
-            <Height>20.00pt</Height>
-            <Width>555.75pt</Width>
-            <Value>={client_name} + Iif({client_inn} != null and {client_inn} != "", ", ИНН " + {client_inn}, "") + Iif({client_address} != null and {client_address} != "", ", " + {client_address}, "") + Iif({client_phone_number} != null and {client_phone_number} != "", ", тел: " + {client_phone_number}, "") + Iif({client_acc_number} != null and {client_acc_number} != "", ", р/с " + {client_acc_number}, "") + Iif({client_bank_name} != null and {client_bank_name}  != "", ", в банке " + {client_bank_name}, "") + Iif({client_bank_bik} != null and {client_bank_bik} != "", ", БИК " + {client_bank_bik}, "") + Iif({client_bank_cor_account} != null and {client_bank_cor_account} != "", ", к/с " + {client_bank_cor_account}, "")</Value>
-            <ZIndex>1</ZIndex>
-            <Left>94.80pt</Left>
-            <Top>93.00pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>7.5pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox184">
-            <Height>12.00pt</Height>
-            <Width>555.75pt</Width>
-            <Value>="по договору " + {contract_number} + " от " + {contract_date}</Value>
-            <ZIndex>1</ZIndex>
-            <Left>94.80pt</Left>
-            <Top>113.20pt</Top>
-            <Style>
-              <BorderStyle>
-                <Bottom>Solid</Bottom>
-              </BorderStyle>
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>10pt</FontSize>
-            </Style>
-          </Textbox>
-          <Textbox Name="Textbox185">
-            <Height>9.76pt</Height>
-            <Width>555.75pt</Width>
-            <Value>договор, заказ-наряд</Value>
-            <ZIndex>1</ZIndex>
-            <Left>94.80pt</Left>
-            <Top>125.20pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontSize>7pt</FontSize>
-              <TextAlign>Center</TextAlign>
-            </Style>
-          </Textbox>
-        </ReportItems>
-        <DataSetName>Order</DataSetName>
-      </List>
-      <Table Name="Table2">
-        <DataSetName>Order</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>50pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>1in</Width>
-          </TableColumn>
-        </TableColumns>
-        <Header>
-          <TableRows>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Normal</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>Коды</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Normal</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-          <RepeatOnNewPage>true</RepeatOnNewPage>
-        </Header>
-        <Details>
-          <TableRows>
-            <TableRow>
-              <Height>11 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox23">
-                      <Value>по ОКУД</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <PaddingRight>1pt</PaddingRight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox13">
-                      <Value>0330212</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>2pt</Top>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                        <FontWeight>Bold</FontWeight>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>11 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Value>по ОКПО</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox21">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>1pt</Top>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>19 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox6">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>1pt</Top>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox8">
-                      <Value>по ОКДП</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <PaddingRight>1pt</PaddingRight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox9">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>1pt</Top>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>20 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox10">
-                      <Value>по ОКПО</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Bottom</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>1pt</Top>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>20 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox12">
-                      <Value>по ОКПО</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Bottom</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>1pt</Top>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>20 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox15">
-                      <Value>по ОКПО</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Bottom</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox16">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>1pt</Top>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox17">
-                      <Value>номер</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Bottom</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>1pt</Top>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Value>дата</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Bottom</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox28">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>1pt</Top>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>номер</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Bottom</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox30">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>1pt</Top>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox31">
-                      <Value>дата</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Bottom</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox32">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>1pt</Top>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox33">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Bottom</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox34">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Default>2pt</Default>
-                          <Left>2pt</Left>
-                          <Right>2pt</Right>
-                          <Top>1pt</Top>
-                          <Bottom>2pt</Bottom>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Left>662.8pt</Left>
-        <Top>28.0pt</Top>
-      </Table>
-      <Textbox Name="Textbox35">
-        <Height>12.00pt</Height>
-        <Width>95.75pt</Width>
-        <Value>Вид деятельности</Value>
-        <ZIndex>1</ZIndex>
-        <Left>583.8pt</Left>
-        <Top>80.5pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox36">
-        <Height>12pt</Height>
-        <Width>36pt</Width>
-        <Value>Форма</Value>
-        <ZIndex>1</ZIndex>
-        <Left>640pt</Left>
-        <Top>40pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
       <Textbox Name="Textbox37">
         <Height>12pt</Height>
         <Width>92pt</Width>
@@ -3946,7 +3025,7 @@ Iif({org_bank_cor_account} != null and {org_bank_cor_account} != "", ", к/с " 
         <Value>Транспортная накладная</Value>
         <ZIndex>1</ZIndex>
         <Left>536.5pt</Left>
-        <Top>176.6pt</Top>
+        <Top>171.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3966,6 +3045,888 @@ Iif({org_bank_cor_account} != null and {org_bank_cor_account} != "", ", к/с " 
           <BorderColor />
           <BorderWidth />
           <FontSize>8pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>22pt</Height>
+        <Width>650pt</Width>
+        <Value>=First({org_name},"Order") + Iif(First({org_inn},"Order") != null and First({org_inn},"Order") != "", ", ИНН " + First({org_inn},"Order"), "") + Iif(First({org_address},"Order") != null and First({org_address},"Order") != "", ", " + First({org_address},"Order"), "") + Iif(First({org_phone_number},"Order") != null and First({org_phone_number},"Order") != "", ", тел: " + First({org_phone_number},"Order"), "") + Iif(First({org_acc_number},"Order") != null and First({org_acc_number},"Order") != "", ", р/с " + First({org_acc_number},"Order"), "") + Iif(First({org_bank_name},"Order") != null and First({org_bank_name},"Order") != "", ", в банке " + First({org_bank_name},"Order"), "") + Iif(First({org_bank_bik},"Order") != null and First({org_bank_bik},"Order") != "", ", БИК " + First({org_bank_bik},"Order"), "") + Iif(First({org_bank_cor_account},"Order") != null and First({org_bank_cor_account},"Order") != "", ", к/с " + First({org_bank_cor_account},"Order"), "")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>10.6pt</Left>
+        <Top>30.1pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>9.76pt</Height>
+        <Width>650pt</Width>
+        <Value>грузоотправитель, адрес, номер телефона, банковские реквизиты</Value>
+        <ZIndex>1</ZIndex>
+        <Left>10.6pt</Left>
+        <Top>52.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>7pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>11pt</Height>
+        <Width>650pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>10.6pt</Left>
+        <Top>59.9pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>9.76pt</Height>
+        <Width>650pt</Width>
+        <Value>структурное подразделение</Value>
+        <ZIndex>1</ZIndex>
+        <Left>10.6pt</Left>
+        <Top>70.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>7pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox70" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>20.00pt</Height>
+        <Width>555.75pt</Width>
+        <Value>=First({client_name}, "Order") + Iif(First({client_inn}, "Order") != null and First({client_inn}, "Order") != "", ", ИНН " + First({client_inn}, "Order"), "") + Iif(First({client_address}, "Order") != null and First({client_address}, "Order") != "", ", " + First({client_address}, "Order"), "") + Iif(First({client_phone_number}, "Order") != null and First({client_phone_number}, "Order") != "", ", тел: " + First({client_phone_number}, "Order"), "") + Iif(First({client_acc_number}, "Order") != null and First({client_acc_number}, "Order") != "", ", р/с " + First({client_acc_number}, "Order"), "") + Iif(First({client_bank_name}, "Order") != null and First({client_bank_name}, "Order")  != "", ", в банке " + First({client_bank_name}, "Order"), "") + Iif(First({client_bank_bik}, "Order") != null and First({client_bank_bik}, "Order") != "", ", БИК " + First({client_bank_bik}, "Order"), "") + Iif(First({client_bank_cor_account}, "Order") != null and First({client_bank_cor_account}, "Order") != "", ", к/с " + First({client_bank_cor_account}, "Order"), "")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>105.4pt</Left>
+        <Top>83.3pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>7.5pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox75" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>20.00pt</Height>
+        <Width>555.75pt</Width>
+        <Value>=First({org_name}, "Order") + 
+Iif(First({org_inn}, "Order") != null and First({org_inn}, "Order") != "", ", ИНН " + First({org_inn}, "Order"), "") + 
+Iif(First({org_address}, "Order") != null and First({org_address}, "Order") != "", ", " + First({org_address}, "Order"), "") + 
+Iif(First({org_phone_number}, "Order") != null and First({org_phone_number}, "Order") != "", ", тел: " + First({org_phone_number}, "Order"), "") + 
+Iif(First({org_acc_number}, "Order") != null and First({org_acc_number}, "Order") != "", ", р/с " + First({org_acc_number}, "Order"), "") + 
+Iif(First({org_bank_name}, "Order") != null and First({org_bank_name}, "Order") != "", ", в банке " + First({org_bank_name}, "Order"), "") + 
+Iif(First({org_bank_bik}, "Order") != null and First({org_bank_bik}, "Order") != "", ", БИК " + First({org_bank_bik}, "Order"), "") + 
+Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_account}, "Order") != "", ", к/с " + First({org_bank_cor_account}, "Order"), "")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>105.4pt</Left>
+        <Top>103.3pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>7.5pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox89" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>20.00pt</Height>
+        <Width>94.50pt</Width>
+        <Value>Грузополучатель</Value>
+        <ZIndex>1</ZIndex>
+        <Left>10.6pt</Left>
+        <Top>83.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+          <TextAlign>Right</TextAlign>
+          <FontWeight>Normal</FontWeight>
+          <VerticalAlign>Bottom</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox119" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>20.00pt</Height>
+        <Width>94.50pt</Width>
+        <Value>Поставщик</Value>
+        <ZIndex>1</ZIndex>
+        <Left>10.6pt</Left>
+        <Top>103.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+          <TextAlign>Right</TextAlign>
+          <FontWeight>Normal</FontWeight>
+          <VerticalAlign>Bottom</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox134" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>20.00pt</Height>
+        <Width>94.50pt</Width>
+        <Value>Плательщик</Value>
+        <ZIndex>1</ZIndex>
+        <Left>10.6pt</Left>
+        <Top>123.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+          <TextAlign>Right</TextAlign>
+          <FontWeight>Normal</FontWeight>
+          <VerticalAlign>Bottom</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox137" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>20.00pt</Height>
+        <Width>555.75pt</Width>
+        <Value>=First({client_name}, "Order") + Iif(First({client_inn}, "Order") != null and First({client_inn}, "Order") != "", ", ИНН " + First({client_inn}, "Order"), "") + Iif(First({client_address}, "Order") != null and First({client_address}, "Order") != "", ", " + First({client_address}, "Order"), "") + Iif(First({client_phone_number}, "Order") != null and First({client_phone_number}, "Order") != "", ", тел: " + First({client_phone_number}, "Order"), "") + Iif(First({client_acc_number}, "Order") != null and First({client_acc_number}, "Order") != "", ", р/с " + First({client_acc_number}, "Order"), "") + Iif(First({client_bank_name}, "Order") != null and First({client_bank_name}, "Order")  != "", ", в банке " + First({client_bank_name}, "Order"), "") + Iif(First({client_bank_bik}, "Order") != null and First({client_bank_bik}, "Order") != "", ", БИК " + First({client_bank_bik}, "Order"), "") + Iif(First({client_bank_cor_account}, "Order") != null and First({client_bank_cor_account}, "Order") != "", ", к/с " + First({client_bank_cor_account}, "Order"), "")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>105.4pt</Left>
+        <Top>123.1pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>7.5pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox139" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>20.00pt</Height>
+        <Width>94.50pt</Width>
+        <Value>Основание</Value>
+        <ZIndex>1</ZIndex>
+        <Left>10.6pt</Left>
+        <Top>135.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+          <TextAlign>Right</TextAlign>
+          <FontWeight>Normal</FontWeight>
+          <VerticalAlign>Bottom</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox141" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.00pt</Height>
+        <Width>555.75pt</Width>
+        <Value>="по договору " + First({contract_number}, "Order") + " от " + First({contract_date}, "Order")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>105.4pt</Left>
+        <Top>143.3pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox145" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>9.76pt</Height>
+        <Width>555.75pt</Width>
+        <Value>договор, заказ-наряд</Value>
+        <ZIndex>1</ZIndex>
+        <Left>105.4pt</Left>
+        <Top>155.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>7pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox35" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>21.50pt</Height>
+        <Width>42.90pt</Width>
+        <Value>0330212</Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>40.50pt</Top>
+        <Style>
+          <FontSize>7pt</FontSize>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>2pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox36" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>42.90pt</Width>
+        <Value>Коды</Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>28.00pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>6pt</FontSize>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
+          <BackgroundColor>
+          </BackgroundColor>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox159" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>23.00pt</Height>
+        <Width>42.90pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>62.00pt</Top>
+        <Style>
+          <FontSize>7pt</FontSize>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox161" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>42.90pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>85.00pt</Top>
+        <Style>
+          <FontSize>7pt</FontSize>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox163" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>42.90pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>97.50pt</Top>
+        <Style>
+          <FontSize>7pt</FontSize>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox166" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>42.90pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>110.00pt</Top>
+        <Style>
+          <FontSize>7pt</FontSize>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox168" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>21.50pt</Height>
+        <Width>58.65pt</Width>
+        <Value>Форма по ОКУД</Value>
+        <ZIndex>1</ZIndex>
+        <Left>671.6pt</Left>
+        <Top>40.5pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox177" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>23.00pt</Height>
+        <Width>61.65pt</Width>
+        <Value>Вид деятель-
+ности по ОКДП</Value>
+        <ZIndex>1</ZIndex>
+        <Left>668.4pt</Left>
+        <Top>62.0pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox178" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>58.65pt</Width>
+        <Value>по ОКПО</Value>
+        <ZIndex>1</ZIndex>
+        <Left>671.6pt</Left>
+        <Top>85.0pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox179" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>58.65pt</Width>
+        <Value>по ОКПО</Value>
+        <ZIndex>1</ZIndex>
+        <Left>671.6pt</Left>
+        <Top>97.5pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox180" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>58.65pt</Width>
+        <Value>по ОКПО</Value>
+        <ZIndex>1</ZIndex>
+        <Left>671.6pt</Left>
+        <Top>110.0pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>42.90pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>122.50pt</Top>
+        <Style>
+          <FontSize>7pt</FontSize>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>58.65pt</Width>
+        <Value>по ОКПО</Value>
+        <ZIndex>1</ZIndex>
+        <Left>671.6pt</Left>
+        <Top>122.5pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox154" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>42.90pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>135.00pt</Top>
+        <Style>
+          <FontSize>7pt</FontSize>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox170" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>42.90pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>160.00pt</Top>
+        <Style>
+          <FontSize>7pt</FontSize>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox181" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>58.65pt</Width>
+        <Value>Номер</Value>
+        <ZIndex>1</ZIndex>
+        <Left>671.6pt</Left>
+        <Top>135.0pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox182" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>58.65pt</Width>
+        <Value>Дата</Value>
+        <ZIndex>1</ZIndex>
+        <Left>671.6pt</Left>
+        <Top>147.5pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox183" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>42.90pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>147.50pt</Top>
+        <Style>
+          <FontSize>7pt</FontSize>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox184" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>42.90pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>172.50pt</Top>
+        <Style>
+          <FontSize>7pt</FontSize>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox185" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>58.65pt</Width>
+        <Value>Номер</Value>
+        <ZIndex>1</ZIndex>
+        <Left>671.6pt</Left>
+        <Top>160.0pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox201" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>12.50pt</Height>
+        <Width>58.65pt</Width>
+        <Value>Дата</Value>
+        <ZIndex>1</ZIndex>
+        <Left>671.6pt</Left>
+        <Top>172.5pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <TextAlign>Right</TextAlign>
+          <VerticalAlign >Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox202" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>8.75pt</Height>
+        <Width>42.90pt</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>730.30pt</Left>
+        <Top>185.00pt</Top>
+        <Style>
+          <FontSize>7pt</FontSize>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>2pt</Left>
+            <Right>2pt</Right>
+            <Top>1pt</Top>
+            <Bottom>2pt</Bottom>
+          </BorderWidth>
+          <BackgroundColor>
+          </BackgroundColor>
+          <VerticalAlign >Middle</VerticalAlign>
+          <TextAlign >Center</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
