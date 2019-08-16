@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
 using NHibernate.Cfg;
+using QS.Banks.Domain;
 using QS.Dialog.Gtk;
 using QS.HistoryLog;
 using QS.Permissions;
@@ -51,20 +53,19 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels;
+using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.ViewModels;
-using Vodovoz.Views;
-using Vodovoz.ViewModels.Employees;
-using Vodovoz.Views.Employees;
-using QS.Banks.Domain;
-using System.IO;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.Views.Complaints;
-using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Organization;
+using Vodovoz.Views;
+using Vodovoz.Views.Complaints;
+using Vodovoz.Views.Employees;
 using Vodovoz.Views.Organization;
-using Vodovoz.FilterViewModels.Employees;
-using Vodovoz.FilterViewModels;
 
 namespace Vodovoz
 {
@@ -170,6 +171,7 @@ namespace Vodovoz
 				.RegisterWidgetForFilterViewModel<ResidueFilterViewModel, ResidueFilterView>()
 				.RegisterWidgetForFilterViewModel<FineFilterViewModel, FineFilterView>()
 				.RegisterWidgetForFilterViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
+				.RegisterWidgetForFilterViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
 				;
 
 			TDIMain.TDIWidgetResolver = ViewModelWidgetResolver.Instance;

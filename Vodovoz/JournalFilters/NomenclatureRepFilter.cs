@@ -7,6 +7,7 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.JournalFilters
 {
 	[System.ComponentModel.ToolboxItem(true)]
+	[Obsolete("Использовать MVVM фильтр")]
 	public partial class NomenclatureRepFilter : RepresentationFilterBase<NomenclatureRepFilter>
 	{
 		protected override void ConfigureWithUow()

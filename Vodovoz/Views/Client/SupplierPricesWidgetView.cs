@@ -1,10 +1,10 @@
-﻿using Gamma.ColumnConfig;
+﻿using Gamma.Binding;
+using Gamma.ColumnConfig;
+using Gamma.Utilities;
+using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.Client;
-using Gamma.Utilities;
-using Gtk;
-using Gamma.Binding;
 
 namespace Vodovoz.Views.Client
 {

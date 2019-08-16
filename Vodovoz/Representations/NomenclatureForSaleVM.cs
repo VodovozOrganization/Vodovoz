@@ -16,6 +16,7 @@ using Vodovoz.JournalFilters;
 
 namespace Vodovoz.ViewModel
 {
+	[Obsolete("Использовать представление MVVM")]
 	public class NomenclatureForSaleVM : RepresentationModelWithoutEntityBase<NomenclatureForSaleVMNode>
 	{
 
@@ -162,4 +163,3 @@ namespace Vodovoz.ViewModel
 		public string AvailableText => UsedStock ? Format(Available) : string.Empty;
 	}
 }
-

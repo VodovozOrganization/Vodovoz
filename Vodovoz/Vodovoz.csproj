@@ -1174,7 +1174,6 @@
     <Compile Include="JournalViewModels\OrderJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\OrderFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderFilterView.cs" />
-    <Compile Include="Filters\ViewModels\OrderJournalFilterViewModel.cs" />
     <Compile Include="Infrastructure\Converters\NullToBooleanConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullableBooleanToBooleanConverter.cs" />
     <Compile Include="JournalNodes\OrderJournalNode.cs" />
@@ -1272,6 +1271,12 @@
     <Compile Include="Dialogs\OrderWidgets\GtkTabsOpener.cs" />
     <Compile Include="Views\Client\SupplierPricesWidgetView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Client.SupplierPricesWidgetView.cs" />
+    <Compile Include="JournalViewModels\NomenclaturesJournalViewModel.cs" />
+    <Compile Include="JournalNodes\NomenclatureJournalNode.cs" />
+    <Compile Include="Filters\ViewModels\OrderJournalFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\NomenclaturesFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclaturesFilterView.cs" />
+    <Compile Include="ViewModels\Client\SupplierPricesWidgetViewModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1496,6 +1501,7 @@
     <Folder Include="Views\Employees\" />
     <Folder Include="Views\Organization\" />
     <Folder Include="Views\Client\" />
+    <Folder Include="ViewModels\Client\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
