@@ -1,5 +1,4 @@
 ﻿using System;
-using Gdk;
 using QS.DomainModel.UoW;
 using QSSupportLib;
 using Vodovoz.Domain.Employees;
@@ -17,12 +16,6 @@ namespace Vodovoz.Core.DataService
 				throw new InvalidProgramException("В параметрах базы не настроена номенклатура бутыли по умолчанию (forfeit_nomenclature_id).");
 			}
 			return int.Parse(MainSupport.BaseParameters.All["forfeit_nomenclature_id"]);
-		}
-
-		public Pixbuf GetCrmIndicator(IUnitOfWork uow)
-		{
-			int indicatorID = GetCrmIndicatorId();
-			return new Pixbuf(uow.GetById<StoredImageResource>(indicatorID)?.BinaryFile);
 		}
 
 		public int GetDiscountForStockBottle()
