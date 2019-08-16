@@ -47,14 +47,5 @@ namespace Vodovoz.Domain.StoredResources
 				BinaryFile = ms.ToArray();
 			}
 		}
-
-		public virtual Image GetImg()
-		{
-			Image img;
-			using(var ms = new MemoryStream(BinaryFile)) {
-				img = Image.FromStream(ms);
-			}
-			return img;
-		}
 	}
 }
