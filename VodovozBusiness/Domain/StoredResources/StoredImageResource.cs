@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.IO;
-using Gdk;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.StoredResources

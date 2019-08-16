@@ -322,7 +322,7 @@ namespace Vodovoz
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
 			dataSumDifferenceReason.Completion = new EntryCompletion {
-				Model = OrderRepository.GetListStoreSumDifferenceReasons(UoWGeneric),
+				Model = GetListStoreSumDifferenceReasons(UoWGeneric),
 				TextColumn = 0
 			};
 
@@ -389,6 +389,21 @@ namespace Vodovoz
 			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
 			HasChanges = true;
 			UoW.CanCheckIfDirty = false;
+		}
+
+		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)
+		{
+			Order order = null;
+
+			var reasons = uow.Session.QueryOver(() => order)
+				.Select(NHibernate.Criterion.Projections.Distinct(NHibernate.Criterion.Projections.Property(() => order.SumDifferenceReason)))
+				.List<string>();
+
+			var store = new ListStore(typeof(string));
+			foreach(string s in reasons) {
+				store.AppendValues(s);
+			}
+			return store;
 		}
 
 		void ControlsActionBottleAccessibility()

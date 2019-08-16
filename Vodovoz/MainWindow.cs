@@ -61,6 +61,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewWidgets;
+using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -544,8 +545,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			CurrentUserSettings.Settings.ToolbarStyle = style;
 			CurrentUserSettings.SaveSettings();
 		}
-		toolbarMain.ToolbarStyle = style;
-		tlbComplaints.ToolbarStyle = style;
+		toolbarMain.ToolbarStyle = (Gtk.ToolbarStyle)style;
+		tlbComplaints.ToolbarStyle = (Gtk.ToolbarStyle)style;
 		ActionIconsExtraSmall.Sensitive = ActionIconsSmall.Sensitive = ActionIconsMiddle.Sensitive = ActionIconsLarge.Sensitive =
 			style != ToolbarStyle.Text;
 	}
