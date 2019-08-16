@@ -145,6 +145,9 @@
     <Reference Include="CommonServiceLocator">
       <HintPath>..\packages\CommonServiceLocator.2.0.4\lib\net46\CommonServiceLocator.dll</HintPath>
     </Reference>
+    <Reference Include="QS.Contacts">
+      <HintPath>..\..\QSProjects\Modules\QS.Contacts\bin\Debug\QS.Contacts.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />

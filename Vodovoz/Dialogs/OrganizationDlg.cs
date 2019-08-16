@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NLog;
 using QS.Banks.Domain;
+using QS.Contacts;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSBanks;

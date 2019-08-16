@@ -10,6 +10,7 @@ using QSContacts;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using QS.Banks.Domain;
+using QS.Contacts;
 
 namespace Vodovoz.Repository
 {

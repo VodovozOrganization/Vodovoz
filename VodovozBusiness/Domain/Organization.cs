@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QS.Banks.Domain;
+using QS.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QSBanks;
@@ -87,10 +88,10 @@ namespace Vodovoz.Domain
 			set { SetField(ref oKVED, value, () => OKVED); }
 		}
 
-		IList<QSContacts.Phone> phones;
+		IList<Phone> phones;
 
 		[Display (Name = "Телефоны")]
-		public virtual IList<QSContacts.Phone> Phones {
+		public virtual IList<Phone> Phones {
 			get { return phones; }
 			set { SetField (ref phones, value, () => Phones); }
 		}

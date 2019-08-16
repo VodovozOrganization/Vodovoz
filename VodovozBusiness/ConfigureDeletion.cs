@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using QS.Banks.Domain;
+using QS.Contacts;
 using QS.Deletion;
 using QS.HistoryLog.Domain;
 using QS.Project.Domain;

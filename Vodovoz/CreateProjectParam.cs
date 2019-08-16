@@ -199,7 +199,7 @@ namespace Vodovoz
 				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(Bank)),
-				System.Reflection.Assembly.GetAssembly (typeof(QSContactsMain)),
+				System.Reflection.Assembly.GetAssembly (typeof(QS.Contacts.Person)),
 				System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
 			},
 								  (cnf) => cnf.DataBaseIntegration(

@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Banks.Domain;
+using QS.Contacts;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Config;

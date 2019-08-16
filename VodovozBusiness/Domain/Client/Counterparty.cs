@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Gamma.Utilities;
 using QS.Banks.Domain;
+using QS.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;

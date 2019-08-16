@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Gamma.Utilities;
 using NHibernate.Util;
+using QS.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -1192,7 +1193,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual QSContacts.Email GetEmailAddressForBill()
+		public virtual Email GetEmailAddressForBill()
 		{
 			return Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
 		}

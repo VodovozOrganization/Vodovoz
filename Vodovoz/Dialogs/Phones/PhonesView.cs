@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using Gamma.Widgets;
 using Gtk;
-using QSContacts;
 using System.Linq;
 using Gamma.GtkWidgets;
-using QS.DomainModel.UoW;
 using QSWidgetLib;
+using QS.Contacts;
 
 namespace Vodovoz.Dialogs.Phones
 {

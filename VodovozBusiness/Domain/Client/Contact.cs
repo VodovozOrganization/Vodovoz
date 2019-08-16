@@ -7,6 +7,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QS.DomainModel.UoW;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Contacts;
 
 namespace Vodovoz.Domain.Client
 {

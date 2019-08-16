@@ -7,6 +7,7 @@ using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Commands;
 using System.Linq;
+using QS.Contacts;
 
 namespace Vodovoz.Dialogs.Phones
 {
