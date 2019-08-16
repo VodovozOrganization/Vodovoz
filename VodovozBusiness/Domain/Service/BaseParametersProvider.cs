@@ -22,7 +22,7 @@ namespace Vodovoz.Core.DataService
 		public Pixbuf GetCrmIndicator(IUnitOfWork uow)
 		{
 			int indicatorID = GetCrmInicatorId();
-			return uow.GetById<StoredImageResource>(indicatorID)?.GetPixbufImg();
+			return new Pixbuf(uow.GetById<StoredImageResource>(indicatorID)?.BinaryFile);
 		}
 
 		private int GetCrmInicatorId()

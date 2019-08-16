@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.IO;
-using Gdk;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.StoredResources
@@ -49,13 +48,13 @@ namespace Vodovoz.Domain.StoredResources
 			}
 		}
 
-		public virtual Pixbuf GetPixbufImg()
+		public virtual Image GetImg()
 		{
-			Pixbuf pix;
+			Image img;
 			using(var ms = new MemoryStream(BinaryFile)) {
-				pix = new Pixbuf(ms);
+				img = Image.FromStream(ms);
 			}
-			return pix;
+			return img;
 		}
 	}
 }
