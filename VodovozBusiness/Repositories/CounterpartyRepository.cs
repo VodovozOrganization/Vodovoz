@@ -5,8 +5,6 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QSBanks;
-using QSContacts;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using QS.Banks.Domain;

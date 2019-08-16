@@ -5,7 +5,6 @@ using QS.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSContacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repositories.HumanResources;
 
