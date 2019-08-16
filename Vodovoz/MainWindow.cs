@@ -1402,4 +1402,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 		tdiMain.AddTab(complaintResultsViewModel);
 	}
+
+	protected void OnActionSuppliersActivated(object sender, EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
+	}
 }

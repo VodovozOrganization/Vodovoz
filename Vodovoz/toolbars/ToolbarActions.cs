@@ -75,6 +75,10 @@ public partial class MainWindow : Window
 	Action ActionCashTransferDocuments;
 	Action ActionFuelTransferDocuments;
 
+	//Suppliers
+	Action ActionNewRequestToSupplier;
+	Action ActionJournalOfRequestsToSuppliers;
+
 	public void BuildToolbarActions()
 	{
 		#region Creating actions
@@ -133,6 +137,10 @@ public partial class MainWindow : Window
 		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
 		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Журнал доверенностей", null, "table");
 		ActionScheduleRestrictedDistricts = new Action("ActionScheduleRestrictedDistricts", "Районы с графиками доставки", null, "table");
+		//Suppliers
+		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
+		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
+
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup("ToolbarActions");
@@ -186,6 +194,9 @@ public partial class MainWindow : Window
 		w1.Add(ActionRouteListAddressesTransferring, null);
 		w1.Add(ActionTransferOperationJournal, null);
 		w1.Add(ActionScheduleRestrictedDistricts, null);
+		//Suppliers
+		w1.Add(ActionNewRequestToSupplier, null);
+		w1.Add(ActionJournalOfRequestsToSuppliers, null);
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -241,7 +252,22 @@ public partial class MainWindow : Window
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
 		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
 		ActionScheduleRestrictedDistricts.Activated += ActionScheduleRestrictedDistricts_Activated;
+
+		//Suppliers
+		ActionNewRequestToSupplier.Activated += ActionNewRequestToSupplier_Activated;
+		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
+
 		#endregion
+	}
+
+	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
+	{
+
+	}
+
+	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e)
+	{
+
 	}
 
 	void ActionRouteListsPrint_Activated(object sender, System.EventArgs e)

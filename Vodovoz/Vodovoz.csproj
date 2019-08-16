@@ -456,6 +456,8 @@
     <EmbeddedResource Include="icons\map\points\custom\vodonos.png" />
     <EmbeddedResource Include="icons\map\points\custom\marker_shadow.png" />
     <EmbeddedResource Include="icons\toolbar\complaints.png" />
+    <EmbeddedResource Include="icons\toolbar\suppliers.png" />
+    <EmbeddedResource Include="toolbars\suppliers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
