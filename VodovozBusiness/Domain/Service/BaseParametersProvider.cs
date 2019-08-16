@@ -21,16 +21,8 @@ namespace Vodovoz.Core.DataService
 
 		public Pixbuf GetCrmIndicator(IUnitOfWork uow)
 		{
-			int indicatorID = GetCrmInicatorId();
+			int indicatorID = GetCrmIndicatorId();
 			return new Pixbuf(uow.GetById<StoredImageResource>(indicatorID)?.BinaryFile);
-		}
-
-		private int GetCrmInicatorId()
-		{
-			if(!MainSupport.BaseParameters.All.ContainsKey("crm_importance_indicator_id")) {
-				throw new InvalidProgramException("В параметрах базы не настроен индикатор важности задачи для CRM (crm_importance_indicator_id).");
-			}
-			return int.Parse(MainSupport.BaseParameters.All["crm_importance_indicator_id"]);
 		}
 
 		public int GetDiscountForStockBottle()
@@ -57,6 +49,14 @@ namespace Vodovoz.Core.DataService
 				throw new InvalidProgramException("В параметрах базы не настроен параметр : номер_отдела_ОКК");
 			}
 			return int.Parse(MainSupport.BaseParameters.All["номер_отдела_ОКК"]);
+		}
+
+		public int GetCrmIndicatorId()
+		{
+			if(!MainSupport.BaseParameters.All.ContainsKey("crm_importance_indicator_id")) {
+				throw new InvalidProgramException("В параметрах базы не настроен индикатор важности задачи для CRM (crm_importance_indicator_id).");
+			}
+			return int.Parse(MainSupport.BaseParameters.All["crm_importance_indicator_id"]);
 		}
 	}
 }

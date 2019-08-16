@@ -15,6 +15,7 @@ using QSContacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters;
 using Vodovoz.Services;
 
@@ -50,7 +51,7 @@ namespace Vodovoz.Representations
 		public CallTasksVM(IImageProvider imageProvider)
 		{
 			CreateDisposableUoW();
-			img = imageProvider.GetCrmIndicator(UoW);
+			img = new Pixbuf(UoW.GetById<StoredImageResource>(imageProvider.GetCrmIndicatorId()).BinaryFile);
 			emptyImg = img.Copy();
 			emptyImg.Fill(0xffffffff);
 		}
