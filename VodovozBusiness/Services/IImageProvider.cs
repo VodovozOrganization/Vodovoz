@@ -1,11 +1,10 @@
-﻿using System;
-using Gdk;
+﻿using System.Drawing;
 using QS.DomainModel.UoW;
 
 namespace Vodovoz.Services
 {
 	public interface IImageProvider
 	{
-		Pixbuf GetCrmIndicator(IUnitOfWork uow);
+		Image GetCrmIndicator(IUnitOfWork uow);
 	}
 }
