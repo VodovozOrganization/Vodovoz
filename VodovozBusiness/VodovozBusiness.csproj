@@ -685,7 +685,7 @@
     <Compile Include="Services\ISubdivisionService.cs" />
     <Compile Include="EntityRepositories\Employee\EmployeeRepository.cs" />
     <Compile Include="EntityRepositories\Employee\IEmployeeRepository.cs" />
-    <Compile Include="Domain\Client\SuplierPriceItem.cs" />
+    <Compile Include="Domain\Client\SupplierPriceItem.cs" />
     <Compile Include="HibernateMapping\Counterparty\SuplierPriceItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -26,6 +26,7 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices
 		) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
+			TabName = "Журнал ТМЦ";
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.currentUserId = commonServices.UserService.CurrentUserId;
 			SetOrder<SelfDeliveryJournalNode>(x => x.Name);
@@ -37,6 +38,8 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderItem)
 			);
 		}
+
+		public int[] ExcludingNomenclatureIds { get; set; }
 
 		protected override Func<IQueryOver<Nomenclature>> ItemsSourceQueryFunction => () => {
 			var canAddSpares = commonServices.PermissionService.ValidateUserPresetPermission("can_add_spares_to_order", currentUserId);
@@ -72,7 +75,12 @@ namespace Vodovoz.JournalViewModels
 				.Select(Projections.Sum(() => orderItemsAlias.Count));
 
 			var itemsQuery = UoW.Session.QueryOver(() => nomenclatureAlias)
-								.Where(() => !nomenclatureAlias.IsArchive);
+								.Where(() => !nomenclatureAlias.IsArchive)
+								;
+
+			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
+				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));
+
 			itemsQuery.Where(
 				GetSearchCriterion(
 					() => nomenclatureAlias.Name,
@@ -110,8 +118,8 @@ namespace Vodovoz.JournalViewModels
 					.SelectSubQuery(subqueryRemoved).WithAlias(() => resultAlias.Removed)
 					.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved)
 				)
+				.OrderBy(x => x.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>())
-				.OrderBy(x => x.Name)
 				;
 
 			return itemsQuery;

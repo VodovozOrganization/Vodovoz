@@ -4,11 +4,11 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.HibernateMapping.Counterparty
 {
-	public class SuplierPriceItemMap : ClassMap<SuplierPriceItem>
+	public class SuplierPriceItemMap : ClassMap<SupplierPriceItem>
 	{
 		public SuplierPriceItemMap()
 		{
-			Table("suplier_price_items");
+			Table("supplier_price_items");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 

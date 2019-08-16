@@ -516,20 +516,20 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref counterpartyType, value);
 		}
 
-		IList<SuplierPriceItem> suplierPriceItems = new List<SuplierPriceItem>();
-		[PropertyChangedAlso("PriceNodes")]
+		IList<SupplierPriceItem> suplierPriceItems = new List<SupplierPriceItem>();
+		[PropertyChangedAlso(nameof(ObservablePriceNodes))]
 		[Display(Name = "Цены на ТМЦ")]
-		public virtual IList<SuplierPriceItem> SuplierPriceItems {
+		public virtual IList<SupplierPriceItem> SuplierPriceItems {
 			get => suplierPriceItems;
 			set => SetField(ref suplierPriceItems, value);
 		}
 
-		GenericObservableList<SuplierPriceItem> observableSuplierPriceItems;
+		GenericObservableList<SupplierPriceItem> observableSuplierPriceItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<SuplierPriceItem> ObservableSuplierPriceItems {
+		public virtual GenericObservableList<SupplierPriceItem> ObservableSuplierPriceItems {
 			get {
 				if(observableSuplierPriceItems == null)
-					observableSuplierPriceItems = new GenericObservableList<SuplierPriceItem>(SuplierPriceItems);
+					observableSuplierPriceItems = new GenericObservableList<SupplierPriceItem>(SuplierPriceItems);
 				return observableSuplierPriceItems;
 			}
 		}
@@ -566,24 +566,7 @@ namespace Vodovoz.Domain.Client
 
 		IList<ISupplierPriceNode> priceNodes = new List<ISupplierPriceNode>();
 		public virtual IList<ISupplierPriceNode> PriceNodes {
-			get {
-				var lst = new List<ISupplierPriceNode>();
-				int cnt = 0;
-				foreach(var nom in SuplierPriceItems.Select(i => i.NomenclatureToBuy).Distinct()) {
-					var sNom = new SellingNomenclature {
-						NomenclatureToBuy = nom,
-						Parent = null,
-						PosNr = (++cnt).ToString()
-					};
-
-					var children = SuplierPriceItems.Cast<ISupplierPriceNode>().Where(i => i.NomenclatureToBuy == nom).ToList();
-					foreach(var i in children)
-						i.Parent = sNom;
-					sNom.Children = children;
-					lst.Add(sNom);
-				}
-				return lst;
-			}
+			get => priceNodes;
 			set => SetField(ref priceNodes, value);
 		}
 
@@ -642,6 +625,53 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion CloseDelivery
+
+		#region цены поставщика
+
+		public virtual void SupplierPriceListRefresh() {
+			int cnt = 0;
+			ObservablePriceNodes.Clear();
+			foreach(var nom in SuplierPriceItems.Select(i => i.NomenclatureToBuy).Distinct()) {
+				var sNom = new SellingNomenclature {
+					NomenclatureToBuy = nom,
+					Parent = null,
+					PosNr = (++cnt).ToString()
+				};
+
+				var children = SuplierPriceItems.Cast<ISupplierPriceNode>().Where(i => i.NomenclatureToBuy == nom).ToList();
+				foreach(var i in children)
+					i.Parent = sNom;
+				sNom.Children = children;
+				ObservablePriceNodes.Add(sNom);
+			}
+		}
+
+		public virtual void AddSupplierPriceItems(Nomenclature nomenclatureFromSupplier)
+		{
+			foreach(SupplierPaymentType type in Enum.GetValues(typeof(SupplierPaymentType))) {
+				ObservableSuplierPriceItems.Add(
+					new SupplierPriceItem {
+						Supplier = this,
+						NomenclatureToBuy = nomenclatureFromSupplier,
+						PaymentType = type
+					}
+				);
+			}
+		}
+
+		public virtual void RemoveNomenclatureWithPrices(int nomenclatureId)
+		{
+			var removableItems = new List<SupplierPriceItem>(
+				ObservableSuplierPriceItems.Where(i => i.NomenclatureToBuy.Id == nomenclatureId).ToList()
+			);
+
+			foreach(var item in removableItems) {
+				ObservableSuplierPriceItems.Remove(item);
+			}
+		}
+
+
+		#endregion цены поставщика
 
 		public Counterparty()
 		{

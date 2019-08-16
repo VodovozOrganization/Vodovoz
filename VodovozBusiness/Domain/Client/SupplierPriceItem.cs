@@ -20,7 +20,7 @@ namespace Vodovoz.Domain.Client
 		)
 	]
 	[HistoryTrace]
-	public class SuplierPriceItem : PropertyChangedBase, IDomainObject, ISupplierPriceNode
+	public class SupplierPriceItem : PropertyChangedBase, IDomainObject, ISupplierPriceNode
 	{
 		public virtual int Id { get; set; }
 

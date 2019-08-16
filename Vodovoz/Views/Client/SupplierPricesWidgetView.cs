@@ -117,14 +117,22 @@ namespace Vodovoz.Views.Client
 			yTreePrices.YTreeModel = new RecursiveTreeModel<ISupplierPriceNode>(ViewModel.Entity.ObservablePriceNodes, x => x.Parent, x => x.Children);
 			yTreePrices.ExpandAll();
 
+			ViewModel.ListContentChanged += (sender, e) => {
+				yTreePrices.YTreeModel.EmitModelChanged();
+				yTreePrices.ExpandAll();
+			};
+			yTreePrices.Selection.Changed += (sender, e) => ViewModel.CanRemove = GetSelectedTreeItem() != null;
+
 			btnAdd.Binding.AddBinding(ViewModel, s => s.CanAdd, w => w.Sensitive).InitializeFromSource();
 			btnAdd.Clicked += (s, ea) => ViewModel.AddItemCommand.Execute();
 
-			btnEdit.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
+			btnEdit.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Visible).InitializeFromSource();
 			btnEdit.Clicked += (s, ea) => ViewModel.AddItemCommand.Execute();
 
 			btnDelete.Binding.AddBinding(ViewModel, s => s.CanRemove, w => w.Sensitive).InitializeFromSource();
-			btnDelete.Clicked += (s, ea) => ViewModel.AddItemCommand.Execute();
+			btnDelete.Clicked += (s, ea) => ViewModel.RemoveItemCommand.Execute(GetSelectedTreeItem());
 		}
+
+		ISupplierPriceNode GetSelectedTreeItem() => yTreePrices.GetSelectedObject<ISupplierPriceNode>();
 	}
 }

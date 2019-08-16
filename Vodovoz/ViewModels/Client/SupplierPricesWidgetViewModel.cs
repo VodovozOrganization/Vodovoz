@@ -8,6 +8,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalViewModels;
 
@@ -18,6 +19,8 @@ namespace Vodovoz.ViewModels.Client
 		readonly IEntityConfigurationProvider entityConfigurationProvider;
 		readonly ITdiTab dialogTab;
 
+		public event EventHandler ListContentChanged;
+
 		public SupplierPricesWidgetViewModel(Counterparty entity, IUnitOfWork uow, ITdiTab dialogTab, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(entity, commonServices)
 		{
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
@@ -25,7 +28,9 @@ namespace Vodovoz.ViewModels.Client
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
 			//UpdateAcessibility();
-
+			RefreshPrices();
+			Entity.ObservableSuplierPriceItems.ElementAdded += (aList, aIdx) => RefreshPrices();
+			Entity.ObservableSuplierPriceItems.ElementRemoved += (aList, aIdx, aObject) => RefreshPrices();
 		}
 
 		void CreateCommands()
@@ -35,10 +40,20 @@ namespace Vodovoz.ViewModels.Client
 			CreateEditItemCommand();
 		}
 
+		void RefreshPrices()
+		{
+			Entity.SupplierPriceListRefresh();
+			ListContentChanged?.Invoke(this, new EventArgs());
+		}
+
 		public bool CanAdd { get; set; } = true;
 		public bool CanEdit { get; set; } = false;//задача редактирования пока не актуальна
-		public bool CanRemove { get; set; }
 
+		private bool canRemove = false;
+		public bool CanRemove {
+			get => canRemove;
+			set => SetField(ref canRemove, value);
+		}
 		#region Commands
 
 		#region AddItemCommand
@@ -49,19 +64,23 @@ namespace Vodovoz.ViewModels.Client
 		{
 			AddItemCommand = new DelegateCommand(
 				() => {
-					var filter = new NomenclatureFilterViewModel(CommonServices.InteractiveService);
+					var existingNomenclatures = Entity.ObservableSuplierPriceItems.Select(i => i.NomenclatureToBuy.Id).Distinct();
+					var filter = new NomenclatureFilterViewModel(CommonServices.InteractiveService) {
+						HidenByDefault = true
+					};
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 						filter,
 						entityConfigurationProvider,
 						CommonServices
 					) {
-						SelectionMode = JournalSelectionMode.Single
+						SelectionMode = JournalSelectionMode.Single,
+						ExcludingNomenclatureIds = existingNomenclatures.ToArray()
 					};
 					journalViewModel.OnEntitySelectedResult += (sender, e) => {
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
 						if(selectedNode == null)
 							return;
-						//Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
+						Entity.AddSupplierPriceItems(UoW.GetById<Nomenclature>(selectedNode.Id));
 					};
 					dialogTab.TabParent.AddSlaveTab(dialogTab, journalViewModel);
 				},
@@ -73,13 +92,13 @@ namespace Vodovoz.ViewModels.Client
 
 		#region RemoveItemCommand
 
-		public DelegateCommand RemoveItemCommand { get; private set; }
+		public DelegateCommand<ISupplierPriceNode> RemoveItemCommand { get; private set; }
 
 		private void CreateRemoveItemCommand()
 		{
-			RemoveItemCommand = new DelegateCommand(
-				() => { },
-				() => true
+			RemoveItemCommand = new DelegateCommand<ISupplierPriceNode>(
+				n => Entity.RemoveNomenclatureWithPrices(n.NomenclatureToBuy.Id),
+				n => CanRemove
 			);
 		}
 
@@ -93,7 +112,7 @@ namespace Vodovoz.ViewModels.Client
 		{
 			EditItemCommand = new DelegateCommand(
 				() => { },
-				() => true
+				() => false
 			);
 		}
 
