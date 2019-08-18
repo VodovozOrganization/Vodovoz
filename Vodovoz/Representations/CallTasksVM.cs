@@ -12,7 +12,7 @@ using QS.Contacts;
 using QS.RepresentationModel.GtkUI;
 using QS.Tools;
 using QS.Utilities.Text;
-using QSContacts;
+using QS.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;

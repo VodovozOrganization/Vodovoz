@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using QS.Banks.Domain;
-using QS.Contacts;
+using QSContacts;
 using QS.Deletion;
 using QS.HistoryLog.Domain;
 using QS.Project.Domain;
 using QSBusinessCommon.Domain;
+using QS.BusinessCommon.Domain;
+using QS.Contacts;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;

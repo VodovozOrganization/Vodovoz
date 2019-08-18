@@ -4,7 +4,6 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
 using QS.Banks.Domain;
-using QS.Contacts;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -13,6 +12,8 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QSBanks;
+using QS.Contacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -24,6 +25,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz

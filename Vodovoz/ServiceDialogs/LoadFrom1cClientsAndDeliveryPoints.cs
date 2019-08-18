@@ -9,7 +9,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSBanks;
 using QSBanks.Repositories;
-using QSContacts;
+using QS.Contacts;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;

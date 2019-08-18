@@ -15,8 +15,8 @@ using QS.Project.Repositories;
 using QS.Tdi.Gtk;
 using QS.Widgets.GtkUI;
 using QSBusinessCommon;
-using QSBusinessCommon.Domain;
-using QSContacts;
+using QS.BusinessCommon.Domain;
+using QS.Contacts;
 using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
@@ -65,6 +65,7 @@ using Vodovoz.ViewModels.Organization;
 using Vodovoz.Views.Organization;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.FilterViewModels;
+using QSContacts;
 
 namespace Vodovoz
 {
@@ -199,7 +200,7 @@ namespace Vodovoz
 				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(Bank)),
-				System.Reflection.Assembly.GetAssembly (typeof(QS.Contacts.Person)),
+				System.Reflection.Assembly.GetAssembly (typeof(QS.Contacts.Phone)),
 				System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
 			},
 								  (cnf) => cnf.DataBaseIntegration(

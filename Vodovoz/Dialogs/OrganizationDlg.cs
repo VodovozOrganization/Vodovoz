@@ -6,7 +6,7 @@ using QS.Contacts;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSBanks;
-using QSContacts;
+using QS.Contacts;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;

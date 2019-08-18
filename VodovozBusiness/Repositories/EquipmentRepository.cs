@@ -13,7 +13,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Goods;
 using NHibernate.Transform;
 using QSOrmProject.RepresentationModel;
-using QSBusinessCommon.Domain;
+using QS.BusinessCommon.Domain;
 
 namespace Vodovoz.Repository
 {

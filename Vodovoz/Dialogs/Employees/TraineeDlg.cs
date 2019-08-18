@@ -10,7 +10,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSBanks;
-using QSContacts;
+using QS.Contacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;

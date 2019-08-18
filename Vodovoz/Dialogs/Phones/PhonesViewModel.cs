@@ -1,5 +1,5 @@
 ﻿using System;
-using QSContacts;
+using QS.Contacts;
 using System.Collections.Generic;
 using QS.Services;
 using QS.ViewModels;
@@ -7,7 +7,7 @@ using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Commands;
 using System.Linq;
-using QS.Contacts;
+using QSContacts;
 
 namespace Vodovoz.Dialogs.Phones
 {
