@@ -145,9 +145,6 @@
     <Reference Include="CommonServiceLocator">
       <HintPath>..\packages\CommonServiceLocator.2.0.4\lib\net46\CommonServiceLocator.dll</HintPath>
     </Reference>
-    <Reference Include="QS.Contacts">
-      <HintPath>..\..\QSProjects\Modules\QS.Contacts\bin\Debug\QS.Contacts.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -795,10 +792,6 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
       <Name>QS.Banks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj">
-      <Project>{B1DD034B-EC88-400C-9C6B-83CE68AB3541}</Project>
-      <Name>QS.Contacts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Validation\QS.Validation.csproj">
       <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
