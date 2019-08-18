@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Gamma.Widgets;
 using Gtk;
-using QSContacts;
+using QS.Contacts;
 using System.Linq;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;

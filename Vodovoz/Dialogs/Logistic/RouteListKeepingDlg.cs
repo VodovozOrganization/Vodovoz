@@ -4,6 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
+using Chats;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate;
@@ -21,7 +22,6 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
-using VodovozService.Chats;
 
 namespace Vodovoz
 {

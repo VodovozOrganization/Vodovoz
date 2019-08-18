@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NLog;
 using QS.DomainModel.UoW;
-using QSContacts;
+using QS.Contacts;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Client;

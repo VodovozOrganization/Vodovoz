@@ -13,7 +13,7 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QSBanks;
-using QSContacts;
+using QS.Contacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;

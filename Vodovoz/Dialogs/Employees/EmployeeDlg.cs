@@ -10,7 +10,7 @@ using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Repositories;
 using QSBanks;
-using QSContacts;
+using QS.Contacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;

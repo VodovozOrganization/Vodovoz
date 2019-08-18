@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using Vodovoz.Domain;
 using QSOrmProject;
-using QSBusinessCommon.Domain;
+using QS.BusinessCommon.Domain;
 using QSBanks;
 using Vodovoz.ExportTo1c;
 

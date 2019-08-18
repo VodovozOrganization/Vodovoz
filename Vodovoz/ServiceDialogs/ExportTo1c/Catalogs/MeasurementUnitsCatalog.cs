@@ -1,5 +1,5 @@
 ﻿using System;
-using QSBusinessCommon.Domain;
+using QS.BusinessCommon.Domain;
 using System.Collections.Generic;
 
 namespace Vodovoz.ExportTo1c.Catalogs
