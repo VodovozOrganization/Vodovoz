@@ -9,7 +9,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QSContacts;
+using QS.Contacts;
 using QSOsm;
 using QSOsm.DTO;
 using QSOsm.Osrm;

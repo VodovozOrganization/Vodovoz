@@ -7,7 +7,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSContacts;
+using QS.Contacts;
 using QSOrmProject;
 using QSValidation.Attributes;
 

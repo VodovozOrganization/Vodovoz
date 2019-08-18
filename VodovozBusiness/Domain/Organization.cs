@@ -87,10 +87,10 @@ namespace Vodovoz.Domain
 			set { SetField(ref oKVED, value, () => OKVED); }
 		}
 
-		IList<QSContacts.Phone> phones;
+		IList<QS.Contacts.Phone> phones;
 
 		[Display (Name = "Телефоны")]
-		public virtual IList<QSContacts.Phone> Phones {
+		public virtual IList<QS.Contacts.Phone> Phones {
 			get { return phones; }
 			set { SetField (ref phones, value, () => Phones); }
 		}

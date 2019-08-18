@@ -1192,7 +1192,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual QSContacts.Email GetEmailAddressForBill()
+		public virtual QS.Contacts.Email GetEmailAddressForBill()
 		{
 			return Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
 		}

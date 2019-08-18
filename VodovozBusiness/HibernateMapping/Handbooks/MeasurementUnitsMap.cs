@@ -1,6 +1,6 @@
 ﻿using System;
 using FluentNHibernate.Mapping;
-using QSBusinessCommon.Domain;
+using QS.BusinessCommon.Domain;
 
 namespace Vodovoz.HibernateMapping
 {

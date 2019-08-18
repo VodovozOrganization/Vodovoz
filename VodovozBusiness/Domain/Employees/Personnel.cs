@@ -133,10 +133,10 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref inn, value, () => INN); }
 		}
 
-		IList<QSContacts.Phone> phones = new List<QSContacts.Phone>();
+		IList<QS.Contacts.Phone> phones = new List<QS.Contacts.Phone>();
 
 		[Display(Name = "Телефоны")]
-		public virtual IList<QSContacts.Phone> Phones {
+		public virtual IList<QS.Contacts.Phone> Phones {
 			get { return phones; }
 			set { SetField(ref phones, value, () => Phones); }
 		}
@@ -307,7 +307,7 @@ namespace Vodovoz.Domain.Employees
 		string AddressRegistration { get; set; }
 		string AddressCurrent { get; set; }
 		string INN { get; set; }
-		IList<QSContacts.Phone> Phones { get; set; }
+		IList<QS.Contacts.Phone> Phones { get; set; }
 		IList<EmployeeDocument> Documents { get; set; }
 		Nationality Nationality { get; set; }
 		bool IsRussianCitizen { get; set; }

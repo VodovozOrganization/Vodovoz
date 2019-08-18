@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QSContacts;
+using QS.Contacts;
 using QS.DomainModel.Entity;
 using QSOrmProject;
 using QSProjectsLib;

@@ -4,8 +4,8 @@ using QS.Deletion;
 using QS.HistoryLog.Domain;
 using QS.Project.Domain;
 using QSBanks;
-using QSBusinessCommon.Domain;
-using QSContacts;
+using QS.BusinessCommon.Domain;
+using QS.Contacts;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
@@ -38,7 +38,7 @@ namespace Vodovoz
 		{
 			logger.Info("Настройка параметров удаления...");
 
-			QSContactsMain.ConfigureDeletion();
+			QS.Contacts.ConfigureDeletionContacts.ConfigureDeletion();
 			QSBanksMain.ConfigureDeletion();
 
 			#region Goods

@@ -13,7 +13,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Repositories;
-using QSContacts;
+using QS.Contacts;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;

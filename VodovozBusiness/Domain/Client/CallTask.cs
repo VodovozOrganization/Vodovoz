@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSContacts;
+using QS.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repositories.HumanResources;
 
