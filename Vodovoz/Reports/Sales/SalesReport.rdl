@@ -354,42 +354,41 @@
         <CanShrink>true</CanShrink>
       </Textbox>
       <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid1">
-        <Style >
+        <Style>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
         </Style>
-        <TableColumns >
+        <TableColumns>
           <TableColumn>
             <Width>416.0pt</Width>
           </TableColumn>
-          
           <TableColumn>
             <Width>133.8pt</Width>
           </TableColumn>
         </TableColumns>
-        
-        <Details >
+        <Details>
           <TableRows>
-            
             <TableRow>
               <Height>14.1pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>Фактически забрання тара</Value>
+                      <Value>Фактически забранная тара</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                      <BorderColor /><BorderWidth /><VerticalAlign>Middle</VerticalAlign></Style>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
@@ -398,7 +397,10 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                      <BorderColor /><BorderWidth /><VerticalAlign>Middle</VerticalAlign></Style>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -406,9 +408,9 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left >9.5pt</Left>
-        <Top >128.4pt</Top>
-        <Footer >
+        <Left>9.5pt</Left>
+        <Top>128.4pt</Top>
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>13.7pt</Height>
@@ -420,12 +422,14 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                      <BorderColor /><BorderWidth /><VerticalAlign>Middle</VerticalAlign></Style>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                       <Value>Планируемая тара</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
@@ -433,7 +437,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                      <BorderColor /><BorderWidth /></Style>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
                       <Value>=First( {plan} , "bottles" )</Value>
                     </Textbox>
                   </ReportItems>
@@ -443,7 +449,7 @@
           </TableRows>
         </Footer>
       </fyi:Grid>
-                </ReportItems>
+    </ReportItems>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -883,15 +889,19 @@ FROM
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="bottles" >
-      <Query>
+    <DataSet Name="bottles">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT     
     SUM(orders.bottles_return) AS plan,
     ROUND(SUM(IFNULL(route_list_addresses.bottles_returned, self_delivery.fact)), 0) AS fact
 FROM 
     orders
-    LEFT JOIN route_list_addresses ON route_list_addresses.order_id = orders.id 
+    LEFT JOIN route_list_addresses ON route_list_addresses.order_id = orders.id
+    LEFT JOIN counterparty ON counterparty.id = orders.client_id
+    LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = counterparty.id
+    LEFT JOIN employees ON employees.id = orders.author_employee_id
+    LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id
     LEFT JOIN
     (
         SELECT
@@ -915,7 +925,44 @@ FROM
     ) AS self_delivery ON self_delivery.order_id = orders.id
 WHERE
     orders.delivery_date &gt;= @start_date
-    AND orders.delivery_date &lt;= @end_date</CommandText>
+    AND orders.delivery_date &lt;= @end_date
+    AND !orders.is_contract_closer
+    
+    AND EXISTS
+    (
+        SELECT * FROM order_items
+        WHERE order_items.order_id = orders.id
+        AND ( 
+                ((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
+                OR
+                (order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
+                OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
+            )
+    )
+    AND (
+            ((orders.client_id IN (@client_include) AND 0 IN (@client_exclude) )
+            OR
+            (orders.client_id NOT IN (@client_exclude) AND 0 IN (@client_include)))
+            OR (0 IN (@client_include) AND 0 IN (@client_exclude))
+        )
+    AND (
+            ((counterparty_contract.organization_id IN (@org_include) AND 0 IN (@org_exclude) )
+            OR
+            (counterparty_contract.organization_id NOT IN (@org_exclude) AND 0 IN (@org_include)))
+            OR (0 IN (@org_include) AND 0 IN (@org_exclude))
+        )
+    AND (
+            ((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
+            OR
+            (IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
+            OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
+        )
+    AND (
+            ((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude) )
+            OR
+            (IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@orderauthor_exclude) AND 0 IN (@orderauthor_include)))
+            OR (0 IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude))
+        )</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -923,9 +970,39 @@ WHERE
           <QueryParameter Name="end_date">
             <Value>={?end_date}</Value>
           </QueryParameter>
+          <QueryParameter Name="discountreason_include">
+            <Value>={?discountreason_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="discountreason_exclude">
+            <Value>={?discountreason_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="client_include">
+            <Value>={?client_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="client_exclude">
+            <Value>={?client_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="org_include">
+            <Value>={?org_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="org_exclude">
+            <Value>={?org_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_include">
+            <Value>={?subdivision_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="subdivision_exclude">
+            <Value>={?subdivision_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="orderauthor_include">
+            <Value>={?orderauthor_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="orderauthor_exclude">
+            <Value>={?orderauthor_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="plan">
           <DataField>plan</DataField>
         </Field>
