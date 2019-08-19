@@ -62,23 +62,39 @@ namespace Vodovoz.Repository
 			return result;
 		}
 
-		public static Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork UoW, int warehouseId, DateTime? onDate = null)
+		public static Dictionary<int, decimal> NomenclatureInStock(IUnitOfWork UoW, int warehouseId, DateTime? onDate = null, NomenclatureCategory? nomenclatureCategory = null, ProductGroup nomenclatureType = null , Nomenclature nomenclature = null)
 		{
 			Nomenclature nomenclatureAlias = null;
+			Nomenclature nomenclatureAddOperationAlias = null;
+			Nomenclature nomenclatureRemoveOperationAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;
 
 			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
+				.JoinAlias(() => operationAddAlias.Nomenclature, () => nomenclatureAddOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id);
+			if(nomenclatureCategory != null)
+				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.Category == nomenclatureCategory.Value);
+			if(nomenclatureType != null)
+				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.ProductGroup.Id == nomenclatureType.Id);
+			if(nomenclature != null)
+				subqueryAdd = subqueryAdd.Where(() => nomenclatureAddOperationAlias.Id == nomenclature.Id);
 			if(onDate.HasValue)
-				subqueryAdd.Where(x => x.OperationTime < onDate.Value);
+				subqueryAdd = subqueryAdd.Where(x => x.OperationTime < onDate.Value);
 			subqueryAdd.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.IncomingWarehouse.Id), warehouseId))
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
 
-			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
+			var subqueryRemove = QueryOver.Of(() => operationRemoveAlias)
+				.JoinAlias(() => operationRemoveAlias.Nomenclature, () => nomenclatureRemoveOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id);
+			if(nomenclatureCategory != null)
+				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Category == nomenclatureCategory.Value);
+			if(nomenclatureType != null)
+				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.ProductGroup == nomenclatureType);
+			if(nomenclature != null)
+				subqueryRemove = subqueryRemove.Where(() => nomenclatureRemoveOperationAlias.Id == nomenclature.Id);
 			if(onDate.HasValue)
-				subqueryRemove.Where(x => x.OperationTime < onDate.Value);
+				subqueryRemove = subqueryRemove.Where(x => x.OperationTime < onDate.Value);
 			subqueryRemove.And(Restrictions.Eq(Projections.Property<WarehouseMovementOperation>(o => o.WriteoffWarehouse.Id), warehouseId))
 				.Select(Projections.Sum<WarehouseMovementOperation>(o => o.Amount));
 

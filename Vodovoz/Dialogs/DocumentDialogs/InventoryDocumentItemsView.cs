@@ -10,6 +10,7 @@ using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz
 {
@@ -17,6 +18,8 @@ namespace Vodovoz
 	public partial class InventoryDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		InventoryDocumentItem FineEditItem;
+
+		INomenclatureRepository nomenclatureRepository { get; } = new NomenclatureRepository();
 
 		public InventoryDocumentItemsView()
 		{
@@ -73,7 +76,14 @@ namespace Vodovoz
 
 		void DocumentUoW_Root_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if (e.PropertyName == DocumentUoW.Root.GetPropertyName(x => x.Warehouse))
+			List<string> propertys = new List<string> {
+				DocumentUoW.Root.GetPropertyName(x => x.Warehouse),
+				DocumentUoW.Root.GetPropertyName(x => x.Nomenclature),
+				DocumentUoW.Root.GetPropertyName(x => x.NomenclatureCategory),
+				DocumentUoW.Root.GetPropertyName(x => x.ProductGroup)
+			};
+
+			if(propertys.Contains(e.PropertyName))
 			{
 				if (DocumentUoW.Root.Warehouse != null)
 					buttonFillItems.Click();
@@ -102,7 +112,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelectDlg = new OrmReference(Repository.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var nomenclatureSelectDlg = new OrmReference(nomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
 			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
 			MyTab.TabParent.AddSlaveTab(MyTab, nomenclatureSelectDlg);
