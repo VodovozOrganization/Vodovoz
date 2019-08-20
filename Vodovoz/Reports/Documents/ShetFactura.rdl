@@ -104,7 +104,7 @@ WHERE
     counterparty.full_name AS client_name, 
     counterparty.jur_address AS client_address, 
     counterparty.inn AS client_inn, 
-    counterparty.kpp AS client_kpp,
+    IF(counterparty.use_special_doc_fields, IFNULL(counterparty.spectial_kpp , delivery_points.KPP), counterparty.kpp) AS client_kpp,
     IFNULL(GROUP_CONCAT(CONCAT('+7 ', client_phones.number) SEPARATOR '; '), GROUP_CONCAT(CONCAT('+7 ', delivery_point_phones.number) SEPARATOR '; ')) AS client_phone_number,
     client_account.number AS client_acc_number,
     client_bank.name AS client_bank_name,
@@ -132,6 +132,7 @@ WHERE
 FROM 
     orders 
     LEFT JOIN counterparty ON orders.client_id = counterparty.id
+    LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
     LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id
     LEFT JOIN phones as delivery_point_phones ON delivery_point_phones.delivery_point_id = orders.delivery_point_id
     LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id

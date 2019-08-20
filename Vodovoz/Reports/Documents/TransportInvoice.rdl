@@ -11855,7 +11855,7 @@
 	#грузополучатель
 	CONCAT_WS(', ', 
 		counterparty.name,
-		CONCAT('ИНН ', NULLIF(CONCAT_WS('/', NULLIF(TRIM(counterparty.inn), ''), NULLIF(TRIM(counterparty.kpp), '')), '')),
+		CONCAT('ИНН ', NULLIF(CONCAT_WS('/', NULLIF(TRIM(counterparty.inn), ''), NULLIF(TRIM(IF(counterparty.use_special_doc_fields, IFNULL(counterparty.spectial_kpp , delivery_points.KPP), counterparty.kpp)), '')), '')),
 		
 		#телефоны, выбирается только 2 первых
 		NULLIF(

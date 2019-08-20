@@ -126,13 +126,13 @@ WHERE
     leader.last_name AS leader_last_name, 
     LEFT(leader.name, 1) AS leader_name, 
     LEFT(leader.patronymic, 1) AS leader_patronymic,
-    counterparty.kpp AS KPP
-
+    IF(counterparty.use_special_doc_fields, IFNULL(counterparty.spectial_kpp , delivery_points.KPP), counterparty.kpp) AS KPP
 FROM 
     orders
     LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id
     LEFT JOIN phones as delivery_point_phones ON delivery_point_phones.delivery_point_id = orders.delivery_point_id
     LEFT JOIN counterparty ON orders.client_id = counterparty.id
+    LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
     LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
     LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
     LEFT JOIN employees leader ON leader.id = organizations.leader_id 
@@ -143,7 +143,7 @@ FROM
     LEFT JOIN banks client_bank ON client_bank.id = client_account.bank_id
 WHERE 
     counterparty_contract.id=orders.counterparty_contract_id
-    AND orders.id = @order_id;</CommandText>
+    AND orders.id = 572372;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>

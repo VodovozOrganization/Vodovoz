@@ -266,6 +266,8 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			if(Entity.SpecialKPP == String.Empty)
+				Entity.SpecialKPP = null;
 			Entity.UoW = UoW;
 			var valid = new QSValidator<Counterparty>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
