@@ -24,6 +24,7 @@ namespace Vodovoz.ViewModels.Complaints
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			Entity.ComplaintType = ComplaintType.Inner;
+			Entity.Status = ComplaintStatuses.Checking;
 			TabName = "Новая внутреняя жалоба";
 		}
 
