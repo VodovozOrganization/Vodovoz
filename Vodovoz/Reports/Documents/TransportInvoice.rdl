@@ -11860,8 +11860,8 @@
 		#телефоны, выбирается только 2 первых
 		NULLIF(
 			IFNULL(
-				(SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.delivery_point_id = delivery_points.id),
-				(SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.counterparty_id = counterparty.id)
+				(SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.counterparty_id = counterparty.id),
+                (SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.delivery_point_id = delivery_points.id)
 			), 
 		''),		
 		COMPILE_ADDRESS(delivery_points.id),
