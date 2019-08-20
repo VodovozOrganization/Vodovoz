@@ -241,15 +241,15 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel != null) {
 
-				if(employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision.Id == FilterViewModel.SubdivisionService.GetOkkId()) {
-					query = query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate)
-						.And(() => FilterViewModel.StartDate == null || complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value);
-				}
-				else if(FilterViewModel.Subdivision != null) {
+				if(FilterViewModel.Subdivision != null) {
 					var subdivisionFilterQuery = dicussionQuery.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
 						.Where(() => FilterViewModel.StartDate == null || dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
 						.And(() => dicussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 					query.WithSubquery.WhereExists(subdivisionFilterQuery);
+				}
+				else if(employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision.Id == FilterViewModel.SubdivisionService.GetOkkId()) {
+					query = query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate)
+						.And(() => FilterViewModel.StartDate == null || complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value);
 				}
 
 				if(FilterViewModel.ComplaintType != null)
