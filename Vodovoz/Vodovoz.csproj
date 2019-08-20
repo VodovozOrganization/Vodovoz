@@ -1270,6 +1270,8 @@
     <Compile Include="Views\Complaints\ComplaintFilesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintFilesView.cs" />
     <Compile Include="Dialogs\OrderWidgets\GtkTabsOpener.cs" />
+    <Compile Include="Additions\Logistic\ExtDistanceCalculator.cs" />
+    <Compile Include="Infrastructure\Converters\ColorTextToGdkColorConverter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

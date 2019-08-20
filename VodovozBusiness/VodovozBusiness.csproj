@@ -49,19 +49,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <Package>gtk-sharp-2.0</Package>
-    </Reference>
-    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <Package>glib-sharp-2.0</Package>
-    </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <Package>gtk-sharp-2.0</Package>
-    </Reference>
-    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <Package>gtk-sharp-2.0</Package>
-    </Reference>
     <Reference Include="Mono.Posix" />
     <Reference Include="System.Core" />
     <Reference Include="NetTopologySuite.IO">
@@ -425,7 +413,6 @@
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\CommentTemplateMap.cs" />
-    <Compile Include="Tools\Logistic\ExtDistanceCalculator.cs" />
     <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
     <Compile Include="HibernateMapping\Logistic\CachedDistanceMap.cs" />
@@ -682,6 +669,7 @@
     <Compile Include="Services\ISubdivisionService.cs" />
     <Compile Include="EntityRepositories\Employee\EmployeeRepository.cs" />
     <Compile Include="EntityRepositories\Employee\IEmployeeRepository.cs" />
+    <Compile Include="Tools\Logistic\WayHash.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -757,10 +745,6 @@
       <Project>{1BF2A638-420D-456C-96A7-36873A0FB894}</Project>
       <Name>GammaUtil</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\Modules\QSContacts\QSContacts.csproj">
-      <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
-      <Name>QSContacts</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSOsm\QSOsm.csproj">
       <Project>{5CFB297D-4964-4CBD-9102-A5E795BE7B85}</Project>
       <Name>QSOsm</Name>
@@ -804,6 +788,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj">
       <Project>{E2228A2B-4883-4DD8-8A05-23501F7B8A33}</Project>
       <Name>QS.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QS.Banks\QS.Banks.csproj">
+      <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
+      <Name>QS.Banks</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QS.Validation\QS.Validation.csproj">
       <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>

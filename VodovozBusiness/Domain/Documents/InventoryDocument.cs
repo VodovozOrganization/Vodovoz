@@ -74,6 +74,37 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title => String.Format("Инвентаризация №{0} от {1:d}", Id, TimeStamp);
 
+		#region InventoryParam
+
+		private NomenclatureCategory? nomenclatureCategory;
+		public virtual NomenclatureCategory? NomenclatureCategory {
+			get => nomenclatureCategory;
+			set {
+					ObservableItems?.Clear();
+					SetField(ref nomenclatureCategory, value);
+			}
+		}
+
+		private ProductGroup productGroup;
+		public virtual ProductGroup ProductGroup {
+			get => productGroup;
+			set {
+				ObservableItems?.Clear();
+				SetField(ref productGroup, value);
+			}
+		}
+
+		private Nomenclature nomenclature;
+		public virtual Nomenclature Nomenclature {
+			get => nomenclature;
+			set {
+				ObservableItems?.Clear();
+				SetField(ref nomenclature, value);
+			}
+		}
+
+		#endregion InventoryParam
+
 		#region Функции
 
 		public virtual void AddItem (Nomenclature nomenclature, decimal amountInDB, decimal amountInFact)
@@ -88,8 +119,9 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add (item);
 		}
 
-		public virtual void FillItemsFromStock(IUnitOfWork uow){
-			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id);
+		public virtual void FillItemsFromStock(IUnitOfWork uow, Dictionary<int, decimal> selectedNomenclature){
+			var inStock = selectedNomenclature;
+
 			if (inStock.Count == 0)
 				return;
 
@@ -109,8 +141,14 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		public virtual void FillItemsFromStock(IUnitOfWork uow)
+		{
+			var selectedNomenclature = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, null, NomenclatureCategory, ProductGroup, Nomenclature);
+			FillItemsFromStock(uow, selectedNomenclature);
+		}
+
 		public virtual void UpdateItemsFromStock(IUnitOfWork uow){
-			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp);
+			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp, NomenclatureCategory, ProductGroup, Nomenclature);
 
 			foreach(var itemInStock in inStock)
 			{

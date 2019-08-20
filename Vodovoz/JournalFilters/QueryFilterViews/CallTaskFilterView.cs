@@ -18,9 +18,9 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 		public CallTaskFilterView()
 		{
 			this.Build();
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			Filter = new CallTaskFilter();
-			EmployeesVM employeeVM = new EmployeesVM();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			EmployeesVM employeeVM = new EmployeesVM(UoW);
 			comboboxDateType.ItemsEnum = typeof(TaskFilterDateType);
 			comboboxDateType.Binding.AddBinding(Filter, x => x.DateType, w => w.SelectedItem).InitializeFromSource();
 			employeeVM.Filter = new Filters.ViewModels.EmployeeFilterViewModel(ServicesConfig.CommonServices);

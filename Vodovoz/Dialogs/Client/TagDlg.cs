@@ -2,6 +2,7 @@
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz.Dialogs.Client
 {
@@ -39,7 +40,7 @@ namespace Vodovoz.Dialogs.Client
 		private void ConfigureDlg()
 		{
 			entryName1.Binding.AddBinding(Entity, x => x.Name, x => x.Text).InitializeFromSource();
-			ycolorbutton.Binding.AddBinding(Entity, x => x.Color, x => x.Color).InitializeFromSource();
+			ycolorbutton.Binding.AddBinding(Entity, x => x.ColorText, x => x.Color, new ColorTextToGdkColorConverter()).InitializeFromSource();
 		}
 	}
 }

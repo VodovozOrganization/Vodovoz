@@ -575,7 +575,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 
 			// act
-			var operations = testOrder.UpdateDepositOperations(uow);
+			var operations = testOrder.UpdateDepositOperations();
 
 
 			var EquipmentDeposit = operations
@@ -596,7 +596,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 
 			// act
-			var operations = testOrder.UpdateDepositOperations(uow);
+			var operations = testOrder.UpdateDepositOperations();
 
 
 			var BottleDeposit = operations
@@ -606,6 +606,35 @@ namespace VodovozBusinessTests.Domain.Orders
 			// assert
 			Assert.AreEqual(644, BottleDeposit.ReceivedDeposit);
 			Assert.AreEqual(47, BottleDeposit.RefundDeposit);
+		}
+
+		[Test(Description = "Проверка созднания DepositOperation для закрывашек по контракту")]
+		public void Check_DepositOperation_Creation_For_Contract_Closer()
+		{
+			// arrange
+			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+
+			Order testOrder = new Order {
+				OrderItems = new List<OrderItem>(),
+				DeliveryDate = DateTime.Now,
+				DepositOperations = new List<DepositOperation>()
+			};
+			testOrder.IsContractCloser = true;
+
+			Nomenclature depositNomenclature = Substitute.For<Nomenclature>();
+			depositNomenclature.TypeOfDepositCategory.Returns(TypeOfDepositCategory.BottleDeposit);
+			OrderItem recivedDepositOrderItem = new OrderItem {
+				Nomenclature = depositNomenclature,
+				Count = 3,
+				Price = 322
+			};
+			testOrder.OrderItems.Add(recivedDepositOrderItem);
+
+			// act
+			var operations = testOrder.UpdateDepositOperations();
+
+			// assert
+			Assert.That(operations?.FirstOrDefault(), Is.EqualTo(null));
 		}
 
 		#endregion

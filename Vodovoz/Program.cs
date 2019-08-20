@@ -84,7 +84,7 @@ namespace Vodovoz
 			
 			QSOsm.OsmWorker.ServiceHost = "vod-srv.qsolution.ru";
 			QSOsm.OsmWorker.ServicePort = 9000;
-			QSOsm.Osrm.OsrmMain.ServerUrl = "http://vod.qsolution.ru:5000";
+			QSOsm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
 			
 			PerformanceHelper.StartPointsGroup ("Главное окно");
 

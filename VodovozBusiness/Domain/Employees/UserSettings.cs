@@ -1,9 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Gtk;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QSOrmProject;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Employees
@@ -98,6 +96,14 @@ namespace Vodovoz.Domain.Employees
 		public ToolBarIconsSizeStringType () : base (typeof(IconsSize))
 		{
 		}
+	}
+
+	public enum ToolbarStyle
+	{
+		Icons,
+		Text,
+		Both,
+		BothHoriz
 	}
 
 	public class ToolbarStyleStringType : NHibernate.Type.EnumStringType

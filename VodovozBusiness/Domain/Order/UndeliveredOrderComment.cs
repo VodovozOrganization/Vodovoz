@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
-using Gdk;
 using QS.DomainModel.Entity;
 using QSOrmProject;
 using QSProjectsLib;

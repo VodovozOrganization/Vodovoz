@@ -261,6 +261,7 @@ namespace Vodovoz.Domain.Complaints
 			newDiscussion.Complaint = this;
 			newDiscussion.Subdivision = subdivision;
 			ObservableComplaintDiscussions.Add(newDiscussion);
+			Status = ComplaintStatuses.InProcess;
 		}
 
 		public virtual void UpdateComplaintStatus()
