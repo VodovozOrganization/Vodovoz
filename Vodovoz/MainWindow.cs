@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Banks.Domain;
+using QS.Contacts;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Config;
@@ -17,8 +18,8 @@ using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi.Gtk;
 using QSBanks;
-using QSBusinessCommon.Domain;
-using QSContacts;
+using QS.BusinessCommon.Domain;
+using QS.Contacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSSupportLib;
@@ -61,6 +62,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewWidgets;
+using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -544,8 +546,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			CurrentUserSettings.Settings.ToolbarStyle = style;
 			CurrentUserSettings.SaveSettings();
 		}
-		toolbarMain.ToolbarStyle = style;
-		tlbComplaints.ToolbarStyle = style;
+		toolbarMain.ToolbarStyle = (Gtk.ToolbarStyle)style;
+		tlbComplaints.ToolbarStyle = (Gtk.ToolbarStyle)style;
 		ActionIconsExtraSmall.Sensitive = ActionIconsSmall.Sensitive = ActionIconsMiddle.Sensitive = ActionIconsLarge.Sensitive =
 			style != ToolbarStyle.Text;
 	}

@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using QS.Banks.Domain;
+using QS.Contacts;
 using QS.Deletion;
 using QS.HistoryLog.Domain;
 using QS.Project.Domain;
-using QSBanks;
-using QSBusinessCommon.Domain;
-using QSContacts;
+using QS.BusinessCommon.Domain;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
@@ -27,6 +26,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.StoredResources;
+using QS.Banks;
 
 namespace Vodovoz
 {
@@ -38,8 +38,8 @@ namespace Vodovoz
 		{
 			logger.Info("Настройка параметров удаления...");
 
-			QSContactsMain.ConfigureDeletion();
-			QSBanksMain.ConfigureDeletion();
+			ConfigureDeletionContacts.ConfigureDeletion();
+			ConfigureDeletionBanks.ConfigureDeletion();
 
 			#region Goods
 

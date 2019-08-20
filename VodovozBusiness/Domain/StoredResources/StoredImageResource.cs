@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.IO;
-using Gdk;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.StoredResources
@@ -47,15 +46,6 @@ namespace Vodovoz.Domain.StoredResources
 				Image.Save(ms, Image.RawFormat);
 				BinaryFile = ms.ToArray();
 			}
-		}
-
-		public virtual Pixbuf GetPixbufImg()
-		{
-			Pixbuf pix;
-			using(var ms = new MemoryStream(BinaryFile)) {
-				pix = new Pixbuf(ms);
-			}
-			return pix;
 		}
 	}
 }

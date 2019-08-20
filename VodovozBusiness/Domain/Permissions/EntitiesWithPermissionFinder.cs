@@ -6,7 +6,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.Project.Domain;
 using Vodovoz.Domain.Orders;
 using QSBanks;
-using QSBusinessCommon.Domain;
+using QS.BusinessCommon.Domain;
 using QS.Banks.Domain;
 
 namespace Vodovoz.Domain.Permissions

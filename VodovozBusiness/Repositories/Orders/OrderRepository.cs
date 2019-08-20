@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -18,21 +17,6 @@ namespace Vodovoz.Repositories.Orders
 {
 	public static class OrderRepository
 	{
-		public static ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)
-		{
-			VodovozOrder order = null;
-
-			var reasons = uow.Session.QueryOver(() => order)
-				.Select(Projections.Distinct(Projections.Property(() => order.SumDifferenceReason)))
-				.List<string>();
-
-			var store = new ListStore(typeof(string));
-			foreach(string s in reasons) {
-				store.AppendValues(s);
-			}
-			return store;
-		}
-
 		public static QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
 		{
 			return QueryOver.Of<VodovozOrder>()

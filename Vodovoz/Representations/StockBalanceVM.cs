@@ -5,7 +5,7 @@ using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSBusinessCommon.Domain;
+using QS.BusinessCommon.Domain;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;

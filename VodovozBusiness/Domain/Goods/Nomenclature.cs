@@ -9,7 +9,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Repositories;
-using QSBusinessCommon.Domain;
+using QS.BusinessCommon.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repository;

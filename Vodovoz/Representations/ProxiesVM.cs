@@ -5,8 +5,9 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Contacts;
 using QS.DomainModel.UoW;
-using QSContacts;
+using QS.Contacts;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 

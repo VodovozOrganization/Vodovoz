@@ -25,12 +25,12 @@ namespace Vodovoz.Views.Suppliers
 			txtComment.Binding.AddBinding(ViewModel.Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
 			txtComment.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			treeItems.ColumnsConfig = FluentColumnsConfig<FineItem>.Create()
+			/*treeItems.ColumnsConfig = FluentColumnsConfig<FineItem>.Create()
 				.AddColumn("№").AddTextRenderer(x => x.Fine.Id.ToString())
 				.AddColumn("Сотрудник").AddTextRenderer(x => x.Employee.ShortName)
 				.AddColumn("Сумма штрафа").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.Money))
 				.Finish();
-			treeItems.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
+			treeItems.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();*/
 
 
 

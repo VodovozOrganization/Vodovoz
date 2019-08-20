@@ -6,7 +6,7 @@ using NLog;
 using QS.DomainModel.UoW;
 using QS.Helpers;
 using QS.Project.Dialogs;
-using QSBusinessCommon.Domain;
+using QS.BusinessCommon.Domain;
 using QSOrmProject;
 using QS.Project.Repositories;
 using QSValidation;

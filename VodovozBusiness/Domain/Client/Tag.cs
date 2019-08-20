@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {
@@ -39,23 +38,6 @@ namespace Vodovoz.Domain.Client
 		public Tag()
 		{
 			Name = String.Empty;
-		}
-
-		[Display(Name = "Цвет")]
-		public virtual Gdk.Color Color {
-			get {
-				Gdk.Color color = new Gdk.Color();
-				if(String.IsNullOrEmpty(ColorText)) {
-					return Gdk.Color.Zero;
-				}
-				if(!Gdk.Color.Parse(ColorText, ref color)){
-					throw new InvalidCastException("Ошибка в распознавании цвета тега");
-				}
-				return color;
-			}
-			set {
-				ColorText =  String.Format("#{0:x4}{1:x4}{2:x4}", value.Red, value.Green, value.Blue);
-			}
 		}
 
 		public static IUnitOfWorkGeneric<Tag> Create()

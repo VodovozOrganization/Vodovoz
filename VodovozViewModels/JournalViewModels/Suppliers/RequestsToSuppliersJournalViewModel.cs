@@ -10,6 +10,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.JournalNodes;
+using Vodovoz.ViewModels.Suppliers;
 
 namespace Vodovoz.JournalViewModels.Suppliers
 {

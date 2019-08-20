@@ -322,7 +322,7 @@ namespace Vodovoz
 
 			dataSumDifferenceReason.Binding.AddBinding(Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource();
 			dataSumDifferenceReason.Completion = new EntryCompletion {
-				Model = OrderRepository.GetListStoreSumDifferenceReasons(UoWGeneric),
+				Model = GetListStoreSumDifferenceReasons(UoWGeneric),
 				TextColumn = 0
 			};
 
@@ -389,6 +389,21 @@ namespace Vodovoz
 			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
 			HasChanges = true;
 			UoW.CanCheckIfDirty = false;
+		}
+
+		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)
+		{
+			Order order = null;
+
+			var reasons = uow.Session.QueryOver(() => order)
+				.Select(NHibernate.Criterion.Projections.Distinct(NHibernate.Criterion.Projections.Property(() => order.SumDifferenceReason)))
+				.List<string>();
+
+			var store = new ListStore(typeof(string));
+			foreach(string s in reasons) {
+				store.AppendValues(s);
+			}
+			return store;
 		}
 
 		void ControlsActionBottleAccessibility()
@@ -2455,11 +2470,11 @@ namespace Vodovoz
 
 		private bool HaveEmailForBill()
 		{
-			QSContacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
+			QS.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
 			return clientEmail != null || MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?");
 		}
 
-		private void SendBillByEmail(QSContacts.Email emailAddressForBill)
+		private void SendBillByEmail(QS.Contacts.Email emailAddressForBill)
 		{
 			if(!EmailServiceSetting.SendingAllowed || EmailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
 				return;
@@ -2527,7 +2542,7 @@ namespace Vodovoz
 			if(!Entity.Client.Emails.Any()) {
 				email = "";
 			} else {
-				QSContacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
+				QS.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
 				if(clientEmail == null) {
 					clientEmail = Entity.Client.Emails.FirstOrDefault();
 				}

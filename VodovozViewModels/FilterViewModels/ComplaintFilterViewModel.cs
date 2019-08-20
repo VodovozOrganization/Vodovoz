@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QS.Project.Filter;
 using QS.Report;
 using QS.Services;

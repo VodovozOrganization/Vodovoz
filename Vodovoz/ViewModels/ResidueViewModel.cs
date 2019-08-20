@@ -7,7 +7,6 @@ using QS.RepresentationModel.GtkUI;
 using QS.Services;
 using QS.Utilities;
 using QS.ViewModels;
-using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;

@@ -28,9 +28,8 @@ namespace Vodovoz.JournalViewers
 		}
 
 		public void ConfigureDlg()
-		{
-			EmployeesVM employeeVM = new EmployeesVM();
-			representationentryEmployee.RepresentationModel = employeeVM;
+		{ 
+			representationentryEmployee.RepresentationModel = new EmployeesVM(UoW);
 			calltaskfilterview.Refiltered += (sender, e) => UpdateStatistics();
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;

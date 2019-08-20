@@ -7,7 +7,6 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Tdi.Gtk;
 using QS.Utilities;
-using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.Orders;

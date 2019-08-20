@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModel
 			Counterparty counterpartyAliasForSubquery = null;
 			CounterpartyContract contractAlias = null;
 			CounterpartyVMNode resultAlias = null;
-			QSContacts.Phone phoneAlias = null;
+			QS.Contacts.Phone phoneAlias = null;
 			DeliveryPoint addressAlias = null;
 			Tag tagAliasForSubquery = null;
 

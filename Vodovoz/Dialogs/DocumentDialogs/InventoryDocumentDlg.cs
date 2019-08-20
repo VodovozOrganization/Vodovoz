@@ -7,19 +7,22 @@ using QSValidation;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz
 {
 	public partial class InventoryDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<InventoryDocument>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private IEmployeeRepository employeeRepository { get; } = new EmployeeRepository();
 
 		public InventoryDocumentDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<InventoryDocument> ();
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Author = employeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Author == null)
 			{
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -53,6 +56,13 @@ namespace Vodovoz
 			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing;
 			inventoryitemsview.Sensitive = editing;
 
+			yenumcomboboxNomType.ItemsEnum = typeof(NomenclatureCategory);
+			yenumcomboboxNomType.Binding.AddBinding(Entity, e => e.NomenclatureCategory, w => w.SelectedItemOrNull).InitializeFromSource();
+			yentryreferenceNomGroup.SubjectType = typeof(ProductGroup);
+			yentryreferenceNomGroup.Binding.AddBinding(Entity, e => e.ProductGroup, w => w.Subject).InitializeFromSource();
+			yentryreferenceNom.SubjectType = typeof(Nomenclature);
+			yentryreferenceNom.Binding.AddBinding(Entity, e => e.Nomenclature, w => w.Subject).InitializeFromSource();
+
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.InventoryEdit);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
@@ -84,7 +94,7 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = employeeRepository.GetEmployeeForCurrentUser (UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null)
 			{
