@@ -84,7 +84,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Дата изменения")]
 		public virtual DateTime ChangingDate {
 			get => changingDate;
-			set => SetField(ref changingDate, value, () => ChangingDate);
+			set => SetField(ref changingDate, value);
 		}
 
 		Counterparty supplier;
@@ -117,11 +117,11 @@ namespace Vodovoz.Domain.Client
 
 	public enum SupplierPaymentType
 	{
-		[Display(Name = "Наличная", ShortName = "нал.")]
+		[Display(Name = "Наличная")]
 		cash,
-		[Display(Name = "Безналичная", ShortName = "б/н.")]
+		[Display(Name = "Безналичная")]
 		cashless,
-		[Display(Name = "Бартер", ShortName = "бар.")]
+		[Display(Name = "Бартер")]
 		barter
 	}
 

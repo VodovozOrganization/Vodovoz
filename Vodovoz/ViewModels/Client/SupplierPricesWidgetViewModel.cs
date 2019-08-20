@@ -111,7 +111,7 @@ namespace Vodovoz.ViewModels.Client
 		private void CreateEditItemCommand()
 		{
 			EditItemCommand = new DelegateCommand(
-				() => { },
+				() => throw new NotImplementedException(nameof(EditItemCommand)),
 				() => false
 			);
 		}

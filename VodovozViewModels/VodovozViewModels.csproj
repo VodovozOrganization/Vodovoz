@@ -83,12 +83,16 @@
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpenerFromComplaintViewModel.cs" />
     <Compile Include="FilterViewModels\Goods\NomenclatureFilterViewModel.cs" />
+    <Compile Include="FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
+    <Compile Include="JournalNodes\RequestToSupplierJournalNode.cs" />
+    <Compile Include="JournalViewModels\Suppliers\RequestsToSuppliersJournalViewModel.cs" />
+    <Compile Include="ViewModels\Suppliers\RequestToSupplierViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
     <Folder Include="JournalViewModels\" />
     <Folder Include="ViewModels\Complaints\" />
-    <Folder Include="JournalViewModels\Counterparty\" />
+    <Folder Include="JournalViewModels\Suppliers\" />
     <Folder Include="ViewModels\Employees\" />
     <Folder Include="Infrastructure\" />
     <Folder Include="Infrastructure\Services\" />
@@ -102,6 +106,8 @@
     <Folder Include="ViewModels\Organization\" />
     <Folder Include="FilterViewModels\Organization\" />
     <Folder Include="FilterViewModels\Goods\" />
+    <Folder Include="ViewModels\Suppliers\" />
+    <Folder Include="FilterViewModels\Suppliers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

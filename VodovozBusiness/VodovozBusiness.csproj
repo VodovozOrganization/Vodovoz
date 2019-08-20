@@ -687,6 +687,8 @@
     <Compile Include="EntityRepositories\Employee\IEmployeeRepository.cs" />
     <Compile Include="Domain\Client\SupplierPriceItem.cs" />
     <Compile Include="HibernateMapping\Counterparty\SuplierPriceItemMap.cs" />
+    <Compile Include="Domain\Suppliers\RequestToSupplier.cs" />
+    <Compile Include="HibernateMapping\Suppliers\RequestToSupplierMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -740,6 +742,8 @@
     <Folder Include="HibernateMapping\Complaints\" />
     <Folder Include="EntityRepositories\Complaints\" />
     <Folder Include="EntityRepositories\Employee\" />
+    <Folder Include="Domain\Suppliers\" />
+    <Folder Include="HibernateMapping\Suppliers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
