@@ -497,6 +497,24 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref okdp, value, () => OKDP);
 		}
 
+		IList<SpecialNomenclature> specialNomenclatures = new List<SpecialNomenclature>();
+		[Display(Name = "Особенный номер ТМЦ")]
+		public virtual IList<SpecialNomenclature> SpecialNomenclatures {
+			get => specialNomenclatures;
+			set => SetField(ref specialNomenclatures, value);
+		}
+
+		GenericObservableList<SpecialNomenclature> observableSpecialNomenclatures;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<SpecialNomenclature> ObservableSpecialNomenclatures {
+			get {
+				if(observableSpecialNomenclatures == null)
+					observableSpecialNomenclatures = new GenericObservableList<SpecialNomenclature>(SpecialNomenclatures);
+				return observableSpecialNomenclatures;
+			}
+		}
+
+
 		#endregion ОсобаяПечать
 
 		ChequeResponse? needCheque;
