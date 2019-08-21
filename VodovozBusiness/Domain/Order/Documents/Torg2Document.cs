@@ -27,7 +27,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => String.Format($"Торг от {Order.DeliveryDate:d}");
+		public override string Name => String.Format($"Торг-2 от {Order.DeliveryDate:d}");
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 

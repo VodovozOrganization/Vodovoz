@@ -242,6 +242,15 @@ namespace Vodovoz
 			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
 			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
 
+			yenumcomboboxKPPFrom.ItemsEnum = typeof(KppFrom);
+			yenumcomboboxKPPFrom.Binding.AddBinding(Entity, e => e.KppFrom, w => w.SelectedItem).InitializeFromSource();
+
+			if(!String.IsNullOrWhiteSpace(Entity.SpecialKPP)) {
+				labelKpp.Visible = true;
+				yentrySpecialKPP.Visible = true;
+				Entity.KppFrom = KppFrom.Counterparty;
+			}
+
 			#endregion Особая печать
 		}
 
@@ -549,6 +558,17 @@ namespace Vodovoz
 		protected void OnYbuttonRemoveNomClicked(object sender, EventArgs e)
 		{
 			Entity.ObservableSpecialNomenclatures.Remove(ytreeviewSpecialNomenclature.GetSelectedObject<SpecialNomenclature>());
+		}
+
+		protected void OnYenumcomboboxKPPFromChangedByUser(object sender, EventArgs e)
+		{
+			bool visible = Entity.KppFrom == KppFrom.Counterparty;
+
+			labelKpp.Visible = visible;
+			yentrySpecialKPP.Visible = visible;
+
+			if(!visible)
+				Entity.SpecialKPP = null;
 		}
 	}
 }

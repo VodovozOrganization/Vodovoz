@@ -497,6 +497,13 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref okdp, value, () => OKDP);
 		}
 
+		KppFrom kppFrom;
+		[Display(Name = "Источник КПП")]
+		public virtual KppFrom KppFrom {
+			get => kppFrom;
+			set => SetField(ref kppFrom, value, () => KppFrom);
+		}
+
 		IList<SpecialNomenclature> specialNomenclatures = new List<SpecialNomenclature>();
 		[Display(Name = "Особенный номер ТМЦ")]
 		public virtual IList<SpecialNomenclature> SpecialNomenclatures {
@@ -513,7 +520,6 @@ namespace Vodovoz.Domain.Client
 				return observableSpecialNomenclatures;
 			}
 		}
-
 
 		#endregion ОсобаяПечать
 
@@ -739,6 +745,14 @@ namespace Vodovoz.Domain.Client
 		Yes,
 		[Display(Name = "Нет")]
 		No
+	}
+
+	public enum KppFrom
+	{
+		[Display(Name = "Точка доставки")]
+		DelivryPoint,
+		[Display(Name = "Контрагент")]
+		Counterparty
 	}
 
 	public class DefaultDocumentTypeStringType : NHibernate.Type.EnumStringType
