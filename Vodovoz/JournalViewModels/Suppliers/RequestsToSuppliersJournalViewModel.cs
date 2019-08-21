@@ -62,14 +62,18 @@ namespace Vodovoz.JournalViewModels.Suppliers
 								   .Left.JoinAlias(x => x.Creator, () => authorAlias)
 								   .Left.JoinAlias(x => x.RequestingNomenclatureItems, () => nomenclaturesAlias)
 								   ;
-			//лажа. не работает
-			/*if(FilterViewModel.RestrictNomenclature != null)
-				query.Where(() => nomenclaturesAlias.Id == FilterViewModel.RestrictNomenclature.Id);*/
 
-			if(FilterViewModel.RestrictStartDate.HasValue)
+			if(FilterViewModel?.RestrictNomenclature != null) {
+				var subquery = QueryOver.Of<RequestToSupplierItem>()
+										.Where(r => r.Nomenclature.Id == FilterViewModel.RestrictNomenclature.Id)
+										.Select(r => r.RequestToSupplier.Id);
+				query.WithSubquery.WhereProperty(r => r.Id).In(subquery).Select(r => r.Id);
+			}
+
+			if(FilterViewModel != null && FilterViewModel.RestrictStartDate.HasValue)
 				query.Where(x => x.CreatingDate >= FilterViewModel.RestrictStartDate.Value);
 
-			if(FilterViewModel.RestrictEndDate.HasValue)
+			if(FilterViewModel != null && FilterViewModel.RestrictEndDate.HasValue)
 				query.Where(o => o.CreatingDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 
 			query.Where(

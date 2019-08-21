@@ -37,7 +37,7 @@ namespace Vodovoz.Domain.Suppliers
 			set => SetField(ref name, value);
 		}
 
-		SupplierOrderingType suppliersOrdering;
+		SupplierOrderingType suppliersOrdering = SupplierOrderingType.Top3;
 		[Display(Name = "Режим отображения поставщиков")]
 		public virtual SupplierOrderingType SuppliersOrdering {
 			get => suppliersOrdering;
@@ -190,10 +190,10 @@ namespace Vodovoz.Domain.Suppliers
 
 	public enum SupplierOrderingType
 	{
-		[Display(Name = "ТОП-3")]
-		Top3,
 		[Display(Name = "Самый дешёвый")]
 		TheCheapest,
+		[Display(Name = "ТОП-3")]
+		Top3,
 		[Display(Name = "Все")]
 		All
 	}

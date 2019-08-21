@@ -1,4 +1,5 @@
-﻿using Gamma.Binding;
+﻿using System.Linq;
+using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -34,6 +35,7 @@ namespace Vodovoz.Views.Suppliers
 			txtComment.Binding.AddBinding(ViewModel.Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
 			txtComment.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
 
+			treeItems.Selection.Mode = SelectionMode.Multiple;
 			treeItems.ColumnsConfig = FluentColumnsConfig<ILevelingRequestNode>.Create()
 				.AddColumn("Код")
 					.HeaderAlignment(0.5f)
@@ -101,7 +103,7 @@ namespace Vodovoz.Views.Suppliers
 					ViewModel.RefreshCommand.Execute();
 			};
 
-			treeItems.Selection.Changed += (sender, e) => ViewModel.CanRemove = GetSelectedTreeItem() is RequestToSupplierItem;
+			treeItems.Selection.Changed += (sender, e) => ViewModel.CanRemove = GetSelectedTreeItems().All(i => i is RequestToSupplierItem);
 
 			lblMinimalTotalSum.Binding.AddBinding(ViewModel, s => s.MinimalTotalSumText, w => w.Text).InitializeFromSource();
 
@@ -111,11 +113,11 @@ namespace Vodovoz.Views.Suppliers
 			btnAdd.Clicked += (sender, e) => ViewModel.AddRequestingNomenclatureCommand.Execute();
 			btnAdd.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			btnRemove.Clicked += (sender, e) => ViewModel.RemoveRequestingNomenclatureCommand.Execute(GetSelectedTreeItem());
+			btnRemove.Clicked += (sender, e) => ViewModel.RemoveRequestingNomenclatureCommand.Execute(GetSelectedTreeItems());
 			btnRemove.Binding.AddBinding(ViewModel, s => s.CanRemove, w => w.Sensitive).InitializeFromSource();
 
-			btnTransfer.Clicked += (sender, e) => ViewModel.TransferRequestingNomenclatureCommand.Execute();
-			btnTransfer.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
+			btnTransfer.Clicked += (sender, e) => ViewModel.TransferRequestingNomenclatureCommand.Execute(GetSelectedTreeItems());
+			btnTransfer.Binding.AddBinding(ViewModel, s => s.CanTransfer, w => w.Sensitive).InitializeFromSource();
 
 			btnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			btnCancel.Clicked += (sender, e) => ViewModel.Close(false);
@@ -128,6 +130,6 @@ namespace Vodovoz.Views.Suppliers
 			return string.Empty;
 		}
 
-		ILevelingRequestNode GetSelectedTreeItem() => treeItems.GetSelectedObject<ILevelingRequestNode>();
+		ILevelingRequestNode[] GetSelectedTreeItems() => treeItems.GetSelectedObjects<ILevelingRequestNode>();
 	}
 }

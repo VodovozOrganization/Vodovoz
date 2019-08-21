@@ -2,10 +2,12 @@
 using System.Linq;
 using QS.Commands;
 using QS.DomainModel.Config;
+using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
+using QS.Utilities;
 using QS.ViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -15,7 +17,6 @@ using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
-using QS.Utilities;
 
 namespace Vodovoz.ViewModels.Suppliers
 {
@@ -24,6 +25,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 		readonly IEntityConfigurationProvider entityConfigurationProvider;
 		readonly IEmployeeService employeeService;
+		readonly ICommonServices commonServices;
 
 		public RequestToSupplierViewModel(
 			IEntityConstructorParam ctorParam,
@@ -33,12 +35,14 @@ namespace Vodovoz.ViewModels.Suppliers
 			ISupplierPriceItemsRepository supplierPriceItemsRepository
 		) : base(ctorParam, commonServices)
 		{
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			CreateCommands();
 			RefreshSuppliers();
 			Entity.ObservableRequestingNomenclatureItems.ElementAdded += (aList, aIdx) => RefreshSuppliers();
+			Entity.ObservableRequestingNomenclatureItems.ListContentChanged += (aList, aIdx) => RefreshSuppliers();
 			Entity.ObservableRequestingNomenclatureItems.ElementRemoved += (aList, aIdx, aObject) => RefreshSuppliers();
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<SupplierPriceItem>(NotifyCriteria);
 		}
@@ -52,6 +56,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		}
 
 		bool canRemove;
+		[PropertyChangedAlso(nameof(CanTransfer))]
 		public bool CanRemove {
 			get => canRemove;
 			set => SetField(ref canRemove, value);
@@ -62,6 +67,8 @@ namespace Vodovoz.ViewModels.Suppliers
 			get => needRefresh;
 			set => SetField(ref needRefresh, value);
 		}
+
+		public bool CanTransfer => CanRemove;
 
 		Employee currentEmployee;
 		public Employee CurrentEmployee {
@@ -171,13 +178,16 @@ namespace Vodovoz.ViewModels.Suppliers
 
 		#region RemoveRequestingNomenclatureCommand
 
-		public DelegateCommand<ILevelingRequestNode> RemoveRequestingNomenclatureCommand { get; private set; }
+		public DelegateCommand<ILevelingRequestNode[]> RemoveRequestingNomenclatureCommand { get; private set; }
 
 		void CreateRemoveRequestingNomenclatureCommand()
 		{
-			RemoveRequestingNomenclatureCommand = new DelegateCommand<ILevelingRequestNode>(
-				n => Entity.RemoveNomenclatureRequest(n.Nomenclature.Id),
-				n => CanEdit && CanRemove
+			RemoveRequestingNomenclatureCommand = new DelegateCommand<ILevelingRequestNode[]>(
+				array => {
+					foreach(var item in array)
+						Entity.RemoveNomenclatureRequest(item.Nomenclature.Id);
+				},
+				array => CanEdit && CanRemove
 			);
 		}
 
@@ -185,13 +195,30 @@ namespace Vodovoz.ViewModels.Suppliers
 
 		#region TransferRequestingNomenclatureCommand
 
-		public DelegateCommand TransferRequestingNomenclatureCommand { get; private set; }
+		public DelegateCommand<ILevelingRequestNode[]> TransferRequestingNomenclatureCommand { get; private set; }
 
 		void CreateTransferRequestingNomenclatureCommand()
 		{
-			TransferRequestingNomenclatureCommand = new DelegateCommand(
-				() => { },
-				() => true
+			TransferRequestingNomenclatureCommand = new DelegateCommand<ILevelingRequestNode[]>(
+				array => {
+					RequestToSupplierViewModel vm = new RequestToSupplierViewModel(
+						EntityConstructorParam.ForCreate(),
+						commonServices,
+						entityConfigurationProvider,
+						employeeService,
+						supplierPriceItemsRepository
+					);
+					foreach(var item in array) {
+						if(item is RequestToSupplierItem requestItem) {
+							requestItem.RequestToSupplier = vm.Entity;
+							vm.Entity.ObservableRequestingNomenclatureItems.Add(requestItem);
+						}
+					}
+
+					vm.EntitySaved += (sender, e) => RefreshSuppliers();
+					this.TabParent.AddSlaveTab(this, vm);
+				},
+				array => false
 			);
 		}
 
