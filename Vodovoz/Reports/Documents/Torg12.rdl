@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -51,7 +51,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -95,7 +95,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id, 
@@ -128,7 +128,7 @@ WHERE
     leader.last_name AS leader_last_name, 
     LEFT(leader.name, 1) AS leader_name, 
     LEFT(leader.patronymic, 1) AS leader_patronymic,
-    IF(counterparty.use_special_doc_fields, IFNULL(counterparty.spectial_kpp , delivery_points.KPP), counterparty.kpp) AS KPP
+    IF(counterparty.use_special_doc_fields, IF(counterparty.spectial_kpp IS NULL OR counterparty.spectial_kpp = '', counterparty.spectial_kpp, delivery_points.KPP), counterparty.kpp) AS KPP
 FROM 
     orders
     LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id
@@ -145,14 +145,14 @@ FROM
     LEFT JOIN banks client_bank ON client_bank.id = client_account.bank_id
 WHERE 
     counterparty_contract.id=orders.counterparty_contract_id
-    AND orders.id = 572372;</CommandText>
+    AND orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
