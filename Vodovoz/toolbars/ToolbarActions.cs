@@ -276,6 +276,7 @@ public partial class MainWindow : Window
 			filter,
 			entityConfigurationProvider,
 			ServicesConfig.CommonServices,
+			ServicesConfig.EmployeeService,
 			new SupplierPriceItemsRepository()
 		);
 		tdiMain.AddTab(requestsJournal);

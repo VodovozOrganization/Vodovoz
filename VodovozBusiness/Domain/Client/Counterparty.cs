@@ -677,7 +677,6 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-
 		#endregion цены поставщика
 
 		public Counterparty()

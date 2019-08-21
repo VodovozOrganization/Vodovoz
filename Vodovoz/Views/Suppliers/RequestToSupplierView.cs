@@ -2,6 +2,7 @@
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using QS.Dialog.GtkUI;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Suppliers;
@@ -20,12 +21,15 @@ namespace Vodovoz.Views.Suppliers
 
 		void ConfigureDlg()
 		{
+			lblMsg.Binding.AddBinding(ViewModel, s => s.NeedRefresh, w => w.Visible).InitializeFromSource();
+
 			entName.Binding.AddBinding(ViewModel.Entity, s => s.Name, w => w.Text).InitializeFromSource();
 			entName.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			enumCmbSuppliersOrdering.ItemsEnum = typeof(SupplierOrderingType);
 			enumCmbSuppliersOrdering.Binding.AddBinding(ViewModel.Entity, s => s.SuppliersOrdering, w => w.SelectedItem).InitializeFromSource();
 			enumCmbSuppliersOrdering.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
+			enumCmbSuppliersOrdering.EnumItemSelected += (sender, e) => ViewModel.RefreshCommand.Execute();
 
 			txtComment.Binding.AddBinding(ViewModel.Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
 			txtComment.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -86,7 +90,16 @@ namespace Vodovoz.Views.Suppliers
 				treeItems.ExpandAll();
 			};
 
-			treeItems.Selection.Changed += (sender, e) => ViewModel.CanRemove = GetSelectedTreeItem() != null;
+			ViewModel.SupplierPricesUpdated += (sender, e) => {
+				var response = MessageDialogHelper.RunQuestionWithTitleDialog(
+					"Обновить список цен поставщиков?",
+					"Цены на некоторые ТМЦ, выбранные в список цен поставщиков, изменились.\nЖелаете обновить список?"
+				);
+				if(response)
+					ViewModel.RefreshCommand.Execute();
+			};
+
+			treeItems.Selection.Changed += (sender, e) => ViewModel.CanRemove = GetSelectedTreeItem() is RequestToSupplierItem;
 
 			btnRefresh.Clicked += (sender, e) => ViewModel.RefreshCommand.Execute();
 			btnRefresh.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -94,8 +107,8 @@ namespace Vodovoz.Views.Suppliers
 			btnAdd.Clicked += (sender, e) => ViewModel.AddRequestingNomenclatureCommand.Execute();
 			btnAdd.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			btnRemove.Clicked += (sender, e) => ViewModel.RemoveRequestingNomenclatureCommand.Execute();
-			btnRemove.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
+			btnRemove.Clicked += (sender, e) => ViewModel.RemoveRequestingNomenclatureCommand.Execute(GetSelectedTreeItem());
+			btnRemove.Binding.AddBinding(ViewModel, s => s.CanRemove, w => w.Sensitive).InitializeFromSource();
 
 			btnTransfer.Clicked += (sender, e) => ViewModel.TransferRequestingNomenclatureCommand.Execute();
 			btnTransfer.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();

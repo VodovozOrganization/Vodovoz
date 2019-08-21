@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.Utilities;
 using NHibernate.Type;
 using QS.DomainModel.Entity;
@@ -121,6 +122,20 @@ namespace Vodovoz.Domain.Suppliers
 					"Необходимо заполнить название",
 					new[] { this.GetPropertyName(o => o.Name) }
 				);
+
+			if(RequestingNomenclatureItems == null || !RequestingNomenclatureItems.Any())
+				yield return new ValidationResult(
+					"Список запрашиваемых ТМЦ пуст",
+					new[] { this.GetPropertyName(o => o.RequestingNomenclatureItems) }
+				);
+
+			#region валидация строк заявки
+
+			var allValidationResultsOfItems = RequestingNomenclatureItems.SelectMany(x => x.Validate(validationContext));
+			foreach(var result in allValidationResultsOfItems)
+				yield return result;
+
+			#endregion валидация строк заявки
 		}
 
 		#region Methods
@@ -143,6 +158,17 @@ namespace Vodovoz.Domain.Suppliers
 					);
 				}
 				ObservableLevelingRequestNodes.Add(reqItem);
+			}
+		}
+
+		public virtual void RemoveNomenclatureRequest(int nomenclatureId)
+		{
+			var removableItems = new List<RequestToSupplierItem>(
+				ObservableRequestingNomenclatureItems.Where(i => i.Nomenclature.Id == nomenclatureId).ToList()
+			);
+
+			foreach(var item in removableItems) {
+				ObservableRequestingNomenclatureItems.Remove(item);
 			}
 		}
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -49,7 +50,12 @@ namespace Vodovoz.Domain.Suppliers
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			throw new System.NotImplementedException();
+			if(Quantity <= 0)
+				yield return new ValidationResult(
+					string.Format("Укажите количество ТМЦ \"{0}\"", Nomenclature.ShortOrFullName),
+					new[] { this.GetPropertyName(o => o.Quantity) }
+				);
+			;
 		}
 
 		#region Calculatable methods

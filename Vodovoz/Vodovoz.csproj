@@ -1285,6 +1285,8 @@
     <Compile Include="Infrastructure\Converters\ColorTextToGdkColorConverter.cs" />
     <Compile Include="Filters\GtkViews\RequestsToSuppliersFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RequestsToSuppliersFilterView.cs" />
+    <Compile Include="ViewModels\Suppliers\RequestToSupplierViewModel.cs" />
+    <Compile Include="JournalViewModels\Suppliers\RequestsToSuppliersJournalViewModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1519,6 +1521,8 @@
     <Folder Include="Views\Client\" />
     <Folder Include="ViewModels\Client\" />
     <Folder Include="Views\Suppliers\" />
+    <Folder Include="ViewModels\Suppliers\" />
+    <Folder Include="JournalViewModels\Suppliers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
