@@ -670,6 +670,8 @@
     <Compile Include="EntityRepositories\Employee\EmployeeRepository.cs" />
     <Compile Include="EntityRepositories\Employee\IEmployeeRepository.cs" />
     <Compile Include="Tools\Logistic\WayHash.cs" />
+    <Compile Include="Domain\Client\SpecialNomenclature.cs" />
+    <Compile Include="HibernateMapping\Counterparty\SpecialNomenclatureMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

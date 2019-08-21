@@ -11855,13 +11855,13 @@
 	#грузополучатель
 	CONCAT_WS(', ', 
 		counterparty.name,
-		CONCAT('ИНН ', NULLIF(CONCAT_WS('/', NULLIF(TRIM(counterparty.inn), ''), NULLIF(TRIM(counterparty.kpp), '')), '')),
+		CONCAT('ИНН ', NULLIF(CONCAT_WS('/', NULLIF(TRIM(counterparty.inn), ''), NULLIF(TRIM(IF(counterparty.use_special_doc_fields, IFNULL(counterparty.spectial_kpp , delivery_points.KPP), counterparty.kpp)), '')), '')),
 		
 		#телефоны, выбирается только 2 первых
 		NULLIF(
 			IFNULL(
-				(SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.delivery_point_id = delivery_points.id),
-				(SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.counterparty_id = counterparty.id)
+				(SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.counterparty_id = counterparty.id),
+                (SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.delivery_point_id = delivery_points.id)
 			), 
 		''),		
 		COMPILE_ADDRESS(delivery_points.id),
