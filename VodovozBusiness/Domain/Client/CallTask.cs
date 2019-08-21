@@ -5,6 +5,7 @@ using QS.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Report;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repositories.HumanResources;
 
@@ -160,6 +161,32 @@ namespace Vodovoz.Domain.Client
 		public virtual void AddComment(IUnitOfWork UoW, string comment)
 		{
 			AddComment(UoW, comment, out string lastComment);
+		}
+
+		public virtual ReportInfo CreateReportInfoByClient()
+		{
+			return CreateReportInfo(DeliveryPoint.Counterparty.Id);
+		}
+
+		public virtual ReportInfo CreateReportInfoByDeliveryPoint()
+		{
+			return CreateReportInfo(DeliveryPoint.Counterparty.Id, DeliveryPoint.Id);
+		}
+
+		private ReportInfo CreateReportInfo(int counterpartyId, int deliveryPointId = -1)
+		{
+			var reportInfo = new ReportInfo {
+				Title = "Акт по бутылям-залогам",
+				Identifier = "Client.SummaryBottlesAndDeposits",
+				Parameters = new Dictionary<string, object>
+	{
+					{ "startDate", null },
+					{ "endDate", null },
+					{ "client_id", counterpartyId},
+					{ "delivery_point_id", deliveryPointId}
+				}
+			};
+			return reportInfo;
 		}
 
 	}
