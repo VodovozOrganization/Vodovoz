@@ -55,7 +55,7 @@ namespace Vodovoz.Views.Suppliers
 					)
 				.AddColumn("Ед.изм.")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n is SupplierNode ? string.Empty : n.Nomenclature.Unit.Name)
+					.AddTextRenderer(n => n is SupplierNode || n.Nomenclature.Unit == null ? string.Empty : n.Nomenclature.Unit.Name)
 				.AddColumn("Поставщик")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n is SupplierNode ? n.SupplierPriceItem.Supplier.Name : string.Empty)
@@ -77,6 +77,8 @@ namespace Vodovoz.Views.Suppliers
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n is SupplierNode ? n.SupplierPriceItem.Comment : string.Empty)
+						.WrapWidth(300)
+						.WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Изменено")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n is SupplierNode ? n.SupplierPriceItem.ChangingDate.ToString("G") : string.Empty)
@@ -100,6 +102,8 @@ namespace Vodovoz.Views.Suppliers
 			};
 
 			treeItems.Selection.Changed += (sender, e) => ViewModel.CanRemove = GetSelectedTreeItem() is RequestToSupplierItem;
+
+			lblMinimalTotalSum.Binding.AddBinding(ViewModel, s => s.MinimalTotalSumText, w => w.Text).InitializeFromSource();
 
 			btnRefresh.Clicked += (sender, e) => ViewModel.RefreshCommand.Execute();
 			btnRefresh.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();

@@ -15,10 +15,12 @@ namespace Vodovoz.EntityRepositories.Suppliers
 		/// колличестве "Все", "Топ-3" или "Самый дешёвый" из <paramref name="orderingType"/>
 		/// для ТМЦ <paramref name="nomenclature"/>.
 		/// </summary>
+		/// <param name="availabilityForSale">я дурак. мне не сформулировать.</param>
 		IEnumerable<SupplierPriceItem> GetSupplierPriceItemsForNomenclature(
 			IUnitOfWork uow,
 			Nomenclature nomenclature,
-			SupplierOrderingType orderingType = SupplierOrderingType.TheCheapest
+			SupplierOrderingType orderingType,
+			AvailabilityForSale[] availabilityForSale
 		);
 	}
 }

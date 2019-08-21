@@ -5,6 +5,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Config;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -61,8 +62,9 @@ namespace Vodovoz.JournalViewModels.Suppliers
 								   .Left.JoinAlias(x => x.Creator, () => authorAlias)
 								   .Left.JoinAlias(x => x.RequestingNomenclatureItems, () => nomenclaturesAlias)
 								   ;
-			if(FilterViewModel.RestrictNomenclature != null)
-				query.Where(() => nomenclaturesAlias.Id == FilterViewModel.RestrictNomenclature.Id);
+			//лажа. не работает
+			/*if(FilterViewModel.RestrictNomenclature != null)
+				query.Where(() => nomenclaturesAlias.Id == FilterViewModel.RestrictNomenclature.Id);*/
 
 			if(FilterViewModel.RestrictStartDate.HasValue)
 				query.Where(x => x.CreatingDate >= FilterViewModel.RestrictStartDate.Value);

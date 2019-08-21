@@ -36,7 +36,7 @@ namespace Vodovoz.Views.Client
 					.AddTextRenderer(n => n.IsEditable ? string.Empty : n.NomenclatureToBuy.ShortOrFullName)
 				.AddColumn("Ед.изм.")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => n.IsEditable ? string.Empty : n.NomenclatureToBuy.Unit.Name)
+					.AddTextRenderer(n => n.IsEditable || n.NomenclatureToBuy.Unit == null ? string.Empty : n.NomenclatureToBuy.Unit.Name)
 				.AddColumn("Оплата")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => !n.IsEditable ? string.Empty : n.PaymentType.GetEnumTitle())
@@ -92,6 +92,8 @@ namespace Vodovoz.Views.Client
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n.Comment)
+						.WrapWidth(300)
+						.WrapMode(Pango.WrapMode.WordChar)
 					.AddSetter(
 						(c, n) => {
 							c.Editable = false;
@@ -115,7 +117,7 @@ namespace Vodovoz.Views.Client
 					)
 				.AddColumn("Изменено")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => !n.IsEditable ? string.Empty : n.ChangingDate.ToString("G"))
+					.AddTextRenderer(n => !n.IsEditable || n.Id <= 0 ? string.Empty : n.ChangingDate.ToString("G"))
 				.AddColumn("")
 				.Finish();
 

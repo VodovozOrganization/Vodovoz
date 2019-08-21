@@ -36,6 +36,8 @@ namespace Vodovoz.Views.Suppliers
 
 		private global::Gamma.GtkWidgets.yTreeView treeItems;
 
+		private global::Gamma.GtkWidgets.yLabel lblMinimalTotalSum;
+
 		private global::Gtk.HBox hbox1;
 
 		private global::Gamma.GtkWidgets.yButton btnAdd;
@@ -211,6 +213,15 @@ namespace Vodovoz.Views.Suppliers
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.GtkScrolledWindow1]));
 			w18.Position = 2;
 			// Container child vbxMain.Gtk.Box+BoxChild
+			this.lblMinimalTotalSum = new global::Gamma.GtkWidgets.yLabel();
+			this.lblMinimalTotalSum.Name = "lblMinimalTotalSum";
+			this.lblMinimalTotalSum.Xalign = 1F;
+			this.lblMinimalTotalSum.LabelProp = global::Mono.Unix.Catalog.GetString("lblMinimalTotalSum");
+			this.vbxMain.Add(this.lblMinimalTotalSum);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.lblMinimalTotalSum]));
+			w19.Position = 3;
+			w19.Expand = false;
+			// Container child vbxMain.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -220,48 +231,48 @@ namespace Vodovoz.Views.Suppliers
 			this.btnAdd.Name = "btnAdd";
 			this.btnAdd.UseUnderline = true;
 			this.btnAdd.Label = global::Mono.Unix.Catalog.GetString("ТМЦ");
-			global::Gtk.Image w19 = new global::Gtk.Image();
-			w19.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "add", global::Gtk.IconSize.Menu);
-			this.btnAdd.Image = w19;
+			global::Gtk.Image w20 = new global::Gtk.Image();
+			w20.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.btnAdd.Image = w20;
 			this.hbox1.Add(this.btnAdd);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnAdd]));
-			w20.Position = 0;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnAdd]));
+			w21.Position = 0;
+			w21.Expand = false;
+			w21.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.btnRemove = new global::Gamma.GtkWidgets.yButton();
 			this.btnRemove.CanFocus = true;
 			this.btnRemove.Name = "btnRemove";
 			this.btnRemove.UseUnderline = true;
 			this.btnRemove.Label = global::Mono.Unix.Catalog.GetString("ТМЦ");
-			global::Gtk.Image w21 = new global::Gtk.Image();
-			w21.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "remove", global::Gtk.IconSize.Menu);
-			this.btnRemove.Image = w21;
+			global::Gtk.Image w22 = new global::Gtk.Image();
+			w22.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.btnRemove.Image = w22;
 			this.hbox1.Add(this.btnRemove);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnRemove]));
-			w22.Position = 1;
-			w22.Expand = false;
-			w22.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnRemove]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.btnTransfer = new global::Gamma.GtkWidgets.yButton();
 			this.btnTransfer.CanFocus = true;
 			this.btnTransfer.Name = "btnTransfer";
 			this.btnTransfer.UseUnderline = true;
 			this.btnTransfer.Label = global::Mono.Unix.Catalog.GetString("Перенести в новую заявку");
-			global::Gtk.Image w23 = new global::Gtk.Image();
-			w23.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "redo", global::Gtk.IconSize.Menu);
-			this.btnTransfer.Image = w23;
+			global::Gtk.Image w24 = new global::Gtk.Image();
+			w24.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-redo", global::Gtk.IconSize.Menu);
+			this.btnTransfer.Image = w24;
 			this.hbox1.Add(this.btnTransfer);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnTransfer]));
-			w24.PackType = ((global::Gtk.PackType)(1));
-			w24.Position = 2;
-			w24.Expand = false;
-			w24.Fill = false;
-			this.vbxMain.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.hbox1]));
-			w25.Position = 3;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnTransfer]));
+			w25.PackType = ((global::Gtk.PackType)(1));
+			w25.Position = 2;
 			w25.Expand = false;
 			w25.Fill = false;
+			this.vbxMain.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.hbox1]));
+			w26.Position = 4;
+			w26.Expand = false;
+			w26.Fill = false;
 			this.Add(this.vbxMain);
 			if ((this.Child != null))
 			{

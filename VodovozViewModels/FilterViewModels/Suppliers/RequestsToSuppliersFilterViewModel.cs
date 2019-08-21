@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.Project.Filter;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Goods;
 
@@ -7,8 +8,11 @@ namespace Vodovoz.FilterViewModels.Suppliers
 {
 	public class RequestsToSuppliersFilterViewModel : FilterViewModelBase<RequestsToSuppliersFilterViewModel>
 	{
-		public RequestsToSuppliersFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
+		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; set; }
+
+		public RequestsToSuppliersFilterViewModel(IInteractiveService interactiveService, IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory) : base(interactiveService)
 		{
+			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 		}
 
 		private DateTime? restrictStartDate;

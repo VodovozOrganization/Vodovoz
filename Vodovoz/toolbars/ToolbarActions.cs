@@ -4,12 +4,15 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.Config;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using Vodovoz;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -22,6 +25,9 @@ using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Suppliers;
+using Vodovoz.Domain.Goods;
+using Vodovoz.FilterViewModels.Goods;
 
 public partial class MainWindow : Window
 {
@@ -265,13 +271,23 @@ public partial class MainWindow : Window
 
 	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e)
 	{
-
+		tdiMain.OpenTab(
+			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
+			() => new RequestToSupplierViewModel(
+				EntityConstructorParam.ForCreate(),
+				ServicesConfig.CommonServices,
+				new DefaultEntityConfigurationProvider(),
+				ServicesConfig.EmployeeService,
+				new SupplierPriceItemsRepository()
+			)
+		);
 	}
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
 	{
-		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
 		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
+		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(ServicesConfig.CommonServices.InteractiveService, nomenclatureSelectorFactory);
 		var requestsJournal = new RequestsToSuppliersJournalViewModel(
 			filter,
 			entityConfigurationProvider,
@@ -676,8 +692,8 @@ public partial class MainWindow : Window
 		ResidueFilterViewModel filter = new ResidueFilterViewModel(ServicesConfig.InteractiveService);
 		var residueJournalViewModel = new ResidueJournalViewModel(
 			filter,
-			entityConfigurationProvider, 
-			ServicesConfig.EmployeeService, 
+			entityConfigurationProvider,
+			ServicesConfig.EmployeeService,
 			ServicesConfig.RepresentationEntityPicker,
 			moneyRepository,
 			depositRepository,

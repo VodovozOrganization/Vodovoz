@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
 using QS.Banks.Domain;
+using QS.Contacts;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
@@ -13,8 +14,6 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
-using QSBanks;
-using QS.Contacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -219,6 +218,7 @@ namespace Vodovoz
 			yEnumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			yEnumCounterpartyType.Binding.AddBinding(Entity, c => c.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
 			yEnumCounterpartyType.Changed += YEnumCounterpartyType_Changed;
+			YEnumCounterpartyType_Changed(this, new EventArgs());
 
 			//make actions menu
 			var menu = new Gtk.Menu();

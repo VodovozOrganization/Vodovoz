@@ -113,6 +113,19 @@ namespace Vodovoz.Domain.Suppliers
 			}
 		}
 
+		public virtual decimal MinimalTotalSum {
+			get {
+				decimal sum = 0m;
+				foreach(ILevelingRequestNode nom in ObservableLevelingRequestNodes) {
+					if(nom.Children != null && nom.Children.Any()) {
+						//берём первого ребёнка, т.к. они сортируются в порядке возрастания цены
+						sum += nom.Children[0].SupplierPriceItem.Price * nom.Quantity;
+					}
+				}
+				return sum;
+			}
+		}
+
 		#endregion вычисляемые
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -147,7 +160,7 @@ namespace Vodovoz.Domain.Suppliers
 				reqItem.Parent = null;
 				reqItem.Children = new List<ILevelingRequestNode>();
 
-				var children = supplierPriceItemsRepository.GetSupplierPriceItemsForNomenclature(uow, reqItem.Nomenclature, orderingType);
+				var children = supplierPriceItemsRepository.GetSupplierPriceItemsForNomenclature(uow, reqItem.Nomenclature, orderingType, new[] { AvailabilityForSale.Available });
 				foreach(var child in children) {
 					uow.Session.Refresh(child);
 					reqItem.Children.Add(
@@ -177,12 +190,12 @@ namespace Vodovoz.Domain.Suppliers
 
 	public enum SupplierOrderingType
 	{
-		[Display(Name = "Все")]
-		All,
+		[Display(Name = "ТОП-3")]
+		Top3,
 		[Display(Name = "Самый дешёвый")]
 		TheCheapest,
-		[Display(Name = "ТОП-3")]
-		Top3
+		[Display(Name = "Все")]
+		All
 	}
 
 	public class SupplierOrderingTypeStringType : EnumStringType

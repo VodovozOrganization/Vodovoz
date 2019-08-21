@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
+using QS.Utilities;
 
 namespace Vodovoz.ViewModels.Suppliers
 {
@@ -62,13 +63,19 @@ namespace Vodovoz.ViewModels.Suppliers
 			set => SetField(ref needRefresh, value);
 		}
 
-		private Employee currentEmployee;
+		Employee currentEmployee;
 		public Employee CurrentEmployee {
 			get {
 				if(currentEmployee == null)
 					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				return currentEmployee;
 			}
+		}
+
+		string minimalTotalSumText;
+		public string MinimalTotalSumText {
+			get => minimalTotalSumText;
+			set => SetField(ref minimalTotalSumText, value);
 		}
 
 		void NotifyCriteria(EntityChangeEvent[] e)
@@ -97,6 +104,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		void RefreshSuppliers()
 		{
 			Entity.RequestingNomenclaturesListRefresh(UoW, supplierPriceItemsRepository, Entity.SuppliersOrdering);
+			MinimalTotalSumText = string.Format("Минимальное ИТОГО: {0}", Entity.MinimalTotalSum.ToShortCurrencyString());
 			ListContentChanged?.Invoke(this, new EventArgs());
 			NeedRefresh = false;
 		}
@@ -168,7 +176,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		void CreateRemoveRequestingNomenclatureCommand()
 		{
 			RemoveRequestingNomenclatureCommand = new DelegateCommand<ILevelingRequestNode>(
-				n => Entity.RemoveNomenclatureRequest(n.Id),
+				n => Entity.RemoveNomenclatureRequest(n.Nomenclature.Id),
 				n => CanEdit && CanRemove
 			);
 		}

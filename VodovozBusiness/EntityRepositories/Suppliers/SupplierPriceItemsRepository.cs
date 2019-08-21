@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -9,10 +10,11 @@ namespace Vodovoz.EntityRepositories.Suppliers
 {
 	public class SupplierPriceItemsRepository : ISupplierPriceItemsRepository
 	{
-		public IEnumerable<SupplierPriceItem> GetSupplierPriceItemsForNomenclature(IUnitOfWork uow, Nomenclature nomenclature, SupplierOrderingType orderingType = SupplierOrderingType.TheCheapest)
+		public IEnumerable<SupplierPriceItem> GetSupplierPriceItemsForNomenclature(IUnitOfWork uow, Nomenclature nomenclature, SupplierOrderingType orderingType, AvailabilityForSale[] availabilityForSale)
 		{
 			var query = uow.Session.QueryOver<SupplierPriceItem>()
 						   .Where(i => i.NomenclatureToBuy.Id == nomenclature.Id)
+						   .Where(i => i.AvailabilityForSale.IsIn(availabilityForSale))
 						   .OrderBy(i => i.Price).Asc
 						   ;
 
