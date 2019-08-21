@@ -18,11 +18,8 @@ namespace Vodovoz.HibernateMapping.Suppliers
 
 			References(x => x.Creator).Column("author_id");
 
-			HasManyToMany(x => x.RequestingNomenclatures)
-				.Table("nomenclatures_to_requests_to_suppliers")
-					.ParentKeyColumn("request_to_supplier_id")
-					.ChildKeyColumn("nomenclature_id")
-					.LazyLoad();
+			HasMany(x => x.RequestingNomenclatureItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
+				.KeyColumn("request_to_supplier_id");
 		}
 	}
 }

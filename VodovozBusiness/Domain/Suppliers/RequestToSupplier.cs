@@ -6,15 +6,18 @@ using Gamma.Utilities;
 using NHibernate.Type;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Repositories;
 using QS.Utilities.Text;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Suppliers;
 
 namespace Vodovoz.Domain.Suppliers
 {
-	[Appellative(Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "заявки поставщику",
 		Nominative = "заявка поставщику"
 	)]
@@ -61,20 +64,20 @@ namespace Vodovoz.Domain.Suppliers
 			set => SetField(ref creator, value);
 		}
 
-		IList<Nomenclature> requestingNomenclatures = new List<Nomenclature>();
+		IList<RequestToSupplierItem> requestingNomenclatureItems = new List<RequestToSupplierItem>();
 		[Display(Name = "Запрашиваемые ТМЦ")]
-		public virtual IList<Nomenclature> RequestingNomenclatures {
-			get => requestingNomenclatures;
-			set => SetField(ref requestingNomenclatures, value);
+		public virtual IList<RequestToSupplierItem> RequestingNomenclatureItems {
+			get => requestingNomenclatureItems;
+			set => SetField(ref requestingNomenclatureItems, value);
 		}
 
-		GenericObservableList<Nomenclature> observableRequestingNomenclatures;
+		GenericObservableList<RequestToSupplierItem> observableRequestingNomenclatureItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Nomenclature> ObservableRequestingNomenclatures {
+		public virtual GenericObservableList<RequestToSupplierItem> ObservableRequestingNomenclatureItems {
 			get {
-				if(observableRequestingNomenclatures == null)
-					observableRequestingNomenclatures = new GenericObservableList<Nomenclature>(RequestingNomenclatures);
-				return observableRequestingNomenclatures;
+				if(observableRequestingNomenclatureItems == null)
+					observableRequestingNomenclatureItems = new GenericObservableList<RequestToSupplierItem>(RequestingNomenclatureItems);
+				return observableRequestingNomenclatureItems;
 			}
 		}
 
@@ -93,6 +96,22 @@ namespace Vodovoz.Domain.Suppliers
 			}
 		}
 
+		IList<ILevelingRequestNode> levelingRequestNodes = new List<ILevelingRequestNode>();
+		public virtual IList<ILevelingRequestNode> LevelingRequestNodes {
+			get => levelingRequestNodes;
+			set => SetField(ref levelingRequestNodes, value);
+		}
+
+		GenericObservableList<ILevelingRequestNode> observableLevelingRequestNodes;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ILevelingRequestNode> ObservableLevelingRequestNodes {
+			get {
+				if(observableLevelingRequestNodes == null)
+					observableLevelingRequestNodes = new GenericObservableList<ILevelingRequestNode>(LevelingRequestNodes);
+				return observableLevelingRequestNodes;
+			}
+		}
+
 		#endregion вычисляемые
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -103,6 +122,31 @@ namespace Vodovoz.Domain.Suppliers
 					new[] { this.GetPropertyName(o => o.Name) }
 				);
 		}
+
+		#region Methods
+
+		public virtual void RequestingNomenclaturesListRefresh(IUnitOfWork uow, ISupplierPriceItemsRepository supplierPriceItemsRepository, SupplierOrderingType orderingType)
+		{
+			ObservableLevelingRequestNodes.Clear();
+			foreach(var reqItem in RequestingNomenclatureItems) {
+				reqItem.Parent = null;
+				reqItem.Children = new List<ILevelingRequestNode>();
+
+				var children = supplierPriceItemsRepository.GetSupplierPriceItemsForNomenclature(uow, reqItem.Nomenclature, orderingType);
+				foreach(var child in children) {
+					uow.Session.Refresh(child);
+					reqItem.Children.Add(
+						new SupplierNode {
+							Parent = reqItem,
+							SupplierPriceItem = child,
+						}
+					);
+				}
+				ObservableLevelingRequestNodes.Add(reqItem);
+			}
+		}
+
+		#endregion Methods
 	}
 
 	public enum SupplierOrderingType
@@ -118,5 +162,17 @@ namespace Vodovoz.Domain.Suppliers
 	public class SupplierOrderingTypeStringType : EnumStringType
 	{
 		public SupplierOrderingTypeStringType() : base(typeof(SupplierOrderingType)) { }
+	}
+
+	public class SupplierNode : ILevelingRequestNode
+	{
+		public int Id { get; set; }
+		public Nomenclature Nomenclature { get; set; }
+		public int Quantity { get; set; }
+		public RequestToSupplier RequestToSupplier { get; set; }
+
+		public SupplierPriceItem SupplierPriceItem { get; set; }
+		public ILevelingRequestNode Parent { get; set; }
+		public IList<ILevelingRequestNode> Children { get; set; }
 	}
 }

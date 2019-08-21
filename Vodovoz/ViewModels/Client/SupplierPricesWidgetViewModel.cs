@@ -49,7 +49,7 @@ namespace Vodovoz.ViewModels.Client
 		public bool CanAdd { get; set; } = true;
 		public bool CanEdit { get; set; } = false;//задача редактирования пока не актуальна
 
-		private bool canRemove = false;
+		bool canRemove = false;
 		public bool CanRemove {
 			get => canRemove;
 			set => SetField(ref canRemove, value);

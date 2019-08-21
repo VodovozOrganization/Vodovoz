@@ -4,10 +4,12 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Config;
+using QS.Project.Domain;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Suppliers;
@@ -19,11 +21,18 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		readonly RequestsToSuppliersFilterViewModel filterViewModel;
 		readonly IEntityConfigurationProvider entityConfigurationProvider;
 		readonly ICommonServices commonServices;
+		readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 
-		public RequestsToSuppliersJournalViewModel(RequestsToSuppliersFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		public RequestsToSuppliersJournalViewModel(
+			RequestsToSuppliersFilterViewModel filterViewModel,
+			IEntityConfigurationProvider entityConfigurationProvider,
+			ICommonServices commonServices,
+			ISupplierPriceItemsRepository supplierPriceItemsRepository
+		) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
-			this.commonServices = commonServices;
-			this.entityConfigurationProvider = entityConfigurationProvider;
+			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.filterViewModel = filterViewModel;
 			TabName = "Журнал заявок поставщикам";
 			SetOrder<RequestToSupplier>(c => c.Id, true);
@@ -46,7 +55,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 
 			var query = UoW.Session.QueryOver<RequestToSupplier>()
 								   .Left.JoinAlias(x => x.Creator, () => authorAlias)
-								   .Left.JoinAlias(x => x.RequestingNomenclatures, () => nomenclaturesAlias)
+								   .Left.JoinAlias(x => x.RequestingNomenclatureItems, () => nomenclaturesAlias)
 								   ;
 			if(FilterViewModel.RestrictNomenclature != null)
 				query.Where(() => nomenclaturesAlias.Id == FilterViewModel.RestrictNomenclature.Id);
@@ -77,8 +86,16 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			return result;
 		};
 
-		protected override Func<RequestToSupplierViewModel> CreateDialogFunction => throw new NotImplementedException();
+		protected override Func<RequestToSupplierViewModel> CreateDialogFunction => () => new RequestToSupplierViewModel(
+			EntityConstructorParam.ForCreate(),
+			commonServices,
+			supplierPriceItemsRepository
+		);
 
-		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => throw new NotImplementedException();
+		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
+			EntityConstructorParam.ForOpen(n.Id),
+			commonServices,
+			supplierPriceItemsRepository
+		);
 	}
 }

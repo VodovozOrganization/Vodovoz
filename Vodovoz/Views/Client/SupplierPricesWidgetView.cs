@@ -23,6 +23,7 @@ namespace Vodovoz.Views.Client
 
 		protected override void ConfigureWidget()
 		{
+			spinDelayDays.Binding.AddBinding(ViewModel.Entity, s => s.DelayDays, w => w.ValueAsInt).InitializeFromSource();
 			yTreePrices.ColumnsConfig = FluentColumnsConfig<ISupplierPriceNode>.Create()
 				.AddColumn("№")
 					.HeaderAlignment(0.5f)
@@ -53,6 +54,7 @@ namespace Vodovoz.Views.Client
 						}
 					)
 				.AddColumn("НДС")
+					.HeaderAlignment(0.5f)
 					.AddEnumRenderer(n => n.VAT, true)
 					.AddSetter(
 						(c, n) => {
@@ -64,6 +66,7 @@ namespace Vodovoz.Views.Client
 						}
 					)
 				.AddColumn("Условия")
+					.HeaderAlignment(0.5f)
 					.AddEnumRenderer(n => n.PaymentCondition, true)
 					.AddSetter(
 						(c, n) => {
@@ -75,6 +78,7 @@ namespace Vodovoz.Views.Client
 						}
 					)
 				.AddColumn("Получение")
+					.HeaderAlignment(0.5f)
 					.AddEnumRenderer(n => n.DeliveryType, true)
 					.AddSetter(
 						(c, n) => {
@@ -98,6 +102,7 @@ namespace Vodovoz.Views.Client
 						}
 					)
 				.AddColumn("Статус")
+					.HeaderAlignment(0.5f)
 					.AddEnumRenderer(n => n.AvailabilityForSale, true)
 					.AddSetter(
 						(c, n) => {

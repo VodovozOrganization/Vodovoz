@@ -674,6 +674,11 @@
     <Compile Include="Domain\Suppliers\RequestToSupplier.cs" />
     <Compile Include="HibernateMapping\Suppliers\RequestToSupplierMap.cs" />
     <Compile Include="Tools\Logistic\WayHash.cs" />
+    <Compile Include="Domain\Suppliers\RequestToSupplierItem.cs" />
+    <Compile Include="HibernateMapping\Suppliers\RequestToSupplierItemMap.cs" />
+    <Compile Include="Domain\Suppliers\ILevelingRequestNode.cs" />
+    <Compile Include="EntityRepositories\Suppliers\ISupplierPriceItemsRepository.cs" />
+    <Compile Include="EntityRepositories\Suppliers\SupplierPriceItemsRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -729,6 +734,7 @@
     <Folder Include="EntityRepositories\Employee\" />
     <Folder Include="Domain\Suppliers\" />
     <Folder Include="HibernateMapping\Suppliers\" />
+    <Folder Include="EntityRepositories\Suppliers\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

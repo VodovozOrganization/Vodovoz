@@ -6,7 +6,13 @@ namespace Vodovoz.Views.Client
 	{
 		private global::Gtk.VBox vbox1;
 
+		private global::Gtk.HBox hbox2;
+
 		private global::Gtk.Label lblPrices;
+
+		private global::Gamma.GtkWidgets.ySpinButton spinDelayDays;
+
+		private global::Gtk.Label lblDelayDays;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -31,15 +37,44 @@ namespace Vodovoz.Views.Client
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.lblPrices = new global::Gtk.Label();
 			this.lblPrices.Name = "lblPrices";
 			this.lblPrices.Xalign = 0F;
 			this.lblPrices.LabelProp = global::Mono.Unix.Catalog.GetString("Цены поставщика на ТМЦ:");
-			this.vbox1.Add(this.lblPrices);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.lblPrices]));
+			this.hbox2.Add(this.lblPrices);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblPrices]));
 			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.spinDelayDays = new global::Gamma.GtkWidgets.ySpinButton(0D, 730D, 1D);
+			this.spinDelayDays.CanFocus = true;
+			this.spinDelayDays.Name = "spinDelayDays";
+			this.spinDelayDays.Adjustment.PageIncrement = 10D;
+			this.spinDelayDays.ClimbRate = 1D;
+			this.spinDelayDays.Numeric = true;
+			this.spinDelayDays.ValueAsDecimal = 0m;
+			this.spinDelayDays.ValueAsInt = 0;
+			this.hbox2.Add(this.spinDelayDays);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.spinDelayDays]));
+			w2.PackType = ((global::Gtk.PackType)(1));
+			w2.Position = 1;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.lblDelayDays = new global::Gtk.Label();
+			this.lblDelayDays.Name = "lblDelayDays";
+			this.lblDelayDays.Xalign = 1F;
+			this.lblDelayDays.LabelProp = global::Mono.Unix.Catalog.GetString("Отсрочка, дн.:");
+			this.hbox2.Add(this.lblDelayDays);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblDelayDays]));
+			w3.PackType = ((global::Gtk.PackType)(1));
+			w3.Position = 2;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -50,8 +85,8 @@ namespace Vodovoz.Views.Client
 			this.yTreePrices.Name = "yTreePrices";
 			this.GtkScrolledWindow.Add(this.yTreePrices);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w3.Position = 1;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w6.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
@@ -62,47 +97,47 @@ namespace Vodovoz.Views.Client
 			this.btnAdd.Name = "btnAdd";
 			this.btnAdd.UseUnderline = true;
 			this.btnAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить");
-			global::Gtk.Image w4 = new global::Gtk.Image();
-			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.btnAdd.Image = w4;
+			global::Gtk.Image w7 = new global::Gtk.Image();
+			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.btnAdd.Image = w7;
 			this.hbox1.Add(this.btnAdd);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnAdd]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnAdd]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.btnEdit = new global::Gamma.GtkWidgets.yButton();
 			this.btnEdit.CanFocus = true;
 			this.btnEdit.Name = "btnEdit";
 			this.btnEdit.UseUnderline = true;
 			this.btnEdit.Label = global::Mono.Unix.Catalog.GetString("Изменить");
-			global::Gtk.Image w6 = new global::Gtk.Image();
-			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
-			this.btnEdit.Image = w6;
+			global::Gtk.Image w9 = new global::Gtk.Image();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
+			this.btnEdit.Image = w9;
 			this.hbox1.Add(this.btnEdit);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnEdit]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnEdit]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.btnDelete = new global::Gamma.GtkWidgets.yButton();
 			this.btnDelete.CanFocus = true;
 			this.btnDelete.Name = "btnDelete";
 			this.btnDelete.UseUnderline = true;
 			this.btnDelete.Label = global::Mono.Unix.Catalog.GetString("Удалить");
-			global::Gtk.Image w8 = new global::Gtk.Image();
-			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
-			this.btnDelete.Image = w8;
+			global::Gtk.Image w11 = new global::Gtk.Image();
+			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.btnDelete.Image = w11;
 			this.hbox1.Add(this.btnDelete);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnDelete]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnDelete]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w10.Position = 2;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w13.Position = 2;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

@@ -509,6 +509,13 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
+		int delayDays;
+		[Display(Name = "Отсрочка дней")]
+		public virtual int DelayDays {
+			get => delayDays;
+			set => SetField(ref delayDays, value);
+		}
+
 		CounterpartyType counterpartyType;
 		[Display(Name = "Тип контрагента")]
 		public virtual CounterpartyType CounterpartyType {

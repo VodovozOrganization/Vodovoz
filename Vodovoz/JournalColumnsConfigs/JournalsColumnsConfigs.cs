@@ -8,6 +8,7 @@ using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Employees;
 using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Representations;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -209,6 +210,21 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Доступно")
 						.AddTextRenderer(node => node.AvailableText)
 						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
+					.Finish()
+			);
+
+			//RequestsToSuppliersJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RequestsToSuppliersJournalViewModel>(
+				() => FluentColumnsConfig<RequestToSupplierJournalNode>.Create()
+					.AddColumn("Номер")
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.SetDataProperty(n => n.Name)
+					.AddColumn("Дата")
+						.SetDataProperty(n => n.Created.ToString("G"))
+					.AddColumn("Автор")
+						.AddTextRenderer(n => n.Author)
+					.AddColumn("")
 					.Finish()
 			);
 		}

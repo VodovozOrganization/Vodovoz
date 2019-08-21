@@ -13,9 +13,12 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
+using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
@@ -260,14 +263,22 @@ public partial class MainWindow : Window
 		#endregion
 	}
 
-	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
+	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e)
 	{
 
 	}
 
-	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e)
+	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
 	{
-
+		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
+		var requestsJournal = new RequestsToSuppliersJournalViewModel(
+			filter,
+			entityConfigurationProvider,
+			ServicesConfig.CommonServices,
+			new SupplierPriceItemsRepository()
+		);
+		tdiMain.AddTab(requestsJournal);
 	}
 
 	void ActionRouteListsPrint_Activated(object sender, System.EventArgs e)

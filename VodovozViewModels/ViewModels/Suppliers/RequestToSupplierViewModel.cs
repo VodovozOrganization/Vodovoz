@@ -1,19 +1,39 @@
-﻿using QS.Commands;
+﻿using System;
+using QS.Commands;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.EntityRepositories.Suppliers;
 
 namespace Vodovoz.ViewModels.Suppliers
 {
 	public class RequestToSupplierViewModel : EntityTabViewModelBase<RequestToSupplier>
 	{
-		public RequestToSupplierViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
+
+		public RequestToSupplierViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices, ISupplierPriceItemsRepository supplierPriceItemsRepository) : base(ctorParam, commonServices)
 		{
+			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			CreateCommands();
+			RefreshSuppliers();
+			Entity.ObservableRequestingNomenclatureItems.ElementAdded += (aList, aIdx) => RefreshSuppliers();
+			Entity.ObservableRequestingNomenclatureItems.ElementRemoved += (aList, aIdx, aObject) => RefreshSuppliers();
+		}
+		public event EventHandler ListContentChanged;
+
+
+		bool canEdit = true;
+		public bool CanEdit {
+			get => canEdit;
+			set => SetField(ref canEdit, value);
 		}
 
-		public bool CanEdit = false;
+		bool canRemove;
+		public bool CanRemove {
+			get => canRemove;
+			set => SetField(ref canRemove, value);
+		}
 
 		#region Commands
 
@@ -25,6 +45,12 @@ namespace Vodovoz.ViewModels.Suppliers
 			CreateTransferRequestingNomenclatureCommand();
 		}
 
+		void RefreshSuppliers()
+		{
+			Entity.RequestingNomenclaturesListRefresh(UoW, supplierPriceItemsRepository, Entity.SuppliersOrdering);
+			ListContentChanged?.Invoke(this, new EventArgs());
+		}
+
 		#region RefreshCommand
 
 		public DelegateCommand RefreshCommand { get; private set; }
@@ -32,7 +58,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		void CreateRefreshCommand()
 		{
 			RefreshCommand = new DelegateCommand(
-				() => { },
+				RefreshSuppliers,
 				() => true
 			);
 		}
