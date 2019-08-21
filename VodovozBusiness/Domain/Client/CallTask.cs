@@ -152,7 +152,7 @@ namespace Vodovoz.Domain.Client
 		public virtual void AddComment(IUnitOfWork UoW , string comment , out string lastComment)
 		{
 			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			comment = comment.Insert(0, employee.ShortName + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": ");
+			comment = comment.Insert(0, employee.ShortName + $"({employee?.Subdivision?.ShortName})" + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": ");
 			lastComment = comment;
 			Comment += comment;
 			Comment += Environment.NewLine; 
@@ -198,7 +198,9 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Задание")]
 		Task,
 		[Display(Name = "Сложный клиент")]
-		DifficultClient
+		DifficultClient,
+		[Display(Name = "Первичка")]
+		FirstClient
 	}
 
 	public enum ImportanceDegreeType
