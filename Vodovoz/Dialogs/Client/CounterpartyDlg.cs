@@ -222,7 +222,7 @@ namespace Vodovoz
 				.AddColumn("ТМЦ").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : string.Empty)
 				.AddColumn("Код").AddNumericRenderer(node => node.SpecialId).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1)).Editing()
 				.Finish();
-			ytreeviewSpecialNomenclature.Binding.AddBinding(Entity, e => e.ObservableSpecialNomenclatures, w => w.ItemsDataSource).InitializeFromSource();
+			ytreeviewSpecialNomenclature.ItemsDataSource = Entity.ObservableSpecialNomenclatures;
 
 			ycheckSpecialDocuments.Binding.AddBinding(Entity, e => e.UseSpecialDocFields, w => w.Active).InitializeFromSource();
 			radioSpecialDocFields.Visible = Entity.UseSpecialDocFields;
@@ -241,6 +241,7 @@ namespace Vodovoz
 			yspeccomboboxTorg2Count.ItemsList = docCount;
 			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
 			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
+
 			#endregion Особая печать
 		}
 
@@ -537,6 +538,11 @@ namespace Vodovoz
 		{
 			var specNom = new SpecialNomenclature();
 			specNom.Nomenclature = e.Subject as Nomenclature;
+			specNom.Counterparty = Entity;
+
+			if(Entity.ObservableSpecialNomenclatures.Any(x => x.Nomenclature.Id == specNom.Nomenclature.Id))
+				return;
+
 			Entity.ObservableSpecialNomenclatures.Add(specNom);
 		}
 
