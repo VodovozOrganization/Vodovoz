@@ -8,9 +8,9 @@ namespace Vodovoz.FilterViewModels.Suppliers
 {
 	public class RequestsToSuppliersFilterViewModel : FilterViewModelBase<RequestsToSuppliersFilterViewModel>
 	{
-		public IEntityAutocompleteSelectorFactory NomenclatureSelectorFactory { get; set; }
+		public IEntitySelectorFactory NomenclatureSelectorFactory { get; set; }
 
-		public RequestsToSuppliersFilterViewModel(IInteractiveService interactiveService, IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory) : base(interactiveService)
+		public RequestsToSuppliersFilterViewModel(IInteractiveService interactiveService, IEntitySelectorFactory nomenclatureSelectorFactory) : base(interactiveService)
 		{
 			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 		}

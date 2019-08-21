@@ -285,7 +285,7 @@ public partial class MainWindow : Window
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
 	{
-		IEntityAutocompleteSelectorFactory nomenclatureSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+		IEntitySelectorFactory nomenclatureSelectorFactory = new DefaultEntitySelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
 		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
 		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(ServicesConfig.CommonServices.InteractiveService, nomenclatureSelectorFactory);
 		var requestsJournal = new RequestsToSuppliersJournalViewModel(
