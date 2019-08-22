@@ -729,7 +729,7 @@ WHERE
           <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>493.25pt</Width>
-            <Value>=Fields!client_inn.Value + '\\' + Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({spectial_kpp}) = false, {spectial_kpp}, Fields!client_kpp.Value)</Value>
+            <Value>=Fields!client_inn.Value + '/' + Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({spectial_kpp}) = false, {spectial_kpp}, Fields!client_kpp.Value)</Value>
             <ZIndex>1</ZIndex>
             <Left>148.3pt</Left>
             <Top>143.0pt</Top>
