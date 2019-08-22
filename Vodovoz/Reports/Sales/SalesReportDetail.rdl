@@ -1185,86 +1185,93 @@ FROM
     <DataSet Name="bottles">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT     
-    SUM(orders.bottles_return) AS plan,
-    ROUND(SUM(IFNULL(route_list_addresses.bottles_returned, self_delivery.fact)), 0) AS fact
-FROM 
-    orders
-    LEFT JOIN route_list_addresses ON route_list_addresses.order_id = orders.id
-    LEFT JOIN counterparty ON counterparty.id = orders.client_id
-    LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-    LEFT JOIN schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
-	LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
-    LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = counterparty.id
-    LEFT JOIN employees ON employees.id = orders.author_employee_id
-    LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id
-    LEFT JOIN
-    (
-        SELECT
-            SUM(store_self_delivery_document_item.amount) AS fact,
-            store_self_delivery_document.order_id
-        FROM
-            store_self_delivery_document
-            LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.store_self_delivery_document_id = store_self_delivery_document.id
-        WHERE
-            store_self_delivery_document_item.nomenclature_id =
-            (
-                    SELECT
-                        base_parameters.str_value
-                    FROM
-                        base_parameters
-                    WHERE
-                        base_parameters.name = 'default_bottle_nomenclature'
-                    LIMIT 1
-            )
-        GROUP BY store_self_delivery_document.order_id
-    ) AS self_delivery ON self_delivery.order_id = orders.id
-WHERE
-    orders.delivery_date &gt;= @start_date
-    AND orders.delivery_date &lt;= @end_date
-    AND !orders.is_contract_closer
-    
-    AND EXISTS
-    (
-        SELECT * FROM order_items
-        WHERE order_items.order_id = orders.id
-        AND ( 
-                ((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
-                OR
-                (order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
-                OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
-            )
-    )
-    AND (
-            ((orders.client_id IN (@client_include) AND 0 IN (@client_exclude) )
-            OR
-            (orders.client_id NOT IN (@client_exclude) AND 0 IN (@client_include)))
-            OR (0 IN (@client_include) AND 0 IN (@client_exclude))
-        )
-    AND (
-            ((counterparty_contract.organization_id IN (@org_include) AND 0 IN (@org_exclude) )
-            OR
-            (counterparty_contract.organization_id NOT IN (@org_exclude) AND 0 IN (@org_include)))
-            OR (0 IN (@org_include) AND 0 IN (@org_exclude))
-        )
-    AND (
-            ((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
-            OR
-            (IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
-            OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
-        )
-    AND (
-            ((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude) )
-            OR
-            (IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@orderauthor_exclude) AND 0 IN (@orderauthor_include)))
-            OR (0 IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude))
-        )
-	AND (
-			((IFNULL(gge.geographic_group_id, 0) IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
-			OR
-			(IFNULL(gge.geographic_group_id, 0) NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
-			OR (0 IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude))
-	)</CommandText>
+        <CommandText>SELECT
+	SUM(t.plan) AS plan,
+    ROUND(SUM(t.fact), 0) AS fact
+FROM
+(
+	SELECT     
+		orders.bottles_return AS plan,
+		IFNULL(route_list_addresses.bottles_returned,IFNULL(self_delivery.fact,0)) AS fact
+	FROM 
+		orders
+		LEFT JOIN route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.transfered_to_id IS NULL
+		LEFT JOIN counterparty ON counterparty.id = orders.client_id
+		LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+		LEFT JOIN schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
+		LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
+		LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = counterparty.id
+		LEFT JOIN employees ON employees.id = orders.author_employee_id
+		LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id
+		LEFT JOIN
+		(
+			SELECT
+				SUM(store_self_delivery_document_item.amount) AS fact,
+				store_self_delivery_document.order_id
+			FROM
+				store_self_delivery_document
+				LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.store_self_delivery_document_id = store_self_delivery_document.id
+			WHERE
+				store_self_delivery_document_item.nomenclature_id =
+				(
+						SELECT
+							base_parameters.str_value
+						FROM
+							base_parameters
+						WHERE
+							base_parameters.name = 'default_bottle_nomenclature'
+						LIMIT 1
+				)
+			GROUP BY store_self_delivery_document.order_id
+		) AS self_delivery ON self_delivery.order_id = orders.id
+	WHERE
+		orders.delivery_date &gt;= @start_date
+		AND orders.delivery_date &lt;= @end_date
+		AND !orders.is_contract_closer
+		
+		AND ( (0 IN (@client_include) AND 0 IN (@client_exclude)) OR EXISTS
+		(
+			SELECT * FROM order_items
+			WHERE order_items.order_id = orders.id
+			AND ( 
+					((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
+					OR
+					(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
+					OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
+				)
+		))
+		AND (
+				((orders.client_id IN (@client_include) AND 0 IN (@client_exclude) )
+				OR
+				(orders.client_id NOT IN (@client_exclude) AND 0 IN (@client_include)))
+				OR (0 IN (@client_include) AND 0 IN (@client_exclude))
+			)
+		AND (
+				((counterparty_contract.organization_id IN (@org_include) AND 0 IN (@org_exclude) )
+				OR
+				(counterparty_contract.organization_id NOT IN (@org_exclude) AND 0 IN (@org_include)))
+				OR (0 IN (@org_include) AND 0 IN (@org_exclude))
+			)
+		AND (
+				((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
+				OR
+				(IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) NOT IN (@subdivision_exclude) AND 0 IN (@subdivision_include)))
+				OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
+			)
+		AND (
+				((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude) )
+				OR
+				(IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@orderauthor_exclude) AND 0 IN (@orderauthor_include)))
+				OR (0 IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude))
+			)
+		AND (
+				((IFNULL(gge.geographic_group_id, 0) IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
+				OR
+				(IFNULL(gge.geographic_group_id, 0) NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
+				OR (0 IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude))
+		)
+	GROUP BY orders.id
+) AS t</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
