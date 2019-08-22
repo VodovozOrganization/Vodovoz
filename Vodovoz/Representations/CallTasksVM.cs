@@ -12,7 +12,6 @@ using QS.Contacts;
 using QS.RepresentationModel.GtkUI;
 using QS.Tools;
 using QS.Utilities.Text;
-using QS.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
@@ -24,7 +23,7 @@ namespace Vodovoz.Representations
 {
 	public class CallTasksVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<CallTask, CallTaskVMNode>
 	{
-		private readonly Pixbuf img; //TODO : переписать на множество вариантов
+		private readonly Pixbuf img;
 		private readonly Pixbuf emptyImg;
 
 		private int taskCount = 0;

@@ -298,6 +298,16 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref phones, value, () => Phones);
 		}
 
+		GenericObservableList<Phone> observablePhones;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Phone> ObservablePhones {
+			get {
+				if(observablePhones == null)
+					observablePhones = new GenericObservableList<Phone>(Phones);
+				return observablePhones;
+			}
+		}
+
 		string ringUpPhone;
 
 		[Display(Name = "Телефон для обзвона")]

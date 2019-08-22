@@ -558,7 +558,6 @@
     <Compile Include="Tools\NullValueToZeroConverter.cs" />
     <Compile Include="Domain\Client\CallTask.cs" />
     <Compile Include="HibernateMapping\Counterparty\CallTaskMap.cs" />
-    <Compile Include="Repositories\Client\CallTasksRepository.cs" />
     <Compile Include="Repositories\ResidueRepository.cs" />
     <Compile Include="Domain\Logistic\Discrepancy.cs" />
     <Compile Include="Domain\Operations\CashTransferOperation.cs" />
@@ -681,6 +680,8 @@
     <Compile Include="EntityRepositories\Suppliers\SupplierPriceItemsRepository.cs" />
     <Compile Include="Domain\Client\SpecialNomenclature.cs" />
     <Compile Include="HibernateMapping\Counterparty\SpecialNomenclatureMap.cs" />
+    <Compile Include="EntityRepositories\CallTasks\CallTaskRepository.cs" />
+    <Compile Include="EntityRepositories\CallTasks\ICallTaskRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -737,6 +738,7 @@
     <Folder Include="Domain\Suppliers\" />
     <Folder Include="HibernateMapping\Suppliers\" />
     <Folder Include="EntityRepositories\Suppliers\" />
+    <Folder Include="EntityRepositories\CallTasks\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

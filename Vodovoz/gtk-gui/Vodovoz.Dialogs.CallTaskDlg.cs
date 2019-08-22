@@ -20,7 +20,7 @@ namespace Vodovoz.Dialogs
 
 		private global::Gtk.Table table1;
 
-		private global::QSContacts.PhonesView ClientPhonesView;
+		private global::Vodovoz.Dialogs.Phones.PhonesView ClientPhonesView;
 
 		private global::Gamma.Widgets.yEnumComboBox comboboxImpotanceType;
 
@@ -30,7 +30,7 @@ namespace Vodovoz.Dialogs
 
 		private global::Gamma.GtkWidgets.yEntry debtByClientEntry;
 
-		private global::QSContacts.PhonesView DeliveryPointPhonesview;
+		private global::Vodovoz.Dialogs.Phones.PhonesView DeliveryPointPhonesView;
 
 		private global::QS.Widgets.GtkUI.RepresentationEntry deliveryPointYentryreferencevm;
 
@@ -185,10 +185,9 @@ namespace Vodovoz.Dialogs
 			this.table1.RowSpacing = ((uint)(10));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.ClientPhonesView = new global::QSContacts.PhonesView();
+			this.ClientPhonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
 			this.ClientPhonesView.Events = ((global::Gdk.EventMask)(256));
 			this.ClientPhonesView.Name = "ClientPhonesView";
-			this.ClientPhonesView.IsReadOnly = false;
 			this.table1.Add(this.ClientPhonesView);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.ClientPhonesView]));
 			w8.TopAttach = ((uint)(3));
@@ -257,12 +256,11 @@ namespace Vodovoz.Dialogs
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.DeliveryPointPhonesview = new global::QSContacts.PhonesView();
-			this.DeliveryPointPhonesview.Events = ((global::Gdk.EventMask)(256));
-			this.DeliveryPointPhonesview.Name = "DeliveryPointPhonesview";
-			this.DeliveryPointPhonesview.IsReadOnly = false;
-			this.table1.Add(this.DeliveryPointPhonesview);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.DeliveryPointPhonesview]));
+			this.DeliveryPointPhonesView = new global::Vodovoz.Dialogs.Phones.PhonesView();
+			this.DeliveryPointPhonesView.Events = ((global::Gdk.EventMask)(256));
+			this.DeliveryPointPhonesView.Name = "DeliveryPointPhonesView";
+			this.table1.Add(this.DeliveryPointPhonesView);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.DeliveryPointPhonesView]));
 			w13.TopAttach = ((uint)(4));
 			w13.BottomAttach = ((uint)(5));
 			w13.LeftAttach = ((uint)(1));
@@ -579,7 +577,7 @@ namespace Vodovoz.Dialogs
 			this.buttonSplit.CanFocus = true;
 			this.buttonSplit.Name = "buttonSplit";
 			this.buttonSplit.UseUnderline = true;
-			this.buttonSplit.Label = global::Mono.Unix.Catalog.GetString(">>");
+			this.buttonSplit.Label = global::Mono.Unix.Catalog.GetString("<<");
 			this.hbox1.Add(this.buttonSplit);
 			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonSplit]));
 			w46.Position = 3;
@@ -679,7 +677,6 @@ namespace Vodovoz.Dialogs
 			}
 			this.vboxOldComments.Hide();
 			this.Hide();
-			this.yentryTareReturn.Changed += new global::System.EventHandler(this.OnYentryTareReturnChanged);
 			this.deliveryPointYentryreferencevm.ChangedByUser += new global::System.EventHandler(this.OnDeliveryPointYentryreferencevmChangedByUser);
 			this.buttonAddComment.Clicked += new global::System.EventHandler(this.OnAddCommentButtonClicked);
 			this.buttonRevertComment.Clicked += new global::System.EventHandler(this.OnCancelLastCommentButtonClicked);
