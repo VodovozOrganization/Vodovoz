@@ -156,7 +156,7 @@ namespace Vodovoz.Domain.Suppliers
 		public virtual void RequestingNomenclaturesListRefresh(IUnitOfWork uow, ISupplierPriceItemsRepository supplierPriceItemsRepository, SupplierOrderingType orderingType)
 		{
 			ObservableLevelingRequestNodes.Clear();
-			foreach(var reqItem in RequestingNomenclatureItems) {
+			foreach(var reqItem in RequestingNomenclatureItems.Where(i => !i.Transfered)) {
 				reqItem.Parent = null;
 				reqItem.Children = new List<ILevelingRequestNode>();
 

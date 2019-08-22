@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		readonly IEntityConfigurationProvider entityConfigurationProvider;
 		readonly IEmployeeService employeeService;
 		readonly ICommonServices commonServices;
+		public event EventHandler ListContentChanged;
 
 		public RequestToSupplierViewModel(
 			IEntityConstructorParam ctorParam,
@@ -46,8 +47,6 @@ namespace Vodovoz.ViewModels.Suppliers
 			Entity.ObservableRequestingNomenclatureItems.ElementRemoved += (aList, aIdx, aObject) => RefreshSuppliers();
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<SupplierPriceItem>(NotifyCriteria);
 		}
-		public event EventHandler ListContentChanged;
-		public event EventHandler SupplierPricesUpdated;
 
 		bool canEdit = true;
 		public bool CanEdit {
@@ -88,24 +87,28 @@ namespace Vodovoz.ViewModels.Suppliers
 		void NotifyCriteria(EntityChangeEvent[] e)
 		{
 			var updatedPriceItems = e.Select(ev => ev.GetEntity<SupplierPriceItem>());
-			var displayingNomenclatures = Entity.ObservableRequestingNomenclatureItems.Select(r => r.Nomenclature);
+			var displayingNomenclatures = Entity.ObservableRequestingNomenclatureItems
+												.Where(r => !r.Transfered)
+												.Select(r => r.Nomenclature);
 			foreach(var n in displayingNomenclatures) {
 				if(updatedPriceItems.Select(p => p.NomenclatureToBuy.Id).Contains(n.Id)) {
 					NeedRefresh = true;
-					SupplierPricesUpdated?.Invoke(updatedPriceItems, new EventArgs());
+					var response = AskQuestion(
+						"Цены на некоторые ТМЦ, выбранные в список цен поставщиков, изменились.\nЖелаете обновить список?",
+						"Обновить список цен поставщиков?"
+					);
+					if(response)
+						RefreshCommand.Execute();
 					return;
 				}
 			}
 		}
 
-		#region Commands
-
-		void CreateCommands()
+		public string GenerateDelayDaysString(ILevelingRequestNode n)
 		{
-			CreateRefreshCommand();
-			CreateAddRequestingNomenclatureCommand();
-			CreateRemoveRequestingNomenclatureCommand();
-			CreateTransferRequestingNomenclatureCommand();
+			if(n is SupplierNode)
+				return n.SupplierPriceItem.Supplier.DelayDays > 0 ? string.Format("{0} дн.", n.SupplierPriceItem.Supplier.DelayDays) : "Нет";
+			return string.Empty;
 		}
 
 		void RefreshSuppliers()
@@ -121,6 +124,16 @@ namespace Vodovoz.ViewModels.Suppliers
 			if(UoW.IsNew)
 				Entity.Creator = CurrentEmployee;
 			base.BeforeValidation();
+		}
+
+		#region Commands
+
+		void CreateCommands()
+		{
+			CreateRefreshCommand();
+			CreateAddRequestingNomenclatureCommand();
+			CreateRemoveRequestingNomenclatureCommand();
+			CreateTransferRequestingNomenclatureCommand();
 		}
 
 		#region RefreshCommand
@@ -145,7 +158,10 @@ namespace Vodovoz.ViewModels.Suppliers
 		{
 			AddRequestingNomenclatureCommand = new DelegateCommand(
 				() => {
-					var existingNomenclatures = Entity.ObservableRequestingNomenclatureItems.Select(i => i.Nomenclature.Id).Distinct();
+					var existingNomenclatures = Entity.ObservableRequestingNomenclatureItems
+													  .Where(i => !i.Transfered)
+													  .Select(i => i.Nomenclature.Id)
+													  .Distinct();
 					var filter = new NomenclatureFilterViewModel(CommonServices.InteractiveService) {
 						HidenByDefault = true
 					};
@@ -201,6 +217,9 @@ namespace Vodovoz.ViewModels.Suppliers
 		{
 			TransferRequestingNomenclatureCommand = new DelegateCommand<ILevelingRequestNode[]>(
 				array => {
+					if(!SaveBeforeContinue())
+						return;
+
 					RequestToSupplierViewModel vm = new RequestToSupplierViewModel(
 						EntityConstructorParam.ForCreate(),
 						commonServices,
@@ -210,15 +229,22 @@ namespace Vodovoz.ViewModels.Suppliers
 					);
 					foreach(var item in array) {
 						if(item is RequestToSupplierItem requestItem) {
-							requestItem.RequestToSupplier = vm.Entity;
-							vm.Entity.ObservableRequestingNomenclatureItems.Add(requestItem);
+							var newItem = new RequestToSupplierItem {
+								Nomenclature = requestItem.Nomenclature,
+								Quantity = requestItem.Quantity,
+								RequestToSupplier = vm.Entity,
+								TransferedFromItem = requestItem
+							};
+
+							vm.Entity.ObservableRequestingNomenclatureItems.Add(newItem);
+							requestItem.Transfered = true;
 						}
 					}
 
 					vm.EntitySaved += (sender, e) => RefreshSuppliers();
 					this.TabParent.AddSlaveTab(this, vm);
 				},
-				array => false
+				array => CanTransfer
 			);
 		}
 

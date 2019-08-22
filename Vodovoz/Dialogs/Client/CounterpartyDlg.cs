@@ -218,6 +218,7 @@ namespace Vodovoz
 			yEnumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			yEnumCounterpartyType.Binding.AddBinding(Entity, c => c.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
 			yEnumCounterpartyType.Changed += YEnumCounterpartyType_Changed;
+			yEnumCounterpartyType.ChangedByUser += YEnumCounterpartyType_ChangedByUser;
 			YEnumCounterpartyType_Changed(this, new EventArgs());
 
 			//make actions menu
@@ -364,6 +365,21 @@ namespace Vodovoz
 		void YEnumCounterpartyType_Changed(object sender, EventArgs e)
 		{
 			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
+		}
+
+		void YEnumCounterpartyType_ChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.ObservableSuplierPriceItems.Any() && Entity.CounterpartyType == CounterpartyType.Buyer) {
+				var response = MessageDialogHelper.RunWarningDialog(
+					"Смена типа контрагента",
+					"При смене контрагента с поставщика на покупателя произойдёт очистка списка цен на поставляемые им номенклатуры. Продолжить?",
+					Gtk.ButtonsType.YesNo
+				);
+				if(response)
+					Entity.ObservableSuplierPriceItems.Clear();
+				else
+					Entity.CounterpartyType = CounterpartyType.Supplier;
+			}
 		}
 
 		protected void OnEnumPersonTypeChanged(object sender, EventArgs e)

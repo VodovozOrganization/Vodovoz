@@ -42,6 +42,20 @@ namespace Vodovoz.Domain.Suppliers
 			set => SetField(ref requestToSupplier, value);
 		}
 
+		bool transfered;
+		[Display(Name = "Перенесена в другой запрос")]
+		public virtual bool Transfered {
+			get => transfered;
+			set => SetField(ref transfered, value);
+		}
+
+		RequestToSupplierItem transferedFrom;
+		[Display(Name = "Строка перенесена из строки")]
+		public virtual RequestToSupplierItem TransferedFromItem {
+			get => transferedFrom;
+			set => SetField(ref transferedFrom, value);
+		}
+
 		#endregion свойства для маппинга
 
 		public virtual ILevelingRequestNode Parent { get; set; } = null;

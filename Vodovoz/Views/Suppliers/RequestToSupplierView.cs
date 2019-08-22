@@ -3,7 +3,6 @@ using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using QS.Dialog.GtkUI;
 using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Suppliers;
@@ -75,7 +74,7 @@ namespace Vodovoz.Views.Suppliers
 					.AddTextRenderer(n => n is SupplierNode ? n.SupplierPriceItem.PaymentCondition.GetEnumTitle() : string.Empty)
 				.AddColumn("Отсрочка")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(n => GenerateDelayDaysString(n))
+					.AddTextRenderer(n => ViewModel.GenerateDelayDaysString(n))
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n is SupplierNode ? n.SupplierPriceItem.Comment : string.Empty)
@@ -92,15 +91,6 @@ namespace Vodovoz.Views.Suppliers
 			ViewModel.ListContentChanged += (sender, e) => {
 				treeItems.YTreeModel.EmitModelChanged();
 				treeItems.ExpandAll();
-			};
-
-			ViewModel.SupplierPricesUpdated += (sender, e) => {
-				var response = MessageDialogHelper.RunQuestionWithTitleDialog(
-					"Обновить список цен поставщиков?",
-					"Цены на некоторые ТМЦ, выбранные в список цен поставщиков, изменились.\nЖелаете обновить список?"
-				);
-				if(response)
-					ViewModel.RefreshCommand.Execute();
 			};
 
 			treeItems.Selection.Changed += (sender, e) => ViewModel.CanRemove = GetSelectedTreeItems().All(i => i is RequestToSupplierItem);
@@ -121,13 +111,6 @@ namespace Vodovoz.Views.Suppliers
 
 			btnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			btnCancel.Clicked += (sender, e) => ViewModel.Close(false);
-		}
-
-		string GenerateDelayDaysString(ILevelingRequestNode n)
-		{
-			if(n is SupplierNode)
-				return n.SupplierPriceItem.Supplier.DelayDays > 0 ? string.Format("{0} дн.", n.SupplierPriceItem.Supplier.DelayDays) : "Нет";
-			return string.Empty;
 		}
 
 		ILevelingRequestNode[] GetSelectedTreeItems() => treeItems.GetSelectedObjects<ILevelingRequestNode>();
