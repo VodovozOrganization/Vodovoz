@@ -682,6 +682,7 @@
     <Compile Include="HibernateMapping\Counterparty\SpecialNomenclatureMap.cs" />
     <Compile Include="EntityRepositories\CallTasks\CallTaskRepository.cs" />
     <Compile Include="EntityRepositories\CallTasks\ICallTaskRepository.cs" />
+    <Compile Include="Tools\CallTasks\CallTaskFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -739,6 +740,7 @@
     <Folder Include="HibernateMapping\Suppliers\" />
     <Folder Include="EntityRepositories\Suppliers\" />
     <Folder Include="EntityRepositories\CallTasks\" />
+    <Folder Include="Tools\CallTasks\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

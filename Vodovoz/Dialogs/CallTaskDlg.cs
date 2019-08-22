@@ -14,6 +14,7 @@ using QSOrmProject;
 using Vodovoz.Dialogs.Phones;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Dialogs
 {
@@ -136,7 +137,7 @@ namespace Vodovoz.Dialogs
 		{
 			if(String.IsNullOrEmpty(textviewLastComment.Buffer.Text))
 				return;
-			Entity.AddComment(UoW, textviewLastComment.Buffer.Text,out lastComment);
+			Entity.AddComment(UoW, textviewLastComment.Buffer.Text,out lastComment, employeeRepository);
 			textviewLastComment.Buffer.Text = String.Empty;
 		}
 		#endregion
@@ -155,7 +156,7 @@ namespace Vodovoz.Dialogs
 		protected void OnCreateTaskButtonClicked(object sender, EventArgs e)
 		{
 			CallTaskDlg newTask = new CallTaskDlg();
-			newTask.Entity.CopyTask(Entity , UoW);
+			CallTaskFactory.GetInstance().CopyTask(UoW, employeeRepository, Entity, newTask.Entity);
 			newTask.UpdateAddressFields();
 			TabParent.AddTab(newTask,this);
 		}
