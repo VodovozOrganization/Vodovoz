@@ -1,0 +1,124 @@
+﻿using System;
+using System.Linq;
+using QS.Commands;
+using QS.DomainModel.Config;
+using QS.DomainModel.UoW;
+using QS.Project.Journal;
+using QS.Services;
+using QS.Tdi;
+using QS.ViewModels;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.JournalViewModels;
+
+namespace Vodovoz.ViewModels.Client
+{
+	public class SupplierPricesWidgetViewModel : EntityWidgetViewModelBase<Counterparty>
+	{
+		readonly IEntityConfigurationProvider entityConfigurationProvider;
+		readonly ITdiTab dialogTab;
+
+		public event EventHandler ListContentChanged;
+
+		public SupplierPricesWidgetViewModel(Counterparty entity, IUnitOfWork uow, ITdiTab dialogTab, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(entity, commonServices)
+		{
+			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
+			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
+			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
+			CreateCommands();
+			//UpdateAcessibility();
+			RefreshPrices();
+			Entity.ObservableSuplierPriceItems.ElementAdded += (aList, aIdx) => RefreshPrices();
+			Entity.ObservableSuplierPriceItems.ElementRemoved += (aList, aIdx, aObject) => RefreshPrices();
+		}
+
+		void CreateCommands()
+		{
+			CreateAddItemCommand();
+			CreateRemoveItemCommand();
+			CreateEditItemCommand();
+		}
+
+		void RefreshPrices()
+		{
+			Entity.SupplierPriceListRefresh();
+			ListContentChanged?.Invoke(this, new EventArgs());
+		}
+
+		public bool CanAdd { get; set; } = true;
+		public bool CanEdit { get; set; } = false;//задача редактирования пока не актуальна
+
+		bool canRemove = false;
+		public bool CanRemove {
+			get => canRemove;
+			set => SetField(ref canRemove, value);
+		}
+		#region Commands
+
+		#region AddItemCommand
+
+		public DelegateCommand AddItemCommand { get; private set; }
+
+		private void CreateAddItemCommand()
+		{
+			AddItemCommand = new DelegateCommand(
+				() => {
+					var existingNomenclatures = Entity.ObservableSuplierPriceItems.Select(i => i.NomenclatureToBuy.Id).Distinct();
+					var filter = new NomenclatureFilterViewModel(CommonServices.InteractiveService) {
+						HidenByDefault = true
+					};
+					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+						filter,
+						entityConfigurationProvider,
+						CommonServices
+					) {
+						SelectionMode = JournalSelectionMode.Single,
+						ExcludingNomenclatureIds = existingNomenclatures.ToArray()
+					};
+					journalViewModel.OnEntitySelectedResult += (sender, e) => {
+						var selectedNode = e.SelectedNodes.FirstOrDefault();
+						if(selectedNode == null)
+							return;
+						Entity.AddSupplierPriceItems(UoW.GetById<Nomenclature>(selectedNode.Id));
+					};
+					dialogTab.TabParent.AddSlaveTab(dialogTab, journalViewModel);
+				},
+				() => true
+			);
+		}
+
+		#endregion AddItemCommand
+
+		#region RemoveItemCommand
+
+		public DelegateCommand<ISupplierPriceNode> RemoveItemCommand { get; private set; }
+
+		private void CreateRemoveItemCommand()
+		{
+			RemoveItemCommand = new DelegateCommand<ISupplierPriceNode>(
+				n => Entity.RemoveNomenclatureWithPrices(n.NomenclatureToBuy.Id),
+				n => CanRemove
+			);
+		}
+
+		#endregion RemoveItemCommand
+
+		#region EditItemCommand
+
+		public DelegateCommand EditItemCommand { get; private set; }
+
+		private void CreateEditItemCommand()
+		{
+			EditItemCommand = new DelegateCommand(
+				() => throw new NotImplementedException(nameof(EditItemCommand)),
+				() => false
+			);
+		}
+
+		#endregion EditItemCommand
+
+		#endregion Commands
+
+	}
+}

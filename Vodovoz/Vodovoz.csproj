@@ -456,6 +456,8 @@
     <EmbeddedResource Include="icons\map\points\custom\vodonos.png" />
     <EmbeddedResource Include="icons\map\points\custom\marker_shadow.png" />
     <EmbeddedResource Include="icons\toolbar\complaints.png" />
+    <EmbeddedResource Include="icons\toolbar\suppliers.png" />
+    <EmbeddedResource Include="toolbars\suppliers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -1174,7 +1176,6 @@
     <Compile Include="JournalViewModels\OrderJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\OrderFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderFilterView.cs" />
-    <Compile Include="Filters\ViewModels\OrderJournalFilterViewModel.cs" />
     <Compile Include="Infrastructure\Converters\NullToBooleanConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullableBooleanToBooleanConverter.cs" />
     <Compile Include="JournalNodes\OrderJournalNode.cs" />
@@ -1270,8 +1271,22 @@
     <Compile Include="Views\Complaints\ComplaintFilesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintFilesView.cs" />
     <Compile Include="Dialogs\OrderWidgets\GtkTabsOpener.cs" />
+    <Compile Include="Views\Client\SupplierPricesWidgetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Client.SupplierPricesWidgetView.cs" />
+    <Compile Include="JournalViewModels\NomenclaturesJournalViewModel.cs" />
+    <Compile Include="JournalNodes\NomenclatureJournalNode.cs" />
+    <Compile Include="Filters\ViewModels\OrderJournalFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\NomenclaturesFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclaturesFilterView.cs" />
+    <Compile Include="ViewModels\Client\SupplierPricesWidgetViewModel.cs" />
+    <Compile Include="Views\Suppliers\RequestToSupplierView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Suppliers.RequestToSupplierView.cs" />
     <Compile Include="Additions\Logistic\ExtDistanceCalculator.cs" />
     <Compile Include="Infrastructure\Converters\ColorTextToGdkColorConverter.cs" />
+    <Compile Include="Filters\GtkViews\RequestsToSuppliersFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RequestsToSuppliersFilterView.cs" />
+    <Compile Include="ViewModels\Suppliers\RequestToSupplierViewModel.cs" />
+    <Compile Include="JournalViewModels\Suppliers\RequestsToSuppliersJournalViewModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1503,6 +1518,11 @@
     <Folder Include="Views\Complaints\" />
     <Folder Include="Views\Employees\" />
     <Folder Include="Views\Organization\" />
+    <Folder Include="Views\Client\" />
+    <Folder Include="ViewModels\Client\" />
+    <Folder Include="Views\Suppliers\" />
+    <Folder Include="ViewModels\Suppliers\" />
+    <Folder Include="JournalViewModels\Suppliers\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

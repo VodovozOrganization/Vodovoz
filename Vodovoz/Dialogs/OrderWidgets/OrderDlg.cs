@@ -453,11 +453,9 @@ namespace Vodovoz
 								return;
 							}
 							AdditionalAgreement aa = node.AdditionalAgreement.Self;
-							if(aa is WaterSalesAgreement &&
-							  (aa as WaterSalesAgreement).HasFixedPrice) {
+							if(aa is WaterSalesAgreement wsa && wsa.HasFixedPrice) {
 								c.ForegroundGdk = colorGreen;
-							} else if(node.IsUserPrice &&
-									  Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
+							} else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 								c.ForegroundGdk = colorBlue;
 							}
 						}

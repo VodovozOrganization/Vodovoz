@@ -6,14 +6,18 @@ using QS.Journal.GtkUI;
 using QSProjectsLib;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Representations;
-using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels.Employees;
+using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.JournalViewModels.Suppliers;
+using Vodovoz.Representations;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
 	public static class JournalsColumnsConfigs
 	{
+		static Gdk.Color colorBlack = new Gdk.Color(0, 0, 0);
+		static Gdk.Color colorRed = new Gdk.Color(0xff, 0, 0);
+
 		public static void RegisterColumns()
 		{
 			//OrderJournalViewModel
@@ -187,6 +191,44 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Сотудники").AddTextRenderer(node => node.EmployeesName)
 					.AddColumn("Сумма штрафа").AddTextRenderer(node => node.FineSumm.ToString())
 					.AddColumn("Причина штрафа").AddTextRenderer(node => node.FineReason)
+					.Finish()
+			);
+
+			//NomenclaturesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<NomenclaturesJournalViewModel>(
+				() => FluentColumnsConfig<NomenclatureJournalNode>.Create()
+					.AddColumn("Код")
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Номенклатура")
+						.SetDataProperty(node => node.Name)
+					.AddColumn("Категория")
+						.SetDataProperty(node => node.Category.GetEnumTitle())
+					.AddColumn("Кол-во")
+						.AddTextRenderer(node => node.InStockText)
+					.AddColumn("Зарезервировано")
+						.AddTextRenderer(node => node.ReservedText)
+					.AddColumn("Доступно")
+						.AddTextRenderer(node => node.AvailableText)
+						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
+					.Finish()
+			);
+
+			//RequestsToSuppliersJournalViewModel
+			TreeViewColumnsConfigFactory.Register<RequestsToSuppliersJournalViewModel>(
+				() => FluentColumnsConfig<RequestToSupplierJournalNode>.Create()
+					.AddColumn("Номер")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.SetDataProperty(n => n.Name)
+					.AddColumn("Дата")
+						.HeaderAlignment(0.5f)
+						.SetDataProperty(n => n.Created.ToString("G"))
+					.AddColumn("Автор")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Author)
+					.AddColumn("")
 					.Finish()
 			);
 		}

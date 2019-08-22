@@ -45,7 +45,10 @@ namespace Vodovoz
 		public static IPermissionService PermissionService {
 			get {
 				if(permissionService == null) {
-					permissionService = new PermissionService(PermissionsSettings.EntityPermissionValidator);
+					permissionService = new PermissionService(
+						PermissionsSettings.EntityPermissionValidator,
+						PermissionsSettings.PresetPermissionValidator
+					);
 				}
 				return permissionService;
 			}

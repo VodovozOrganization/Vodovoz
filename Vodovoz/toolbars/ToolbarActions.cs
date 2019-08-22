@@ -4,21 +4,30 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.Config;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using Vodovoz;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
+using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Suppliers;
+using Vodovoz.Domain.Goods;
+using Vodovoz.FilterViewModels.Goods;
 
 public partial class MainWindow : Window
 {
@@ -74,6 +83,10 @@ public partial class MainWindow : Window
 	Action ActionScheduleRestrictedDistricts;
 	Action ActionCashTransferDocuments;
 	Action ActionFuelTransferDocuments;
+
+	//Suppliers
+	Action ActionNewRequestToSupplier;
+	Action ActionJournalOfRequestsToSuppliers;
 
 	public void BuildToolbarActions()
 	{
@@ -133,6 +146,10 @@ public partial class MainWindow : Window
 		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
 		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Журнал доверенностей", null, "table");
 		ActionScheduleRestrictedDistricts = new Action("ActionScheduleRestrictedDistricts", "Районы с графиками доставки", null, "table");
+		//Suppliers
+		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
+		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
+
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup("ToolbarActions");
@@ -186,6 +203,9 @@ public partial class MainWindow : Window
 		w1.Add(ActionRouteListAddressesTransferring, null);
 		w1.Add(ActionTransferOperationJournal, null);
 		w1.Add(ActionScheduleRestrictedDistricts, null);
+		//Suppliers
+		w1.Add(ActionNewRequestToSupplier, null);
+		w1.Add(ActionJournalOfRequestsToSuppliers, null);
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -241,7 +261,41 @@ public partial class MainWindow : Window
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
 		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
 		ActionScheduleRestrictedDistricts.Activated += ActionScheduleRestrictedDistricts_Activated;
+
+		//Suppliers
+		ActionNewRequestToSupplier.Activated += ActionNewRequestToSupplier_Activated;
+		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
+
 		#endregion
+	}
+
+	void ActionNewRequestToSupplier_Activated(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
+			() => new RequestToSupplierViewModel(
+				EntityConstructorParam.ForCreate(),
+				ServicesConfig.CommonServices,
+				new DefaultEntityConfigurationProvider(),
+				ServicesConfig.EmployeeService,
+				new SupplierPriceItemsRepository()
+			)
+		);
+	}
+
+	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
+	{
+		IEntitySelectorFactory nomenclatureSelectorFactory = new DefaultEntitySelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
+		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(ServicesConfig.CommonServices.InteractiveService, nomenclatureSelectorFactory);
+		var requestsJournal = new RequestsToSuppliersJournalViewModel(
+			filter,
+			entityConfigurationProvider,
+			ServicesConfig.CommonServices,
+			ServicesConfig.EmployeeService,
+			new SupplierPriceItemsRepository()
+		);
+		tdiMain.AddTab(requestsJournal);
 	}
 
 	void ActionRouteListsPrint_Activated(object sender, System.EventArgs e)
@@ -638,8 +692,8 @@ public partial class MainWindow : Window
 		ResidueFilterViewModel filter = new ResidueFilterViewModel(ServicesConfig.InteractiveService);
 		var residueJournalViewModel = new ResidueJournalViewModel(
 			filter,
-			entityConfigurationProvider, 
-			ServicesConfig.EmployeeService, 
+			entityConfigurationProvider,
+			ServicesConfig.EmployeeService,
 			ServicesConfig.RepresentationEntityPicker,
 			moneyRepository,
 			depositRepository,

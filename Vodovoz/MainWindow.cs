@@ -4,6 +4,7 @@ using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QS.Banks.Domain;
+using QS.BusinessCommon.Domain;
 using QS.Contacts;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -18,8 +19,6 @@ using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi.Gtk;
 using QSBanks;
-using QS.BusinessCommon.Domain;
-using QS.Contacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSSupportLib;
@@ -1403,5 +1402,10 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			ServicesConfig.CommonServices
 		);
 		tdiMain.AddTab(complaintResultsViewModel);
+	}
+
+	protected void OnActionSuppliersActivated(object sender, EventArgs e)
+	{
+		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
 	}
 }

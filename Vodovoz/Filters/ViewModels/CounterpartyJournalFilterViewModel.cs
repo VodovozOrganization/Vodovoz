@@ -1,9 +1,8 @@
-﻿using System;
-using QS.Project.Filter;
+﻿using QS.Project.Filter;
 using QS.Project.Journal;
+using QS.RepresentationModel.GtkUI;
 using QS.Services;
 using Vodovoz.Domain.Client;
-using QS.RepresentationModel.GtkUI;
 using Vodovoz.Representations;
 
 namespace Vodovoz.Filters.ViewModels

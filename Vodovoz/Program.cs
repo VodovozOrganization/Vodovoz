@@ -13,6 +13,7 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Tools;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Utilities.Text;
+using QS.DomainModel.Entity.PresetPermissions;
 
 namespace Vodovoz
 {
@@ -69,6 +70,7 @@ namespace Vodovoz
 
 			PermissionsSettings.ConfigureEntityPermissionFinder(new Vodovoz.Domain.Permissions.EntitiesWithPermissionFinder());
 			PermissionsSettings.EntityPermissionValidator = new Vodovoz.Domain.Permissions.EntityPermissionValidator();
+			PermissionsSettings.PresetPermissionValidator = new PresetPermissionValidator();
 
 			MainSupport.LoadBaseParameters();
 

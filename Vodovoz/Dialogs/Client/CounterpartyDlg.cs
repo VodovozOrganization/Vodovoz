@@ -4,7 +4,9 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
 using QS.Banks.Domain;
+using QS.Contacts;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
@@ -12,8 +14,6 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
-using QSBanks;
-using QS.Contacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -25,7 +25,6 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.Tools;
 using Vodovoz.ViewModel;
 using Gtk;
 using Vodovoz.Domain.Goods;
@@ -98,6 +97,7 @@ namespace Vodovoz
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
 			commentsview4.UoW = UoW;
+			supplierPricesWidget.ViewModel = new ViewModels.Client.SupplierPricesWidgetViewModel(Entity, UoW, this, new DefaultEntityConfigurationProvider(), ServicesConfig.CommonServices);
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
@@ -201,6 +201,12 @@ namespace Vodovoz
 			enumNeedOfCheque.ItemsEnum = typeof(ChequeResponse);
 			enumNeedOfCheque.Binding.AddBinding(Entity, c => c.NeedCheque, w => w.SelectedItemOrNull).InitializeFromSource();
 
+			yEnumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
+			yEnumCounterpartyType.Binding.AddBinding(Entity, c => c.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
+			yEnumCounterpartyType.Changed += YEnumCounterpartyType_Changed;
+			yEnumCounterpartyType.ChangedByUser += YEnumCounterpartyType_ChangedByUser;
+			YEnumCounterpartyType_Changed(this, new EventArgs());
+
 			//make actions menu
 			var menu = new Gtk.Menu();
 			var menuItem = new Gtk.MenuItem("Все заказы контрагента");
@@ -213,6 +219,7 @@ namespace Vodovoz
 			contactsview1.Visible = false;
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
 			enumNeedOfCheque.Visible = lblNeedCheque.Visible = CounterpartyRepository.IsCashPayment(Entity.PaymentMethod);
+			rbnPrices.Toggled += OnRbnPricesToggled;
 			SetVisibilityForCloseDeliveryComments();
 
 			#region Особая печать
@@ -363,6 +370,44 @@ namespace Vodovoz
 				notebook1.CurrentPage = 7;
 		}
 
+		protected void OnRadioTagsToggled(object sender, EventArgs e)
+		{
+			if(radioTags.Active)
+				notebook1.CurrentPage = 8;
+		}
+
+		protected void OnRadioSpecialDocFieldsToggled(object sender, EventArgs e)
+		{
+			if(radioSpecialDocFields.Active)
+				notebook1.CurrentPage = 9;
+		}
+
+		protected void OnRbnPricesToggled(object sender, EventArgs e)
+		{
+			if(rbnPrices.Active)
+				notebook1.CurrentPage = 10;
+		}
+
+		void YEnumCounterpartyType_Changed(object sender, EventArgs e)
+		{
+			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
+		}
+
+		void YEnumCounterpartyType_ChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.ObservableSuplierPriceItems.Any() && Entity.CounterpartyType == CounterpartyType.Buyer) {
+				var response = MessageDialogHelper.RunWarningDialog(
+					"Смена типа контрагента",
+					"При смене контрагента с поставщика на покупателя произойдёт очистка списка цен на поставляемые им номенклатуры. Продолжить?",
+					Gtk.ButtonsType.YesNo
+				);
+				if(response)
+					Entity.ObservableSuplierPriceItems.Clear();
+				else
+					Entity.CounterpartyType = CounterpartyType.Supplier;
+			}
+		}
+
 		protected void OnEnumPersonTypeChanged(object sender, EventArgs e)
 		{
 			labelFIO.Visible = entryFIO.Visible = Entity.PersonType == PersonType.natural;
@@ -421,12 +466,6 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnRadioTagsToggled(object sender, EventArgs e)
-		{
-			if(radioTags.Active)
-				notebook1.CurrentPage = 8;
-		}
-
 		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			if(e.Subject is Tag tag)
@@ -456,12 +495,6 @@ namespace Vodovoz
 		protected void OnChkNeedNewBottlesToggled(object sender, EventArgs e)
 		{
 			Entity.NewBottlesNeeded = chkNeedNewBottles.Active;
-		}
-
-		protected void OnRadioSpecialDocFieldsToggled(object sender, EventArgs e)
-		{
-			if(radioSpecialDocFields.Active)
-				notebook1.CurrentPage = 9;
 		}
 
 		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)
