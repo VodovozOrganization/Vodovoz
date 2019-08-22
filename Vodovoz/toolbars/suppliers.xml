@@ -1,0 +1,6 @@
+﻿<ui>
+    <toolbar name='toolbarSub'>
+        <toolitem name='ActionNewRequestToSupplier' action='ActionNewRequestToSupplier'/>
+        <toolitem name='ActionJournalOfRequestsToSuppliers' action='ActionJournalOfRequestsToSuppliers'/>
+    </toolbar>
+</ui>

@@ -1,5 +1,4 @@
-﻿using Gamma.Binding.Core;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Services;
@@ -11,18 +10,14 @@ namespace Vodovoz.Views.Complaints
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class GuiltyItemView : EntityWidgetViewBase<GuiltyItemViewModel>
 	{
-		public BindingControler<GuiltyItemView> Binding { get; private set; }
-
 		public GuiltyItemView()
 		{
 			this.Build();
-			Binding = new BindingControler<GuiltyItemView>(this);
 		}
 
 		public GuiltyItemView(GuiltyItemViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			Binding = new BindingControler<GuiltyItemView>(this);
 		}
 
 		protected override void ConfigureWidget()

@@ -4,7 +4,9 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
 using QS.Banks.Domain;
+using QS.Contacts;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
@@ -12,8 +14,6 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
-using QSBanks;
-using QS.Contacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -25,8 +25,9 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
-using Vodovoz.Tools;
 using Vodovoz.ViewModel;
+using Gtk;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
@@ -96,6 +97,7 @@ namespace Vodovoz
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
 			commentsview4.UoW = UoW;
+			supplierPricesWidget.ViewModel = new ViewModels.Client.SupplierPricesWidgetViewModel(Entity, UoW, this, new DefaultEntityConfigurationProvider(), ServicesConfig.CommonServices);
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
@@ -175,23 +177,7 @@ namespace Vodovoz
 			dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();
 			dataentryFinancialContact.RepresentationModel = new ViewModel.ContactsVM(UoW, Entity);
 			dataentryFinancialContact.Binding.AddBinding(Entity, e => e.FinancialContact, w => w.Subject).InitializeFromSource();
-			ycheckSpecialDocuments.Binding.AddBinding(Entity, e => e.UseSpecialDocFields, w => w.Active).InitializeFromSource();
-			radioSpecialDocFields.Visible = Entity.UseSpecialDocFields;
-			yentryCargoReceiver.Binding.AddBinding(Entity, e => e.CargoReceiver, w => w.Text).InitializeFromSource();
-			yentryCustomer.Binding.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text).InitializeFromSource();
-			yentrySpecialContract.Binding.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text).InitializeFromSource();
-			yentrySpecialKPP.Binding.AddBinding(Entity, e => e.SpecialKPP, w => w.Text).InitializeFromSource();
-			yentryGovContract.Binding.AddBinding(Entity, e => e.GovContract, w => w.Text).InitializeFromSource();
-			yentrySpecialDeliveryAddress.Binding.AddBinding(Entity, e => e.SpecialDeliveryAddress, w => w.Text).InitializeFromSource();
 			buttonLoadFromDP.Clicked += ButtonLoadFromDP_Clicked;
-			yentryOKDP.Binding.AddBinding(Entity, e => e.OKDP, w => w.Text).InitializeFromSource();
-			yentryOKPO.Binding.AddBinding(Entity, e => e.OKPO, w => w.Text).InitializeFromSource();
-
-			int?[] docCount = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-			yspeccomboboxTTNCount.ItemsList = docCount;
-			yspeccomboboxTorg2Count.ItemsList = docCount;
-			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
-			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
 
 			//Setting Contacts
 			contactsview1.CounterpartyUoW = UoWGeneric;
@@ -215,6 +201,12 @@ namespace Vodovoz
 			enumNeedOfCheque.ItemsEnum = typeof(ChequeResponse);
 			enumNeedOfCheque.Binding.AddBinding(Entity, c => c.NeedCheque, w => w.SelectedItemOrNull).InitializeFromSource();
 
+			yEnumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
+			yEnumCounterpartyType.Binding.AddBinding(Entity, c => c.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
+			yEnumCounterpartyType.Changed += YEnumCounterpartyType_Changed;
+			yEnumCounterpartyType.ChangedByUser += YEnumCounterpartyType_ChangedByUser;
+			YEnumCounterpartyType_Changed(this, new EventArgs());
+
 			//make actions menu
 			var menu = new Gtk.Menu();
 			var menuItem = new Gtk.MenuItem("Все заказы контрагента");
@@ -227,7 +219,46 @@ namespace Vodovoz
 			contactsview1.Visible = false;
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
 			enumNeedOfCheque.Visible = lblNeedCheque.Visible = CounterpartyRepository.IsCashPayment(Entity.PaymentMethod);
+			rbnPrices.Toggled += OnRbnPricesToggled;
 			SetVisibilityForCloseDeliveryComments();
+
+			#region Особая печать
+
+			ytreeviewSpecialNomenclature.ColumnsConfig = ColumnsConfigFactory.Create<SpecialNomenclature>()
+				.AddColumn("№").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Id.ToString() : "0")
+				.AddColumn("ТМЦ").AddTextRenderer(node => node.Nomenclature != null ? node.Nomenclature.Name : string.Empty)
+				.AddColumn("Код").AddNumericRenderer(node => node.SpecialId).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1)).Editing()
+				.Finish();
+			ytreeviewSpecialNomenclature.ItemsDataSource = Entity.ObservableSpecialNomenclatures;
+
+			ycheckSpecialDocuments.Binding.AddBinding(Entity, e => e.UseSpecialDocFields, w => w.Active).InitializeFromSource();
+			radioSpecialDocFields.Visible = Entity.UseSpecialDocFields;
+			yentryCargoReceiver.Binding.AddBinding(Entity, e => e.CargoReceiver, w => w.Text).InitializeFromSource();
+			yentryCustomer.Binding.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text).InitializeFromSource();
+			yentrySpecialContract.Binding.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text).InitializeFromSource();
+			yentrySpecialKPP.Binding.AddBinding(Entity, e => e.SpecialKPP, w => w.Text).InitializeFromSource();
+			yentryGovContract.Binding.AddBinding(Entity, e => e.GovContract, w => w.Text).InitializeFromSource();
+			yentrySpecialDeliveryAddress.Binding.AddBinding(Entity, e => e.SpecialDeliveryAddress, w => w.Text).InitializeFromSource();
+
+			yentryOKDP.Binding.AddBinding(Entity, e => e.OKDP, w => w.Text).InitializeFromSource();
+			yentryOKPO.Binding.AddBinding(Entity, e => e.OKPO, w => w.Text).InitializeFromSource();
+
+			int?[] docCount = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+			yspeccomboboxTTNCount.ItemsList = docCount;
+			yspeccomboboxTorg2Count.ItemsList = docCount;
+			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
+			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
+
+			yenumcomboboxKPPFrom.ItemsEnum = typeof(KppFrom);
+			yenumcomboboxKPPFrom.Binding.AddBinding(Entity, e => e.KppFrom, w => w.SelectedItem).InitializeFromSource();
+
+			if(!String.IsNullOrWhiteSpace(Entity.SpecialKPP)) {
+				labelKpp.Visible = true;
+				yentrySpecialKPP.Visible = true;
+				Entity.KppFrom = KppFrom.Counterparty;
+			}
+
+			#endregion Особая печать
 		}
 
 		void ButtonLoadFromDP_Clicked(object sender, EventArgs e)
@@ -266,6 +297,8 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			if(Entity.SpecialKPP == String.Empty)
+				Entity.SpecialKPP = null;
 			Entity.UoW = UoW;
 			var valid = new QSValidator<Counterparty>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
@@ -337,6 +370,44 @@ namespace Vodovoz
 				notebook1.CurrentPage = 7;
 		}
 
+		protected void OnRadioTagsToggled(object sender, EventArgs e)
+		{
+			if(radioTags.Active)
+				notebook1.CurrentPage = 8;
+		}
+
+		protected void OnRadioSpecialDocFieldsToggled(object sender, EventArgs e)
+		{
+			if(radioSpecialDocFields.Active)
+				notebook1.CurrentPage = 9;
+		}
+
+		protected void OnRbnPricesToggled(object sender, EventArgs e)
+		{
+			if(rbnPrices.Active)
+				notebook1.CurrentPage = 10;
+		}
+
+		void YEnumCounterpartyType_Changed(object sender, EventArgs e)
+		{
+			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
+		}
+
+		void YEnumCounterpartyType_ChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.ObservableSuplierPriceItems.Any() && Entity.CounterpartyType == CounterpartyType.Buyer) {
+				var response = MessageDialogHelper.RunWarningDialog(
+					"Смена типа контрагента",
+					"При смене контрагента с поставщика на покупателя произойдёт очистка списка цен на поставляемые им номенклатуры. Продолжить?",
+					Gtk.ButtonsType.YesNo
+				);
+				if(response)
+					Entity.ObservableSuplierPriceItems.Clear();
+				else
+					Entity.CounterpartyType = CounterpartyType.Supplier;
+			}
+		}
+
 		protected void OnEnumPersonTypeChanged(object sender, EventArgs e)
 		{
 			labelFIO.Visible = entryFIO.Visible = Entity.PersonType == PersonType.natural;
@@ -395,12 +466,6 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnRadioTagsToggled(object sender, EventArgs e)
-		{
-			if(radioTags.Active)
-				notebook1.CurrentPage = 8;
-		}
-
 		void RefWin_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			if(e.Subject is Tag tag)
@@ -430,12 +495,6 @@ namespace Vodovoz
 		protected void OnChkNeedNewBottlesToggled(object sender, EventArgs e)
 		{
 			Entity.NewBottlesNeeded = chkNeedNewBottles.Active;
-		}
-
-		protected void OnRadioSpecialDocFieldsToggled(object sender, EventArgs e)
-		{
-			if(radioSpecialDocFields.Active)
-				notebook1.CurrentPage = 9;
 		}
 
 		protected void OnYcheckSpecialDocumentsToggled(object sender, EventArgs e)
@@ -508,5 +567,41 @@ namespace Vodovoz
 		}
 
 		#endregion CloseDelivery
+
+		protected void OnYbuttonAddNomClicked(object sender, EventArgs e)
+		{
+			var nomenclatureSelectDlg = new OrmReference(typeof(Nomenclature));
+			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
+			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
+			this.TabParent.AddSlaveTab(this, nomenclatureSelectDlg);
+		}
+
+		private void NomenclatureSelectDlg_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			var specNom = new SpecialNomenclature();
+			specNom.Nomenclature = e.Subject as Nomenclature;
+			specNom.Counterparty = Entity;
+
+			if(Entity.ObservableSpecialNomenclatures.Any(x => x.Nomenclature.Id == specNom.Nomenclature.Id))
+				return;
+
+			Entity.ObservableSpecialNomenclatures.Add(specNom);
+		}
+
+		protected void OnYbuttonRemoveNomClicked(object sender, EventArgs e)
+		{
+			Entity.ObservableSpecialNomenclatures.Remove(ytreeviewSpecialNomenclature.GetSelectedObject<SpecialNomenclature>());
+		}
+
+		protected void OnYenumcomboboxKPPFromChangedByUser(object sender, EventArgs e)
+		{
+			bool visible = Entity.KppFrom == KppFrom.Counterparty;
+
+			labelKpp.Visible = visible;
+			yentrySpecialKPP.Visible = visible;
+
+			if(!visible)
+				Entity.SpecialKPP = null;
+		}
 	}
 }

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Gamma.Binding;
 using Gamma.Utilities;
 using NHibernate.AdoNet;
 using NHibernate.Cfg;
+using QS.Banks.Domain;
+using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
 using QS.HistoryLog;
 using QS.Permissions;
@@ -15,8 +18,7 @@ using QS.Project.Repositories;
 using QS.Tdi.Gtk;
 using QS.Widgets.GtkUI;
 using QSBusinessCommon;
-using QS.BusinessCommon.Domain;
-using QS.Contacts;
+using QSContacts;
 using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
@@ -51,21 +53,22 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels;
+using Vodovoz.FilterViewModels.Employees;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.ViewModels;
-using Vodovoz.Views;
-using Vodovoz.ViewModels.Employees;
-using Vodovoz.Views.Employees;
-using QS.Banks.Domain;
-using System.IO;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.Views.Complaints;
-using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Organization;
+using Vodovoz.ViewModels.Suppliers;
+using Vodovoz.Views;
+using Vodovoz.Views.Complaints;
+using Vodovoz.Views.Employees;
 using Vodovoz.Views.Organization;
-using Vodovoz.FilterViewModels.Employees;
-using Vodovoz.FilterViewModels;
-using QSContacts;
+using Vodovoz.Views.Suppliers;
 
 namespace Vodovoz
 {
@@ -158,6 +161,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ComplaintResultViewModel, ComplaintResultView>()
 				.RegisterWidgetForTabViewModel<SubdivisionViewModel, SubdivisionView>()
 				.RegisterWidgetForTabViewModel<FineViewModel, FineView>()
+				.RegisterWidgetForTabViewModel<RequestToSupplierViewModel, RequestToSupplierView>()
 				;
 
 			//Регистрация фильтров
@@ -171,6 +175,8 @@ namespace Vodovoz
 				.RegisterWidgetForFilterViewModel<ResidueFilterViewModel, ResidueFilterView>()
 				.RegisterWidgetForFilterViewModel<FineFilterViewModel, FineFilterView>()
 				.RegisterWidgetForFilterViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
+				.RegisterWidgetForFilterViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
+				.RegisterWidgetForFilterViewModel<RequestsToSuppliersFilterViewModel, RequestsToSuppliersFilterView>()
 				;
 
 			TDIMain.TDIWidgetResolver = ViewModelWidgetResolver.Instance;

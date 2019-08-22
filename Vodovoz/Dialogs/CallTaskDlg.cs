@@ -9,6 +9,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Operations;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
+using QSReport;
 
 namespace Vodovoz.Dialogs
 {
@@ -166,5 +167,14 @@ namespace Vodovoz.Dialogs
 			return true;
 		}
 
+		protected void OnButtonReportByDPClicked(object sender, EventArgs e)
+		{
+			TabParent.AddTab(new ReportViewDlg(Entity.CreateReportInfoByDeliveryPoint()), this);
+		}
+
+		protected void OnButtonReportByClientClicked(object sender, EventArgs e)
+		{
+			TabParent.AddTab(new ReportViewDlg(Entity.CreateReportInfoByClient()),this);
+		}
 	}
 }

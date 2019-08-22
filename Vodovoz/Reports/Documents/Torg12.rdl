@@ -17,7 +17,7 @@
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
-	nomenclature.id AS id,
+	IFNULL(special_nomenclature.special_id, nomenclature.id) AS id,
 	nomenclature.official_name as name,
 	measurement_units.okei AS unit_code,
 	measurement_units.name AS mu_name,
@@ -41,6 +41,8 @@ LEFT JOIN
 	measurement_units ON nomenclature.unit_id = measurement_units.id
 LEFT JOIN
 	orders ON orders.id = order_items.order_id
+LEFT JOIN
+	special_nomenclature ON special_nomenclature.counterparty_id = orders.client_id AND special_nomenclature.nomenclature_id = nomenclature.id
 WHERE
 	order_items.order_id = @order_id;</CommandText>
         <QueryParameters>
@@ -93,59 +95,64 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-orders.id AS order_id, 
-orders.delivery_date AS order_date,
+    orders.id AS order_id, 
+    orders.delivery_date AS order_date,
 
-counterparty_contract.id AS contract_number, 
-DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
-counterparty.full_name AS client_name, 
-counterparty.jur_address AS client_address, 
-counterparty.inn AS client_inn, 
-(SELECT GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') FROM phones WHERE phones.counterparty_id = counterparty.id) AS client_phone_number,
-client_account.number AS client_acc_number,
-client_bank.name AS client_bank_name,
-client_bank.bik AS client_bank_bik,
-client_bank.cor_account AS client_bank_cor_account,
+    counterparty_contract.id AS contract_number,
+    DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
+    counterparty.full_name AS client_name, 
+    counterparty.jur_address AS client_address, 
+    counterparty.inn AS client_inn, 
+    IFNULL(GROUP_CONCAT(CONCAT('+7 ', client_phones.number) SEPARATOR '; '), GROUP_CONCAT(CONCAT('+7 ', delivery_point_phones.number) SEPARATOR '; ')) AS client_phone_number,
+    client_account.number AS client_acc_number,
+    client_bank.name AS client_bank_name,
+    client_bank.bik AS client_bank_bik,
+    client_bank.cor_account AS client_bank_cor_account,
 
-organizations.full_name AS org_name, 
-organizations.jur_address as org_address, 
-organizations.INN AS org_inn, 
-(SELECT GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') FROM phones WHERE phones.org_id = organizations.id) AS org_phone_number,
-org_account.number AS org_acc_number,
-org_bank.name AS org_bank_name,
-org_bank.bik AS org_bank_bik,
-org_bank.cor_account AS org_bank_cor_account,
+    organizations.full_name AS org_name,
+    organizations.jur_address as org_address,
+    organizations.INN AS org_inn, 
+    (SELECT GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') FROM phones WHERE phones.org_id = organizations.id) AS org_phone_number,
+    org_account.number AS org_acc_number,
+    org_bank.name AS org_bank_name,
+    org_bank.bik AS org_bank_bik,
+    org_bank.cor_account AS org_bank_cor_account,
 
-buhgalter.last_name AS buh_last_name, 
-LEFT(buhgalter.name, 1) AS buh_name, 
-LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
+    buhgalter.last_name AS buh_last_name,
+    LEFT(buhgalter.name, 1) AS buh_name,
+    LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
 
-leader.last_name AS leader_last_name, 
-LEFT(leader.name, 1) AS leader_name, 
-LEFT(leader.patronymic, 1) AS leader_patronymic
-
-FROM orders 
-LEFT JOIN counterparty ON orders.client_id = counterparty.id
-LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
-LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
-LEFT JOIN employees leader ON leader.id = organizations.leader_id 
-LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id
-LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id
-LEFT JOIN banks org_bank ON org_bank.id = org_account.bank_id
-LEFT JOIN accounts client_account ON client_account.id = counterparty.default_account_id
-LEFT JOIN banks client_bank ON client_bank.id = client_account.bank_id
-WHERE counterparty_contract.id=orders.counterparty_contract_id
-AND orders.id = @order_id;</CommandText>
+    leader.last_name AS leader_last_name, 
+    LEFT(leader.name, 1) AS leader_name, 
+    LEFT(leader.patronymic, 1) AS leader_patronymic,
+    IF(counterparty.use_special_doc_fields, IF(counterparty.spectial_kpp IS NULL OR counterparty.spectial_kpp = '', delivery_points.KPP, counterparty.spectial_kpp), counterparty.kpp) AS KPP
+FROM 
+    orders
+    LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id
+    LEFT JOIN phones as delivery_point_phones ON delivery_point_phones.delivery_point_id = orders.delivery_point_id
+    LEFT JOIN counterparty ON orders.client_id = counterparty.id
+    LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+    LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
+    LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
+    LEFT JOIN employees leader ON leader.id = organizations.leader_id 
+    LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id
+    LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id
+    LEFT JOIN banks org_bank ON org_bank.id = org_account.bank_id
+    LEFT JOIN accounts client_account ON client_account.id = counterparty.default_account_id
+    LEFT JOIN banks client_bank ON client_bank.id = client_account.bank_id
+WHERE 
+    counterparty_contract.id=orders.counterparty_contract_id
+    AND orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -249,6 +256,9 @@ AND orders.id = @order_id;</CommandText>
         <Field Name="org_bank_cor_account">
           <DataField>org_bank_cor_account</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="KPP">
+          <DataField>KPP</DataField>
         </Field>
       </Fields>
     </DataSet>
@@ -1171,6 +1181,7 @@ AND orders.id = @order_id;</CommandText>
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1206,6 +1217,7 @@ AND orders.id = @order_id;</CommandText>
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1351,7 +1363,7 @@ AND orders.id = @order_id;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
@@ -1489,7 +1501,7 @@ AND orders.id = @order_id;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
@@ -1524,7 +1536,7 @@ AND orders.id = @order_id;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
@@ -2555,7 +2567,7 @@ AND orders.id = @order_id;</CommandText>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <TextAlign>Center</TextAlign>
+              <TextAlign>Right</TextAlign>
               <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
@@ -2600,7 +2612,7 @@ AND orders.id = @order_id;</CommandText>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <TextAlign>Center</TextAlign>
+              <TextAlign>Right</TextAlign>
               <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
@@ -3203,7 +3215,15 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
       <Textbox Name="Textbox137" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>20.00pt</Height>
         <Width>555.75pt</Width>
-        <Value>=First({client_name}, "Order") + Iif(First({client_inn}, "Order") != null and First({client_inn}, "Order") != "", ", ИНН " + First({client_inn}, "Order"), "") + Iif(First({client_address}, "Order") != null and First({client_address}, "Order") != "", ", " + First({client_address}, "Order"), "") + Iif(First({client_phone_number}, "Order") != null and First({client_phone_number}, "Order") != "", ", тел: " + First({client_phone_number}, "Order"), "") + Iif(First({client_acc_number}, "Order") != null and First({client_acc_number}, "Order") != "", ", р/с " + First({client_acc_number}, "Order"), "") + Iif(First({client_bank_name}, "Order") != null and First({client_bank_name}, "Order")  != "", ", в банке " + First({client_bank_name}, "Order"), "") + Iif(First({client_bank_bik}, "Order") != null and First({client_bank_bik}, "Order") != "", ", БИК " + First({client_bank_bik}, "Order"), "") + Iif(First({client_bank_cor_account}, "Order") != null and First({client_bank_cor_account}, "Order") != "", ", к/с " + First({client_bank_cor_account}, "Order"), "")</Value>
+        <Value>=First({client_name}, "Order")
+ + Iif(First({client_inn}, "Order") != null and First({client_inn}, "Order") != "", ", ИНН " + First({client_inn}, "Order"), "") 
+ + Iif(First({KPP}, "Order") != null and First({KPP}, "Order") != "", ", КПП " + First({KPP}, "Order"), "") 
+ + Iif(First({client_address}, "Order") != null and First({client_address}, "Order") != "", ", " + First({client_address}, "Order"), "") 
+ + Iif(First({client_phone_number}, "Order") != null and First({client_phone_number}, "Order") != "", ", тел: " + First({client_phone_number}, "Order"), "") 
+ + Iif(First({client_acc_number}, "Order") != null and First({client_acc_number}, "Order") != "", ", р/с " + First({client_acc_number}, "Order"), "") 
+ + Iif(First({client_bank_name}, "Order") != null and First({client_bank_name}, "Order")  != "", ", в банке " + First({client_bank_name}, "Order"), "") 
+ + Iif(First({client_bank_bik}, "Order") != null and First({client_bank_bik}, "Order") != "", ", БИК " + First({client_bank_bik}, "Order"), "") 
+ + Iif(First({client_bank_cor_account}, "Order") != null and First({client_bank_cor_account}, "Order") != "", ", к/с " + First({client_bank_cor_account}, "Order"), "")</Value>
         <ZIndex>1</ZIndex>
         <Left>105.4pt</Left>
         <Top>123.1pt</Top>
@@ -3290,8 +3310,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           </BorderWidth>
           <BackgroundColor>
           </BackgroundColor>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox36" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3345,8 +3365,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           </BorderWidth>
           <BackgroundColor>
           </BackgroundColor>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox161" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3376,8 +3396,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           </BorderWidth>
           <BackgroundColor>
           </BackgroundColor>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox163" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3407,8 +3427,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           </BorderWidth>
           <BackgroundColor>
           </BackgroundColor>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox166" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3438,8 +3458,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           </BorderWidth>
           <BackgroundColor>
           </BackgroundColor>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox168" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3469,7 +3489,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BackgroundColor>
           </BackgroundColor>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox177" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3500,7 +3520,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BackgroundColor>
           </BackgroundColor>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox178" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3530,7 +3550,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BackgroundColor>
           </BackgroundColor>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox179" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3560,7 +3580,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BackgroundColor>
           </BackgroundColor>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox180" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3590,7 +3610,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BackgroundColor>
           </BackgroundColor>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3620,8 +3640,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           </BorderWidth>
           <BackgroundColor>
           </BackgroundColor>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3651,7 +3671,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BackgroundColor>
           </BackgroundColor>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox154" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3681,8 +3701,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           </BorderWidth>
           <BackgroundColor>
           </BackgroundColor>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox170" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3712,8 +3732,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           </BorderWidth>
           <BackgroundColor>
           </BackgroundColor>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox181" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3743,7 +3763,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BackgroundColor>
           </BackgroundColor>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox182" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3773,7 +3793,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BackgroundColor>
           </BackgroundColor>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox183" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3803,8 +3823,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           </BorderWidth>
           <BackgroundColor>
           </BackgroundColor>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox184" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3834,8 +3854,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           </BorderWidth>
           <BackgroundColor>
           </BackgroundColor>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox185" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3865,7 +3885,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BackgroundColor>
           </BackgroundColor>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox201" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3895,7 +3915,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BackgroundColor>
           </BackgroundColor>
           <TextAlign>Right</TextAlign>
-          <VerticalAlign >Middle</VerticalAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox202" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3925,8 +3945,8 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           </BorderWidth>
           <BackgroundColor>
           </BackgroundColor>
-          <VerticalAlign >Middle</VerticalAlign>
-          <TextAlign >Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>

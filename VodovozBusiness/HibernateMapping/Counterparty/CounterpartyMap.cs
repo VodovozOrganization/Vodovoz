@@ -47,6 +47,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.NeedCheque).Column("need_cheque").CustomType<ChequeResponseStringType>();
 			Map(x => x.Torg2Count).Column("torg2_count");
 			Map(x => x.TTNCount).Column("ttn_count");
+			Map(x => x.CounterpartyType).Column("counterparty_type").CustomType<CounterpartyTypeStringType>();
+			Map(x => x.DelayDays).Column("delay_days");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");
 			References(x => x.Accountant).Column("accountant_id");
@@ -72,10 +74,14 @@ namespace Vodovoz.HibernateMapping
 				.KeyColumn("counterparty_id");
 			HasMany(x => x.Proxies).Cascade.None().LazyLoad().Inverse()
 				.KeyColumn("counterparty_id");
+			HasMany(x => x.SpecialNomenclatures).Cascade.AllDeleteOrphan().LazyLoad()
+				.KeyColumn("counterparty_id");
 			HasManyToMany(x => x.Tags).Table("counterparty_tags")
 									  .ParentKeyColumn("counterparty_id")
 									  .ChildKeyColumn("tag_id")
 									  .LazyLoad();
+			HasMany(x => x.SuplierPriceItems).Cascade.AllDeleteOrphan().LazyLoad().Inverse()
+				.KeyColumn("supplier_id");
 		}
 	}
 }

@@ -8,6 +8,7 @@ using QS.DomainModel.Config;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
@@ -25,8 +26,6 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Order = Vodovoz.Domain.Orders.Order;
-using QS.Project.Services;
-using Vodovoz.ViewModels.Employees;
 
 namespace Vodovoz.JournalViewModels
 {
