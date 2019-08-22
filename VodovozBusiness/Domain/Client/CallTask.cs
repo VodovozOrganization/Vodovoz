@@ -152,7 +152,7 @@ namespace Vodovoz.Domain.Client
 		public virtual void AddComment(IUnitOfWork UoW , string comment , out string lastComment)
 		{
 			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			comment = comment.Insert(0, employee.ShortName + $"({employee?.Subdivision?.ShortName})" + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": ");
+			comment = comment.Insert(0, employee.ShortName + $"({employee?.Subdivision?.ShortName ?? employee?.Subdivision?.Name})" + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": ");
 			lastComment = comment;
 			Comment += comment;
 			Comment += Environment.NewLine; 
