@@ -345,6 +345,13 @@ namespace Vodovoz.Domain.Client
 			protected set => SetField(ref counterparty, value, () => Counterparty);
 		}
 
+		private string kpp;
+		[Display(Name = "КПП")]
+		public virtual string KPP {
+			get => kpp;
+			set => SetField(ref kpp, value);
+		}
+
 		private string address1c;
 
 		[Display(Name = "Адрес 1С")]

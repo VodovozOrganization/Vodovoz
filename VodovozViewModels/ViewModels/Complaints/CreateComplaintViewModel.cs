@@ -28,6 +28,7 @@ namespace Vodovoz.ViewModels.Complaints
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			Entity.ComplaintType = ComplaintType.Client;
+			Entity.Status = ComplaintStatuses.Checking;
 			TabName = "Новая клиентская жалоба";
 		}
 

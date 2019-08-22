@@ -679,6 +679,8 @@
     <Compile Include="Domain\Suppliers\ILevelingRequestNode.cs" />
     <Compile Include="EntityRepositories\Suppliers\ISupplierPriceItemsRepository.cs" />
     <Compile Include="EntityRepositories\Suppliers\SupplierPriceItemsRepository.cs" />
+    <Compile Include="Domain\Client\SpecialNomenclature.cs" />
+    <Compile Include="HibernateMapping\Counterparty\SpecialNomenclatureMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

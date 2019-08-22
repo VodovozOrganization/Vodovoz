@@ -498,6 +498,30 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref okdp, value, () => OKDP);
 		}
 
+		KppFrom kppFrom;
+		[Display(Name = "Источник КПП")]
+		public virtual KppFrom KppFrom {
+			get => kppFrom;
+			set => SetField(ref kppFrom, value, () => KppFrom);
+		}
+
+		IList<SpecialNomenclature> specialNomenclatures = new List<SpecialNomenclature>();
+		[Display(Name = "Особенный номер ТМЦ")]
+		public virtual IList<SpecialNomenclature> SpecialNomenclatures {
+			get => specialNomenclatures;
+			set => SetField(ref specialNomenclatures, value);
+		}
+
+		GenericObservableList<SpecialNomenclature> observableSpecialNomenclatures;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<SpecialNomenclature> ObservableSpecialNomenclatures {
+			get {
+				if(observableSpecialNomenclatures == null)
+					observableSpecialNomenclatures = new GenericObservableList<SpecialNomenclature>(SpecialNomenclatures);
+				return observableSpecialNomenclatures;
+			}
+		}
+
 		#endregion ОсобаяПечать
 
 		ChequeResponse? needCheque;
@@ -839,6 +863,14 @@ namespace Vodovoz.Domain.Client
 	public class ChequeResponseStringType : NHibernate.Type.EnumStringType
 	{
 		public ChequeResponseStringType() : base(typeof(ChequeResponse)) { }
+	}
+
+	public enum KppFrom
+	{
+		[Display(Name = "Точка доставки")]
+		DelivryPoint,
+		[Display(Name = "Контрагент")]
+		Counterparty
 	}
 
 	#region Для уровневого отображения цен поставщика
