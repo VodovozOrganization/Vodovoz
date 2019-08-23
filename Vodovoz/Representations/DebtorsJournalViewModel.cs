@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
-using Gamma.Utilities;
-using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Config;
-using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.RepresentationModel.GtkUI;
 using QS.Services;
@@ -20,7 +17,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 

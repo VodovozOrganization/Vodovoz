@@ -178,7 +178,9 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Первичка")]
 		FirstClient,
 		[Display(Name = "Cверка")]
-		Reconciliation
+		Reconciliation,
+		[Display(Name = "Возврат залогов")]
+		DepositReturn
 	}
 
 	public enum ImportanceDegreeType
