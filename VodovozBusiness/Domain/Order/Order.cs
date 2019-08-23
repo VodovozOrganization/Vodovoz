@@ -7,11 +7,13 @@ using System.Text;
 using Gamma.Utilities;
 using NHibernate.Util;
 using QS.Contacts;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Repositories;
+using QS.Services;
 using QSSupportLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -47,6 +49,8 @@ namespace Vodovoz.Domain.Orders
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		public IInteractiveQuestion taskCreationQuestion { get; set; }
 
 		#region Cвойства
 

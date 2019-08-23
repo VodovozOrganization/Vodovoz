@@ -119,9 +119,9 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref tareReturn, value, () => TareReturn); }
 		}
 
-		private TaskSource source;
+		private TaskSource? source;
 		[Display(Name = "Источник")]
-		public virtual TaskSource Source {
+		public virtual TaskSource? Source {
 			get => source;
 			set => SetField(ref source, value);
 		}

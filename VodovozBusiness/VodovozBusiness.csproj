@@ -685,6 +685,8 @@
     <Compile Include="Repositories\Orders\Export1cMode.cs" />
     <Compile Include="Repositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\IOrderRepository.cs" />
+    <Compile Include="Tools\CallTasks\ICallTaskFactory.cs" />
+    <Compile Include="Tools\CallTasks\AutoCallTaskFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

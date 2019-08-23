@@ -7,7 +7,7 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Tools.CallTasks
 {
-	public class CallTaskFactory
+	public class CallTaskFactory : ICallTaskFactory
 	{
 		private static CallTaskFactory instance;
 
