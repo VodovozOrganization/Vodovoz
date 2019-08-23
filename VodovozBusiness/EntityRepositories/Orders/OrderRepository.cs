@@ -11,21 +11,22 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Repositories.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.Repositories.Orders
+
+namespace Vodovoz.EntityRepositories.Orders
 {
-	[Obsolete("Используйте одноимённый класс из Vodovoz.EntityRepositories.Orders")]
-	public static class OrderRepository
+	public class OrderRepository : IOrderRepository
 	{
-		public static QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
+		public QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
 		{
 			return QueryOver.Of<VodovozOrder>()
 			.Where(x => x.SelfDelivery)
 			.Where(x => x.OrderStatus == OrderStatus.WaitForPayment);
 		}
 
-		public static QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped)
+		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped)
 		{
 			var query = QueryOver.Of<VodovozOrder>();
 			if(!showShipped)
@@ -35,7 +36,7 @@ namespace Vodovoz.Repositories.Orders
 			return query.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery && !order.IsService);
 		}
 
-		public static IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, ScheduleRestrictedDistrict district)
+		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, ScheduleRestrictedDistrict district)
 		{
 			DeliveryPoint point = null;
 			return uow.Session.QueryOver<VodovozOrder>()
@@ -50,7 +51,7 @@ namespace Vodovoz.Repositories.Orders
 							  ;
 		}
 
-		public static VodovozOrder GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)
+		public VodovozOrder GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)
 		{
 			VodovozOrder orderAlias = null;
 			var queryResult = UoW.Session.QueryOver(() => orderAlias)
@@ -61,7 +62,7 @@ namespace Vodovoz.Repositories.Orders
 			return queryResult.FirstOrDefault();
 		}
 
-		public static IList<VodovozOrder> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty)
+		public IList<VodovozOrder> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty)
 		{
 			VodovozOrder orderAlias = null;
 			return UoW.Session.QueryOver(() => orderAlias)
@@ -74,7 +75,7 @@ namespace Vodovoz.Repositories.Orders
 				.List();
 		}
 
-		public static IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork UoW, Export1cMode mode, DateTime startDate, DateTime endDate)
+		public IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork UoW, Export1cMode mode, DateTime startDate, DateTime endDate)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
@@ -112,14 +113,14 @@ namespace Vodovoz.Repositories.Orders
 			return query.List();
 		}
 
-		public static IList<VodovozOrder> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)
+		public IList<VodovozOrder> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)
 		{
 			VodovozOrder orderAlias = null;
 			return UoW.Session.QueryOver(() => orderAlias)
 				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate).List();
 		}
 
-		public static IList<VodovozOrder> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c)
+		public IList<VodovozOrder> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c)
 		{
 			return uow.Session.QueryOver<VodovozOrder>()
 				.Where(c => c.Code1c.IsIn(codes1c))
@@ -133,7 +134,7 @@ namespace Vodovoz.Repositories.Orders
 		/// <returns>Первый заказ</returns>
 		/// <param name="uow">UoW</param>
 		/// <param name="counterparty">Контрагент</param>
-		public static VodovozOrder GetFirstRealOrderForClient(IUnitOfWork uow, Counterparty counterparty)
+		public VodovozOrder GetFirstRealOrderForClient(IUnitOfWork uow, Counterparty counterparty)
 		{
 			if(counterparty?.FirstOrder != null && GetValidStatusesToUseActionBottle().Contains(counterparty.FirstOrder.OrderStatus))
 				return counterparty.FirstOrder;
@@ -157,7 +158,7 @@ namespace Vodovoz.Repositories.Orders
 		/// <returns>Кол-во 19л. воды в заказе</returns>
 		/// <param name="uow">Uow.</param>
 		/// <param name="order">Заказ</param>
-		public static int Get19LWatterQtyForOrder(IUnitOfWork uow, VodovozOrder order)
+		public int Get19LWatterQtyForOrder(IUnitOfWork uow, VodovozOrder order)
 		{
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -176,7 +177,7 @@ namespace Vodovoz.Repositories.Orders
 		/// <returns>Список оборудования к клиенту</returns>
 		/// <param name="uow">Uow.</param>
 		/// <param name="order">Заказ</param>
-		public static IList<ClientEquipmentNode> GetEquipmentToClientForOrder(IUnitOfWork uow, VodovozOrder order)
+		public IList<ClientEquipmentNode> GetEquipmentToClientForOrder(IUnitOfWork uow, VodovozOrder order)
 		{
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -203,7 +204,7 @@ namespace Vodovoz.Repositories.Orders
 		/// <returns>Список оборудования от клиенту</returns>
 		/// <param name="uow">Uow.</param>
 		/// <param name="order">Заказ</param>
-		public static IList<ClientEquipmentNode> GetEquipmentFromClientForOrder(IUnitOfWork uow, VodovozOrder order)
+		public IList<ClientEquipmentNode> GetEquipmentFromClientForOrder(IUnitOfWork uow, VodovozOrder order)
 		{
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -231,7 +232,7 @@ namespace Vodovoz.Repositories.Orders
 		/// <param name="UoW">IUnitOfWork</param>
 		/// <param name="deliveryPoint">Точка доставки.</param>
 		/// <param name="count">Требуемое количество последних заказов.</param>
-		public static IList<VodovozOrder> GetLatestOrdersForDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, int? count = null)
+		public IList<VodovozOrder> GetLatestOrdersForDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, int? count = null)
 		{
 			VodovozOrder orderAlias = null;
 			var queryResult = UoW.Session.QueryOver(() => orderAlias)
@@ -249,7 +250,7 @@ namespace Vodovoz.Repositories.Orders
 		/// <returns>Список МЛ</returns>
 		/// <param name="UoW">UoW</param>
 		/// <param name="order">Заказ</param>
-		public static IList<RouteList> GetAllRLForOrder(IUnitOfWork UoW, VodovozOrder order)
+		public IList<RouteList> GetAllRLForOrder(IUnitOfWork UoW, VodovozOrder order)
 		{
 			var query = UoW.Session.QueryOver<RouteListItem>()
 						   .Where(i => i.Order == order)
@@ -265,14 +266,14 @@ namespace Vodovoz.Repositories.Orders
 		/// <returns>Список скидок</returns>
 		/// <param name="UoW">UoW</param>
 		/// <param name="orderByDescending">Если <c>true</c>, то сортируется список по убыванию.</param>
-		public static IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false)
+		public IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false)
 		{
 			var query = UoW.Session.QueryOver<DiscountReason>()
 						   .OrderBy(i => i.Name);
 			return orderByDescending ? query.Desc().List() : query.Asc().List();
 		}
 
-		public static VodovozOrder GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
+		public VodovozOrder GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint)
 		{
 			var notSupportedStatuses = new OrderStatus[] {
 				OrderStatus.NewOrder,
@@ -287,7 +288,7 @@ namespace Vodovoz.Repositories.Orders
 					  .List().FirstOrDefault();
 		}
 
-		public static bool IsBottleStockExists(IUnitOfWork uow, Counterparty counterparty)
+		public bool IsBottleStockExists(IUnitOfWork uow, Counterparty counterparty)
 		{
 			var stockBottleOrder = uow.Session.QueryOver<VodovozOrder>()
 				.Where(x => x.IsBottleStock)
@@ -298,7 +299,7 @@ namespace Vodovoz.Repositories.Orders
 			return stockBottleOrder != null;
 		}
 
-		public static OrderStatus[] GetOnClosingOrderStatuses()
+		public OrderStatus[] GetOnClosingOrderStatuses()
 		{
 			return new OrderStatus[] {
 				OrderStatus.UnloadingOnStock,
@@ -306,7 +307,7 @@ namespace Vodovoz.Repositories.Orders
 			};
 		}
 
-		public static OrderStatus[] GetStatusesForOrderCancelation()
+		public OrderStatus[] GetStatusesForOrderCancelation()
 		{
 			return new OrderStatus[] {
 				OrderStatus.NewOrder,
@@ -318,7 +319,7 @@ namespace Vodovoz.Repositories.Orders
 			};
 		}
 
-		public static OrderStatus[] GetStatusesForActualCount(VodovozOrder order)
+		public OrderStatus[] GetStatusesForActualCount(VodovozOrder order)
 		{
 			if(order.SelfDelivery) {
 				return new OrderStatus[0];
@@ -334,7 +335,7 @@ namespace Vodovoz.Repositories.Orders
 			}
 		}
 
-		public static OrderStatus[] GetGrantedStatusesToCreateSeveralOrders()
+		public OrderStatus[] GetGrantedStatusesToCreateSeveralOrders()
 		{
 			return new OrderStatus[]{
 				OrderStatus.Canceled,
@@ -345,7 +346,7 @@ namespace Vodovoz.Repositories.Orders
 			};
 		}
 
-		public static OrderStatus[] GetValidStatusesToUseActionBottle()
+		public OrderStatus[] GetValidStatusesToUseActionBottle()
 		{
 			return new OrderStatus[]{
 				OrderStatus.Accepted,
@@ -358,14 +359,5 @@ namespace Vodovoz.Repositories.Orders
 				OrderStatus.WaitForPayment
 			};
 		}
-
-	}
-
-	public class ClientEquipmentNode
-	{
-		public int Id { get; set; }
-		public string Name { get; set; }
-		public string ShortName { get; set; }
-		public int Count { get; set; }
 	}
 }
