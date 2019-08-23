@@ -50,7 +50,7 @@ namespace Vodovoz
 			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png");
 			LoginDialog.SetDefaultNames ("Vodovoz");
 			LoginDialog.DefaultLogin = "user";
-			LoginDialog.DefaultServer = "vod-srv.qsolution.ru";
+			LoginDialog.DefaultServer = "sql.vod.qsolution.ru";
 			LoginDialog.UpdateFromGConf ();
 
 			ResponseType LoginResult;
@@ -84,8 +84,8 @@ namespace Vodovoz
 			GMap.NET.MapProviders.GMapProvider.Language = GMap.NET.LanguageType.Russian;
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
 			
-			QSOsm.OsmWorker.ServiceHost = "vod-srv.qsolution.ru";
-			QSOsm.OsmWorker.ServicePort = 9000;
+			QSOsm.OsmWorker.ServiceHost = "osm.vod.qsolution.ru";
+			QSOsm.OsmWorker.ServicePort = 7073;
 			QSOsm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
 			
 			PerformanceHelper.StartPointsGroup ("Главное окно");
