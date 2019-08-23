@@ -119,6 +119,21 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref tareReturn, value, () => TareReturn); }
 		}
 
+		private TaskSource source;
+		[Display(Name = "Источник")]
+		public virtual TaskSource Source {
+			get => source;
+			set => SetField(ref source, value);
+		}
+
+		private int? sourceDocumentId;
+		[Display(Name = "ID документа")]
+		public virtual int? SourceDocumentId {
+			get => sourceDocumentId;
+			set => SetField(ref sourceDocumentId, value);
+		}
+
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(DeliveryPoint == null)
@@ -155,7 +170,7 @@ namespace Vodovoz.Domain.Client
 				Title = "Акт по бутылям-залогам",
 				Identifier = "Client.SummaryBottlesAndDeposits",
 				Parameters = new Dictionary<string, object>
-	{
+				{
 					{ "startDate", null },
 					{ "endDate", null },
 					{ "client_id", counterpartyId},
@@ -183,6 +198,18 @@ namespace Vodovoz.Domain.Client
 		DepositReturn
 	}
 
+	public enum TaskSource
+	{
+		[Display(Name = "Боковая панель заказа")]
+		OrderPanel,
+		[Display(Name = "Автоматическое создание(из заказа)")]
+		AutoFromOrder,
+		[Display(Name = "Массовое создание(из журнала задолженостей)")]
+		MassCreation,
+		[Display(Name = "Создана вручную")]
+		Handmade
+	}
+
 	public enum ImportanceDegreeType
 	{
 		[Display(Name = "Нет")]
@@ -201,6 +228,13 @@ namespace Vodovoz.Domain.Client
 	public class ImportanceDegreeStringType : NHibernate.Type.EnumStringType
 	{
 		public ImportanceDegreeStringType() : base(typeof(ImportanceDegreeType))
+		{
+		}
+	}
+
+	public class TaskSourceStringType : NHibernate.Type.EnumStringType
+	{
+		public TaskSourceStringType() : base(typeof(TaskSource))
 		{
 		}
 	}
