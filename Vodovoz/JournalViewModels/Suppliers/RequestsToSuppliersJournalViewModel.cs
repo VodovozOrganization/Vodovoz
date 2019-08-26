@@ -67,7 +67,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 				var subquery = QueryOver.Of<RequestToSupplierItem>()
 										.Where(r => r.Nomenclature.Id == FilterViewModel.RestrictNomenclature.Id)
 										.Select(r => r.RequestToSupplier.Id);
-				query.WithSubquery.WhereProperty(r => r.Id).In(subquery).Select(r => r.Id);
+				query.WithSubquery.WhereProperty(r => r.Id).In(subquery);
 			}
 
 			if(FilterViewModel != null && FilterViewModel.RestrictStartDate.HasValue)
