@@ -8,7 +8,11 @@ namespace Vodovoz.Tools.CallTasks
 	public interface ICallTaskFactory
 	{
 		void CopyTask(IUnitOfWork uow, IEmployeeRepository employeeRepository, CallTask copyFrom, CallTask copyTo);
+
 		CallTask CreateCopyTask(IUnitOfWork uow, IEmployeeRepository employeeRepository, CallTask originTask);
+
 		CallTask CreateTask(IUnitOfWork uow, IEmployeeRepository employeeRepository, IPersonProvider personProvider, CallTask newTask = null, object source = null, string creationComment = null);
+
+		CallTask FillNewTask(IUnitOfWork uow, CallTask callTask, IEmployeeRepository employeeRepository);
 	}
 }

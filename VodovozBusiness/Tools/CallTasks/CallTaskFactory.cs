@@ -22,12 +22,10 @@ namespace Vodovoz.Tools.CallTasks
 		{
 			var task = new CallTask {
 				DeliveryPoint = originTask.DeliveryPoint,
-				TaskCreator = employeeRepository.GetEmployeeForCurrentUser(uow),
 				Counterparty = originTask.Counterparty,
-				CreationDate = DateTime.Now,
-				EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59),
 				AssignedEmployee = originTask.AssignedEmployee
 			};
+			FillNewTask(uow, task, employeeRepository);
 			return task;
 		}
 
@@ -44,9 +42,7 @@ namespace Vodovoz.Tools.CallTasks
 		public CallTask CreateTask(IUnitOfWork uow, IEmployeeRepository employeeRepository, IPersonProvider personProvider, CallTask newTask = null, object source = null, string creationComment = null)
 		{
 			CallTask callTask = newTask ?? new CallTask();
-			callTask.CreationDate = DateTime.Now;
-			callTask.TaskCreator = employeeRepository.GetEmployeeForCurrentUser(uow);
-			callTask.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+			FillNewTask(uow, callTask, employeeRepository);
 
 			switch(source) {
 				case Order order:
@@ -58,6 +54,14 @@ namespace Vodovoz.Tools.CallTasks
 
 			if(creationComment != null)
 				callTask.AddComment(uow, creationComment, employeeRepository);
+			return callTask;
+		}
+
+		public CallTask FillNewTask(IUnitOfWork uow,CallTask callTask ,IEmployeeRepository employeeRepository)
+		{
+			callTask.CreationDate = DateTime.Now;
+			callTask.TaskCreator = employeeRepository.GetEmployeeForCurrentUser(uow);
+			callTask.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
 			return callTask;
 		}
 	}

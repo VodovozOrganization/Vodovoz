@@ -299,6 +299,33 @@ namespace Vodovoz.EntityRepositories.Orders
 			return stockBottleOrder != null;
 		}
 
+		public double GetAvgRandeBetwenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, DateTime? startDate = null, DateTime? endDate = null)
+		{
+			VodovozOrder orderAlias = null;
+
+			var orderQuery = uow.Session.QueryOver(() => orderAlias)
+					.Select(x => x.DeliveryDate)
+					.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id);
+
+			if(startDate.HasValue)
+				orderQuery = orderQuery.Where(() => orderAlias.DeliveryDate >= startDate);
+			else
+				orderQuery = orderQuery.Where(() => orderAlias.DeliveryDate >= DateTime.Now.AddMonths(-3));
+
+			if(endDate.HasValue)
+				orderQuery = orderQuery.Where(() => orderAlias.DeliveryDate <= endDate.Value);
+
+			IList<VodovozOrder> orders = orderQuery.List();
+
+			IList<int> dateDif = new List<int>();
+			for(int i = 1; i < orders.Count; i++) {
+				int dif = DateTime.Compare(orders[i - 1].DeliveryDate.Value, orders[i].DeliveryDate.Value);
+				dateDif.Add(dif);
+			}
+
+			return dateDif.Average();
+		}
+
 		public OrderStatus[] GetOnClosingOrderStatuses()
 		{
 			return new OrderStatus[] {
