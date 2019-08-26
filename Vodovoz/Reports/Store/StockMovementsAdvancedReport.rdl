@@ -155,7 +155,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox23">
-                          <Value>= 'МЛ№' + {route_list_id} + ' от ' + Format({date}, 'dd.MM.yyyy') + ' – ' + {driver_name} + ' (' + {reg_number} + ')'</Value>
+                          <Value>= 'МЛ №' + {route_list_id} + ' от ' + Format({date}, 'dd.MM.yyyy') + ' – ' + {driver_name} + ' (' + {reg_number} + ')'</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>None</Default>
@@ -389,7 +389,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Movements">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -426,7 +426,8 @@ FROM(
 		JOIN store_car_load_document_items ldi ON ld.id = ldi.car_load_document_id
 		JOIN warehouse_movement_operations op ON op.id = ldi.warehouse_movement_operation_id
 		LEFT JOIN route_lists rl ON rl.id = ld.route_list_id
-		WHERE rl.date BETWEEN @start_date AND @end_date
+		#WHERE rl.date BETWEEN @start_date AND @end_date
+		WHERE ld.time_stamp BETWEEN @start_date AND @end_date
 			AND (
 				(('CarLoadDocument' IN (@doctype_include) AND '0' IN (@doctype_exclude) )
 				OR
@@ -446,7 +447,8 @@ FROM(
 		JOIN store_car_unload_document_items unldi ON unld.id = unldi.car_unload_document_id
 		JOIN warehouse_movement_operations op ON op.id = unldi.warehouse_movement_operation_id
 		LEFT JOIN route_lists rl ON rl.id = unld.route_list_id
-		WHERE rl.date BETWEEN @start_date AND @end_date
+		#WHERE rl.date BETWEEN @start_date AND @end_date
+		WHERE unld.time_stamp BETWEEN @start_date AND @end_date
 			AND (
 				(('CarUnloadDocument' IN (@doctype_include) AND '0' IN (@doctype_exclude) )
 				OR
@@ -475,7 +477,8 @@ FROM(
 		JOIN store_car_load_document_items ldi ON ld.id = ldi.car_load_document_id
 		JOIN warehouse_movement_operations op ON op.id = ldi.warehouse_movement_operation_id
 		LEFT JOIN route_lists rl ON rl.id = ld.route_list_id
-		WHERE rl.date BETWEEN @start_date AND @end_date
+		#WHERE rl.date BETWEEN @start_date AND @end_date
+		WHERE ld.time_stamp BETWEEN @start_date AND @end_date
 			AND (
 				(('CarLoadDocument' IN (@doctype_include) AND '0' IN (@doctype_exclude) )
 				OR
@@ -495,7 +498,8 @@ FROM(
 		JOIN store_car_unload_document_items unldi ON unld.id = unldi.car_unload_document_id
 		JOIN warehouse_movement_operations op ON op.id = unldi.warehouse_movement_operation_id
 		LEFT JOIN route_lists rl ON rl.id = unld.route_list_id
-		WHERE rl.date BETWEEN @start_date AND @end_date
+		#WHERE rl.date BETWEEN @start_date AND @end_date
+		WHERE unld.time_stamp BETWEEN @start_date AND @end_date
 			AND (
 				(('CarUnloadDocument' IN (@doctype_include) AND '0' IN (@doctype_exclude) )
 				OR
@@ -564,7 +568,7 @@ WHERE (
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -688,7 +692,7 @@ WHERE (
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
