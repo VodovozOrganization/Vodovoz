@@ -50,7 +50,7 @@ namespace Vodovoz.Domain.Orders
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		public IInteractiveQuestion taskCreationQuestion { get; set; }
+		public virtual IInteractiveQuestion taskCreationQuestion { get; set; }
 
 		#region Cвойства
 
@@ -922,6 +922,13 @@ namespace Vodovoz.Domain.Orders
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.OrderStatus) }
+					);
+				}
+
+				if(IsContractCloser && !UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"]) {
+					yield return new ValidationResult(
+						"Недостаточно прав для подтверждения зыкрывашки по контракту. Обратитесь к руководителю.",
+						new[] { this.GetPropertyName(o => o.IsContractCloser) }
 					);
 				}
 			}
