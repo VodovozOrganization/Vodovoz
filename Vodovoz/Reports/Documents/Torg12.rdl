@@ -95,7 +95,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id, 
@@ -152,7 +152,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1319,7 +1319,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>=Fields!item_price.Value * (1 - Fields!item_discount.Value /100)</Value>
+                      <Value>={item_price} / {vat} * (1 - {item_discount} / 100)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
