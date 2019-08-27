@@ -252,7 +252,8 @@ namespace Vodovoz.Representations
 					DeliveryPoint = UoW.GetById<DeliveryPoint>(item.AddressId),
 					Counterparty = UoW.GetById<Counterparty>(item.ClientId),
 					CreationDate = DateTime.Now,
-					EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59)
+					EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59),
+					Source = TaskSource.MassCreation
 				};
 				newTaskCount++;
 				UoW.Save(task);

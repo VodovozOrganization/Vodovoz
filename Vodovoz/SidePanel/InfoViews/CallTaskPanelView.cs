@@ -59,6 +59,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<CallTask>("Кнопка «Создать задачу» на панели \"Постановка задачи\"")) 
 			{
 				CallTaskFactory.GetInstance().CreateTask(uow, employeeRepository, personProvider, uow.Root, Order, ytextview.Buffer.Text);
+				uow.Root.Source = TaskSource.OrderPanel;
 				uow.Save();
 			}
 			ytextview.Buffer.Text = String.Empty;

@@ -34,6 +34,7 @@ namespace Vodovoz.Dialogs
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
 			TabName = "Новая задача";
 			Entity.CreationDate = DateTime.Now;
+			Entity.Source = TaskSource.Handmade;
 			Entity.TaskCreator = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.EndActivePeriod = DateTime.Now.AddDays(1);
 			createTaskButton.Sensitive = false;
