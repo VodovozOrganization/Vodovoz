@@ -688,6 +688,7 @@
     <Compile Include="Tools\CallTasks\ICallTaskFactory.cs" />
     <Compile Include="Tools\CallTasks\AutoCallTaskFactory.cs" />
     <Compile Include="Tools\CallTasks\IAutoCallTaskFactory.cs" />
+    <Compile Include="Tools\CallTasks\ITaskCreationInteractive.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -1287,6 +1287,9 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.RequestsToSuppliersFilterView.cs" />
     <Compile Include="ViewModels\Suppliers\RequestToSupplierViewModel.cs" />
     <Compile Include="JournalViewModels\Suppliers\RequestsToSuppliersJournalViewModel.cs" />
+    <Compile Include="ViewWidgets\TaskCreationWindow.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.TaskCreationWindow.cs" />
+    <Compile Include="Infrastructure\Services\GtkTaskCreationInteractive.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
