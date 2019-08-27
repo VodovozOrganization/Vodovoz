@@ -7,5 +7,7 @@ namespace Vodovoz.Services
 	public interface IPersonProvider
 	{
 		Employee GetDefaultEmployeeForCallTask(IUnitOfWork uow);
+
+		Employee GetDefaultEmployeeForDepositReturnTask(IUnitOfWork uow);
 	}
 }
