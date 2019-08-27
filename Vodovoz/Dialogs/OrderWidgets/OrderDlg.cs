@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
@@ -47,6 +47,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -62,6 +63,7 @@ using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz
 {
@@ -216,6 +218,8 @@ namespace Vodovoz
 			//Подписываемся на изменение товара, для обновления количества оборудования в доп. соглашении
 			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
 			Entity.ObservableOrderEquipments.ElementChanged += ObservableOrderEquipments_ElementChanged_ChangeCount;
+
+			Entity.CallTaskFactory = new AutoCallTaskFactory(CallTaskFactory.GetInstance(), new CallTaskRepository(), orderRepository, employeeRepository, new BaseParametersProvider());
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
 			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource();

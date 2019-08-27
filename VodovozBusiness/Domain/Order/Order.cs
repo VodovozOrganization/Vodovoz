@@ -33,6 +33,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Client;
 using Vodovoz.Services;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Domain.Orders
@@ -50,7 +51,17 @@ namespace Vodovoz.Domain.Orders
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		public virtual IInteractiveQuestion taskCreationQuestion { get; set; }
+		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; }
+
+		private IAutoCallTaskFactory callTaskFactory;
+		public virtual IAutoCallTaskFactory CallTaskFactory {
+			get { return callTaskFactory; }
+			set { 
+					callTaskFactory = value;
+					if(callTaskFactory != null)
+						callTaskFactory.Order = this;
+			}
+		}
 
 		#region Cвойства
 

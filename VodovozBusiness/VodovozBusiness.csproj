@@ -687,6 +687,7 @@
     <Compile Include="EntityRepositories\Orders\IOrderRepository.cs" />
     <Compile Include="Tools\CallTasks\ICallTaskFactory.cs" />
     <Compile Include="Tools\CallTasks\AutoCallTaskFactory.cs" />
+    <Compile Include="Tools\CallTasks\IAutoCallTaskFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
