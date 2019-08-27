@@ -49,6 +49,7 @@ namespace Vodovoz.Tools.CallTasks
 					callTask.DeliveryPoint = uow.GetById<DeliveryPoint>(order.DeliveryPoint.Id);
 					callTask.TaskState = CallTaskStatus.Reconciliation;
 					callTask.AssignedEmployee = personProvider.GetDefaultEmployeeForCallTask(uow);
+					callTask.SourceDocumentId = (source as Order)?.Id;
 					break;
 			}
 

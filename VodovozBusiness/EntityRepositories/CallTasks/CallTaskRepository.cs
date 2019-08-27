@@ -27,6 +27,7 @@ namespace Vodovoz.EntityRepositories.CallTasks
 			CallTask callTaskAlias = null;
 			return UoW.Session.QueryOver(() => callTaskAlias)
 					.Where(x => x.SourceDocumentId.Value == order.Id)
+					.And(x => x.Source == TaskSource.AutoFromOrder)
 					.And(x => x.Comment == null)
 					.And(x => !x.IsTaskComplete)
 					.And(x => taskStatus == null || x.TaskState == taskStatus.Value)
