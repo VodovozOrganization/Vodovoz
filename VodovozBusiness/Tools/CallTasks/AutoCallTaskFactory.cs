@@ -18,10 +18,14 @@ namespace Vodovoz.Tools.CallTasks
 		public virtual Order Order {
 			get { return order; }
 			set {
+				if(value == null && order != null)
+					order.PropertyChanged -= OrderPropertyChanged;
 				order = value; 
 				ConfigureOrderChangeHeandlers(); 
 			}
 		}
+
+		public ITaskCreationInteractive TaskCreationInteractive { get; set; }
 
 		private ICallTaskFactory callTaskFactory { get;}
 		private ICallTaskRepository callTaskRepository { get;}
@@ -65,6 +69,12 @@ namespace Vodovoz.Tools.CallTasks
 
 		private bool UpdateCallTask()
 		{
+			DateTime? dateTime = null;
+			if(TaskCreationInteractive != null)
+				if(TaskCreationInteractive.RunQuestion(ref dateTime) == CreationTaskResult.Cancel)
+					return false;
+
+
 			IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
 			var tasks = callTaskRepository.GetActiveTaskByDeliveryPoint(uow, order.DeliveryPoint, CallTaskStatus.Call);
@@ -72,14 +82,18 @@ namespace Vodovoz.Tools.CallTasks
 			if(tasks?.FirstOrDefault() == null)
 				return false;
 
-			double dif = orderRepository.GetAvgRandeBetwenOrders(uow, order.DeliveryPoint);
+			if(dateTime == null) {
+				double dif = orderRepository.GetAvgRandeBetwenOrders(uow, order.DeliveryPoint);
+				dateTime = dif <= 3 ? DateTime.Now.AddMonths(1) : DateTime.Now.AddDays(dif);
+			}
+
 
 			using(var taskUoW = UnitOfWorkFactory.CreateWithNewRoot<CallTask>(nameof(AutoCallTaskFactory))) {
 				callTaskFactory.FillNewTask(taskUoW, taskUoW.Root, employeeRepository);
 				taskUoW.Root.AssignedEmployee = tasks?.FirstOrDefault()?.AssignedEmployee;
 				taskUoW.Root.TaskState = CallTaskStatus.Call;
 				taskUoW.Root.DeliveryPoint = order.DeliveryPoint;
-				taskUoW.Root.EndActivePeriod = dif <= 3 ? DateTime.Now.AddMonths(1) : DateTime.Now.AddDays(dif);
+				taskUoW.Root.EndActivePeriod = dateTime.Value;
 				taskUoW.Root.SourceDocumentId = order.Id;
 				taskUoW.Root.Source = TaskSource.AutoFromOrder;
 				taskUoW.Save();
@@ -151,7 +165,7 @@ namespace Vodovoz.Tools.CallTasks
 
 		public void Dispose()
 		{
-			order.CallTaskFactory = null;
+			order.CallTaskAutoFactory = null;
 		}
 	}
 }

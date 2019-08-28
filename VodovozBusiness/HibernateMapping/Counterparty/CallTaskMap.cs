@@ -15,7 +15,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
 			Map(x => x.CompleteDate).Column("date_complete");
 			Map(x => x.EndActivePeriod).Column("deadline");
 			Map(x => x.TaskState).Column("task_state").CustomType<CallTaskStatusStringType>();
-			Map(x => x.Source).Column("task_source").CustomType<TaskSourceStringType>();
+			Map(x => x.Source).Column("TaskSource").CustomType<TaskSourceStringType>();
 			Map(x => x.ImportanceDegree).Column("importance_degree").CustomType<ImportanceDegreeStringType>();
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.IsTaskComplete).Column("is_task_complete");

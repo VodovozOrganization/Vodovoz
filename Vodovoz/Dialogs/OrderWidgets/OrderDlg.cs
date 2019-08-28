@@ -219,8 +219,6 @@ namespace Vodovoz
 			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
 			Entity.ObservableOrderEquipments.ElementChanged += ObservableOrderEquipments_ElementChanged_ChangeCount;
 
-			Entity.CallTaskAutoFactory = new AutoCallTaskFactory(CallTaskFactory.GetInstance(), new CallTaskRepository(), orderRepository, employeeRepository, new BaseParametersProvider());
-
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
 			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource();
 

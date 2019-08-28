@@ -18,6 +18,8 @@ namespace Vodovoz.Tools.CallTasks
 			return instance;
 		}
 
+		protected CallTaskFactory() { }
+
 		public CallTask CreateCopyTask(IUnitOfWork uow, IEmployeeRepository employeeRepository , CallTask originTask)
 		{
 			var task = new CallTask {
