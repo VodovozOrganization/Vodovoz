@@ -131,6 +131,7 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_edit_order", new PresetUserPermissionSource("can_edit_order", "Изменение заказа", "Для тех, у кого нет права, засеривается кнопка в Заказе \"Редактировать\""));
 			PermissionsSettings.PresetPermissions.Add("can_complete_complaint_discussion", new PresetUserPermissionSource("can_complete_complaint_discussion", "Завершение обсуждения в жалобе", "Дает возможность пользователю завершить обсуждение в жалобе"));
 			PermissionsSettings.PresetPermissions.Add("can_change_fuel_card_number", new PresetUserPermissionSource("can_change_fuel_card_number", "Изменение номера ТК в карточке автомобиля", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_change_car_load_and_unload_docs", new PresetUserPermissionSource("can_change_car_load_and_unload_docs", "Редактирование талонов разгрузки и погрузки по закрытым МЛ", string.Empty));
 			UserDialog.UserPermissionViewsCreator = delegate {
 				return new List<IUserPermissionTab> {
 					new SubdivisionForUserEntityPermissionWidget()
