@@ -15,6 +15,7 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Repositories.Orders
 {
+	[Obsolete("Используйте одноимённый класс из Vodovoz.EntityRepositories.Orders")]
 	public static class OrderRepository
 	{
 		public static QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()

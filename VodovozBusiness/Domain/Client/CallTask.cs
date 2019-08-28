@@ -7,7 +7,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Report;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Domain.Client
 {
@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Client
 		Nominative = "Задача по обзвону"
 	)]
 	[EntityPermission]
-	public class CallTask : PropertyChangedBase, ITask , IValidatableObject
+	public class CallTask : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual string Title {
 			get { return String.Format(" задача по обзвону : {0}", DeliveryPoint?.ShortAddress); }
@@ -119,48 +119,44 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref tareReturn, value, () => TareReturn); }
 		}
 
+		private TaskSource? source;
+		[Display(Name = "Источник")]
+		public virtual TaskSource? Source {
+			get => source;
+			set => SetField(ref source, value);
+		}
+
+		private int? sourceDocumentId;
+		[Display(Name = "ID документа")]
+		public virtual int? SourceDocumentId {
+			get => sourceDocumentId;
+			set => SetField(ref sourceDocumentId, value);
+		}
+
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(DeliveryPoint == null)
 				yield return new ValidationResult("Должна быть выбрана точка доставки", new[] { "Address" });
 		}
 
-		public virtual CallTask CreateNewTask(IUnitOfWork uow)
+		public virtual void AddComment(IUnitOfWork UoW , string comment , out string lastComment, IEmployeeRepository employeeRepository)
 		{
-			CallTask task = new CallTask 
-			{
-				DeliveryPoint = DeliveryPoint,
-				TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(uow),
-				Counterparty = Counterparty,
-				CreationDate = DateTime.Now,
-				EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59),
-				AssignedEmployee = AssignedEmployee
-			};
-			return task;
-		}
-
-		public virtual void CopyTask(CallTask callTask , IUnitOfWork uow)
-		{
-			DeliveryPoint = callTask.DeliveryPoint;
-			Counterparty = callTask.Counterparty;
-			TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(uow); 
-			CreationDate = DateTime.Now;
-			EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
-			AssignedEmployee = callTask.AssignedEmployee;
-		}
-
-		public virtual void AddComment(IUnitOfWork UoW , string comment , out string lastComment)
-		{
-			var employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			var employee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			comment = comment.Insert(0, employee.ShortName + $"({employee?.Subdivision?.ShortName ?? employee?.Subdivision?.Name})" + " " + DateTime.Now.ToString("dd/MM/yyyy HH:mm") + ": ");
 			lastComment = comment;
-			Comment += comment;
-			Comment += Environment.NewLine; 
+			AddComment(UoW, comment);
 		}
 
 		public virtual void AddComment(IUnitOfWork UoW, string comment)
 		{
-			AddComment(UoW, comment, out string lastComment);
+			Comment += comment;
+			Comment += Environment.NewLine;
+		}
+
+		public virtual void AddComment(IUnitOfWork UoW, string comment, IEmployeeRepository employeeRepository)
+		{
+			AddComment(UoW, comment, out string lastComment, employeeRepository);
 		}
 
 		public virtual ReportInfo CreateReportInfoByClient()
@@ -179,7 +175,7 @@ namespace Vodovoz.Domain.Client
 				Title = "Акт по бутылям-залогам",
 				Identifier = "Client.SummaryBottlesAndDeposits",
 				Parameters = new Dictionary<string, object>
-	{
+				{
 					{ "startDate", null },
 					{ "endDate", null },
 					{ "client_id", counterpartyId},
@@ -200,7 +196,23 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Сложный клиент")]
 		DifficultClient,
 		[Display(Name = "Первичка")]
-		FirstClient
+		FirstClient,
+		[Display(Name = "Cверка")]
+		Reconciliation,
+		[Display(Name = "Возврат залогов")]
+		DepositReturn
+	}
+
+	public enum TaskSource
+	{
+		[Display(Name = "Боковая панель заказа")]
+		OrderPanel,
+		[Display(Name = "Автоматическое создание(из заказа)")]
+		AutoFromOrder,
+		[Display(Name = "Массовое создание(из журнала задолженостей)")]
+		MassCreation,
+		[Display(Name = "Создана вручную")]
+		Handmade
 	}
 
 	public enum ImportanceDegreeType
@@ -225,28 +237,10 @@ namespace Vodovoz.Domain.Client
 		}
 	}
 
-	public interface ITask : IDomainObject
+	public class TaskSourceStringType : NHibernate.Type.EnumStringType
 	{
-		Counterparty Counterparty { get; set; }
-
-		DeliveryPoint DeliveryPoint { get; set; }
-
-		DateTime CreationDate { get; set; }
-
-		DateTime? CompleteDate { get; set; }
-
-		DateTime StartActivePeriod { get; set; }
-
-		DateTime EndActivePeriod{ get; set; }
-
-		bool IsTaskComplete { get; set; }
-
-		Employee AssignedEmployee { get; set; }
-
-		Employee TaskCreator { get; set; }
-
-		string Comment { get; set; }
-
-		IList<Phone> Phones { get; }
+		public TaskSourceStringType() : base(typeof(TaskSource))
+		{
+		}
 	}
 }

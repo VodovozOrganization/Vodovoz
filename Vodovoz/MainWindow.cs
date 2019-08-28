@@ -698,7 +698,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 					counterpartySelectorFactory,
 					routeListItemRepository,
 					new BaseParametersProvider(),
-					new EmployeeRepository(),
+					EmployeeRepository.GetInstance(),
 					new ComplaintFilterViewModel(new GtkInteractiveService()),
 					filePickerService,
 					subdivisionRepository,

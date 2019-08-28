@@ -4,12 +4,17 @@ using QS.DomainModel.UoW;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Repositories.Client;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository.Operations;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QSReport;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Operations;
+using QSWidgetLib;
+using QSOrmProject;
+using Vodovoz.Dialogs.Phones;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Dialogs
 {
@@ -19,13 +24,18 @@ namespace Vodovoz.Dialogs
 		private string lastComment;
 		private Employee employee;
 
+		private IEmployeeRepository employeeRepository { get; set; } = EmployeeRepository.GetInstance();
+		private IBottlesRepository bottleRepository { get; set; } = new BottlesRepository();
+		private ICallTaskRepository callTaskRepository { get; set; } = new CallTaskRepository();
+
 		public CallTaskDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CallTask>();
 			TabName = "Новая задача";
 			Entity.CreationDate = DateTime.Now;
-			Entity.TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Source = TaskSource.Handmade;
+			Entity.TaskCreator = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.EndActivePeriod = DateTime.Now.AddDays(1);
 			createTaskButton.Sensitive = false;
 			ConfigureDlg();
@@ -44,7 +54,7 @@ namespace Vodovoz.Dialogs
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CallTask>(callTaskId);
 			TabName = Entity.Counterparty?.Name;
-			labelCreator.Text = String.Format("Создатель : {0}", Entity.TaskCreator?.ShortName);
+			labelCreator.Text = $"Создатель : {Entity.TaskCreator?.ShortName}";
 			ConfigureDlg();
 		}
 
@@ -58,8 +68,8 @@ namespace Vodovoz.Dialogs
 			IsTaskCompleteButton.Label += Entity.CompleteDate?.ToString("dd / MM / yyyy  HH:mm");
 			deadlineYdatepicker.Binding.AddBinding(Entity, s => s.EndActivePeriod, w => w.Date).InitializeFromSource();
 			ytextviewComments.Binding.AddBinding(Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
-			yentryTareReturn.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			yentryTareReturn.Text = Entity.TareReturn.ToString();
+			yentryTareReturn.ValidationMode = ValidationType.numeric;
+			yentryTareReturn.Binding.AddBinding(Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
@@ -71,13 +81,13 @@ namespace Vodovoz.Dialogs
 			deliveryPointYentryreferencevm.RepresentationModel = new DeliveryPointsVM();
 			deliveryPointYentryreferencevm.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
-			employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			employee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
-			ClientPhonesView.UoW = UoW;
-			ClientPhonesView.IsReadOnly = true;
+			ClientPhonesView.ViewModel = new PhonesViewModel(new GtkInteractiveService(), UoW);
+			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesview.UoW = UoW;
-			DeliveryPointPhonesview.IsReadOnly = true;
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(new GtkInteractiveService(), UoW);
+			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			UpdateAddressFields();
 		}
@@ -87,22 +97,22 @@ namespace Vodovoz.Dialogs
 			if(Entity.DeliveryPoint != null) 
 			{
 				yentryCounterparty.Text = Entity.Counterparty?.Name;
-				debtByAddressEntry.Text = BottlesRepository.GetBottlesAtDeliveryPoint(UoW, Entity.DeliveryPoint).ToString();
+				debtByAddressEntry.Text = bottleRepository.GetBottlesAtDeliveryPoint(UoW, Entity.DeliveryPoint).ToString();
 
 				if(Entity.Counterparty != null)
-					debtByClientEntry.Text = BottlesRepository.GetBottlesAtCounterparty(UoW, Entity.Counterparty).ToString();
+					debtByClientEntry.Text = bottleRepository.GetBottlesAtCounterparty(UoW, Entity.Counterparty).ToString();
 
 				entryReserve.Text = Entity.DeliveryPoint.BottleReserv.ToString();
-				DeliveryPointPhonesview.Phones = Entity.DeliveryPoint.Phones;
-				ClientPhonesView.Phones = Entity.Counterparty?.Phones;
-				ytextviewOldComments.Buffer.Text = CallTasksRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
+				DeliveryPointPhonesView.ViewModel.PhonesList = Entity.DeliveryPoint.ObservablePhones;
+				ClientPhonesView.ViewModel.PhonesList = Entity.Counterparty?.ObservablePhones;
+				ytextviewOldComments.Buffer.Text = callTaskRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
 			} 
 			else 
 			{
 				debtByAddressEntry.Text = String.Empty;
 				debtByClientEntry.Text = String.Empty;
 				entryReserve.Text = String.Empty;
-				ClientPhonesView.Phones = null;
+				ClientPhonesView.ViewModel.PhonesList = null;
 				ytextviewOldComments.Buffer.Text = Entity.Comment;
 			}
 		}
@@ -112,7 +122,7 @@ namespace Vodovoz.Dialogs
 		protected void OnButtonSplitClicked(object sender, EventArgs e)
 		{
 			vboxOldComments.Visible = !vboxOldComments.Visible;
-			buttonSplit.Label = vboxOldComments.Visible ? "<<" : ">>";
+			buttonSplit.Label = vboxOldComments.Visible ? ">>" : "<<";
 		}
 
 		#region Comments
@@ -128,7 +138,7 @@ namespace Vodovoz.Dialogs
 		{
 			if(String.IsNullOrEmpty(textviewLastComment.Buffer.Text))
 				return;
-			Entity.AddComment(UoW, textviewLastComment.Buffer.Text,out lastComment);
+			Entity.AddComment(UoW, textviewLastComment.Buffer.Text,out lastComment, employeeRepository);
 			textviewLastComment.Buffer.Text = String.Empty;
 		}
 		#endregion
@@ -141,21 +151,16 @@ namespace Vodovoz.Dialogs
 			orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
 			orderDlg.Entity.UpdateClientDefaultParam();
 			orderDlg.Entity.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(Entity.DeliveryPoint.Id);
+			orderDlg.Entity.CallTaskAutoFactory.TaskCreationInteractive = new GtkTaskCreationInteractive();
 			TabParent.AddTab(orderDlg , this);
 		}
 
 		protected void OnCreateTaskButtonClicked(object sender, EventArgs e)
 		{
 			CallTaskDlg newTask = new CallTaskDlg();
-			newTask.Entity.CopyTask(Entity , UoW);
+			CallTaskFactory.GetInstance().CopyTask(UoW, employeeRepository, Entity, newTask.Entity);
 			newTask.UpdateAddressFields();
 			TabParent.AddTab(newTask,this);
-		}
-
-		protected void OnYentryTareReturnChanged(object sender, EventArgs e)
-		{
-			if(Int32.TryParse(yentryTareReturn.Text, out int result))
-				Entity.TareReturn = result;
 		}
 
 		public override bool Save()

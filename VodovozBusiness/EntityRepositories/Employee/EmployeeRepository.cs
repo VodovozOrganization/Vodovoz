@@ -10,6 +10,17 @@ namespace Vodovoz.EntityRepositories.Employees
 {
 	public class EmployeeRepository : IEmployeeRepository
 	{
+		private static EmployeeRepository instance;
+
+		public static EmployeeRepository GetInstance()
+		{
+			if(instance == null)
+				instance = new EmployeeRepository();
+			return instance;
+		}
+
+		protected EmployeeRepository() { }
+
 		public Employee GetEmployeeForCurrentUser(IUnitOfWork uow)
 		{
 			User userAlias = null;

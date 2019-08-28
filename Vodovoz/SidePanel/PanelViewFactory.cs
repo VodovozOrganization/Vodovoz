@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Gtk;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Complaints;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.SidePanel.InfoViews;
 
 namespace Vodovoz.SidePanel
@@ -25,7 +26,7 @@ namespace Vodovoz.SidePanel
 				case PanelViewType.EmailsPanelView:
 					return new EmailsPanelView();
 				case PanelViewType.CallTaskPanelView:
-					return new CallTaskPanelView(new BaseParametersProvider());
+					return new CallTaskPanelView(new BaseParametersProvider(), EmployeeRepository.GetInstance());
 				case PanelViewType.ComplaintPanelView:
 					return new ComplaintPanelView(new ComplaintsRepository());
 				default:

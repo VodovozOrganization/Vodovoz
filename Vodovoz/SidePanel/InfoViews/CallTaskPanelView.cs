@@ -3,9 +3,10 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 using Vodovoz.SidePanel.InfoProviders;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -14,12 +15,14 @@ namespace Vodovoz.SidePanel.InfoViews
 	{
 		Order Order{ get; set; }
 
-		private IPersonProvider personProvider;
+		private IPersonProvider personProvider { get; set; }
+		private IEmployeeRepository employeeRepository { get; set; }
 
-		public CallTaskPanelView(IPersonProvider personProvider)
+		public CallTaskPanelView(IPersonProvider personProvider, IEmployeeRepository employeeRepository)
 		{
 			this.Build();
 			this.personProvider = personProvider;
+			this.employeeRepository = employeeRepository;
 		}
 
 		#region IPanelView implementation
@@ -55,12 +58,8 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<CallTask>("Кнопка «Создать задачу» на панели \"Постановка задачи\"")) 
 			{
-				uow.Root.DeliveryPoint = Order.DeliveryPoint;
-				uow.Root.CreationDate = DateTime.Now;
-				uow.Root.TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(InfoProvider.UoW);
-				uow.Root.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
-				uow.Root.AddComment(uow, ytextview.Buffer.Text);
-				uow.Root.AssignedEmployee = personProvider?.GetDefaultEmployeeForCallTask(uow);
+				CallTaskFactory.GetInstance().CreateTask(uow, employeeRepository, personProvider, uow.Root, Order, ytextview.Buffer.Text);
+				uow.Root.Source = TaskSource.OrderPanel;
 				uow.Save();
 			}
 			ytextview.Buffer.Text = String.Empty;
