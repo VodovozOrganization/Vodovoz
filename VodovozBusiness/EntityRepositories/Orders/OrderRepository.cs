@@ -19,6 +19,17 @@ namespace Vodovoz.EntityRepositories.Orders
 {
 	public class OrderRepository : IOrderRepository
 	{
+		private static OrderRepository instance;
+
+		public static OrderRepository GetInstance()
+		{
+			if(instance == null)
+				instance = new OrderRepository();
+			return instance;
+		}
+
+		protected OrderRepository() { }
+
 		public QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
 		{
 			return QueryOver.Of<VodovozOrder>()

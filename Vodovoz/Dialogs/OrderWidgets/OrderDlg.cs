@@ -81,8 +81,8 @@ namespace Vodovoz
 
 		Order templateOrder;
 
-		private IEmployeeRepository employeeRepository { get; set; } = new EmployeeRepository();
-		private IOrderRepository orderRepository { get; set; } = new OrderRepository();
+		private IEmployeeRepository employeeRepository { get; set; } = EmployeeRepository.GetInstance();
+		private IOrderRepository orderRepository { get; set; } = OrderRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
 
 		#region Работа с боковыми панелями
@@ -219,7 +219,7 @@ namespace Vodovoz
 			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
 			Entity.ObservableOrderEquipments.ElementChanged += ObservableOrderEquipments_ElementChanged_ChangeCount;
 
-			Entity.CallTaskFactory = new AutoCallTaskFactory(CallTaskFactory.GetInstance(), new CallTaskRepository(), orderRepository, employeeRepository, new BaseParametersProvider());
+			Entity.CallTaskAutoFactory = new AutoCallTaskFactory(CallTaskFactory.GetInstance(), new CallTaskRepository(), orderRepository, employeeRepository, new BaseParametersProvider());
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
 			enumSignatureType.Binding.AddBinding(Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource();

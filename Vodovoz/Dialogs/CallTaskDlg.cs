@@ -24,7 +24,7 @@ namespace Vodovoz.Dialogs
 		private string lastComment;
 		private Employee employee;
 
-		private IEmployeeRepository employeeRepository { get; set; } = new EmployeeRepository();
+		private IEmployeeRepository employeeRepository { get; set; } = EmployeeRepository.GetInstance();
 		private IBottlesRepository bottleRepository { get; set; } = new BottlesRepository();
 		private ICallTaskRepository callTaskRepository { get; set; } = new CallTaskRepository();
 
@@ -151,6 +151,7 @@ namespace Vodovoz.Dialogs
 			orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
 			orderDlg.Entity.UpdateClientDefaultParam();
 			orderDlg.Entity.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(Entity.DeliveryPoint.Id);
+			orderDlg.Entity.CallTaskAutoFactory.TaskCreationInteractive = new GtkTaskCreationInteractive();
 			TabParent.AddTab(orderDlg , this);
 		}
 

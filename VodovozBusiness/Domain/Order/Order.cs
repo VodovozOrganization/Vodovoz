@@ -24,13 +24,14 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Repositories.Client;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Client;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
@@ -51,10 +52,13 @@ namespace Vodovoz.Domain.Orders
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; }
+		private IEmployeeRepository employeeRepository { get; set; } = EmployeeRepository.GetInstance(); //FIXME: До перехода на MVVM
+		private IOrderRepository orderRepository { get; set; } = OrderRepository.GetInstance(); //FIXME: До перехода на MVVM
+
+		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; } //FIXME: До перехода на MVVM
 
 		private IAutoCallTaskFactory callTaskFactory;
-		public virtual IAutoCallTaskFactory CallTaskFactory {
+		public virtual IAutoCallTaskFactory CallTaskAutoFactory {
 			get { return callTaskFactory; }
 			set { 
 					callTaskFactory = value;
@@ -112,7 +116,7 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if(value == client)
 					return;
-				if(OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
+				if(orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
 					throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
@@ -137,7 +141,7 @@ namespace Vodovoz.Domain.Orders
 			get => deliveryPoint;
 			set {
 				//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
-				if(OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)
+				if(orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)
 				   //чтобы не обрабатывались действия при изменении только точки доставки
 				   //когда меняется клиент (так как вместе с ним обязательно будет менять еще и точка доставки)
 				   && deliveryPoint != null && Client.DeliveryPoints.Any(d => d.Id == deliveryPoint.Id)) {
@@ -326,7 +330,7 @@ namespace Vodovoz.Domain.Orders
 						PaymentByCardFrom = null;
 					}
 					//Для изменения уже закрытого или завершенного заказа из закртытия МЛ
-					if(Client != null && OrderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
+					if(Client != null && orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
 						OnChangePaymentType();
 				}
 			}
@@ -781,6 +785,7 @@ namespace Vodovoz.Domain.Orders
 			OrderStatus = OrderStatus.NewOrder;
 			SumDifferenceReason = string.Empty;
 			ClientPhone = string.Empty;
+			CallTaskAutoFactory = new AutoCallTaskFactory(CallTaskFactory.GetInstance(), new CallTaskRepository(), orderRepository, employeeRepository, new BaseParametersProvider()); //FIXME: До перехода на MVVM
 		}
 
 		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author)
@@ -877,11 +882,11 @@ namespace Vodovoz.Domain.Orders
 
 					//создание нескольких заказов на одну дату и точку доставки
 					if(!SelfDelivery && DeliveryPoint != null) {
-						var ordersForDeliveryPoints = OrderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
+						var ordersForDeliveryPoints = orderRepository.GetLatestOrdersForDeliveryPoint(UoW, DeliveryPoint)
 																	 .Where(
 																		 o => o.Id != Id
 																		 && o.DeliveryDate == DeliveryDate
-																		 && !OrderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
+																		 && !orderRepository.GetGrantedStatusesToCreateSeveralOrders().Contains(o.OrderStatus)
 																		 && !o.IsService
 																		);
 
@@ -1937,7 +1942,7 @@ namespace Vodovoz.Domain.Orders
 			msg = string.Empty;
 			if(SelfDelivery)
 				return true;
-			var proSetDict = PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
+			var proSetDict = Repositories.Orders.PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
 			if(!proSetDict.Any())
 				return true;
 			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
@@ -2825,7 +2830,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			if(OrderStatus == OrderStatus.Accepted && UserPermissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"]) {
 				ChangeStatus(OrderStatus.OnLoading);
-				LoadAllowedBy = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				LoadAllowedBy = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			}
 		}
 
@@ -3469,7 +3474,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			SetOrderCreationDate();
 			SetFirstOrder();
-			LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			LastEditor = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			LastEditedTime = DateTime.Now;
 			ParseTareReason();
 			ClearPromotionSets();
@@ -3518,7 +3523,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool CanAddStockBottle()
 		{
-			bool result = Client != null && OrderRepository.GetFirstRealOrderForClient(UoW, Client) == null;
+			bool result = Client != null && orderRepository.GetFirstRealOrderForClient(UoW, Client) == null;
 			if(result) {
 				BottlesReturn = 0;
 			}
