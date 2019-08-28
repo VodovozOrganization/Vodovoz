@@ -81,8 +81,8 @@ namespace Vodovoz
 
 		Order templateOrder;
 
-		private IEmployeeRepository employeeRepository { get; set; } = EmployeeRepository.GetInstance();
-		private IOrderRepository orderRepository { get; set; } = OrderRepository.GetInstance();
+		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
+		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
 
 		#region Работа с боковыми панелями

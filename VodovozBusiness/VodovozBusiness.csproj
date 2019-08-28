@@ -664,7 +664,7 @@
     <Compile Include="EntityRepositories\Complaints\ComplaintsRepository.cs" />
     <Compile Include="EntityRepositories\Complaints\IComplaintsRepository.cs" />
     <Compile Include="Services\ISubdivisionService.cs" />
-    <Compile Include="EntityRepositories\Employee\EmployeeRepository.cs" />
+    <Compile Include="EntityRepositories\Employee\EmployeeSingletonRepository.cs" />
     <Compile Include="EntityRepositories\Employee\IEmployeeRepository.cs" />
     <Compile Include="Domain\Client\SupplierPriceItem.cs" />
     <Compile Include="HibernateMapping\Counterparty\SuplierPriceItemMap.cs" />
@@ -681,7 +681,7 @@
     <Compile Include="EntityRepositories\CallTasks\CallTaskRepository.cs" />
     <Compile Include="EntityRepositories\CallTasks\ICallTaskRepository.cs" />
     <Compile Include="Tools\CallTasks\CallTaskFactory.cs" />
-    <Compile Include="EntityRepositories\Orders\OrderRepository.cs" />
+    <Compile Include="EntityRepositories\Orders\OrderSingletonRepository.cs" />
     <Compile Include="Repositories\Orders\Export1cMode.cs" />
     <Compile Include="Repositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\IOrderRepository.cs" />

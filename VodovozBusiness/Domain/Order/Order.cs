@@ -52,8 +52,8 @@ namespace Vodovoz.Domain.Orders
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private IEmployeeRepository employeeRepository { get; set; } = EmployeeRepository.GetInstance(); //FIXME: До перехода на MVVM
-		private IOrderRepository orderRepository { get; set; } = OrderRepository.GetInstance(); //FIXME: До перехода на MVVM
+		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance(); //FIXME: До перехода на MVVM
+		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance(); //FIXME: До перехода на MVVM
 
 		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; } //FIXME: До перехода на MVVM
 

@@ -8,18 +8,18 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.EntityRepositories.Employees
 {
-	public class EmployeeRepository : IEmployeeRepository
+	public class EmployeeSingletonRepository : IEmployeeRepository
 	{
-		private static EmployeeRepository instance;
+		private static EmployeeSingletonRepository instance;
 
-		public static EmployeeRepository GetInstance()
+		public static EmployeeSingletonRepository GetInstance()
 		{
 			if(instance == null)
-				instance = new EmployeeRepository();
+				instance = new EmployeeSingletonRepository();
 			return instance;
 		}
 
-		protected EmployeeRepository() { }
+		protected EmployeeSingletonRepository() { }
 
 		public Employee GetEmployeeForCurrentUser(IUnitOfWork uow)
 		{
