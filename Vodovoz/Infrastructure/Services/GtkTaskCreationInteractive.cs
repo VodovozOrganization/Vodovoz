@@ -9,9 +9,9 @@ namespace Vodovoz.Infrastructure.Services
 	{
 		public CreationTaskResult RunQuestion(ref DateTime? dateTime)
 		{
-			var questionWindow = new TaskCreationWindow();
+			var questionWindow = new TaskCreationDialog();
 			questionWindow.Modal = true;
-			questionWindow.ShowAll();
+			questionWindow.Run();
 			dateTime = questionWindow.Date;
 			return questionWindow.creationTaskResult;
 		}

@@ -1290,6 +1290,8 @@
     <Compile Include="ViewWidgets\TaskCreationWindow.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.TaskCreationWindow.cs" />
     <Compile Include="Infrastructure\Services\GtkTaskCreationInteractive.cs" />
+    <Compile Include="ViewWidgets\TaskCreationDialog.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.TaskCreationDialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

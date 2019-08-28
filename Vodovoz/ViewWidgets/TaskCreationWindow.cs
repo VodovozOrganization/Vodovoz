@@ -21,12 +21,12 @@ namespace Vodovoz.ViewWidgets
 		{
 			creationTaskResult = CreationTaskResult.Auto;
 			Date = null;
+
+			Destroy();
 		}
 
 		protected void OnButtonPickDateClicked(object sender, EventArgs e)
 		{
-			creationTaskResult = CreationTaskResult.DatePick;
-
 			Window parentWin = (Window)this.Toplevel;
 			Dialog editDate = new Dialog("Укажите дату",
 				parentWin, DialogFlags.DestroyWithParent) {
@@ -49,6 +49,10 @@ namespace Vodovoz.ViewWidgets
 			SelectDate.Destroy();
 			editDate.Destroy();
 
+			if(Date != null)
+				creationTaskResult = CreationTaskResult.DatePick;
+
+			Destroy();
 		}
 	}
 }
