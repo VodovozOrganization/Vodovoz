@@ -69,6 +69,9 @@ namespace Vodovoz.Tools.CallTasks
 
 		private bool UpdateCallTask()
 		{
+			if(order.DeliveryPoint == null)
+				return false;
+
 			DateTime? dateTime = null;
 			if(TaskCreationInteractive != null)
 				if(TaskCreationInteractive.RunQuestion(ref dateTime) == CreationTaskResult.Cancel)
@@ -102,7 +105,7 @@ namespace Vodovoz.Tools.CallTasks
 			if(tasks?.FirstOrDefault() != null) {
 				foreach(var item in tasks) {
 					item.IsTaskComplete = true;
-					string comment = $"Клиент сделал заказ №{order.Id}";
+					string comment = $"Автоперенос задачи на {dateTime?.ToString()}";
 					item.AddComment(uow, comment);
 					uow.Save(item);
 				}
@@ -114,6 +117,9 @@ namespace Vodovoz.Tools.CallTasks
 
 		private bool UpdateDepositReturnTask()
 		{
+			if(order.DeliveryPoint == null)
+				return false;
+
 			bool createTask = false;
 			foreach(var item in order.OrderEquipments.Where(x => x.Direction == Direction.Deliver)) {
 				if(!order.OrderEquipments.Any(x => x.Nomenclature.Id == item.Nomenclature.Id && x.Direction == Direction.PickUp)) {

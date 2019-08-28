@@ -333,7 +333,11 @@ namespace Vodovoz.EntityRepositories.Orders
 				dateDif.Add(dif);
 			}
 
-			return dateDif.Average();
+			if(dateDif?.FirstOrDefault() == null)
+				return 0f;
+			else
+				return dateDif.Average();
+
 		}
 
 		public OrderStatus[] GetOnClosingOrderStatuses()
