@@ -2785,7 +2785,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			SetDepositsActualCounts();
 			if(SelfDelivery) {
-				UpdateDepositOperations();
+				UpdateDepositOperations(UoW);
 				SetActualCountToSelfDelivery();
 			}
 		}
@@ -3611,15 +3611,15 @@ namespace Vodovoz.Domain.Orders
 
 		#region Операции
 
-		public virtual List<DepositOperation> UpdateDepositOperations()
+		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow)
 		{
 			var bottleRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Bottles).Sum(x => x.Total);
 			var equipmentRefundDeposit = ObservableOrderDepositItems.Where(x => x.DepositType == DepositType.Equipment).Sum(x => x.Total);
-			var operations = UpdateDepositOperations(equipmentRefundDeposit, bottleRefundDeposit);
+			var operations = UpdateDepositOperations(uow, equipmentRefundDeposit, bottleRefundDeposit);
 			return operations;
 		}
 
-		public virtual List<DepositOperation> UpdateDepositOperations(decimal equipmentRefundDeposit, decimal bottleRefundDeposit)
+		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow, decimal equipmentRefundDeposit, decimal bottleRefundDeposit)
 		{
 			if(IsContractCloser == true) {
 				DepositOperations.Clear();
@@ -3679,6 +3679,9 @@ namespace Vodovoz.Domain.Orders
 					UoW.Delete(equipmentOperation);
 				}
 			}
+
+			result.ForEach(x => uow.Save(x));
+
 			return result;
 		}
 
