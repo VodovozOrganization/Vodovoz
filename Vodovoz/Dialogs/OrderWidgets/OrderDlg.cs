@@ -752,7 +752,7 @@ namespace Vodovoz
 				}
 				IStandartNomenclatures standartNomenclatures = new BaseParametersProvider();
 				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository(), new CashRepository());
-				Entity.UpdateDepositOperations();
+				Entity.UpdateDepositOperations(UoW);
 
 				Entity.ChangeStatus(OrderStatus.Closed);
 				foreach(OrderItem i in Entity.ObservableOrderItems) {
