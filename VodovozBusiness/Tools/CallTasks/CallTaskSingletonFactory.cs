@@ -1,31 +1,32 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Services;
 
 namespace Vodovoz.Tools.CallTasks
 {
-	public class CallTaskFactory : ICallTaskFactory
+	public class CallTaskSingletonFactory : ICallTaskFactory
 	{
-		private static CallTaskFactory instance;
+		private static CallTaskSingletonFactory instance;
 
-		public static CallTaskFactory GetInstance()
+		public static CallTaskSingletonFactory GetInstance()
 		{
 			if(instance == null)
-				instance = new CallTaskFactory();
+				instance = new CallTaskSingletonFactory();
 			return instance;
 		}
 
-		protected CallTaskFactory() { }
+		protected CallTaskSingletonFactory() { }
 
 		public CallTask CreateCopyTask(IUnitOfWork uow, IEmployeeRepository employeeRepository , CallTask originTask)
 		{
 			var task = new CallTask {
-				DeliveryPoint = originTask.DeliveryPoint,
-				Counterparty = originTask.Counterparty,
-				AssignedEmployee = originTask.AssignedEmployee
+				DeliveryPoint = uow.GetById<DeliveryPoint>(originTask.DeliveryPoint.Id),
+				Counterparty = uow.GetById<Counterparty>(originTask.Counterparty.Id),
+				AssignedEmployee = uow.GetById<Employee>(originTask.AssignedEmployee.Id)
 			};
 			FillNewTask(uow, task, employeeRepository);
 			return task;
@@ -33,9 +34,9 @@ namespace Vodovoz.Tools.CallTasks
 
 		public void CopyTask(IUnitOfWork uow, IEmployeeRepository employeeRepository, CallTask copyFrom, CallTask copyTo)
 		{
-			copyTo.DeliveryPoint = copyFrom.DeliveryPoint;
-			copyTo.Counterparty = copyFrom.Counterparty;
-			copyTo.AssignedEmployee = copyFrom.AssignedEmployee;
+			copyTo.DeliveryPoint = uow.GetById<DeliveryPoint>(copyFrom.DeliveryPoint.Id);
+			copyTo.Counterparty = uow.GetById<Counterparty>(copyFrom.Counterparty.Id);
+			copyTo.AssignedEmployee =uow.GetById<Employee>(copyFrom.AssignedEmployee.Id);
 			copyTo.TaskCreator = employeeRepository.GetEmployeeForCurrentUser(uow);
 			copyTo.CreationDate = DateTime.Now;
 			copyTo.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
@@ -48,16 +49,23 @@ namespace Vodovoz.Tools.CallTasks
 
 			switch(source) {
 				case Order order:
-					callTask.DeliveryPoint = uow.GetById<DeliveryPoint>(order.DeliveryPoint.Id);
-					callTask.TaskState = CallTaskStatus.Reconciliation;
-					callTask.AssignedEmployee = personProvider.GetDefaultEmployeeForCallTask(uow);
-					callTask.SourceDocumentId = (source as Order)?.Id;
+					FillFromOrder(uow, callTask, personProvider, order);
 					break;
 			}
 
 			if(creationComment != null)
 				callTask.AddComment(uow, creationComment, employeeRepository);
 			return callTask;
+		}
+
+		private void FillFromOrder(IUnitOfWork uow, CallTask callTask, IPersonProvider personProvider, Order order)
+		{
+			callTask.Counterparty = uow.GetById<Counterparty>(order.Client.Id);
+			if(order.DeliveryPoint != null)
+				callTask.DeliveryPoint = uow.GetById<DeliveryPoint>(order.DeliveryPoint.Id);
+			callTask.TaskState = CallTaskStatus.Reconciliation;
+			callTask.AssignedEmployee = personProvider.GetDefaultEmployeeForCallTask(uow);
+			callTask.SourceDocumentId = order.Id;
 		}
 
 		public CallTask FillNewTask(IUnitOfWork uow,CallTask callTask ,IEmployeeRepository employeeRepository)

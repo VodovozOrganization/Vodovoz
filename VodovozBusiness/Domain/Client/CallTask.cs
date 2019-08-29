@@ -37,10 +37,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Aдрес клиента")]
 		public virtual DeliveryPoint DeliveryPoint {
 			get { return deliveryPoint; }
-			set {   
-					SetField(ref deliveryPoint, value, () => DeliveryPoint);
-					Counterparty = deliveryPoint?.Counterparty;
-				}
+			set { SetField(ref deliveryPoint, value, () => DeliveryPoint);}
 		}
 
 		Counterparty counterparty;
