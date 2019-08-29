@@ -2330,7 +2330,7 @@ namespace Vodovoz
 			buttonAddForSale.Sensitive = referenceContract.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
-			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"];
+			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"] && val;
 		}
 
 		void ChangeOrderEditable(bool val)
