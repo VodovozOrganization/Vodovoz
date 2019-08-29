@@ -24,7 +24,7 @@ namespace Vodovoz.Dialogs
 		private string lastComment;
 		private Employee employee;
 
-		private IEmployeeRepository employeeRepository { get; set; } = EmployeeRepository.GetInstance();
+		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IBottlesRepository bottleRepository { get; set; } = new BottlesRepository();
 		private ICallTaskRepository callTaskRepository { get; set; } = new CallTaskRepository();
 
@@ -71,6 +71,7 @@ namespace Vodovoz.Dialogs
 			yentryTareReturn.ValidationMode = ValidationType.numeric;
 			yentryTareReturn.Binding.AddBinding(Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
+
 			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
 			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
@@ -81,6 +82,9 @@ namespace Vodovoz.Dialogs
 			deliveryPointYentryreferencevm.RepresentationModel = new DeliveryPointsVM();
 			deliveryPointYentryreferencevm.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
+			counterpartyYentryreferencevm.RepresentationModel = new CounterpartyVM();
+			counterpartyYentryreferencevm.Binding.AddBinding(Entity, s => s.Counterparty, w => w.Subject).InitializeFromSource();
+
 			employee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
 			ClientPhonesView.ViewModel = new PhonesViewModel(new GtkInteractiveService(), UoW);
@@ -89,6 +93,9 @@ namespace Vodovoz.Dialogs
 			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(new GtkInteractiveService(), UoW);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
+			if(Entity.Counterparty != null)
+				(deliveryPointYentryreferencevm.RepresentationModel.JournalFilter as DeliveryPointFilter).Client = Entity.Counterparty;
+
 			UpdateAddressFields();
 		}
 
@@ -96,28 +103,59 @@ namespace Vodovoz.Dialogs
 		{
 			if(Entity.DeliveryPoint != null) 
 			{
-				yentryCounterparty.Text = Entity.Counterparty?.Name;
 				debtByAddressEntry.Text = bottleRepository.GetBottlesAtDeliveryPoint(UoW, Entity.DeliveryPoint).ToString();
-
-				if(Entity.Counterparty != null)
-					debtByClientEntry.Text = bottleRepository.GetBottlesAtCounterparty(UoW, Entity.Counterparty).ToString();
-
 				entryReserve.Text = Entity.DeliveryPoint.BottleReserv.ToString();
 				DeliveryPointPhonesView.ViewModel.PhonesList = Entity.DeliveryPoint.ObservablePhones;
-				ClientPhonesView.ViewModel.PhonesList = Entity.Counterparty?.ObservablePhones;
 				ytextviewOldComments.Buffer.Text = callTaskRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
 			} 
 			else 
 			{
 				debtByAddressEntry.Text = String.Empty;
-				debtByClientEntry.Text = String.Empty;
 				entryReserve.Text = String.Empty;
-				ClientPhonesView.ViewModel.PhonesList = null;
 				ytextviewOldComments.Buffer.Text = Entity.Comment;
+			}
+
+			UpdateClienInfoFields();
+		}
+
+		protected void UpdateClienInfoFields()
+		{
+			if(Entity.Counterparty != null) 
+			{
+				debtByClientEntry.Text = bottleRepository.GetBottlesAtCounterparty(UoW, Entity.Counterparty).ToString();
+				ClientPhonesView.ViewModel.PhonesList = Entity.Counterparty?.ObservablePhones;
+				if(Entity.DeliveryPoint == null)
+					debtByAddressEntry.Text = bottleRepository.GetBottleDebtBySelfDelivery(UoW, Entity.Counterparty).ToString();
+			} 
+			else 
+			{
+				debtByClientEntry.Text = String.Empty;
+				ClientPhonesView.ViewModel.PhonesList = null;
 			}
 		}
 
-		protected void OnDeliveryPointYentryreferencevmChangedByUser(object sender, EventArgs e) => UpdateAddressFields();
+		protected void OnDeliveryPointYentryreferencevmChangedByUser(object sender, EventArgs e) 
+		{
+			if(Entity.DeliveryPoint != null && Entity.Counterparty == null)
+				Entity.Counterparty = Entity.DeliveryPoint.Counterparty;
+			UpdateAddressFields();
+		}
+
+		protected void OnCounterpartyYentryreferencevmChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.Counterparty == null)
+				(deliveryPointYentryreferencevm.RepresentationModel.JournalFilter as DeliveryPointFilter).Client = null;
+			else {
+				(deliveryPointYentryreferencevm.RepresentationModel.JournalFilter as DeliveryPointFilter).Client = Entity.Counterparty;
+				if(Entity.Counterparty.Id != Entity.DeliveryPoint?.Counterparty.Id) {
+					if(Entity.Counterparty.DeliveryPoints.Count == 1)
+						Entity.DeliveryPoint = Entity.Counterparty.DeliveryPoints[0];
+					else
+						Entity.DeliveryPoint = null;
+				}
+			}
+			UpdateAddressFields();
+		}
 
 		protected void OnButtonSplitClicked(object sender, EventArgs e)
 		{
@@ -147,6 +185,7 @@ namespace Vodovoz.Dialogs
 		{
 			if(Entity.DeliveryPoint == null)
 				return;
+
 			OrderDlg orderDlg = new OrderDlg();
 			orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
 			orderDlg.Entity.UpdateClientDefaultParam();
@@ -158,7 +197,7 @@ namespace Vodovoz.Dialogs
 		protected void OnCreateTaskButtonClicked(object sender, EventArgs e)
 		{
 			CallTaskDlg newTask = new CallTaskDlg();
-			CallTaskFactory.GetInstance().CopyTask(UoW, employeeRepository, Entity, newTask.Entity);
+			CallTaskSingletonFactory.GetInstance().CopyTask(UoW, employeeRepository, Entity, newTask.Entity);
 			newTask.UpdateAddressFields();
 			TabParent.AddTab(newTask,this);
 		}

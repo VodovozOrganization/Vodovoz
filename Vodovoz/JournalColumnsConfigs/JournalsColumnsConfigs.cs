@@ -47,7 +47,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				() => FluentColumnsConfig<Representations.DebtorJournalNode>.Create()
 					.AddColumn("Номер").AddNumericRenderer(x => x.AddressId)
 					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
-					.AddColumn("Адрес").AddTextRenderer(node => node.AddressName)
+					.AddColumn("Адрес").AddTextRenderer(node => String.IsNullOrWhiteSpace(node.AddressName) ? "Самовывоз" : node.AddressName)
 					.AddColumn("ОПФ").AddTextRenderer(node => node.OPF.GetEnumTitle())
 					.AddColumn("Последний заказ по адресу").AddTextRenderer(node => node.LastOrderDate != null ? node.LastOrderDate.Value.ToString("dd / MM / yyyy") : string.Empty)
 					.AddColumn("Кол-во отгруженных в последнюю реализацию бутылей").AddNumericRenderer(node => node.LastOrderBottles)

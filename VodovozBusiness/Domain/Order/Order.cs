@@ -52,12 +52,12 @@ namespace Vodovoz.Domain.Orders
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private IEmployeeRepository employeeRepository { get; set; } = EmployeeRepository.GetInstance(); //FIXME: До перехода на MVVM
-		private IOrderRepository orderRepository { get; set; } = OrderRepository.GetInstance(); //FIXME: До перехода на MVVM
+		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance(); //FIXME: До перехода на MVVM
+		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance(); //FIXME: До перехода на MVVM
 
 		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; } //FIXME: До перехода на MVVM
 
-		private IAutoCallTaskFactory callTaskFactory;
+		private IAutoCallTaskFactory callTaskFactory; //FIXME: До перехода на MVVM
 		public virtual IAutoCallTaskFactory CallTaskAutoFactory {
 			get { return callTaskFactory; }
 			set { 
@@ -785,7 +785,7 @@ namespace Vodovoz.Domain.Orders
 			OrderStatus = OrderStatus.NewOrder;
 			SumDifferenceReason = string.Empty;
 			ClientPhone = string.Empty;
-			CallTaskAutoFactory = new AutoCallTaskFactory(CallTaskFactory.GetInstance(), new CallTaskRepository(), orderRepository, employeeRepository, new BaseParametersProvider()); //FIXME: До перехода на MVVM
+			CallTaskAutoFactory = new AutoCallTaskFactory(CallTaskSingletonFactory.GetInstance(), new CallTaskRepository(), orderRepository, employeeRepository, new BaseParametersProvider()); //FIXME: До перехода на MVVM
 		}
 
 		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author)

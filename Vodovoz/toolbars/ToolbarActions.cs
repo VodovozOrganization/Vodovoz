@@ -28,6 +28,7 @@ using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.EntityRepositories.Employees;
 
 public partial class MainWindow : Window
 {
@@ -318,7 +319,7 @@ public partial class MainWindow : Window
 	{
 		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
 		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
-		var debtorsJournal = new DebtorsJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices);
+		var debtorsJournal = new DebtorsJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
 
 		tdiMain.AddTab(debtorsJournal);
 

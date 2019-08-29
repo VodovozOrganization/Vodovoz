@@ -16,7 +16,7 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private IEmployeeRepository employeeRepository { get; } = EmployeeRepository.GetInstance();
+		private IEmployeeRepository employeeRepository { get; } = EmployeeSingletonRepository.GetInstance();
 
 		public InventoryDocumentDlg()
 		{

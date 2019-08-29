@@ -50,5 +50,24 @@ namespace Vodovoz.EntityRepositories.CallTasks
 
 			return tasks.List();
 		}
+
+		public IEnumerable<CallTask> GetActiveSelfDeliveryTaskByCounterparty(IUnitOfWork UoW, Counterparty counterparty, CallTaskStatus? taskStatus = null, int? limit = null)
+		{
+			CallTask callTaskAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			Counterparty counterpartyAlias = null;
+			var tasks = UoW.Session.QueryOver(() => callTaskAlias)
+				.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(x => x.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.Where(() => counterpartyAlias.Id == counterparty.Id)
+					.And(() => deliveryPointAlias == null)
+					.And(x => !x.IsTaskComplete)
+					.And(x => taskStatus == null || x.TaskState == taskStatus.Value);
+
+			if(limit.HasValue)
+				tasks.Take(limit.Value);
+
+			return tasks.List();
+		}
 	}
 }
