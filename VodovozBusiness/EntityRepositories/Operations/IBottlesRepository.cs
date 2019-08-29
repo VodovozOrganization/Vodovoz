@@ -12,5 +12,6 @@ namespace Vodovoz.EntityRepositories.Operations
 		int GetBottlesAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, DateTime? before = null);
 		int GetBottlesAtCouterpartyAndDeliveryPoint(IUnitOfWork UoW, Counterparty counterparty, DeliveryPoint deliveryPoint, DateTime? before);
 		int GetEmptyBottlesFromClientByOrder(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository, Order order, int? excludeDocument);
+		int GetBottleDebtBySelfDelivery(IUnitOfWork UoW, Counterparty counterparty);
 	}
 }

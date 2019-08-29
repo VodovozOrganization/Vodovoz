@@ -17,18 +17,18 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
-	public class OrderRepository : IOrderRepository
+	public class OrderSingletonRepository : IOrderRepository
 	{
-		private static OrderRepository instance;
+		private static OrderSingletonRepository instance;
 
-		public static OrderRepository GetInstance()
+		public static OrderSingletonRepository GetInstance()
 		{
 			if(instance == null)
-				instance = new OrderRepository();
+				instance = new OrderSingletonRepository();
 			return instance;
 		}
 
-		protected OrderRepository() { }
+		protected OrderSingletonRepository() { }
 
 		public QueryOver<VodovozOrder> GetSelfDeliveryOrdersForPaymentQuery()
 		{

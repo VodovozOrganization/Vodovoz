@@ -575,7 +575,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 
 			// act
-			var operations = testOrder.UpdateDepositOperations();
+			var operations = testOrder.UpdateDepositOperations(uow);
 
 
 			var EquipmentDeposit = operations
@@ -596,7 +596,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 
 			// act
-			var operations = testOrder.UpdateDepositOperations();
+			var operations = testOrder.UpdateDepositOperations(uow);
 
 
 			var BottleDeposit = operations
@@ -631,7 +631,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			testOrder.OrderItems.Add(recivedDepositOrderItem);
 
 			// act
-			var operations = testOrder.UpdateDepositOperations();
+			var operations = testOrder.UpdateDepositOperations(uow);
 
 			// assert
 			Assert.That(operations?.FirstOrDefault(), Is.EqualTo(null));

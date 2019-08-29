@@ -61,8 +61,7 @@ namespace Vodovoz.Tools.CallTasks
 		private void FillFromOrder(IUnitOfWork uow, CallTask callTask, IPersonProvider personProvider, Order order)
 		{
 			callTask.Counterparty = uow.GetById<Counterparty>(order.Client.Id);
-			if(order.DeliveryPoint != null)
-				callTask.DeliveryPoint = uow.GetById<DeliveryPoint>(order.DeliveryPoint.Id);
+			callTask.DeliveryPoint = uow.GetById<DeliveryPoint>(order.DeliveryPoint.Id);
 			callTask.TaskState = CallTaskStatus.Reconciliation;
 			callTask.AssignedEmployee = personProvider.GetDefaultEmployeeForCallTask(uow);
 			callTask.SourceDocumentId = order.Id;

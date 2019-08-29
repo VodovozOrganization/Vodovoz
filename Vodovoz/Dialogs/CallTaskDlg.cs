@@ -93,6 +93,9 @@ namespace Vodovoz.Dialogs
 			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(new GtkInteractiveService(), UoW);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
+			if(Entity.Counterparty != null)
+				(deliveryPointYentryreferencevm.RepresentationModel.JournalFilter as DeliveryPointFilter).Client = Entity.Counterparty;
+
 			UpdateAddressFields();
 		}
 
@@ -101,22 +104,33 @@ namespace Vodovoz.Dialogs
 			if(Entity.DeliveryPoint != null) 
 			{
 				debtByAddressEntry.Text = bottleRepository.GetBottlesAtDeliveryPoint(UoW, Entity.DeliveryPoint).ToString();
-
-				if(Entity.Counterparty != null)
-					debtByClientEntry.Text = bottleRepository.GetBottlesAtCounterparty(UoW, Entity.Counterparty).ToString();
-
 				entryReserve.Text = Entity.DeliveryPoint.BottleReserv.ToString();
 				DeliveryPointPhonesView.ViewModel.PhonesList = Entity.DeliveryPoint.ObservablePhones;
-				ClientPhonesView.ViewModel.PhonesList = Entity.Counterparty?.ObservablePhones;
 				ytextviewOldComments.Buffer.Text = callTaskRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
 			} 
 			else 
 			{
 				debtByAddressEntry.Text = String.Empty;
-				debtByClientEntry.Text = String.Empty;
 				entryReserve.Text = String.Empty;
-				ClientPhonesView.ViewModel.PhonesList = null;
 				ytextviewOldComments.Buffer.Text = Entity.Comment;
+			}
+
+			UpdateClienInfoFields();
+		}
+
+		protected void UpdateClienInfoFields()
+		{
+			if(Entity.Counterparty != null) 
+			{
+				debtByClientEntry.Text = bottleRepository.GetBottlesAtCounterparty(UoW, Entity.Counterparty).ToString();
+				ClientPhonesView.ViewModel.PhonesList = Entity.Counterparty?.ObservablePhones;
+				if(Entity.DeliveryPoint == null)
+					debtByAddressEntry.Text = bottleRepository.GetBottleDebtBySelfDelivery(UoW, Entity.Counterparty).ToString();
+			} 
+			else 
+			{
+				debtByClientEntry.Text = String.Empty;
+				ClientPhonesView.ViewModel.PhonesList = null;
 			}
 		}
 
@@ -140,6 +154,7 @@ namespace Vodovoz.Dialogs
 						Entity.DeliveryPoint = null;
 				}
 			}
+			UpdateAddressFields();
 		}
 
 		protected void OnButtonSplitClicked(object sender, EventArgs e)

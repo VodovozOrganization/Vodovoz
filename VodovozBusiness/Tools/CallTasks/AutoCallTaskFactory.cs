@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Utilities;
 using System.Linq;
@@ -69,9 +70,6 @@ namespace Vodovoz.Tools.CallTasks
 
 		private bool UpdateCallTask()
 		{
-			if(order.DeliveryPoint == null)
-				return false;
-
 			DateTime? dateTime = null;
 			if(TaskCreationInteractive != null)
 				if(TaskCreationInteractive.RunQuestion(ref dateTime) == CreationTaskResult.Cancel)
@@ -80,7 +78,12 @@ namespace Vodovoz.Tools.CallTasks
 
 			IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
-			var tasks = callTaskRepository.GetActiveTaskByDeliveryPoint(uow, order.DeliveryPoint, CallTaskStatus.Call);
+			IEnumerable<CallTask> tasks;
+
+			if(order.SelfDelivery)
+				tasks = callTaskRepository.GetActiveSelfDeliveryTaskByCounterparty(uow, order.Client, CallTaskStatus.Call);
+			else
+				tasks = callTaskRepository.GetActiveTaskByDeliveryPoint(uow, order.DeliveryPoint, CallTaskStatus.Call);
 
 			if(tasks?.FirstOrDefault() == null)
 				return false;
@@ -117,9 +120,6 @@ namespace Vodovoz.Tools.CallTasks
 
 		private bool UpdateDepositReturnTask()
 		{
-			if(order.DeliveryPoint == null)
-				return false;
-
 			bool createTask = false;
 			foreach(var item in order.OrderEquipments.Where(x => x.Direction == Direction.Deliver)) {
 				if(!order.OrderEquipments.Any(x => x.Nomenclature.Id == item.Nomenclature.Id && x.Direction == Direction.PickUp)) {
@@ -131,9 +131,16 @@ namespace Vodovoz.Tools.CallTasks
 			if(!createTask)
 				return false;
 
+
 			IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
-			var activeTask = callTaskRepository.GetActiveTaskByDeliveryPoint(uow, order.DeliveryPoint, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
+			CallTask activeTask;
+
+			if(order.SelfDelivery)
+				activeTask = callTaskRepository.GetActiveSelfDeliveryTaskByCounterparty(uow, order.Client, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
+			else
+				activeTask = callTaskRepository.GetActiveTaskByDeliveryPoint(uow, order.DeliveryPoint, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
+
 			if(activeTask != null)
 				return false;
 
