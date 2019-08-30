@@ -45,7 +45,7 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref price, value);
 		}
 
-		VAT vAT;
+		VAT vAT = VAT.Vat20;
 		[Display(Name = "НДС")]
 		public virtual VAT VAT {
 			get { return vAT; }

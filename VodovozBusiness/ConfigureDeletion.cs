@@ -28,6 +28,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Domain.Suppliers;
 
 namespace Vodovoz
 {
@@ -85,6 +86,8 @@ namespace Vodovoz
 						.AddDeleteDependence<OrderDepositItem>(x => x.EquipmentNomenclature)
 						.AddDeleteDependence<PaidRentEquipment>(x => x.Nomenclature)
 						.AddRemoveFromDependence<Certificate>(x => x.Nomenclatures)
+						.AddDeleteDependence<SupplierPriceItem>(x => x.NomenclatureToBuy)
+						.AddDeleteDependence<RequestToSupplierItem>(x => x.Nomenclature)
 						;
 
 			DeleteConfig.AddDeleteInfo(
@@ -265,6 +268,7 @@ namespace Vodovoz
 				.AddClearDependence<Subdivision>(x => x.Chief)
 				.AddClearDependence<ChatMessage>(x => x.Sender)
 				.AddClearDependence<Employee>(x => x.DefaultForwarder)
+				.AddClearDependence<RequestToSupplier>(x => x.Creator)
 				;
 
 			DeleteConfig.AddDeleteInfo(
@@ -392,7 +396,9 @@ namespace Vodovoz
 				.AddDeleteDependence<Residue>(x => x.Customer)
 				.AddClearDependence<Counterparty>(item => item.MainCounterparty)
 				.AddClearDependence<Counterparty>(x => x.PreviousCounterparty)
-				.AddClearDependence<Equipment>(x => x.AssignedToClient);
+				.AddClearDependence<Equipment>(x => x.AssignedToClient)
+				.AddDeleteDependence<SupplierPriceItem>(x => x.Supplier)
+				;
 
 
 			DeleteConfig.AddHibernateDeleteInfo<Contact>()
@@ -438,6 +444,17 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentEquipment>();
 
 			DeleteConfig.AddHibernateDeleteInfo<SalesEquipment>();
+
+			DeleteConfig.AddHibernateDeleteInfo<SupplierPriceItem>()
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<RequestToSupplier>()
+						.AddDeleteDependence<RequestToSupplierItem>(x => x.RequestToSupplier)
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<RequestToSupplierItem>()
+						.AddDeleteDependence<RequestToSupplierItem>(x => x.TransferedFromItem)
+						;
 
 			//основной класс. не удаляем. в тестах настроен игнор.
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPoint>()

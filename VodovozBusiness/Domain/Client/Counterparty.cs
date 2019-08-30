@@ -669,10 +669,28 @@ namespace Vodovoz.Domain.Client
 
 		#region цены поставщика
 
-		public virtual void SupplierPriceListRefresh() {
+		public virtual void SupplierPriceListRefresh(string[] searchValues = null)
+		{
+			bool ShortOrFullNameContainsSearchValues(Nomenclature nom)
+			{
+				if(searchValues == null)
+					return true;
+
+				var shortOrFullName = nom.ShortOrFullName;
+				foreach(var val in searchValues) {
+					if(!shortOrFullName.Contains(val))
+						return false;
+				}
+				return true;
+			}
+
 			int cnt = 0;
 			ObservablePriceNodes.Clear();
-			foreach(var nom in SuplierPriceItems.Select(i => i.NomenclatureToBuy).Distinct()) {
+			var pItems = SuplierPriceItems.Select(i => i.NomenclatureToBuy)
+										  .Distinct()
+										  .Where(ShortOrFullNameContainsSearchValues)
+										  ;
+			foreach(var nom in pItems) {
 				var sNom = new SellingNomenclature {
 					NomenclatureToBuy = nom,
 					Parent = null,

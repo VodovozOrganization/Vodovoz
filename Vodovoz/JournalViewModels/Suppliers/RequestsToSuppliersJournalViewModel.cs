@@ -64,7 +64,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 
 			if(FilterViewModel?.RestrictNomenclature != null) {
 				var subquery = QueryOver.Of<RequestToSupplierItem>()
-										.Where(r => r.Nomenclature.Id == FilterViewModel.RestrictNomenclature.Id)
+										.Where(r => r.Nomenclature.Id == FilterViewModel.RestrictNomenclature.Id && !r.Transfered)
 										.Select(r => r.RequestToSupplier.Id);
 				query.WithSubquery.WhereProperty(r => r.Id).In(subquery);
 			}
