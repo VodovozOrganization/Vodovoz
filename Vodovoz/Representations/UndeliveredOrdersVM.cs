@@ -198,7 +198,7 @@ namespace Vodovoz.Representations
 			if(Filter?.RestrictGuiltySide != null)
 				query.Where(() => guiltyInUndeliveryAlias.GuiltySide == Filter.RestrictGuiltySide);
 
-			if(Filter != null && Filter.AreProblematicCasesActive)
+			if(Filter != null && Filter.IsProblematicCasesChkActive)
 				query.Where(() => !guiltyInUndeliveryAlias.GuiltySide.IsIn(Filter.ExcludingGuiltiesForProblematicCases));
 
 			if(Filter?.RestrictGuiltyDepartment != null)
@@ -422,7 +422,7 @@ namespace Vodovoz.Representations
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
 			.AddColumn("Количество\nбутылей").HeaderAlignment(0.5f)
 				.AddTextRenderer(node => node.UndeliveredOrderItems, useMarkup: true)
-				.WrapWidth(300).WrapMode(Pango.WrapMode.WordChar)
+				.WrapWidth(75).WrapMode(Pango.WrapMode.WordChar)
 				.AddSetter((c, n) => c.CellBackgroundGdk = n.BGColor)
 			.AddColumn("Статус\nначальный ➔\n ➔ текущий").HeaderAlignment(0.5f)
 				.AddTextRenderer(node => node.OldOrderStatus, useMarkup: true)

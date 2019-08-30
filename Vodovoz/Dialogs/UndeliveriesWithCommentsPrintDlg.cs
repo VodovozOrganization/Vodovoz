@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using QS.Report;
-using QSReport;
-using QS.Tdi;
+using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
 
 namespace Vodovoz.Dialogs
@@ -19,7 +19,7 @@ namespace Vodovoz.Dialogs
 		string oldOrderEndDate = String.Empty;
 		string newOrderStartDate = String.Empty;
 		string newOrderEndDate = String.Empty;
-		string guiltySide = String.Empty;
+		string[] guiltySides = { "0" };
 		int guiltyDepartmentId = 0;
 		string newInvoiceCreated = String.Empty;
 		string undeliveryStatus = String.Empty;
@@ -47,7 +47,7 @@ namespace Vodovoz.Dialogs
 			if(filter.RestrictNewOrderEndDate.HasValue)
 				newOrderEndDate = filter.RestrictNewOrderEndDate.Value.ToString("s");
 			if(filter.RestrictGuiltySide.HasValue)
-				guiltySide = filter.RestrictGuiltySide.Value.ToString();
+				guiltySides = new[] { filter.RestrictGuiltySide.Value.ToString() };
 			if(filter.RestrictGuiltyDepartment != null)
 				guiltyDepartmentId = filter.RestrictGuiltyDepartment.Id;
 			if(filter.NewInvoiceCreated.HasValue)
@@ -56,6 +56,15 @@ namespace Vodovoz.Dialogs
 				undeliveryStatus = filter.RestrictUndeliveryStatus.ToString();
 			if(filter.RestrictUndeliveryAuthor != null)
 				undeliveryAuthorId = filter.RestrictUndeliveryAuthor.Id;
+			if(filter.IsProblematicCasesChkActive) {
+				guiltySides = Enum.GetValues(typeof(GuiltyTypes))
+								  .Cast<GuiltyTypes>()
+								  .Where(t => !filter.ExcludingGuiltiesForProblematicCases.Contains(t))
+								  .Select(g => g.ToString())
+								  .ToArray()
+								  ;
+			}
+
 			TabName = "Печать недовозов и комментариев";
 			Configure();
 		}
@@ -74,22 +83,23 @@ namespace Vodovoz.Dialogs
 
 		private ReportInfo GetReportInfo()
 		{
-			var parameters = new Dictionary<string, object>();
-
-			parameters.Add("old_order_id", oldOrderId);
-			parameters.Add("driver_id", driverId);
-			parameters.Add("client_id", clientId);
-			parameters.Add("address_id", addressId);
-			parameters.Add("old_order_author_id", oldOrderAuthorId);
-			parameters.Add("start_date", oldOrderStartDate);
-			parameters.Add("end_date", oldOrderEndDate);
-			parameters.Add("new_order_start_date", newOrderStartDate);
-			parameters.Add("new_order_end_date", newOrderEndDate);
-			parameters.Add("guilty_side", guiltySide);
-			parameters.Add("guilty_department_id", guiltyDepartmentId);
-			parameters.Add("new_invoice_created", newInvoiceCreated);
-			parameters.Add("undelivery_status", undeliveryStatus);
-			parameters.Add("undelivery_author_id", undeliveryAuthorId);
+			var parameters = new Dictionary<string, object> {
+				{ "old_order_id", oldOrderId },
+				{ "driver_id", driverId },
+				{ "client_id", clientId },
+				{ "address_id", addressId },
+				{ "old_order_author_id", oldOrderAuthorId },
+				{ "start_date", oldOrderStartDate },
+				{ "end_date", oldOrderEndDate },
+				{ "new_order_start_date", newOrderStartDate },
+				{ "new_order_end_date", newOrderEndDate },
+				{ "guilty_sides", guiltySides },
+				{ "guilty_department_id", guiltyDepartmentId },
+				{ "new_invoice_created", newInvoiceCreated },
+				{ "undelivery_status", undeliveryStatus },
+				{ "undelivery_author_id", undeliveryAuthorId },
+				{ "are_guilties_filtred", guiltySides.Any(x => x == "0") }
+			};
 
 			return new ReportInfo {
 				Identifier = "Orders.UndeliveriesWithComments",

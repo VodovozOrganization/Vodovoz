@@ -74,7 +74,7 @@ namespace Vodovoz.JournalFilters
 			this.Build();
 		}
 
-		public bool AreProblematicCasesActive => chkProblematicCases.Active;
+		public bool IsProblematicCasesChkActive => chkProblematicCases.Active;
 		public GuiltyTypes[] ExcludingGuiltiesForProblematicCases => new GuiltyTypes[] { GuiltyTypes.Client, GuiltyTypes.None };
 
 		public Order RestrictOldOrder {
