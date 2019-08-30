@@ -313,7 +313,7 @@ namespace Vodovoz.ReportsParameters.Store
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull },
+					{ "end_date", dateperiodpicker.EndDateOrNull.Value.AddDays(1).AddTicks(-1) },
 					//склады
 					{ "wh_include", GetResultIds(criterions[FilterTypes.WarehouseInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 					{ "wh_exclude", GetResultIds(criterions[FilterTypes.WarehouseExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
