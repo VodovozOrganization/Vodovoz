@@ -310,7 +310,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return stockBottleOrder != null;
 		}
 
-		public double GetAvgRandeBetwenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, DateTime? startDate = null, DateTime? endDate = null)
+		public double GetAvgRandeBetwenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, out int? orderCount, DateTime? startDate = null, DateTime? endDate = null)
 		{
 			VodovozOrder orderAlias = null;
 
@@ -326,6 +326,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				orderQuery = orderQuery.Where(() => orderAlias.DeliveryDate <= endDate.Value);
 
 			IList<VodovozOrder> orders = orderQuery.List();
+			orderCount = orders?.Count;
 
 			IList<int> dateDif = new List<int>();
 			for(int i = 1; i < orders.Count; i++) {
@@ -338,6 +339,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			else
 				return dateDif.Average();
 
+		}
+
+		public double GetAvgRandeBetwenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, DateTime? startDate = null, DateTime? endDate = null)
+		{
+			return GetAvgRandeBetwenOrders(uow, deliveryPoint, out int? orderCount, startDate, endDate);
 		}
 
 		public OrderStatus[] GetOnClosingOrderStatuses()

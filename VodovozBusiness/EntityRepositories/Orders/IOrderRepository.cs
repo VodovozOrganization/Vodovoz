@@ -35,6 +35,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetValidStatusesToUseActionBottle();
 		bool IsBottleStockExists(IUnitOfWork uow, Counterparty counterparty);
 		double GetAvgRandeBetwenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, DateTime? startDate = null, DateTime? endDate = null);
+		double GetAvgRandeBetwenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, out int? orderCount, DateTime? startDate = null, DateTime? endDate = null);
 	}
 
 	public class ClientEquipmentNode
