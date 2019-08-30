@@ -67,6 +67,8 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual event Action<OrderStatus> OnOrderStatusChanged;
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -2773,6 +2775,8 @@ namespace Vodovoz.Domain.Orders
 				default:
 					break;
 			}
+
+			OnOrderStatusChanged?.Invoke(OrderStatus);
 
 			if(Id == 0
 			   || newStatus == OrderStatus.Canceled
