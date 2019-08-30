@@ -85,6 +85,9 @@
     <Compile Include="FilterViewModels\Goods\NomenclatureFilterViewModel.cs" />
     <Compile Include="FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
     <Compile Include="JournalNodes\RequestToSupplierJournalNode.cs" />
+    <Compile Include="ViewModels\WageCalculation\WageParameterViewModel.cs" />
+    <Compile Include="JournalViewModels\WageCalculation\WageParametersJournalViewModel.cs" />
+    <Compile Include="JournalNodes\WageParameterJournalNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -104,6 +107,8 @@
     <Folder Include="FilterViewModels\Organization\" />
     <Folder Include="FilterViewModels\Goods\" />
     <Folder Include="FilterViewModels\Suppliers\" />
+    <Folder Include="ViewModels\WageCalculation\" />
+    <Folder Include="JournalViewModels\WageCalculation\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
@@ -129,6 +134,10 @@
     <ProjectReference Include="..\..\QSProjects\QS.Report\QS.Report.csproj">
       <Project>{D30A23BF-C5DC-4A1B-95FC-9C2038D46E8E}</Project>
       <Name>QS.Report</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Utilities\QS.Utilities.csproj">
+      <Project>{E2228A2B-4883-4DD8-8A05-23501F7B8A33}</Project>
+      <Name>QS.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

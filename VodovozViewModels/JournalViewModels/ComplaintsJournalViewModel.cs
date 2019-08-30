@@ -97,7 +97,7 @@ namespace Vodovoz.JournalViewModels
 
 			RegisterComplaints();
 
-			SetOrder<Complaint>(c => c.Id, true);
+			SetOrder(c => c.Id, true);
 
 			FinishJournalConfiguration();
 

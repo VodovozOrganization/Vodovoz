@@ -69,6 +69,8 @@ using Vodovoz.Views.Complaints;
 using Vodovoz.Views.Employees;
 using Vodovoz.Views.Organization;
 using Vodovoz.Views.Suppliers;
+using Vodovoz.ViewModels.WageCalculation;
+using Vodovoz.Views.WageCalculation;
 
 namespace Vodovoz
 {
@@ -163,6 +165,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<SubdivisionViewModel, SubdivisionView>()
 				.RegisterWidgetForTabViewModel<FineViewModel, FineView>()
 				.RegisterWidgetForTabViewModel<RequestToSupplierViewModel, RequestToSupplierView>()
+				.RegisterWidgetForTabViewModel<WageParameterViewModel, WageParameterView>()
 				;
 
 			//Регистрация фильтров

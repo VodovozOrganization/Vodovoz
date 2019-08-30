@@ -29,7 +29,7 @@ namespace Vodovoz.JournalViewModels
 			TabName = "Журнал ТМЦ";
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.currentUserId = commonServices.UserService.CurrentUserId;
-			SetOrder<SelfDeliveryJournalNode>(x => x.Name);
+			SetOrder(x => x.Name);
 			UpdateOnChanges(
 				typeof(Nomenclature),
 				typeof(MeasurementUnits),

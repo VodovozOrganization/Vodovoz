@@ -29,7 +29,7 @@ namespace Vodovoz.JournalViewModels
 		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал заказов";
-			SetOrder<OrderJournalNode>(x => x.CreateDate, true);
+			SetOrder(x => x.CreateDate, true);
 
 			UpdateOnChanges(
 				typeof(VodovozOrder),

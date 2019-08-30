@@ -17,7 +17,7 @@ namespace Vodovoz.JournalViewModels
 		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			TabName = "Откуда клиент";
-			SetOrder<ClientCameFromJournalNode>(x => x.Name);
+			SetOrder(x => x.Name);
 
 			this.commonServices = commonServices;
 			UpdateOnChanges(typeof(ClientCameFrom));

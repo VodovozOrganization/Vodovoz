@@ -38,6 +38,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -46,6 +47,7 @@ using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
+using Vodovoz.JournalViewModels.WageCalculation;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
@@ -60,6 +62,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 
@@ -1407,5 +1410,22 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionSuppliersActivated(object sender, EventArgs e)
 	{
 		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
+	}
+
+	protected void OnActionWageParametersActivated(object sender, EventArgs e)
+	{
+		var requestsJournal = new WageParametersJournalViewModel(
+			new DefaultEntityConfigurationProvider(),
+			ServicesConfig.CommonServices
+		);
+		tdiMain.AddTab(requestsJournal);
+	}
+
+	protected void OnActionPlanImplementationReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PlanImplementationReport>(),
+			() => new QSReport.ReportViewDlg(new PlanImplementationReport())
+		);
 	}
 }

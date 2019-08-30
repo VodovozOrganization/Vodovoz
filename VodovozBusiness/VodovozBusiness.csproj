@@ -386,8 +386,6 @@
     <Compile Include="Repositories\Operations\FuelRepository.cs" />
     <Compile Include="Domain\Logistic\FuelDocument.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelDocumentMap.cs" />
-    <Compile Include="Domain\Subdivision.cs" />
-    <Compile Include="HibernateMapping\Organization\SubdivisionMap.cs" />
     <Compile Include="Domain\Employees\EmployeeWorkChart.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeWorkChartMap.cs" />
     <Compile Include="Domain\Operations\WagesMovementOperations.cs" />
@@ -689,6 +687,13 @@
     <Compile Include="Tools\CallTasks\AutoCallTaskFactory.cs" />
     <Compile Include="Tools\CallTasks\IAutoCallTaskFactory.cs" />
     <Compile Include="Tools\CallTasks\ITaskCreationInteractive.cs" />
+    <Compile Include="Domain\Employees\WageCalculationType.cs" />
+    <Compile Include="Domain\Subdivisions\Subdivision.cs" />
+    <Compile Include="HibernateMapping\Subdivisions\SubdivisionMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\WageParameterMap.cs" />
+    <Compile Include="Domain\WageCalculation\WageParameter.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\IWageParametersRepository.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\WageParametersRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -748,6 +753,11 @@
     <Folder Include="EntityRepositories\CallTasks\" />
     <Folder Include="Tools\CallTasks\" />
     <Folder Include="EntityRepositories\Orders\" />
+    <Folder Include="Domain\Subdivisions\" />
+    <Folder Include="HibernateMapping\Subdivisions\" />
+    <Folder Include="HibernateMapping\WageCalculation\" />
+    <Folder Include="Domain\WageCalculation\" />
+    <Folder Include="EntityRepositories\WageCalculation\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

@@ -10,8 +10,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Repositories;
-using QSBanks;
-using QS.Contacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -19,6 +17,8 @@ using Vodovoz.Dialogs.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Sale;
@@ -28,6 +28,7 @@ namespace Vodovoz
 {
 	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>
 	{
+		IWageParametersRepository wageParametersRepository;
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		public override bool HasChanges {
 			get {
@@ -40,6 +41,7 @@ namespace Vodovoz
 		private EmployeeCategory[] hiddenCategory;
 		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence };
 		private readonly EmployeeDocumentType[] hiddenForForeignCitizen = { EmployeeDocumentType.MilitaryID, EmployeeDocumentType.NavyPassport, EmployeeDocumentType.OfficerCertificate };
+		IList<WageParameter> wageParametersSource = new List<WageParameter>();
 
 		public EmployeeDlg()
 		{
@@ -80,6 +82,12 @@ namespace Vodovoz
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 
+			wageParametersRepository = new WageParametersRepository();
+
+			lstCmbWageParameter.ItemsList = wageParametersRepository.AvailableWageParametersForEmployeeCategory(UoW, Entity.Category);
+			lstCmbWageParameter.SetRenderTextFunc<WageParameter>(p => p.Title);
+			lstCmbWageParameter.Binding.AddBinding(Entity, s => s.WageCalculationParameter, w => w.SelectedItem).InitializeFromSource();
+
 			checkIsFired.Binding.AddBinding(Entity, e => e.IsFired, w => w.Active).InitializeFromSource();
 			checkVisitingMaster.Binding.AddBinding(Entity, e => e.VisitingMaster, w => w.Active).InitializeFromSource();
 			cmbDriverOf.ItemsEnum = typeof(CarTypeOfUse);
@@ -112,6 +120,10 @@ namespace Vodovoz
 			referenceCitizenship.Binding.AddBinding(Entity, e => e.Citizenship, w => w.Subject).InitializeFromSource();
 			yentrySubdivision.SubjectType = typeof(Subdivision);
 			yentrySubdivision.Binding.AddBinding(Entity, e => e.Subdivision, w => w.Subject).InitializeFromSource();
+			yentrySubdivision.ChangedByUser += (sender, e) => {
+				if(Entity?.Subdivision?.DefaultWageParameter != null)
+					Entity.WageCalculationParameter = Entity.Subdivision.DefaultWageParameter;
+			};
 			referenceUser.SubjectType = typeof(User);
 			referenceUser.CanEditReference = false;
 			referenceUser.Binding.AddBinding(Entity, e => e.User, w => w.Subject).InitializeFromSource();
@@ -124,9 +136,8 @@ namespace Vodovoz
 			comboCategory.ChangedByUser += (sender, e) => {
 				if(Entity.Category != EmployeeCategory.driver)
 					cmbDriverOf.SelectedItemOrNull = null;
+				lstCmbWageParameter.ItemsList = wageParametersRepository.AvailableWageParametersForEmployeeCategory(UoW, Entity.Category);
 			};
-			comboWageCalcType.ItemsEnum = typeof(WageCalculationType);
-			comboWageCalcType.Binding.AddBinding(Entity, e => e.WageCalcType, w => w.SelectedItem).InitializeFromSource();
 
 			yenumcombobox13.ItemsEnum = typeof(RegistrationType);
 			yenumcombobox13.Binding.AddBinding(Entity, e => e.Registration, w => w.SelectedItemOrNull).InitializeFromSource();
@@ -150,7 +161,6 @@ namespace Vodovoz
 			ydateFirstWorkDay.Binding.AddBinding(Entity, e => e.FirstWorkDay, w => w.DateOrNull).InitializeFromSource();
 			yspinTripsPriority.Binding.AddBinding(Entity, e => e.TripPriority, w => w.ValueAsShort).InitializeFromSource();
 			yspinDriverSpeed.Binding.AddBinding(Entity, e => e.DriverSpeed, w => w.Value, new MultiplierToPercentConverter()).InitializeFromSource();
-			yspinWageCalcRate.Binding.AddBinding(Entity, e => e.WageCalcRate, w => w.ValueAsDecimal).InitializeFromSource();
 			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
 
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
@@ -224,7 +234,6 @@ namespace Vodovoz
 			}
 			logger.Info("Ok");
 			return true;
-
 		}
 
 		protected void OnRussianCitizenToggled(object sender, EventArgs e)
@@ -304,7 +313,6 @@ namespace Vodovoz
 			buttonDocumentEdit.Click();
 		}
 
-
 		#endregion
 
 		#region Contract
@@ -344,8 +352,6 @@ namespace Vodovoz
 			buttonContractEdit.Click();
 		}
 
-
-
 		#endregion
 
 		#region Driver & forwarder
@@ -380,28 +386,6 @@ namespace Vodovoz
 						;
 		}
 
-		protected void OnComboWageCalcTypeEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
-		{
-			labelWageCalcRate.Visible = yspinWageCalcRate.Visible
-				= ((WageCalculationType)e.SelectedItem != WageCalculationType.normal
-				   && (WageCalculationType)e.SelectedItem != WageCalculationType.percentageForService
-				   && (WageCalculationType)e.SelectedItem != WageCalculationType.withoutPayment);
-
-			if((WageCalculationType)e.SelectedItem == WageCalculationType.percentage) {
-				yspinWageCalcRate.Adjustment.Upper = 100;
-				Entity.WageCalcRate = Entity.WageCalcRate > 100 ? 100 : Entity.WageCalcRate;
-			}
-
-			if((WageCalculationType)e.SelectedItem == WageCalculationType.fixedDay
-			   || (WageCalculationType)e.SelectedItem == WageCalculationType.fixedRoute) {
-				yspinWageCalcRate.Adjustment.Upper = 100000;
-			}
-
-			if((WageCalculationType)e.SelectedItem == WageCalculationType.withoutPayment) {
-				Entity.WageCalcRate = 0;
-			}
-		}
-
 		protected void OnComboCategoryEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			radioTabLogistic.Visible
@@ -409,17 +393,9 @@ namespace Vodovoz
 				= hboxDriversParameters.Visible
 				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
 
-			labelWageCalcType.Visible
-				= hboxCustomWageCalc.Visible
-				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver
-				   || (EmployeeCategory)e.SelectedItem == EmployeeCategory.forwarder);
-
-			hboxCustomWageCalc.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_wage"];
+			lstCmbWageParameter.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_wage"];
 		}
-
 
 		#endregion
 	}
-
 }
-

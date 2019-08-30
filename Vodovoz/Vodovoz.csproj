@@ -1290,6 +1290,10 @@
     <Compile Include="Infrastructure\Services\GtkTaskCreationInteractive.cs" />
     <Compile Include="ViewWidgets\TaskCreationDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.TaskCreationDialog.cs" />
+    <Compile Include="Views\WageCalculation\WageParameterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageParameterView.cs" />
+    <Compile Include="ReportsParameters\PlanImplementationReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PlanImplementationReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1526,6 +1530,7 @@
     <Folder Include="Views\Suppliers\" />
     <Folder Include="ViewModels\Suppliers\" />
     <Folder Include="JournalViewModels\Suppliers\" />
+    <Folder Include="Views\WageCalculation\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1958,6 +1963,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Complaints.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\PlanImplementationByEmployeeReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\PlanImplementationFullReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

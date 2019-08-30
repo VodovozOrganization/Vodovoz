@@ -40,6 +40,12 @@ namespace Vodovoz.Filters.ViewModels
 			}
 		}
 
+		WageCalculationType? restrictWageType;
+		public virtual WageCalculationType? RestrictWageType {
+			get => restrictWageType;
+			set => UpdateFilterField(ref restrictWageType, value);
+		}
+
 		public EmployeeFilterViewModel(ICommonServices services) : base((services ?? throw new ArgumentNullException(nameof(services))).InteractiveService)
 		{
 		}

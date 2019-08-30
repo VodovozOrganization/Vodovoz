@@ -1137,29 +1137,28 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
 	employees.category
-FROM
-	wages_movement_operations
-LEFT JOIN
-	employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN
-	cars ON employees.id = cars.driver_id
+FROM wages_movement_operations
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN wage_parameters w ON w.id = employees.wage_calculation_parameter_id
+LEFT JOIN cars ON employees.id = cars.driver_id
 WHERE
 	wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
-	AND employees.wage_calc_type != 'withoutPayment'
+	AND w.wage_calc_type != 'withoutPayment'
 	AND (employees.driver_of != 'Largus' OR driver_of IS NULL)
 	AND (employees.driver_of != 'GAZelle' OR driver_of IS NULL)
 	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver</CommandText>
+ORDER BY driver
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -1169,7 +1168,7 @@ ORDER BY driver</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1191,18 +1190,17 @@ ORDER BY driver</CommandText>
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
 	employees.category
-FROM
-	wages_movement_operations
-LEFT JOIN
-	employees ON employees.id = wages_movement_operations.employee_id
-WHERE
-	wages_movement_operations.operation_time &lt;= @date
+FROM wages_movement_operations
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN wage_parameters w ON w.id = employees.wage_calculation_parameter_id
+WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
-	AND (employees.wage_calc_type IS NULL OR employees.wage_calc_type != 'withoutPayment')
+	AND w.wage_calc_type != 'withoutPayment'
 	AND employees.category = 'forwarder'
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver</CommandText>
+ORDER BY driver
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -1228,28 +1226,26 @@ ORDER BY driver</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="LargusDriverBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
 	employees.category
-FROM
-	wages_movement_operations
-LEFT JOIN
-	employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN
-	cars ON employees.id = cars.driver_id
-WHERE
-	wages_movement_operations.operation_time &lt;= @date
+FROM wages_movement_operations
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN wage_parameters w ON w.id = employees.wage_calculation_parameter_id
+LEFT JOIN cars ON employees.id = cars.driver_id
+WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
-	AND employees.wage_calc_type != 'withoutPayment'
+	AND w.wage_calc_type != 'withoutPayment'
 	AND employees.driver_of = 'Largus'
 	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver</CommandText>
+ORDER BY driver
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -1259,7 +1255,7 @@ ORDER BY driver</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1275,28 +1271,26 @@ ORDER BY driver</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="GAZelleDriverBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
 	employees.category
-FROM
-	wages_movement_operations
-LEFT JOIN
-	employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN
-	cars ON employees.id = cars.driver_id
-WHERE
-	wages_movement_operations.operation_time &lt;= @date
+FROM wages_movement_operations
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN wage_parameters w ON w.id = employees.wage_calculation_parameter_id
+LEFT JOIN cars ON employees.id = cars.driver_id
+WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
-	AND employees.wage_calc_type != 'withoutPayment'
+	AND w.wage_calc_type != 'withoutPayment'
 	AND employees.driver_of = 'GAZelle'
 	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver</CommandText>
+ORDER BY driver
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -1306,7 +1300,7 @@ ORDER BY driver</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1322,19 +1316,17 @@ ORDER BY driver</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="TotalBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	SUM(wages_movement_operations.money) AS balance
-FROM
-	wages_movement_operations
-LEFT JOIN
-	employees ON employees.id = wages_movement_operations.employee_id
-WHERE
-	wages_movement_operations.operation_time &lt;= @date
-	AND employees.wage_calc_type != 'withoutPayment'
+        <CommandText>SELECT SUM(wages_movement_operations.money) AS balance
+FROM wages_movement_operations
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN wage_parameters w ON w.id = employees.wage_calculation_parameter_id
+WHERE wages_movement_operations.operation_time &lt;= @date
+	AND w.wage_calc_type != 'withoutPayment'
 	AND wages_movement_operations.employee_id IN (@drivers)
-HAVING balance &lt;&gt; 0</CommandText>
+HAVING balance &lt;&gt; 0
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -1344,7 +1336,7 @@ HAVING balance &lt;&gt; 0</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1352,27 +1344,25 @@ HAVING balance &lt;&gt; 0</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="RaskatBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
 	employees.category
-FROM
-	wages_movement_operations
-LEFT JOIN
-	employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN
-	cars ON employees.id = cars.driver_id
-WHERE
-	wages_movement_operations.operation_time &lt;= @date
+FROM wages_movement_operations
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN wage_parameters w ON w.id = employees.wage_calculation_parameter_id
+LEFT JOIN cars ON employees.id = cars.driver_id
+WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'  
-	AND employees.wage_calc_type != 'withoutPayment'
+	AND w.wage_calc_type != 'withoutPayment'
 	AND cars.is_raskat = true
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
-ORDER BY driver</CommandText>
+ORDER BY driver
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="drivers">
             <Value>=Parameters!drivers</Value>
@@ -1382,7 +1372,7 @@ ORDER BY driver</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>

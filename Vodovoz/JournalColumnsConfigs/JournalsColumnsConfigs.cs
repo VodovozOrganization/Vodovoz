@@ -9,6 +9,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Employees;
 using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels.Suppliers;
+using Vodovoz.JournalViewModels.WageCalculation;
 using Vodovoz.Representations;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -229,6 +230,33 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Author)
 					.AddColumn("")
+					.Finish()
+			);
+
+			//WageParametersJournalViewModel
+			TreeViewColumnsConfigFactory.Register<WageParametersJournalViewModel>(
+				() => FluentColumnsConfig<WageParameterJournalNode>.Create()
+					.AddColumn("Номер")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Тип параметра")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.WageCalcTypeString)
+					.AddColumn("Ставка\\Процент")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.WageCalcRateString)
+					.AddColumn("План")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Quantities)
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Title)
+					.AddColumn("В архиве?")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.IsArchiveString)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
 		}

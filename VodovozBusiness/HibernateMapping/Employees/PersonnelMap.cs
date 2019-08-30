@@ -1,5 +1,4 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 
@@ -48,8 +47,6 @@ namespace Vodovoz.HibernateMapping.Employees
 				Map(x => x.FirstWorkDay).Column("first_work_day");
 				Map(x => x.TripPriority).Column("priority_for_trip");
 				Map(x => x.DriverSpeed).Column("driver_speed");
-				Map(x => x.WageCalcType).Column("wage_calc_type");
-				Map(x => x.WageCalcRate).Column("wage_calc_rate");
 				Map(x => x.VisitingMaster).Column("visiting_master");
 				Map(x => x.DriverOf).Column("driver_of").CustomType<CarTypeOfUseStringType>();
 				Map(x => x.Registration).Column("registration_type").CustomType<RegistrationTypeStringType>();
@@ -58,6 +55,7 @@ namespace Vodovoz.HibernateMapping.Employees
 				References(x => x.User).Column("user_id");
 				References(x => x.DefaultDaySheldule).Column("default_delivery_day_schedule_id");
 				References(x => x.DefaultForwarder).Column("default_forwarder_id");
+				References(x => x.WageCalculationParameter).Column("wage_calculation_parameter_id");
 
 				HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse()
 										 .KeyColumn("driver_id")

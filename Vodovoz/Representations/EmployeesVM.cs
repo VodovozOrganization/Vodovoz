@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.ViewModel
 {
@@ -22,6 +23,7 @@ namespace Vodovoz.ViewModel
 		{
 			EmployeesVMNode resultAlias = null;
 			Employee employeeAlias = null;
+			WageParameter wageParameterAlias = null;
 
 			var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
 
@@ -30,6 +32,11 @@ namespace Vodovoz.ViewModel
 
 			if(Filter.Category != null)
 				query.Where(e => e.Category == Filter.Category);
+
+			if(Filter.RestrictWageType.HasValue) {
+				query.JoinAlias(e => e.WageCalculationParameter, () => wageParameterAlias);
+				query.Where(() => wageParameterAlias.WageCalcType == Filter.RestrictWageType);
+			}
 
 			var result = query
 				.SelectList(list => list
