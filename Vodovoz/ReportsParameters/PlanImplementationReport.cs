@@ -71,7 +71,7 @@ namespace Vodovoz.ReportsParameters
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull },
+					{ "end_date", dateperiodpicker.EndDateOrNull.Value.AddDays(1).AddTicks(-1) },
 					{ "employee_id", employeeId }
 				}
 			};
