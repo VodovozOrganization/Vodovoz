@@ -3653,8 +3653,8 @@ namespace Vodovoz.Domain.Orders
 			var result = new List<DepositOperation>();
 			DepositOperation bottlesOperation = null;
 			DepositOperation equipmentOperation = null;
-			bottlesOperation = DepositOperations.FirstOrDefault(x => x.DepositType == DepositType.Bottles);
-			equipmentOperation = DepositOperations.FirstOrDefault(x => x.DepositType == DepositType.Equipment);
+			bottlesOperation = DepositOperations?.FirstOrDefault(x => x.DepositType == DepositType.Bottles);
+			equipmentOperation = DepositOperations?.FirstOrDefault(x => x.DepositType == DepositType.Equipment);
 
 			//Залоги
 			var bottleReceivedDeposit = OrderItems.Where(x => x.Nomenclature.TypeOfDepositCategory == TypeOfDepositCategory.BottleDeposit)
@@ -3678,7 +3678,7 @@ namespace Vodovoz.Domain.Orders
 				result.Add(bottlesOperation);
 			} else {
 				if(bottlesOperation != null) {
-					DepositOperations.Remove(bottlesOperation);
+					DepositOperations?.Remove(bottlesOperation);
 					UoW.Delete(bottlesOperation);
 				}
 			}
