@@ -171,11 +171,14 @@ namespace Vodovoz.JournalViewModels
 				)
 			);
 
+			string okkSubdivision = UoW.GetById<Subdivision>(subdivisionService.GetOkkId()).ShortName ?? "?";
+
 			var workInSubdivisionsProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(',', ?1, ?2)"),
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(',', ?1, IF(?2 = 'Checking',?3, ''))"),
 				NHibernateUtil.String,
 				subdivisionsSubqueryProjection,
-				okkProjection
+				Projections.Property(() => complaintAlias.Status),
+				Projections.Constant(okkSubdivision)
 			);
 
 			var plannedCompletionDateProjection = Projections.SqlFunction(
