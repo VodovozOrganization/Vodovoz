@@ -315,7 +315,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 
 			var orderQuery = uow.Session.QueryOver(() => orderAlias)
-					.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id);
+					.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
+					.And(() => orderAlias.OrderStatus == OrderStatus.Closed);
 
 			if(startDate.HasValue)
 				orderQuery = orderQuery.Where(() => orderAlias.DeliveryDate >= startDate);
@@ -330,7 +331,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			IList<int> dateDif = new List<int>();
 			for(int i = 1; i < orders.Count; i++) {
-				int dif = DateTime.Compare(orders[i].DeliveryDate.Value, orders[i - 1].DeliveryDate.Value);
+				int dif = (orders[i].DeliveryDate.Value - orders[i - 1].DeliveryDate.Value).Days;
 				dateDif.Add(dif);
 			}
 

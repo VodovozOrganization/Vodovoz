@@ -83,7 +83,7 @@ namespace Vodovoz.Tools.CallTasks
 			if(dateTime == null) {
 				int? ordersCount;
 				double dif = orderRepository.GetAvgRandeBetwenOrders(order.UoW, order.DeliveryPoint, out ordersCount);
-				dateTime = (ordersCount.HasValue && ordersCount.Value >= 3) ? DateTime.Now.AddDays(dif) : DateTime.Now.AddMonths(1);
+				dateTime = (ordersCount.HasValue && ordersCount.Value >= 3) ? order.DeliveryDate.Value.AddDays(dif) : DateTime.Now.AddMonths(1);
 			}
 
 			var newTask = new CallTask();
@@ -100,7 +100,7 @@ namespace Vodovoz.Tools.CallTasks
 			if(tasks?.FirstOrDefault() != null) {
 				foreach(var item in tasks) {
 					item.IsTaskComplete = true;
-					string comment = $"Автоперенос задачи на {dateTime?.ToString()}";
+					string comment = $"Автоперенос задачи на {dateTime?.ToString("dd / MM / yyyy")}";
 					item.AddComment(order.UoW, comment);
 					order.UoW.Save(item);
 				}
