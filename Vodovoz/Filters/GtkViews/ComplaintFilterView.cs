@@ -32,6 +32,9 @@ namespace Vodovoz.Filters.GtkViews
 			daterangepicker.Binding.AddBinding(ViewModel, x => x.StartDate, w => w.StartDate).InitializeFromSource();
 			daterangepicker.Binding.AddBinding(ViewModel, x => x.EndDate, w => w.EndDate).InitializeFromSource();
 
+			yenumcomboboxDateType.ItemsEnum = typeof(DateFilterType);
+			yenumcomboboxDateType.Binding.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem).InitializeFromSource();
+
 			ybuttonMyComplaint.Clicked += (sender, e) => ViewModel.SelectMyComplaint();
 		}
 	}
