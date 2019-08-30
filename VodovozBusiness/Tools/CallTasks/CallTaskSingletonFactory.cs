@@ -34,9 +34,9 @@ namespace Vodovoz.Tools.CallTasks
 
 		public void CopyTask(IUnitOfWork uow, IEmployeeRepository employeeRepository, CallTask copyFrom, CallTask copyTo)
 		{
-			copyTo.DeliveryPoint = uow.GetById<DeliveryPoint>(copyFrom.DeliveryPoint.Id);
+			copyTo.DeliveryPoint = copyFrom.DeliveryPoint != null ? uow.GetById<DeliveryPoint>(copyFrom.DeliveryPoint.Id) : null ;
 			copyTo.Counterparty = uow.GetById<Counterparty>(copyFrom.Counterparty.Id);
-			copyTo.AssignedEmployee =uow.GetById<Employee>(copyFrom.AssignedEmployee.Id);
+			copyTo.AssignedEmployee = copyFrom.AssignedEmployee != null ? uow.GetById<Employee>(copyFrom.AssignedEmployee.Id) : null;
 			copyTo.TaskCreator = employeeRepository.GetEmployeeForCurrentUser(uow);
 			copyTo.CreationDate = DateTime.Now;
 			copyTo.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
