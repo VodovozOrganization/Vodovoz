@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using QS.Banks;
 using QS.Banks.Domain;
+using QS.BusinessCommon.Domain;
 using QS.Contacts;
 using QS.Deletion;
 using QS.HistoryLog.Domain;
 using QS.Project.Domain;
-using QS.BusinessCommon.Domain;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
@@ -26,7 +27,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.StoredResources;
-using QS.Banks;
+using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz
 {
@@ -263,7 +264,8 @@ namespace Vodovoz
 				.AddClearDependence<Residue>(x => x.LastEditAuthor)
 				.AddClearDependence<Subdivision>(x => x.Chief)
 				.AddClearDependence<ChatMessage>(x => x.Sender)
-				.AddClearDependence<Employee>(x => x.DefaultForwarder);
+				.AddClearDependence<Employee>(x => x.DefaultForwarder)
+				;
 
 			DeleteConfig.AddDeleteInfo(
 				new DeleteInfo {
@@ -349,6 +351,11 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<ProxyDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<Chat>();
+
+			DeleteConfig.AddHibernateDeleteInfo<WageParameter>()
+						.AddClearDependence<Employee>(x => x.WageCalculationParameter)
+						.AddClearDependence<Subdivision>(x => x.DefaultWageParameter)
+						;
 			//Не добавляем сообщения чата чтобы не заполонять вывод удаления. все сообщения удалятся вместе с чатом.
 
 			DeleteConfig.AddHibernateDeleteInfo<ChatMessage>();
