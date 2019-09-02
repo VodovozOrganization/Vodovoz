@@ -123,8 +123,8 @@ namespace Vodovoz.Tools.CallTasks
 			var equipmentToClient = order.OrderEquipments.Where(x => x.Direction == Direction.Deliver);
 			var equipmentFromClient = order.OrderEquipments.Where(x => x.Direction == Direction.PickUp);
 
-			foreach(var item in equipmentToClient) {
-				if(!equipmentFromClient.Any(x => x.Nomenclature.Id == item.Nomenclature.Id))
+			foreach(var item in equipmentFromClient) {
+				if(!equipmentToClient.Any(x => x.Nomenclature.Id == item.Nomenclature.Id))
 					createTask = true;
 			}
 
