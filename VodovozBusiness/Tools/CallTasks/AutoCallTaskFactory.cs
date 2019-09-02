@@ -65,6 +65,7 @@ namespace Vodovoz.Tools.CallTasks
 
 		private bool UpdateCallTask()
 		{
+			bool autoDate = false;
 			DateTime? dateTime = null;
 			if(TaskCreationInteractive != null)
 				if(TaskCreationInteractive.RunQuestion(ref dateTime) == CreationTaskResult.Cancel)
@@ -81,6 +82,7 @@ namespace Vodovoz.Tools.CallTasks
 				return false;
 
 			if(dateTime == null) {
+				autoDate = true;
 				int? ordersCount;
 				double dif = orderRepository.GetAvgRandeBetwenOrders(order.UoW, order.DeliveryPoint, out ordersCount);
 				dateTime = (ordersCount.HasValue && ordersCount.Value >= 3) ? order.DeliveryDate.Value.AddDays(dif) : DateTime.Now.AddMonths(1);
@@ -99,8 +101,14 @@ namespace Vodovoz.Tools.CallTasks
 
 			if(tasks?.FirstOrDefault() != null) {
 				foreach(var item in tasks) {
+					string comment;
 					item.IsTaskComplete = true;
-					string comment = $"Автоперенос задачи на {dateTime?.ToString("dd / MM / yyyy")}";
+
+					if(autoDate)
+						comment = $"Автоперенос задачи на {dateTime?.ToString("dd/MM/yyyy")}";
+					else
+						comment = $"Ручной перенос задачи на {dateTime?.ToString("dd/MM/yyyy")}";
+
 					item.AddComment(order.UoW, comment);
 					order.UoW.Save(item);
 				}
