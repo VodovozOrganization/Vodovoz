@@ -676,9 +676,9 @@ namespace Vodovoz.Domain.Client
 				if(searchValues == null)
 					return true;
 
-				var shortOrFullName = nom.ShortOrFullName;
+				var shortOrFullName = nom.ShortOrFullName.ToLower();
 				foreach(var val in searchValues) {
-					if(!shortOrFullName.Contains(val))
+					if(!shortOrFullName.Contains(val.ToLower()))
 						return false;
 				}
 				return true;
