@@ -112,12 +112,14 @@ namespace Vodovoz.Tools.CallTasks
 		private bool UpdateDepositReturnTask()
 		{
 			bool createTask = false;
-			foreach(var item in order.OrderEquipments.Where(x => x.Direction == Direction.Deliver)) {
-				if(!order.OrderEquipments.Any(x => x.Nomenclature.Id == item.Nomenclature.Id && x.Direction == Direction.PickUp)) {
+			var equipmentToClient = order.OrderEquipments.Where(x => x.Direction == Direction.Deliver);
+			var equipmentFromClient = order.OrderEquipments.Where(x => x.Direction == Direction.PickUp);
+
+			foreach(var item in equipmentToClient) {
+				if(!equipmentFromClient.Any(x => x.Nomenclature.Id == item.Nomenclature.Id))
 					createTask = true;
-					break;
-				}
 			}
+
 
 			if(!createTask)
 				return false;
@@ -137,6 +139,7 @@ namespace Vodovoz.Tools.CallTasks
 			newTask.AssignedEmployee = personProvider.GetDefaultEmployeeForDepositReturnTask(order.UoW);
 			newTask.TaskState = CallTaskStatus.DepositReturn;
 			newTask.DeliveryPoint = order.DeliveryPoint;
+			newTask.Counterparty = order.Client;
 			newTask.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59);
 			newTask.SourceDocumentId = order.Id;
 			newTask.Source = TaskSource.AutoFromOrder;
