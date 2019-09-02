@@ -28,7 +28,8 @@ namespace Vodovoz.ViewModels.Complaints
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			Entity.ComplaintType = ComplaintType.Client;
-			Entity.Status = ComplaintStatuses.Checking;
+			Entity.SetStatus(ComplaintStatuses.Checking);
+			ConfigureEntityPropertyChanges();
 			TabName = "Новая клиентская жалоба";
 		}
 
@@ -44,6 +45,8 @@ namespace Vodovoz.ViewModels.Complaints
 
 		//так как диалог только для создания жалобы
 		public bool CanEdit => PermissionResult.CanCreate;
+
+		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 
 		private List<ComplaintSource> complaintSources;
 		private readonly IEmployeeService employeeService;
@@ -80,6 +83,14 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.ChangedDate = DateTime.Now;
 
 			base.BeforeValidation();
+		}
+
+		void ConfigureEntityPropertyChanges()
+		{
+			SetPropertyChangeRelation(
+				e => e.Counterparty,
+				() => CanSelectDeliveryPoint
+			);
 		}
 	}
 }

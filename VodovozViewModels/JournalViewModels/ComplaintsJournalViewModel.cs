@@ -481,8 +481,11 @@ namespace Vodovoz.JournalViewModels
 								filePickerService,
 								subdivisionRepository
 							);
-							currentComplaintVM.Entity.Close();
-							currentComplaintVM.Save();
+							string msg = string.Empty;
+							if(!currentComplaintVM.Entity.Close(ref msg))
+								ShowWarningMessage(msg, "Не удалось закрыть");
+							else
+								currentComplaintVM.Save();
 						}
 					}
 				)

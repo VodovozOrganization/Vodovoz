@@ -1,12 +1,14 @@
 ﻿using System;
-using QS.Views.GtkUI;
-using Vodovoz.Domain.Complaints;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels.Complaints;
-using Vodovoz.Filters.ViewModels;
+using Gamma.Widgets;
 using QS.DomainModel.Config;
 using QS.Project.Journal.EntitySelector;
+using QS.Views.GtkUI;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -27,6 +29,10 @@ namespace Vodovoz.Views.Complaints
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			EntryCounterparty_ChangedByUser(this, new EventArgs());
+			entryCounterparty.ChangedByUser += EntryCounterparty_ChangedByUser;
+
+			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
 
 			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
 				var filter = new OrderJournalFilterViewModel(ServicesConfig.InteractiveService);
@@ -55,6 +61,20 @@ namespace Vodovoz.Views.Complaints
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
+		}
+
+		void EntryCounterparty_ChangedByUser(object sender, System.EventArgs e)
+		{
+			if(ViewModel.Entity.Counterparty != null) {
+				spLstAddress.NameForSpecialStateNot = "Самовывоз";
+				spLstAddress.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{0}: {1}", d.Id, d.ShortAddress));
+				spLstAddress.Binding.AddBinding(ViewModel.Entity.Counterparty, s => s.DeliveryPoints, w => w.ItemsList).InitializeFromSource();
+				spLstAddress.Binding.AddBinding(ViewModel.Entity, t => t.DeliveryPoint, w => w.SelectedItem).InitializeFromSource();
+				return;
+			}
+			spLstAddress.NameForSpecialStateNot = null;
+			spLstAddress.SelectedItem = SpecialComboState.Not;
+			spLstAddress.ItemsList = null;
 		}
 	}
 }

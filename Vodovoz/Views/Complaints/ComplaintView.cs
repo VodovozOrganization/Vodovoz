@@ -1,8 +1,10 @@
 ﻿using Gamma.ColumnConfig;
+using Gamma.Widgets;
 using QS.DomainModel.Config;
 using QS.Project.Journal.EntitySelector;
 using QS.Views.GtkUI;
 using QSProjectsLib;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -39,11 +41,16 @@ namespace Vodovoz.Views.Complaints
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel.Entity, e => e.PlannedCompletionDate, w => w.Date).InitializeFromSource();
 			ydatepickerPlannedCompletionDate.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
+			entryCounterparty.Changed += EntryCounterparty_Changed;
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 			labelCounterparty.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
+
+			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
+			spLstAddress.Binding.AddBinding(ViewModel, s => s.IsClientComplaint, w => w.Visible).InitializeFromSource();
+			lblAddress.Binding.AddBinding(ViewModel, s => s.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
 			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
 				var filter = new OrderJournalFilterViewModel(ServicesConfig.InteractiveService);
@@ -105,6 +112,20 @@ namespace Vodovoz.Views.Complaints
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
+		}
+
+		void EntryCounterparty_Changed(object sender, System.EventArgs e)
+		{
+			if(ViewModel.Entity.Counterparty != null) {
+				spLstAddress.NameForSpecialStateNot = "Самовывоз";
+				spLstAddress.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{0}: {1}", d.Id, d.ShortAddress));
+				spLstAddress.Binding.AddBinding(ViewModel.Entity.Counterparty, s => s.DeliveryPoints, w => w.ItemsList).InitializeFromSource();
+				spLstAddress.Binding.AddBinding(ViewModel.Entity, t => t.DeliveryPoint, w => w.SelectedItem).InitializeFromSource();
+				return;
+			}
+			spLstAddress.NameForSpecialStateNot = null;
+			spLstAddress.SelectedItem = SpecialComboState.Not;
+			spLstAddress.ItemsList = null;
 		}
 	}
 }

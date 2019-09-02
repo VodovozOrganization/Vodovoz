@@ -102,6 +102,11 @@ namespace Vodovoz.ViewModels.Complaints
 				e => e.CreationDate,
 				() => CreatedByAndDate
 			);
+
+			SetPropertyChangeRelation(
+				e => e.Counterparty,
+				() => CanSelectDeliveryPoint
+			);
 		}
 
 		void ObservableComplaintDiscussions_ElementChanged(object aList, int[] aIdx)
@@ -138,8 +143,12 @@ namespace Vodovoz.ViewModels.Complaints
 		public virtual ComplaintStatuses Status {
 			get => Entity.Status;
 			set {
-				Entity.Status = value;
-				Entity.ActualCompletionDate = value == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
+				var msg = Entity.SetStatus(value);
+				if(!msg.Any())
+					Entity.ActualCompletionDate = value == ComplaintStatuses.Closed ? (DateTime?)DateTime.Now : null;
+				else
+					ShowWarningMessage(string.Join<string>("\n", msg), "Не удалось закрыть");
+				OnPropertyChanged(() => Status);
 			}
 		}
 
@@ -227,6 +236,8 @@ namespace Vodovoz.ViewModels.Complaints
 
 		[PropertyChangedAlso(nameof(CanAddFine), nameof(CanAttachFine))]
 		public bool CanEdit => PermissionResult.CanUpdate;
+
+		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;
 
 		public bool CanAddFine => CanEdit;
 		public bool CanAttachFine => CanEdit;
