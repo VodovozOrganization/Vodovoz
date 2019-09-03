@@ -329,6 +329,9 @@ namespace Vodovoz.EntityRepositories.Orders
 			IList<VodovozOrder> orders = orderQuery.List();
 			orderCount = orders?.Count;
 
+			if(orders?.FirstOrDefault() == null)
+				return 0f;
+
 			IList<int> dateDif = new List<int>();
 			for(int i = 1; i < orders.Count; i++) {
 				int dif = (orders[i].DeliveryDate.Value - orders[i - 1].DeliveryDate.Value).Days;
