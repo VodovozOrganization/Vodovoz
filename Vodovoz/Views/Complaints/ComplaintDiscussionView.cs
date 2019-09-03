@@ -36,15 +36,23 @@ namespace Vodovoz.Views.Complaints
 
 			ytreeviewComments.ShowExpanders = false;
 			ytreeviewComments.ColumnsConfig = FluentColumnsConfig<object>.Create()
-				.AddColumn("Время").AddTextRenderer(x => GetTime(x))
-				.AddColumn("Автор").AddTextRenderer(x => GetAuthor(x))
-				.AddColumn("Комментарий").AddTextRenderer(x => GetNodeName(x))
+				.AddColumn("Время")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetTime(x))
+				.AddColumn("Автор")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetAuthor(x))
+				.AddColumn("Комментарий")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => GetNodeName(x))
+						.WrapWidth(300)
+						.WrapMode(Pango.WrapMode.WordChar)
 				.RowCells().AddSetter<CellRenderer>(SetColor)
 				.Finish();
 			var levels = LevelConfigFactory.FirstLevel<ComplaintDiscussionComment, ComplaintFile>(x => x.ComplaintFiles).LastLevel(c => c.ComplaintDiscussionComment).EndConfig();
 			ytreeviewComments.YTreeModel = new LevelTreeModel<ComplaintDiscussionComment>(ViewModel.Entity.Comments, levels);
 
-			ViewModel.Entity.ObservableComments.ListContentChanged += (sender, e) => { 
+			ViewModel.Entity.ObservableComments.ListContentChanged += (sender, e) => {
 				ytreeviewComments.YTreeModel.EmitModelChanged();
 			};
 			ytreeviewComments.ExpandAll();

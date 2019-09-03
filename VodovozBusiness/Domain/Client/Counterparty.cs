@@ -298,6 +298,16 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref phones, value, () => Phones);
 		}
 
+		GenericObservableList<Phone> observablePhones;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Phone> ObservablePhones {
+			get {
+				if(observablePhones == null)
+					observablePhones = new GenericObservableList<Phone>(Phones);
+				return observablePhones;
+			}
+		}
+
 		string ringUpPhone;
 
 		[Display(Name = "Телефон для обзвона")]
@@ -659,10 +669,28 @@ namespace Vodovoz.Domain.Client
 
 		#region цены поставщика
 
-		public virtual void SupplierPriceListRefresh() {
+		public virtual void SupplierPriceListRefresh(string[] searchValues = null)
+		{
+			bool ShortOrFullNameContainsSearchValues(Nomenclature nom)
+			{
+				if(searchValues == null)
+					return true;
+
+				var shortOrFullName = nom.ShortOrFullName.ToLower();
+				foreach(var val in searchValues) {
+					if(!shortOrFullName.Contains(val.ToLower()))
+						return false;
+				}
+				return true;
+			}
+
 			int cnt = 0;
 			ObservablePriceNodes.Clear();
-			foreach(var nom in SuplierPriceItems.Select(i => i.NomenclatureToBuy).Distinct()) {
+			var pItems = SuplierPriceItems.Select(i => i.NomenclatureToBuy)
+										  .Distinct()
+										  .Where(ShortOrFullNameContainsSearchValues)
+										  ;
+			foreach(var nom in pItems) {
 				var sNom = new SellingNomenclature {
 					NomenclatureToBuy = nom,
 					Parent = null,

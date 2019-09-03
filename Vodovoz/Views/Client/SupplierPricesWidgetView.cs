@@ -2,6 +2,9 @@
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using QS.Project.Search;
+using QS.Project.Search.GtkUI;
+using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.Client;
@@ -23,6 +26,10 @@ namespace Vodovoz.Views.Client
 
 		protected override void ConfigureWidget()
 		{
+			var searchView = new SearchView(ViewModel.Search as SearchViewModel);
+			hboxSearch.Add(searchView);
+			searchView.Show();
+
 			spinDelayDays.Binding.AddBinding(ViewModel.Entity, s => s.DelayDays, w => w.ValueAsInt).InitializeFromSource();
 			yTreePrices.ColumnsConfig = FluentColumnsConfig<ISupplierPriceNode>.Create()
 				.AddColumn("№")
@@ -42,7 +49,7 @@ namespace Vodovoz.Views.Client
 					.AddTextRenderer(n => !n.IsEditable ? string.Empty : n.PaymentType.GetEnumTitle())
 				.AddColumn("Цена")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(n => n.Price).Digits(2).WidthChars(10)
+					.AddNumericRenderer(n => n.Price).Digits(4).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddSetter(
 						(c, n) => {
@@ -53,6 +60,7 @@ namespace Vodovoz.Views.Client
 								c.Text = string.Empty;
 						}
 					)
+					.AddTextRenderer(n => n.IsEditable ? CurrencyWorks.CurrencyShortName : string.Empty)
 				.AddColumn("НДС")
 					.HeaderAlignment(0.5f)
 					.AddEnumRenderer(n => n.VAT, true)

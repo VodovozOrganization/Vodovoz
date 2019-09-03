@@ -8,6 +8,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -149,7 +150,7 @@ namespace Vodovoz.Repositories
 													 ),
 												  NHibernateUtil.String,
 												  Projections.Property(() => guiltyInUndeliveryAlias.GuiltySide),
-												  Projections.Property(() => subdivisionAlias.Name)
+												  Projections.Property(() => subdivisionAlias.ShortName)
 												 )
 											 )
 										 )
@@ -159,6 +160,30 @@ namespace Vodovoz.Repositories
 			                  .ToList();
 
 			return result;
+		}
+
+		public static int GetUndelivered19LBottlesQuantity(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
+		{
+			Order orderAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var subquery = QueryOver.Of<UndeliveredOrder>()
+			  						.Left.JoinAlias(u => u.OldOrder, () => orderAlias);
+			if(start != null && end != null)
+				subquery.Where(() => orderAlias.DeliveryDate >= start)
+						.Where(() => orderAlias.DeliveryDate <= end);
+			subquery.Select(u => u.OldOrder.Id);
+
+			var bottles19L = uow.Session.QueryOver<OrderItem>()
+										.WithSubquery.WhereProperty(i => i.Order.Id).In(subquery)
+										.Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
+										.Where(n => n.Category == NomenclatureCategory.water && n.TareVolume == TareVolume.Vol19L)
+										.SelectList(list => list.SelectSum(i => i.Count))
+										.List<int>()
+										.FirstOrDefault()
+										;
+
+			return bottles19L;
 		}
 	}
 

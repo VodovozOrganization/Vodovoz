@@ -4,6 +4,7 @@ using QS.Commands;
 using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Search;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
@@ -21,14 +22,17 @@ namespace Vodovoz.ViewModels.Client
 
 		public event EventHandler ListContentChanged;
 
+		public IJournalSearch Search { get; private set; }
+
 		public SupplierPricesWidgetViewModel(Counterparty entity, IUnitOfWork uow, ITdiTab dialogTab, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(entity, commonServices)
 		{
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
-			//UpdateAcessibility();
 			RefreshPrices();
+			Search = new SearchViewModel(commonServices.InteractiveService);
+			Search.OnSearch += (sender, e) => RefreshPrices();
 			Entity.ObservableSuplierPriceItems.ElementAdded += (aList, aIdx) => RefreshPrices();
 			Entity.ObservableSuplierPriceItems.ElementRemoved += (aList, aIdx, aObject) => RefreshPrices();
 		}
@@ -42,9 +46,10 @@ namespace Vodovoz.ViewModels.Client
 
 		void RefreshPrices()
 		{
-			Entity.SupplierPriceListRefresh();
+			Entity.SupplierPriceListRefresh(Search?.SearchValues);
 			ListContentChanged?.Invoke(this, new EventArgs());
 		}
+
 
 		public bool CanAdd { get; set; } = true;
 		public bool CanEdit { get; set; } = false;//задача редактирования пока не актуальна

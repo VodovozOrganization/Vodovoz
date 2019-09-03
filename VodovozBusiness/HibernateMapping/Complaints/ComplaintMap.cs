@@ -1,5 +1,4 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 
@@ -30,6 +29,7 @@ namespace Vodovoz.HibernateMapping.Complaints
 			References(x => x.CreatedBy).Column("created_by_id");
 			References(x => x.ChangedBy).Column("changed_by_id");
 			References(x => x.Counterparty).Column("counterparty_id");
+			References(x => x.DeliveryPoint).Column("delivery_point_id");
 			References(x => x.Order).Column("order_id");
 			References(x => x.ComplaintSource).Column("complaint_source_id");
 			References(x => x.ComplaintResult).Column("complaint_result_id");

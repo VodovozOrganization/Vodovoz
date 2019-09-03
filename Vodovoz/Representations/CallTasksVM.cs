@@ -12,7 +12,6 @@ using QS.Contacts;
 using QS.RepresentationModel.GtkUI;
 using QS.Tools;
 using QS.Utilities.Text;
-using QS.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
@@ -24,7 +23,7 @@ namespace Vodovoz.Representations
 {
 	public class CallTasksVM : QSOrmProject.RepresentationModel.RepresentationModelEntityBase<CallTask, CallTaskVMNode>
 	{
-		private readonly Pixbuf img; //TODO : переписать на множество вариантов
+		private readonly Pixbuf img;
 		private readonly Pixbuf emptyImg;
 
 		private int taskCount = 0;
@@ -40,10 +39,10 @@ namespace Vodovoz.Representations
 			.AddColumn("Срочность").AddPixbufRenderer(node => node.ImportanceDegree == ImportanceDegreeType.Important && !node.IsTaskComplete ? img : emptyImg)
 			.AddColumn("Статус").AddEnumRenderer(node => node.TaskStatus)
 			.AddColumn("Клиент").AddTextRenderer(node => node.ClientName ?? String.Empty)
-			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName ?? String.Empty)
+			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName ?? "Самовывоз")
 			.AddColumn("Долг по адресу").AddTextRenderer(node => node.DebtByAddress.ToString()).XAlign(0.5f)
 			.AddColumn("Долг по клиенту").AddTextRenderer(node => node.DebtByClient.ToString()).XAlign(0.5f)
-			.AddColumn("Телефены").AddTextRenderer(node => node.Phones == "+7" ? String.Empty : node.Phones ).WrapMode(Pango.WrapMode.WordChar)
+			.AddColumn("Телефены").AddTextRenderer(node => node.DeliveryPointPhones == "+7" ? String.Empty : node.DeliveryPointPhones ).WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployeeName ?? String.Empty)
 			.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
@@ -65,7 +64,9 @@ namespace Vodovoz.Representations
 			CallTaskVMNode resultAlias = null;
 			Counterparty counterpartyAlias = null;
 			Employee employeeAlias = null;
-			Phone phonesAlias = null;
+			Phone deliveryPointPhonesAlias = null;
+			Phone counterpartyPhonesAlias = null;
+			Domain.Orders.Order orderAlias = null;
 			var filterCriterion = Filter?.GetFilter();
 			var tasksQuery = UoW.Session.QueryOver(() => callTaskAlias);
 
@@ -73,7 +74,9 @@ namespace Vodovoz.Representations
 				tasksQuery = tasksQuery.And(filterCriterion);
 
 			var bottleDebtByAddressQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
-			.Where(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+			.JoinAlias(() => bottlesMovementAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
+			.And(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id || orderAlias.SelfDelivery)
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
 					NHibernateUtil.Int32, new IProjection[] {
@@ -82,7 +85,7 @@ namespace Vodovoz.Representations
 				));
 
 			var bottleDebtByClientQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
-			.Where(() => bottlesMovementAlias.Counterparty.Id == deliveryPointAlias.Counterparty.Id)
+			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
 					NHibernateUtil.Int32, new IProjection[] {
@@ -92,7 +95,8 @@ namespace Vodovoz.Representations
 
 			var tasks = tasksQuery
 			.JoinAlias(() => callTaskAlias.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.JoinAlias(() => deliveryPointAlias.Phones, () => phonesAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhonesAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhonesAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 			.JoinAlias(() => callTaskAlias.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 			.JoinAlias(() => callTaskAlias.AssignedEmployee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 			.SelectList(list => list
@@ -112,10 +116,17 @@ namespace Vodovoz.Representations
 				   .Select(Projections.SqlFunction(
 					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(?2 , ?1) SEPARATOR ?3 )"),
 					   NHibernateUtil.String,
-					   Projections.Property(() => phonesAlias.DigitsNumber),
+					   Projections.Property(() => deliveryPointPhonesAlias.DigitsNumber),
 					   Projections.Constant("+7"),
 					   Projections.Constant("\n"))
-				   ).WithAlias(() => resultAlias.Phones)
+				   ).WithAlias(() => resultAlias.DeliveryPointPhones)
+				   .Select(Projections.SqlFunction(
+					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(?2 , ?1) SEPARATOR ?3 )"),
+					   NHibernateUtil.String,
+					   Projections.Property(() => counterpartyPhonesAlias.DigitsNumber),
+					   Projections.Constant("+7"),
+					   Projections.Constant("\n"))
+				   ).WithAlias(() => resultAlias.CounterpartyPhones)
 				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
 				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
 				)
@@ -256,7 +267,11 @@ namespace Vodovoz.Representations
 
 		public int DebtByClient { get; set; }
 
-		public string Phones { get; set; }
+		public string DeliveryPointPhones { get; set; }
+
+		public string CounterpartyPhones { get; set; }
+
+		public string Phones { get { return String.IsNullOrWhiteSpace(DeliveryPointPhones) ? CounterpartyPhones : DeliveryPointPhones; } }
 
 		public string EmployeeLastName { get; set; }
 		public string EmployeeName { get; set; }

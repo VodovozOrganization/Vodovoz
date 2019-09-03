@@ -4,6 +4,8 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using QS.Project.Repositories;
+using QS.Utilities.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 
@@ -74,7 +76,15 @@ namespace Vodovoz.Domain.Suppliers
 
 		#region Calculatable methods
 
-
+		public virtual string Title {
+			get {
+				return string.Format(
+					"{0} для заявки №{1}",
+					TypeOfEntityRepository.GetRealName(GetType())?.StringToTitleCase(),
+					RequestToSupplier.Id
+				);
+			}
+		}
 
 		#endregion Calculatable methods
 	}

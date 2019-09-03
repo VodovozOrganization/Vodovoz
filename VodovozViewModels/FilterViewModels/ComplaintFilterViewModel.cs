@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
+using System.ComponentModel.DataAnnotations;
 using QS.Project.Filter;
 using QS.Report;
 using QS.Services;
@@ -25,8 +25,15 @@ namespace Vodovoz.FilterViewModels
 				x => x.Employee,
 				x => x.StartDate,
 				x => x.EndDate,
-				x => x.Subdivision
+				x => x.Subdivision,
+				x => x.FilterDateType
 			);
+		}
+
+		private DateFilterType filterDateType = DateFilterType.PlannedCompletionDate;
+		public virtual DateFilterType FilterDateType {
+			get => filterDateType;
+			set => SetField(ref filterDateType, value);
 		}
 
 		private ComplaintType? complaintType;
@@ -77,6 +84,7 @@ namespace Vodovoz.FilterViewModels
 		{
 			if(EmployeeRepository == null)
 				throw new NullReferenceException("Отсутствует ссылка на EmployeeRepository");
+
 			Subdivision = null;
 			ComplaintStatus = null;
 			ComplaintType = null;
@@ -103,4 +111,12 @@ namespace Vodovoz.FilterViewModels
 		}
 	}
 
+
+	public enum DateFilterType
+	{
+		[Display(Name = "план. завершения")]
+		PlannedCompletionDate,
+		[Display(Name = "создания")]
+		CreationDate
+	}
 }

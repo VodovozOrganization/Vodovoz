@@ -5,7 +5,6 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Config;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -40,7 +39,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.filterViewModel = filterViewModel;
 			TabName = "Журнал заявок поставщикам";
-			SetOrder<RequestToSupplier>(c => c.Id, true);
+			SetOrder(c => c.Id, true);
 
 			UpdateOnChanges(typeof(RequestToSupplier));
 		}
@@ -65,9 +64,9 @@ namespace Vodovoz.JournalViewModels.Suppliers
 
 			if(FilterViewModel?.RestrictNomenclature != null) {
 				var subquery = QueryOver.Of<RequestToSupplierItem>()
-										.Where(r => r.Nomenclature.Id == FilterViewModel.RestrictNomenclature.Id)
+										.Where(r => r.Nomenclature.Id == FilterViewModel.RestrictNomenclature.Id && !r.Transfered)
 										.Select(r => r.RequestToSupplier.Id);
-				query.WithSubquery.WhereProperty(r => r.Id).In(subquery).Select(r => r.Id);
+				query.WithSubquery.WhereProperty(r => r.Id).In(subquery);
 			}
 
 			if(FilterViewModel != null && FilterViewModel.RestrictStartDate.HasValue)

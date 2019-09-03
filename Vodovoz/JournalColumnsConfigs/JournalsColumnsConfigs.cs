@@ -9,6 +9,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Employees;
 using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels.Suppliers;
+using Vodovoz.JournalViewModels.WageCalculation;
 using Vodovoz.Representations;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -47,7 +48,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				() => FluentColumnsConfig<Representations.DebtorJournalNode>.Create()
 					.AddColumn("Номер").AddNumericRenderer(x => x.AddressId)
 					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
-					.AddColumn("Адрес").AddTextRenderer(node => node.AddressName)
+					.AddColumn("Адрес").AddTextRenderer(node => String.IsNullOrWhiteSpace(node.AddressName) ? "Самовывоз" : node.AddressName)
 					.AddColumn("ОПФ").AddTextRenderer(node => node.OPF.GetEnumTitle())
 					.AddColumn("Последний заказ по адресу").AddTextRenderer(node => node.LastOrderDate != null ? node.LastOrderDate.Value.ToString("dd / MM / yyyy") : string.Empty)
 					.AddColumn("Кол-во отгруженных в последнюю реализацию бутылей").AddNumericRenderer(node => node.LastOrderBottles)
@@ -229,6 +230,33 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Author)
 					.AddColumn("")
+					.Finish()
+			);
+
+			//WageParametersJournalViewModel
+			TreeViewColumnsConfigFactory.Register<WageParametersJournalViewModel>(
+				() => FluentColumnsConfig<WageParameterJournalNode>.Create()
+					.AddColumn("Номер")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Тип параметра")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.WageCalcTypeString)
+					.AddColumn("Ставка\\Процент")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.WageCalcRateString)
+					.AddColumn("План")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Quantities)
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Title)
+					.AddColumn("В архиве?")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.IsArchiveString)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
 		}

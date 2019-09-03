@@ -48,6 +48,14 @@ namespace Vodovoz.JournalFilters
 
 			dateperiodOldOrderDate.StartDateOrNull = DateTime.Today.AddMonths(-1);
 			dateperiodOldOrderDate.EndDateOrNull = DateTime.Today.AddMonths(1);
+			chkProblematicCases.Toggled += (sender, e) => {
+				if(chkProblematicCases.Active) {
+					yEnumCMBGuilty.SelectedItemOrNull = null;
+					ySpecCMBGuiltyDep.Visible = lblGuiltyDep.Visible = false;
+				}
+				yEnumCMBGuilty.Sensitive = !chkProblematicCases.Active;
+				OnRefiltered();
+			};
 		}
 
 		public void ResetFilter(){
@@ -65,6 +73,9 @@ namespace Vodovoz.JournalFilters
 		{
 			this.Build();
 		}
+
+		public bool IsProblematicCasesChkActive => chkProblematicCases.Active;
+		public GuiltyTypes[] ExcludingGuiltiesForProblematicCases => new GuiltyTypes[] { GuiltyTypes.Client, GuiltyTypes.None };
 
 		public Order RestrictOldOrder {
 			get => refOldOrder.Subject as Order;

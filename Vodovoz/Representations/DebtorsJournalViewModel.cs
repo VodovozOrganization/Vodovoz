@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
-using Gamma.Utilities;
-using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.DomainModel.Config;
-using QS.DomainModel.UoW;
 using QS.Project.Journal;
-using QS.RepresentationModel.GtkUI;
 using QS.Services;
 using QSReport;
 using Vodovoz.Dialogs;
@@ -19,20 +16,22 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Representations
 {
 	public class DebtorsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Domain.Orders.Order, CallTaskDlg, DebtorJournalNode, DebtorsJournalFilterViewModel>
 	{
 
-		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		IEmployeeRepository employeeRepository { get; set;}
+
+		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices, IEmployeeRepository employeeRepository) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
+			this.employeeRepository = employeeRepository;
 		}
 
 		protected override Func<IQueryOver<Domain.Orders.Order>> ItemsSourceQueryFunction => () => {
@@ -52,7 +51,9 @@ namespace Vodovoz.Representations
 			var ordersQuery = UoW.Session.QueryOver(() => orderAlias);
 
 			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
-			.Where(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+			.JoinAlias(() => bottlesMovementAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
+			.And(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id || orderAlias.SelfDelivery)
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
 					NHibernateUtil.Int32, new IProjection[] {
@@ -90,10 +91,11 @@ namespace Vodovoz.Representations
 			#region LastOrder
 
 			var LastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
-				.Where(() => lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
+				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
 				.And((x) => x.OrderStatus == OrderStatus.Closed)
 				.Select(Projections.Property<Domain.Orders.Order>(p => p.Id))
-				.OrderByAlias(() => orderAlias.DeliveryDate).Desc
+				.OrderByAlias(() => orderAlias.Id).Desc
 				.Take(1);
 
 			var LastOrderNomenclatures = QueryOver.Of(() => orderItemAlias)
@@ -149,12 +151,12 @@ namespace Vodovoz.Representations
 
 
 			var resultQuery = ordersQuery
-				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.RightOuterJoin)
+				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(c => c.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList(list => list
-				   .Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.AddressId)
 				   .Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.ClientId)
+				   .Select(() => deliveryPointAlias.Id).WithAlias(() => resultAlias.AddressId)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.ClientName)
 				   .Select(() => deliveryPointAlias.ShortAddress).WithAlias(() => resultAlias.AddressName)
 				   .Select(() => deliveryPointAlias.BottleReserv).WithAlias(() => resultAlias.Reserve)
@@ -252,15 +254,17 @@ namespace Vodovoz.Representations
 				if(item == null)
 					continue;
 				CallTask task = new CallTask {
-					TaskCreator = EmployeeRepository.GetEmployeeForCurrentUser(UoW),
+					TaskCreator = employeeRepository.GetEmployeeForCurrentUser(UoW),
 					DeliveryPoint = UoW.GetById<DeliveryPoint>(item.AddressId),
 					Counterparty = UoW.GetById<Counterparty>(item.ClientId),
 					CreationDate = DateTime.Now,
-					EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59)
+					EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59),
+					Source = TaskSource.MassCreation
 				};
 				newTaskCount++;
 				UoW.Save(task);
 			}
+			commonServices.InteractiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Info, $"Создано задач: {newTaskCount.ToString()}");
 			UoW.Commit();
 			return newTaskCount;
 		}
@@ -268,19 +272,12 @@ namespace Vodovoz.Representations
 
 	public class DebtorJournalNode : JournalEntityNodeBase<Domain.Orders.Order>
 	{
-		[UseForSearch]
-		[SearchHighlight]
 		public int AddressId { get; set; }
 
-		[UseForSearch]
-		[SearchHighlight]
 		public string AddressName { get; set; }
 
-		[UseForSearch]
 		public int ClientId { get; set; }
 
-		[UseForSearch]
-		[SearchHighlight]
 		public string ClientName { get; set; }
 
 		public PersonType OPF { get; set; }

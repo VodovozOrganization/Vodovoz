@@ -36,6 +36,16 @@ namespace Vodovoz.Core.DataService
 			return uow.GetById<Employee>(employeeId);
 		}
 
+		public Employee GetDefaultEmployeeForDepositReturnTask(IUnitOfWork uow)
+		{
+			if(!MainSupport.BaseParameters.All.ContainsKey("сотрудник_по_умолчанию_для_задач_по_залогам")) {
+				throw new InvalidProgramException("В параметрах базы не настроен параметр сотрудник по умолчанию для crm (сотрудник_по_умолчанию_для_задач_по_залогам).");
+			}
+			int employeeId = int.Parse(MainSupport.BaseParameters.All["сотрудник_по_умолчанию_для_задач_по_залогам"]);
+
+			return uow.GetById<Employee>(employeeId);
+		}
+
 		public int GetOkkId()
 		{
 			if(!MainSupport.BaseParameters.All.ContainsKey("номер_отдела_ОКК")) {

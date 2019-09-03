@@ -8,6 +8,18 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private global::Gtk.Label lblCaption;
 
+		private global::Gtk.Frame frame1;
+
+		private global::Gtk.Alignment GtkAlignment;
+
+		private global::Gtk.VBox vbox2;
+
+		private global::Gamma.GtkWidgets.yLabel lblTotalUndeliveredOrders;
+
+		private global::Gamma.GtkWidgets.yLabel lblTotalUdeliveredBottles;
+
+		private global::Gtk.Label GtkLabel;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView yTreeView;
@@ -34,6 +46,46 @@ namespace Vodovoz.SidePanel.InfoViews
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.frame1 = new global::Gtk.Frame();
+			this.frame1.Name = "frame1";
+			this.frame1.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child frame1.Gtk.Container+ContainerChild
+			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment.Name = "GtkAlignment";
+			this.GtkAlignment.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment.Gtk.Container+ContainerChild
+			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.lblTotalUndeliveredOrders = new global::Gamma.GtkWidgets.yLabel();
+			this.lblTotalUndeliveredOrders.Name = "lblTotalUndeliveredOrders";
+			this.lblTotalUndeliveredOrders.Xalign = 0F;
+			this.lblTotalUndeliveredOrders.LabelProp = global::Mono.Unix.Catalog.GetString("0");
+			this.vbox2.Add(this.lblTotalUndeliveredOrders);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.lblTotalUndeliveredOrders]));
+			w2.Position = 0;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.lblTotalUdeliveredBottles = new global::Gamma.GtkWidgets.yLabel();
+			this.lblTotalUdeliveredBottles.Name = "lblTotalUdeliveredBottles";
+			this.lblTotalUdeliveredBottles.Xalign = 0F;
+			this.lblTotalUdeliveredBottles.LabelProp = global::Mono.Unix.Catalog.GetString("0");
+			this.vbox2.Add(this.lblTotalUdeliveredBottles);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.lblTotalUdeliveredBottles]));
+			w3.Position = 1;
+			this.GtkAlignment.Add(this.vbox2);
+			this.frame1.Add(this.GtkAlignment);
+			this.GtkLabel = new global::Gtk.Label();
+			this.GtkLabel.Name = "GtkLabel";
+			this.GtkLabel.LabelProp = global::Mono.Unix.Catalog.GetString("<u><b>Итого недовезено:</b></u>");
+			this.GtkLabel.UseMarkup = true;
+			this.GtkLabel.Justify = ((global::Gtk.Justification)(2));
+			this.frame1.LabelWidget = this.GtkLabel;
+			this.vbox1.Add(this.frame1);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame1]));
+			w6.PackType = ((global::Gtk.PackType)(1));
+			w6.Position = 1;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
@@ -45,9 +97,9 @@ namespace Vodovoz.SidePanel.InfoViews
 			this.yTreeView.Name = "yTreeView";
 			this.GtkScrolledWindow.Add(this.yTreeView);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w3.PackType = ((global::Gtk.PackType)(1));
-			w3.Position = 1;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w8.PackType = ((global::Gtk.PackType)(1));
+			w8.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

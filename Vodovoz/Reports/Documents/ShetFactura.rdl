@@ -93,7 +93,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id, 
@@ -152,7 +152,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1205,7 +1205,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value>={item_price} * (1 - {item_discount}/100)</Value>
+                      <Value>={item_price} / {vat} * (1 - {item_discount}/100)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1215,6 +1215,7 @@ WHERE
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2039,7 +2040,7 @@ WHERE
               <BorderWidth />
             </Style>
           </Textbox>
-          <Textbox Name="Textbox40" >
+          <Textbox Name="Textbox40">
             <Height>12.06pt</Height>
             <Width>633.03pt</Width>
             <Value>= Iif(First({client_acc_number}, "Order") != null and First({client_acc_number}, "Order") != "", "р/с " + First({client_acc_number}, "Order"), "") 

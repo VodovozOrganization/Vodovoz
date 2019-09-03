@@ -456,7 +456,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal PhoneSum {
 			get {
-				if(Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || Driver.WageCalcType == WageCalculationType.withoutPayment)
+				if(Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.withoutPayment)
 					return 0;
 
 				return Wages.GetDriverRates(Date).PhoneServiceCompensationRate * UniqueAddressCount;
@@ -978,7 +978,7 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual decimal GetRecalculatedDriverWage()
 		{
-			if(Driver.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalcType == WageCalculationType.fixedRoute) {
+			if(Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute) {
 				return FixedDriverWage;
 			}
 			decimal result = 0m;
@@ -996,7 +996,7 @@ namespace Vodovoz.Domain.Logistic
 			if(Forwarder == null) {
 				return 0;
 			}
-			if(Forwarder.WageCalcType == WageCalculationType.fixedDay || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+			if(Forwarder.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay || Forwarder.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute) {
 				return FixedForwarderWage;
 			}
 			decimal result = 0m;
@@ -1011,8 +1011,8 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual decimal GetDriversTotalWage()
 		{
-			if(Driver.WageCalcType == WageCalculationType.fixedDay
-			  || Driver.WageCalcType == WageCalculationType.fixedRoute) {
+			if(Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay
+			  || Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute) {
 				//Если все заказы не выполнены, то нет зарплаты
 				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed)) {
 					return FixedDriverWage;
@@ -1031,8 +1031,8 @@ namespace Vodovoz.Domain.Logistic
 			if(Forwarder == null) {
 				return 0;
 			}
-			if(Forwarder.WageCalcType == WageCalculationType.fixedDay
-			  || Forwarder.WageCalcType == WageCalculationType.fixedRoute) {
+			if(Forwarder.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay
+			  || Forwarder.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute) {
 				//Если все заказы не выполнены, то нет зарплаты
 				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed)) {
 					return FixedForwarderWage;
@@ -1048,11 +1048,11 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual void CalculateWages()
 		{
-			if(Driver.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalcType == WageCalculationType.fixedRoute)
+			if(Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute)
 				FixedDriverWage = GetDriverFixedWage();
 
-			if(Forwarder != null && (Forwarder.WageCalcType == WageCalculationType.fixedDay || Forwarder.WageCalcType == WageCalculationType.fixedRoute))
-				FixedForwarderWage = Forwarder.WageCalcRate;
+			if(Forwarder?.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay || Forwarder?.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute)
+				FixedForwarderWage = Forwarder.WageCalculationParameter.WageCalcRate;
 
 			Addresses.ToList().ForEach(x => x.RecalculateWages());
 		}
@@ -1087,7 +1087,7 @@ namespace Vodovoz.Domain.Logistic
 					}
 				}
 			}
-			return Driver.WageCalcRate;
+			return Driver.WageCalculationParameter?.WageCalcRate ?? 0;
 		}
 
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.

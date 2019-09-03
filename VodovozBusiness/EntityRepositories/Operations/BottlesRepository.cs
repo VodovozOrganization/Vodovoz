@@ -69,6 +69,27 @@ namespace Vodovoz.EntityRepositories.Operations
 			return bottles;
 		}
 
+		public int GetBottleDebtBySelfDelivery(IUnitOfWork UoW, Counterparty counterparty)
+		{
+			BottlesMovementOperation operationAlias = null;
+			BottlesBalanceQueryResult result = null;
+			Order orderAlias = null;
+
+			var queryResult = UoW.Session.QueryOver(() => operationAlias)
+								 .JoinAlias(() => operationAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.RightOuterJoin)
+								 .Where(() => operationAlias.Counterparty == counterparty)
+								 .And(() => orderAlias.SelfDelivery);
+
+			var bottles = queryResult.SelectList(list => list
+				   .SelectSum(() => operationAlias.Delivered).WithAlias(() => result.Delivered)
+				   .SelectSum(() => operationAlias.Returned).WithAlias(() => result.Returned)
+				)
+				.TransformUsing(Transformers.AliasToBean<BottlesBalanceQueryResult>()).List<BottlesBalanceQueryResult>()
+				.FirstOrDefault()?
+				.BottlesDebt ?? 0;
+			return bottles;
+		}
+
 		public int GetEmptyBottlesFromClientByOrder(IUnitOfWork uow, INomenclatureRepository nomenclatureRepository, Order order, int? excludeDocument = null)
 		{
 			if(nomenclatureRepository == null)

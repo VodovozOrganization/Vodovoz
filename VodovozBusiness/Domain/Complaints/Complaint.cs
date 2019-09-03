@@ -6,9 +6,12 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using System.Text;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Complaints
 {
@@ -75,6 +78,13 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref counterparty, value, () => Counterparty);
 		}
 
+		DeliveryPoint deliveryPoint;
+		[Display(Name = "Точка доставки")]
+		public virtual DeliveryPoint DeliveryPoint {
+			get => deliveryPoint;
+			set => SetField(ref deliveryPoint, value);
+		}
+
 		private string complainantName;
 		[Display(Name = "Имя заявителя жалобы")]
 		public virtual string ComplainantName {
@@ -114,7 +124,7 @@ namespace Vodovoz.Domain.Complaints
 		[Display(Name = "Статус")]
 		public virtual ComplaintStatuses Status {
 			get => status;
-			set => SetField(ref status, value, () => Status);
+			protected set => SetField(ref status, value, () => Status);
 		}
 
 		private DateTime plannedCompletionDate;
@@ -261,7 +271,7 @@ namespace Vodovoz.Domain.Complaints
 			newDiscussion.Complaint = this;
 			newDiscussion.Subdivision = subdivision;
 			ObservableComplaintDiscussions.Add(newDiscussion);
-			Status = ComplaintStatuses.InProcess;
+			SetStatus(ComplaintStatuses.InProcess);
 		}
 
 		public virtual void UpdateComplaintStatus()
@@ -270,10 +280,26 @@ namespace Vodovoz.Domain.Complaints
 				return;
 			}
 			if(ObservableComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.Checking)) {
-				Status = ComplaintStatuses.Checking;
+				SetStatus(ComplaintStatuses.Checking);
 			} else {
-				Status = ComplaintStatuses.InProcess;
+				SetStatus(ComplaintStatuses.InProcess);
 			}
+		}
+
+		public virtual IList<string> SetStatus(ComplaintStatuses newStatus)
+		{
+			var oldStatus = Status;
+			List<string> result = new List<string>();
+			if(newStatus == ComplaintStatuses.Closed) {
+				if(ComplaintResult == null)
+					result.Add("Заполните поле \"Итог работы\".");
+				if(string.IsNullOrWhiteSpace(ResultText))
+					result.Add("Заполните поле \"Результат\".");
+			}
+
+			if(!result.Any())
+				Status = newStatus;
+			return result;
 		}
 
 		public virtual string Title => string.Format("Жалоба №{0}", Id);
@@ -289,10 +315,15 @@ namespace Vodovoz.Domain.Complaints
 			return result + clientInfo;
 		}
 
-		public virtual void Close()
+		public virtual bool Close(ref string message)
 		{
-			Status = ComplaintStatuses.Closed;
-			ActualCompletionDate = DateTime.Now;
+			var res = SetStatus(ComplaintStatuses.Closed);
+			if(!res.Any()) {
+				ActualCompletionDate = DateTime.Now;
+				return true;
+			}
+			message = string.Join<string>("\n", res);
+			return false;
 		}
 
 		#region IValidatableObject implementation
@@ -307,6 +338,19 @@ namespace Vodovoz.Domain.Complaints
 				if(ComplaintSource == null) {
 					yield return new ValidationResult("Необходимо выбрать источник");
 				}
+			}
+
+			if(Status == ComplaintStatuses.Closed) {
+				if(ComplaintResult == null)
+					yield return new ValidationResult(
+					"Заполните поле \"Итог работы\".",
+					new[] { this.GetPropertyName(o => o.ComplaintResult) }
+				);
+				if(string.IsNullOrWhiteSpace(ResultText))
+					yield return new ValidationResult(
+						"Заполните поле \"Результат\".",
+						new[] { this.GetPropertyName(o => o.ComplaintResult) }
+					);
 			}
 		}
 

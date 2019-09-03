@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>136.0pt</Height>
+    <Height>101.9pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>24.04pt</Height>
@@ -58,16 +58,19 @@
             <Width>199.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.4pt</Width>
+            <Width>90.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>100.1pt</Width>
+            <Width>65.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>71.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>108.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>121.3pt</Width>
+            <Width>86.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -131,6 +134,23 @@
                     <Textbox Name="Textbox5">
                       <Value>Клиент</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Номера телефонов</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -219,7 +239,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>35.4pt</Height>
+              <Height>14.5pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -234,6 +254,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -251,6 +273,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -269,6 +293,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -287,7 +313,29 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>={phones}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -304,6 +352,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -321,6 +371,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -452,6 +504,25 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox52">
                       <Style>
                         <BorderStyle>
@@ -560,45 +631,50 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    orders.id AS order_id,
-    orders.delivery_date AS delivery_date,
-    counterparty.name AS client_name,
-    orders.sum_to_receive ,
-    (
-        SELECT GROUP_CONCAT(DISTINCT discount_reasons.name SEPARATOR ', ')
-        FROM order_items
-        JOIN discount_reasons ON order_items.discount_reason_id = discount_reasons.id
-        WHERE order_items.order_id = orders.id
-    ) AS discount,
-    SecondOrder.delivery_date AS secondOrderDate,
-    SecondOrder.Id AS secondOrderId ,
-    (CAST(bottles_movement_operations.delivered AS SIGNED) - CAST(bottles_movement_operations.returned AS SIGNED)) as firstOrderBalance
-FROM 
-    orders
-    JOIN order_items ON orders.id = order_items.order_id
-    JOIN discount_reasons ON order_items.discount_reason_id = discount_reasons.id
-    JOIN counterparty ON orders.id = counterparty.first_order_id
-    LEFT JOIN 
-    (
-        SELECT 
-            orders.delivery_date ,
-            orders.client_id ,
-            orders.id as Id
-        FROM 
-            orders
-            LEFT JOIN counterparty ON counterparty.id = orders.client_id
-        WHERE
-            counterparty.first_order_id != orders.id
-            AND orders.order_status = 'Closed'
-        ORDER BY
-            orders.id DESC
-    ) as SecondOrder ON SecondOrder.client_id = orders.client_id
-    LEFT JOIN bottles_movement_operations ON bottles_movement_operations.order_id = orders.id
+	orders.id AS order_id,
+	orders.delivery_date AS delivery_date,
+	counterparty.name AS client_name,
+	orders.sum_to_receive ,
+	(
+		SELECT GROUP_CONCAT(DISTINCT discount_reasons.name SEPARATOR ', ')
+		FROM order_items
+		JOIN discount_reasons ON order_items.discount_reason_id = discount_reasons.id
+		WHERE order_items.order_id = orders.id
+	) AS discount,
+	SecondOrder.delivery_date AS secondOrderDate,
+	SecondOrder.Id AS secondOrderId ,
+	(CAST(bottles_movement_operations.delivered AS SIGNED) - CAST(bottles_movement_operations.returned AS SIGNED)) as firstOrderBalance,
+	IFNULL(
+		(SELECT TRIM('\n' FROM GROUP_CONCAT(DISTINCT CONCAT('8', digits_number) SEPARATOR ';\n'))
+		FROM phones
+		WHERE delivery_point_id = orders.delivery_point_id),
+		(SELECT TRIM('\n' FROM GROUP_CONCAT(DISTINCT CONCAT('8', digits_number) SEPARATOR ';\n'))
+		FROM phones
+		WHERE counterparty_id = orders.client_id)
+	) AS phones
+FROM orders
+JOIN order_items ON orders.id = order_items.order_id
+JOIN discount_reasons ON order_items.discount_reason_id = discount_reasons.id
+JOIN counterparty ON orders.id = counterparty.first_order_id
+LEFT JOIN phones p1 ON p1.counterparty_id = orders.client_id
+LEFT JOIN phones p2 ON p2.delivery_point_id = orders.delivery_point_id
+LEFT JOIN (
+	SELECT 
+		orders.delivery_date ,
+		orders.client_id ,
+		orders.id as Id
+	FROM orders
+	LEFT JOIN counterparty ON counterparty.id = orders.client_id
+	WHERE counterparty.first_order_id != orders.id
+		AND orders.order_status = 'Closed'
+	ORDER BY orders.id DESC
+) as SecondOrder ON SecondOrder.client_id = orders.client_id
+LEFT JOIN bottles_movement_operations ON bottles_movement_operations.order_id = orders.id
 WHERE 
-    orders.delivery_date BETWEEN @start_date AND @end_date AND
-    orders.order_status = 'Closed' AND
+	orders.delivery_date BETWEEN @start_date AND @end_date AND
+	orders.order_status = 'Closed' AND
 	(@discount_id = 0 OR discount_reasons.id = @discount_id) AND
-    (@show_only_client_wiht_one_order = 0 OR SecondOrder.Id IS NULL)
+	(@show_only_client_wiht_one_order = 0 OR SecondOrder.Id IS NULL)
 GROUP BY orders.id DESC
 ;</CommandText>
         <QueryParameters>
@@ -629,18 +705,29 @@ GROUP BY orders.id DESC
           <DataField>client_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="sum_to_receive">
+          <DataField>sum_to_receive</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
         <Field Name="discount">
           <DataField>discount</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="sum_to_receive">
-          <DataField>sum_to_receive</DataField>
-        </Field>
         <Field Name="secondOrderDate">
           <DataField>secondOrderDate</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="secondOrderId">
+          <DataField>secondOrderId</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="firstOrderBalance">
           <DataField>firstOrderBalance</DataField>
+          <TypeName>System.Int64</TypeName>
+        </Field>
+        <Field Name="phones">
+          <DataField>phones</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -665,7 +752,7 @@ GROUP BY orders.id DESC
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2019-04-03</Value>
+          <Value>2019-10-03</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -691,7 +778,7 @@ GROUP BY orders.id DESC
       <DataType>Boolean</DataType>
       <DefaultValue>
         <Values>
-          <Value>1</Value>
+          <Value>0</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -705,7 +792,7 @@ GROUP BY orders.id DESC
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

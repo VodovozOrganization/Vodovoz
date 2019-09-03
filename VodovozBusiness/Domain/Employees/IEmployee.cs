@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -24,8 +25,7 @@ namespace Vodovoz.Domain.Employees
 		short TripPriority { get; set; }
 		IList<DriverDistrictPriority> Districts { get; set; }
 		GenericObservableList<DriverDistrictPriority> ObservableDistricts { get; }
-		WageCalculationType? WageCalcType { get; set; }
-		decimal WageCalcRate { get; set; }
+		WageParameter WageCalculationParameter { get; set; }
 		bool VisitingMaster { get; set; }
 
 		double TimeCorrection(long timeValue);

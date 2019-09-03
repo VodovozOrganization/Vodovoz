@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using QS.Banks;
 using QS.Banks.Domain;
+using QS.BusinessCommon.Domain;
 using QS.Contacts;
 using QS.Deletion;
 using QS.HistoryLog.Domain;
 using QS.Project.Domain;
-using QS.BusinessCommon.Domain;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
@@ -26,7 +27,8 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.StoredResources;
-using QS.Banks;
+using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Domain.Suppliers;
 
 namespace Vodovoz
 {
@@ -84,6 +86,8 @@ namespace Vodovoz
 						.AddDeleteDependence<OrderDepositItem>(x => x.EquipmentNomenclature)
 						.AddDeleteDependence<PaidRentEquipment>(x => x.Nomenclature)
 						.AddRemoveFromDependence<Certificate>(x => x.Nomenclatures)
+						.AddDeleteDependence<SupplierPriceItem>(x => x.NomenclatureToBuy)
+						.AddDeleteDependence<RequestToSupplierItem>(x => x.Nomenclature)
 						;
 
 			DeleteConfig.AddDeleteInfo(
@@ -263,7 +267,9 @@ namespace Vodovoz
 				.AddClearDependence<Residue>(x => x.LastEditAuthor)
 				.AddClearDependence<Subdivision>(x => x.Chief)
 				.AddClearDependence<ChatMessage>(x => x.Sender)
-				.AddClearDependence<Employee>(x => x.DefaultForwarder);
+				.AddClearDependence<Employee>(x => x.DefaultForwarder)
+				.AddClearDependence<RequestToSupplier>(x => x.Creator)
+				;
 
 			DeleteConfig.AddDeleteInfo(
 				new DeleteInfo {
@@ -349,6 +355,11 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<ProxyDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<Chat>();
+
+			DeleteConfig.AddHibernateDeleteInfo<WageParameter>()
+						.AddClearDependence<Employee>(x => x.WageCalculationParameter)
+						.AddClearDependence<Subdivision>(x => x.DefaultWageParameter)
+						;
 			//Не добавляем сообщения чата чтобы не заполонять вывод удаления. все сообщения удалятся вместе с чатом.
 
 			DeleteConfig.AddHibernateDeleteInfo<ChatMessage>();
@@ -385,7 +396,9 @@ namespace Vodovoz
 				.AddDeleteDependence<Residue>(x => x.Customer)
 				.AddClearDependence<Counterparty>(item => item.MainCounterparty)
 				.AddClearDependence<Counterparty>(x => x.PreviousCounterparty)
-				.AddClearDependence<Equipment>(x => x.AssignedToClient);
+				.AddClearDependence<Equipment>(x => x.AssignedToClient)
+				.AddDeleteDependence<SupplierPriceItem>(x => x.Supplier)
+				;
 
 
 			DeleteConfig.AddHibernateDeleteInfo<Contact>()
@@ -431,6 +444,17 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentEquipment>();
 
 			DeleteConfig.AddHibernateDeleteInfo<SalesEquipment>();
+
+			DeleteConfig.AddHibernateDeleteInfo<SupplierPriceItem>()
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<RequestToSupplier>()
+						.AddDeleteDependence<RequestToSupplierItem>(x => x.RequestToSupplier)
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<RequestToSupplierItem>()
+						.AddDeleteDependence<RequestToSupplierItem>(x => x.TransferedFromItem)
+						;
 
 			//основной класс. не удаляем. в тестах настроен игнор.
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPoint>()

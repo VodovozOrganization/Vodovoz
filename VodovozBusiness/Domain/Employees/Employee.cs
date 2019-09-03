@@ -8,6 +8,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Domain.Employees
@@ -106,8 +107,6 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref firstWorkDay, value, () => FirstWorkDay); }
 		}
 
-	
-
 		IList<EmployeeContract> contracts = new List<EmployeeContract>();
 
 		[Display(Name = "Договора")]
@@ -197,22 +196,11 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		WageCalculationType? wageCalcType;
-
-		[Display(Name = "Тип расчёта зарплаты")]
-		public virtual WageCalculationType? WageCalcType
-		{
-			get { return wageCalcType; }
-			set { SetField(ref wageCalcType, value, () => WageCalcType);}
-		}
-
-		decimal wageCalcRate;
-
-		[Display(Name = "Ставка для расчёта зарплаты")]
-		public virtual decimal WageCalcRate
-		{
-			get { return wageCalcRate; }
-			set { SetField(ref wageCalcRate, value, () => WageCalcRate);}
+		WageParameter wageCalculationParameter;
+		[Display(Name = "Параметр расчёта ЗП")]
+		public virtual WageParameter WageCalculationParameter {
+			get => wageCalculationParameter;
+			set => SetField(ref wageCalculationParameter, value);
 		}
 
 		bool visitingMaster;
@@ -236,7 +224,6 @@ namespace Vodovoz.Domain.Employees
 			AddressCurrent = String.Empty;
 		}
 
-
 		#region IValidatableObject implementation
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -252,9 +239,11 @@ namespace Vodovoz.Domain.Employees
 						new[] { this.GetPropertyName(x => x.AndroidLogin) });
 			}
 
-			if(Category == EmployeeCategory.driver && !WageCalcType.HasValue) 
-				yield return new ValidationResult("Для водителя необходимо указать тип расчёта заработной платы.", new[] { this.GetPropertyName(x => x.WageCalcType) });
-				
+			if(WageCalculationParameter == null) 
+				yield return new ValidationResult(
+					"Выберите тип расчёта заработной платы.",
+					new[] { this.GetPropertyName(x => x.WageCalculationParameter) }
+				);
 		}
 
 		#endregion
@@ -324,22 +313,6 @@ namespace Vodovoz.Domain.Employees
 		Trainee
 	}
 
-	public enum WageCalculationType
-	{
-		[Display(Name = "Обычный")]
-		normal,
-		[Display(Name = "Без оплаты (Разовый водитель)")]
-		withoutPayment,
-		[Display(Name = "Процент от стоимости")]
-		percentage,
-		[Display(Name = "Процент от стоимости (СЦ)")]
-		percentageForService,
-		[Display(Name = "Фиксированная ставка за МЛ")]
-		fixedRoute,
-		[Display(Name = "Фиксированная ставка за день")]
-		fixedDay
-	}
-
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType
 	{
 		public EmployeeCategoryStringType () : base (typeof(EmployeeCategory))
@@ -361,4 +334,3 @@ namespace Vodovoz.Domain.Employees
 		}
 	}
 }
-

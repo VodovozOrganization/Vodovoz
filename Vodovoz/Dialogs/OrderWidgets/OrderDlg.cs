@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
@@ -47,21 +47,23 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz
 {
@@ -78,6 +80,10 @@ namespace Vodovoz
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		Order templateOrder;
+
+		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
+		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
+		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
 
 		#region Работа с боковыми панелями
 
@@ -120,7 +126,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать заказы, так как некого указывать в качестве автора документа.");
 				FailInitialize = true;
@@ -190,7 +196,7 @@ namespace Vodovoz
 				//TODO Make it clickable.
 			} else
 				labelPreviousOrder.Visible = false;
-			hboxStatusButtons.Visible = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
+			hboxStatusButtons.Visible = orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus)
 				|| Entity.OrderStatus == OrderStatus.Canceled
 				|| Entity.OrderStatus == OrderStatus.Closed
 				|| Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading;
@@ -428,7 +434,7 @@ namespace Vodovoz
 				.AddColumn("Номенклатура")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
-				.AddColumn(!OrderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
+				.AddColumn(!orderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Count)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
@@ -487,7 +493,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(OrderRepository.GetDiscountReasons(UoW))
+					.FillItems(orderRepository  .GetDiscountReasons(UoW))
 					.AddSetter((c, n) => c.Editable = n.Discount > 0 && n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
@@ -1949,7 +1955,7 @@ namespace Vodovoz
 				Entity.SetUndeliveredStatus();
 				UpdateUIState();
 
-				var routeListItem = RouteListItemRepository.GetRouteListItemForOrder(UoW, Entity);
+				var routeListItem = routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
 				if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled) {
 					routeListItem.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
 					routeListItem.StatusLastUpdate = DateTime.Now;
@@ -2378,7 +2384,7 @@ namespace Vodovoz
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
 			buttonWaitForPayment.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder && IsPaymentTypeBarterOrCashless() && !Entity.SelfDelivery;
 
-			buttonCancelOrder.Sensitive = OrderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus) || (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading);
+			buttonCancelOrder.Sensitive = orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus) || (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading);
 
 			menuItemSelfDeliveryToLoading.Sensitive = Entity.SelfDelivery
 				&& Entity.OrderStatus == OrderStatus.Accepted
@@ -2425,7 +2431,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var sameOrder = OrderRepository.GetOrderOnDateAndDeliveryPoint(UoW, Entity.DeliveryDate.Value, Entity.DeliveryPoint);
+			var sameOrder = orderRepository.GetOrderOnDateAndDeliveryPoint(UoW, Entity.DeliveryDate.Value, Entity.DeliveryPoint);
 			if(sameOrder != null && templateOrder == null) {
 				MessageDialogHelper.RunWarningDialog("На выбранную дату и точку доставки уже есть созданный заказ!");
 			}
@@ -2511,7 +2517,7 @@ namespace Vodovoz
 				email.AddAttachment($"Bill_{billDocument.Order.Id}{billDate}.pdf", stream);
 			}
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var employee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+				var employee = employeeRepository.GetEmployeeForCurrentUser(uow);
 				email.AuthorId = employee != null ? employee.Id : 0;
 				email.ManualSending = false;
 			}

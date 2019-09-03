@@ -746,7 +746,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	T.counterparty,
@@ -819,7 +819,8 @@ FROM
             OR (order_status = 'WaitForPayment' AND self_delivery AND pay_after_shipment)
         )
 			AND (delivery_date &gt;= @start_date
-			AND delivery_date &lt;= @end_date)
+				AND delivery_date &lt;= @end_date)
+			AND !orders.is_contract_closer
 		AND (
 				((nomenclature.id IN (@nomen_include) AND 0 IN (@nomen_exclude) )
 				OR
@@ -929,7 +930,7 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -1183,7 +1184,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="bottles">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	SUM(t.plan) AS plan,
@@ -1317,7 +1318,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="plan">
           <DataField>plan</DataField>
         </Field>

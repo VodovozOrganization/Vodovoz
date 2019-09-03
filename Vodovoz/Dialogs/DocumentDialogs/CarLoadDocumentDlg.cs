@@ -18,7 +18,6 @@ namespace Vodovoz
 	public partial class CarLoadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarLoadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		bool editing = false;
 		public CarLoadDocumentDlg()
 		{
 			this.Build();
@@ -69,7 +68,10 @@ namespace Vodovoz
 				return;
 			}
 
-			editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarLoadEdit, Entity.Warehouse);
+			var currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
+			var hasPermitionToEditDocWithClosedRL = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_car_load_and_unload_docs", currentUserId);
+			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarLoadEdit, Entity.Warehouse);
+			editing &= Entity.RouteList.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			carloaddocumentview1.Sensitive = editing;
 
@@ -91,13 +93,12 @@ namespace Vodovoz
 			Entity.UpdateInRouteListAmount(UoW, new RouteListRepository());
 			carloaddocumentview1.DocumentUoW = UoWGeneric;
 			carloaddocumentview1.SetButtonEditing(editing);
+			buttonSave.Sensitive = editing;
+			if(!editing)
+				HasChanges = false;
 			if(UoW.IsNew && Entity.Warehouse != null)
 				carloaddocumentview1.FillItemsByWarehouse();
 			ySpecCmbWarehouses.ItemSelected += OnYSpecCmbWarehousesItemSelected;
-
-			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
-			HasChanges = true;
-			UoW.CanCheckIfDirty = false;
 		}
 
 		public override bool Save()

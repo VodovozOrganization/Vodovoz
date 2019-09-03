@@ -151,7 +151,7 @@ namespace Vodovoz
 			advanceSpinbutton.Visible = false;
 
 			ycheckNormalWage.Binding.AddSource(Entity)
-							.AddFuncBinding(x => x.Driver.WageCalcType == WageCalculationType.normal && x.Car.IsCompanyHavings, w => w.Visible)
+							.AddFuncBinding(x => x.Driver.WageCalculationParameter != null && x.Driver.WageCalculationParameter.WageCalcType == WageCalculationType.normal && x.Car.IsCompanyHavings, w => w.Visible)
 							.AddBinding(x => x.NormalWage, w => w.Active)
 							.InitializeFromSource();
 
@@ -429,7 +429,7 @@ namespace Vodovoz
 			var item = routeListAddressesView.Items[aIdx[0]];
 
 			var fix = new[] { WageCalculationType.fixedDay, WageCalculationType.fixedRoute };
-			if(Entity.Driver.WageCalcType.HasValue && fix.Contains(Entity.Driver.WageCalcType.Value) || (Entity.Forwarder != null && Entity.Forwarder.WageCalcType.HasValue && fix.Contains(Entity.Forwarder.WageCalcType.Value))) {
+			if(Entity.Driver.WageCalculationParameter?.WageCalcType != null && fix.Contains(Entity.Driver.WageCalculationParameter.WageCalcType) || (Entity.Forwarder?.WageCalculationParameter?.WageCalcType != null && fix.Contains(Entity.Forwarder.WageCalculationParameter.WageCalcType))) {
 				return;
 			}
 

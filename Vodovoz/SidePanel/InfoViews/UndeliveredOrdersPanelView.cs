@@ -55,6 +55,16 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			guilties = new List<object[]>(UndeliveredOrdersRepository.GetGuiltyAndCountForDates(InfoProvider.UoW, StartDate, EndDate));
 			yTreeView.ItemsDataSource = guilties;
+
+			lblTotalUdeliveredBottles.Markup = string.Format(
+				"Воды 19л: <b>{0}</b> бут.",
+				UndeliveredOrdersRepository.GetUndelivered19LBottlesQuantity(InfoProvider.UoW, StartDate, EndDate)
+			);
+
+			lblTotalUndeliveredOrders.Markup = string.Format(
+				"Заказов: <b>{0}</b> шт.",
+				guilties.Sum(o => (int)o[1])
+			);
 		}
 
 		#endregion

@@ -37,7 +37,7 @@ namespace Vodovoz.JournalViewModels
 			this.bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			SetOrder<ResidueJournalNode>(x => x.Date, true);
+			SetOrder(x => x.Date, true);
 			UpdateOnChanges(
 				typeof(Residue)
 			);

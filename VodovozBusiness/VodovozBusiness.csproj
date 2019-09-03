@@ -386,8 +386,6 @@
     <Compile Include="Repositories\Operations\FuelRepository.cs" />
     <Compile Include="Domain\Logistic\FuelDocument.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelDocumentMap.cs" />
-    <Compile Include="Domain\Subdivision.cs" />
-    <Compile Include="HibernateMapping\Organization\SubdivisionMap.cs" />
     <Compile Include="Domain\Employees\EmployeeWorkChart.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeWorkChartMap.cs" />
     <Compile Include="Domain\Operations\WagesMovementOperations.cs" />
@@ -544,7 +542,6 @@
     <Compile Include="HibernateMapping\Sale\GeographicGroupMap.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermissionValidator.cs" />
     <Compile Include="Domain\Permissions\ISubdivisionEntity.cs" />
-    <Compile Include="Repositories\Orders\Export1cMode.cs" />
     <Compile Include="Repositories\Orders\OrderRepository.cs" />
     <Compile Include="Repositories\Store\CarUnloadRepository.cs" />
     <Compile Include="Repositories\Store\CarLoadRepository.cs" />
@@ -558,7 +555,6 @@
     <Compile Include="Tools\NullValueToZeroConverter.cs" />
     <Compile Include="Domain\Client\CallTask.cs" />
     <Compile Include="HibernateMapping\Counterparty\CallTaskMap.cs" />
-    <Compile Include="Repositories\Client\CallTasksRepository.cs" />
     <Compile Include="Repositories\ResidueRepository.cs" />
     <Compile Include="Domain\Logistic\Discrepancy.cs" />
     <Compile Include="Domain\Operations\CashTransferOperation.cs" />
@@ -592,7 +588,6 @@
     <Compile Include="Domain\Order\PromotionalSetItem.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetMap.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetItemMap.cs" />
-    <Compile Include="Repositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="Tools\IntToStringConverter.cs" />
     <Compile Include="Filters\CallTaskFilter.cs" />
     <Compile Include="Services\IStandartNomenclatures.cs" />
@@ -667,7 +662,7 @@
     <Compile Include="EntityRepositories\Complaints\ComplaintsRepository.cs" />
     <Compile Include="EntityRepositories\Complaints\IComplaintsRepository.cs" />
     <Compile Include="Services\ISubdivisionService.cs" />
-    <Compile Include="EntityRepositories\Employee\EmployeeRepository.cs" />
+    <Compile Include="EntityRepositories\Employee\EmployeeSingletonRepository.cs" />
     <Compile Include="EntityRepositories\Employee\IEmployeeRepository.cs" />
     <Compile Include="Domain\Client\SupplierPriceItem.cs" />
     <Compile Include="HibernateMapping\Counterparty\SuplierPriceItemMap.cs" />
@@ -681,6 +676,24 @@
     <Compile Include="EntityRepositories\Suppliers\SupplierPriceItemsRepository.cs" />
     <Compile Include="Domain\Client\SpecialNomenclature.cs" />
     <Compile Include="HibernateMapping\Counterparty\SpecialNomenclatureMap.cs" />
+    <Compile Include="EntityRepositories\CallTasks\CallTaskRepository.cs" />
+    <Compile Include="EntityRepositories\CallTasks\ICallTaskRepository.cs" />
+    <Compile Include="Tools\CallTasks\CallTaskSingletonFactory.cs" />
+    <Compile Include="EntityRepositories\Orders\OrderSingletonRepository.cs" />
+    <Compile Include="Repositories\Orders\Export1cMode.cs" />
+    <Compile Include="Repositories\Orders\PromotionalSetRepository.cs" />
+    <Compile Include="EntityRepositories\Orders\IOrderRepository.cs" />
+    <Compile Include="Tools\CallTasks\ICallTaskFactory.cs" />
+    <Compile Include="Tools\CallTasks\AutoCallTaskFactory.cs" />
+    <Compile Include="Tools\CallTasks\IAutoCallTaskFactory.cs" />
+    <Compile Include="Tools\CallTasks\ITaskCreationInteractive.cs" />
+    <Compile Include="Domain\Employees\WageCalculationType.cs" />
+    <Compile Include="Domain\Subdivisions\Subdivision.cs" />
+    <Compile Include="HibernateMapping\Subdivisions\SubdivisionMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\WageParameterMap.cs" />
+    <Compile Include="Domain\WageCalculation\WageParameter.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\IWageParametersRepository.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\WageParametersRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -737,6 +750,14 @@
     <Folder Include="Domain\Suppliers\" />
     <Folder Include="HibernateMapping\Suppliers\" />
     <Folder Include="EntityRepositories\Suppliers\" />
+    <Folder Include="EntityRepositories\CallTasks\" />
+    <Folder Include="Tools\CallTasks\" />
+    <Folder Include="EntityRepositories\Orders\" />
+    <Folder Include="Domain\Subdivisions\" />
+    <Folder Include="HibernateMapping\Subdivisions\" />
+    <Folder Include="HibernateMapping\WageCalculation\" />
+    <Folder Include="Domain\WageCalculation\" />
+    <Folder Include="EntityRepositories\WageCalculation\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

@@ -10,6 +10,7 @@ using QS.HistoryLog;
 using QS.Project.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
@@ -100,6 +101,12 @@ namespace Vodovoz
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
 		}
 
+		WageParameter defaultWageParameter;
+		[Display(Name = "Параметр по умолчанию для сотрудников отдела")]
+		public virtual WageParameter DefaultWageParameter {
+			get => defaultWageParameter;
+			set => SetField(ref defaultWageParameter, value);
+		}
 		#endregion
 
 		#region Геттеры и методы
@@ -189,7 +196,14 @@ namespace Vodovoz
 					"Нельзя указывать 'Дочернее подразделение' в качестве родительского.",
 					new[] { this.GetPropertyName(o => o.ParentSubdivision) }
 				);
-			if(ShortName.Length > 20) {
+
+			if(ShortName == null)
+				yield return new ValidationResult(
+					"Укажите сокращённое название отдела.",
+					new[] { this.GetPropertyName(o => o.ShortName) }
+				);
+
+			if(ShortName?.Length > 20) {
 				yield return new ValidationResult("Сокращенное наименование не может превышать 20 символов");
 			}
 		}
