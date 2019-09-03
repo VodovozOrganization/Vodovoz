@@ -203,7 +203,8 @@
 				docs.from_client_text,
 				#IF FALSE #новый список оборудования
 				(
-				TRIM(',\n' FROM CONCAT(
+				TRIM(',\n' FROM CONCAT_WS(
+						',\n',
 						(SELECT 
 							IF(
 								GROUP_CONCAT(
@@ -244,7 +245,6 @@
 							AND nomenclature.category NOT IN('water','bottle','master')
 #equipment from client from store_self_delivery_document
 						),
-						',\n',
 						(SELECT
 							GROUP_CONCAT(
 								CONCAT(

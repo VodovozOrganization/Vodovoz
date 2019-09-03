@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Dialog;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repositories.Orders;
-using QS.Dialog.GtkUI;
 
 namespace Vodovoz.Reports
 {
@@ -29,13 +28,7 @@ namespace Vodovoz.Reports
 
 		#region IParametersWidget implementation
 
-		public string Title
-		{
-			get
-			{
-				return "Акт по бутылям-залогам";
-			}
-		}
+		public string Title => "Акт по бутылям-залогам";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
@@ -58,8 +51,8 @@ namespace Vodovoz.Reports
 				Identifier = "Client.SummaryBottlesAndDeposits",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "startDate", dateperiodpicker1.StartDateOrNull },
-					{ "endDate", dateperiodpicker1.EndDateOrNull },
+					{ "startDate", new DateTime(2000,1,1) },
+					{ "endDate", DateTime.Today.AddYears(1) },
 					{ "client_id", referenceCounterparty.GetSubject<Counterparty>().Id},
 					{ "delivery_point_id", referenceDeliveryPoint.Subject == null ? -1 : referenceDeliveryPoint.GetSubject<DeliveryPoint>().Id},
 					{ "show_stock_bottle", ShowStockBottle }
