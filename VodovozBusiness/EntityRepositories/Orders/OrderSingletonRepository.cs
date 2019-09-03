@@ -338,7 +338,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				dateDif.Add(dif);
 			}
 
-			if(dateDif?.FirstOrDefault() == null)
+			if(dateDif.Any())
 				return 0f;
 			else
 				return dateDif.Average();
