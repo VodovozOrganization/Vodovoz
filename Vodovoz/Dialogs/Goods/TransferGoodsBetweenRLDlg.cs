@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
-using QS.DomainModel.UoW;
 using QS.Dialog;
+using QS.DomainModel.NotifyChange;
+using QS.DomainModel.UoW;
 using QS.Project.Repositories;
 using QS.Tdi;
 using Vodovoz.Domain.Documents;
@@ -16,7 +17,7 @@ namespace Vodovoz
 	{
 		#region Поля
 
-		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
+		public IUnitOfWork UoW { get; } = UnitOfWorkFactory.CreateWithoutRoot();
 
 		IColumnsConfig colConfigFrom = ColumnsConfigFactory.Create<CarUnloadDocumentNode>()
 			.AddColumn("Номенклатура").AddTextRenderer(d => d.Nomenclature)
@@ -30,7 +31,7 @@ namespace Vodovoz
 			.AddColumn("Номенклатура").AddTextRenderer(d => d.Nomenclature)
 			.AddColumn("Кол-во").AddNumericRenderer(d => d.ItemsCount)
 			.Finish();
-		
+
 		#endregion
 
 		#region Конструкторы
@@ -44,8 +45,7 @@ namespace Vodovoz
 
 		public TransferGoodsBetweenRLDlg(RouteList routeList, OpenParameter param) : this()
 		{
-			switch (param)
-			{
+			switch(param) {
 				case OpenParameter.Sender:
 					yentryreferenceRouteListFrom.Subject = routeList;
 					break;
@@ -74,17 +74,7 @@ namespace Vodovoz
 			throw new NotImplementedException();
 		}
 
-		public bool HasChanges {
-			get {
-				return UoW.HasChanges;
-			}
-		}
-
-		#endregion
-
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get { return uow; } }
+		public bool HasChanges => UoW.HasChanges;
 
 		#endregion
 
@@ -117,6 +107,17 @@ namespace Vodovoz
 			ytreeviewTo.ColumnsConfig = colConfigTo;
 
 			CheckSensitivities();
+
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<CarUnloadDocument>(
+				s => {
+					foreach(var doc in s.Select(x => x.GetEntity<CarUnloadDocument>())) {
+						if(yentryreferenceRouteListFrom.Subject is RouteList rlFrom && doc.RouteList.Id == rlFrom.Id)
+							YentryreferenceRouteListFrom_Changed(this, new EventArgs());
+						if(yentryreferenceRouteListTo.Subject is RouteList rlTo && doc.RouteList.Id == rlTo.Id)
+							YentryreferenceRouteListTo_Changed(this, new EventArgs());
+					}
+				}
+			);
 		}
 
 		private void CheckSensitivities()
@@ -124,79 +125,80 @@ namespace Vodovoz
 			buttonTransfer.Sensitive =
 				ylistcomboReceptionTicketFrom.SelectedItem != null && ylistcomboReceptionTicketTo.SelectedItem != null;
 
-			buttonCreateNewReceptionTicket.Sensitive = yentryreferenceRouteListTo.Subject != null;
+			buttonCreateNewReceptionTicket.Sensitive = yentryreferenceRouteListTo.Subject != null && ylistcomboReceptionTicketFrom.SelectedItem != null;
 
-			yentryreferenceRouteListFrom .Sensitive = !HasChanges;
-			yentryreferenceRouteListTo	 .Sensitive = !HasChanges;
+			yentryreferenceRouteListFrom.Sensitive = !HasChanges;
+			yentryreferenceRouteListTo.Sensitive = !HasChanges;
 
 			ylistcomboReceptionTicketFrom.Sensitive = !HasChanges;
-			ylistcomboReceptionTicketTo	 .Sensitive = !HasChanges;
+			ylistcomboReceptionTicketTo.Sensitive = !HasChanges;
 
 			ytreeviewFrom.YTreeModel?.EmitModelChanged();
-			ytreeviewTo	 .YTreeModel?.EmitModelChanged();
+			ytreeviewTo.YTreeModel?.EmitModelChanged();
 		}
-		
+
 		#endregion
 
 		#region Обработчики событий
 
-		void YentryreferenceRouteListFrom_Changed (object sender, EventArgs e)
+		void YentryreferenceRouteListFrom_Changed(object sender, EventArgs e)
 		{
-			if (yentryreferenceRouteListFrom.Subject == null)
+			if(yentryreferenceRouteListFrom.Subject == null)
 				return;
 
 			RouteList routeList = (RouteList)yentryreferenceRouteListFrom.Subject;
 
 			var unloadDocs = UoW.Session.QueryOver<CarUnloadDocument>()
 				.Where(cud => cud.RouteList.Id == routeList.Id).List();
-			
+
 			ylistcomboReceptionTicketFrom.ItemsList = unloadDocs;
-			if (unloadDocs.Count == 1)
+			if(unloadDocs.Count == 1)
 				ylistcomboReceptionTicketFrom.Active = 0;
 
 			CheckSensitivities();
 		}
-		
-		void YentryreferenceRouteListTo_Changed (object sender, EventArgs e)
+
+		void YentryreferenceRouteListTo_Changed(object sender, EventArgs e)
 		{
-			if (yentryreferenceRouteListTo.Subject == null)
+			if(yentryreferenceRouteListTo.Subject == null)
 				return;
 
 			RouteList routeList = (RouteList)yentryreferenceRouteListTo.Subject;
 
 			var unloadDocs = UoW.Session.QueryOver<CarUnloadDocument>()
-				.Where(cud => cud.RouteList.Id == routeList.Id).List();
+								.Where(cud => cud.RouteList.Id == routeList.Id)
+								.List();
 
 			ylistcomboReceptionTicketTo.ItemsList = unloadDocs;
-			if (unloadDocs.Count == 1)
+			if(unloadDocs.Count == 1)
 				ylistcomboReceptionTicketTo.Active = 0;
 
 			CheckSensitivities();
 		}
 
-		void YlistcomboReceptionTicketFrom_ItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		void YlistcomboReceptionTicketFrom_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			CarUnloadDocument selectedItem = (CarUnloadDocument)e.SelectedItem;
 
 			var result = new List<CarUnloadDocumentNode>();
 
-			foreach (var item in selectedItem.Items) {
-				result.Add(new CarUnloadDocumentNode{DocumentItem = item});
+			foreach(var item in selectedItem.Items) {
+				result.Add(new CarUnloadDocumentNode { DocumentItem = item });
 			}
 
 			ytreeviewFrom.SetItemsSource(result);
 
 			CheckSensitivities();
 		}
-		
-		void YlistcomboReceptionTicketTo_ItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+
+		void YlistcomboReceptionTicketTo_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			CarUnloadDocument selectedItem = (CarUnloadDocument)e.SelectedItem;
 
 			var result = new List<CarUnloadDocumentNode>();
 
-			foreach (var item in selectedItem.Items) {
-				result.Add(new CarUnloadDocumentNode{DocumentItem = item});
+			foreach(var item in selectedItem.Items) {
+				result.Add(new CarUnloadDocumentNode { DocumentItem = item });
 			}
 
 			ytreeviewTo.SetItemsSource(result);
@@ -204,32 +206,29 @@ namespace Vodovoz
 			CheckSensitivities();
 		}
 
-		protected void OnButtonTransferClicked (object sender, EventArgs e)
+		protected void OnButtonTransferClicked(object sender, EventArgs e)
 		{
-			var itemsFrom 	= ytreeviewFrom.ItemsDataSource as IList<CarUnloadDocumentNode>;
-			var itemsTo 	= ytreeviewTo.ItemsDataSource as IList<CarUnloadDocumentNode>;
+			var itemsFrom = ytreeviewFrom.ItemsDataSource as IList<CarUnloadDocumentNode>;
+			var itemsTo = ytreeviewTo.ItemsDataSource as IList<CarUnloadDocumentNode>;
 			var fromDoc = ylistcomboReceptionTicketFrom.SelectedItem as CarUnloadDocument;
 			var toDoc = ylistcomboReceptionTicketTo.SelectedItem as CarUnloadDocument;
 
-			foreach (var from in itemsFrom.Where(i => i.TransferCount > 0))
-			{
+			foreach(var from in itemsFrom.Where(i => i.TransferCount > 0)) {
 				int transfer = from.TransferCount;
 				//Заполняем для краткости
 				var nomenclature = from.DocumentItem.MovementOperation.Nomenclature;
-				var receiveType  = from.DocumentItem.ReciveType;
+				var receiveType = from.DocumentItem.ReciveType;
 
 				var to = itemsTo
 					.FirstOrDefault(i => i.DocumentItem.MovementOperation.Nomenclature.Id == nomenclature.Id);
 
-				if(to == null)
-				{
+				if(to == null) {
 					toDoc.AddItem(receiveType, nomenclature, null, transfer, null);
 
-					foreach (var item in toDoc.Items)
-					{
+					foreach(var item in toDoc.Items) {
 						var exist = itemsTo.FirstOrDefault(i => i.DocumentItem.Id == item.Id);
-						if (exist == null)
-							itemsTo.Add(new CarUnloadDocumentNode{ DocumentItem = item });
+						if(exist == null)
+							itemsTo.Add(new CarUnloadDocumentNode { DocumentItem = item });
 					}
 				} else {
 					to.DocumentItem.MovementOperation.Amount += transfer;
@@ -238,8 +237,7 @@ namespace Vodovoz
 				}
 
 				from.DocumentItem.MovementOperation.Amount -= transfer;
-				if (from.DocumentItem.MovementOperation.Amount == 0)
-				{
+				if(from.DocumentItem.MovementOperation.Amount == 0) {
 					var item = fromDoc.Items.First(i => i.Id == from.DocumentItem.Id);
 					fromDoc.Items.Remove(item);
 
@@ -255,19 +253,25 @@ namespace Vodovoz
 			CheckSensitivities();
 		}
 
-		protected void OnButtonSaveClicked (object sender, EventArgs e)
+		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
 			Save();
 			OnCloseTab(false);
 		}
 
-		protected void OnButtonCreateNewReceptionTicketClicked (object sender, EventArgs e)
+		protected void OnButtonCreateNewReceptionTicketClicked(object sender, EventArgs e)
 		{
-			var dlg = new CarUnloadDocumentDlg((yentryreferenceRouteListTo.Subject as RouteList).Id, null);
-			this.TabParent.AddSlaveTab(this, dlg);
+			TabParent.AddSlaveTab(
+				this,
+				new CarUnloadDocumentDlg(
+					(yentryreferenceRouteListTo.Subject as RouteList).Id,
+					(ylistcomboReceptionTicketFrom.SelectedItem as CarUnloadDocument).Id,
+					(ylistcomboReceptionTicketFrom.SelectedItem as CarUnloadDocument).TimeStamp
+				)
+			);
 		}
 
-		protected void OnButtonCancelClicked (object sender, EventArgs e)
+		protected void OnButtonCancelClicked(object sender, EventArgs e)
 		{
 			OnCloseTab(false);
 		}
@@ -277,25 +281,35 @@ namespace Vodovoz
 		#region Внутренние классы
 
 		public enum OpenParameter { Sender, Receiver }
-		
-		private class CarUnloadDocumentNode {
-			public string Id 			{ get {return DocumentItem.Id.ToString();} }
-			public string Nomenclature 	{ get {return DocumentItem.MovementOperation.Nomenclature.OfficialName;} }
-			public int 	  ItemsCount 	{ get {return (int)DocumentItem.MovementOperation.Amount;} }
+
+		private class CarUnloadDocumentNode
+		{
+			public string Id { get { return DocumentItem.Id.ToString(); } }
+			public string Nomenclature { get { return DocumentItem.MovementOperation.Nomenclature.OfficialName; } }
+			public int ItemsCount { get { return (int)DocumentItem.MovementOperation.Amount; } }
 
 			private int transferCount = 0;
-			public int 	  TransferCount { get {return transferCount;}	
+			public int TransferCount {
+				get { return transferCount; }
 				set {
 					transferCount = value;
-					if (value < 0)
+					if(value < 0)
 						transferCount = 0;
-					if (value > ItemsCount)
+					if(value > ItemsCount)
 						transferCount = ItemsCount;
-				} }
-			
-			public int 	  Residue 		{ get { return ItemsCount - TransferCount;} }
+				}
+			}
+
+			public int Residue { get { return ItemsCount - TransferCount; } }
 
 			public CarUnloadDocumentItem DocumentItem { get; set; }
+		}
+
+		public override void Dispose()
+		{
+			NotifyConfiguration.Instance.UnsubscribeAll(this);
+			UoW?.Dispose();
+			base.Dispose();
 		}
 
 		#endregion

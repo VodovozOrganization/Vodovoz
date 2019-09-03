@@ -48,6 +48,11 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		public CarUnloadDocumentDlg(int routeListId, int warehouseId, DateTime date) : this(routeListId, warehouseId)
+		{
+			Entity.TimeStamp = date;
+		}
+
 		public CarUnloadDocumentDlg(int id)
 		{
 			this.Build();
