@@ -3646,7 +3646,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork uow, decimal equipmentRefundDeposit, decimal bottleRefundDeposit)
 		{
 			if(IsContractCloser == true) {
-				DepositOperations.Clear();
+				DepositOperations?.Clear();
 				return null;
 			}
 
