@@ -329,7 +329,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			IList<VodovozOrder> orders = orderQuery.List();
 			orderCount = orders?.Count;
 
-			if(orders?.FirstOrDefault() == null)
+			if(orders?.FirstOrDefault() == null || orders.Count < 3)
 				return 0f;
 
 			IList<int> dateDif = new List<int>();
@@ -339,9 +339,9 @@ namespace Vodovoz.EntityRepositories.Orders
 			}
 
 			if(dateDif.Any())
-				return 0f;
-			else
 				return dateDif.Average();
+			else
+				return 0f;
 
 		}
 
