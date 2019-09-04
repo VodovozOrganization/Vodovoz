@@ -236,7 +236,7 @@ namespace Vodovoz
 			yentryCargoReceiver.Binding.AddBinding(Entity, e => e.CargoReceiver, w => w.Text).InitializeFromSource();
 			yentryCustomer.Binding.AddBinding(Entity, e => e.SpecialCustomer, w => w.Text).InitializeFromSource();
 			yentrySpecialContract.Binding.AddBinding(Entity, e => e.SpecialContractNumber, w => w.Text).InitializeFromSource();
-			yentrySpecialKPP.Binding.AddBinding(Entity, e => e.SpecialKPP, w => w.Text).InitializeFromSource();
+			yentrySpecialKPP.Binding.AddBinding(Entity, e => e.PayerSpecialKPP, w => w.Text).InitializeFromSource();
 			yentryGovContract.Binding.AddBinding(Entity, e => e.GovContract, w => w.Text).InitializeFromSource();
 			yentrySpecialDeliveryAddress.Binding.AddBinding(Entity, e => e.SpecialDeliveryAddress, w => w.Text).InitializeFromSource();
 
@@ -249,14 +249,10 @@ namespace Vodovoz
 			yspeccomboboxTorg2Count.Binding.AddBinding(Entity, e => e.Torg2Count, w => w.SelectedItem).InitializeFromSource();
 			yspeccomboboxTTNCount.Binding.AddBinding(Entity, e => e.TTNCount, w => w.SelectedItem).InitializeFromSource();
 
-			yenumcomboboxKPPFrom.ItemsEnum = typeof(KppFrom);
-			yenumcomboboxKPPFrom.Binding.AddBinding(Entity, e => e.KppFrom, w => w.SelectedItem).InitializeFromSource();
+			enumcomboCargoReceiverSource.ItemsEnum = typeof(CargoReceiverSource);
+			enumcomboCargoReceiverSource.Binding.AddBinding(Entity, e => e.CargoReceiverSource, w => w.SelectedItem).InitializeFromSource();
 
-			if(!String.IsNullOrWhiteSpace(Entity.SpecialKPP)) {
-				labelKpp.Visible = true;
-				yentrySpecialKPP.Visible = true;
-				Entity.KppFrom = KppFrom.Counterparty;
-			}
+			UpdateCargoReceiver();
 
 			#endregion Особая печать
 		}
@@ -297,8 +293,8 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			if(Entity.SpecialKPP == String.Empty)
-				Entity.SpecialKPP = null;
+			if(Entity.PayerSpecialKPP == String.Empty)
+				Entity.PayerSpecialKPP = null;
 			Entity.UoW = UoW;
 			var valid = new QSValidator<Counterparty>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
@@ -593,15 +589,24 @@ namespace Vodovoz
 			Entity.ObservableSpecialNomenclatures.Remove(ytreeviewSpecialNomenclature.GetSelectedObject<SpecialNomenclature>());
 		}
 
-		protected void OnYenumcomboboxKPPFromChangedByUser(object sender, EventArgs e)
+		protected void OnEnumcomboCargoReceiverSourceChangedByUser(object sender, EventArgs e)
 		{
-			bool visible = Entity.KppFrom == KppFrom.Counterparty;
+			UpdateCargoReceiver();
+		}
 
-			labelKpp.Visible = visible;
-			yentrySpecialKPP.Visible = visible;
+		private string cargoReceiverBackupBuffer;
 
-			if(!visible)
-				Entity.SpecialKPP = null;
+		private void UpdateCargoReceiver()
+		{
+			if(Entity.CargoReceiverSource != CargoReceiverSource.Special) {
+				if(Entity.CargoReceiver != cargoReceiverBackupBuffer && !string.IsNullOrWhiteSpace(Entity.CargoReceiver)) {
+					cargoReceiverBackupBuffer = Entity.CargoReceiver;
+				}
+				Entity.CargoReceiver = null;
+			} else {
+				Entity.CargoReceiver = cargoReceiverBackupBuffer;
+			}
+			yentryCargoReceiver.Visible = Entity.CargoReceiverSource == CargoReceiverSource.Special;
 		}
 	}
 }

@@ -11853,9 +11853,11 @@
 	COMPILE_ADDRESS(delivery_points.id) AS counterparty_address,
 	SUBSTRING(organizations.jur_address FROM 10) AS organization_address,
 	#грузополучатель
-	CONCAT_WS(', ', 
-		counterparty.name,
-		CONCAT('ИНН ', NULLIF(CONCAT_WS('/', NULLIF(TRIM(counterparty.inn), ''), NULLIF(TRIM(IF(counterparty.use_special_doc_fields, IFNULL(counterparty.spectial_kpp , delivery_points.KPP), counterparty.kpp)), '')), '')),
+	CONCAT_WS(', ',	
+		CASE
+			WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
+			WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
+	   ELSE CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', counterparty.kpp, ', ',  counterparty.jur_address) END,
 		
 		#телефоны, выбирается только 2 первых
 		NULLIF(
@@ -11863,8 +11865,8 @@
 				(SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.counterparty_id = counterparty.id),
                 (SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.delivery_point_id = delivery_points.id)
 			), 
-		''),		
-		COMPILE_ADDRESS(delivery_points.id),
+		''),
+		
 		CONCAT('р/с ', counterparty_accounts.number, ' в ', banks.name, ', БИК ', banks.bik, ', к/с ', banks_cor_accounts.cor_account_number)
 	)	AS counterparty_fullname,
 	#грузоотправитель

@@ -38,7 +38,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CargoReceiver).Column("special_cargo_receiver");
 			Map(x => x.SpecialCustomer).Column("special_customer");
 			Map(x => x.SpecialContractNumber).Column("special_contract_number");
-			Map(x => x.SpecialKPP).Column("spectial_kpp");
+			Map(x => x.PayerSpecialKPP).Column("payer_special_kpp");
 			Map(x => x.GovContract).Column("special_gov_contract");
 			Map(x => x.SpecialDeliveryAddress).Column("special_delivery_address");
 			Map(x => x.OKDP).Column("OKDP");
@@ -48,6 +48,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Torg2Count).Column("torg2_count");
 			Map(x => x.TTNCount).Column("ttn_count");
 			Map(x => x.CounterpartyType).Column("counterparty_type").CustomType<CounterpartyTypeStringType>();
+			Map(x => x.CargoReceiverSource).Column("cargo_receiver_source").CustomType<CargoReceiverTypeStringType>();
 			Map(x => x.DelayDays).Column("delay_days");
 			References(x => x.MainCounterparty).Column("maincounterparty_id");
 			References(x => x.PreviousCounterparty).Column("previous_counterparty_id");

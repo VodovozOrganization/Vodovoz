@@ -93,7 +93,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -110,9 +110,18 @@ WHERE
 	counterparty.special_cargo_receiver,
 	counterparty.special_customer,
 	counterparty.special_contract_number,
-	counterparty.spectial_kpp,
+	counterparty.payer_special_kpp,
 	counterparty.special_gov_contract,
 	counterparty.special_delivery_address,
+	CONCAT(
+		counterparty.inn,
+		'/',
+		IF(counterparty.use_special_doc_fields AND @special_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp)
+	) AS inn_kpp,
+	CASE
+		WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', delivery_points.compiled_address_short)
+		WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields AND @special_fields THEN counterparty.special_cargo_receiver
+	ELSE CONCAT(counterparty.full_name, ', ', counterparty.jur_address) END AS cargo_receiver,
 	organizations.full_name AS org_name,
 	organizations.jur_address AS org_address,
 	delivery_points.compiled_address_short AS del_point_address,
@@ -160,9 +169,12 @@ WHERE
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
+          <QueryParameter Name="special_fields">
+            <Value>={?special}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -215,8 +227,8 @@ WHERE
           <DataField>special_contract_number</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="spectial_kpp">
-          <DataField>spectial_kpp</DataField>
+        <Field Name="payer_special_kpp">
+          <DataField>payer_special_kpp</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="special_gov_contract">
@@ -282,6 +294,14 @@ WHERE
         <Field Name="is_self_delivery">
           <DataField>is_self_delivery</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="cargo_receiver">
+          <DataField>cargo_receiver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="inn_kpp">
+          <DataField>inn_kpp</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -664,7 +684,7 @@ WHERE
           <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>30.75pt</Height>
             <Width>420.50pt</Width>
-            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_cargo_receiver}) = false, {special_cargo_receiver},Fields!client_name.Value) + ', ' + Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_delivery_address}) = false, {special_delivery_address}, {client_address})</Value>
+            <Value>={cargo_receiver}</Value>
             <ZIndex>1</ZIndex>
             <Left>148.30pt</Left>
             <Top>76.60pt</Top>
@@ -729,7 +749,7 @@ WHERE
           <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>493.25pt</Width>
-            <Value>=Fields!client_inn.Value + '/' + Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({spectial_kpp}) = false, {spectial_kpp}, Fields!client_kpp.Value)</Value>
+            <Value>={inn_kpp}</Value>
             <ZIndex>1</ZIndex>
             <Left>148.3pt</Left>
             <Top>143.0pt</Top>

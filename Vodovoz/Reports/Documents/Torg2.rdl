@@ -12465,7 +12465,7 @@
         ' №',
         delivery_points.room
     ) AS room_str,
-    counterparty_contract.subnumber AS contract_number,
+    IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_number), counterparty.special_contract_number, CONCAT(counterparty.vod_internal_id, '-',counterparty_contract.subnumber)) AS contract_number,
     counterparty_contract.issue_date AS contract_date
 FROM
     order_documents
@@ -12530,7 +12530,7 @@ WHERE
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="document_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>

@@ -95,17 +95,21 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id, 
     orders.delivery_date AS order_date,
 
-    counterparty_contract.id AS contract_number,
+    IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_number), counterparty.special_contract_number, counterparty_contract.id) AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
     counterparty.full_name AS client_name, 
     counterparty.jur_address AS client_address, 
     counterparty.inn AS client_inn, 
+    CASE
+		WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', delivery_points.compiled_address_short)
+		WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
+	 ELSE CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(counterparty.payer_special_kpp, counterparty.kpp), ', ',counterparty.jur_address) END AS cargo_receiver,
     IFNULL(GROUP_CONCAT(CONCAT('+7 ', client_phones.number) SEPARATOR '; '), GROUP_CONCAT(CONCAT('+7 ', delivery_point_phones.number) SEPARATOR '; ')) AS client_phone_number,
     client_account.number AS client_acc_number,
     client_bank.name AS client_bank_name,
@@ -128,7 +132,7 @@ WHERE
     leader.last_name AS leader_last_name, 
     LEFT(leader.name, 1) AS leader_name, 
     LEFT(leader.patronymic, 1) AS leader_patronymic,
-    IF(counterparty.use_special_doc_fields, IF(counterparty.spectial_kpp IS NULL OR counterparty.spectial_kpp = '', delivery_points.KPP, counterparty.spectial_kpp), counterparty.kpp) AS KPP
+    IF(counterparty.use_special_doc_fields, IF(counterparty.payer_special_kpp IS NULL OR counterparty.payer_special_kpp = '', delivery_points.KPP, counterparty.payer_special_kpp), counterparty.kpp) AS KPP
 FROM 
     orders
     LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id
@@ -152,7 +156,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -259,6 +263,11 @@ WHERE
         </Field>
         <Field Name="KPP">
           <DataField>KPP</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="cargo_receiver">
+          <DataField>cargo_receiver</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -3125,7 +3134,13 @@ WHERE
       <Textbox Name="Textbox70" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>20.00pt</Height>
         <Width>555.75pt</Width>
-        <Value>=First({client_name}, "Order") + Iif(First({client_inn}, "Order") != null and First({client_inn}, "Order") != "", ", ИНН " + First({client_inn}, "Order"), "") + Iif(First({client_address}, "Order") != null and First({client_address}, "Order") != "", ", " + First({client_address}, "Order"), "") + Iif(First({client_phone_number}, "Order") != null and First({client_phone_number}, "Order") != "", ", тел: " + First({client_phone_number}, "Order"), "") + Iif(First({client_acc_number}, "Order") != null and First({client_acc_number}, "Order") != "", ", р/с " + First({client_acc_number}, "Order"), "") + Iif(First({client_bank_name}, "Order") != null and First({client_bank_name}, "Order")  != "", ", в банке " + First({client_bank_name}, "Order"), "") + Iif(First({client_bank_bik}, "Order") != null and First({client_bank_bik}, "Order") != "", ", БИК " + First({client_bank_bik}, "Order"), "") + Iif(First({client_bank_cor_account}, "Order") != null and First({client_bank_cor_account}, "Order") != "", ", к/с " + First({client_bank_cor_account}, "Order"), "")</Value>
+        <Value>=
+First({cargo_receiver}, "Order")
++ Iif(First({client_phone_number}, "Order") != null and First({client_phone_number}, "Order") != "", ", тел: " + First({client_phone_number}, "Order"), "") 
++ Iif(First({client_acc_number}, "Order") != null and First({client_acc_number}, "Order") != "", ", р/с " + First({client_acc_number}, "Order"), "") 
++ Iif(First({client_bank_name}, "Order") != null and First({client_bank_name}, "Order")  != "", ", в банке " + First({client_bank_name}, "Order"), "") 
++ Iif(First({client_bank_bik}, "Order") != null and First({client_bank_bik}, "Order") != "", ", БИК " + First({client_bank_bik}, "Order"), "") 
++ Iif(First({client_bank_cor_account}, "Order") != null and First({client_bank_cor_account}, "Order") != "", ", к/с " + First({client_bank_cor_account}, "Order"), "")</Value>
         <ZIndex>1</ZIndex>
         <Left>105.4pt</Left>
         <Top>83.3pt</Top>

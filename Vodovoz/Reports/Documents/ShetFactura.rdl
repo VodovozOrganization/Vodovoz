@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -49,7 +49,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -93,7 +93,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id, 
@@ -102,9 +102,13 @@ WHERE
     counterparty_contract.id AS contract_number, 
     DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
     counterparty.full_name AS client_name, 
-    counterparty.jur_address AS client_address, 
-    counterparty.inn AS client_inn, 
-    IF(counterparty.use_special_doc_fields, IFNULL(counterparty.spectial_kpp , delivery_points.KPP), counterparty.kpp) AS client_kpp,
+    counterparty.jur_address AS client_address,
+    CASE
+		WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', delivery_points.compiled_address_short)
+		WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
+	 ELSE CONCAT(counterparty.full_name, ', ', counterparty.jur_address) END AS cargo_receiver,
+    counterparty.inn AS client_inn,
+    IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp) AS client_kpp,
     IFNULL(GROUP_CONCAT(CONCAT('+7 ', client_phones.number) SEPARATOR '; '), GROUP_CONCAT(CONCAT('+7 ', delivery_point_phones.number) SEPARATOR '; ')) AS client_phone_number,
     client_account.number AS client_acc_number,
     client_bank.name AS client_bank_name,
@@ -152,7 +156,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -263,6 +267,10 @@ WHERE
         </Field>
         <Field Name="client_kpp">
           <DataField>client_kpp</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="cargo_receiver">
+          <DataField>cargo_receiver</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1915,7 +1923,7 @@ WHERE
           <Textbox Name="Textbox5">
             <Height>12.00pt</Height>
             <Width>650pt</Width>
-            <Value>="Грузополучатель и его адрес: " + {client_name} + ", " + {client_address}</Value>
+            <Value>="Грузополучатель и его адрес: " + {cargo_receiver}</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
             <Top>86.4pt</Top>
