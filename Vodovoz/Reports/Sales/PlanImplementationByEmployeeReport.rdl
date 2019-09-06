@@ -874,7 +874,7 @@ WHERE o.create_date BETWEEN @start_date AND @end_date
 	AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
 	AND o.author_employee_id = @employee_id
 	AND (items.nomenclature IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0)
-	AND a.status != 'Transfered'
+	AND !(a.status &lt;=&gt; 'Transfered')
 GROUP BY o.id
 ;</CommandText>
         <QueryParameters>
