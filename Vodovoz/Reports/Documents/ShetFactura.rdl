@@ -104,9 +104,10 @@ WHERE
     counterparty.full_name AS client_name, 
     counterparty.jur_address AS client_address,
     CASE
-		WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
+		WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', COMPILE_ADDRESS(delivery_points.id))
 		WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
 	 ELSE CONCAT(counterparty.full_name, ', ', counterparty.jur_address) END AS cargo_receiver,
+	 IF(counterparty.cargo_receiver_source = 'FromDeliveryPoint' AND !IS_NULL_OR_WHITESPACE(delivery_points.KPP), delivery_points.KPP, counterparty.kpp) AS cargo_receiver_kpp,
     counterparty.inn AS client_inn,
     IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp) AS client_kpp,
     IFNULL(GROUP_CONCAT(CONCAT('+7 ', client_phones.number) SEPARATOR '; '), GROUP_CONCAT(CONCAT('+7 ', delivery_point_phones.number) SEPARATOR '; ')) AS client_phone_number,
@@ -271,6 +272,10 @@ WHERE
         </Field>
         <Field Name="cargo_receiver">
           <DataField>cargo_receiver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="cargo_receiver_kpp">
+          <DataField>cargo_receiver_kpp</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1838,7 +1843,7 @@ WHERE
         <ZIndex>3</ZIndex>
       </List>
       <List Name="List1">
-        <Height>200.98pt</Height>
+        <Height>224.29pt</Height>
         <Width>665.76pt</Width>
         <Left>13.00pt</Left>
         <Top>0.00pt</Top>
@@ -1932,7 +1937,7 @@ WHERE
               <BorderColor />
               <BorderWidth />
             </Style>
-            <CanGrow >true</CanGrow>
+            <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox6">
             <Height>12.00pt</Height>
@@ -1940,7 +1945,7 @@ WHERE
             <Value>="К платежно-расчетному документу №       от"</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>98.4pt</Top>
+            <Top>112.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1952,8 +1957,8 @@ WHERE
             <Width>650.00pt</Width>
             <Value>="Покупатель: " + {client_name}</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>110.40pt</Top>
+            <Left>0.0pt</Left>
+            <Top>124.0pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>None</Bottom>
@@ -1973,7 +1978,7 @@ WHERE
             <Value>="Адрес: " + {client_address}</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>122.4pt</Top>
+            <Top>136.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1986,7 +1991,7 @@ WHERE
             <Value>="ИНН/КПП покупателя: " + {client_inn} + "/" + {client_kpp}</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>134.4pt</Top>
+            <Top>148.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1999,7 +2004,7 @@ WHERE
             <Value>Валюта: наименование, код Российский рубль, 643</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>171.2pt</Top>
+            <Top>184.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2042,7 +2047,7 @@ WHERE
             <Value>Идентификатор государственного контракта, договора (соглашения) (при наличии) - </Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>183.4pt</Top>
+            <Top>197.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2057,13 +2062,26 @@ WHERE
  + Iif(First({client_bank_bik}, "Order") != null and First({client_bank_bik}, "Order") != "", ", БИК " + First({client_bank_bik}, "Order"), "") 
  + Iif(First({client_bank_cor_account}, "Order") != null and First({client_bank_cor_account}, "Order") != "", ", к/с " + First({client_bank_cor_account}, "Order"), "")</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.80pt</Left>
-            <Top>149.60pt</Top>
+            <Left>0.8pt</Left>
+            <Top>163.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontSize>10pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox41" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.00pt</Height>
+            <Width>650pt</Width>
+            <Value>="ИНН/КПП грузополучателя: " + {client_inn} + "/" + {cargo_receiver_kpp}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>99.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
             </Style>
           </Textbox>
         </ReportItems>

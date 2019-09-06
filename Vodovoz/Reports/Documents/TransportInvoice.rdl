@@ -191,7 +191,7 @@
           </TableRows>
         </Details>
         <Left>8.0pt</Left>
-        <Top>29.4pt</Top>
+        <Top>30.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -2938,7 +2938,7 @@
       <Textbox Name="Textbox166" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>8.29pt</Height>
         <Width>425.94pt</Width>
-        <Value>=First({org_name}, "Order")</Value>
+        <Value>=First({organization_fullname}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>57.30pt</Left>
         <Top>281.5pt</Top>
@@ -3070,8 +3070,7 @@
       <Textbox Name="Textbox190" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>8.25pt</Height>
         <Width>392.19pt</Width>
-        <Value>
-        </Value>
+        <Value>=First({counterparty_fullname}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>91.05pt</Left>
         <Top>299.2pt</Top>
@@ -3083,7 +3082,7 @@
           <BorderWidth />
           <FontSize>6pt</FontSize>
           <VerticalAlign>Middle</VerticalAlign>
-          <TextAlign>Center</TextAlign>
+          <TextAlign>Left</TextAlign>
           <BackgroundColor>
           </BackgroundColor>
         </Style>
@@ -11863,10 +11862,10 @@
 			
 			#телефоны, выбирается только 2 первых
 			NULLIF(
-				IFNULL(
-					(SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.counterparty_id = counterparty.id),
-	                (SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.delivery_point_id = delivery_points.id)
-				), 
+				(SELECT REPLACE(phones.number, ' ', '') 
+				FROM phones 
+				WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
+				LIMIT 1) ,
 			''),
 			
 			CONCAT('р/с ', counterparty_accounts.number, ' в ', banks.name, ', БИК ', banks.bik, ', к/с ', banks_cor_accounts.cor_account_number)
