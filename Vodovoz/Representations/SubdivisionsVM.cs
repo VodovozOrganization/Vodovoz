@@ -52,17 +52,13 @@ namespace Vodovoz.Representations
 				.TransformUsing(Transformers.AliasToBean<SubdivisionVMNode>())
 				.List<SubdivisionVMNode>();
 
-			if(parentId.HasValue) {
+			if(WithLeveling) {
 				Result = allSubdivisionNodes.Where(s => s.ParentId == parentId).ToList();
+				foreach(var r in Result)
+					SetChildren(r);
 			} else {
 				Result = allSubdivisionNodes;
 			}
-
-			if(WithLeveling) {
-				foreach(var r in Result)
-					SetChildren(r);
-			}
-		
 			SetItemsSource(Result);
 		}
 
