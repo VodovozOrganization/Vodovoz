@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Gamma.ColumnConfig;
 using Gtk;
 using NHibernate;
@@ -6,15 +7,14 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModel
 {
+	[Obsolete("Используйте CounterpartyJournalViewModel")]
 	public class CounterpartyVM : RepresentationModelEntityBase<Counterparty, CounterpartyVMNode>
 	{
-
 		public CounterpartyFilter Filter {
 			get {
 				return RepresentationFilter as CounterpartyFilter;
