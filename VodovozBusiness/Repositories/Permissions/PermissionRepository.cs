@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using QS.Permissions;
 using QS.Project.Domain;
 using QSSupportLib;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Repositories.HumanResources;
 
@@ -59,11 +63,47 @@ namespace Vodovoz.Repositories.Permissions
 				.List();
 		}
 
-		public static IList<EntitySubdivisionOnlyPermission> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdivisionId)
+		public static IEnumerable<PermissionNode> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdivisionId, PermissionExtensionStore permissionExtensionFactory) //TODO : Вынести в фабрику (ну или в Helper) 
 		{
-			return uow.Session.QueryOver<EntitySubdivisionOnlyPermission>()
+			var basePermission = uow.Session.QueryOver<EntitySubdivisionOnlyPermission>()
 				.Where(x => x.Subdivision.Id == subdivisionId)
 				.List();
+
+			foreach(var item in basePermission) {
+				var node = new PermissionNode();
+				node.EntitySubdivisionOnlyPermission = item;
+				node.TypeOfEntity = item.TypeOfEntity;
+				node.EntityPermissionExtended = new SortedList<string, EntityPermissionExtended>(StringComparer.Ordinal);
+				foreach(var extension in permissionExtensionFactory.PermissionExtensions) 
+				{
+					Subdivision subdivisionAlias = null;
+					User userAlias = null;
+					EntityPermissionExtended permissionExtendedAlias = null;
+
+					var permission = uow.Session.QueryOver(() => permissionExtendedAlias)
+						.JoinAlias(x => x.User, () => userAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+						.JoinAlias(x => x.Subdivision, () => subdivisionAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+						.Where(x => subdivisionAlias.Id == subdivisionId)
+						.And(Restrictions.On(() => userAlias).IsNull)
+						.And(Restrictions.Eq(permissionExtendedAlias.PermissionId,extension.Key))
+						.Take(1).List()?.FirstOrDefault();
+
+					if(permission != null) {
+						node.EntityPermissionExtended.Add(permission.PermissionId, permission);
+						continue;
+					}
+
+					permission = new EntityPermissionExtended();
+					permission.IsPermissionAvailable = false;
+					permission.PermissionId = extension.Value.PermissionId;
+					permission.Subdivision = item.Subdivision;
+					permission.TypeOfEntity = item.TypeOfEntity;
+					//node.EntitySubdivisionEntityPermissionWidgetPermissionExtended.Add(permission.PermissionId, permission);
+				}
+
+				yield return node;
+			}
+
 		}
 
 		public static IList<EntitySubdivisionForUserPermission> GetAllSubdivisionForUserEntityPermissions(IUnitOfWork uow, int userId)
@@ -89,5 +129,12 @@ namespace Vodovoz.Repositories.Permissions
 				return userSubdivision.Id != restrictSubdivision;
 			}
 		}
+	}
+
+	public class PermissionNode
+	{
+		public TypeOfEntity TypeOfEntity { get; set; }
+		public EntitySubdivisionOnlyPermission EntitySubdivisionOnlyPermission { get; set; }
+		public SortedList<string,EntityPermissionExtended> EntityPermissionExtended { get; set; }
 	}
 }

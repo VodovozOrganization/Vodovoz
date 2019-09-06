@@ -694,6 +694,9 @@
     <Compile Include="Domain\WageCalculation\WageParameter.cs" />
     <Compile Include="EntityRepositories\WageCalculation\IWageParametersRepository.cs" />
     <Compile Include="EntityRepositories\WageCalculation\WageParametersRepository.cs" />
+    <Compile Include="Domain\Permissions\EntityPermissionExtended.cs" />
+    <Compile Include="PermissionExtensions\RetroactivelyClosePermission.cs" />
+    <Compile Include="HibernateMapping\Permissions\EntityPermissionExtendedMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -758,6 +761,7 @@
     <Folder Include="HibernateMapping\WageCalculation\" />
     <Folder Include="Domain\WageCalculation\" />
     <Folder Include="EntityRepositories\WageCalculation\" />
+    <Folder Include="PermissionExtensions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

@@ -1294,6 +1294,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageParameterView.cs" />
     <Compile Include="ReportsParameters\PlanImplementationReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PlanImplementationReport.cs" />
+    <Compile Include="Core\Permissions\PermissionExtensionStore.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
