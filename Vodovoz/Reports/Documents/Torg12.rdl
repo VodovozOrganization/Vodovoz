@@ -106,10 +106,31 @@ WHERE
     counterparty.full_name AS client_name, 
     counterparty.jur_address AS client_address, 
     counterparty.inn AS client_inn, 
-    CASE
+    
+    IF(counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields,
+		counterparty.special_cargo_receiver,	
+		CONCAT_WS(', ',	
+			CASE
+				WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
+				#WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
+		   ELSE CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', counterparty.kpp, ', ',  counterparty.jur_address) END,
+			
+			#телефоны, выбирается только 2 первых
+			NULLIF(
+				IFNULL(
+					(SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.counterparty_id = counterparty.id),
+	                (SELECT SUBSTRING_INDEX(GROUP_CONCAT(DISTINCT REPLACE(phones.number, ' ', '') SEPARATOR ', '), ',', 2) FROM phones WHERE phones.delivery_point_id = delivery_points.id)
+				), 
+			''),
+			
+			CONCAT('р/с ', client_account.number, ' в ', client_bank.name, ', БИК ', client_bank.bik, ', к/с ', client_bank_cor_accounts.cor_account_number)
+		)
+	 )
+    
+    /*CASE
 		WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', delivery_points.compiled_address_short)
 		WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
-	 ELSE CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(counterparty.payer_special_kpp, counterparty.kpp), ', ',counterparty.jur_address) END AS cargo_receiver,
+	 ELSE CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(counterparty.payer_special_kpp, counterparty.kpp), ', ',counterparty.jur_address) END*/ AS cargo_receiver,
     IFNULL(GROUP_CONCAT(CONCAT('+7 ', client_phones.number) SEPARATOR '; '), GROUP_CONCAT(CONCAT('+7 ', delivery_point_phones.number) SEPARATOR '; ')) AS client_phone_number,
     client_account.number AS client_acc_number,
     client_bank.name AS client_bank_name,
@@ -132,7 +153,7 @@ WHERE
     leader.last_name AS leader_last_name, 
     LEFT(leader.name, 1) AS leader_name, 
     LEFT(leader.patronymic, 1) AS leader_patronymic,
-    IF(counterparty.use_special_doc_fields, IF(counterparty.payer_special_kpp IS NULL OR counterparty.payer_special_kpp = '', delivery_points.KPP, counterparty.payer_special_kpp), counterparty.kpp) AS KPP
+    IF(counterparty.use_special_doc_fields, IF(!IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp), counterparty.kpp) AS KPP
 FROM 
     orders
     LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id
@@ -145,8 +166,9 @@ FROM
     LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id
     LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id
     LEFT JOIN banks org_bank ON org_bank.id = org_account.bank_id
-    LEFT JOIN accounts client_account ON client_account.id = counterparty.default_account_id
+    LEFT JOIN accounts client_account ON client_account.counterparty_id = counterparty.id AND client_account.is_default
     LEFT JOIN banks client_bank ON client_bank.id = client_account.bank_id
+    LEFT JOIN banks_cor_accounts client_bank_cor_accounts ON client_account.bank_cor_account_id = client_bank_cor_accounts.id
 WHERE 
     counterparty_contract.id=orders.counterparty_contract_id
     AND orders.id = @order_id;</CommandText>
@@ -3135,12 +3157,7 @@ WHERE
         <Height>20.00pt</Height>
         <Width>555.75pt</Width>
         <Value>=
-First({cargo_receiver}, "Order")
-+ Iif(First({client_phone_number}, "Order") != null and First({client_phone_number}, "Order") != "", ", тел: " + First({client_phone_number}, "Order"), "") 
-+ Iif(First({client_acc_number}, "Order") != null and First({client_acc_number}, "Order") != "", ", р/с " + First({client_acc_number}, "Order"), "") 
-+ Iif(First({client_bank_name}, "Order") != null and First({client_bank_name}, "Order")  != "", ", в банке " + First({client_bank_name}, "Order"), "") 
-+ Iif(First({client_bank_bik}, "Order") != null and First({client_bank_bik}, "Order") != "", ", БИК " + First({client_bank_bik}, "Order"), "") 
-+ Iif(First({client_bank_cor_account}, "Order") != null and First({client_bank_cor_account}, "Order") != "", ", к/с " + First({client_bank_cor_account}, "Order"), "")</Value>
+First({cargo_receiver}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>105.4pt</Left>
         <Top>83.3pt</Top>

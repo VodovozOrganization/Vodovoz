@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -49,7 +49,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -104,7 +104,7 @@ WHERE
     counterparty.full_name AS client_name, 
     counterparty.jur_address AS client_address,
     CASE
-		WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', delivery_points.compiled_address_short)
+		WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
 		WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
 	 ELSE CONCAT(counterparty.full_name, ', ', counterparty.jur_address) END AS cargo_receiver,
     counterparty.inn AS client_inn,
@@ -1839,7 +1839,7 @@ WHERE
       </List>
       <List Name="List1">
         <Height>200.98pt</Height>
-        <Width>648.51pt</Width>
+        <Width>665.76pt</Width>
         <Left>13.00pt</Left>
         <Top>0.00pt</Top>
         <Style>
@@ -1932,6 +1932,7 @@ WHERE
               <BorderColor />
               <BorderWidth />
             </Style>
+            <CanGrow >true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox6">
             <Height>12.00pt</Height>
