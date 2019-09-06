@@ -54,7 +54,12 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>='Отчёт о выполнении плана продаж' + Iif({?start_date} = {?end_date}, ' за ' + Format(CDate({?start_date}), "dd.MM.yy"), ' с ' + Format(CDate({?start_date}), "dd.MM.yy") + ' по ' + Format(CDate({?end_date}), "dd.MM.yy"))</Value>
+                      <Value>='Отчёт о выполнении плана продаж' 
+    + Iif(
+        Format(CDate({?start_date}), "dd.MM.yy") = Format(CDate({?end_date}), "dd.MM.yy"), 
+        ' за ' + Format(CDate({?start_date}), "dd.MM.yy"),
+        ' с ' + Format(CDate({?start_date}), "dd.MM.yy") + ' по ' + Format(CDate({?end_date}), "dd.MM.yy")
+        )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -406,7 +411,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -464,7 +469,7 @@ WHERE w.wage_calc_type = 'salesPlan'
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
