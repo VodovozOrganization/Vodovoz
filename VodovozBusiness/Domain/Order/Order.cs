@@ -2914,7 +2914,7 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatus(OrderStatus.Closed);
-					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository());
+					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository(),incomeCash, expenseCash);
 				} else
 					ChangeStatus(OrderStatus.OnLoading);
 
@@ -2928,12 +2928,12 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Проверяет полностью ли оплачен самовывоз и возвращены все деньги
 		/// </summary>
-		public virtual bool SelfDeliveryIsFullyPaid(ICashRepository cashRepository)
+		public virtual bool SelfDeliveryIsFullyPaid(ICashRepository cashRepository, decimal incomeCash = 0, decimal expenseCash = 0)
 		{
 			if(cashRepository == null)
 				throw new ArgumentNullException(nameof(cashRepository));
 
-			decimal totalCash = GetSelfDeliveryTotalPayedCash(cashRepository);
+			decimal totalCash = GetSelfDeliveryTotalPayedCash(cashRepository) + incomeCash - expenseCash;
 
 			return OrderCashSum == totalCash;
 		}
@@ -3251,7 +3251,7 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Создание операций перемещения бутылей для заказов без доставки
 		/// </summary>
-		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ICashRepository cashRepository)
+		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ICashRepository cashRepository, decimal incomeCash = 0, decimal expenseCash = 0)
 		{
 			if(routeListItemRepository == null)
 				throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -3275,7 +3275,7 @@ namespace Vodovoz.Domain.Orders
 
 			int forfeitQuantity = 0;
 
-			if(SelfDeliveryIsFullyPaid(cashRepository))
+			if(!SelfDelivery || SelfDeliveryIsFullyPaid(cashRepository, incomeCash, expenseCash))
 				forfeitQuantity = OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
 											.Select(i => i.ActualCount.Value)
 											.Sum();
