@@ -817,7 +817,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT 
@@ -868,6 +868,7 @@ LEFT JOIN (
 	WHERE o.create_date BETWEEN @start_date AND @end_date
 		AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
 		AND o.author_employee_id = @employee_id
+		AND !o.is_contract_closer
 		AND n.category = 'water' AND n.tare_volume = 'Vol19L'
 ) AS items ON o.id = items.order_id
 LEFT JOIN employees auth ON auth.id = o.author_employee_id
@@ -879,6 +880,7 @@ LEFT JOIN employees e ON e.id = rl.driver_id
 WHERE o.create_date BETWEEN @start_date AND @end_date
 	AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
 	AND o.author_employee_id = @employee_id
+	AND !o.is_contract_closer
 	AND (items.nomenclature IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0)
 	AND !(a.status &lt;=&gt; 'Transfered')
 GROUP BY o.id
@@ -895,7 +897,7 @@ GROUP BY o.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
