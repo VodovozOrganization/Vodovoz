@@ -17,12 +17,12 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT		
 	distr.district_name AS d_name,		
-	IF(HOUR(dsch.to_time) &lt; 13, COUNT(DISTINCT o.id), NULL) AS orders_before_13,
-	IF(HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18, COUNT(DISTINCT o.id), NULL) AS orders_between_13_18,
-	IF(HOUR(dsch.to_time) &gt; 18, COUNT(DISTINCT o.id), NULL) AS orders_after_18,
-	IF(HOUR(dsch.to_time) &lt; 13, SUM(IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, null)), NULL) AS bottles_before_13,
-	IF(HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18, SUM(IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, null)), NULL) AS bottles_between_13_18,
-	IF(HOUR(dsch.to_time) &gt; 18,SUM(IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, null)), NULL) AS bottles_after_18,
+	NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &lt; 13,  o.id, NULL)), 0) AS orders_before_13,
+	NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18, o.id, NULL)),0) AS orders_between_13_18,
+	NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &gt; 18, o.id, NULL)),0) AS orders_after_18,
+	NULLIF(SUM(IF(HOUR(dsch.to_time) &lt; 13, IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)),0) AS bottles_before_13,
+	NULLIF(SUM(IF(HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18, IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)),0) AS bottles_between_13_18,
+	NULLIF(SUM(IF(HOUR(dsch.to_time) &gt; 18,IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)),0) AS bottles_after_18,
 	COUNT(DISTINCT o.id) AS total_orders_count,
 	SUM(IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, NULL)) AS total_bottles_count,
 	HOUR(dsch.to_time) AS delivery_schedule
