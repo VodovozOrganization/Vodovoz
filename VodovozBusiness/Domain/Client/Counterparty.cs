@@ -445,11 +445,11 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref contractNumber, value, () => SpecialContractNumber);
 		}
 
-		string specialKPP;
-		[Display(Name = "Особый КПП")]
-		public virtual string SpecialKPP {
-			get => specialKPP;
-			set => SetField(ref specialKPP, value, () => SpecialKPP);
+		string payerSpecialKPP;
+		[Display(Name = "Особый КПП плательщика")]
+		public virtual string PayerSpecialKPP {
+			get => payerSpecialKPP;
+			set => SetField(ref payerSpecialKPP, value, () => PayerSpecialKPP);
 		}
 
 		string cargoReceiver;
@@ -508,11 +508,11 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref okdp, value, () => OKDP);
 		}
 
-		KppFrom kppFrom;
-		[Display(Name = "Источник КПП")]
-		public virtual KppFrom KppFrom {
-			get => kppFrom;
-			set => SetField(ref kppFrom, value, () => KppFrom);
+		CargoReceiverSource cargoReceiverSource;
+		[Display(Name = "Источник грузополучателя")]
+		public virtual CargoReceiverSource CargoReceiverSource {
+			get => cargoReceiverSource;
+			set => SetField(ref cargoReceiverSource, value, () => CargoReceiverSource);
 		}
 
 		IList<SpecialNomenclature> specialNomenclatures = new List<SpecialNomenclature>();
@@ -596,7 +596,7 @@ namespace Vodovoz.Domain.Client
 			get {
 				bool result = false;
 				CheckSpecialField(ref result, SpecialContractNumber);
-				CheckSpecialField(ref result, SpecialKPP);
+				CheckSpecialField(ref result, PayerSpecialKPP);
 				CheckSpecialField(ref result, CargoReceiver);
 				CheckSpecialField(ref result, SpecialCustomer);
 				CheckSpecialField(ref result, GovContract);
@@ -756,11 +756,15 @@ namespace Vodovoz.Domain.Client
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(CargoReceiverSource == CargoReceiverSource.Special && string.IsNullOrWhiteSpace(CargoReceiver)) {
+				yield return new ValidationResult("Если выбран особый грузополучатель, необходимо ввести данные о нем");
+			}
+
 			if(CheckForINNDuplicate()) {
 				yield return new ValidationResult("Контрагент с данным ИНН уже существует.",
 												  new[] { this.GetPropertyName(o => o.INN) });
 			}
-			if(UseSpecialDocFields && SpecialKPP != null && SpecialKPP.Length != 9) {
+			if(UseSpecialDocFields && PayerSpecialKPP != null && PayerSpecialKPP.Length != 9) {
 				yield return new ValidationResult("Длина КПП для документов должна равнятся 9-ти.",
 						new[] { this.GetPropertyName(o => o.KPP) });
 			}
@@ -893,12 +897,19 @@ namespace Vodovoz.Domain.Client
 		public ChequeResponseStringType() : base(typeof(ChequeResponse)) { }
 	}
 
-	public enum KppFrom
+	public enum CargoReceiverSource
 	{
-		[Display(Name = "Точка доставки")]
-		DelivryPoint,
-		[Display(Name = "Контрагент")]
-		Counterparty
+		[Display(Name = "Из контрагента")]
+		FromCounterparty,
+		[Display(Name = "Из точки доставки")]
+		FromDeliveryPoint,
+		[Display(Name = "Особый")]
+		Special
+	}
+
+	public class CargoReceiverTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public CargoReceiverTypeStringType() : base(typeof(CargoReceiverSource)) { }
 	}
 
 	#region Для уровневого отображения цен поставщика

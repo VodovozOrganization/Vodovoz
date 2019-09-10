@@ -54,7 +54,12 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>='Отчёт о выполнении плана продаж' + Iif({?start_date} = {?end_date}, ' за ' + Format(CDate({?start_date}), "dd.MM.yy"), ' с ' + Format(CDate({?start_date}), "dd.MM.yy") + ' по ' + Format(CDate({?end_date}), "dd.MM.yy"))</Value>
+                      <Value>='Отчёт о выполнении плана продаж' 
+    + Iif(
+        Format(CDate({?start_date}), "dd.MM.yy") = Format(CDate({?end_date}), "dd.MM.yy"), 
+        ' за ' + Format(CDate({?start_date}), "dd.MM.yy"),
+        ' с ' + Format(CDate({?start_date}), "dd.MM.yy") + ' по ' + Format(CDate({?end_date}), "dd.MM.yy")
+        )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -441,13 +446,16 @@ LEFT JOIN (
 		LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
 		WHERE o.create_date BETWEEN @start_date AND @end_date
 			AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
+			AND !o.is_contract_closer
 			AND n.category = 'water' AND n.tare_volume = 'Vol19L'
 		GROUP BY o.id
 	) AS items ON o.id = items.order_id
 	LEFT JOIN route_list_addresses a ON a.order_id = o.id
 	WHERE o.create_date BETWEEN @start_date AND @end_date
 		AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
+		AND !o.is_contract_closer
 		AND (items.nom_id IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0)
+		AND !(a.status &lt;=&gt; 'Transfered')
 	GROUP BY o.author_employee_id
 ) AS sold ON sold.employee_id = e.id
 WHERE w.wage_calc_type = 'salesPlan'

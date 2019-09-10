@@ -18,6 +18,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "документы перемещения ТМЦ",
 		Nominative = "документ перемещения ТМЦ")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class MovementDocument : Document, IValidatableObject
 	{
 		MovementDocumentCategory category;

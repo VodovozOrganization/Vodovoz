@@ -95,18 +95,43 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id, 
     orders.delivery_date AS order_date,
 
-    counterparty_contract.id AS contract_number,
+    IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_number), counterparty.special_contract_number, counterparty_contract.id) AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
     counterparty.full_name AS client_name, 
     counterparty.jur_address AS client_address, 
     counterparty.inn AS client_inn, 
-    IFNULL(GROUP_CONCAT(CONCAT('+7 ', client_phones.number) SEPARATOR '; '), GROUP_CONCAT(CONCAT('+7 ', delivery_point_phones.number) SEPARATOR '; ')) AS client_phone_number,
+    
+    IF(counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields,
+		counterparty.special_cargo_receiver,	
+		CONCAT_WS(', ',	
+			CASE
+				WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
+				#WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
+		   ELSE CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', counterparty.kpp, ', ',  counterparty.jur_address) END,
+			
+			#телефоны, выбирается только 2 первых
+			NULLIF(
+				(SELECT REPLACE(phones.number, ' ', '') 
+				FROM phones 
+				WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
+				LIMIT 1) ,
+			''),
+			
+			CONCAT('р/с ', client_account.number, ' в ', client_bank.name, ', БИК ', client_bank.bik, ', к/с ', client_bank_cor_accounts.cor_account_number)
+		)
+	 ) AS cargo_receiver,
+    NULLIF(
+			(SELECT REPLACE(phones.number, ' ', '') 
+			FROM phones 
+			WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
+			LIMIT 1) ,
+		'') AS client_phone_number,
     client_account.number AS client_acc_number,
     client_bank.name AS client_bank_name,
     client_bank.bik AS client_bank_bik,
@@ -128,7 +153,7 @@ WHERE
     leader.last_name AS leader_last_name, 
     LEFT(leader.name, 1) AS leader_name, 
     LEFT(leader.patronymic, 1) AS leader_patronymic,
-    IF(counterparty.use_special_doc_fields, IF(counterparty.spectial_kpp IS NULL OR counterparty.spectial_kpp = '', delivery_points.KPP, counterparty.spectial_kpp), counterparty.kpp) AS KPP
+    IF(counterparty.use_special_doc_fields, IF(!IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp), counterparty.kpp) AS KPP
 FROM 
     orders
     LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id
@@ -141,18 +166,20 @@ FROM
     LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id
     LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id
     LEFT JOIN banks org_bank ON org_bank.id = org_account.bank_id
-    LEFT JOIN accounts client_account ON client_account.id = counterparty.default_account_id
+    LEFT JOIN accounts client_account ON client_account.counterparty_id = counterparty.id AND client_account.is_default
     LEFT JOIN banks client_bank ON client_bank.id = client_account.bank_id
+    LEFT JOIN banks_cor_accounts client_bank_cor_accounts ON client_account.bank_cor_account_id = client_bank_cor_accounts.id
 WHERE 
     counterparty_contract.id=orders.counterparty_contract_id
-    AND orders.id = @order_id;</CommandText>
+    AND orders.id = @order_id
+GROUP BY orders.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -259,6 +286,11 @@ WHERE
         </Field>
         <Field Name="KPP">
           <DataField>KPP</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="cargo_receiver">
+          <DataField>cargo_receiver</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -3125,7 +3157,8 @@ WHERE
       <Textbox Name="Textbox70" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>20.00pt</Height>
         <Width>555.75pt</Width>
-        <Value>=First({client_name}, "Order") + Iif(First({client_inn}, "Order") != null and First({client_inn}, "Order") != "", ", ИНН " + First({client_inn}, "Order"), "") + Iif(First({client_address}, "Order") != null and First({client_address}, "Order") != "", ", " + First({client_address}, "Order"), "") + Iif(First({client_phone_number}, "Order") != null and First({client_phone_number}, "Order") != "", ", тел: " + First({client_phone_number}, "Order"), "") + Iif(First({client_acc_number}, "Order") != null and First({client_acc_number}, "Order") != "", ", р/с " + First({client_acc_number}, "Order"), "") + Iif(First({client_bank_name}, "Order") != null and First({client_bank_name}, "Order")  != "", ", в банке " + First({client_bank_name}, "Order"), "") + Iif(First({client_bank_bik}, "Order") != null and First({client_bank_bik}, "Order") != "", ", БИК " + First({client_bank_bik}, "Order"), "") + Iif(First({client_bank_cor_account}, "Order") != null and First({client_bank_cor_account}, "Order") != "", ", к/с " + First({client_bank_cor_account}, "Order"), "")</Value>
+        <Value>=
+First({cargo_receiver}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>105.4pt</Left>
         <Top>83.3pt</Top>
@@ -3137,6 +3170,7 @@ WHERE
           <BorderWidth />
           <FontSize>7.5pt</FontSize>
         </Style>
+        <CanGrow >true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox75" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>20.00pt</Height>
@@ -3160,6 +3194,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BorderWidth />
           <FontSize>7.5pt</FontSize>
         </Style>
+        <CanGrow >true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox89" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>20.00pt</Height>
@@ -3235,14 +3270,15 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BorderWidth />
           <FontSize>7.5pt</FontSize>
         </Style>
+        <CanGrow >true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox139" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>20.00pt</Height>
+        <Height>13.25pt</Height>
         <Width>94.50pt</Width>
         <Value>Основание</Value>
         <ZIndex>1</ZIndex>
         <Left>10.6pt</Left>
-        <Top>135.3pt</Top>
+        <Top>145.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3259,7 +3295,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
         <Value>="по договору " + First({contract_number}, "Order") + " от " + First({contract_date}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>105.4pt</Left>
-        <Top>143.3pt</Top>
+        <Top>146.5pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -3268,14 +3304,15 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BorderWidth />
           <FontSize>10pt</FontSize>
         </Style>
+        <CanGrow >true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox145" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>9.76pt</Height>
+        <Height>9.01pt</Height>
         <Width>555.75pt</Width>
         <Value>договор, заказ-наряд</Value>
         <ZIndex>1</ZIndex>
-        <Left>105.4pt</Left>
-        <Top>155.3pt</Top>
+        <Left>105.40pt</Left>
+        <Top>160.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

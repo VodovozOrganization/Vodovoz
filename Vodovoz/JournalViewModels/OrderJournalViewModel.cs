@@ -147,15 +147,9 @@ namespace Vodovoz.JournalViewModels
 				() => orderAlias.Id,
 				() => counterpartyAlias.Name,
 				() => deliveryPointAlias.CompiledAddress,
-				() => authorAlias.Name,
 				() => authorAlias.LastName,
-				() => authorAlias.Patronymic,
-				() => lastEditorAlias.Name,
-				() => lastEditorAlias.LastName,
-				() => lastEditorAlias.Patronymic,
 				() => orderAlias.DriverCallId,
-				() => orderAlias.OnlineOrder,
-				() => orderAlias.Id
+				() => orderAlias.OnlineOrder
 			));
 
 			var resultQuery = query
