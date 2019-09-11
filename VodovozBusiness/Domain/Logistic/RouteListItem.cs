@@ -261,14 +261,12 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref forwarderWage, value, () => ForwarderWage);
 		}
 
-		decimal forwarderWageSurcharge;
+		decimal forwarderWageSurcharge;//не используется пока почему-то
 		[Display(Name = "Надбавка к ЗП экспедитора")]
 		public virtual decimal ForwarderWageSurcharge {
 			get => forwarderWageSurcharge;
 			set => SetField(ref forwarderWageSurcharge, value, () => ForwarderWageSurcharge);
 		}
-
-		public virtual decimal ForwarderWageTotal { get { return ForwarderWage + ForwarderWageSurcharge; } }
 
 		[Display(Name = "Оповещение за 30 минут")]
 		[IgnoreHistoryTrace]
@@ -520,12 +518,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal CalculateWage(Wages.Rates rates)
 		{
-			var firstOrderForAddress = RouteList.Addresses.Where(address => address.IsDelivered())
-														  .Select(item => item.Order)
-														  .First(ord => ord.DeliveryPoint?.Id == Order.DeliveryPoint?.Id)
-														  .Id == Order.Id;
+			//если много заказов на одну точку доставки, то оплата только один раз (оплата один раз за 1 адрес)
+			var isFirstOrderForAddress = RouteList.Addresses.Where(address => address.IsDelivered())
+															.Select(item => item.Order)
+															.First(ord => ord.DeliveryPoint?.Id == Order.DeliveryPoint?.Id)
+															.Id == Order.Id;
 
-			var paymentForAddress = firstOrderForAddress ? rates.PaymentPerAddress : 0;
+			var paymentForAddress = isFirstOrderForAddress ? rates.PaymentPerAddress : 0;
 
 			var fullBottleCount = Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
 												  .Sum(item => item.ActualCount ?? 0);
@@ -533,25 +532,25 @@ namespace Vodovoz.Domain.Logistic
 			var smallBottleCount = Order.OrderItems.Where(item => Regex.Match(item.Nomenclature.Name, @".*(0[\.,]6).*").Length > 0)
 												   .Sum(item => item.ActualCount ?? 0);
 
-			bool largeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
+			bool isLargeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
 
-			var bottleCollectionOrder = Order.CollectBottles;
-
-			decimal paymentPerEmptyBottle = largeOrder
+			decimal paymentPerEmptyBottle = isLargeOrder
 				? rates.LargeOrderEmptyBottleRate
 				: rates.EmptyBottleRate;
-			var largeFullBottlesPayment = largeOrder
+			var largeFullBottlesPayment = isLargeOrder
 				? fullBottleCount * rates.LargeOrderFullBottleRate
 				: fullBottleCount * rates.FullBottleRate;
 
 			var smallBottlePayment = Math.Truncate(smallBottleCount * rates.SmallBottleRate / 36);
 
-			var payForEquipment = fullBottleCount == 0
-				&& (Order.OrderEquipments.Any(item => item.Direction == Direction.Deliver && item.Confirmed) || bottleCollectionOrder);
-			var equpmentPayment = payForEquipment ? rates.CoolerRate : 0;
+			var isOrderForBottlesPickup = Order.CollectBottles;//выпилить? типа заказ по рассторжению договора и забору бутылей.
 
-			var contractCancelationPayment = bottleCollectionOrder ? rates.ContractCancelationRate : 0;
-			var emptyBottlesPayment = bottleCollectionOrder ? 0 : paymentPerEmptyBottle * bottlesReturned;
+			var isEquipmentDeliveryPayment = fullBottleCount == 0
+				&& (Order.OrderEquipments.Any(item => item.Direction == Direction.Deliver && item.Confirmed) || isOrderForBottlesPickup);
+			var equpmentPayment = isEquipmentDeliveryPayment ? rates.CoolerRate : 0;
+
+			var contractCancelationPayment = isOrderForBottlesPickup ? rates.ContractCancelationRate : 0;
+			var emptyBottlesPayment = isOrderForBottlesPickup ? 0 : paymentPerEmptyBottle * bottlesReturned;
 			var smallFullBottlesPayment =
 				rates.SmallFullBottleRate * Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol6L)
 															.Sum(item => item.ActualCount ?? 0);
@@ -562,7 +561,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var payForEquipmentShort = fullBottleCount == 0
 				&& (!string.IsNullOrWhiteSpace(Order.EquipmentsToClient)
-					|| bottleCollectionOrder
+					|| isOrderForBottlesPickup
 					|| Order.OrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.additional)
 									   .Any(i => i.ActualCount.HasValue && i.ActualCount > 0)
 				);
@@ -571,8 +570,7 @@ namespace Vodovoz.Domain.Logistic
 			wage += equpmentPaymentShort;
 
 			// Расчет зарплаты если в заказе указано расторжение
-			if(Order.ToClientText?.ToLower().Contains("раст") == true
-				&& this.routeList.Date > new DateTime(2018, 1, 10)) {
+			if(Order.ToClientText?.ToLower().Contains("раст") == true && RouteList.Date > new DateTime(2018, 1, 10)) {
 				wage = rates.PaymentWithRast;
 			}
 
@@ -749,10 +747,6 @@ namespace Vodovoz.Domain.Logistic
 			}
 			return null;
 		}
-
-		public virtual void SetDriversWage(decimal wage) => this.DriverWage = wage;
-
-		public virtual void SetForwardersWage(decimal wage) => this.ForwarderWage = wage;
 
 		#endregion
 

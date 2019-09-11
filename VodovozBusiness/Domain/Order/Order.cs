@@ -1594,9 +1594,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddEquipmentNomenclatureToClient(Nomenclature nomenclature, IUnitOfWork UoW)
 		{
-			if(!nomenclature.IsSerial) {
-				ObservableOrderEquipments.Add(new OrderEquipment {
-
+			ObservableOrderEquipments.Add(
+				new OrderEquipment {
 					Order = this,
 					Direction = Direction.Deliver,
 					Equipment = null,
@@ -1604,16 +1603,15 @@ namespace Vodovoz.Domain.Orders
 					Reason = Reason.Service,
 					Confirmed = true,
 					Nomenclature = nomenclature
-				});
-			}
+				}
+			);
 			UpdateDocuments();
 		}
 
 		public virtual void AddEquipmentNomenclatureFromClient(Nomenclature nomenclature, IUnitOfWork UoW)
 		{
-			if(!nomenclature.IsSerial) {
-				ObservableOrderEquipments.Add(new OrderEquipment {
-
+			ObservableOrderEquipments.Add(
+				new OrderEquipment {
 					Order = this,
 					Direction = Direction.PickUp,
 					Equipment = null,
@@ -1621,8 +1619,8 @@ namespace Vodovoz.Domain.Orders
 					Reason = Reason.Service,
 					Confirmed = true,
 					Nomenclature = nomenclature
-				});
-			}
+				}
+			);
 			UpdateDocuments();
 		}
 
