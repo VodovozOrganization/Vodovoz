@@ -143,12 +143,12 @@ namespace Vodovoz.ViewModels.Employees
 			base.BeforeSave();
 		}
 
-		public override bool Save()
+		public override bool Save(bool close)
 		{
 			if(Entity.Author == null) {
 				Entity.Author = CurrentEmployee;
 			}
-			return base.Save();
+			return base.Save(close);
 		}
 
 		#region Commands
