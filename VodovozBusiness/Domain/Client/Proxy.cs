@@ -8,8 +8,6 @@ using QS.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSOrmProject;
-using QSValidation.Attributes;
 
 namespace Vodovoz.Domain.Client
 {
@@ -51,7 +49,6 @@ namespace Vodovoz.Domain.Client
 		private DateTime issueDate;
 
 		[Display(Name = "Дата подписания")]
-		[DateRequired (ErrorMessage = "Дата доверености должна быть указана.")]
 		public virtual DateTime IssueDate
 		{
 			get { return issueDate; }
@@ -70,7 +67,6 @@ namespace Vodovoz.Domain.Client
 		private DateTime expirationDate;
 
 		[Display (Name = "Окончание действия")]
-		[DateRequired(ErrorMessage = "Дата окончания доверености должна быть указана.")]
 		public virtual DateTime ExpirationDate
 		{
 			get { return expirationDate; }
@@ -124,7 +120,13 @@ namespace Vodovoz.Domain.Client
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if (StartDate != default(DateTime) && StartDate < IssueDate)
+			if(IssueDate == default(DateTime)) {
+				yield return new ValidationResult("Дата доверености должна быть указана.");
+			}
+			if(ExpirationDate == default(DateTime)) {
+				yield return new ValidationResult("Дата окончания доверености должна быть указана.");
+			}
+			if(StartDate != default(DateTime) && StartDate < IssueDate)
 				yield return new ValidationResult ("Нельзя установить дату начала действия доверенности раньше даты ее выдачи.",
 					new[] { this.GetPropertyName (o => o.StartDate), this.GetPropertyName (o => o.IssueDate) });
 			if(ExpirationDate != default(DateTime) && ExpirationDate < StartDate)
