@@ -9,9 +9,9 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Report;
+using QS.Validation;
 using QSProjectsLib;
 using QSSupportLib;
-using QSValidation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -916,14 +916,19 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.Closed: break;
 					case RouteListStatus.MileageCheck:
 						foreach(var address in Addresses) {
-							var valid = new QSValidator<Order>(
+							var orderValidator = new ObjectValidator();
+							orderValidator.Validate(
 									address.Order,
-									new Dictionary<object, object> {
-										{ "NewStatus", OrderStatus.Closed }
-									}
+									new ValidationContext(
+										address.Order,
+										null,
+										new Dictionary<object, object> {
+											{ "NewStatus", OrderStatus.Closed }
+										}
+									)
 								);
 
-							foreach(var result in valid.Results)
+							foreach(var result in orderValidator.Results)
 								yield return result;
 						}
 						break;

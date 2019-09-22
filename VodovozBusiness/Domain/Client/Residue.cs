@@ -211,8 +211,8 @@ namespace Vodovoz.Domain.Client
 				throw new ArgumentNullException(nameof(validationService));
 			}
 
-			var validator = validationService.GetValidator(this);
-			if(!validator.Validate()) {
+			var validator = validationService.GetValidator();
+			if(!validator.Validate(this)) {
 				return;
 			}
 
