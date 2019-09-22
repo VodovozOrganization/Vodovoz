@@ -14,7 +14,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Logistic;

@@ -9,7 +9,7 @@ using QS.Print;
 using QS.Report;
 using QSOrmProject;
 using QSReport;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;

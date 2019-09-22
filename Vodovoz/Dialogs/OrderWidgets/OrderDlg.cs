@@ -34,7 +34,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using QSSupportLib;
-using QSValidation;
+using QS.Validation.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;

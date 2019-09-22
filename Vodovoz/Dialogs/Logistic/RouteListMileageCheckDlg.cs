@@ -7,7 +7,7 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;

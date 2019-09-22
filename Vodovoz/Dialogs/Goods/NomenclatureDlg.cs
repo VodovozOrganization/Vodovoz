@@ -9,7 +9,7 @@ using QS.Project.Dialogs;
 using QS.BusinessCommon.Domain;
 using QSOrmProject;
 using QS.Project.Repositories;
-using QSValidation;
+using QS.Validation.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain;

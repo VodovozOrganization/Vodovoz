@@ -12,7 +12,7 @@ using QS.Project.Repositories;
 using QSOrmProject;
 using QSProjectsLib;
 using QSSupportLib;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;

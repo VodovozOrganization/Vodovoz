@@ -16,7 +16,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QSOrmProject;
 using QSProjectsLib;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;

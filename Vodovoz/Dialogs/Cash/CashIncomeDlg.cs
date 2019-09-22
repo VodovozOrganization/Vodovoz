@@ -7,7 +7,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
 using QS.Project.Repositories;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;

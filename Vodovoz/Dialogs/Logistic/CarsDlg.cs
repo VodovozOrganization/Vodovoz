@@ -6,7 +6,7 @@ using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSOrmProject;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;

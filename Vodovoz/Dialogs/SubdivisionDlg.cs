@@ -6,7 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QSOrmProject;
 using QSProjectsLib;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Representations;

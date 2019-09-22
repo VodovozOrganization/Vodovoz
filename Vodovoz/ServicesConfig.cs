@@ -1,6 +1,6 @@
 ﻿using System;
 using Vodovoz.Infrastructure.Services;
-using QSValidation;
+using QS.Validation.GtkUI;
 using QS.Permissions;
 using Vodovoz.Infrastructure.Journal;
 using QS.Services;
