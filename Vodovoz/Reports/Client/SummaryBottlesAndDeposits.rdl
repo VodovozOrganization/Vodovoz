@@ -297,7 +297,7 @@ FROM
 	WHERE
 		NOT (orders.order_status = 'Canceled' 
 			OR orders.order_status = 'DeliveryCanceled'
-			OR orders.order_status = 'NorDelivered')
+			OR orders.order_status = 'NotDelivered')
 #subselect doc_residue
 	UNION SELECT
 		doc_residue.id AS doc_id,
