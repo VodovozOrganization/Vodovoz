@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.ReportsParameters.Bottles
@@ -17,7 +18,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var reasons = OrderRepository.GetDiscountReasons(UoW);
+			var reasons = OrderSingletonRepository.GetInstance().GetDiscountReasons(UoW);
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			daterangepicker.StartDate = DateTime.Now.AddDays(-7);
 			daterangepicker.EndDate = DateTime.Now.AddDays(1);

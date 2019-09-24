@@ -216,6 +216,10 @@ namespace Vodovoz.Representations
 					OpenReport(selectedNode.ClientId, selectedNode.AddressId);
 				}
 			}));
+
+			NodeActionsList.Add(new JournalAction("Печатная форма", x => true, x => true, selectedItems => {
+				OpenPrintingForm();
+			}));
 		}
 
 		protected override Func<CallTaskDlg> CreateDialogFunction => () => new CallTaskDlg();
@@ -228,6 +232,30 @@ namespace Vodovoz.Representations
 		public void OpenReport(int counterpartyId, int deliveryPointId = -1)
 		{
 			var dlg = CreateReportDlg(counterpartyId, deliveryPointId);
+			TabParent.AddTab(dlg, this);
+		}
+
+		public void OpenPrintingForm()
+		{
+			var reportInfo = new QS.Report.ReportInfo {
+				Title = TabName,
+				Identifier = "Client.BottleDebtorsJournal",
+				Parameters = new Dictionary<string, object>
+				{
+					{ "discount_reason_id", FilterViewModel?.DiscountReason?.Id ?? 0 },
+					{ "nomenclature_id", FilterViewModel?.LastOrderNomenclature?.Id ?? 0},
+					{ "StartDate", FilterViewModel?.StartDate},
+					{ "EndDate", FilterViewModel?.EndDate},
+					{ "OrderBottlesFrom", FilterViewModel?.LastOrderBottlesFrom ?? int.MinValue},
+					{ "OrderBottlesTo", FilterViewModel?.LastOrderBottlesTo ?? int.MaxValue},
+					{ "AddressId", FilterViewModel?.Address?.Id ?? 0},
+					{ "CounterpartyId", FilterViewModel?.Client?.Id ?? 0},
+					{ "OPF", FilterViewModel?.OPF?.ToString()},
+					{ "DebtBottlesFrom", FilterViewModel?.DebtBottlesFrom ?? int.MinValue},
+					{ "DebtBottlesTo", FilterViewModel?.DebtBottlesTo ?? int.MaxValue}
+				}
+			};
+			var dlg = new ReportViewDlg(reportInfo);
 			TabParent.AddTab(dlg, this);
 		}
 
