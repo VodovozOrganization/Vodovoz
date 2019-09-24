@@ -394,7 +394,7 @@ namespace Vodovoz
 				.AddClearDependence<Counterparty>(x => x.PreviousCounterparty)
 				.AddClearDependence<Equipment>(x => x.AssignedToClient)
 				.AddDeleteDependence<SupplierPriceItem>(x => x.Supplier)
-				.AddDeletDependence<CallTask>(x => x.Counterparty)
+				.AddDeleteDependence<CallTask>(x => x.Counterparty)
 				;
 
 
