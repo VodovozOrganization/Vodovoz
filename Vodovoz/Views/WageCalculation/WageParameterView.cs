@@ -1,6 +1,6 @@
-﻿using Gamma.Utilities;
+﻿using Gtk;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.WageCalculation;
 using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.Views.WageCalculation
@@ -11,33 +11,49 @@ namespace Vodovoz.Views.WageCalculation
 		public WageParameterView(WageParameterViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			ConfigureDlg();
+			Configure();
 		}
 
-		void ConfigureDlg()
+		private void Configure()
 		{
-			cmbWageCalcType.SetRenderTextFunc<WageCalculationType>(p => p.GetEnumTitle());
-			cmbWageCalcType.Binding.AddBinding(ViewModel, e => e.AvailableWageCalcTypes, w => w.ItemsList).InitializeFromSource();
-			cmbWageCalcType.Binding.AddBinding(ViewModel.Entity, e => e.WageCalcType, w => w.SelectedItem).InitializeFromSource();
+			comboWageType.ItemsEnum = typeof(WageParameterTypes);
+			comboWageType.Binding.AddBinding(ViewModel, vm => vm.WageParameterType, w => w.SelectedItem).InitializeFromSource();
+			comboWageType.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			spinWageCalcRate.Binding.AddBinding(ViewModel.Entity, e => e.WageCalcRate, w => w.ValueAsDecimal).InitializeFromSource();
-			spinWageCalcRate.Binding.AddBinding(ViewModel, e => e.WageCalcRateMaxValue, w => w.Adjustment.Upper).InitializeFromSource();
-			spinWageCalcRate.Binding.AddBinding(ViewModel, e => e.IsWageCalcRateVisible, w => w.Visible).InitializeFromSource();
-			lblUnit.Binding.AddBinding(ViewModel, s => s.WageCalcRateUnit, w => w.Text).InitializeFromSource();
-			lblUnit.Binding.AddBinding(ViewModel, s => s.IsWageCalcRateVisible, w => w.Visible).InitializeFromSource();
+			ViewModel.PropertyChanged += (sender, e) => {
+				if(e.PropertyName == nameof(ViewModel.TypedWageParameterViewModel)) {
+					UpdateWageParameterView();
+				}
+			};
 
-			spinQuantityOfFullBottlesToSell.Binding.AddBinding(ViewModel.Entity, e => e.QuantityOfFullBottlesToSell, w => w.ValueAsInt).InitializeFromSource();
-			spinQuantityOfFullBottlesToSell.Binding.AddBinding(ViewModel, e => e.AreQuantitiesForSalesPlanVisible, w => w.Visible).InitializeFromSource();
-			lblPlanFullUnit.Binding.AddBinding(ViewModel, s => s.AreQuantitiesForSalesPlanVisible, w => w.Visible).InitializeFromSource();
+			UpdateWageParameterView();
 
-			spinQuantityOfEmptyBottlesToTake.Binding.AddBinding(ViewModel.Entity, e => e.QuantityOfEmptyBottlesToTake, w => w.ValueAsInt).InitializeFromSource();
-			spinQuantityOfEmptyBottlesToTake.Binding.AddBinding(ViewModel, e => e.AreQuantitiesForSalesPlanVisible, w => w.Visible).InitializeFromSource();
-			lblPlanEmptyUnit.Binding.AddBinding(ViewModel, s => s.AreQuantitiesForSalesPlanVisible, w => w.Visible).InitializeFromSource();
+			buttonSave.Clicked += (sender, e) => ViewModel.Save();
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false);
+		}
 
-			chkIsArchive.Binding.AddBinding(ViewModel.Entity, s => s.IsArchive, w => w.Active).InitializeFromSource();
+		private Widget wageParameterView;
 
-			btnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			btnCancel.Clicked += (sender, e) => ViewModel.Close(false);
+		private void UpdateWageParameterView()
+		{
+			wageParameterView?.Destroy();
+
+			if(ViewModel.TypedWageParameterViewModel is FixedWageParameterViewModel) {
+				wageParameterView = new FixedWageParameterView((FixedWageParameterViewModel)ViewModel.TypedWageParameterViewModel);
+			} else if(ViewModel.TypedWageParameterViewModel is PercentWageParameterViewModel) {
+				wageParameterView = new PercentWageParameterView((PercentWageParameterViewModel)ViewModel.TypedWageParameterViewModel);
+			} else if(ViewModel.TypedWageParameterViewModel is SalesPlanWageParameterViewModel) {
+				wageParameterView = new SalesPlanWageParameterView((SalesPlanWageParameterViewModel)ViewModel.TypedWageParameterViewModel);
+			} else if(ViewModel.TypedWageParameterViewModel is RatesLevelWageParameterViewModel) {
+				wageParameterView = new RatesLevelWageParameterView((RatesLevelWageParameterViewModel)ViewModel.TypedWageParameterViewModel);
+			} else if(ViewModel.TypedWageParameterViewModel is OldRatesWageParameterViewModel) {
+				wageParameterView = new OldRatesWageParameterView((OldRatesWageParameterViewModel)ViewModel.TypedWageParameterViewModel);
+			} else {
+				return;
+			}
+
+			vboxDialog.Add(wageParameterView);
+			wageParameterView.Show();
 		}
 	}
 }

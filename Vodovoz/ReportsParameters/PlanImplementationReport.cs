@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
 
@@ -29,15 +30,20 @@ namespace Vodovoz.ReportsParameters
 
 			filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
 
-			var availablePlansToUse = new[] { WageCalculationType.salesPlan };
-			lstCmbPlanType.SetRenderTextFunc<WageCalculationType>(t => t.GetEnumTitle());
+			var availablePlansToUse = new[] { WageParameterTypes.SalesPlan };
+			lstCmbPlanType.SetRenderTextFunc<WageParameterTypes>(t => t.GetEnumTitle());
 			lstCmbPlanType.ItemsList = availablePlansToUse;
 			lstCmbPlanType.SelectedItem = availablePlansToUse.FirstOrDefault();
 			lstCmbPlanType.Changed += LstCmbPlanType_Changed;
 			LstCmbPlanType_Changed(this, new EventArgs());
 			yEntRefEmployee.RepresentationModel = new EmployeesVM(filter);
 			yEntRefEmployee.ChangedByUser += (sender, e) => {
-				lblEmployeePlan.Markup = (yEntRefEmployee.Subject as Employee)?.WageCalculationParameter?.Title;
+				var actualWageParameter = (yEntRefEmployee.Subject as Employee).GetActualWageParameter(DateTime.Now);
+				if(actualWageParameter == null || actualWageParameter.WageParameterType != WageParameterTypes.SalesPlan) {
+					return;
+				}
+
+				lblEmployeePlan.Markup = actualWageParameter.Title;
 			};
 		}
 
@@ -46,7 +52,7 @@ namespace Vodovoz.ReportsParameters
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.ShowFired = false,
-				x => x.RestrictWageType = lstCmbPlanType.SelectedItem as WageCalculationType?
+				x => x.RestrictWageType = lstCmbPlanType.SelectedItem as WageParameterTypes?
 			);
 		}
 

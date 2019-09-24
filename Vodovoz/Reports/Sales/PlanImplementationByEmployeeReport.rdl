@@ -872,7 +872,16 @@ LEFT JOIN (
 		AND n.category = 'water' AND n.tare_volume = 'Vol19L'
 ) AS items ON o.id = items.order_id
 LEFT JOIN employees auth ON auth.id = o.author_employee_id
-LEFT JOIN wage_parameters w ON w.id = auth.wage_calculation_parameter_id
+JOIN (
+	SELECT
+		sales_plans.empty_bottles_to_take_salesplan_wage AS empty_quantity,
+		sales_plans.full_bottles_to_sell_salesplan_wage AS full_quantity,
+		wage_parameters.employee_id
+	FROM wage_parameters
+	LEFT JOIN sales_plans ON sales_plans.id = wage_parameters.sales_plan_id
+	WHERE wage_parameters.wage_type = 'SalesPlan'
+		AND (wage_parameters.end_date IS NULL OR wage_parameters.end_date &gt;= CURDATE())
+) w ON w.employee_id = auth.id
 LEFT JOIN route_list_addresses a ON a.order_id = o.id
 JOIN counterparty c ON c.id = o.client_id
 LEFT JOIN route_lists rl ON a.route_list_id = rl.id
@@ -949,7 +958,7 @@ GROUP BY o.id
       </Fields>
     </DataSet>
     <DataSet Name="Employee">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -957,7 +966,16 @@ GROUP BY o.id
 	w.full_quantity AS full_plan,
 	w.empty_quantity AS empty_plan
 FROM employees e
-LEFT JOIN wage_parameters w ON w.id = wage_calculation_parameter_id
+JOIN (
+	SELECT
+		sales_plans.empty_bottles_to_take_salesplan_wage AS empty_quantity,
+		sales_plans.full_bottles_to_sell_salesplan_wage AS full_quantity,
+		wage_parameters.employee_id
+	FROM wage_parameters
+	LEFT JOIN sales_plans ON sales_plans.id = wage_parameters.sales_plan_id
+	WHERE wage_parameters.wage_type = 'SalesPlan'
+		AND (wage_parameters.end_date IS NULL OR wage_parameters.end_date &gt;= CURDATE())
+) w ON w.employee_id = e.id
 WHERE e.id = @employee_id
 ;</CommandText>
         <QueryParameters>
@@ -966,7 +984,7 @@ WHERE e.id = @employee_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>

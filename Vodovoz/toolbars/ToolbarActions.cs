@@ -29,6 +29,7 @@ using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.EntityRepositories.Employees;
+using QS.EntityRepositories;
 
 public partial class MainWindow : Window
 {
@@ -722,7 +723,7 @@ public partial class MainWindow : Window
 
 	void ActionScheduleRestrictedDistricts_Activated(object sender, System.EventArgs e)
 	{
-		var tab = new ScheduleRestrictedDistrictsDlg();
+		var tab = new ScheduleRestrictedDistrictsDlg(UserPermissionSingletonRepository.GetInstance());
 		tdiMain.AddTab(tab);
 	}
 }

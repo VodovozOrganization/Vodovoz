@@ -9,6 +9,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using Vodovoz.Tools.Orders;
+using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -172,6 +173,14 @@ namespace Vodovoz.Domain.Sale
 				return observableGeographicGroups;
 			}
 		}
+
+		WageDistrict wageDistrict;
+		[Display(Name = "Группа района для расчёта ЗП")]
+		public virtual WageDistrict WageDistrict {
+			get => wageDistrict;
+			set => SetField(ref wageDistrict, value);
+		}
+
 		#endregion
 
 		#region Функции
@@ -338,6 +347,11 @@ namespace Vodovoz.Domain.Sale
 				yield return new ValidationResult(
 					string.Format("Для района \"{0}\" необходимо нарисовать границы на карте", DistrictName),
 					new[] { this.GetPropertyName(o => o.DistrictBorder) }
+				);
+			if(WageDistrict == null)
+				yield return new ValidationResult(
+					string.Format("Для района \"{0}\" необходимо выбрать зарплатную группу", DistrictName),
+					new[] { this.GetPropertyName(o => o.WageDistrict) }
 				);
 		}
 		#endregion

@@ -38,10 +38,10 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure.Services;
@@ -110,6 +110,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ActionDriverWages.Sensitive = hasAccessToSalaries;
 		ActionWagesOperations.Sensitive = hasAccessToSalaries;
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries;
+
+		ActionWage.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_wage"];
 
 		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = UserPermissionRepository.CurrentUserPresetPermissions["access_to_fines_bonuses"];
 		ActionReports.Sensitive = false;
@@ -1412,20 +1414,51 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		SwitchToUI("Vodovoz.toolbars.suppliers.xml");
 	}
 
-	protected void OnActionWageParametersActivated(object sender, EventArgs e)
-	{
-		var requestsJournal = new WageParametersJournalViewModel(
-			new DefaultEntityConfigurationProvider(),
-			ServicesConfig.CommonServices
-		);
-		tdiMain.AddTab(requestsJournal);
-	}
-
 	protected void OnActionPlanImplementationReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PlanImplementationReport>(),
 			() => new QSReport.ReportViewDlg(new PlanImplementationReport())
+		);
+	}
+
+	protected void OnActionWageDistrictActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new WageDistrictsJournalViewModel(
+				new DefaultEntityConfigurationProvider(),
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	protected void OnActionRatesActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new WageDistrictLevelRatesJournalViewModel(
+				new DefaultEntityConfigurationProvider(),
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	protected void OnActionWageParametersForMercenariesCarsActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new CarsWageParametersViewModel(
+				WageSingletonRepository.GetInstance(),
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+
+	protected void OnActionSalesPlansActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new SalesPlanJournalViewModel(
+				new DefaultEntityConfigurationProvider(),
+				ServicesConfig.CommonServices
+			)
 		);
 	}
 }

@@ -2,11 +2,12 @@
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.ViewModel
 {
@@ -23,7 +24,6 @@ namespace Vodovoz.ViewModel
 		{
 			EmployeesVMNode resultAlias = null;
 			Employee employeeAlias = null;
-			WageParameter wageParameterAlias = null;
 
 			var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
 
@@ -34,8 +34,12 @@ namespace Vodovoz.ViewModel
 				query.Where(e => e.Category == Filter.Category);
 
 			if(Filter.RestrictWageType.HasValue) {
-				query.JoinAlias(e => e.WageCalculationParameter, () => wageParameterAlias);
-				query.Where(() => wageParameterAlias.WageCalcType == Filter.RestrictWageType);
+				var subquery = QueryOver.Of<WageParameter>()
+										.Where(p => p.WageParameterType == Filter.RestrictWageType.Value)
+										.Where(p => p.EndDate == null || p.EndDate >= DateTime.Today)
+										.Select(p => p.Employee.Id)
+				;
+				query.WithSubquery.WhereProperty(e => e.Id).In(subquery);
 			}
 
 			var result = query
@@ -46,7 +50,7 @@ namespace Vodovoz.ViewModel
 				   .Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmpLastName)
 				   .Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmpMiddleName)
 				   .Select(() => employeeAlias.Category).WithAlias(() => resultAlias.EmpCatEnum)
-				   )
+				)
 				.OrderBy(x => x.LastName).Asc
 				.OrderBy(x => x.Name).Asc
 				.OrderBy(x => x.Patronymic).Asc

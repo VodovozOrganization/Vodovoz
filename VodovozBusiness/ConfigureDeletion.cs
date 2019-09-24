@@ -356,10 +356,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Chat>();
 
-			DeleteConfig.AddHibernateDeleteInfo<WageParameter>()
-						.AddClearDependence<Employee>(x => x.WageCalculationParameter)
-						.AddClearDependence<Subdivision>(x => x.DefaultWageParameter)
-						;
 			//Не добавляем сообщения чата чтобы не заполонять вывод удаления. все сообщения удалятся вместе с чатом.
 
 			DeleteConfig.AddHibernateDeleteInfo<ChatMessage>();

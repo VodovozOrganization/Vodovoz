@@ -8,11 +8,12 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MastersReport : WidgetOnDialogBase, ISingleUoWDialog, IParametersWidget
+	public partial class MastersReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public MastersReport()
 		{
@@ -25,12 +26,6 @@ namespace Vodovoz.ReportsParameters
 			);
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 		}
-
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get; private set; }
-
-		#endregion
 
 		#region IParametersWidget implementation
 

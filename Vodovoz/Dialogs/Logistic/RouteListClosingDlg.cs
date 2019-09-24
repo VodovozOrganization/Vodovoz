@@ -150,11 +150,6 @@ namespace Vodovoz
 			advanceSpinbutton.Value = 0;
 			advanceSpinbutton.Visible = false;
 
-			ycheckNormalWage.Binding.AddSource(Entity)
-							.AddFuncBinding(x => x.Driver.WageCalculationParameter != null && x.Driver.WageCalculationParameter.WageCalcType == WageCalculationType.normal && x.Car.IsCompanyHavings, w => w.Visible)
-							.AddBinding(x => x.NormalWage, w => w.Active)
-							.InitializeFromSource();
-
 			PerformanceHelper.AddTimePoint("Создан диалог");
 
 			PerformanceHelper.AddTimePoint("Предварительная загрузка");
@@ -207,7 +202,6 @@ namespace Vodovoz
 
 			PerformanceHelper.AddTimePoint("Закончено первоначальное заполнение");
 
-			hbox6.Remove(vboxHidenPanel);
 			rightsidepanel1.Panel = vboxHidenPanel;
 			rightsidepanel1.IsHided = true;
 
@@ -270,7 +264,6 @@ namespace Vodovoz
 			datePickerDate.Sensitive = editing;
 			ycheckConfirmDifferences.Sensitive = editing && Entity.Status == RouteListStatus.OnClosing;
 			ytextClosingComment.Sensitive = editing;
-			ycheckNormalWage.Sensitive = editing && UserPermissionRepository.CurrentUserPresetPermissions["change_driver_wage"];
 			routeListAddressesView.IsEditing = editing;
 			ycheckHideCells.Sensitive = editing;
 			routelistdiscrepancyview.Sensitive = editing;
@@ -294,19 +287,20 @@ namespace Vodovoz
 			decimal forwarderRecalcWage = Entity.GetRecalculatedForwarderWage();
 
 			string recalcWageMessage = "Найдены расхождения после пересчета зарплаты:";
-			bool haveDiscrepancy = false;
+			bool hasDiscrepancy = false;
 			if(driverRecalcWage != driverCurrentWage) {
 				recalcWageMessage += string.Format("\nВодителя: до {0}, после {1}", driverCurrentWage, driverRecalcWage);
-				haveDiscrepancy = true;
+				hasDiscrepancy = true;
 			}
 			if(forwarderRecalcWage != forwarderCurrentWage) {
 				recalcWageMessage += string.Format("\nЭкспедитора: до {0}, после {1}", forwarderCurrentWage, forwarderRecalcWage);
-				haveDiscrepancy = true;
+				hasDiscrepancy = true;
 			}
 			recalcWageMessage += string.Format("\nПересчитано.");
 
-			if(haveDiscrepancy && Entity.Status == RouteListStatus.Closed) {
+			if(hasDiscrepancy && Entity.Status == RouteListStatus.Closed) {
 				MessageDialogHelper.RunInfoDialog(recalcWageMessage);
+				Entity.RecalculateAllWages();
 			}
 		}
 
@@ -428,12 +422,7 @@ namespace Vodovoz
 		{
 			var item = routeListAddressesView.Items[aIdx[0]];
 
-			var fix = new[] { WageCalculationType.fixedDay, WageCalculationType.fixedRoute };
-			if(Entity.Driver.WageCalculationParameter?.WageCalcType != null && fix.Contains(Entity.Driver.WageCalculationParameter.WageCalcType) || (Entity.Forwarder?.WageCalculationParameter?.WageCalcType != null && fix.Contains(Entity.Forwarder.WageCalculationParameter.WageCalcType))) {
-				return;
-			}
-
-			item.RecalculateWages();
+			Entity.RecalculateWagesForRouteListItem(item);
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered())
 				foreach(var itm in item.Order.OrderItems)
@@ -462,7 +451,7 @@ namespace Vodovoz
 		{
 			foreach(var item in routeListAddressesView.Items) {
 				var rli = item as RouteListItem;
-				rli.RecalculateWages();
+				Entity.RecalculateWagesForRouteListItem(rli);
 				rli.RecalculateTotalCash();
 			}
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
@@ -676,7 +665,7 @@ namespace Vodovoz
 			var cash = CashRepository.CurrentRouteListCash(UoW, Entity.Id);
 			if(Entity.Total != cash) {
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
-				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {
+				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && Entity.NeedMileageCheck && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {
 					Entity.ChangeStatus(RouteListStatus.MileageCheck);
 				}
 				return;

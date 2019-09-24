@@ -5,6 +5,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -12,7 +13,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "залоги в заказе",
 		Nominative = "залог в заказе"
 	)]
-	public class OrderDepositItem : PropertyChangedBase, IDomainObject
+	public class OrderDepositItem : PropertyChangedBase, IDomainObject, IOrderDepositItemWageCalculationSource
 	{
 		public virtual int Id { get; set; }
 
@@ -109,6 +110,12 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Total => Deposit * CurrentCount;
 
 		public string Title => string.Format("{0} на сумму {1}", DepositTypeString, CurrencyWorks.GetShortCurrencyString(Total));
+
+		#region IOrderDepositItemWageCalculationSource implementation
+
+		public int InitialCount => Count;
+
+		#endregion IOrderDepositItemWageCalculationSource implementation
 	}
 }
 

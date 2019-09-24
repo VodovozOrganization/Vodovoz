@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
+using Gamma.Widgets;
 using GeoAPI.Geometries;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -12,13 +13,15 @@ using NetTopologySuite.Geometries;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.EntityRepositories;
+using QS.Validation.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Validation.GtkUI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -38,10 +41,13 @@ namespace Vodovoz.Dialogs.Logistic
 
 		GeometryFactory gf = new GeometryFactory(new PrecisionModel(), 3857);
 
-		public ScheduleRestrictedDistrictsDlg()
+		IEnumerable<WageDistrict> wageDistricts = null;
+
+		public ScheduleRestrictedDistrictsDlg(IUserPermissionRepository userPermission)
 		{
 			this.Build();
 			Configure();
+			UserPermission = userPermission;
 		}
 
 		void Configure()
@@ -89,6 +95,16 @@ namespace Vodovoz.Dialogs.Logistic
 			yenumcomboMapType.ChangedByUser += YenumcomboMapType_ChangedByUser;
 			YenumcomboMapType_ChangedByUser(null, null);
 
+			wageDistricts = uow.Session.QueryOver<WageDistrict>()
+									   .Where(d => !d.IsArchive)
+									   .List();
+			cmbWageDistrict.ItemsList = wageDistricts;
+			cmbWageDistrict.SetRenderTextFunc<WageDistrict>(x => x.Name);
+			cmbWageDistrict.ItemSelected += (sender, e) => {
+				if(currentDistrict != null)
+					currentDistrict.WageDistrict = cmbWageDistrict.SelectedItem as WageDistrict;
+			};
+
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.HasFrame = true;
@@ -120,6 +136,11 @@ namespace Vodovoz.Dialogs.Logistic
 			if(currentDistrict != null) {
 				btnToday.Click();
 				yTreeGeographicGroups.ItemsDataSource = currentDistrict.ObservableGeographicGroups;
+
+				if(currentDistrict.Id > 0)
+					cmbWageDistrict.Sensitive = UserPermission.CurrentUserPresetPermissions["can_change_district_wage_type"];
+				else
+					cmbWageDistrict.Sensitive = true;
 			}
 
 			if(currentDistrict != null && currentDistrict.DistrictBorder != null)
@@ -127,10 +148,14 @@ namespace Vodovoz.Dialogs.Logistic
 			else
 				currentBorderVertice = new List<PointLatLng>();
 
+			if(currentDistrict?.WageDistrict != null)
+				cmbWageDistrict.SelectedItem = currentDistrict.WageDistrict;
+			else
+				cmbWageDistrict.SelectedItem = SpecialComboState.Not;
+
 			ShowBorderVertice(currentBorderVertice);
 			ControlsAccessibility();
 		}
-
 
 		protected void OnYTreeSchedules_SelectionChanged(object sender, EventArgs e)
 		{
@@ -204,6 +229,8 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 		}
 
+		public IUserPermissionRepository UserPermission { get; }
+
 		void OnObservableRestrictedDistricts_ElementAdded(object sender, int[] aIdx)
 		{
 			ytreeDistricts.SetItemsSource(ObservableRestrictedDistricts);
@@ -230,7 +257,7 @@ namespace Vodovoz.Dialogs.Logistic
 			buttonCreateBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1;
 			buttonRemoveBorder.Sensitive = ytreeDistricts.Selection.CountSelectedRows() == 1 && currentDistrict != null && currentDistrict.DistrictBorder != null;
 			btnEditDistrict.Sensitive = buttonAddSchedule.Sensitive = currentDistrict != null;
-			vboxGeographicGroups.Visible = vboxSchedules.Visible = currentDistrict != null;
+			cmbWageDistrict.Visible = vboxGeographicGroups.Visible = vboxSchedules.Visible = currentDistrict != null;
 			btnAddGeographicGroup.Sensitive = currentDistrict != null && !currentDistrict.GeographicGroups.Any();
 		}
 

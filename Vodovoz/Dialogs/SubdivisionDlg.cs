@@ -40,11 +40,6 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-
-			lstCmbWageParameterDefault.ItemsList = new WageParametersRepository().WageParameters(UoW);
-			lstCmbWageParameterDefault.SetRenderTextFunc<WageParameter>(p => p.Title);
-			lstCmbWageParameterDefault.Binding.AddBinding(Entity, s => s.DefaultWageParameter, w => w.SelectedItem).InitializeFromSource();
-
 			subdivisionentitypermissionwidget.ConfigureDlg(UoW, Entity);
 			yentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text).InitializeFromSource();

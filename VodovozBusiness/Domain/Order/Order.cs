@@ -1110,10 +1110,11 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		[Obsolete("Должно быть не актуально после ввода новой системы расчёта ЗП (I-2150)")]
 		public virtual decimal MoneyForMaster =>
 			ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master && i.ActualCount.HasValue)
 								.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount.Value * i.Price);
-
+			
 		public virtual decimal? ActualGoodsTotalSum =>
 			OrderItems.Sum(item => item.Price * item.ActualCount - item.DiscountMoney);
 

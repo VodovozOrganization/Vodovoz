@@ -421,7 +421,16 @@
 	sold.full_sold AS full_sold,
 	sold.empty_returned AS empty_returned
 FROM employees e
-LEFT JOIN wage_parameters w ON w.id = wage_calculation_parameter_id
+JOIN (
+	SELECT
+		sales_plans.empty_bottles_to_take_salesplan_wage AS empty_quantity,
+		sales_plans.full_bottles_to_sell_salesplan_wage AS full_quantity,
+		wage_parameters.employee_id
+	FROM wage_parameters
+	LEFT JOIN sales_plans ON sales_plans.id = wage_parameters.sales_plan_id
+	WHERE wage_parameters.wage_type = 'SalesPlan'
+		AND (wage_parameters.end_date IS NULL OR wage_parameters.end_date &gt;= CURDATE())
+) w ON w.employee_id = e.id
 LEFT JOIN (
 	SELECT
 		o.id AS order_id,
@@ -458,10 +467,8 @@ LEFT JOIN (
 		AND !(a.status &lt;=&gt; 'Transfered')
 	GROUP BY o.author_employee_id
 ) AS sold ON sold.employee_id = e.id
-WHERE w.wage_calc_type = 'salesPlan'
-	AND (sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL)
-;
-</CommandText>
+WHERE sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>

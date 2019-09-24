@@ -687,13 +687,52 @@
     <Compile Include="Tools\CallTasks\AutoCallTaskFactory.cs" />
     <Compile Include="Tools\CallTasks\IAutoCallTaskFactory.cs" />
     <Compile Include="Tools\CallTasks\ITaskCreationInteractive.cs" />
-    <Compile Include="Domain\Employees\WageCalculationType.cs" />
     <Compile Include="Domain\Subdivisions\Subdivision.cs" />
     <Compile Include="HibernateMapping\Subdivisions\SubdivisionMap.cs" />
-    <Compile Include="HibernateMapping\WageCalculation\WageParameterMap.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\IWageCalculationRepository.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\WageSingletonRepository.cs" />
+    <Compile Include="Domain\WageCalculation\WageRateTypes.cs" />
+    <Compile Include="Domain\WageCalculation\WageRate.cs" />
+    <Compile Include="Domain\WageCalculation\WageDistrictLevelRate.cs" />
+    <Compile Include="Domain\WageCalculation\WageDistrict.cs" />
+    <Compile Include="Domain\WageCalculation\WageDistrictLevelRates.cs" />
+    <Compile Include="Domain\WageCalculation\PercentWageTypes.cs" />
+    <Compile Include="Domain\WageCalculation\FixedWageTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageParameter.cs" />
-    <Compile Include="EntityRepositories\WageCalculation\IWageParametersRepository.cs" />
-    <Compile Include="EntityRepositories\WageCalculation\WageParametersRepository.cs" />
+    <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
+    <Compile Include="Domain\WageCalculation\PercentWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\FixedWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\SalesPlanWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\RatesLevelWageParameter.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\WageRateMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\WageDistrictMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\WageDistrictLevelRatesMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\WageDistrictLevelRateMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\WageParameterMap.cs" />
+    <Compile Include="Domain\WageCalculation\ManualWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\IWageCalculationService.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\WageCalculationServiceFactory.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\IRouteListItemWageCalculationSource.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\IRouteListWageCalculationService.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\IRouteListWageCalculationSource.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListPercentWageCalculationService.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListFixedWageCalculationService.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListRatesLevelWageCalculationService.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\DefaultRouteListWageCalculationService.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListManualWageCalculationService.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListOldRatesWageCalculationService.cs" />
+    <Compile Include="Domain\WageCalculation\OldRatesWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\IOrderItemWageCalculationSource.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\IOrderDepositItemWageCalculationSource.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageResult.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListItemWageResult.cs" />
+    <Compile Include="Domain\Logistic\RouteListItemWageCalculationSource.cs" />
+    <Compile Include="Domain\Logistic\RouteListWageCalculationSource.cs" />
+    <Compile Include="Domain\WageCalculation\WageParameterTargets.cs" />
+    <Compile Include="Domain\WageCalculation\SalesPlan.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\SalesPlanMap.cs" />
+    <Compile Include="EntityRepositories\UserSingletonRepository.cs" />
+    <Compile Include="EntityRepositories\IUserRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -758,6 +797,8 @@
     <Folder Include="HibernateMapping\WageCalculation\" />
     <Folder Include="Domain\WageCalculation\" />
     <Folder Include="EntityRepositories\WageCalculation\" />
+    <Folder Include="Domain\WageCalculation\CalculationServices\" />
+    <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

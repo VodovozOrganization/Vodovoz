@@ -233,22 +233,52 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//WageParametersJournalViewModel
-			TreeViewColumnsConfigFactory.Register<WageParametersJournalViewModel>(
-				() => FluentColumnsConfig<WageParameterJournalNode>.Create()
-					.AddColumn("Номер")
+			//WageDistrictsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<WageDistrictsJournalViewModel>(
+				() => FluentColumnsConfig<WageDistrictJournalNode>.Create()
+					.AddColumn("Код")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Id.ToString())
-					.AddColumn("Тип параметра")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.WageCalcTypeString)
-					.AddColumn("Ставка\\Процент")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.WageCalcRateString)
-					.AddColumn("План")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Quantities)
 					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Name)
+					.AddColumn("В архиве?")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.IsArchiveString)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
+			//WageDistrictLevelRatesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<WageDistrictLevelRatesJournalViewModel>(
+				() => FluentColumnsConfig<WageDistrictLevelRatesJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Name)
+					.AddColumn("По умолчанию для новых сотрудников")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.IsDefaultLevelString)
+					.AddColumn("В архиве?")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.IsArchiveString)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
+			//SalesPlanJournalViewModel
+			TreeViewColumnsConfigFactory.Register<SalesPlanJournalViewModel>(
+				() => FluentColumnsConfig<SalesPlanJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Описание")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Title)
 					.AddColumn("В архиве?")

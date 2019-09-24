@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Complaints;
-using Gtk;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -11,10 +10,10 @@ namespace Vodovoz.Views.Complaints
 		public ComplaintDiscussionsView(ComplaintDiscussionsViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-			ConfigureDlg();
+			ConfigureWidget();
 		}
 
-		private void ConfigureDlg()
+		protected override void ConfigureWidget()
 		{
 			ybuttonAttachSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanAttachSubdivision, w => w.Sensitive).InitializeFromSource();
 			ybuttonAttachSubdivision.Clicked += (sender, e) => ViewModel.AttachSubdivisionCommand.Execute();

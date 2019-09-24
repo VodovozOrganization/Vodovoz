@@ -42,7 +42,7 @@ namespace Vodovoz.Representations
 			.AddColumn("Адрес").AddTextRenderer(node => node.AddressName ?? "Самовывоз")
 			.AddColumn("Долг по адресу").AddTextRenderer(node => node.DebtByAddress.ToString()).XAlign(0.5f)
 			.AddColumn("Долг по клиенту").AddTextRenderer(node => node.DebtByClient.ToString()).XAlign(0.5f)
-			.AddColumn("Телефены").AddTextRenderer(node => node.DeliveryPointPhones == "+7" ? String.Empty : node.DeliveryPointPhones ).WrapMode(Pango.WrapMode.WordChar)
+			.AddColumn("Телефоны").AddTextRenderer(node => node.DeliveryPointPhones == "+7" ? String.Empty : node.DeliveryPointPhones ).WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployeeName ?? String.Empty)
 			.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
