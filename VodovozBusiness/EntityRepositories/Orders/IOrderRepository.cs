@@ -19,7 +19,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<DiscountReason> GetDiscountReasons(IUnitOfWork UoW, bool orderByDescending = false);
 		IList<ClientEquipmentNode> GetEquipmentFromClientForOrder(IUnitOfWork uow, Domain.Orders.Order order);
 		IList<ClientEquipmentNode> GetEquipmentToClientForOrder(IUnitOfWork uow, Domain.Orders.Order order);
-		Domain.Orders.Order GetFirstRealOrderForClient(IUnitOfWork uow, Counterparty counterparty);
+		Domain.Orders.Order GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Counterparty counterparty);
 		OrderStatus[] GetGrantedStatusesToCreateSeveralOrders();
 		Domain.Orders.Order GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty);
 		IList<Domain.Orders.Order> GetLatestOrdersForDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, int? count = null);

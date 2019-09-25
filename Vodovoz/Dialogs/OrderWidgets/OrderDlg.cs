@@ -414,7 +414,7 @@ namespace Vodovoz
 
 		void ControlsActionBottleAccessibility()
 		{
-			bool canAddAction = Entity.CanAddStockBottle() || Entity.IsBottleStock;
+			bool canAddAction = Entity.CanAddStockBottle(OrderSingletonRepository.GetInstance()) || Entity.IsBottleStock;
 			hboxBottlesByStock.Visible = canAddAction;
 			lblActionBtlTareFromClient.Visible = yEntTareActBtlFromClient.Visible = yChkActionBottle.Active;
 			hboxReturnTare.Visible = !canAddAction;
