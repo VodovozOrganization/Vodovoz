@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>209.804mm</PageHeight>
-  <PageWidth>296.926mm</PageWidth>
+  <PageHeight>279.4mm</PageHeight>
+  <PageWidth>215.9mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>5mm</LeftMargin>
@@ -17,8 +17,200 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>101.9pt</Height>
+    <Height>58.9pt</Height>
     <Columns>1</Columns>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn >
+            <Width>30.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>175.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>261.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>106.5pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>Клиент</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Адрес</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Номер телефона</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor  />
+                        <BorderWidth  />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>30.9pt</Height>
+              <TableCells>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>=Fields!client.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>=Fields!delivery_point.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>=Fields!phones.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>9.2pt</Left>
+        <Top>8.8pt</Top>
+      </Table>
+    </ReportItems>
   </Body>
   <PageFooter>
     <Height>13.2pt</Height>
@@ -26,8 +218,8 @@
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>11.38pt</Height>
-        <Width>816.84pt</Width>
+        <Height>10.62pt</Height>
+        <Width>584.18pt</Width>
         <Value>='Стр. '+{@PageNumber}+' из '+{@TotalPages}</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
@@ -55,6 +247,134 @@
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <DataSets>
+    <DataSet Name="Data">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT    
+    counterparty.name,
+    IFNULL(delivery_points.compiled_address, 'Самовывоз') AS delivery_point,
+    IFNULL(
+        (SELECT TRIM('\n' FROM GROUP_CONCAT(DISTINCT CONCAT('8', digits_number) SEPARATOR ';\n'))
+        FROM phones
+        WHERE delivery_point_id = orders.delivery_point_id),
+        (SELECT TRIM('\n' FROM GROUP_CONCAT(DISTINCT CONCAT('8', digits_number) SEPARATOR ';\n'))
+        FROM phones
+        WHERE counterparty_id = orders.client_id)
+    ) AS phones
+FROM
+    orders 
+    LEFT OUTER JOIN counterparty ON orders.client_id=counterparty.id 
+    LEFT OUTER JOIN delivery_points ON orders.delivery_point_id= delivery_points.id 
+    LEFT OUTER JOIN bottles_movement_operations ON orders.bottles_movement_operation_id = bottles_movement_operations.id
+    LEFT OUTER JOIN phones AS client_phone ON client_phone.counterparty_id = counterparty.id
+    LEFT OUTER JOIN phones AS dp_phone ON dp_phone.delivery_point_id = delivery_points.id
+WHERE
+    (@CounterpartyId = 0 OR orders.client_id = @CounterpartyId)
+    AND (@AddressId = 0 OR orders.delivery_point_id = @AddressId)
+    AND (@OPF = '' OR counterparty.person_type = @OPF)
+    AND
+    (
+        @nomenclature_id = 0
+        OR
+        EXISTS 
+        (
+            SELECT
+                nomenclature.id
+            FROM
+                order_items
+                LEFT OUTER JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id 
+            WHERE
+                order_items.order_id = orders.id 
+                AND nomenclature.id = @nomenclature_id
+        )
+    )
+
+    AND
+    (
+        @discount_reason_id = 0
+        OR
+        EXISTS 
+        (
+            SELECT
+                discount_reasons.id 
+            FROM
+                order_items 
+                LEFT OUTER JOIN discount_reasons ON order_items.discount_reason_id = discount_reasons.id 
+            WHERE
+                order_items.order_id = orders.id 
+                AND discount_reasons.id = @discount_reason_id
+        )
+    )
+    AND (@OrderBottlesFrom = '' OR bottles_movement_operations.delivered &gt;= @OrderBottlesFrom)
+    AND (@OrderBottlesTo = '' OR bottles_movement_operations.delivered &lt;= @OrderBottlesTo)
+    AND (@StartDate = '' OR orders.delivery_date &gt;= DATE(@StartDate))
+    AND (@EndDate = '' OR orders.delivery_date &lt;= DATE(@EndDate))
+    AND orders.id = 
+    (
+        SELECT
+            ord.id
+        FROM
+            orders AS ord
+        WHERE
+            ord.client_id = counterparty.id 
+            AND (
+                (
+                    ord.self_delivery = TRUE 
+                    AND orders.delivery_point_id IS NULL
+                ) 
+                OR ord.delivery_point_id = delivery_points.id
+            ) 
+            AND ord.order_status = 'Closed'
+        ORDER BY
+            ord.id DESC LIMIT 1
+    )
+GROUP BY
+    delivery_points.id,
+    counterparty.id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="CounterpartyId">
+            <Value>={?CounterpartyId}</Value>
+          </QueryParameter>
+          <QueryParameter Name="AddressId">
+            <Value>={?AddressId}</Value>
+          </QueryParameter>
+          <QueryParameter Name="OPF">
+            <Value>={?OPF}</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_id">
+            <Value>={?nomenclature_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="discount_reason_id">
+            <Value>={?discount_reason_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="OrderBottlesFrom">
+            <Value>={?OrderBottlesFrom}</Value>
+          </QueryParameter>
+          <QueryParameter Name="OrderBottlesTo">
+            <Value>={?OrderBottlesTo}</Value>
+          </QueryParameter>
+          <QueryParameter Name="StartDate">
+            <Value>={?StartDate}</Value>
+          </QueryParameter>
+          <QueryParameter Name="EndDate">
+            <Value>={?EndDate}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="client">
+          <DataField>name</DataField>
+        </Field>
+        <Field Name="delivery_point">
+          <DataField>delivery_point</DataField>
+        </Field>
+        <Field Name="phones">
+          <DataField>phones</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
   <ReportParameters >
     <ReportParameter Name="discount_reason_id">
       <DataType>Integer</DataType>
@@ -99,17 +419,17 @@
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="OrderBottlesFrom">
-      <DataType>Integer</DataType>
+      <DataType>String</DataType>
       <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="OrderBottlesTo">
-      <DataType>Integer</DataType>
+      <DataType>String</DataType>
       <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
@@ -149,17 +469,17 @@
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="DebtBottlesFrom">
-      <DataType>Integer</DataType>
+      <DataType>String</DataType>
       <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="DebtBottlesTo">
-      <DataType>Integer</DataType>
+      <DataType>String</DataType>
       <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>

@@ -46,7 +46,7 @@ namespace Vodovoz.JournalColumnsConfigs
 
 			TreeViewColumnsConfigFactory.Register<DebtorsJournalViewModel>(
 				() => FluentColumnsConfig<Representations.DebtorJournalNode>.Create()
-					.AddColumn("Номер").AddNumericRenderer(x => x.AddressId)
+					.AddColumn("Номер").AddTextRenderer(x => x.AddressId > 0 ? x.AddressId.ToString() : x.ClientId.ToString())
 					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName)
 					.AddColumn("Адрес").AddTextRenderer(node => String.IsNullOrWhiteSpace(node.AddressName) ? "Самовывоз" : node.AddressName)
 					.AddColumn("ОПФ").AddTextRenderer(node => node.OPF.GetEnumTitle())
