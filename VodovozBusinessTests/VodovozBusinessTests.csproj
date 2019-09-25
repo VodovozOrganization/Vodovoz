@@ -118,6 +118,8 @@
     <Folder Include="Domain\Payments\" />
     <Folder Include="Domain\Goods\" />
     <Folder Include="Domain\Documents\" />
+    <Folder Include="Domain\WageCalculation\" />
+    <Folder Include="Domain\WageCalculation\CalculationServices\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
