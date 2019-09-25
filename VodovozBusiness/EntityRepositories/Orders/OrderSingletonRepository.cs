@@ -138,20 +138,16 @@ namespace Vodovoz.EntityRepositories.Orders
 				.List<VodovozOrder>();
 		}
 
-		internal static Func<IUnitOfWork, Counterparty, VodovozOrder> GetFirstRealOrderForClientTestGap;
 		/// <summary>
 		/// Первый заказ контрагента, который можно считать выполненым.
 		/// </summary>
 		/// <returns>Первый заказ</returns>
 		/// <param name="uow">UoW</param>
 		/// <param name="counterparty">Контрагент</param>
-		public VodovozOrder GetFirstRealOrderForClient(IUnitOfWork uow, Counterparty counterparty)
+		public VodovozOrder GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Counterparty counterparty)
 		{
 			if(counterparty?.FirstOrder != null && GetValidStatusesToUseActionBottle().Contains(counterparty.FirstOrder.OrderStatus))
 				return counterparty.FirstOrder;
-
-			if(GetFirstRealOrderForClientTestGap != null)
-				return GetFirstRealOrderForClientTestGap(uow, counterparty);
 
 			var query = uow.Session.QueryOver<VodovozOrder>()
 						   .Where(o => o.Id > 0)
