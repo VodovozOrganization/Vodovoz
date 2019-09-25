@@ -19,6 +19,7 @@ using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Services;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace VodovozBusinessTests.Domain.Orders
 {
@@ -447,9 +448,12 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			Order orderUnderTest = new Order();
+			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
+			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, null).ReturnsNull();
 
 			// act
-			var res = orderUnderTest.CanAddStockBottle();
+			var res = orderUnderTest.CanAddStockBottle(orderRepository);
 
 			// assert
 			Assert.That(res, Is.False);
@@ -463,10 +467,13 @@ namespace VodovozBusinessTests.Domain.Orders
 			client.FirstOrder.ReturnsNull();
 
 			Order orderUnderTest = new Order { Client = client };
-			OrderRepository.GetFirstRealOrderForClientTestGap = (uow, c) => null;
+			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+			orderUnderTest.UoW = uow;
+			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
+			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, client).ReturnsNull();
 
 			// act
-			var res = orderUnderTest.CanAddStockBottle();
+			var res = orderUnderTest.CanAddStockBottle(orderRepository);
 
 			// assert
 			Assert.That(res, Is.True);
@@ -499,10 +506,17 @@ namespace VodovozBusinessTests.Domain.Orders
 			client.FirstOrder.Returns(firstOrder);
 
 			Order orderUnderTest = new Order { Client = client };
-			OrderRepository.GetFirstRealOrderForClientTestGap = (uow, c) => null;
+			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+			orderUnderTest.UoW = uow;
+			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
+			if(result) {
+				orderRepository.GetFirstRealOrderForClientForActionBottle(uow, client).ReturnsNull();
+			} else {
+				orderRepository.GetFirstRealOrderForClientForActionBottle(uow, client).Returns(firstOrder);
+			}
 
 			// act
-			var res = orderUnderTest.CanAddStockBottle();
+			var res = orderUnderTest.CanAddStockBottle(orderRepository);
 
 			// assert
 			Assert.That(res, Is.EqualTo(result));
@@ -518,10 +532,13 @@ namespace VodovozBusinessTests.Domain.Orders
 			client.FirstOrder.Returns(firstOrder);
 
 			Order orderUnderTest = new Order { Client = client };
-			OrderRepository.GetFirstRealOrderForClientTestGap = (uow, c) => new Order();
+			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
+			orderUnderTest.UoW = uow;
+			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
+			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, client).Returns(Substitute.For<Order>());
 
 			// act
-			var res = orderUnderTest.CanAddStockBottle();
+			var res = orderUnderTest.CanAddStockBottle(orderRepository);
 
 			// assert
 			Assert.That(res, Is.False);

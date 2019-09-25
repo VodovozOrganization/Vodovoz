@@ -66,9 +66,9 @@ namespace Vodovoz.Repositories.Orders
 		/// <returns>Первый заказ</returns>
 		/// <param name="uow">UoW</param>
 		/// <param name="counterparty">Контрагент</param>
-		public static VodovozOrder GetFirstRealOrderForClient(IUnitOfWork uow, Counterparty counterparty)
+		public static VodovozOrder GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Counterparty counterparty)
 		{
-			return OrderSingletonRepository.GetInstance().GetFirstRealOrderForClient(uow, counterparty);
+			return OrderSingletonRepository.GetInstance().GetFirstRealOrderForClientForActionBottle(uow, counterparty);
 		}
 
 		/// <summary>

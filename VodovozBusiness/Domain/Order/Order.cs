@@ -3524,9 +3524,9 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Можем применить акцию "Бутыль"?
 		/// </summary>
-		public virtual bool CanAddStockBottle()
+		public virtual bool CanAddStockBottle(IOrderRepository orderRepository)
 		{
-			bool result = Client != null && orderRepository.GetFirstRealOrderForClient(UoW, Client) == null;
+			bool result = Client != null && orderRepository.GetFirstRealOrderForClientForActionBottle(UoW, Client) == null;
 			if(result) {
 				BottlesReturn = 0;
 			}
