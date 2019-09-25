@@ -120,6 +120,7 @@
     <Folder Include="Domain\Documents\" />
     <Folder Include="Domain\WageCalculation\" />
     <Folder Include="Domain\WageCalculation\CalculationServices\" />
+    <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
@@ -140,6 +141,10 @@
     <Compile Include="Domain\Documents\SelfDeliveryDocumentTests.cs" />
     <Compile Include="Domain\Documents\CarLoadDocumentTests.cs" />
     <Compile Include="Domain\Logistic\RouteListTests.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListPercentWageCalculationServiceTests.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListManualWageCalculationServiceTests.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\DefaultRouteListWageCalculationServiceTests.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListFixedWageCalculationServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">

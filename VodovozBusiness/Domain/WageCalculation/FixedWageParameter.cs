@@ -51,7 +51,7 @@ namespace Vodovoz.Domain.WageCalculation
 			switch(FixedWageType) {
 				case FixedWageTypes.RouteList:
 					if(RouteListFixedWage <= 0) {
-						yield return new ValidationResult("Должна быть указана фикса за маршрутный лист");
+						yield return new ValidationResult("Должна быть указана фиксированная зарплата за маршрутный лист");
 					}
 					break;
 				default:
