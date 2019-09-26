@@ -145,6 +145,7 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListManualWageCalculationServiceTests.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\DefaultRouteListWageCalculationServiceTests.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListFixedWageCalculationServiceTests.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListRatesLevelWageCalculationServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
