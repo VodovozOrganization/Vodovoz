@@ -26,24 +26,20 @@ namespace Vodovoz.Core.DataService
 			return int.Parse(MainSupport.BaseParameters.All["причина_скидки_для_акции_Бутыль"]);
 		}
 
-		public Employee GetDefaultEmployeeForCallTask(IUnitOfWork uow)
+		public int GetDefaultEmployeeForCallTask()
 		{
 			if(!MainSupport.BaseParameters.All.ContainsKey("сотрудник_по_умолчанию_для_crm")) {
 				throw new InvalidProgramException("В параметрах базы не настроен параметр сотрудник по умолчанию для crm (сотрудник_по_умолчанию_для_crm).");
 			}
-			int employeeId = int.Parse(MainSupport.BaseParameters.All["сотрудник_по_умолчанию_для_crm"]);
-
-			return uow.GetById<Employee>(employeeId);
+			return int.Parse(MainSupport.BaseParameters.All["сотрудник_по_умолчанию_для_crm"]); ;
 		}
 
-		public Employee GetDefaultEmployeeForDepositReturnTask(IUnitOfWork uow)
+		public int GetDefaultEmployeeForDepositReturnTask()
 		{
 			if(!MainSupport.BaseParameters.All.ContainsKey("сотрудник_по_умолчанию_для_задач_по_залогам")) {
 				throw new InvalidProgramException("В параметрах базы не настроен параметр сотрудник по умолчанию для crm (сотрудник_по_умолчанию_для_задач_по_залогам).");
 			}
-			int employeeId = int.Parse(MainSupport.BaseParameters.All["сотрудник_по_умолчанию_для_задач_по_залогам"]);
-
-			return uow.GetById<Employee>(employeeId);
+			return int.Parse(MainSupport.BaseParameters.All["сотрудник_по_умолчанию_для_задач_по_залогам"]);
 		}
 
 		public int GetOkkId()
