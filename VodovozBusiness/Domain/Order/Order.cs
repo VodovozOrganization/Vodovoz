@@ -11,6 +11,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.EntityRepositories;
 using QS.HistoryLog;
 using QS.Project.Repositories;
 using QS.Services;
@@ -2709,7 +2710,7 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Виновный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(GuiltyTypes? guilty = GuiltyTypes.Client)
+		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures ,GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
 
@@ -2737,6 +2738,7 @@ namespace Vodovoz.Domain.Orders
 					}
 					break;
 			}
+			UpdateBottleMovementOperation(uow, standartNomenclatures, 0);
 		}
 
 		public virtual void ChangeStatus(OrderStatus newStatus)
@@ -2826,12 +2828,12 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Отправка самовывоза на погрузку
 		/// </summary>
-		public virtual void SelfDeliveryToLoading()
+		public virtual void SelfDeliveryToLoading(IUserPermissionRepository permissionRepository)
 		{
 			if(!SelfDelivery) {
 				return;
 			}
-			if(OrderStatus == OrderStatus.Accepted && UserPermissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"]) {
+			if(OrderStatus == OrderStatus.Accepted && permissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"]) {
 				ChangeStatus(OrderStatus.OnLoading);
 				LoadAllowedBy = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			}
@@ -3247,6 +3249,50 @@ namespace Vodovoz.Domain.Orders
 		}
 
 
+		public virtual bool UpdateBottleMovementOperation(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, int returnByStock, int? forfeitQuantity = null)
+		{
+			if(IsContractCloser)
+				return false;
+
+			int amountDelivered = OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
+								.Sum(item => item.ActualCount.Value);
+
+			if(forfeitQuantity == null) 
+			{
+				forfeitQuantity = OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
+							.Select(i => i.ActualCount.Value)
+							.Sum();
+			}
+			
+			bool isValidCondition = amountDelivered != 0;
+			isValidCondition |= returnByStock > 0;
+			isValidCondition |= forfeitQuantity > 0;
+			isValidCondition &= !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
+
+			if(isValidCondition) 
+			{
+				if(BottlesMovementOperation == null) 
+				{
+					BottlesMovementOperation = new BottlesMovementOperation 
+					{
+						Order = this,
+						Counterparty = Client,
+						DeliveryPoint = DeliveryPoint
+					};
+				}
+				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
+				BottlesMovementOperation.Delivered = amountDelivered;
+				BottlesMovementOperation.Returned = returnByStock + forfeitQuantity.Value;
+				uow.Save(BottlesMovementOperation);
+			} 
+			else
+			{
+				DeleteBottlesMovementOperation(uow);
+			}
+
+			return true;
+		}
+
 		/// <summary>
 		/// Создание операций перемещения бутылей для заказов без доставки
 		/// </summary>
@@ -3256,11 +3302,15 @@ namespace Vodovoz.Domain.Orders
 				throw new ArgumentNullException(nameof(routeListItemRepository));
 			if(cashRepository == null)
 				throw new ArgumentNullException(nameof(cashRepository));
+			if(standartNomenclatures == null)
+				throw new ArgumentNullException(nameof(standartNomenclatures));
 
 			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
 			//не должны создаваться операции перемещения тары
-			if(IsContractCloser)
+			if(IsContractCloser) {
+				DeleteBottlesMovementOperation(uow);
 				return;
+			}
 
 			if(routeListItemRepository.HasRouteListItemsForOrder(uow, this))
 				return;
@@ -3268,33 +3318,15 @@ namespace Vodovoz.Domain.Orders
 			foreach(OrderItem item in OrderItems)
 				if(!item.ActualCount.HasValue)
 					item.ActualCount = item.Count;
-
-			int amountDelivered = OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-											.Sum(item => item.ActualCount.Value);
-
-			int forfeitQuantity = 0;
+					
+			int? forfeitQuantity = null;
 
 			if(!SelfDelivery || SelfDeliveryIsFullyPaid(cashRepository, incomeCash, expenseCash))
 				forfeitQuantity = OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
 											.Select(i => i.ActualCount.Value)
 											.Sum();
 
-			if(amountDelivered != 0 || ReturnedTare > 0 || forfeitQuantity > 0) {
-				if(BottlesMovementOperation == null) {
-					BottlesMovementOperation = new BottlesMovementOperation {
-						Order = this,
-						Counterparty = Client,
-						DeliveryPoint = DeliveryPoint
-					};
-				}
-				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-				BottlesMovementOperation.Delivered = amountDelivered;
-				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault() + forfeitQuantity;
-				uow.Save(BottlesMovementOperation);
-			} else if(BottlesMovementOperation != null) {
-				uow.Delete(BottlesMovementOperation);
-				BottlesMovementOperation = null;
-			}
+			UpdateBottleMovementOperation(uow, standartNomenclatures, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
 
 		#region Работа с документами

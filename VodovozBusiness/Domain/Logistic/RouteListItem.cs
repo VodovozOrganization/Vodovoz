@@ -570,34 +570,6 @@ namespace Vodovoz.Domain.Logistic
 				deposit.ActualCount = deposit.Count;
 		}
 
-		public virtual bool FillBottleMovementOperation(IStandartNomenclatures standartNomenclatures, out BottlesMovementOperation bottlesMovementOperation)
-		{
-			bottlesMovementOperation = Order.BottlesMovementOperation;
-
-			int amountDelivered = Order.OrderItems
-								   .Where(item => (item.Nomenclature.Category == NomenclatureCategory.water) && !item.Nomenclature.IsDisposableTare)
-								   .Sum(item => item.ActualCount ?? 0);
-
-			int amountReturned = Order.OrderItems.Where(arg => arg.Nomenclature.Id == standartNomenclatures.GetForfeitId())
-																	   .Sum(x => x.ActualCount ?? 0);
-			amountReturned += BottlesReturned;
-
-			if(amountDelivered == 0 && amountReturned == 0)
-				return false;
-
-			if(bottlesMovementOperation == null)
-				bottlesMovementOperation = new BottlesMovementOperation();
-
-			bottlesMovementOperation.Order = Order;
-			bottlesMovementOperation.Counterparty = Order.Client;
-			bottlesMovementOperation.DeliveryPoint = Order.DeliveryPoint;
-			bottlesMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-			bottlesMovementOperation.Delivered = amountDelivered;
-			bottlesMovementOperation.Returned = amountReturned;
-
-			return true;
-		}
-
 		private Dictionary<int, int> goodsByRouteColumns;
 
 		public virtual Dictionary<int, int> GoodsByRouteColumns {

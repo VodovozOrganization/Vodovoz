@@ -64,6 +64,7 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using QS.EntityRepositories;
 
 namespace Vodovoz
 {
@@ -787,7 +788,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonSelfDeliveryToLoadingClicked(object sender, EventArgs e)
 		{
-			Entity.SelfDeliveryToLoading();
+			Entity.SelfDeliveryToLoading(UserPermissionSingletonRepository.GetInstance());
 			UpdateUIState();
 		}
 
@@ -1952,7 +1953,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (sender, e) => {
-				Entity.SetUndeliveredStatus();
+				Entity.SetUndeliveredStatus(UoW, new BaseParametersProvider());
 				UpdateUIState();
 
 				var routeListItem = routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);

@@ -406,5 +406,15 @@ namespace Vodovoz.EntityRepositories.Orders
 				OrderStatus.WaitForPayment
 			};
 		}
+
+		public OrderStatus[] GetUndeliveryStatuses()
+		{
+			return new OrderStatus[]
+				{
+					OrderStatus.NotDelivered,
+					OrderStatus.DeliveryCanceled,
+					OrderStatus.Canceled
+				};
+		}
 	}
 }

@@ -1003,21 +1003,10 @@ namespace Vodovoz.Domain.Logistic
 			ClosingFilled = true;
 		}
 
-		public virtual List<BottlesMovementOperation> UpdateBottlesMovementOperation(IStandartNomenclatures standartNomenclatures)
+		public virtual void UpdateBottlesMovementOperation(IStandartNomenclatures standartNomenclatures)
 		{
-			var result = new List<BottlesMovementOperation>();
-			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered && x.Status != RouteListItemStatus.Canceled).ToList();
-
-			foreach(RouteListItem address in addresesDelivered) {
-				if(address.FillBottleMovementOperation(standartNomenclatures, out BottlesMovementOperation bottlesMovementOperation)) {
-					address.Order.BottlesMovementOperation = bottlesMovementOperation;
-					result.Add(bottlesMovementOperation);
-				} else if(bottlesMovementOperation != null) {
-					UoW.Delete(bottlesMovementOperation);
-					address.Order.BottlesMovementOperation = null;
-				}
-			}
-			return result;
+			foreach(RouteListItem address in addresses.Where(x => x.Status != RouteListItemStatus.Transfered))
+				address.Order.UpdateBottleMovementOperation(UoW, standartNomenclatures, returnByStock: address.BottlesReturned);
 		}
 
 		public virtual List<CounterpartyMovementOperation> UpdateCounterpartyMovementOperations()
@@ -1373,11 +1362,10 @@ namespace Vodovoz.Domain.Logistic
 
 			var counterpartyMovementOperations = this.UpdateCounterpartyMovementOperations();
 			var moneyMovementOperations = this.UpdateMoneyMovementOperations();
-			var bottleMovementOperations = this.UpdateBottlesMovementOperation(new BaseParametersProvider());
 			var depositsOperations = this.UpdateDepositOperations(UoW);
 
 			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-			bottleMovementOperations.ForEach(op => UoW.Save(op));
+			UpdateBottlesMovementOperation(new BaseParametersProvider());
 			depositsOperations.ForEach(op => UoW.Save(op));
 			moneyMovementOperations.ForEach(op => UoW.Save(op));
 
