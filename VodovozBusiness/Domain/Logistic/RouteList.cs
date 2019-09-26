@@ -959,6 +959,9 @@ namespace Vodovoz.Domain.Logistic
 
 		private bool IsLevelWageRate {
 			get {
+				if(Car.IsCompanyHavings) {
+					return false;
+				}
 				var actualWageParameter = Driver.GetActualWageParameter(Date);
 				return actualWageParameter != null && actualWageParameter.WageParameterType == WageParameterTypes.RatesLevel;
 			}
