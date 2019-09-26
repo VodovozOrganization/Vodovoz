@@ -454,7 +454,7 @@ namespace Vodovoz.Domain.Logistic
 															  .Distinct()
 															  .Count();
 
-		public virtual bool NeedMileageCheck => Car.TypeOfUse != CarTypeOfUse.Truck && !Driver.VisitingMaster && !IsLevelWageRate;
+		public virtual bool NeedMileageCheck => Car.TypeOfUse != CarTypeOfUse.Truck && !Driver.VisitingMaster && NeedMileageCheckByWage;
 
 		public virtual decimal PhoneSum {
 			get {
@@ -826,7 +826,7 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListStatus.OnClosing:
 					if(
-					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || IsLevelWageRate))
+					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || !NeedMileageCheckByWage))
 					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.Truck))
 					|| Status == RouteListStatus.MileageCheck
 					|| Status == RouteListStatus.Closed) {
@@ -957,13 +957,16 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции относящиеся к закрытию МЛ
 
-		private bool IsLevelWageRate {
+		/// <summary>
+		/// Проверка по установленным вариантам расчета зарплаты, должен ли водитель на данном автомобилей проходить проверку километража
+		/// </summary>
+		private bool NeedMileageCheckByWage {
 			get {
 				if(Car.IsCompanyHavings) {
-					return false;
+					return true;
 				}
 				var actualWageParameter = Driver.GetActualWageParameter(Date);
-				return actualWageParameter != null && actualWageParameter.WageParameterType == WageParameterTypes.RatesLevel;
+				return actualWageParameter == null || actualWageParameter.WageParameterType != WageParameterTypes.RatesLevel;
 			}
 		}
 		public virtual void CompleteRoute()
