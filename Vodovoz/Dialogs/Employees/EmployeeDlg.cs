@@ -188,7 +188,7 @@ namespace Vodovoz
 			);
 
 			logger.Info("Ok");
-			Entity.CreateDefaultWageParameter();
+			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance());
 		}
 
 		void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

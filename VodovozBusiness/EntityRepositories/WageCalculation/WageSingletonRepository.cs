@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NHibernate.Criterion;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.EntityRepositories.WageCalculation
@@ -56,9 +54,9 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 		public WageDistrictLevelRates DefaultLevelForNewEmployees(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<WageDistrictLevelRates>()
-				.Where(x => x.IsDefaultLevel)
-				.Take(1)
-				.SingleOrDefault();
+							  .Where(x => x.IsDefaultLevel)
+							  .Take(1)
+							  .SingleOrDefault();
 		}
 	}
 }

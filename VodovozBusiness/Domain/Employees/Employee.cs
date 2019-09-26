@@ -37,7 +37,7 @@ namespace Vodovoz.Domain.Employees
 			get => category;
 			set {
 				if(SetField(ref category, value) && Id == 0)
-					CreateDefaultWageParameter();
+					CreateDefaultWageParameter(WageCalculationRepository);
 			}
 		}
 
@@ -224,7 +224,7 @@ namespace Vodovoz.Domain.Employees
 			get => visitingMaster;
 			set {
 				if(SetField(ref visitingMaster, value) && Id == 0)
-					CreateDefaultWageParameter();
+					CreateDefaultWageParameter(WageCalculationRepository);
 			}
 		}
 
@@ -233,7 +233,7 @@ namespace Vodovoz.Domain.Employees
 			get => isDriverForOneDay;
 			set {
 				if(SetField(ref isDriverForOneDay, value) && Id == 0)
-					CreateDefaultWageParameter();
+					CreateDefaultWageParameter(WageCalculationRepository);
 			}
 		}
 
@@ -270,10 +270,9 @@ namespace Vodovoz.Domain.Employees
 
 		#region Функции
 
-		public virtual string GetPersonNameWithInitials()
-		{
-			return PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
-		}
+		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = WageSingletonRepository.GetInstance();
+
+		public virtual string GetPersonNameWithInitials() => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 
 		private void CheckDistrictsPriorities()
 		{
@@ -289,10 +288,7 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		public virtual double TimeCorrection(long timeValue)
-		{
-			return (double)timeValue / DriverSpeed;
-		}
+		public virtual double TimeCorrection(long timeValue) => (double)timeValue / DriverSpeed;
 
 		public virtual bool CheckStartDateForNewWageParameter(DateTime newStartDate)
 		{
@@ -324,11 +320,10 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual WageParameter GetActualWageParameter(DateTime date)
 		{
-			return WageParameters
-				.Where(x => x.StartDate <= date)
-				.OrderByDescending(x => x.StartDate)
-				.Take(1)
-				.SingleOrDefault();		
+			return WageParameters.Where(x => x.StartDate <= date)
+								 .OrderByDescending(x => x.StartDate)
+								 .Take(1)
+								 .SingleOrDefault();
 		}
 
 		private WageCalculationServiceFactory wageCalculationServiceFactory;
@@ -340,8 +335,11 @@ namespace Vodovoz.Domain.Employees
 			return wageCalculationServiceFactory;
 		}
 
-		public virtual void CreateDefaultWageParameter()
+		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository)
 		{
+			if(wageRepository == null)
+				throw new ArgumentNullException(nameof(wageRepository));
+
 			if(Id == 0) {
 				ObservableWageParameters.Clear();
 				switch(Category) {
@@ -354,14 +352,14 @@ namespace Vodovoz.Domain.Employees
 							};
 						else if(!IsDriverForOneDay)
 							parameterForDriver = new RatesLevelWageParameter {
-								WageDistrictLevelRates = WageSingletonRepository.GetInstance().DefaultLevelForNewEmployees(UoW),
+								WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
 								WageParameterTarget = WageParameterTargets.ForMercenariesCars
 							};
 						ChangeWageParameter(parameterForDriver, DateTime.Today);
 						break;
 					case EmployeeCategory.forwarder:
 						var parameterForForwarder = new RatesLevelWageParameter {
-							WageDistrictLevelRates = WageSingletonRepository.GetInstance().DefaultLevelForNewEmployees(UoW),
+							WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
 							WageParameterTarget = WageParameterTargets.ForMercenariesCars
 						};
 						ChangeWageParameter(parameterForForwarder, DateTime.Today);
