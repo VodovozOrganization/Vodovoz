@@ -156,6 +156,7 @@ namespace Vodovoz
 			yspinDriverSpeed.Binding.AddBinding(Entity, e => e.DriverSpeed, w => w.Value, new MultiplierToPercentConverter()).InitializeFromSource();
 			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
 
+			Entity.CheckAndFixDriverPriorities();
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
 				.AddColumn("Район").AddTextRenderer(x => x.District.DistrictName)
 				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority + 1)

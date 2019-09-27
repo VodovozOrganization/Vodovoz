@@ -274,7 +274,9 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual string GetPersonNameWithInitials() => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
 
-		private void CheckDistrictsPriorities()
+		public virtual void CheckAndFixDriverPriorities() => CheckDistrictsPriorities();
+
+		void CheckDistrictsPriorities()
 		{
 			for(int i = 0; i < Districts.Count; i++) {
 				if(Districts[i] == null) {
