@@ -12,6 +12,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
+using Vodovoz.Repositories.Permissions;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -96,6 +98,13 @@ namespace Vodovoz
 			}
 			OnDataentryreferenceDriverChanged(null, null);
 			textDriverInfo.Selectable = true;
+
+			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
+			bool canChangeVolumeWeightConsumption = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_volume_weight_consumption", currentUserId);
+
+			dataspinbutton1.Sensitive = canChangeVolumeWeightConsumption;
+			maxVolumeSpin.Sensitive = canChangeVolumeWeightConsumption;
+			maxWeightSpin.Sensitive = canChangeVolumeWeightConsumption;
 
 			checkIsCompanyHavings.Sensitive = CarTypeIsEditable();
 			checkIsRaskat.Sensitive = CarTypeIsEditable();
