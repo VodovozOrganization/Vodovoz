@@ -609,12 +609,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			var volumeProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxVolume < 1).ToList();
 			if(volumeProblems.Count > 1)
-				AddWarning("Автомобили {0} смогут погрузить только безьобемные товары, так как максимальный объем погрузки у них меньше 1.",
+				AddWarning("Автомобили {0} смогут погрузить только безобъёмные товары, так как максимальный объём погрузки у них меньше 1.",
 						   string.Join(", ", volumeProblems.Select(x => x.RegistrationNumber)));
 
 			var weightProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxWeight < 1).ToList();
 			if(weightProblems.Count > 1)
-				AddWarning("Автомобили {0} не смогут вести грузы, так как грузоподьемность уних меньше 1 кг.",
+				AddWarning("Автомобили {0} не смогут везти грузы, так как грузоподъёмность у них меньше 1 кг.",
 						   string.Join(", ", weightProblems.Select(x => x.RegistrationNumber)));
 
 		}

@@ -36,7 +36,6 @@ using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
-using NhibernateOrder = NHibernate.Criterion.Order;
 using QS.Project.Services;
 
 namespace Vodovoz
