@@ -127,7 +127,7 @@ namespace Vodovoz.Dialogs.Fuel
 		public IRepresentationModel DriversVM {
 			get {
 				if(driversVM == null) {
-					var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+					var filterDriver = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 					filterDriver.SetAndRefilterAtOnce(
 						x => x.ShowFired = false
 					);

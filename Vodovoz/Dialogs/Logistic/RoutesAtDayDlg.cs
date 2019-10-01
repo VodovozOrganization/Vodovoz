@@ -37,6 +37,7 @@ using Vodovoz.Repositories.Sale;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using NhibernateOrder = NHibernate.Criterion.Order;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -138,7 +139,7 @@ namespace Vodovoz
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-			Employee currentEmployee = ServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
+			Employee currentEmployee = VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
 			if(currentEmployee == null) {
 				MessageDialogHelper.RunWarningDialog("Ваш пользователь не привязан к сотруднику, продолжение работы невозможно");
 				FailInitialize = true;

@@ -110,7 +110,7 @@ namespace Vodovoz
 			referenceCar.ItemsQuery = Repository.Logistics.CarRepository.ActiveCarsQuery();
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 
-			var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterDriver = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false
@@ -119,7 +119,7 @@ namespace Vodovoz
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 
 			previousForwarder = Entity.Forwarder;
-			var filterForwarder = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterForwarder = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterForwarder.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.ShowFired = false
@@ -128,7 +128,7 @@ namespace Vodovoz
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.Changed += ReferenceForwarder_Changed;
 
-			var filterLogistican = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterLogistican = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterLogistican.SetAndRefilterAtOnce(x => x.ShowFired = false);
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();

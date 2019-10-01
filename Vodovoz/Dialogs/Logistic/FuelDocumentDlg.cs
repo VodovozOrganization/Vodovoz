@@ -125,7 +125,7 @@ namespace Vodovoz
 
 			ydatepicker.Binding.AddBinding(FuelDocument, e => e.Date, w => w.Date).InitializeFromSource();
 
-			var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterDriver = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false

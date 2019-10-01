@@ -105,7 +105,7 @@ namespace Vodovoz
 				}
 			};
 
-			var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterDriver = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false
@@ -113,7 +113,7 @@ namespace Vodovoz
 			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
-			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.ShowFired = false

@@ -25,7 +25,7 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			ydateperiodPicker.Binding.AddBinding(Filter, x => x.EndDate, w => w.EndDate).InitializeFromSource();
 			ydateperiodPicker.PeriodChanged += (sender, e) => Refilter();
 
-			var counterpartyFilter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var counterpartyFilter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			counterpartyFilter.ShowFired = false;
 			entryEmployee.RepresentationModel = new EmployeesVM(counterpartyFilter);
 			entryEmployee.Binding.AddBinding(Filter, x => x.Employee, w => w.Subject).InitializeFromSource();

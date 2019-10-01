@@ -97,7 +97,7 @@ namespace Vodovoz
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
 			commentsview4.UoW = UoW;
-			supplierPricesWidget.ViewModel = new ViewModels.Client.SupplierPricesWidgetViewModel(Entity, UoW, this, new DefaultEntityConfigurationProvider(), ServicesConfig.CommonServices);
+			supplierPricesWidget.ViewModel = new ViewModels.Client.SupplierPricesWidgetViewModel(Entity, UoW, this, new DefaultEntityConfigurationProvider(), QS.Project.Services.ServicesConfig.CommonServices);
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
@@ -132,9 +132,9 @@ namespace Vodovoz
 			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
-			entryMainCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entryMainCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 			entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
-			entryPreviousCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entryPreviousCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 			entryPreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
 
 			//Setting subjects
@@ -154,19 +154,19 @@ namespace Vodovoz
 			ySpecCmbCameFrom.Binding.AddBinding(Entity, f => f.CameFrom, w => w.SelectedItem).InitializeFromSource();
 			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
 			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
-			var filterAccountant = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterAccountant = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterAccountant.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.ShowFired = false
 			);
 			referenceAccountant.RepresentationModel = new EmployeesVM(filterAccountant);
-			var filterSalesManager = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterSalesManager = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterSalesManager.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.ShowFired = false
 			);
 			referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
-			var filterBottleManager = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterBottleManager = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterBottleManager.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.ShowFired = false

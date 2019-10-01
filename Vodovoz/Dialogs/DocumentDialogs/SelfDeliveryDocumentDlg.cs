@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -85,7 +86,7 @@ namespace Vodovoz
 
 		private IPermissionResult CheckPermission(Employee employee)
 		{
-			IPermissionService permissionService = ServicesConfig.PermissionService;
+			IPermissionService permissionService = ServicesConfig.CommonServices.PermissionService;
 			return permissionService.ValidateUserPermission(typeof(SelfDeliveryDocument), Repositories.HumanResources.UserRepository.GetCurrentUser(UoW).Id);
 		}
 

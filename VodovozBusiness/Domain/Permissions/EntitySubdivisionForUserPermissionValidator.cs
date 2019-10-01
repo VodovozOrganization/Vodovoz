@@ -1,14 +1,11 @@
 ﻿using System;
-using NHibernate.Mapping;
 using System.Collections.Generic;
-using QS.DomainModel.Entity.EntityPermissions;
-using QS.Permissions;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Repositories.Permissions;
-using QS.DomainModel.UoW;
 using System.Linq;
-using QSProjectsLib;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
+using QS.Project.Services;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz.Domain.Permissions
 {
@@ -39,14 +36,14 @@ namespace Vodovoz.Domain.Permissions
 				if(mainAvailableTypes.Any()) {
 					EntitySubdivisionForUserPermissionValidationResult mainResultItem = new EntitySubdivisionForUserPermissionValidationResult(mainSubdivision, true);
 					foreach(var mainAvailableType in mainAvailableTypes) {
-						var mainPermission = PermissionsSettings.EntityPermissionValidator.Validate(mainAvailableType, userId);
+						var mainPermission = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(mainAvailableType, userId);
 						mainResultItem.AddPermission(
 							mainAvailableType,
 							new EntityPermission(
-								mainPermission.Create,
-								mainPermission.Read,
-								mainPermission.Update,
-								mainPermission.Delete
+								mainPermission.CanCreate,
+								mainPermission.CanRead,
+								mainPermission.CanUpdate,
+								mainPermission.CanDelete
 							)
 						);
 					}
@@ -59,7 +56,7 @@ namespace Vodovoz.Domain.Permissions
 				.Where(x => subdivisionsForEntities.Contains(x.Subdivision) || Subdivision.ReferenceEquals(x.Subdivision, mainSubdivision));
 
 			foreach(var entityType in entityTypes) {
-				var mainPermission = PermissionsSettings.EntityPermissionValidator.Validate(entityType, userId);
+				var mainPermission = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(entityType, userId);
 				foreach(var permissionitem in specialPermissions.Where(x => x.TypeOfEntity.Type == entityType.Name)) {
 					EntitySubdivisionForUserPermissionValidationResult resultItem = result.FirstOrDefault(x => x.Subdivision == permissionitem.Subdivision);
 					if(resultItem == null) {
@@ -70,10 +67,10 @@ namespace Vodovoz.Domain.Permissions
 					resultItem.AddPermission(
 						entityType,
 						new EntityPermission(
-							mainPermission.Create && permissionitem.CanCreate,
-							mainPermission.Read && permissionitem.CanRead,
-							mainPermission.Update && permissionitem.CanUpdate,
-							mainPermission.Delete && permissionitem.CanDelete
+							mainPermission.CanCreate && permissionitem.CanCreate,
+							mainPermission.CanRead && permissionitem.CanRead,
+							mainPermission.CanUpdate && permissionitem.CanUpdate,
+							mainPermission.CanDelete && permissionitem.CanDelete
 						)
 					);
 				}
@@ -96,7 +93,7 @@ namespace Vodovoz.Domain.Permissions
 		{
 			var result = new List<EntitySubdivisionForUserPermissionValidationResult>();
 			var employee = EmployeeRepository.GetEmployeesForUser(uow, userId).FirstOrDefault();
-			var mainPermission = PermissionsSettings.EntityPermissionValidator.Validate(entityType, userId);
+			var mainPermission = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(entityType, userId);
 			Subdivision mainSubdivision = employee == null ? null : employee.Subdivision;
 
 			if(mainSubdivision != null) {
@@ -106,10 +103,10 @@ namespace Vodovoz.Domain.Permissions
 					mainResultItem.AddPermission(
 						entityType,
 						new EntityPermission(
-							mainPermission.Create,
-							mainPermission.Read,
-							mainPermission.Update,
-							mainPermission.Delete
+							mainPermission.CanCreate,
+							mainPermission.CanRead,
+							mainPermission.CanUpdate,
+							mainPermission.CanDelete
 						)
 					);
 					result.Add(mainResultItem);
@@ -131,10 +128,10 @@ namespace Vodovoz.Domain.Permissions
 				resultItem.AddPermission(
 					entityType,
 					new EntityPermission(
-						mainPermission.Create && permissionitem.CanCreate,
-						mainPermission.Read && permissionitem.CanRead,
-						mainPermission.Update && permissionitem.CanUpdate,
-						mainPermission.Delete && permissionitem.CanDelete
+						mainPermission.CanCreate && permissionitem.CanCreate,
+						mainPermission.CanRead && permissionitem.CanRead,
+						mainPermission.CanUpdate && permissionitem.CanUpdate,
+						mainPermission.CanDelete && permissionitem.CanDelete
 					)
 				);
 			}

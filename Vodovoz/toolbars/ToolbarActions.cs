@@ -30,6 +30,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.EntityRepositories.Employees;
 using QS.EntityRepositories;
+using QS.Project.Services;
 
 public partial class MainWindow : Window
 {
@@ -277,9 +278,9 @@ public partial class MainWindow : Window
 			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
 			() => new RequestToSupplierViewModel(
 				EntityConstructorParam.ForCreate(),
-				ServicesConfig.CommonServices,
+				QS.Project.Services.ServicesConfig.CommonServices,
 				new DefaultEntityConfigurationProvider(),
-				ServicesConfig.EmployeeService,
+				VodovozGtkServicesConfig.EmployeeService,
 				new SupplierPriceItemsRepository()
 			)
 		);
@@ -287,14 +288,14 @@ public partial class MainWindow : Window
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
 	{
-		IEntitySelectorFactory nomenclatureSelectorFactory = new DefaultEntitySelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+		IEntitySelectorFactory nomenclatureSelectorFactory = new DefaultEntitySelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices);
 		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
-		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(ServicesConfig.CommonServices.InteractiveService, nomenclatureSelectorFactory);
+		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService, nomenclatureSelectorFactory);
 		var requestsJournal = new RequestsToSuppliersJournalViewModel(
 			filter,
 			entityConfigurationProvider,
-			ServicesConfig.CommonServices,
-			ServicesConfig.EmployeeService,
+			QS.Project.Services.ServicesConfig.CommonServices,
+			VodovozGtkServicesConfig.EmployeeService,
 			new SupplierPriceItemsRepository()
 		);
 		tdiMain.AddTab(requestsJournal);
@@ -318,9 +319,9 @@ public partial class MainWindow : Window
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
-		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService);
 		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
-		var debtorsJournal = new DebtorsJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
+		var debtorsJournal = new DebtorsJournalViewModel(filter, entityConfigurationProvider, QS.Project.Services.ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
 
 		tdiMain.AddTab(debtorsJournal);
 
@@ -417,7 +418,7 @@ public partial class MainWindow : Window
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService);
 		filter.SetAndRefilterAtOnce(
 			x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
 			x => x.RestrictOnlySelfDelivery = true,
@@ -428,7 +429,7 @@ public partial class MainWindow : Window
 			x => x.RestrictOnlyWithoutCoodinates = false
 		);
 		filter.HidenByDefault = true;
-		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(filter, new DefaultEntityConfigurationProvider(), ServicesConfig.CommonServices);
+		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(filter, new DefaultEntityConfigurationProvider(), QS.Project.Services.ServicesConfig.CommonServices);
 		tdiMain.AddTab(selfDeliveriesJournal);
 	}
 
@@ -451,7 +452,7 @@ public partial class MainWindow : Window
 				IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
 				SubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 				FuelRepository fuelRepository = new FuelRepository();
-				var vm = new FuelDocumentsJournalViewModel(entityConfigurationProvider, ServicesConfig.EmployeeService, ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, ServicesConfig.RepresentationEntityPicker);
+				var vm = new FuelDocumentsJournalViewModel(entityConfigurationProvider, VodovozGtkServicesConfig.EmployeeService, QS.Project.Services.ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, VodovozGtkServicesConfig.RepresentationEntityPicker);
 				return new MultipleEntityJournal("Журнал учета топлива", vm, vm);
 			}
 		);
@@ -666,9 +667,9 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService);
 		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
-		var ordersJournal = new OrderJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices);
+		var ordersJournal = new OrderJournalViewModel(filter, entityConfigurationProvider, QS.Project.Services.ServicesConfig.CommonServices);
 		tdiMain.AddTab(ordersJournal);
 	}
 
@@ -695,8 +696,8 @@ public partial class MainWindow : Window
 		var residueJournalViewModel = new ResidueJournalViewModel(
 			filter,
 			entityConfigurationProvider,
-			ServicesConfig.EmployeeService,
-			ServicesConfig.RepresentationEntityPicker,
+			VodovozGtkServicesConfig.EmployeeService,
+			VodovozGtkServicesConfig.RepresentationEntityPicker,
 			moneyRepository,
 			depositRepository,
 			bottlesRepository,

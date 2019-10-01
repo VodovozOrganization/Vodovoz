@@ -2,6 +2,7 @@
 using Gamma.Widgets;
 using QS.DomainModel.Config;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;

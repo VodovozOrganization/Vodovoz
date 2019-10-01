@@ -29,7 +29,7 @@ namespace Vodovoz.Filters.GtkViews
 			enumcomboPaymentType.ItemsEnum = typeof(PaymentType);
 			enumcomboPaymentType.Binding.AddBinding(ViewModel, vm => vm.RestrictPaymentType, w => w.SelectedItemOrNull).InitializeFromSource();
 
-			entryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.RestrictCounterparty, w => w.Subject).InitializeFromSource();
 
 			representationentryDeliveryPoint.Binding.AddBinding(ViewModel, vm => vm.DeliveryPointRepresentationModel, w => w.RepresentationModel).InitializeFromSource();

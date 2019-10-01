@@ -19,7 +19,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false

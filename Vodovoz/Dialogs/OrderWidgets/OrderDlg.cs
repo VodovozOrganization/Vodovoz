@@ -278,7 +278,7 @@ namespace Vodovoz
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices)
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
@@ -288,7 +288,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			var filterAuthor = new EmployeeFilterViewModel(ServicesConfig.CommonServices) {
+			var filterAuthor = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices) {
 				ShowFired = false
 			};
 			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
