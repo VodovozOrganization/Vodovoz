@@ -25,6 +25,11 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.FuelDocuments;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Employees;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -1021,7 +1026,14 @@ namespace Vodovoz
 
 		protected void OnButtonAddFuelDocumentClicked(object sender, EventArgs e)
 		{
-			var tab = new FuelDocumentDlg(UoW, Entity);
+			var tab = new FuelDocumentViewModel(
+					  UoW,
+					  Entity,
+					  ServicesConfig.CommonServices,
+					  new SubdivisionRepository(),
+					  EmployeeSingletonRepository.GetInstance(),
+					  new FuelRepository()
+  			);
 			TabParent.AddSlaveTab(this, tab);
 		}
 

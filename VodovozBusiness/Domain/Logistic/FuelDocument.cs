@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using NLog;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.EntityRepositories.Fuel;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Tools;
 
@@ -260,9 +258,15 @@ namespace Vodovoz.Domain.Logistic
 			};
 		}
 
-		public virtual Employee GetActualCashier(IUnitOfWork uow)
+		public virtual void FillEntity(RouteList rl)
 		{
-			return EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			Date = DateTime.Now;
+			Car = rl.Car;
+			Driver = rl.Driver;
+			Fuel = rl.Car.FuelType;
+			LiterCost = rl.Car.FuelType.Cost;
+			RouteList = rl;
+			FuelCardNumber = rl.Car.FuelCardNumber;
 		}
 
 		#region IValidatableObject implementation

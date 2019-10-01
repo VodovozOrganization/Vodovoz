@@ -71,6 +71,7 @@ using Vodovoz.Views.Organization;
 using Vodovoz.Views.Suppliers;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.Views.WageCalculation;
+using Vodovoz.ViewModels.FuelDocuments;
 
 namespace Vodovoz
 {
@@ -172,6 +173,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<WageParameterViewModel, WageParameterView>()
 				.RegisterWidgetForTabViewModel<CarsWageParametersViewModel, CarsWageParametersView>()
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
+				.RegisterWidgetForTabViewModel <FuelDocumentViewModel, FuelDocumentDlg>()
 				;
 
 			//Регистрация фильтров

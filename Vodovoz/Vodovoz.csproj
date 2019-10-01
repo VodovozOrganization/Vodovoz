@@ -1316,6 +1316,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.OldRatesWageParameterView.cs" />
     <Compile Include="Views\WageCalculation\SalesPlanView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.SalesPlanView.cs" />
+    <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1553,6 +1554,7 @@
     <Folder Include="ViewModels\Suppliers\" />
     <Folder Include="JournalViewModels\Suppliers\" />
     <Folder Include="Views\WageCalculation\" />
+    <Folder Include="ViewModels\FuelDocuments\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
