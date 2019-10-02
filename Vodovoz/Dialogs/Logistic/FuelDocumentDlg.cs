@@ -22,7 +22,7 @@ namespace Vodovoz
 		{
 			fuelRepository = new FuelRepository();
 
-			yspeccomboboxSubdivision.Sensitive = ViewModel.FuelDocument.FuelExpenseOperation == null; //TODO Переделать на свойтво
+			yspeccomboboxSubdivision.Sensitive = ViewModel.FuelDocument.FuelExpenseOperation == null && ViewModel.IsNewEditable; 
 			yspeccomboboxSubdivision.Binding.AddBinding(ViewModel, w => w.AvailableSubdivisionsForUser, e => e.ItemsList).InitializeFromSource();
 			yspeccomboboxSubdivision.SetRenderTextFunc<Subdivision>(s => s.Name);
 			yspeccomboboxSubdivision.Binding.AddBinding(ViewModel.FuelDocument, w => w.Subdivision, e => e.SelectedItem).InitializeFromSource();
@@ -45,16 +45,33 @@ namespace Vodovoz
 
 			labelResultInfo.Binding.AddBinding(ViewModel, e => e.ResultInfo, w => w.Text).InitializeFromSource();
 			labelAvalilableFuel.Binding.AddBinding(ViewModel, e => e.BalanceState, w => w.Text).InitializeFromSource();
+			labelExpenseInfo.Binding.AddBinding(ViewModel, e => e.CashExpenseInfo, w => w.Text).InitializeFromSource();
 
-			buttonSave.Binding.AddBinding(ViewModel, e => e.CanSaveDocument, w => w.Sensitive).InitializeFromSource();
+			disablespinMoney.Binding.AddBinding(ViewModel, e => e.FuelInMoney, w => w.Active).InitializeFromSource();
 
+			ytextviewFuelInfo.Binding.AddBinding(ViewModel, e => e.FuelInfo, w => w.Buffer.Text).InitializeFromSource();
+
+			yenumcomboboxPaymentType.ItemsEnum = typeof(FuelPaymentType);
+			yenumcomboboxPaymentType.Binding.AddBinding(ViewModel.FuelDocument, e => e.FuelPaymentType, w => w.SelectedItem).InitializeFromSource();
+
+			buttonSave.Binding.AddBinding(ViewModel, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 			buttonOpenExpense.Binding.AddBinding(ViewModel, e => e.CanOpenExpense, w => w.Sensitive).InitializeFromSource();
+			spinFuelPrice.Binding.AddBinding(ViewModel, e => e.FuelInMoney, w => w.Sensitive).InitializeFromSource();
+			ydatepicker.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
+			yspinFuelTicketLiters.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
+			yenumcomboboxPaymentType.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
 
+			if(ViewModel?.FuelDocument?.FuelOperation?.PayedLiters > 0m) {
+				disablespinMoney.Active = true; // Перенести в VM
+			}
+
+			disablespinMoney.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
 		}
 
 		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)
 		{
 			ViewModel.FuelDocument.Fuel.Cost = spinFuelPrice.ValueAsDecimal;
+			ViewModel.UpdateInfo();
 		}
 
 		protected void OnButtonSetRemainClicked(object sender, EventArgs e)
@@ -64,9 +81,8 @@ namespace Vodovoz
 
 		protected void OnButtonOpenExpenseClicked(object sender, EventArgs e)
 		{
-			if(ViewModel.FuelDocument.FuelCashExpense?.Id > 0) {
+			if(ViewModel.FuelDocument.FuelCashExpense?.Id > 0) 
 				Tab.TabParent.AddSlaveTab(Tab, new CashExpenseDlg(ViewModel.FuelDocument.FuelCashExpense.Id));
-			}
 		}
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e) => ViewModel.SaveCommand.Execute();

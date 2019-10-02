@@ -1037,6 +1037,19 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, tab);
 		}
 
+		protected void OnYtreeviewFuelDocumentsRowActivated(object o, RowActivatedArgs args)
+		{
+			var tab = new FuelDocumentViewModel(
+				  UoW,
+				  ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>(),
+				  ServicesConfig.CommonServices,
+				  new SubdivisionRepository(),
+				  EmployeeSingletonRepository.GetInstance(),
+				  new FuelRepository()
+		  	);
+			TabParent.AddSlaveTab(this, tab);
+		}
+
 		protected void OnButtonCalculateCashClicked(object sender, EventArgs e)
 		{
 			var messages = new List<string>();

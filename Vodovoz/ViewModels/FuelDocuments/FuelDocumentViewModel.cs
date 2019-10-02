@@ -68,7 +68,11 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			set => SetField(ref autoCommit, value);
 		}
 
-		public bool CanSaveDocument { get => CanEdit && AutoCommit; }
+		private bool fuelInMoney;
+		public virtual bool FuelInMoney {
+			get => fuelInMoney;
+			set => SetField(ref fuelInMoney, value);
+		}
 
 		private bool canOpenExpense;
 		public virtual bool CanOpenExpense {
@@ -76,7 +80,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			set => SetField(ref canOpenExpense, value);
 		}
 
+		public bool CanEditFuelPrice { get { return FuelInMoney && CanEdit; } }
+
+		public virtual string CashExpenseInfo { get { return UpdateCashExpenseInfo(); } }
+
 		public virtual string BalanceState { get { return $"Доступно к выдаче: {Balance} л."; } }
+
+		public virtual bool IsNewEditable { get { return FuelDocument.Id <= 0 && CanEdit; } }
 
 		public virtual decimal Balance {
 			get {
@@ -122,7 +132,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				} 
 		}
 
-		public string FuelInfo { get { return UpdateFuelInfo(); } }
+		public string FuelInfo { get { return UpdateFuelInfo(); } set { } }
 
 		public string ResultInfo { get { return UpdateResutlInfo(); } }
 
@@ -130,6 +140,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		decimal fuelOutlayed;
 
 		#region ctor
+
 		/// <summary>
 		/// Открывает диалог выдачи топлива, с коммитом изменений в родительском UoW
 		/// </summary>
@@ -153,6 +164,30 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			FuelDocument.UoW = UoW;
 			autoCommit = false;
 			RouteList = rl;
+
+			Configure();
+		}
+
+		public FuelDocumentViewModel
+		(
+			IUnitOfWork uow,
+			FuelDocument fuelDocument,
+			ICommonServices commonServices,
+			ISubdivisionRepository subdivisionsRepository,
+			IEmployeeRepository employeeRepository,
+			IFuelRepository fuelRepository
+		) : base(commonServices.InteractiveService)
+		{
+			this.commonServices = commonServices ?? throw new NotImplementedException(nameof(commonServices));
+			this.subdivisionsRepository = subdivisionsRepository ?? throw new NotImplementedException(nameof(subdivisionsRepository));
+			this.fuelRepository = fuelRepository ?? throw new NotImplementedException(nameof(fuelRepository));
+			this.employeeRepository = employeeRepository ?? throw new NotImplementedException(nameof(employeeRepository));
+
+			UoW = uow;
+			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
+			FuelDocument.UoW = UoW;
+			autoCommit = false;
+			RouteList = FuelDocument.RouteList;
 
 			Configure();
 		}
@@ -238,7 +273,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			logger.Info("Сохраняем топливный документ...");
 
-			RouteList.ObservableFuelDocuments.Add(FuelDocument);
+			if(FuelDocument.Id == 0)
+				RouteList.ObservableFuelDocuments.Add(FuelDocument);
+			else
+				FuelDocument.UpdateFuelOperation(fuelRepository);
 
 			if(autoCommit)
 				UoW.Save();
@@ -269,14 +307,25 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		void FuelDocument_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(FuelDocument.FuelCoupons))
+			if(e.PropertyName == nameof(FuelDocument.FuelCoupons)) 
+			{
 				OnPropertyChanged(nameof(ResultInfo));
+				OnPropertyChanged(nameof(CashExpenseInfo));
+			}
 
 			if(e.PropertyName == nameof(FuelDocument.Subdivision) || e.PropertyName == nameof(FuelDocument.Fuel)) 
 			{
 				OnPropertyChanged(nameof(Balance));
 				OnPropertyChanged(nameof(BalanceState));
 			}
+		}
+
+		public void UpdateInfo()
+		{
+			OnPropertyChanged(nameof(ResultInfo));
+			OnPropertyChanged(nameof(CashExpenseInfo));
+			OnPropertyChanged(nameof(Balance));
+			OnPropertyChanged(nameof(BalanceState));
 		}
 
 		#region FuelInfo
@@ -356,7 +405,6 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		protected virtual string UpdateCashExpenseInfo()
 		{
 			string cashExpenseInfo = string.Empty;
-			//spinFuelPrice.Sensitive = disablespinMoney.Active;
 			if(FuelDocument.FuelCashExpense == null && !FuelDocument.PayedForFuel.HasValue) {
 				CanOpenExpense = false;
 				cashExpenseInfo = "";
@@ -408,11 +456,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 					if(SaveDocument())
 						Close(false);
 				},
-				() => CanSaveDocument
+				() => CanEdit
 			);
 
-			SaveCommand.CanExecuteChangedWith(this, x => x.CanSaveDocument);
-			//SaveCommand.CanExecuteChanged += (sender, e) => { OnPropertyChanged(() => CanEdit); };
+			SaveCommand.CanExecuteChangedWith(this, x => x.CanEdit);
 		}
 
 		#endregion Commands

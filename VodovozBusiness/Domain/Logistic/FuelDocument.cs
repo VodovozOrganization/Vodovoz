@@ -78,6 +78,12 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref payedForLiter, value, () => PayedForFuel); }
 		}
 
+		private FuelPaymentType fuelPaymentType = FuelPaymentType.Cash;
+		public virtual FuelPaymentType FuelPaymentType {
+			get => fuelPaymentType;
+			set => SetField(ref fuelPaymentType, value);
+		}
+
 		private decimal literCost;
 
 		[IgnoreHistoryTrace]
@@ -195,6 +201,21 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual void UpdateFuelOperation(IFuelRepository fuelRepository)
+		{
+			if(fuelRepository == null) 
+				throw new ArgumentNullException(nameof(fuelRepository));
+
+			ExpenseCategory expenseCategory = CategoryRepository.FuelDocumentExpenseCategory(UoW);
+			if(expenseCategory == null) 
+				throw new InvalidProgramException("Не возможно найти подходящую статью расхода, возможно в параметрах базы не настроена статья расхода по умолчанию.");
+
+			if(FuelOperation.PayedLiters <= 0m)
+				return;
+
+			FuelOperation.PayedLiters = PayedLiters;
+		}
+
 		private void CreateFuelOperation()
 		{
 			if(FuelOperation != null) {
@@ -237,9 +258,11 @@ namespace Vodovoz.Domain.Logistic
 
 		private void CreateFuelCashExpense(ExpenseCategory expenseCategory)
 		{
-			if(!PayedForFuel.HasValue || (PayedForFuel.HasValue && PayedForFuel.Value <= 0)) {
+			if(FuelPaymentType == FuelPaymentType.Cashless)
 				return;
-			}
+
+			if(!PayedForFuel.HasValue || (PayedForFuel.HasValue && PayedForFuel.Value <= 0))
+				return;
 
 			if(FuelCashExpense != null) {
 				logger.Warn("Попытка создания операции оплаты топлива при уже имеющейся операции");
@@ -306,6 +329,21 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion
+	}
+
+	public enum FuelPaymentType
+	{
+		[Display(Name = "НАЛ")]
+		Cash,
+		[Display(Name = "БЕЗНАЛ")]
+		Cashless
+	}
+
+	public class FuelPaymentTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public FuelPaymentTypeStringType() : base(typeof(FuelPaymentType))
+		{
+		}
 	}
 }
 
