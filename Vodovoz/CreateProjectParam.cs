@@ -62,14 +62,16 @@ using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Organization;
 using Vodovoz.ViewModels.Suppliers;
+using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.Views;
 using Vodovoz.Views.Complaints;
 using Vodovoz.Views.Employees;
+using Vodovoz.Views.Logistic;
 using Vodovoz.Views.Organization;
 using Vodovoz.Views.Suppliers;
-using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.Views.WageCalculation;
 using Vodovoz.ViewModels.FuelDocuments;
 
@@ -173,6 +175,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<WageParameterViewModel, WageParameterView>()
 				.RegisterWidgetForTabViewModel<CarsWageParametersViewModel, CarsWageParametersView>()
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
+				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
 				.RegisterWidgetForTabViewModel <FuelDocumentViewModel, FuelDocumentView>()
 				;
 

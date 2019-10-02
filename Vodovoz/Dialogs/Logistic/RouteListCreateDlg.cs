@@ -295,7 +295,7 @@ namespace Vodovoz
 				Entity.ChangeStatus(RouteListStatus.Confirmed);
 				//Строим маршрут для МЛ.
 				if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
-					RouteOptimizer optimizer = new RouteOptimizer();
+					RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 					var newRoute = optimizer.RebuidOneRoute(Entity);
 					if(newRoute != null) {
 						createroutelistitemsview1.DisableColumnsUpdate = true;

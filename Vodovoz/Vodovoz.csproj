@@ -1316,6 +1316,13 @@
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.OldRatesWageParameterView.cs" />
     <Compile Include="Views\WageCalculation\SalesPlanView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.SalesPlanView.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListsOnDayViewModel.cs" />
+    <Compile Include="Views\Logistic\RouteListsOnDayView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListsOnDayView.cs" />
+    <Compile Include="ViewModels\Logistic\GeographicGroupNode.cs" />
+    <Compile Include="ViewModels\Logistic\RouteColumnTag.cs" />
+    <Compile Include="Additions\Logistic\PointMarkerType.cs" />
+    <Compile Include="Additions\Logistic\PointMarkerShape.cs" />
     <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -1554,6 +1561,8 @@
     <Folder Include="ViewModels\Suppliers\" />
     <Folder Include="JournalViewModels\Suppliers\" />
     <Folder Include="Views\WageCalculation\" />
+    <Folder Include="ViewModels\Logistic\" />
+    <Folder Include="Views\Logistic\" />
     <Folder Include="ViewModels\FuelDocuments\" />
   </ItemGroup>
   <ItemGroup>

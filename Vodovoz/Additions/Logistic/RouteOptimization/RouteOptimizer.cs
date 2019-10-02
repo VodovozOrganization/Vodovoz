@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Google.OrTools.ConstraintSolver;
-using Gtk;
 using NetTopologySuite.Geometries;
-using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Services;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
@@ -92,11 +91,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		private CalculatedOrder[] Nodes;
 		private ExtDistanceCalculator distanceCalculator;
 
-		public ProgressBar OrdersProgress;
-		public TextBuffer DebugBuffer;
+		public Action<string> StatisticsTxtAction { get; set; }
 		public List<string> WarningMessages = new List<string>();
-
-		public virtual bool Cancel { get; set; } = false;
 
 		/// <summary>
 		/// Максимальное время работы механизма оптимизации после вызова <c>Solve()</c>. Это время именно оптимизации, время создания модели при этом не учитывается.
@@ -109,7 +105,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public List<ProposedRoute> ProposedRoutes = new List<ProposedRoute>();
 		#endregion
 
-		public RouteOptimizer() { }
+		IInteractiveService interactiveService;
+		public RouteOptimizer(IInteractiveService service) {
+			interactiveService = service ?? throw new ArgumentNullException(nameof(service));
+		}
 
 		/// <summary>
 		/// Метод создаем маршруты на день основываясь на данных всесенных в поля <c>Routes</c>, <c>Orders</c>,
@@ -189,7 +188,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			/// Создаем калькулятор расчета расстояний. Он сразу запрашивает уже имеющиеся расстояния из кеша
 			/// и в фоновом режиме начинает считать недостающую матрицу.
-			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), DebugBuffer);
+			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Развозка по {0} районам.", calculatedOrders.Select(x => x.District).Distinct().Count());
@@ -300,12 +299,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Закрываем модель...");
 
-			if(WarningMessages.Any() &&
-				!MessageDialogHelper.RunQuestionDialog(
-														"При построении транспортной модели обнаружены следующие проблемы:\n{0}\nПродолжить?",
-														string.Join("\n", WarningMessages.Select(x => "⚠ " + x))
-													)
-												) {
+			if(
+				WarningMessages.Any() && !interactiveService.InteractiveQuestion.Question(
+					string.Join("\n", WarningMessages.Select(x => "⚠ " + x)),
+					"При построении транспортной модели обнаружены следующие проблемы:\n{0}\nПродолжить?"
+				)
+			) {
 				distanceCalculator.Canceled = true;
 				distanceCalculator.Dispose();
 				return;
@@ -323,7 +322,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var lastSolution = solver.MakeLastSolutionCollector();
 			lastSolution.AddObjective(routing.CostVar());
 			routing.AddSearchMonitor(lastSolution);
-			routing.AddSearchMonitor(new CallbackMonitor(solver, OrdersProgress, DebugBuffer, lastSolution));
+			routing.AddSearchMonitor(new CallbackMonitor(solver, StatisticsTxtAction, lastSolution));
 
 			PerformanceHelper.AddTimePoint(logger, $"Закрыли модель");
 			logger.Info("Поиск решения...");
@@ -440,7 +439,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 			Nodes = calculatedOrders.ToArray();
 
-			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), DebugBuffer);
+			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
 
 			MainClass.progressBarWin.ProgressAdd();
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
@@ -493,7 +492,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var lastSolution = solver.MakeLastSolutionCollector();
 			lastSolution.AddObjective(routing.CostVar());
 			routing.AddSearchMonitor(lastSolution);
-			routing.AddSearchMonitor(new CallbackMonitor(solver, OrdersProgress, DebugBuffer, lastSolution));
+			routing.AddSearchMonitor(new CallbackMonitor(solver, StatisticsTxtAction, lastSolution));
 
 			PerformanceHelper.AddTimePoint(logger, $"Закрыли модель");
 			logger.Info("Поиск решения...");

@@ -44,8 +44,9 @@ namespace Vodovoz.Tools.Logistic
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot("Расчет расстояний");
 
-		Gtk.TextBuffer statisticBuffer;
 		int proposeNeedCached = 0;
+		readonly Action<string> statisticsTxtAction;
+
 		DateTime? startLoadTime;
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
 		long totalMeters, totalSec;
@@ -76,13 +77,13 @@ namespace Vodovoz.Tools.Logistic
 
 		/// <param name="provider">Используемый провайдер данных</param>
 		/// <param name="points">Точки для первоначального заполенения из базы.</param>
-		/// <param name="buffer">Буфер для отображения статистики</param>
+		/// <param name="statisticsTxtAction">Функция для буфера для отображения статистики</param>
 		/// <param name="multiThreadLoad">Если <c>true</c> включается моногопоточная загрузка.</param>
-		public ExtDistanceCalculator(DistanceProvider provider, DeliveryPoint[] points, Gtk.TextBuffer buffer, bool multiThreadLoad = true)
+		public ExtDistanceCalculator(DistanceProvider provider, DeliveryPoint[] points, Action<string> statisticsTxtAction, bool multiThreadLoad = true)
 		{
+			this.statisticsTxtAction = statisticsTxtAction;
 			UoW.Session.SetBatchSize(SaveBy);
 			Provider = provider;
-			statisticBuffer = buffer;
 			MultiTaskLoad = multiThreadLoad;
 			Canceled = false;
 			var basesHashes = GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW).Select(CachedDistance.GetHash);
@@ -397,25 +398,27 @@ namespace Vodovoz.Tools.Logistic
 
 		void UpdateText()
 		{
-			if(statisticBuffer == null)
+			if(statisticsTxtAction == null)
 				return;
 
 			double remainTime = 0;
 			if(startLoadTime.HasValue)
 				remainTime = (DateTime.Now - startLoadTime.Value).Ticks * ((double)(proposeNeedCached - totalCached) / addedCached);
-			statisticBuffer.Text = string.Format(
-													"Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nОсталось времени: {9:hh\\:mm\\:ss}\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
-													totalPoints,
-													startCached,
-													totalCached,
-													addedCached,
-													totalErrors,
-													(double)totalMeters / totalSec,
-													(double)totalCached / proposeNeedCached,
-													proposeNeedCached,
-													unsavedItems,
-													TimeSpan.FromTicks((long)remainTime)
-												);
+			statisticsTxtAction.Invoke(
+				string.Format(
+					"Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nОсталось времени: {9:hh\\:mm\\:ss}\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
+					totalPoints,
+					startCached,
+					totalCached,
+					addedCached,
+					totalErrors,
+					(double)totalMeters / totalSec,
+					(double)totalCached / proposeNeedCached,
+					proposeNeedCached,
+					unsavedItems,
+					TimeSpan.FromTicks((long)remainTime)
+				)
+			);
 			QSMain.WaitRedraw(100);
 		}
 

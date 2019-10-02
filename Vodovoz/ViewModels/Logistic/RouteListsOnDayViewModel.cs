@@ -1,0 +1,918 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using NHibernate;
+using NHibernate.Criterion;
+using QS.Commands;
+using QS.DomainModel.UoW;
+using QS.Services;
+using QS.Utilities;
+using QS.ViewModels;
+using Vodovoz.Additions.Logistic;
+using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Tools.Logistic;
+using Order = Vodovoz.Domain.Orders.Order;
+using QS.DomainModel.Entity;
+
+namespace Vodovoz.ViewModels.Logistic
+{
+	public class RouteListsOnDayViewModel : UoWTabViewModelBase
+	{
+		readonly IInteractiveService interactiveService;
+		readonly IRouteListRepository routeListRepository;
+		readonly ISubdivisionRepository subdivisionRepository;
+		readonly IOrderRepository orderRepository;
+		readonly IAtWorkRepository atWorkRepository;
+
+		public RouteListsOnDayViewModel(
+			IInteractiveService interactiveService,
+			IRouteListRepository routeListRepository,
+			ISubdivisionRepository subdivisionRepository,
+			IOrderRepository orderRepository,
+			IAtWorkRepository atWorkRepository
+		) : base(interactiveService)
+		{
+			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
+			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+
+			Employee currentEmployee = ServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
+			if(currentEmployee == null) {
+				ShowWarningMessage("Ваш пользователь не привязан к сотруднику, продолжение работы невозможно");
+				FailInitialize = true;
+				return;
+			}
+
+			if(currentEmployee.Subdivision == null) {
+				ShowWarningMessage("У сотрудника не указано подразделение, продолжение работы невозможно");
+				FailInitialize = true;
+				return;
+			}
+
+			ObservableSubdivisions = new GenericObservableList<Subdivision>(subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, new[] { typeof(Income) }).ToList());
+			if(!ObservableSubdivisions.Any()) {
+				ShowErrorMessage("Не правильно сконфигурированы подразделения кассы, невозможно будет указать подразделение в которое будут сдаваться маршрутные листы");
+				FailInitialize = true;
+				return;
+			}
+
+			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(UoW.GetAll<GeographicGroup>().Select(x => new GeographicGroupNode(x)).ToList());
+			GeographicGroup employeeGeographicGroup = currentEmployee.Subdivision.GetGeographicGroup();
+			if(employeeGeographicGroup != null) {
+				var foundGeoGroup = GeographicGroupNodes.FirstOrDefault(x => x.GeographicGroup.Id == employeeGeographicGroup.Id);
+				if(foundGeoGroup != null)
+					foundGeoGroup.Selected = true;
+			}
+			Optimizer = new RouteOptimizer(interactiveService);
+
+			CreateCommands();
+		}
+
+		void CreateCommands()
+		{
+			CreateRemoveRLItemCommand();
+			CreateOpenOrderOrRouteListCommand();
+			CreateAddDriverCommand();
+			CreateRemoveDriverCommand();
+			CreateRemoveForwarderCommand();
+			CreateRebuilOneRouteCommand();
+			CreateShowWarningsCommand();
+		}
+
+		#region RemoveRLItemCommand
+
+		public DelegateCommand<RouteListItem> RemoveRLItemCommand { get; private set; }
+		void CreateRemoveRLItemCommand()
+		{
+			RemoveRLItemCommand = new DelegateCommand<RouteListItem>(
+				i => {
+					var route = i.RouteList;
+					route.RemoveAddress(i);
+					if(!CheckRouteListWasChanged(route))
+						return;
+
+					SaveRouteList(route);
+					route.RecalculatePlanTime(DistanceCalculator);
+					route.RecalculatePlanedDistance(DistanceCalculator);
+				},
+				i => i != null
+			);
+		}
+
+		#endregion RemoveRLItemCommand
+
+		#region OpenOrderOrRouteListCommand
+
+		public DelegateCommand<object> OpenOrderOrRouteListCommand { get; private set; }
+		void CreateOpenOrderOrRouteListCommand()
+		{//FIXME после переделки диалогов доработать
+			OpenOrderOrRouteListCommand = new DelegateCommand<object>(
+				obj => {/*
+					//Открываем заказ
+					if(obj is RouteListItem) {
+						Order order = (obj as RouteListItem).Order;
+						TabParent.OpenTab(
+							DialogHelper.GenerateDialogHashName<Order>(order.Id),
+							() => new OrderDlg(order)
+						);
+					}
+					//Открываем МЛ
+					if(obj is RouteList) {
+						RouteList routeList = obj as RouteList;
+						if(!HasNoChanges) {
+							if(AskQuestion("Сохранить маршрутный лист перед открытием?"))
+								if(!Save()) {
+									return;
+								} else
+									return;
+						}
+						TabParent.OpenTab(
+							DialogHelper.GenerateDialogHashName<RouteList>(routeList.Id),
+							() => new RouteListCreateDlg(routeList)
+						);
+					}*/
+				},
+				i => false
+			);
+		}
+
+		#endregion OpenOrderOrRouteListCommand
+
+		#region AddDriverCommand
+
+		public DelegateCommand AddDriverCommand { get; private set; }
+		void CreateAddDriverCommand()
+		{
+			AddDriverCommand = new DelegateCommand(
+				() => {/*
+					var drvFilter = new EmployeeFilterViewModel(interactiveService);
+					drvFilter.SetAndRefilterAtOnce (
+						x => x.RestrictCategory = EmployeeCategory.driver,
+						x => x.ShowFired = false
+					);
+					var drvJournalViewModel = new EmployVM(
+						drvFilter,
+						undeliveryViewOpener,
+						employeeService,
+						employeeSelectorFactory,
+						entityConfigurationProvider,
+						CommonServices
+					);
+					drvJournalViewModel.SelectionMode = JournalSelectionMode.Single;
+					drvJournalViewModel.OnEntitySelectedResult += (sender, e) => {
+						var selectedNode = e.SelectedNodes.FirstOrDefault();
+						if(selectedNode == null) {
+							return;
+						}
+						Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
+					};
+					TabParent.AddSlaveTab(this, drvJournalViewModel);
+					*/
+				},
+				() => false
+			);
+		}
+
+		#endregion AddDriverCommand
+
+		#region RemoveDriverCommand
+
+		public DelegateCommand<AtWorkDriver[]> RemoveDriverCommand { get; private set; }
+		void CreateRemoveDriverCommand()
+		{
+			RemoveDriverCommand = new DelegateCommand<AtWorkDriver[]>(
+				driversToDel => {
+					foreach(var driver in driversToDel) {
+						if(driver.Id > 0)
+							UoW.Delete(driver);
+						ObservableDriversOnDay.Remove(driver);
+					}
+				},
+				driversToDel => driversToDel != null && driversToDel.Any()
+			);
+		}
+
+		#endregion RemoveDriverCommand
+
+		#region RemoveForwarderCommand
+
+		public DelegateCommand<AtWorkForwarder[]> RemoveForwarderCommand { get; private set; }
+		void CreateRemoveForwarderCommand()
+		{
+			RemoveForwarderCommand = new DelegateCommand<AtWorkForwarder[]>(
+				forwardersToDel => {
+					foreach(var forwarder in forwardersToDel) {
+						if(forwarder.Id > 0)
+							UoW.Delete(forwarder);
+						ObservableForwardersOnDay.Remove(forwarder);
+					}
+				},
+				forwardersToDel => forwardersToDel != null && forwardersToDel.Any()
+			);
+		}
+
+		#endregion RemoveForwarderCommand
+
+		#region RebuilOneRouteCommand
+
+		public DelegateCommand<object> RebuilOneRouteCommand { get; private set; }
+		void CreateRebuilOneRouteCommand()
+		{
+			RebuilOneRouteCommand = new DelegateCommand<object>(
+				obj => {
+					RouteList route = obj is RouteListItem routeListItem ? routeListItem.RouteList : obj as RouteList;
+
+					//Optimizer.StatisticsTxtAction = textOrdersInfo.Buffer;
+					var newRoute = Optimizer.RebuidOneRoute(route);
+					if(newRoute != null) {
+						newRoute.UpdateAddressOrderInRealRoute(route);
+						route.RecalculatePlanedDistance(DistanceCalculator);
+					} else
+						ShowErrorMessage("Решение не найдено.");
+
+				},
+				obj => obj != null
+			);
+		}
+
+		#endregion RebuilOneRouteCommand
+
+		#region ShowWarningsCommand
+
+		public DelegateCommand ShowWarningsCommand { get; private set; }
+		void CreateShowWarningsCommand()
+		{
+			ShowWarningsCommand = new DelegateCommand(
+				() => ShowWarningMessage(string.Join("\n", Optimizer.WarningMessages.Select(x => "⚠ " + x))),
+				() => true
+			);
+		}
+
+		#endregion ShowWarningsCommand
+
+		public override string TabName {
+			get => string.Format("Формирование МЛ на {0:d}", DateForRouting);
+			set => throw new InvalidOperationException("Установка протеворечит логике работы.");
+		}
+
+		#region Поля
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		//GenericObservableList<AtWorkDriver> observableDriversAtDay;
+		//GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
+
+		#endregion
+
+		#region Свойства
+
+		public IList<RouteList> RoutesOnDay { get; set; }
+
+		public IList<Order> OrdersOnDay { get; set; }
+
+		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; private set; }
+
+		public RouteGeometryCalculator DistanceCalculator { get; } = new RouteGeometryCalculator(DistanceProvider.Osrm);
+
+		Employee selectedDriver;
+		[PropertyChangedAlso(nameof(DriverSelected))]
+		public virtual Employee SelectedDriver {
+			get => selectedDriver;
+			set => SetField(ref selectedDriver, value);
+		}
+
+		Employee selectedForwarder;
+		[PropertyChangedAlso(nameof(ForwarderSelected))]
+		public virtual Employee SelectedForwarder {
+			get => selectedForwarder;
+			set => SetField(ref selectedForwarder, value);
+		}
+
+		DateTime dateForRouting = DateTime.Today;
+		public DateTime DateForRouting {
+			get => dateForRouting;
+			set => SetField(ref dateForRouting, value);
+		}
+
+		public bool DriverSelected => SelectedDriver != null;
+
+		public bool ForwarderSelected => SelectedForwarder != null;
+
+		/*bool showWarningBtn;
+		public virtual bool ShowWarningBtn {
+			get => showWarningBtn;
+			set => SetField(ref showWarningBtn, value);
+		}*/
+
+		bool hasNoChanges = true;
+		public bool HasNoChanges {
+			get => hasNoChanges;
+			set => SetField(ref hasNoChanges, value);
+		}
+
+		IList<AtWorkForwarder> forwardersOnDay = new List<AtWorkForwarder>();
+		public virtual IList<AtWorkForwarder> ForwardersOnDay {
+			get => forwardersOnDay;
+			set => SetField(ref forwardersOnDay, value);
+		}
+
+		GenericObservableList<AtWorkForwarder> observableForwardersOnDay;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<AtWorkForwarder> ObservableForwardersOnDay {
+			get {
+				if(observableForwardersOnDay == null)
+					observableForwardersOnDay = new GenericObservableList<AtWorkForwarder>(ForwardersOnDay);
+				return observableForwardersOnDay;
+			}
+		}
+
+		IList<AtWorkDriver> driversOnDay = new List<AtWorkDriver>();
+		public virtual IList<AtWorkDriver> DriversOnDay {
+			get => driversOnDay;
+			set => SetField(ref driversOnDay, value);
+		}
+
+		GenericObservableList<AtWorkDriver> observableDriversOnDay;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<AtWorkDriver> ObservableDriversOnDay {
+			get {
+				if(observableDriversOnDay == null)
+					observableDriversOnDay = new GenericObservableList<AtWorkDriver>(DriversOnDay);
+				return observableDriversOnDay;
+			}
+		}
+
+		Subdivision closingSubdivision;
+		public virtual Subdivision ClosingSubdivision {
+			get => closingSubdivision;
+			set => SetField(ref closingSubdivision, value);
+		}
+
+		RouteOptimizer optimizer;
+		public virtual RouteOptimizer Optimizer {
+			get => optimizer;
+			set => SetField(ref optimizer, value);
+		}
+
+		IList<ScheduleRestrictedDistrict> logisticanDistricts = new List<ScheduleRestrictedDistrict>();
+		public virtual IList<ScheduleRestrictedDistrict> LogisticanDistricts {
+			get => logisticanDistricts;
+			set => SetField(ref logisticanDistricts, value);
+		}
+
+		GenericObservableList<ScheduleRestrictedDistrict> observableLogisticanDistricts;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ScheduleRestrictedDistrict> ObservableLogisticanDistricts {
+			get {
+				if(observableLogisticanDistricts == null)
+					observableLogisticanDistricts = new GenericObservableList<ScheduleRestrictedDistrict>(LogisticanDistricts);
+				return observableLogisticanDistricts;
+			}
+		}
+
+		bool showCompleted;
+		public virtual bool ShowCompleted {
+			get => showCompleted;
+			set => SetField(ref showCompleted, value);
+		}
+
+		int minBottles19L;
+		public virtual int MinBottles19L {
+			get => minBottles19L;
+			set => SetField(ref minBottles19L, value);
+		}
+
+		TimeSpan deliveryFromTime = TimeSpan.Parse("00:00:00");
+		public virtual TimeSpan DeliveryFromTime {
+			get => deliveryFromTime;
+			set => SetField(ref deliveryFromTime, value);
+		}
+
+		TimeSpan deliveryToTime = TimeSpan.Parse("23:59:59");
+		public virtual TimeSpan DeliveryToTime {
+			get => deliveryToTime;
+			set => SetField(ref deliveryToTime, value);
+		}
+
+		public virtual GenericObservableList<Subdivision> ObservableSubdivisions { get; set; }
+
+		#endregion
+
+		public string GenerateToolTip(RouteList routeList)
+		{
+			var firstDP = routeList.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
+			return string.Format(
+				"Первый адрес: {0:t}\nПуть со склада: {1:N1} км. ({2} мин.)\nВыезд со склада: {3:t}\nПогрузка на складе: {4} минут",
+				routeList.FirstAddressTime,
+				firstDP != null ? DistanceCalculator.DistanceFromBaseMeter(routeList.GeographicGroups.FirstOrDefault(), firstDP) * 0.001 : 0,
+				firstDP != null ? DistanceCalculator.TimeFromBase(routeList.GeographicGroups.FirstOrDefault(), firstDP) / 60 : 0,
+				routeList.OnLoadTimeEnd,
+				routeList.TimeOnLoadMinuts
+			);
+		}
+
+		public string GetRowTitle(object row)
+		{
+			if(row is RouteList rl) {
+				return string.Format("МЛ №{0} - {1}({2})",
+					rl.Id,
+					rl.Driver.ShortName,
+					rl.Car.RegistrationNumber
+				);
+			}
+			if(row is RouteListItem rli)
+				return rli.Order.DeliveryPoint.ShortAddress;
+			return null;
+		}
+
+		public string GetRowTime(object row)
+		{
+			if(row is RouteList rl)
+				return FormatOccupancy(rl.Addresses.Count, rl.Car.MinRouteAddresses, rl.Car.MaxRouteAddresses);
+			return (row as RouteListItem)?.Order.DeliverySchedule.Name;
+		}
+
+		public string GetRowOnloadTime(object row)
+		{
+			if(row is RouteList rl && rl.OnLoadTimeStart.HasValue) {
+				if(rl.OnloadTimeFixed)
+					return string.Format("<span foreground=\"Turquoise\">{0:hh\\:mm}</span>", rl.OnLoadTimeStart.Value);
+				return rl.OnLoadTimeStart.Value.ToString("hh\\:mm");
+			}
+			return null;
+		}
+
+		public string GetRowPlanTime(object row)
+		{
+			if(row is RouteList rl)
+				return string.Format("{0:hh\\:mm}-{1:hh\\:mm}",
+									 rl.Addresses.FirstOrDefault()?.PlanTimeStart,
+									 rl.Addresses.LastOrDefault()?.PlanTimeStart);
+
+			if(row is RouteListItem rli) {
+				string color;
+				if(rli.PlanTimeStart == null || rli.PlanTimeEnd == null)
+					color = "grey";
+				else if(rli.PlanTimeEnd.Value + TimeSpan.FromSeconds(rli.TimeOnPoint) > rli.Order.DeliverySchedule.To)
+					color = "red";
+				else if(rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From)
+					color = "blue";
+				else if(rli.PlanTimeEnd.Value == rli.PlanTimeStart.Value)
+					color = "dark red";
+				else if(rli.PlanTimeEnd.Value - rli.PlanTimeStart.Value <= new TimeSpan(0, 30, 0))
+					color = "orange";
+				else
+					color = "dark green";
+
+				return string.Format("<span foreground=\"{2}\">{0:hh\\:mm}-{1:hh\\:mm}</span> ({3} мин.)",
+									 rli.PlanTimeStart, rli.PlanTimeEnd, color, rli.TimeOnPoint / 60);
+			}
+
+			return null;
+		}
+
+		public string GetRowBottles(object row)
+		{
+			if(row is RouteList rl) {
+				var bottles = rl.Addresses.Sum(x => x.Order.Total19LBottlesToDeliver);
+				return FormatOccupancy(bottles, rl.Car.MinBottles, rl.Car.MaxBottles);
+			}
+
+			if(row is RouteListItem rli)
+				return rli.Order.Total19LBottlesToDeliver.ToString();
+			return null;
+		}
+
+		public string GetRowBottlesSix(object row)
+		{
+			if(row is RouteList rl)
+				return rl.Addresses.Sum(x => x.Order.Total6LBottlesToDeliver).ToString();
+
+			if(row is RouteListItem rli)
+				return rli.Order.Total6LBottlesToDeliver.ToString();
+			return null;
+		}
+
+		public string GetRowBottlesSmall(object row)
+		{
+			if(row is RouteList rl)
+				return rl.Addresses.Sum(x => x.Order.Total600mlBottlesToDeliver).ToString();
+
+			if(row is RouteListItem rli)
+				return rli.Order.Total600mlBottlesToDeliver.ToString();
+			return null;
+		}
+
+		public string GetRowWeight(object row)
+		{
+			if(row is RouteList rl) {
+				var weight = rl.Addresses.Sum(x => x.Order.TotalWeight);
+				return FormatOccupancy(weight, null, rl.Car.MaxWeight);
+			}
+
+			if(row is RouteListItem rli)
+				return rli.Order.TotalWeight.ToString();
+			return null;
+		}
+
+		public string GetRowDistance(object row)
+		{
+			if(row is RouteList rl) {
+				var proposed = Optimizer.ProposedRoutes.FirstOrDefault(x => x.RealRoute == rl);
+				if(rl.PlanedDistance == null)
+					return string.Empty;
+				if(proposed == null)
+					return string.Format("{0:N1}км", rl.PlanedDistance);
+				else
+					return string.Format("{0:N1}км ({1:N})",
+										 rl.PlanedDistance,
+										 (double)proposed.RouteCost / 1000);
+			}
+
+			if(row is RouteListItem rli) {
+				if(rli.IndexInRoute == 0)
+					return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceFromBaseMeter(rli.RouteList.GeographicGroups.FirstOrDefault(), rli.Order.DeliveryPoint) / 1000);
+
+				return string.Format("{0:N1}км", (double)DistanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute - 1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000);
+			}
+			return null;
+		}
+
+		public string GetRowEquipmentFromClient(object row)
+		{
+			if(row is RouteListItem rli) {
+				return rli.Order.FromClientText;
+			}
+			return null;
+		}
+
+		public string GetRowEquipmentToClient(object row)
+		{
+			string nomenclatureName = null;
+			if(row is RouteListItem rli) {
+				foreach(var orderItem in rli.Order.OrderItems) {
+					if(orderItem.Nomenclature.Category == NomenclatureCategory.equipment || orderItem.Nomenclature.Category == NomenclatureCategory.additional)
+						nomenclatureName += " " + orderItem.Nomenclature.Name;
+				}
+				return rli.Order.EquipmentsToClient + nomenclatureName;
+			}
+			return null;
+		}
+
+		string FormatOccupancy(int val, int? min, int? max)
+		{
+			string color = "green";
+			if(val > max)
+				color = "red";
+			if(val < min)
+				color = "blue";
+
+			if(min.HasValue && max.HasValue)
+				return string.Format("<span foreground=\"{0}\">{1}</span>({2}-{3})", color, val, min, max);
+			if(max.HasValue)
+				return string.Format("<span foreground=\"{0}\">{1}</span>({2})", color, val, max);
+			return string.Format("<span foreground=\"{0}\">{1}</span>(min {2})", color, val, min);
+		}
+
+		PointMarkerType[] pointMarkers = {
+			PointMarkerType.blue,
+			PointMarkerType.green,
+			PointMarkerType.orange,
+			PointMarkerType.purple,
+			PointMarkerType.red,
+			PointMarkerType.gray,
+			PointMarkerType.color2,
+			PointMarkerType.color3,
+			PointMarkerType.color4,
+			PointMarkerType.color5,
+			PointMarkerType.color6,
+			PointMarkerType.color7,
+			PointMarkerType.color8,
+			PointMarkerType.color9,
+			PointMarkerType.color10,
+			PointMarkerType.color11,
+			PointMarkerType.color12,
+			PointMarkerType.color13,
+			PointMarkerType.color14,
+			PointMarkerType.color15,
+			PointMarkerType.color16,
+			PointMarkerType.color17,
+			PointMarkerType.color18,
+			PointMarkerType.color20,
+			PointMarkerType.color21,
+			PointMarkerType.color22,
+			PointMarkerType.color23,
+			PointMarkerType.color24,
+		};
+
+		public PointMarkerType GetAddressMarker(int routeNum)
+		{
+			var markerNum = routeNum % pointMarkers.Length;
+			return pointMarkers[markerNum];
+		}
+
+		public int GetMarkerIndex(object row, int maxLen)
+		{
+			int index = 0;
+			if(row is RouteList rl)
+				index = RoutesOnDay.IndexOf(rl);
+			if(row is RouteListItem rli)
+				index = RoutesOnDay.IndexOf(rli.RouteList);
+			if(index < 0 || index >= maxLen)
+				index = 0;
+			return index;
+		}
+
+		public PointMarkerShape GetMarkerShape(object row)
+		{
+			PointMarkerShape shape = PointMarkerShape.circle;
+			if(row is RouteList rl)
+				shape = GetMarkerShapeFromBottleQuantity(rl.TotalFullBottlesToClient);
+			if(row is RouteListItem rli)
+				shape = GetMarkerShapeFromBottleQuantity(rli.GetFullBottlesToDeliverCount());
+			return shape;
+		}
+
+		PointMarkerShape GetMarkerShapeFromBottleQuantity(int bottlesCount)
+		{
+			if(bottlesCount < 6)
+				return PointMarkerShape.triangle;
+			if(bottlesCount < 10)
+				return PointMarkerShape.circle;
+			if(bottlesCount < 20)
+				return PointMarkerShape.square;
+			if(bottlesCount < 40)
+				return PointMarkerShape.cross;
+			return PointMarkerShape.star;
+		}
+
+		public string GetOrdersInfo()
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			int totalOrders = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+										 .GetExecutableQueryOver(UoW.Session)
+										 .Select(Projections.Count<Order>(x => x.Id))
+										 .SingleOrDefault<int>();
+
+			int totalBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+										  .GetExecutableQueryOver(UoW.Session)
+										  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
+										  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+										  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+										  .Select(Projections.Sum(() => orderItemAlias.Count))
+										  .SingleOrDefault<int>();
+
+			var text = new List<string> {
+				NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."),
+				NumberToTextRus.FormatCase(totalBottles, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей")
+			};
+
+			return string.Join("\n", text);
+		}
+
+		public bool CheckAlreadyAddedAddress(Order order)
+		{
+			var routeList = routeListRepository.GetRouteListByOrder(UoW, order);
+			if(routeList != null)
+				ShowWarningMessage($"Адрес ({order.DeliveryPoint.CompiledAddress}) уже был кем-то добавлен в МЛ ({routeList.Id}). Обновите данные.");
+			return routeList == null;
+		}
+
+		public bool CheckRouteListWasChanged(RouteList routeList)
+		{
+			if(!routeListRepository.RouteListWasChanged(routeList))
+				return true;
+			ShowWarningMessage($"МЛ ({routeList.Id}) уже был кем-то изменен. Обновите данные.");
+			return false;
+		}
+
+		public void RecalculateOnLoadTime()
+		{
+			//FIXME Проверять что все МЛ присутствуют
+			RouteList.RecalculateOnLoadTime(RoutesOnDay, DistanceCalculator);
+		}
+
+		public void SaveRouteList(RouteList routeList, Action<string> actionUpdateInfo = null)
+		{
+			RebuildAllRoutes(actionUpdateInfo);
+			UoW.Save(routeList);
+			UoW.Commit();
+			HasNoChanges = true;
+		}
+
+		public void RebuildAllRoutes(Action<string> actionUpdateInfo = null)
+		{
+			int ix = 0;
+			List<string> warnings = new List<string>();
+			Optimizer.StatisticsTxtAction = null;
+
+			foreach(var route in RoutesOnDay) {
+				ix++;
+				actionUpdateInfo?.Invoke($"Строим {ix} из {RoutesOnDay.Count}");
+
+				var newRoute = Optimizer.RebuidOneRoute(route);
+				if(newRoute != null) {
+					newRoute.UpdateAddressOrderInRealRoute(route);
+					route.RecalculatePlanedDistance(DistanceCalculator);
+					var noPlan = route.Addresses.Count(x => !x.PlanTimeStart.HasValue);
+					if(noPlan > 0)
+						warnings.Add($"Для маршрута №{route.Id} - {route.Driver?.ShortName}({route.Car?.RegistrationNumber}) незапланировано {noPlan} адресов.");
+				} else {
+					warnings.Add($"Маршрут {route.Id} не был перестроен.");
+				}
+			}
+			if(warnings.Any())
+				ShowWarningMessage(string.Join("\n", warnings));
+		}
+
+		public void InitializeData(IProgressBarDisplayable progressBar)
+		{
+			UoW.Session.Clear();
+
+			DeliveryPoint deliveryPointAlias = null;
+			ScheduleRestrictedDistrict scheduleRestrictedDistrictAlias = null;
+			GeographicGroup geographicGroupAlias = null;
+
+			var baseOrderQuery = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, ShowCompleted)
+											.GetExecutableQueryOver(UoW.Session);
+			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
+			if(selectedGeographicGroup.Any()) {
+				baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
+							.Left.JoinAlias(() => deliveryPointAlias.District, () => scheduleRestrictedDistrictAlias)
+							.Left.JoinAlias(() => scheduleRestrictedDistrictAlias.GeographicGroups, () => geographicGroupAlias)
+							.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
+			}
+
+			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future();
+
+			orderRepository.GetOrdersForRLEditingQuery(DateForRouting, ShowCompleted)
+						 .GetExecutableQueryOver(UoW.Session)
+						 .Fetch(SelectMode.Fetch, x => x.OrderItems)
+						 .Future();
+			var withoutTime = ordersQuery.Where(x => x.DeliverySchedule == null).ToList();
+			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.CoordinatesExist).ToList();
+			if(withoutTime.Any() || withoutLocation.Any())
+				ShowWarningMessage(
+					"Не все заказы были загружены!" +
+					(withoutTime.Any() ? ("\n* У заказов отсутсвует время доставки: " + string.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
+					(withoutLocation.Any() ? ("\n* У заказов отсутствуют координаты: " + string.Join(", ", withoutLocation.Select(x => x.Id.ToString()))) : "")
+				);
+
+			OrdersOnDay = ordersQuery.Where(x => x.DeliverySchedule != null)
+								  .Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
+								  .Where(x => x.DeliverySchedule.From <= DeliveryToTime)
+								  .Where(x => x.DeliveryPoint != null)
+								  .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+								  .ToList()
+								  ;
+
+			var outLogisticAreas = OrdersOnDay
+				.Where(
+					x => !LogisticanDistricts.Any(
+						a => x.DeliveryPoint.NetTopologyPoint != null && a.DistrictBorder.Contains(x.DeliveryPoint.NetTopologyPoint)
+					)
+				)
+				.ToList();
+			if(outLogisticAreas.Any())
+				ShowWarningMessage(
+					"Обратите внимание, координаты точек доставки для следущих заказов не попадают ни в один логистический район: "
+					+ string.Join(", ", outLogisticAreas.Select(x => x.Id.ToString()))
+				);
+
+			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
+			progressBar.ProgressAdd();
+
+			var routesQuery1 = new RouteListRepository().GetRoutesAtDay(DateForRouting)
+												   .GetExecutableQueryOver(UoW.Session);
+			if(!ShowCompleted)
+				routesQuery1.Where(x => x.Status == RouteListStatus.New);
+			GeographicGroup routeGeographicGroupAlias = null;
+			if(selectedGeographicGroup.Any()) {
+				routesQuery1
+				.Left.JoinAlias(x => x.GeographicGroups, () => routeGeographicGroupAlias)
+				.Where(Restrictions.In(Projections.Property(() => routeGeographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
+			}
+			var routesQuery = routesQuery1
+				.Fetch(SelectMode.Undefined, x => x.Addresses)
+				.Future();
+
+			RoutesOnDay = routesQuery.ToList();
+			RoutesOnDay.ToList().ForEach(rl => rl.UoW = UoW);
+			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
+			RoutesOnDay.ToList().ForEach(rl => rl.CheckAddressOrder());
+
+			progressBar.ProgressAdd();
+			logger.Info("Загружаем водителей на {0:d}...", DateForRouting);
+			DriversOnDay = atWorkRepository.GetDriversAtDay(UoW, DateForRouting);
+
+			progressBar.ProgressAdd();
+			logger.Info("Загружаем экспедиторов на {0:d}...", DateForRouting);
+			ForwardersOnDay = atWorkRepository.GetForwardersAtDay(UoW, DateForRouting);
+		}
+
+
+		public string GetOrdersInfo(int addressesWithoutCoordinats, int addressesWithoutRoutes, int totalBottlesCountAtDay, int bottlesWithoutRL)
+		{
+			var text = new List<string> {
+				NumberToTextRus.FormatCase(OrdersOnDay.Count, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов.")
+			};
+			if(addressesWithoutCoordinats > 0)
+				text.Add(string.Format("Из них {0} без координат.", addressesWithoutCoordinats));
+			if(addressesWithoutRoutes > 0)
+				text.Add(string.Format("Из них {0} без маршрутных листов.", addressesWithoutRoutes));
+			if(totalBottlesCountAtDay > 0)
+				text.Add(NumberToTextRus.FormatCase(totalBottlesCountAtDay, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей"));
+			if(bottlesWithoutRL > 0)
+				text.Add(NumberToTextRus.FormatCase(bottlesWithoutRL, "Осталась {0} бутыль", "Осталось {0} бутыли", "Осталось {0} бутылей"));
+
+			text.Add(NumberToTextRus.FormatCase(RoutesOnDay.Count, "Всего {0} маршрутный лист.", "Всего {0} маршрутных листа.", "Всего {0} маршрутных листов."));
+
+			return string.Join("\n", text);
+		}
+
+		public bool CreateRoutesAutomatically(Action<string> statisticsUpdateAction)
+		{
+			if(DriversOnDay.Any(d => d.Car != null && d.GeographicGroup == null)) {
+				ShowWarningMessage("Не всем автомобилям назначена \"База\" для погрузки-разгрузки. Пожалуйста укажите.");
+				return false;
+			}
+
+			Optimizer.UoW = UoW;
+			Optimizer.Routes = RoutesOnDay;
+			Optimizer.Orders = OrdersOnDay;
+			Optimizer.Drivers = DriversOnDay;
+			Optimizer.Forwarders = ForwardersOnDay;
+			Optimizer.StatisticsTxtAction = statisticsUpdateAction;
+			Optimizer.CreateRoutes();
+
+			if(optimizer.ProposedRoutes.Any()) {
+				//Удаляем корректно адреса из уже имеющихся МЛ. Чтобы они встали в правильный статус.
+				foreach(var route in RoutesOnDay.Where(x => x.Id > 0)) {
+					foreach(var odrer in route.Addresses.ToList()) {
+						route.RemoveAddress(odrer);
+					}
+				}
+
+				foreach(var propose in optimizer.ProposedRoutes) {
+					var rl = propose.Trip.OldRoute ?? new RouteList();
+					rl.UoW = UoW;
+					rl.Car = propose.Trip.Car;
+					rl.Driver = propose.Trip.Driver;
+					rl.Shift = propose.Trip.Shift;
+					rl.Date = DateForRouting;
+					rl.Logistican = ServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
+
+					if(propose.Trip.OldRoute == null) {
+						rl.GeographicGroups.Clear();
+						rl.GeographicGroups.Add(propose.Trip.GeographicGroup);
+					}
+
+					foreach(var order in propose.Orders) {
+						var address = rl.AddAddressFromOrder(order.Order);
+						address.PlanTimeStart = order.ProposedTimeStart;
+						address.PlanTimeEnd = order.ProposedTimeEnd;
+					}
+					if(propose.Trip.OldRoute == null) // Это новый маршрут и его нужно добавить.
+						RoutesOnDay.Add(rl);
+					propose.RealRoute = rl;
+				}
+			}
+
+			RecalculateOnLoadTime();
+			return true;
+		}
+
+		public void SelectCarForDriver(AtWorkDriver driver, Car car)
+		{
+			var driverNames = string.Join("\", \"", DriversOnDay.Where(x => x.Car != null && x.Car.Id == car.Id).Select(x => x.Employee.ShortName));
+			if(
+				string.IsNullOrEmpty(driverNames) || AskQuestion(
+					string.Format(
+						"Автомобиль \"{0}\" уже назначен \"{1}\". Переназначить его водителю \"{2}\"?",
+						car.RegistrationNumber,
+						driverNames,
+						driver.Employee.ShortName
+					)
+				)
+			) {
+				DriversOnDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => { x.Car = null; x.GeographicGroup = null; });
+				driver.Car = car;
+			}
+		}
+	}
+}

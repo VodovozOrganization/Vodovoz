@@ -401,7 +401,6 @@
     <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkDriverMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkForwarderMap.cs" />
-    <Compile Include="Repositories\Logistics\AtWorkRepository.cs" />
     <Compile Include="Domain\Logistic\DriverDistrictPriority.cs" />
     <Compile Include="HibernateMapping\Logistic\DriverDistrictPriorityMap.cs" />
     <Compile Include="Repositories\Logistics\CarRepository.cs" />
@@ -733,6 +732,8 @@
     <Compile Include="HibernateMapping\WageCalculation\SalesPlanMap.cs" />
     <Compile Include="EntityRepositories\UserSingletonRepository.cs" />
     <Compile Include="EntityRepositories\IUserRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\AtWorkRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\IAtWorkRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
