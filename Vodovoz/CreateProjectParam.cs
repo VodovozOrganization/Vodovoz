@@ -173,7 +173,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<WageParameterViewModel, WageParameterView>()
 				.RegisterWidgetForTabViewModel<CarsWageParametersViewModel, CarsWageParametersView>()
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
-				.RegisterWidgetForTabViewModel <FuelDocumentViewModel, FuelDocumentDlg>()
+				.RegisterWidgetForTabViewModel <FuelDocumentViewModel, FuelDocumentView>()
 				;
 
 			//Регистрация фильтров

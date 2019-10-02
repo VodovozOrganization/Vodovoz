@@ -7,12 +7,12 @@ using QS.Views.GtkUI;
 
 namespace Vodovoz
 {
-	public partial class FuelDocumentDlg : TabViewBase<FuelDocumentViewModel>
+	public partial class FuelDocumentView : TabViewBase<FuelDocumentViewModel>
 	{
 		public IUnitOfWork UoW { get; set; }
 		private FuelRepository fuelRepository;
 
-		public FuelDocumentDlg(FuelDocumentViewModel viewModel) : base(viewModel)
+		public FuelDocumentView(FuelDocumentViewModel viewModel) : base(viewModel)
 		{
 			Build();
 			ConfigureDlg();

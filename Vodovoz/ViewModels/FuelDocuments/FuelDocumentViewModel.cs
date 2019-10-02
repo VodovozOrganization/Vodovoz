@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		protected ICommonServices commonServices { get; }
 
 		private FuelDocument fuelDocument;
-		[PropertyChangedAlso("Balance", "FuelInfo", "ResultInfo")]
+		[PropertyChangedAlso(nameof(Balance), nameof(FuelInfo), nameof(ResultInfo))]
 		public virtual FuelDocument FuelDocument {
 			get => fuelDocument;
 			set => SetField(ref fuelDocument, value);
@@ -41,28 +41,25 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public RouteList RouteList { get; set; }
 
 		private Employee cashier;
-		[PropertyChangedAlso("CanEdit")]
+		[PropertyChangedAlso(nameof(CanEdit))]
 		public virtual Employee Cashier {
 			get => cashier;
 			set => SetField(ref cashier, value);
 		}
 
 		private Track track;
-		[PropertyChangedAlso("TrackDistance")]
 		public virtual Track Track {
 			get => track;
 			set => SetField(ref track, value);
 		}
 
 		private bool canEdit = true;
-		[PropertyChangedAlso("CanSaveDocument")]
 		public virtual bool CanEdit {
 			get => canEdit;
 			set => SetField(ref canEdit, value);
 		}
 
 		private bool autoCommit;
-		[PropertyChangedAlso("CanSaveDocument")]
 		public virtual bool AutoCommit {
 			get => autoCommit;
 			set => SetField(ref autoCommit, value);
