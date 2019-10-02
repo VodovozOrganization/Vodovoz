@@ -70,7 +70,6 @@ namespace Vodovoz
 
 		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)
 		{
-			ViewModel.FuelDocument.Fuel.Cost = spinFuelPrice.ValueAsDecimal;
 			ViewModel.UpdateInfo();
 		}
 
@@ -88,5 +87,11 @@ namespace Vodovoz
 		protected void OnButtonSaveClicked(object sender, EventArgs e) => ViewModel.SaveCommand.Execute();
 
 		protected void OnButtonCancelClicked(object sender, EventArgs e) => ViewModel.CancelCommand.Execute();
+
+		protected void OnSpinFuelPriceChanged(object sender, EventArgs e)
+		{
+			if(ViewModel?.FuelDocument?.Fuel != null)
+				ViewModel.FuelDocument.Fuel.Cost = spinFuelPrice.ValueAsDecimal;
+		}
 	}
 }

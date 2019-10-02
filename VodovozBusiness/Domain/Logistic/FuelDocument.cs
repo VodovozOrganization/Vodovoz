@@ -214,6 +214,7 @@ namespace Vodovoz.Domain.Logistic
 				return;
 
 			FuelOperation.PayedLiters = PayedLiters;
+			FuelOperation.LitersGived = FuelCoupons + PayedLiters;
 		}
 
 		private void CreateFuelOperation()

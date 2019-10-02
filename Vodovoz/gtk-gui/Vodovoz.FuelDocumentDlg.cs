@@ -461,6 +461,7 @@ namespace Vodovoz
 			this.buttonOpenExpense.Clicked += new global::System.EventHandler(this.OnButtonOpenExpenseClicked);
 			this.disablespinMoney.ValueChanged += new global::System.EventHandler(this.OnDisablespinMoneyValueChanged);
 			this.buttonSetRemain.Clicked += new global::System.EventHandler(this.OnButtonSetRemainClicked);
+			this.spinFuelPrice.Changed += new global::System.EventHandler(this.OnSpinFuelPriceChanged);
 		}
 	}
 }
