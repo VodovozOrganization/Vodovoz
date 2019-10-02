@@ -41,7 +41,6 @@ namespace Vodovoz
 			yspinFuelTicketLiters.Binding.AddBinding (ViewModel.FuelDocument, e => e.FuelCoupons, w => w.ValueAsInt).InitializeFromSource ();
 
 			disablespinMoney.Binding.AddBinding(ViewModel.FuelDocument, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
-			spinFuelPrice.Binding.AddBinding(ViewModel.FuelDocument, e => e.LiterCost, w => w.ValueAsDecimal).InitializeFromSource();
 
 			labelResultInfo.Binding.AddBinding(ViewModel, e => e.ResultInfo, w => w.Text).InitializeFromSource();
 			labelAvalilableFuel.Binding.AddBinding(ViewModel, e => e.BalanceState, w => w.Text).InitializeFromSource();
@@ -61,9 +60,11 @@ namespace Vodovoz
 			yspinFuelTicketLiters.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
 			yenumcomboboxPaymentType.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
 
-			if(ViewModel?.FuelDocument?.FuelOperation?.PayedLiters > 0m) {
+			spinFuelPrice.Binding.AddBinding(ViewModel.FuelDocument, e => e.LiterCost, w => w.ValueAsDecimal).InitializeFromSource();
+
+			if(ViewModel?.FuelDocument?.FuelOperation?.PayedLiters > 0m)
 				disablespinMoney.Active = true; // Перенести в VM
-			}
+			
 
 			disablespinMoney.Binding.AddBinding(ViewModel, e => e.IsNewEditable, w => w.Sensitive).InitializeFromSource();
 		}
@@ -87,11 +88,5 @@ namespace Vodovoz
 		protected void OnButtonSaveClicked(object sender, EventArgs e) => ViewModel.SaveCommand.Execute();
 
 		protected void OnButtonCancelClicked(object sender, EventArgs e) => ViewModel.CancelCommand.Execute();
-
-		protected void OnSpinFuelPriceChanged(object sender, EventArgs e)
-		{
-			if(ViewModel?.FuelDocument?.Fuel != null)
-				ViewModel.FuelDocument.Fuel.Cost = spinFuelPrice.ValueAsDecimal;
-		}
 	}
 }

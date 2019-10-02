@@ -24,7 +24,7 @@ namespace Vodovoz
 
 		private global::QSOrmProject.DisableSpinButton disablespinMoney;
 
-		private global::Gtk.Button buttonSetRemain;
+		private global::Gamma.GtkWidgets.yButton buttonSetRemain;
 
 		private global::Gtk.HBox hbox5;
 
@@ -179,7 +179,7 @@ namespace Vodovoz
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.buttonSetRemain = new global::Gtk.Button();
+			this.buttonSetRemain = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSetRemain.CanFocus = true;
 			this.buttonSetRemain.Name = "buttonSetRemain";
 			this.buttonSetRemain.UseUnderline = true;
@@ -461,7 +461,6 @@ namespace Vodovoz
 			this.buttonOpenExpense.Clicked += new global::System.EventHandler(this.OnButtonOpenExpenseClicked);
 			this.disablespinMoney.ValueChanged += new global::System.EventHandler(this.OnDisablespinMoneyValueChanged);
 			this.buttonSetRemain.Clicked += new global::System.EventHandler(this.OnButtonSetRemainClicked);
-			this.spinFuelPrice.Changed += new global::System.EventHandler(this.OnSpinFuelPriceChanged);
 		}
 	}
 }

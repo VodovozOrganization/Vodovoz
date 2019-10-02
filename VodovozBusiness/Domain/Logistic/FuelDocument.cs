@@ -78,8 +78,8 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref payedForLiter, value, () => PayedForFuel); }
 		}
 
-		private FuelPaymentType fuelPaymentType = FuelPaymentType.Cash;
-		public virtual FuelPaymentType FuelPaymentType {
+		private FuelPaymentType? fuelPaymentType;
+		public virtual FuelPaymentType? FuelPaymentType {
 			get => fuelPaymentType;
 			set => SetField(ref fuelPaymentType, value);
 		}
@@ -213,8 +213,8 @@ namespace Vodovoz.Domain.Logistic
 			if(FuelOperation.PayedLiters <= 0m)
 				return;
 
-			FuelOperation.PayedLiters = PayedLiters;
-			FuelOperation.LitersGived = FuelCoupons + PayedLiters;
+			FuelOperation.PayedLiters = Math.Round(PayedForFuel.Value / LiterCost, 2, MidpointRounding.AwayFromZero);
+			FuelOperation.LitersGived = FuelCoupons + FuelOperation.PayedLiters;
 		}
 
 		private void CreateFuelOperation()
@@ -259,7 +259,7 @@ namespace Vodovoz.Domain.Logistic
 
 		private void CreateFuelCashExpense(ExpenseCategory expenseCategory)
 		{
-			if(FuelPaymentType == FuelPaymentType.Cashless)
+			if(FuelPaymentType.HasValue && FuelPaymentType.Value == Logistic.FuelPaymentType.Cashless)
 				return;
 
 			if(!PayedForFuel.HasValue || (PayedForFuel.HasValue && PayedForFuel.Value <= 0))
@@ -314,6 +314,10 @@ namespace Vodovoz.Domain.Logistic
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.PayedLiters) });
 			}
 
+			if(Id <= 0 && PayedForFuel > 0m && FuelPaymentType == null) {
+				yield return new ValidationResult("Не указан тип оплаты топлива.",
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.FuelPaymentType) });
+			}
 
 			if(validationContext.Items.ContainsKey("Reason") && (validationContext.Items["Reason"] as string) == nameof(CreateOperations)) {
 				if(!(validationContext.GetService(typeof(IFuelRepository)) is IFuelRepository fuelRepository)) {
@@ -334,9 +338,9 @@ namespace Vodovoz.Domain.Logistic
 
 	public enum FuelPaymentType
 	{
-		[Display(Name = "НАЛ")]
+		[Display(Name = "нал")]
 		Cash,
-		[Display(Name = "БЕЗНАЛ")]
+		[Display(Name = "безнал")]
 		Cashless
 	}
 

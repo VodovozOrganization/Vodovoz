@@ -469,7 +469,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal MoneyToReturn {
 			get {
-				decimal payedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue).Sum(x => x.PayedForFuel.Value);
+				decimal payedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue && x.FuelPaymentType.HasValue && x.FuelPaymentType == FuelPaymentType.Cash).Sum(x => x.PayedForFuel.Value);
 
 				return Total - payedForFuel;
 			}

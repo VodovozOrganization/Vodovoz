@@ -224,7 +224,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			TabName = "Выдача топлива";
 			CreateCommands();
 			Track = TrackRepository.GetTrackForRouteList(UoW, RouteList.Id);
-			FuelDocument.FillEntity(RouteList);
+			if(FuelDocument.Id == 0)
+				FuelDocument.FillEntity(RouteList);
 			if(!InitActualCashier())
 				Close(false);
 			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
@@ -268,15 +269,17 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 			if(!valid)
 				return false;
-
-			FuelDocument.CreateOperations(fuelRepository);
+			if(FuelDocument.Id == 0) 
+			{
+				FuelDocument.CreateOperations(fuelRepository);
+				RouteList.ObservableFuelDocuments.Add(FuelDocument);
+			} 
+			else 
+			{
+				FuelDocument.UpdateFuelOperation(fuelRepository);
+			}
 
 			logger.Info("Сохраняем топливный документ...");
-
-			if(FuelDocument.Id == 0)
-				RouteList.ObservableFuelDocuments.Add(FuelDocument);
-			else
-				FuelDocument.UpdateFuelOperation(fuelRepository);
 
 			if(autoCommit)
 				UoW.Save();
