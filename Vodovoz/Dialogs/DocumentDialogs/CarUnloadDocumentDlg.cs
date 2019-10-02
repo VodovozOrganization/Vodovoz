@@ -87,7 +87,7 @@ namespace Vodovoz
 			var currentUserId = QS.Project.Services.ServicesConfig.CommonServices.UserService.CurrentUserId;
 			var hasPermitionToEditDocWithClosedRL = QS.Project.Services.ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_car_load_and_unload_docs", currentUserId);
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.CarUnloadEdit, Entity.Warehouse);
-			editing &= Entity.RouteList.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
+			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository());
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
 			returnsreceptionview1.Sensitive =
