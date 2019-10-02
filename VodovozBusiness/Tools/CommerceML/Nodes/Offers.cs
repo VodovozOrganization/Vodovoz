@@ -38,6 +38,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 				goodxml.Add(new XElement("Ид", good.OnlineStoreGuid));
 				goodxml.Add(new XElement("Штрихкод"));
 				goodxml.Add(new XElement("Наименование", good.Name));
+				goodxml.Add(new XElement("ЦенаЗакупки", good.PurchasePrice > 0m ? good.PurchasePrice.ToString() : String.Empty));
 				goodxml.Add(new XElement("Цены", 
 				                         new XElement("Цена", 
 				                                      new XElement("Представление", String.Format("{0:N} руб. за {1}", good.GetPrice(1), good.Unit?.Name)),

@@ -64,6 +64,10 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CountryOfOrigin).Column("country_of_origin");
 			Map(x => x.AmountInAPackage).Column("amount_in_a_package");
 
+			Map(x => x.StorageCell).Column("storage_cell");
+			Map(x => x.PurchasePrice).Column("purchase_price");
+
+			References(x => x.ShipperCounterparty).Column("shipper_counterparty_id");
 			References(x => x.CreatedBy).Column("created_by");
 			References(x => x.DependsOnNomenclature).Column("depends_on_nomenclature");
 			References(x => x.Unit).Column("unit_id").Not.LazyLoad();

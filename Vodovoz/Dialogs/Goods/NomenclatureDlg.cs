@@ -21,6 +21,10 @@ using Vodovoz.Repository;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModel;
 using Vodovoz.Domain.Logistic;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Domain.Client;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz
 {
@@ -130,6 +134,15 @@ namespace Vodovoz
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			checkIsArchive.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_create_and_arc_nomenclatures"];
 
+			entityviewmodelentryShipperCounterparty.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
+			);
+			entityviewmodelentryShipperCounterparty.Binding.AddBinding(Entity, s => s.ShipperCounterparty, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryShipperCounterparty.CanEditReference = true;
+			yentryStorageCell.Binding.AddBinding(Entity, s => s.StorageCell, w => w.Text).InitializeFromSource();
+			yspinbuttonPurchasePrice.Binding.AddBinding(Entity, s => s.PurchasePrice, w => w.ValueAsDecimal).InitializeFromSource();
+			UpdateVisibilityForEshopParam();
+
 			#region Вкладка "Склады отгрузки"
 
 			//repTreeViewWarehouses.RepresentationModel = new WarehousesVM(UoW);
@@ -175,6 +188,20 @@ namespace Vodovoz
 			menuActions.Menu = menu;
 			menu.ShowAll();
 			menuActions.Sensitive = !UoWGeneric.IsNew;
+		}
+
+		void UpdateVisibilityForEshopParam()
+		{
+			bool isEshopNomenclature = Entity?.ProductGroup.ExportToOnlineStore ?? false;
+
+			entityviewmodelentryShipperCounterparty.Visible = isEshopNomenclature;
+			labelShipperCounterparty.Visible = isEshopNomenclature;
+			yentryStorageCell.Visible = isEshopNomenclature;
+			labelStorageCell.Visible = isEshopNomenclature;
+			yspinbuttonPurchasePrice.Visible = isEshopNomenclature;
+			labelPurchasePrice.Visible = isEshopNomenclature;
+
+
 		}
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -406,6 +433,11 @@ namespace Vodovoz
 		{
 			if(Entity.Id == 0 && Nomenclature.GetCategoriesWithSaleCategory().Contains(Entity.Category))
 				Entity.SaleCategory = SaleCategory.notForSale;
+		}
+
+		protected void OnYentryProductGroupChangedByUser(object sender, EventArgs e)
+		{
+			UpdateVisibilityForEshopParam();
 		}
 	}
 }
