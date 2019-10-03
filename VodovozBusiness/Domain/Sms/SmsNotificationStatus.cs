@@ -6,8 +6,6 @@ namespace Vodovoz.Domain.Sms
 	{
 		[Display(Name = "Новое")]
 		New,
-		[Display(Name = "Отправлено")]
-		Sended,
 		[Display(Name = "Приятно")]
 		Accepted,
 		[Display(Name = "Ошибка")]
