@@ -745,6 +745,7 @@
     <Compile Include="Domain\Sms\SmsNotifier.cs" />
     <Compile Include="Domain\Sms\LowBalanceSmsNotification.cs" />
     <Compile Include="Services\ISmsNotifierParametersProvider.cs" />
+    <Compile Include="HibernateMapping\Sms\SmsNotificationMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -812,6 +813,7 @@
     <Folder Include="Domain\WageCalculation\CalculationServices\" />
     <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
     <Folder Include="Domain\Sms\" />
+    <Folder Include="HibernateMapping\Sms\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
