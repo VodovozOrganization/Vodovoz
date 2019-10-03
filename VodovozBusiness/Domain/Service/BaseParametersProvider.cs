@@ -4,9 +4,8 @@ using Vodovoz.Services;
 
 namespace Vodovoz.Core.DataService
 {
-	public class BaseParametersProvider : IStandartNomenclatures, IImageProvider, IStandartDiscountsService, IPersonProvider, ISubdivisionService, ICommonParametersProvider
+	public class BaseParametersProvider : IStandartNomenclatures, IImageProvider, IStandartDiscountsService, IPersonProvider, ISubdivisionService, ICommonParametersProvider, ISmsNotifierParametersProvider
 	{
-
 		public int GetForfeitId()
 		{
 			if(!MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) {
@@ -61,5 +60,17 @@ namespace Vodovoz.Core.DataService
 				return false;
 			return res;
 		}
+		
+		#region ISmsNotifierParameters implementation
+
+		public string GetNewClientSmsTextTemplate()
+		{
+			if(!MainSupport.BaseParameters.All.ContainsKey("new_client_sms_text_template")) {
+				throw new InvalidProgramException("В параметрах базы не настроен шаблон для смс уведомлений новых клиентов (new_client_sms_text_template).");
+			}
+			return MainSupport.BaseParameters.All["new_client_sms_text_template"];
+		}
+
+		#endregion ISmsNotifierParameters implementation
 	}
 }

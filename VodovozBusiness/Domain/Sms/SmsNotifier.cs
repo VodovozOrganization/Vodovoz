@@ -3,11 +3,19 @@ using QS.DomainModel.UoW;
 using QS.Contacts;
 using System.Linq;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Sms
 {
 	public class SmsNotifier
 	{
+		private readonly ISmsNotifierParametersProvider smsNotifierParametersProvider;
+
+		public SmsNotifier(ISmsNotifierParametersProvider smsNotifierParametersProvider)
+		{
+			this.smsNotifierParametersProvider = smsNotifierParametersProvider ?? throw new ArgumentNullException(nameof(smsNotifierParametersProvider));
+		}
+
 		/// <summary>
 		/// Создает новое смс уведомление для заказа, если этот заказ является первым заказом у контрагента
 		/// и если не было создано других смс уведомлений по этому заказу
@@ -38,7 +46,7 @@ namespace Vodovoz.Domain.Sms
 			}
 
 			//получение текста сообщения
-			string messageText = $"Возврат бутыли обязателен! Заказ №$order_id$, доставка $delivery_date_time$";
+			string messageText = smsNotifierParametersProvider.GetNewClientSmsTextTemplate();
 
 			//формирование текста сообщения
 			const string orderIdVariable = "$order_id$";
