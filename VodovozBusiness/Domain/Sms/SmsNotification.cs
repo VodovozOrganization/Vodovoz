@@ -38,6 +38,13 @@ namespace Vodovoz.Domain.Sms
 			set => SetField(ref messageText, value, () => MessageText);
 		}
 
+		private string serverMessageId;
+		[Display(Name = "Идентификатор сообщения на стороне сервера")]
+		public virtual string ServerMessageId {
+			get => serverMessageId;
+			set => SetField(ref serverMessageId, value, () => ServerMessageId);
+		}
+
 		private string errorDescription;
 		[Display(Name = "Описание ошибки")]
 		public virtual string ErrorDescription {

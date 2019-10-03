@@ -739,6 +739,7 @@
     <Compile Include="Domain\Sms\SmsNotificationStatus.cs" />
     <Compile Include="Domain\Sms\SmsNotifier.cs" />
     <Compile Include="Domain\Sms\LowBalanceSmsNotification.cs" />
+    <Compile Include="Services\ISmsNotifierParametersProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
