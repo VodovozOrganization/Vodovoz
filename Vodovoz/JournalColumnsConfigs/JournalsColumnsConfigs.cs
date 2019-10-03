@@ -289,6 +289,23 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
+
+			//EmployeesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<EmployeesJournalViewModel>(
+				() => FluentColumnsConfig<EmployeeJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Ф.И.О.")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.FullName)
+					.AddColumn("Категория")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.EmpCatEnum.GetEnumTitle())
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
 		}
 	}
 }

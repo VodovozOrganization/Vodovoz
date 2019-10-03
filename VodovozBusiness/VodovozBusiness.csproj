@@ -734,6 +734,8 @@
     <Compile Include="EntityRepositories\IUserRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\AtWorkRepository.cs" />
     <Compile Include="EntityRepositories\Logistic\IAtWorkRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\CarRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\ICarRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -8,9 +8,11 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using Vodovoz;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -33,8 +35,6 @@ using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
-using QS.EntityRepositories;
-using QS.Project.Services;
 
 public partial class MainWindow : Window
 {
@@ -389,11 +389,14 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			"AutoRouting",
 			() => new RouteListsOnDayViewModel(
-				ServicesConfig.CommonServices.InteractiveService,
+				ServicesConfig.CommonServices,
+				new GtkTabsOpener(),
+				new DefaultEntityConfigurationProvider(),
 				new RouteListRepository(),
 				new SubdivisionRepository(),
 				OrderSingletonRepository.GetInstance(),	
-				new AtWorkRepository()
+				new AtWorkRepository(),
+				new CarRepository()
 			)
 		);
 	}

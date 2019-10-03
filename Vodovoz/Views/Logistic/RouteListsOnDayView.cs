@@ -142,12 +142,12 @@ namespace Vodovoz.Views.Logistic
 																		  .AddColumn("")
 																		  .Finish();
 			ytreeviewOnDayDrivers.Selection.Mode = SelectionMode.Multiple;
-			ytreeviewOnDayDrivers.Selection.Changed += (sender, e) => ViewModel.SelectedDriver = ytreeviewOnDayDrivers.GetSelectedObjects<Employee>().FirstOrDefault();
+			ytreeviewOnDayDrivers.Selection.Changed += (sender, e) => ViewModel.SelectedDriver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
 			ytreeviewOnDayDrivers.Binding.AddBinding(ViewModel, vm => vm.ObservableDriversOnDay, w => w.ItemsDataSource).InitializeFromSource();
 
 
-			buttonRemoveDriver.Binding.AddBinding(ViewModel, vm => vm.DriverSelected, w => w.Sensitive).InitializeFromSource();
-			buttonDriverSelectAuto.Binding.AddBinding(ViewModel, vm => vm.DriverSelected, w => w.Sensitive).InitializeFromSource();
+			buttonRemoveDriver.Binding.AddBinding(ViewModel, vm => vm.IsDriverSelected, w => w.Sensitive).InitializeFromSource();
+			buttonDriverSelectAuto.Binding.AddBinding(ViewModel, vm => vm.IsDriverSelected, w => w.Sensitive).InitializeFromSource();
 
 
 			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
@@ -155,10 +155,10 @@ namespace Vodovoz.Views.Logistic
 																							 .AddTextRenderer(x => x.Employee.ShortName)
 																						 .Finish();
 			ytreeviewOnDayForwarders.Selection.Mode = SelectionMode.Multiple;
-			ytreeviewOnDayForwarders.Selection.Changed += (sender, e) => ViewModel.SelectedForwarder = ytreeviewOnDayForwarders.GetSelectedObjects<Employee>().FirstOrDefault();
+			ytreeviewOnDayForwarders.Selection.Changed += (sender, e) => ViewModel.SelectedForwarder = ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>().FirstOrDefault();
 			ytreeviewOnDayForwarders.Binding.AddBinding(ViewModel, vm => vm.ObservableForwardersOnDay, w => w.ItemsDataSource).InitializeFromSource();
 
-			buttonRemoveForwarder.Binding.AddBinding(ViewModel, vm => vm.ForwarderSelected, w => w.Sensitive).InitializeFromSource();
+			buttonRemoveForwarder.Binding.AddBinding(ViewModel, vm => vm.IsForwarderSelected, w => w.Sensitive).InitializeFromSource();
 
 			//ytimeToDeliveryFrom.Time = TimeSpan.Parse("00:00:00");
 			//ytimeToDeliveryTo.Time = TimeSpan.Parse("23:59:59");
@@ -674,64 +674,13 @@ namespace Vodovoz.Views.Logistic
 
 		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
 		{
-			/*var SelectDrivers = new OrmReference(
-				UoW,
-				EmployeeRepository.ActiveDriversOrderedQuery()
-			) {
-				Mode = OrmReferenceMode.MultiSelect
-			};
-			SelectDrivers.ObjectSelected += SelectDrivers_ObjectSelected;
-			TabParent.AddSlaveTab(this, SelectDrivers);*/
+			ViewModel.AddDriverCommand.Execute();
 		}
-
-		/*void SelectDrivers_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			var addDrivers = e.GetEntities<Employee>().ToList();
-			logger.Info("Получаем авто для водителей...");
-			MainClass.progressBarWin.ProgressStart(2);
-			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
-			var allCars = Repository.Logistics.CarRepository.GetCarsbyDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
-			MainClass.progressBarWin.ProgressAdd();
-
-			foreach(var driver in addDrivers) {
-				driversAtDay.Add(
-					new AtWorkDriver(
-						driver,
-						CurDate,
-						allCars.FirstOrDefault(x => x.Driver.Id == driver.Id)
-					)
-				);
-			}
-			MainClass.progressBarWin.ProgressAdd();
-			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
-			logger.Info("Ок");
-			MainClass.progressBarWin.ProgressClose();
-		}*/
 
 		protected void OnButtonAddForwarderClicked(object sender, EventArgs e)
 		{
-			/*var SelectForwarder = new OrmReference(
-				UoW,
-				EmployeeRepository.ActiveForwarderOrderedQuery()
-			) {
-				Mode = OrmReferenceMode.MultiSelect
-			};
-			SelectForwarder.ObjectSelected += SelectForwarder_ObjectSelected;
-			TabParent.AddSlaveTab(this, SelectForwarder);*/
+			ViewModel.AddForwarderCommand.Execute();
 		}
-
-		/*void SelectForwarder_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			var addForwarder = e.GetEntities<Employee>();
-			foreach(var forwarder in addForwarder) {
-				if(forwardersAtDay.Any(x => x.Employee.Id == forwarder.Id)) {
-					logger.Warn($"Экспедитор {forwarder.ShortName} пропущен так как уже присутствует в списке.");
-					continue;
-				}
-				forwardersAtDay.Add(new AtWorkForwarder(forwarder, CurDate));
-			}
-			ForwardersAtDay = forwardersAtDay.OrderBy(x => x.Employee.ShortName).ToList();
-		}*/
 
 		protected void OnButtonRemoveDriverClicked(object sender, EventArgs e)
 		{

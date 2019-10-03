@@ -1324,6 +1324,8 @@
     <Compile Include="Additions\Logistic\PointMarkerType.cs" />
     <Compile Include="Additions\Logistic\PointMarkerShape.cs" />
     <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
+    <Compile Include="JournalViewModels\EmployeesJournalViewModel.cs" />
+    <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
