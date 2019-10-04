@@ -192,7 +192,7 @@ namespace Vodovoz
 
 		void UpdateVisibilityForEshopParam()
 		{
-			bool isEshopNomenclature = Entity?.ProductGroup.ExportToOnlineStore ?? false;
+			bool isEshopNomenclature = Entity?.ProductGroup?.ExportToOnlineStore ?? false;
 
 			entityviewmodelentryShipperCounterparty.Visible = isEshopNomenclature;
 			labelShipperCounterparty.Visible = isEshopNomenclature;

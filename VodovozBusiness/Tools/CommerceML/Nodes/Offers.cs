@@ -31,8 +31,8 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 			var xml = new XElement("Предложения");
 			foreach(var good in myExport.Catalog.Goods.Nomenclatures)
 			{
-				if(!amounts.ContainsKey(good.Id))
-					continue;
+				//if(!amounts.ContainsKey(good.Id)) Раскоментировать после запуска интернет магазина 
+					//continue;
 
 				var goodxml = new XElement("Предложение");
 				goodxml.Add(new XElement("Ид", good.OnlineStoreGuid));
@@ -48,7 +48,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 				                                      new XElement("Единица", good.Unit?.Name),
 				                                      new XElement("Коэффициент", 1)
 				                                     )));
-				goodxml.Add(new XElement("Количество", XmlConvert.ToString(amounts[good.Id])));
+				goodxml.Add(new XElement("Количество", XmlConvert.ToString(amounts[good.Id] > 0 ? amounts[good.Id] : 1)));
 				xml.Add(goodxml);
 			}
 			return xml;
