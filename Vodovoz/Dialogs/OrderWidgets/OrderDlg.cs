@@ -65,6 +65,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using QS.EntityRepositories;
+using Vodovoz.Domain.Sms;
 
 namespace Vodovoz
 {
@@ -715,7 +716,14 @@ namespace Vodovoz
 
 			treeItems.Selection.UnselectAll();
 			Save();
+			ProcessSmsNotification();
 			UpdateUIState();
+		}
+
+		private void ProcessSmsNotification()
+		{
+			SmsNotifier smsNotifier = new SmsNotifier(new BaseParametersProvider());
+ 			smsNotifier.NotifyIfNewClient(Entity);
 		}
 
 		private bool ValidateAndFormOrder()

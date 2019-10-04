@@ -24,9 +24,9 @@ namespace Vodovoz.Domain.Sms
 			set => SetField(ref status, value, () => Status);
 		}
 
-		private int mobilePhone;
+		private string mobilePhone;
 		[Display(Name = "Номер мобильного телефона")]
-		public virtual int MobilePhone {
+		public virtual string MobilePhone {
 			get => mobilePhone;
 			set => SetField(ref mobilePhone, value, () => MobilePhone);
 		}
