@@ -81,7 +81,7 @@ namespace Vodovoz.Domain.Sms
 		private string GetMobilePhoneNumberForOrder(Order order)
 		{
 			Phone phone = null;
-			if(order.DeliveryPoint != null) {
+			if(order.DeliveryPoint != null && !order.DeliveryPoint.Phones.Any()) {
 				phone = order.DeliveryPoint.Phones.FirstOrDefault();
 			} else {
 				phone = order.Client.Phones.FirstOrDefault();
