@@ -22,10 +22,14 @@ namespace Vodovoz.Domain.Sms
 		/// </summary>
 		public void NotifyIfNewClient(Order order)
 		{
-			if(order == null || order.Id == 0 || !order.DeliveryDate.HasValue) {
+			if(order == null || order.Id == 0 || order.OrderStatus == OrderStatus.NewOrder || !order.DeliveryDate.HasValue) {
 				return;
 			}
 			if(order.Client.FirstOrder == null || order.Client.FirstOrder.Id != order.Id) {
+				return;
+			}
+			//проверка даты без времени
+			if(order.DeliveryDate < DateTime.Today) {
 				return;
 			}
 
@@ -40,8 +44,8 @@ namespace Vodovoz.Domain.Sms
 			}
 
 			//формирование номера мобильного телефона
-			int? mobilePhoneNumber = GetMobilePhoneNumberForOrder(order);
-			if(!mobilePhoneNumber.HasValue) {
+			string mobilePhoneNumber = GetMobilePhoneNumberForOrder(order);
+			if(string.IsNullOrWhiteSpace(mobilePhoneNumber)) {
 				return;
 			}
 
@@ -52,7 +56,7 @@ namespace Vodovoz.Domain.Sms
 			const string orderIdVariable = "$order_id$";
 			const string deliveryDateTimeVariable = "$delivery_date_time$";
 			messageText = messageText.Replace(orderIdVariable, $"{order.Id}");
-			string orderScheduleTimeString = order.DeliverySchedule != null ? $"c {order.DeliverySchedule.From.Hours}:{order.DeliverySchedule.From.Minutes} по {order.DeliverySchedule.To.Hours}:{order.DeliverySchedule.To.Minutes}" : "";
+			string orderScheduleTimeString = order.DeliverySchedule != null ? $"c {order.DeliverySchedule.From.Hours}:{order.DeliverySchedule.From.Minutes:D2} по {order.DeliverySchedule.To.Hours}:{order.DeliverySchedule.To.Minutes:D2}" : "";
 			messageText = messageText.Replace(deliveryDateTimeVariable, $"{order.DeliveryDate.Value.ToString("dd.MM.yyyy")} {orderScheduleTimeString}");
 
 			//создание нового уведомления для отправки
@@ -60,7 +64,7 @@ namespace Vodovoz.Domain.Sms
 				uow.Root.Order = order;
 				uow.Root.Counterparty = order.Client;
 				uow.Root.NotifyTime = DateTime.Now;
-				uow.Root.MobilePhone = mobilePhoneNumber.Value;
+				uow.Root.MobilePhone = mobilePhoneNumber;
 				uow.Root.Status = SmsNotificationStatus.New;
 				uow.Root.MessageText = messageText;
 				uow.Root.ExpiredTime = new DateTime(
@@ -74,10 +78,10 @@ namespace Vodovoz.Domain.Sms
 			}
 		}
 
-		private int? GetMobilePhoneNumberForOrder(Order order)
+		private string GetMobilePhoneNumberForOrder(Order order)
 		{
 			Phone phone = null;
-			if(order.DeliveryPoint == null) {
+			if(order.DeliveryPoint != null) {
 				phone = order.DeliveryPoint.Phones.FirstOrDefault();
 			} else {
 				phone = order.Client.Phones.FirstOrDefault();
@@ -90,12 +94,7 @@ namespace Vodovoz.Domain.Sms
 			if(stringPhoneNumber.Length == 0 || stringPhoneNumber.First() != '9' || stringPhoneNumber.Length != 10) {
 				return null;
 			}
-
-			if(!int.TryParse(stringPhoneNumber, out int number)) {
-				return null;
-			}
-
-			return number;
+			return $"+7{stringPhoneNumber}";
 		}
 	}
 }
