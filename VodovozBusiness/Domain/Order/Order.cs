@@ -595,6 +595,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref onlineOrder, value, () => OnlineOrder);
 		}
 
+		private int? eShopOrder;
+		[Display(Name = "Заказ из интернет магазина")]
+		public virtual int? EShopOrder {
+			get => eShopOrder;
+			set => SetField(ref eShopOrder, value);
+		}
+
+
 		private bool isContractCloser;
 
 		[Display(Name = "Заказ - закрывашка по контракту?")]

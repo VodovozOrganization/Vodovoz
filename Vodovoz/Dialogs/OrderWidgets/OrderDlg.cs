@@ -298,7 +298,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPoint.Sensitive = (Entity.Client != null);
 			referenceDeliveryPoint.CanEditReference = true;
-			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"];
+			chkContractCloser.Sensitive = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_set_contract_closer"];
 
 			buttonViewDocument.Sensitive = false;
 			btnDeleteOrderItem.Sensitive = false;
@@ -372,6 +372,9 @@ namespace Vodovoz
 
 			enumNeedOfCheque.ItemsEnum = typeof(ChequeResponse);
 			enumNeedOfCheque.Binding.AddBinding(Entity, c => c.NeedCheque, w => w.SelectedItemOrNull).InitializeFromSource();
+
+			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
+			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new IntToStringConverter());
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 
