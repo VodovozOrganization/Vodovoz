@@ -733,6 +733,7 @@
     <Compile Include="HibernateMapping\WageCalculation\SalesPlanMap.cs" />
     <Compile Include="EntityRepositories\UserSingletonRepository.cs" />
     <Compile Include="EntityRepositories\IUserRepository.cs" />
+    <Compile Include="Domain\Order\Documents\AssemblyListDocument.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -3493,6 +3493,9 @@ namespace Vodovoz.Domain.Orders
 				case OrderDocumentType.Torg2:
 					newDoc = new Torg2Document();
 					break;
+				case OrderDocumentType.AssemblyList:
+					newDoc = new AssemblyListDocument();
+					break;
 				default:
 					throw new NotImplementedException();
 			}

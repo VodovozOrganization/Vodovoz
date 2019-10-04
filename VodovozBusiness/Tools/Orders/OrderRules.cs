@@ -157,6 +157,21 @@ namespace Vodovoz.Tools.Orders
 					}
 				)
 			);
+
+			//AssemblyListDocument
+			rules.Add(
+				new Rule(
+					key => GetConditionForAssemblyList(key),
+					new[] {
+						OrderDocumentType.AssemblyList
+					}
+				)
+			);
+		}
+
+		static bool GetConditionForAssemblyList(OrderStateKey key)
+		{
+			return key.HasEShopOrder;
 		}
 
 		static bool GetConditionForInvoice(OrderStateKey key)

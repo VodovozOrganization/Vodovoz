@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>279.4mm</PageHeight>
+  <PageWidth>215.9mm</PageWidth>
+  <Width>286.405mm</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
+  <DataSets>
+    <DataSet Name="Goods">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <Timeout>30</Timeout>
+        <CommandText>SELECT 
+	IFNULL(special_nomenclature.special_id, nomenclature.id) AS id,
+	nomenclature.official_name as name,
+	measurement_units.okei AS unit_code,
+	measurement_units.name AS mu_name,
+	IFNULL(actual_count, count) AS count,
+	order_items.price AS item_price,
+	order_items.include_nds,
+	order_items.discount AS item_discount,
+	order_items.discount_money AS item_discount_money,
+	CASE nomenclature.vat
+		WHEN 'No' THEN 1
+		WHEN 'Vat10' THEN 1.1
+        WHEN 'Vat18' THEN 1.18
+        WHEN 'Vat20' THEN 1.2
+	END AS  vat_old,#удалить, если спустя какое-то время не будет проблем с отображением НДС
+    order_items.value_added_tax + 1 AS vat
+FROM
+	order_items
+LEFT JOIN
+	nomenclature ON order_items.nomenclature_id = nomenclature.id
+LEFT JOIN
+	measurement_units ON nomenclature.unit_id = measurement_units.id
+LEFT JOIN
+	orders ON orders.id = order_items.order_id
+LEFT JOIN
+	special_nomenclature ON special_nomenclature.counterparty_id = orders.client_id AND special_nomenclature.nomenclature_id = nomenclature.id
+WHERE
+	order_items.order_id = @order_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="unit_code">
+          <DataField>unit_code</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="mu_name">
+          <DataField>mu_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="item_price">
+          <DataField>item_price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="include_nds">
+          <DataField>include_nds</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="vat">
+          <DataField>vat</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="item_discount">
+          <DataField>item_discount</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="item_discount_money">
+          <DataField>item_discount_money</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Order">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    orders.id AS order_id, 
+    orders.delivery_date AS order_date,
+
+    IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_number), counterparty.special_contract_number, CONCAT(counterparty_contract.id, ' от ', DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y'))) AS contract_number,
+    DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
+    counterparty.full_name AS client_name, 
+    counterparty.jur_address AS client_address, 
+    counterparty.inn AS client_inn, 
+    
+    IF(counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields,
+		counterparty.special_cargo_receiver,	
+		CONCAT_WS(', ',	
+			CASE
+				WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', IFNULL(delivery_points.KPP, counterparty.kpp), ', ', COMPILE_ADDRESS(delivery_points.id))
+				#WHEN counterparty.cargo_receiver_source = 'Special' AND !IS_NULL_OR_WHITESPACE(counterparty.special_cargo_receiver) AND counterparty.use_special_doc_fields THEN counterparty.special_cargo_receiver
+		   ELSE CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', counterparty.kpp, ', ',  counterparty.jur_address) END,
+			
+			#телефоны, выбирается только 2 первых
+			NULLIF(
+				(SELECT REPLACE(phones.number, ' ', '') 
+				FROM phones 
+				WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
+				LIMIT 1) ,
+			''),
+			
+			CONCAT('р/с ', client_account.number, ' в ', client_bank.name, ', БИК ', client_bank.bik, ', к/с ', client_bank_cor_accounts.cor_account_number)
+		)
+	 ) AS cargo_receiver,
+    NULLIF(
+			(SELECT REPLACE(phones.number, ' ', '') 
+			FROM phones 
+			WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
+			LIMIT 1) ,
+		'') AS client_phone_number,
+    client_account.number AS client_acc_number,
+    client_bank.name AS client_bank_name,
+    client_bank.bik AS client_bank_bik,
+    client_bank.cor_account AS client_bank_cor_account,
+
+    organizations.full_name AS org_name,
+    organizations.jur_address as org_address,
+    organizations.INN AS org_inn, 
+    (SELECT GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') FROM phones WHERE phones.org_id = organizations.id) AS org_phone_number,
+    org_account.number AS org_acc_number,
+    org_bank.name AS org_bank_name,
+    org_bank.bik AS org_bank_bik,
+    org_bank.cor_account AS org_bank_cor_account,
+
+    buhgalter.last_name AS buh_last_name,
+    LEFT(buhgalter.name, 1) AS buh_name,
+    LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
+
+    leader.last_name AS leader_last_name, 
+    LEFT(leader.name, 1) AS leader_name, 
+    LEFT(leader.patronymic, 1) AS leader_patronymic,
+    IF(counterparty.use_special_doc_fields, IF(!IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp), counterparty.payer_special_kpp, counterparty.kpp), counterparty.kpp) AS KPP
+FROM 
+    orders
+    LEFT JOIN phones as client_phones ON client_phones.counterparty_id = orders.client_id
+    LEFT JOIN phones as delivery_point_phones ON delivery_point_phones.delivery_point_id = orders.delivery_point_id
+    LEFT JOIN counterparty ON orders.client_id = counterparty.id
+    LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
+    LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
+    LEFT JOIN organizations ON organizations.id = counterparty_contract.organization_id
+    LEFT JOIN employees leader ON leader.id = organizations.leader_id 
+    LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id
+    LEFT JOIN accounts org_account ON org_account.id = organizations.default_account_id
+    LEFT JOIN banks org_bank ON org_bank.id = org_account.bank_id
+    LEFT JOIN accounts client_account ON client_account.counterparty_id = counterparty.id AND client_account.is_default
+    LEFT JOIN banks client_bank ON client_bank.id = client_account.bank_id
+    LEFT JOIN banks_cor_accounts client_bank_cor_accounts ON client_account.bank_cor_account_id = client_bank_cor_accounts.id
+WHERE 
+    counterparty_contract.id=orders.counterparty_contract_id
+    AND orders.id = @order_id
+GROUP BY orders.id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="order_date">
+          <DataField>order_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="contract_number">
+          <DataField>contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contract_date">
+          <DataField>contract_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_name">
+          <DataField>client_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_address">
+          <DataField>client_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_inn">
+          <DataField>client_inn</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_name">
+          <DataField>org_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_address">
+          <DataField>org_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_inn">
+          <DataField>org_inn</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="buh_last_name">
+          <DataField>buh_last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="buh_name">
+          <DataField>buh_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="buh_patronymic">
+          <DataField>buh_patronymic</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_last_name">
+          <DataField>leader_last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_name">
+          <DataField>leader_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_patronymic">
+          <DataField>leader_patronymic</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_phone_number">
+          <DataField>client_phone_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_acc_number">
+          <DataField>client_acc_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_bank_name">
+          <DataField>client_bank_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_bank_bik">
+          <DataField>client_bank_bik</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_bank_cor_account">
+          <DataField>client_bank_cor_account</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_phone_number">
+          <DataField>org_phone_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_acc_number">
+          <DataField>org_acc_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_bank_name">
+          <DataField>org_bank_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_bank_bik">
+          <DataField>org_bank_bik</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_bank_cor_account">
+          <DataField>org_bank_cor_account</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="KPP">
+          <DataField>KPP</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="cargo_receiver">
+          <DataField>cargo_receiver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>659.3pt</Height>
+    <Columns>1</Columns>
+    <ReportItems >
+      <List Name="List1">
+        <Height>260.40pt</Height>
+        <Width>563.86pt</Width>
+        <Left>9.13pt</Left>
+        <Top>7.59pt</Top>
+      </List>
+      <List Name="List2">
+        <Height>284.56pt</Height>
+        <Width>556.32pt</Width>
+        <Left>11.50pt</Left>
+        <Top>283.90pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </List>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
+    <ReportParameter Name="order_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>183378</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

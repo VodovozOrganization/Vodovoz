@@ -229,4 +229,12 @@ namespace Vodovoz.HibernateMapping
 			DiscriminatorValue("Torg2");
 		}
 	}
+
+	public class AssemblyListDocumentMap : SubclassMap<AssemblyListDocument>
+	{
+		public AssemblyListDocumentMap()
+		{
+			DiscriminatorValue("AssemblyList");
+		}
+	}
 }
