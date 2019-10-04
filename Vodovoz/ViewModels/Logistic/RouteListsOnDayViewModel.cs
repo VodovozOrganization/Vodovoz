@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NHibernate;
 using NHibernate.Criterion;
 using QS.Commands;
@@ -99,6 +100,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		void CreateCommands()
 		{
+			CreateSaveCommand();
 			CreateRemoveRLItemCommand();
 			CreateOpenOrderOrRouteListCommand();
 			CreateAddDriverCommand();
@@ -108,6 +110,24 @@ namespace Vodovoz.ViewModels.Logistic
 			CreateRebuilOneRouteCommand();
 			CreateShowWarningsCommand();
 		}
+
+		public event EventHandler AutoroutingResultsSaved;
+
+		#region SaveCommand
+
+		public DelegateCommand SaveCommand { get; private set; }
+		void CreateSaveCommand()
+		{
+			SaveCommand = new DelegateCommand(
+				() => {
+					if(SaveAutoroutingResults())
+						IsAutoroutingModeActive = false;
+				},
+				() => IsAutoroutingModeActive
+			);
+		}
+
+		#endregion SaveCommand
 
 		#region RemoveRLItemCommand
 
@@ -120,8 +140,10 @@ namespace Vodovoz.ViewModels.Logistic
 					route.RemoveAddress(i);
 					if(!CheckRouteListWasChanged(route))
 						return;
-
-					SaveRouteList(route);
+					if(IsAutoroutingModeActive)
+						UoW.Save(route);
+					else
+						SaveRouteList(route);
 					route.RecalculatePlanTime(DistanceCalculator);
 					route.RecalculatePlanedDistance(DistanceCalculator);
 				},
@@ -293,7 +315,6 @@ namespace Vodovoz.ViewModels.Logistic
 						route.RecalculatePlanedDistance(DistanceCalculator);
 					} else
 						ShowErrorMessage("Решение не найдено.");
-
 				},
 				obj => obj != null
 			);
@@ -321,9 +342,6 @@ namespace Vodovoz.ViewModels.Logistic
 
 		#region Поля
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
-		//GenericObservableList<AtWorkDriver> observableDriversAtDay;
-		//GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
 
 		#endregion
 
@@ -354,23 +372,28 @@ namespace Vodovoz.ViewModels.Logistic
 		DateTime dateForRouting = DateTime.Today;
 		public DateTime DateForRouting {
 			get => dateForRouting;
-			set => SetField(ref dateForRouting, value);
+			set {
+				if(SetField(ref dateForRouting, value))
+					OnTabNameChanged();
+			}
 		}
 
 		public bool IsDriverSelected => SelectedDriver != null;
 
 		public bool IsForwarderSelected => SelectedForwarder != null;
 
-		/*bool showWarningBtn;
-		public virtual bool ShowWarningBtn {
-			get => showWarningBtn;
-			set => SetField(ref showWarningBtn, value);
-		}*/
+		public override bool HasChanges => !HasNoChanges;
 
 		bool hasNoChanges = true;
 		public bool HasNoChanges {
 			get => hasNoChanges;
 			set => SetField(ref hasNoChanges, value);
+		}
+
+		bool autoroutingMode;
+		public virtual bool IsAutoroutingModeActive {
+			get => autoroutingMode;
+			set => SetField(ref autoroutingMode, value);
 		}
 
 		IList<AtWorkForwarder> forwardersOnDay = new List<AtWorkForwarder>();
@@ -757,6 +780,90 @@ namespace Vodovoz.ViewModels.Logistic
 			RouteList.RecalculateOnLoadTime(RoutesOnDay, DistanceCalculator);
 		}
 
+		public bool AddOrdersToRouteList(IList<Order> selectedOrders, RouteList routeList)
+		{
+			if(ClosingSubdivision == null) {
+				ShowWarningMessage("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
+				return false;
+			}
+
+			bool recalculateLoading = false;
+
+			if(IsAutoroutingModeActive) {
+				foreach(var order in selectedOrders) {
+					if(order.OrderStatus == OrderStatus.InTravelList) {
+						var alreadyIn = RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
+						if(alreadyIn == null)
+							throw new InvalidProgramException(string.Format("Маршрутный лист, в котором добавлен заказ {0} не найден.", order.Id));
+						if(alreadyIn.Id == routeList.Id) // Уже в нужном маршрутном листе.
+							continue;
+						var toRemoveAddress = alreadyIn.Addresses.First(x => x.Order.Id == order.Id);
+						if(toRemoveAddress.IndexInRoute == 0)
+							recalculateLoading = true;
+						alreadyIn.RemoveAddress(toRemoveAddress);
+						UoW.Save(alreadyIn);
+					}
+					var item = routeList.AddAddressFromOrder(order);
+					if(item.IndexInRoute == 0)
+						recalculateLoading = true;
+				}
+				routeList.RecalculatePlanTime(DistanceCalculator);
+				routeList.RecalculatePlanedDistance(DistanceCalculator);
+				UoW.Save(routeList);
+			} else {
+				foreach(var order in selectedOrders) {
+					if(!CheckAlreadyAddedAddress(order))
+						return false;
+
+					var item = routeList.AddAddressFromOrder(order);
+					if(item.IndexInRoute == 0)
+						recalculateLoading = true;
+				}
+				if(!CheckRouteListWasChanged(routeList))
+					return false;
+
+				routeList.RecalculatePlanTime(DistanceCalculator);
+				routeList.RecalculatePlanedDistance(DistanceCalculator);
+				SaveRouteList(routeList);
+			}
+			logger.Info("В МЛ №{0} добавлено {1} адресов.", routeList.Id, selectedOrders.Count);
+			if(recalculateLoading)
+				RecalculateOnLoadTime();
+
+			bool overweight = routeList.HasOverweight();
+			bool volExcess = routeList.HasVolumeExecess();
+
+			if(overweight || volExcess) {
+				StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}' в МЛ №{1}:", routeList.Car.Title, routeList.Id));
+				if(overweight)
+					warningMsg.Append(string.Format("\n\t- перегружен на {0} кг", routeList.Overweight()));
+				if(volExcess)
+					warningMsg.Append(string.Format("\n\t- объём груза превышен на {0} м<sup>3</sup>", routeList.VolumeExecess()));
+				ShowWarningMessage(warningMsg.ToString());
+			}
+			return true;
+		}
+
+		public bool SaveAutoroutingResults()
+		{
+			if(ClosingSubdivision == null) {
+				ShowWarningMessage("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
+				return false;
+			}
+			//Перестраиваем все маршруты
+			RebuildAllRoutes();
+			RoutesOnDay.ToList().ForEach(
+				x => {
+					x.ClosingSubdivision = ClosingSubdivision;
+					UoW.Save(x);
+				}
+			);
+			UoW.Commit();
+			HasNoChanges = true;
+			AutoroutingResultsSaved?.Invoke(this, EventArgs.Empty);
+			return true;
+		}
+
 		public void SaveRouteList(RouteList routeList, Action<string> actionUpdateInfo = null)
 		{
 			RebuildAllRoutes(actionUpdateInfo);
@@ -790,7 +897,7 @@ namespace Vodovoz.ViewModels.Logistic
 				ShowWarningMessage(string.Join("\n", warnings));
 		}
 
-		public void InitializeData(IProgressBarDisplayable progressBar)
+		public void InitializeData(IProgressBarDisplayable progressBar = null)
 		{
 			UoW.Session.Clear();
 
@@ -844,7 +951,7 @@ namespace Vodovoz.ViewModels.Logistic
 				);*/
 
 			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
-			progressBar.ProgressAdd();
+			progressBar?.ProgressAdd();
 
 			var routesQuery1 = new RouteListRepository().GetRoutesAtDay(DateForRouting)
 														.GetExecutableQueryOver(UoW.Session);
@@ -865,15 +972,15 @@ namespace Vodovoz.ViewModels.Logistic
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
 			RoutesOnDay.ToList().ForEach(rl => rl.CheckAddressOrder());
 
-			progressBar.ProgressAdd();
+			progressBar?.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", DateForRouting);
 			ObservableDriversOnDay.Clear();
 			atWorkRepository.GetDriversAtDay(UoW, DateForRouting).ToList().ForEach(x => ObservableDriversOnDay.Add(x));
-			progressBar.ProgressAdd();
+			progressBar?.ProgressAdd();
 			logger.Info("Загружаем экспедиторов на {0:d}...", DateForRouting);
 			ObservableForwardersOnDay.Clear();
 			atWorkRepository.GetForwardersAtDay(UoW, DateForRouting).ToList().ForEach(x => ObservableForwardersOnDay.Add(x));
-			progressBar.ProgressAdd();
+			progressBar?.ProgressAdd();
 		}
 
 		public string GetOrdersInfo(int addressesWithoutCoordinats, int addressesWithoutRoutes, int totalBottlesCountAtDay, int bottlesWithoutRL)
@@ -940,6 +1047,7 @@ namespace Vodovoz.ViewModels.Logistic
 					if(propose.Trip.OldRoute == null) // Это новый маршрут и его нужно добавить.
 						RoutesOnDay.Add(rl);
 					propose.RealRoute = rl;
+					UoW.Save(rl);
 				}
 			}
 

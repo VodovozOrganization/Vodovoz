@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
-using Gamma.Widgets;
 using Gdk;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -18,7 +16,6 @@ using QSOrmProject;
 using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Dialogs.Logistic;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModels.Logistic;
@@ -145,8 +142,11 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewOnDayDrivers.Selection.Changed += (sender, e) => ViewModel.SelectedDriver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
 			ytreeviewOnDayDrivers.Binding.AddBinding(ViewModel, vm => vm.ObservableDriversOnDay, w => w.ItemsDataSource).InitializeFromSource();
 
+			buttonAddDriver.Clicked += (sender, e) => ViewModel.AddDriverCommand.Execute();
 
 			buttonRemoveDriver.Binding.AddBinding(ViewModel, vm => vm.IsDriverSelected, w => w.Sensitive).InitializeFromSource();
+			buttonRemoveDriver.Clicked += (sender, e) => ViewModel.AddDriverCommand.Execute();
+
 			buttonDriverSelectAuto.Binding.AddBinding(ViewModel, vm => vm.IsDriverSelected, w => w.Sensitive).InitializeFromSource();
 
 
@@ -158,16 +158,16 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewOnDayForwarders.Selection.Changed += (sender, e) => ViewModel.SelectedForwarder = ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>().FirstOrDefault();
 			ytreeviewOnDayForwarders.Binding.AddBinding(ViewModel, vm => vm.ObservableForwardersOnDay, w => w.ItemsDataSource).InitializeFromSource();
 
-			buttonRemoveForwarder.Binding.AddBinding(ViewModel, vm => vm.IsForwarderSelected, w => w.Sensitive).InitializeFromSource();
+			buttonAddForwarder.Clicked += (sender, e) => ViewModel.AddForwarderCommand.Execute();
 
-			//ytimeToDeliveryFrom.Time = TimeSpan.Parse("00:00:00");
-			//ytimeToDeliveryTo.Time = TimeSpan.Parse("23:59:59");
+			buttonRemoveForwarder.Binding.AddBinding(ViewModel, vm => vm.IsForwarderSelected, w => w.Sensitive).InitializeFromSource();
+			buttonRemoveForwarder.Clicked += (sender, e) => ViewModel.RemoveForwarderCommand.Execute(ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>());
 
 			yspinMaxTime.Binding.AddBinding(ViewModel.Optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt).InitializeFromSource();
 
 			yspeccomboboxCashSubdivision.ShowSpecialStateNot = true;
 			yspeccomboboxCashSubdivision.Binding.AddBinding(ViewModel, vm => vm.ObservableSubdivisions, w => w.ItemsList).InitializeFromSource();
-			yspeccomboboxCashSubdivision.SelectedItem = SpecialComboState.Not;
+			yspeccomboboxCashSubdivision.Binding.AddBinding(ViewModel, vm => vm.ClosingSubdivision, w => w.SelectedItem).InitializeFromSource();
 
 			ydateForRoutes.Binding.AddBinding(ViewModel, vm => vm.DateForRouting, w => w.DateOrNull).InitializeFromSource();
 			checkShowCompleted.Binding.AddBinding(ViewModel, vm => vm.ShowCompleted, w => w.Active).InitializeFromSource();
@@ -180,6 +180,20 @@ namespace Vodovoz.Views.Logistic
 
 			ytimeToDeliveryFrom.Binding.AddBinding(ViewModel, vm => vm.DeliveryFromTime, w => w.Time).InitializeFromSource();
 			ytimeToDeliveryTo.Binding.AddBinding(ViewModel, vm => vm.DeliveryToTime, w => w.Time).InitializeFromSource();
+			checkShowDistricts.Toggled += (sender, e) => districtsOverlay.IsVisibile = checkShowDistricts.Active;
+
+			ViewModel.AutoroutingResultsSaved += (sender, e) => FillDialogAtDay();
+
+			btnSave.Binding.AddBinding(ViewModel, e => e.IsAutoroutingModeActive, w => w.Visible).InitializeFromSource();
+			btnSave.Clicked += (sender, e) => ViewModel.SaveCommand.Execute();
+
+			btnCancel.Binding.AddBinding(ViewModel, e => e.IsAutoroutingModeActive, w => w.Visible).InitializeFromSource();
+			btnCancel.Clicked += (sender, e) => {
+				UoW.Session.Clear();
+				ViewModel.HasNoChanges = true;
+				ViewModel.IsAutoroutingModeActive = false;
+				FillDialogAtDay();
+			};
 		}
 
 		void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
@@ -489,7 +503,6 @@ namespace Vodovoz.Views.Logistic
 		{
 			FillDialogAtDay();
 			FillFullOrdersInfo();
-			//OnTabNameChanged();
 		}
 
 		protected void OnYdateForRoutesDateChanged(object sender, EventArgs e)
@@ -553,54 +566,23 @@ namespace Vodovoz.Views.Logistic
 
 		void AddToRLItem_Activated(object sender, EventArgs e)
 		{
-			if(/*yspeccomboboxCashSubdivision.IsSelectedNot || */ViewModel.ClosingSubdivision == null) {
-				MessageDialogHelper.RunWarningDialog("Необходимо выбрать кассу в которую должны будут сдаваться МЛ");
-				return;
-			}
-
-			bool recalculateLoading = false;
-			var selectedOrders = GetSelectedOrders();
-
-			var route = ((MenuItemId<RouteList>)sender).ID;
-
-			foreach(var order in selectedOrders) {
-				if(!ViewModel.CheckAlreadyAddedAddress(order))
-					return;
-
-				var item = route.AddAddressFromOrder(order);
-				if(item.IndexInRoute == 0)
-					recalculateLoading = true;
-			}
-			if(!ViewModel.CheckRouteListWasChanged(route))
-				return;
-
+			bool ordersAdded = false;
 			try {
-				route.RecalculatePlanTime(ViewModel.DistanceCalculator);
-				route.RecalculatePlanedDistance(ViewModel.DistanceCalculator);
-				ViewModel.SaveRouteList(route, txt => textOrdersInfo.Buffer.Text = txt);
+				ordersAdded = ViewModel.AddOrdersToRouteList(GetSelectedOrders(), ((MenuItemId<RouteList>)sender).ID);
 			} catch(Exception ex) {
-				MessageDialogHelper.RunErrorDialog("Возникла ошибка при добавлении адресов, возможно из-за одновременного добавления одного адреса несколькими пользователями.\n" +
+				MessageDialogHelper.RunErrorDialog(
+					"Возникла ошибка при добавлении адресов, возможно из-за одновременного добавления одного адреса несколькими пользователями.\n" +
 					"Данные для формирования будут автоматически обновлены для продолжения работы.\n" +
 					"Повторите попытку добавления адресов.\n" +
-					$"Текст ошибки: {ex.Message}", "Ошибка при добавлении адресов");
+					$"Текст ошибки: {ex.Message}", "Ошибка при добавлении адресов"
+				);
 				Refresh();
 				return;
 			}
-
-			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
-			if(recalculateLoading)
-				ViewModel.RecalculateOnLoadTime();
-			UpdateAddressesOnMap();
-			RoutesWasUpdated();
-
-			StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}' в МЛ №{1}:", route.Car.Title, route.Id));
-			if(route.HasOverweight())
-				warningMsg.Append(string.Format("\n\t- перегружен на {0} кг", route.Overweight()));
-			if(route.HasVolumeExecess())
-				warningMsg.Append(string.Format("\n\t- объём груза превышен на {0} м<sup>3</sup>", route.VolumeExecess()));
-
-			if(route.HasOverweight() || route.HasVolumeExecess())
-				MessageDialogHelper.RunWarningDialog(warningMsg.ToString());
+			if(ordersAdded) {
+				UpdateAddressesOnMap();
+				RoutesWasUpdated();
+			}
 		}
 
 		private IList<Order> GetSelectedOrders()
@@ -629,6 +611,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			ViewModel.RemoveRLItemCommand.Execute(ytreeRoutes.GetSelectedObject<RouteListItem>());
 			RoutesWasUpdated();
+			UpdateAddressesOnMap();
 		}
 
 		protected void OnCheckShowCompletedToggled(object sender, EventArgs e)
@@ -667,31 +650,6 @@ namespace Vodovoz.Views.Logistic
 			logger.Info("Ок.");
 		}
 
-		protected void OnCheckShowDistrictsToggled(object sender, EventArgs e)
-		{
-			districtsOverlay.IsVisibile = checkShowDistricts.Active;
-		}
-
-		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
-		{
-			ViewModel.AddDriverCommand.Execute();
-		}
-
-		protected void OnButtonAddForwarderClicked(object sender, EventArgs e)
-		{
-			ViewModel.AddForwarderCommand.Execute();
-		}
-
-		protected void OnButtonRemoveDriverClicked(object sender, EventArgs e)
-		{
-			ViewModel.RemoveDriverCommand.Execute(ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>());
-		}
-
-		protected void OnButtonRemoveForwarderClicked(object sender, EventArgs e)
-		{
-			ViewModel.RemoveForwarderCommand.Execute(ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>());
-		}
-
 		bool creatingInProgress;
 		protected void OnButtonAutoCreateClicked(object sender, EventArgs e)
 		{
@@ -710,6 +668,7 @@ namespace Vodovoz.Views.Logistic
 				UpdateRoutesButton();
 				UpdateAddressesOnMap();
 				RoutesWasUpdated();
+				ViewModel.IsAutoroutingModeActive = true;
 			}
 			UpdateWarningButton();
 			MainClass.progressBarWin.ProgressClose();
@@ -758,6 +717,7 @@ namespace Vodovoz.Views.Logistic
 		protected void OnButtonRebuildRouteClicked(object sender, EventArgs e)
 		{
 			ViewModel.RebuilOneRouteCommand.Execute(ytreeRoutes.GetSelectedObject());
+			ytreeRoutes.YTreeModel.EmitModelChanged();
 		}
 
 		protected void OnButtonWarningsClicked(object sender, EventArgs e)
@@ -805,6 +765,12 @@ namespace Vodovoz.Views.Logistic
 		protected void OnBtnRefreshClicked(object sender, EventArgs e)
 		{
 			Refresh();
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.Dispose();
+			base.Destroy();
 		}
 	}
 }

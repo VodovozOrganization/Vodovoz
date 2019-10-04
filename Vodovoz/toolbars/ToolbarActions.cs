@@ -10,6 +10,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using Vodovoz;
+using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.OrderWidgets;
@@ -382,23 +383,25 @@ public partial class MainWindow : Window
 
 	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
-			() => new RoutesAtDayDlg()
-		);
-		tdiMain.OpenTab(
-			"AutoRouting",
-			() => new RouteListsOnDayViewModel(
-				ServicesConfig.CommonServices,
-				new GtkTabsOpener(),
-				new DefaultEntityConfigurationProvider(),
-				new RouteListRepository(),
-				new SubdivisionRepository(),
-				OrderSingletonRepository.GetInstance(),	
-				new AtWorkRepository(),
-				new CarRepository()
-			)
-		);
+		if(new BaseParametersProvider().UseOldAutorouting())
+			tdiMain.OpenTab(
+				TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
+				() => new RoutesAtDayDlg()
+			);
+		else
+			tdiMain.OpenTab(
+				"AutoRouting",
+				() => new RouteListsOnDayViewModel(
+					ServicesConfig.CommonServices,
+					new GtkTabsOpener(),
+					new DefaultEntityConfigurationProvider(),
+					new RouteListRepository(),
+					new SubdivisionRepository(),
+					OrderSingletonRepository.GetInstance(),
+					new AtWorkRepository(),
+					new CarRepository()
+				)
+			);
 	}
 
 	void ActionAccountingTable_Activated(object sender, System.EventArgs e)

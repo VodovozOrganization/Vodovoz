@@ -147,7 +147,7 @@ namespace Vodovoz
 
 			//Configure map
 			districtsOverlay.IsVisibile = false;
-			gmapWidget.MapProvider = GMapProviders.YandexMap;
+			gmapWidget.MapProvider = GMapProviders.OpenStreetMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.HasFrame = true;
@@ -162,10 +162,8 @@ namespace Vodovoz
 			gmapWidget.MotionNotifyEvent += GmapWidget_MotionNotifyEvent;
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
-			yenumcomboMapType.SelectedItem = MapProviders.YandexMap;
 
 			LoadDistrictsGeometry();
-
 
 			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<object>.Create()
 															.AddColumn("Маркер")

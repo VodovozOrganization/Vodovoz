@@ -1,13 +1,10 @@
 ﻿using System;
-using QS.DomainModel.UoW;
 using QSSupportLib;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.Services;
 
 namespace Vodovoz.Core.DataService
 {
-	public class BaseParametersProvider : IStandartNomenclatures , IImageProvider, IStandartDiscountsService , IPersonProvider , ISubdivisionService
+	public class BaseParametersProvider : IStandartNomenclatures, IImageProvider, IStandartDiscountsService, IPersonProvider, ISubdivisionService, ICommonParametersProvider
 	{
 
 		public int GetForfeitId()
@@ -56,6 +53,13 @@ namespace Vodovoz.Core.DataService
 				throw new InvalidProgramException("В параметрах базы не настроен индикатор важности задачи для CRM (crm_importance_indicator_id).");
 			}
 			return int.Parse(MainSupport.BaseParameters.All["crm_importance_indicator_id"]);
+		}
+
+		public bool UseOldAutorouting()
+		{
+			if(!MainSupport.BaseParameters.All.ContainsKey("use_old_autorouting") || !bool.TryParse(MainSupport.BaseParameters.All["use_old_autorouting"], out bool res))
+				return false;
+			return res;
 		}
 	}
 }
