@@ -65,11 +65,8 @@ namespace Vodovoz.Domain.Complaints
 			}
 		}
 
-		public IList<ComplaintFile> ComplaintFiles {
-			get {
-				return Files.Cast<ComplaintFile>().ToList();
-			}
-		}
+		public IList<ComplaintFile> ComplaintFiles => Files.Cast<ComplaintFile>().ToList();
 
+		public virtual string Title => $"Комментарий сотрудника \"{Author.ShortName}\"";
 	}
 }

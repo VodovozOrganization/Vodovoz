@@ -40,5 +40,7 @@ namespace Vodovoz.Domain.Complaints
 			get => byteFile;
 			set => SetField(ref byteFile, value, () => ByteFile);
 		}
+
+		public virtual string Title => $"Файл \"{FileStorageId}\"";
 	}
 }

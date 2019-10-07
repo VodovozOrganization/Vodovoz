@@ -27,8 +27,8 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz
 {
@@ -192,7 +192,6 @@ namespace Vodovoz
 				.AddDeleteDependence<DocTemplate>(x => x.Organization)
 				.AddDeleteDependence<EmployeeContract>(x => x.Organization)
 				;
-
 
 			DeleteConfig.AddHibernateDeleteInfo<FreeRentPackage>()
 				.AddClearDependence<FreeRentEquipment>(x => x.FreeRentPackage);
@@ -397,7 +396,6 @@ namespace Vodovoz
 				.AddDeleteDependence<CallTask>(x => x.Counterparty)
 				;
 
-
 			DeleteConfig.AddHibernateDeleteInfo<Contact>()
 				.AddDeleteDependenceFromCollection(item => item.Emails)
 				.AddDeleteDependenceFromCollection(item => item.Phones)
@@ -483,7 +481,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<WaterSalesAgreementFixedPrice>();
 
 			DeleteConfig.AddHibernateDeleteInfo<CallTask>();
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<DocTemplate>()
 				.AddClearDependence<AdditionalAgreement>(x => x.DocumentTemplate)
 				.AddClearDependence<CounterpartyContract>(x => x.DocumentTemplate)
@@ -852,7 +850,6 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(x => x.BottlesMovementOperation)
 				.AddDeleteCascadeDependence(x => x.MoneyMovementOperation);
 
-
 			DeleteConfig.AddHibernateDeleteInfo<ResidueEquipmentDepositItem>();
 
 			#endregion
@@ -1085,6 +1082,30 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<FieldChange>();
 
 			#endregion
+
+			#region Жалобы
+
+			DeleteConfig.AddHibernateDeleteInfo<Complaint>()
+						.AddDeleteDependence<ComplaintDiscussion>(item => item.Complaint)
+						.AddDeleteDependence<ComplaintFile>(item => item.Complaint)
+						.AddDeleteDependence<ComplaintGuiltyItem>(item => item.Complaint)
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintDiscussion>()
+						.AddDeleteDependence<ComplaintDiscussionComment>(item => item.ComplaintDiscussion)
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintFile>()
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintGuiltyItem>()
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintDiscussionComment>()
+						.AddDeleteDependence<ComplaintFile>(item => item.ComplaintDiscussionComment)
+						;
+
+			#endregion Жалобы
 
 			#region stuff
 
