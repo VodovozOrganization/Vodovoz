@@ -19,6 +19,7 @@ namespace Vodovoz.HibernateMapping.Sms
 			Map(x => x.ErrorDescription).Column("error_description");
 			Map(x => x.NotifyTime).Column("notify_time");
 			Map(x => x.ExpiredTime).Column("expired_time");
+			Map(x => x.ServerMessageId).Column("server_id");
 			Map(x => x.Description).Column("description");
 		}
 	}
