@@ -16,10 +16,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new ReportInfo {
 				Title = String.Format($"Лист сборки от {Order.DeliveryDate:d}"),
-				Identifier = "Documents.AssemblyList",
+				Identifier = (Order.OrderItems?.Count ?? 0) <= 4 ? "Documents.AssemblyList" : "Documents.SeparateAssemblyList",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "order_id",  Id}
+					{ "order_id",  Order.Id}
 				}
 			};
 		}

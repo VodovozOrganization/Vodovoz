@@ -25,6 +25,7 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz
 {
@@ -246,7 +247,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 			logger.Info("Сохраняем номенклатуру...");
-			Entity.SetNomenclatureCreationInfo();
+			Entity.SetNomenclatureCreationInfo(UserSingletonRepository.GetInstance());
 			pricesView.SaveChanges();
 			UoWGeneric.Save();
 			return true;

@@ -15,6 +15,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -611,11 +612,11 @@ namespace Vodovoz.Domain.Goods
 
 		}
 
-		public virtual void SetNomenclatureCreationInfo()
+		public virtual void SetNomenclatureCreationInfo(IUserRepository userRepository)
 		{
 			if(Id == 0 && !CreateDate.HasValue) {
 				CreateDate = DateTime.Now;
-				CreatedBy = Vodovoz.Repositories.HumanResources.UserRepository.GetCurrentUser(UoW);
+				CreatedBy = userRepository.GetCurrentUser(UoW);
 			}
 		}
 
