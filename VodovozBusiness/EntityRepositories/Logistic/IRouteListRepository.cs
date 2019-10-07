@@ -23,5 +23,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		List<ReturnsNode> GetReturnsToWarehouse(IUnitOfWork uow, int routeListId, params int[] nomenclatureIds);
 		IEnumerable<CarLoadDocument> GetCarLoadDocuments(IUnitOfWork uow, int routelistId);
 		int BottlesUnloadedByCarUnloadedDocuments(IUnitOfWork uow, int emptyBottleId, int routeListId, params int[] exceptDocumentIds);
+		RouteList GetRouteListByOrder(IUnitOfWork uow, Domain.Orders.Order order);
+		bool RouteListWasChanged(RouteList routeList);
 	}
 }

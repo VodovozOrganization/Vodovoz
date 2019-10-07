@@ -43,7 +43,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ISubdivisionService subdivisionService;
 		private readonly IEmployeeRepository employeeRepository;
 		private readonly IReportViewOpener reportViewOpener;
-		private readonly IGtkTabsOpenerFromComplaintViewModel gtkDlgOpener;
+		private readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkDlgOpener;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -67,7 +67,7 @@ namespace Vodovoz.JournalViewModels
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
 			IReportViewOpener reportViewOpener,
-			IGtkTabsOpenerFromComplaintViewModel gtkDialogsOpener
+			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener
 		) : base(filterViewModel, entityConfigurationProvider, commonServices)
 		{
 			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));

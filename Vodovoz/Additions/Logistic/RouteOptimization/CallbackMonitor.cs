@@ -1,6 +1,5 @@
 ﻿using System;
 using Google.OrTools.ConstraintSolver;
-using Gtk;
 using QSProjectsLib;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -11,14 +10,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	public class CallbackMonitor : SearchMonitor
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		ProgressBar progress;
-		Gtk.TextBuffer buffer;
 		SolutionCollector bestSol;
+		readonly Action<string> statisticsTxtFunc;
 
-		public CallbackMonitor(Solver s, ProgressBar bar, TextBuffer buf, SolutionCollector best) : base(s)
+		public CallbackMonitor(Solver s, Action<string> statisticsTxtAction, SolutionCollector best) : base(s)
 		{
-			progress = bar;
-			buffer = buf;
+			this.statisticsTxtFunc = statisticsTxtAction;
 			bestSol = best;
 		}
 
@@ -34,14 +31,18 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// </summary>
 		public override void PeriodicCheck()
 		{
-			if(buffer != null) {
-				buffer.Text = String.Format("Branches={0}\nFailures={1}\nFailStamp={2}\nSolutions={3}\nWallTime={4}\nCost={5}",
-											solver().Branches(),
-											solver().Failures(),
-											solver().FailStamp(),
-											solver().Solutions(),
-											solver().WallTime(),
-											bestSol.SolutionCount() > 0 ? bestSol.ObjectiveValue(0) : -1);
+			if(statisticsTxtFunc != null) {
+				statisticsTxtFunc.Invoke(
+					string.Format(
+						"Branches={0}\nFailures={1}\nFailStamp={2}\nSolutions={3}\nWallTime={4}\nCost={5}",
+						solver().Branches(),
+						solver().Failures(),
+						solver().FailStamp(),
+						solver().Solutions(),
+						solver().WallTime(),
+						bestSol.SolutionCount() > 0 ? bestSol.ObjectiveValue(0) : -1
+					)
+				);
 				QSMain.WaitRedraw(200);
 			}
 

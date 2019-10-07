@@ -2,22 +2,31 @@
 using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Config;
+using QS.EntityRepositories;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using Vodovoz;
+using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Sale;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
@@ -25,12 +34,8 @@ using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
-using Vodovoz.Domain.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.EntityRepositories.Employees;
-using QS.EntityRepositories;
-using QS.Project.Services;
 
 public partial class MainWindow : Window
 {
@@ -378,10 +383,25 @@ public partial class MainWindow : Window
 
 	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
-			() => new RoutesAtDayDlg()
-		);
+		if(new BaseParametersProvider().UseOldAutorouting())
+			tdiMain.OpenTab(
+				TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
+				() => new RoutesAtDayDlg()
+			);
+		else
+			tdiMain.OpenTab(
+				"AutoRouting",
+				() => new RouteListsOnDayViewModel(
+					ServicesConfig.CommonServices,
+					new GtkTabsOpener(),
+					new DefaultEntityConfigurationProvider(),
+					new RouteListRepository(),
+					new SubdivisionRepository(),
+					OrderSingletonRepository.GetInstance(),
+					new AtWorkRepository(),
+					new CarRepository()
+				)
+			);
 	}
 
 	void ActionAccountingTable_Activated(object sender, System.EventArgs e)

@@ -15,7 +15,6 @@ using NHibernate;
 using NHibernate.Criterion;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Utilities;
 using QSOrmProject;
@@ -35,6 +34,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Project.Services;
 
@@ -44,18 +44,18 @@ namespace Vodovoz
 	{
 		#region Поля
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		private readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
-		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
-		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
-		private readonly GMapOverlay routeOverlay = new GMapOverlay("route");
-		private GMapPolygon brokenSelection;
-		private List<GMapMarker> selectedMarkers = new List<GMapMarker>();
+		readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
+		readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
+		readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
+		readonly GMapOverlay routeOverlay = new GMapOverlay("route");
+		GMapPolygon brokenSelection;
+		List<GMapMarker> selectedMarkers = new List<GMapMarker>();
 		IList<Order> ordersAtDay;
 		IList<RouteList> routesAtDay;
 		IList<AtWorkDriver> driversAtDay;
 		IList<AtWorkForwarder> forwardersAtDay;
 		IList<ScheduleRestrictedDistrict> logisticanDistricts;
-		RouteOptimizer optimizer = new RouteOptimizer();
+		RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 		RouteGeometryCalculator distanceCalculator = new RouteGeometryCalculator(DistanceProvider.Osrm);
 
 		GenericObservableList<AtWorkDriver> observableDriversAtDay;
@@ -103,31 +103,6 @@ namespace Vodovoz
 		public override string TabName {
 			get => string.Format("Формирование МЛ на {0:d}", ydateForRoutes.Date);
 			protected set => throw new InvalidOperationException("Установка протеворечит логике работы.");
-		}
-
-		public enum RouteColumnTag
-		{
-			OnloadTime
-		}
-
-		private class GeographicGroupNode : PropertyChangedBase
-		{
-			private bool selected;
-			public virtual bool Selected {
-				get => selected;
-				set => SetField(ref selected, value, () => Selected);
-			}
-
-			private GeographicGroup geographicGroup;
-			public virtual GeographicGroup GeographicGroup {
-				get => geographicGroup;
-				set => SetField(ref geographicGroup, value, () => GeographicGroup);
-			}
-
-			public GeographicGroupNode(GeographicGroup geographicGroup)
-			{
-				GeographicGroup = geographicGroup ?? throw new ArgumentNullException(nameof(geographicGroup));
-			}
 		}
 
 		GenericObservableList<GeographicGroupNode> geographicGroupNodes;
@@ -189,7 +164,6 @@ namespace Vodovoz
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 
 			LoadDistrictsGeometry();
-
 
 			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<object>.Create()
 															.AddColumn("Маркер")
@@ -762,11 +736,11 @@ namespace Vodovoz
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", ydateForRoutes.Date);
-			DriversAtDay = Repository.Logistics.AtWorkRepository.GetDriversAtDay(UoW, ydateForRoutes.Date);
+			DriversAtDay = new AtWorkRepository().GetDriversAtDay(UoW, ydateForRoutes.Date);
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем экспедиторов на {0:d}...", ydateForRoutes.Date);
-			ForwardersAtDay = Repository.Logistics.AtWorkRepository.GetForwardersAtDay(UoW, ydateForRoutes.Date);
+			ForwardersAtDay = new AtWorkRepository().GetForwardersAtDay(UoW, ydateForRoutes.Date);
 
 			MainClass.progressBarWin.ProgressAdd();
 			UpdateAddressesOnMap();
@@ -1155,7 +1129,7 @@ namespace Vodovoz
 		{
 			int ix = 0;
 			List<string> warnings = new List<string>();
-			optimizer.DebugBuffer = null;
+			optimizer.StatisticsTxtAction = null;
 
 			foreach(var route in routesAtDay) {
 				ix++;
@@ -1337,7 +1311,6 @@ namespace Vodovoz
 
 			if(creatingInProgress) {
 				buttonAutoCreate.Label = "Создать маршруты";
-				optimizer.Cancel = true;
 				return;
 			}
 			creatingInProgress = true;
@@ -1348,8 +1321,7 @@ namespace Vodovoz
 			optimizer.Orders = ordersAtDay;
 			optimizer.Drivers = driversAtDay;
 			optimizer.Forwarders = forwardersAtDay;
-			optimizer.OrdersProgress = progressOrders;
-			optimizer.DebugBuffer = textOrdersInfo.Buffer;
+			optimizer.StatisticsTxtAction = txt => textOrdersInfo.Buffer.Text = txt;
 			optimizer.CreateRoutes();
 
 			if(optimizer.ProposedRoutes.Any()) {
@@ -1393,7 +1365,6 @@ namespace Vodovoz
 			UpdateWarningButton();
 			MainClass.progressBarWin.ProgressClose();
 			creatingInProgress = false;
-			optimizer.Cancel = false;
 			buttonAutoCreate.Label = "Создать маршруты";
 		}
 
@@ -1417,10 +1388,12 @@ namespace Vodovoz
 			var driverNames = string.Join("\", \"", driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).Select(x => x.Employee.ShortName));
 			if(
 				string.IsNullOrEmpty(driverNames) || MessageDialogHelper.RunQuestionDialog(
+					string.Format(
 						"Автомобиль \"{0}\" уже назначен \"{1}\". Переназначить его водителю \"{2}\"?",
 						car.RegistrationNumber,
 						driverNames,
 						driver.Employee.ShortName
+					)
 				)
 			) {
 				driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => { x.Car = null; x.GeographicGroup = null; });
@@ -1453,7 +1426,7 @@ namespace Vodovoz
 			var selected = ytreeRoutes.GetSelectedObject();
 			RouteList route = selected is RouteListItem ? ((RouteListItem)selected).RouteList : selected as RouteList;
 
-			optimizer.DebugBuffer = textOrdersInfo.Buffer;
+			optimizer.StatisticsTxtAction = txt => textOrdersInfo.Buffer.Text = txt;
 			var newRoute = optimizer.RebuidOneRoute(route);
 			if(newRoute != null) {
 				newRoute.UpdateAddressOrderInRealRoute(route);
