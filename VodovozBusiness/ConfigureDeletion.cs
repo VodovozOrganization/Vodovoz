@@ -316,6 +316,7 @@ namespace Vodovoz
 				.AddClearDependence<WriteoffDocumentItem>(x => x.Fine)
 				.AddClearDependence<RegradingOfGoodsDocumentItem>(x => x.Fine)
 				.AddClearDependence<RouteList>(x => x.BottleFine)
+				.AddRemoveFromDependence<Complaint>(x => x.Fines)
 				;
 
 			DeleteConfig.AddHibernateDeleteInfo<FineItem>()
