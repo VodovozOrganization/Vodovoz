@@ -8,12 +8,10 @@ using QS.HistoryLog;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
@@ -259,13 +257,6 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal ForwarderWage {
 			get => forwarderWage;
 			set => SetField(ref forwarderWage, value, () => ForwarderWage);
-		}
-
-		decimal forwarderWageSurcharge;//не используется пока почему-то
-		[Display(Name = "Надбавка к ЗП экспедитора")]
-		public virtual decimal ForwarderWageSurcharge {
-			get => forwarderWageSurcharge;
-			set => SetField(ref forwarderWageSurcharge, value, () => ForwarderWageSurcharge);
 		}
 
 		[Display(Name = "Оповещение за 30 минут")]

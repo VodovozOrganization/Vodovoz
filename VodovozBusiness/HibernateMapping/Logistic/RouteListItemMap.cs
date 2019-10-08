@@ -23,7 +23,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.DriverWage)								.Column("driver_wage");
             Map(x => x.DriverWageSurcharge)    					.Column("driver_wage_surcharge");
 			Map(x => x.ForwarderWage)							.Column("forwarder_wage");
-            Map(x => x.ForwarderWageSurcharge) 					.Column("forwarder_wage_surcharge");
 			Map(x => x.WithForwarder)							.Column("with_forwarder");
 			Map(x => x.StatusLastUpdate)						.Column("status_last_update");
 			Map(x => x.Comment)									.Column("comment").Length(150);
