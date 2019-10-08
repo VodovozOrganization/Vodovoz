@@ -22,7 +22,6 @@ namespace Vodovoz.JournalViewModels.Employees
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
-		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 		private readonly ICommonServices commonServices;
 
 		public FinesJournalViewModel(
@@ -30,14 +29,12 @@ namespace Vodovoz.JournalViewModels.Employees
 			IUndeliveriesViewOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
-			IEntityConfigurationProvider entityConfigurationProvider, 
 			ICommonServices commonServices
-		) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		) : base(filterViewModel, commonServices)
 		{
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			TabName = "Журнал штрафов";
@@ -111,7 +108,6 @@ namespace Vodovoz.JournalViewModels.Employees
 			undeliveryViewOpener,
 			employeeService,
 			employeeSelectorFactory,
-			entityConfigurationProvider,
 			commonServices
 		);
 
@@ -120,7 +116,6 @@ namespace Vodovoz.JournalViewModels.Employees
 			undeliveryViewOpener,
 			employeeService,
 			employeeSelectorFactory,
-			entityConfigurationProvider,
 			commonServices
 		);
 	}

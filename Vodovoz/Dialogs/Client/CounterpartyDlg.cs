@@ -97,7 +97,7 @@ namespace Vodovoz
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
 			commentsview4.UoW = UoW;
-			supplierPricesWidget.ViewModel = new ViewModels.Client.SupplierPricesWidgetViewModel(Entity, UoW, this, new DefaultEntityConfigurationProvider(), QS.Project.Services.ServicesConfig.CommonServices);
+			supplierPricesWidget.ViewModel = new ViewModels.Client.SupplierPricesWidgetViewModel(Entity, UoW, this, QS.Project.Services.ServicesConfig.CommonServices);
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();

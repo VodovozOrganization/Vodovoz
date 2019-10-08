@@ -27,7 +27,7 @@ namespace Vodovoz.Representations
 
 		IEmployeeRepository employeeRepository { get; set;}
 
-		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices, IEmployeeRepository employeeRepository) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, ICommonServices commonServices, IEmployeeRepository employeeRepository) : base(filterViewModel, commonServices)
 		{
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;

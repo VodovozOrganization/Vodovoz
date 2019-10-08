@@ -21,7 +21,6 @@ namespace Vodovoz.ViewModels.Complaints
 	public class ComplaintDiscussionsViewModel : EntityWidgetViewModelBase<Complaint>
 	{
 		private readonly ITdiTab dialogTab;
-		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 		private readonly IFilePickerService filePickerService;
 		private readonly IEmployeeService employeeService;
 
@@ -29,7 +28,6 @@ namespace Vodovoz.ViewModels.Complaints
 			Complaint entity, 
 			ITdiTab dialogTab,
 			IUnitOfWork uow,
-			IEntityConfigurationProvider entityConfigurationProvider,
 			IFilePickerService filePickerService,
 			IEmployeeService employeeService,
 			ICommonServices commonServices
@@ -37,7 +35,6 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
 
 			UoW = uow;
@@ -114,7 +111,7 @@ namespace Vodovoz.ViewModels.Complaints
 				() => {
 					var filter = new SubdivisionFilterViewModel(CommonServices.InteractiveService);
 					filter.ExcludedSubdivisions = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
-					var subdivisionSelector = new SubdivisionsJournalViewModel(filter, entityConfigurationProvider, CommonServices);
+					var subdivisionSelector = new SubdivisionsJournalViewModel(filter, CommonServices);
 					subdivisionSelector.SelectionMode = JournalSelectionMode.Single;
 					subdivisionSelector.OnEntitySelectedResult += (sender, e) => {
 						var selectedNode = e.SelectedNodes.FirstOrDefault();

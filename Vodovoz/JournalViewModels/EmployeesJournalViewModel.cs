@@ -14,19 +14,14 @@ namespace Vodovoz.JournalViewModels
 {
 	public class EmployeesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Employee, EmployeeDlg, EmployeeJournalNode, EmployeeFilterViewModel>
 	{
-		readonly IEntityConfigurationProvider entityConfigurationProvider;
-
 		public EmployeesJournalViewModel(
 			EmployeeFilterViewModel filterViewModel,
-			IEntityConfigurationProvider entityConfigurationProvider,
 			ICommonServices commonServices
 		) : base(
 			filterViewModel,
-			entityConfigurationProvider,
 			commonServices
 		)
 		{
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			SetOrder(
 				new Dictionary<Func<EmployeeJournalNode, object>, bool> {
 					{x => x.EmpLastName , false},
