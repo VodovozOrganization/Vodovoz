@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
-using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
@@ -172,6 +167,5 @@ namespace Vodovoz.Repositories.Orders
 		{
 			return OrderSingletonRepository.GetInstance().GetValidStatusesToUseActionBottle();
 		}
-
 	}
 }

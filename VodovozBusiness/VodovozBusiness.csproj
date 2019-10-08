@@ -746,6 +746,8 @@
     <Compile Include="Domain\Sms\LowBalanceSmsNotification.cs" />
     <Compile Include="Services\ISmsNotifierParametersProvider.cs" />
     <Compile Include="HibernateMapping\Sms\SmsNotificationMap.cs" />
+    <Compile Include="Domain\Order\CashReceipt.cs" />
+    <Compile Include="HibernateMapping\Order\CashReceiptMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

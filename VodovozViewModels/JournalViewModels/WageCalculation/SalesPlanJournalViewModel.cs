@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using NHibernate;
 using NHibernate.Transform;
-using QS.DomainModel.Config;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;

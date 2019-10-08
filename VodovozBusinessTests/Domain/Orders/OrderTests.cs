@@ -5,6 +5,7 @@ using System.Linq;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
+using QS.Contacts;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -13,13 +14,13 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Services;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Orders;
 
 namespace VodovozBusinessTests.Domain.Orders
 {
@@ -710,39 +711,45 @@ namespace VodovozBusinessTests.Domain.Orders
 
 		#endregion
 
-		[Ignore("Слишком много всего в сеттере для точки доставки. Пока не разгрузим - игнор")]
 		[Test(Description = "Проверка обновления точки доставки в ДС на продажу оборудования при смене точки доставки в заказе")]
 		public void UpdateDeliveryPointInSalesAgreement_OnChangeOfDeliveryPointInOrder_UpdatesDeliveryPointInEquipmentSalesAgreement()
 		{
 			// arrange
-			Order testOrder = new Order();
 			DeliveryPoint deliveryPointMock01 = Substitute.For<DeliveryPoint>();
-			testOrder.DeliveryPoint = deliveryPointMock01;
 			DeliveryPoint deliveryPointMock02 = Substitute.For<DeliveryPoint>();
-			OrderAgreement salesAgreement = new OrderAgreement {
+			Order testOrder = new Order {
+				Client = Substitute.For<Counterparty>(),
+				DeliveryPoint = deliveryPointMock01
+			};
+			OrderAgreement salesEquipment = new OrderAgreement {
 				Id = 1,
 				AdditionalAgreement = new SalesEquipmentAgreement {
 					DeliveryPoint = deliveryPointMock01
-				}
+				},
+				Order = testOrder
 			};
 			OrderAgreement wsa = new OrderAgreement {
 				Id = 2,
 				AdditionalAgreement = new WaterSalesAgreement {
 					DeliveryPoint = deliveryPointMock01
-				}
+				},
+				Order = testOrder
 			};
-			testOrder.OrderDocuments = new List<OrderDocument> { salesAgreement, wsa };
+			testOrder.OrderDocuments = new List<OrderDocument> { salesEquipment, wsa };
 
 			// act
 			testOrder.DeliveryPoint = deliveryPointMock02;
+			testOrder.UpdateDeliveryPointInSalesAgreement();
 
 			// assert
-			Assert.That(testOrder.ObservableOrderDocuments.FirstOrDefault(d => d.Id == 1), Is.EqualTo(deliveryPointMock02));
+			OrderAgreement agreement = testOrder.ObservableOrderDocuments.FirstOrDefault(d => d.Id == 1) as OrderAgreement;
+			Assert.That(agreement.AdditionalAgreement.DeliveryPoint, Is.EqualTo(deliveryPointMock02));
 		}
 
 		[Test(Description = "Если кол-во отгруженных товаров по документам самовывоза совпадает с кол-вом товаров в заказе, то возвращается true")]
 		public void IsFullyShippedSelfDeliveryOrder_IfQuantityOfUnloadedGoodsIsTheSameAsQuantityOfGoodsInOrder_ThenMethodReturnsTrue()
 		{
+			// arrange
 			Nomenclature nomenclatureMock01 = Substitute.For<Nomenclature>();
 			nomenclatureMock01.Category.Returns(NomenclatureCategory.bottle);
 			nomenclatureMock01.Id.Returns(33);
@@ -795,7 +802,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				}
 			);
 
-			// arrange
+			// act
 			var res = orderUnderTest.IsFullyShippedSelfDeliveryOrder(uow, repository, selfDeliveryDocumentMock);
 
 			// assert
@@ -806,6 +813,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		[Test(Description = "Создание новой операции перемещения бутылей в самовывозе и не учёт неустоек в подсчёте общего кол-ва возвращённых бутылей, если самовывоз не полностью оплачен")]
 		public void UpdateBottlesMovementOperationWithoutDelivery_CreatesNewBottleMovementOperationAndIgnoreForfeits_WhenTheSelfDeliveryIsNotFullyPaid()
 		{
+			// arrange
 			Order orderUnderTest = new Order {
 				Id = 1,
 				DeliveryDate = new DateTime(2000, 01, 02),
@@ -825,7 +833,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			cashRepository.GetIncomePaidSumForOrder(uow, orderUnderTest.Id).Returns(111m);
 			cashRepository.GetExpenseReturnSumForOrder(uow, orderUnderTest.Id).Returns(112m);
 
-			// arrange
+			// act
 			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNomenclatures, routeListItemRepository, cashRepository);
 
 			// assert
@@ -837,6 +845,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		[Test(Description = "Создание новой операции перемещения бутылей в самовывозе и не учёт неустоек в подсчёте общего кол-ва возвращённых бутылей, если самовывоз не полностью оплачен")]
 		public void UpdateBottlesMovementOperationWithoutDelivery_CreatesNewBottleMovementOperationAndNoIgnoreForfeits_WhenTheSelfDeliveryIsFullyPaid()
 		{
+			// arrange
 			Nomenclature nomenclatureMock01 = Substitute.For<Nomenclature>();
 			nomenclatureMock01.Id.Returns(100);
 			OrderItem orderItem01 = new OrderItem {
@@ -864,7 +873,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			cashRepository.GetIncomePaidSumForOrder(uow, orderUnderTest.Id).Returns(1m);
 			cashRepository.GetExpenseReturnSumForOrder(uow, orderUnderTest.Id).Returns(1m);
 
-			// arrange
+			// act
 			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNomenclatures, routeListItemRepository, cashRepository);
 
 			// assert
@@ -876,6 +885,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		[Test(Description = "Обновление существующей операции перемещения бутылей в самовывозе с обновлением полей даты, доставлено и возвращено, при условии полной оплаты в кассе")]
 		public void UpdateBottlesMovementOperationWithoutDelivery_UpdatesExistingBottleMovementOperationAndNoIgnoreForfeits_WhenTheSelfDeliveryIsFullyPaid()
 		{
+			// arrange
 			Nomenclature nomenclatureMock01 = Substitute.For<Nomenclature>();
 			nomenclatureMock01.Id.Returns(50);
 
@@ -920,7 +930,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			cashRepository.GetIncomePaidSumForOrder(uow, 1).Returns(22);
 			cashRepository.GetExpenseReturnSumForOrder(uow, 1).Returns(22);
 
-			// arrange
+			// act
 			orderUnderTest.UpdateBottlesMovementOperationWithoutDelivery(uow, standartNomenclatures, routeListItemRepository, cashRepository);
 
 			// assert
@@ -941,6 +951,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		[Test(Description = "Считаем полный объём груза, либо отдельно товаров или оборудования в заказе")]
 		public void FullVolume_WhenPassCommandToCalculateOrderItemsOrEquipmentOrBoth_CanCalculatesFullVolumeOrVolumeOfItemsOrEquipmentSeparately(bool countOrderItems, bool countOrderEquipment, double result)
 		{
+			// arrange
 			Nomenclature nomenclatureMockOrderItem = Substitute.For<Nomenclature>();
 			nomenclatureMockOrderItem.Volume.Returns(.35d);
 
@@ -963,7 +974,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				OrderEquipments = new List<OrderEquipment> { orderEquipment },
 			};
 
-			// arrange
+			// act
 			var vol = orderUnderTest.FullVolume(countOrderItems, countOrderEquipment);
 
 			// assert
@@ -981,6 +992,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		[Test(Description = "Считаем полный объём груза, либо отдельно товаров или оборудования в заказе")]
 		public void FullWeight_WhenPassCommandToCalculateOrderItemsOrEquipmentOrBoth_CalculatesFullWeightOrWeightOfItemsOrEquipmentSeparately(bool countOrderItems, bool countOrderEquipment, double result)
 		{
+			// arrange
 			Nomenclature nomenclatureMockOrderItem = Substitute.For<Nomenclature>();
 			nomenclatureMockOrderItem.Weight.Returns(.3d);
 
@@ -1003,11 +1015,208 @@ namespace VodovozBusinessTests.Domain.Orders
 				OrderEquipments = new List<OrderEquipment> { orderEquipment },
 			};
 
-			// arrange
+			// act
 			var weight = orderUnderTest.FullWeight(countOrderItems, countOrderEquipment);
 
 			// assert
 			Assert.That(Math.Round(weight, 4), Is.EqualTo(Math.Round(result, 4)));
+		}
+
+		[Test(Description = "Возврат Null если отсутствует клиент в заказе")]
+		public void GetContact_WhenNoClientInOrder_ThenReturnsNull()
+		{
+			// arrange
+			Order order = new Order {
+				Client = null
+			};
+
+			// act
+			var contact = order.GetContact();
+
+			// assert
+			Assert.That(contact, Is.Null);
+		}
+
+		[Test(Description = "Возврат Null если самовывоз и у клиента нет контактов")]
+		public void GetContact_WhenSelfdeliveryAndNoContactsInClient_ThenReturnsNull()
+		{
+			// arrange
+			var client = Substitute.For<Counterparty>();
+
+			Order order = new Order {
+				Client = client,
+				SelfDelivery = true
+			};
+
+			// act
+			var contact = order.GetContact();
+
+			// assert
+			Assert.That(contact, Is.Null);
+		}
+
+		[Test(Description = "Возврат номера мобильного телефона клиента если самовывоз и у клиента есть мобильный номер")]
+		public void GetContact_WhenSelfdeliveryAndClientHasMobilePhoneNumber_ThenReturnsClientsMobilePhoneNumber()
+		{
+			// arrange
+			var client = Substitute.For<Counterparty>();
+			client.Phones.Returns<IList<Phone>>(
+				new List<Phone> {
+					new Phone { Number = "8121234567" },
+					new Phone { Number = "9211234567" }
+				}
+			);
+
+			Order order = new Order {
+				Client = client,
+				SelfDelivery = true
+			};
+
+			// act
+			var contact = order.GetContact();
+
+			// assert
+			Assert.That(contact, Is.EqualTo("9211234567"));
+		}
+
+		[Test(Description = "Возврат электронного адреса клиента если самовывоз и у клиента есть не мобильный номер и эл.адрес")]
+		public void GetContact_WhenSelfdeliveryAndClientHasNotMobilePhoneNumberAndEMail_ThenReturnsClientsEMail()
+		{
+			// arrange
+			var client = Substitute.For<Counterparty>();
+			client.Phones.Returns<IList<Phone>>(
+				new List<Phone> {
+					new Phone { Number = "8121234567" }
+				}
+			);
+			client.Emails.Returns<IList<Email>>(
+				new List<Email> {
+					new Email { Address = "123@dsd.dss" }
+				}
+			);
+
+			Order order = new Order {
+				Client = client,
+				SelfDelivery = true
+			};
+
+			// act
+			var contact = order.GetContact();
+
+			// assert
+			Assert.That(contact, Is.EqualTo("123@dsd.dss"));
+		}
+
+		[Test(Description = "Возврат электронного адреса клиента если самовывоз и у клиента есть мобильный номер и эл.адрес")]
+		public void GetContact_WhenSelfdeliveryAndClientHasMobilePhoneNumberAndEMail_ThenReturnsClientsEMail()
+		{
+			// arrange
+			var client = Substitute.For<Counterparty>();
+			client.Phones.Returns<IList<Phone>>(
+				new List<Phone> {
+					new Phone { Number = "9211234567" }
+				}
+			);
+			client.Emails.Returns<IList<Email>>(
+				new List<Email> {
+					new Email { Address = "123@dsd.dss" }
+				}
+			);
+
+			Order order = new Order {
+				Client = client,
+				SelfDelivery = true
+			};
+
+			// act
+			var contact = order.GetContact();
+
+			// assert
+			Assert.That(contact, Is.EqualTo("9211234567"));
+		}
+
+		[Test(Description = "Возврат мобильного телефона точки доставки если не самовывоз, у точки доставки есть мобильный номер и у клиента есть эл.адрес")]
+		public void GetContact_WhenNotSelfdeliveryAndClientHasEMailAndDeliveryPointHasMobilePhoneNumber_ThenReturnsDeliveryPointsMobilePhoneNumber()
+		{
+			// arrange
+			var client = Substitute.For<Counterparty>();
+			client.Emails.Returns<IList<Email>>(
+				new List<Email> {
+					new Email { Address = "123@dsd.dss" }
+				}
+			);
+
+			var dp = Substitute.For<DeliveryPoint>();
+			dp.Phones.Returns<IList<Phone>>(
+				new List<Phone> {
+					new Phone { Number = "9211234567" }
+				}
+			);
+
+			Order order = new Order {
+				Client = client,
+				DeliveryPoint = dp
+			};
+
+			// act
+			var contact = order.GetContact();
+
+			// assert
+			Assert.That(contact, Is.EqualTo("9211234567"));
+		}
+
+		[Test(Description = "Возврат электронного адреса клиента если не самовывоз, у точки доставки есть НЕ мобильный номер и у клиента есть эл.адрес")]
+		public void GetContact_WhenNotSelfdeliveryAndClientHasEMailAndDeliveryPointHasNotMobilePhoneNumber_ThenReturnsClientsEMail()
+		{
+			// arrange
+			var client = Substitute.For<Counterparty>();
+			client.Emails.Returns<IList<Email>>(
+				new List<Email> {
+					new Email { Address = "123@dsd.dss" }
+				}
+			);
+
+			var dp = Substitute.For<DeliveryPoint>();
+			dp.Phones.Returns<IList<Phone>>(
+				new List<Phone> {
+					new Phone { Number = "8121234567" }
+				}
+			);
+
+			Order order = new Order {
+				Client = client,
+				DeliveryPoint = dp
+			};
+
+			// act
+			var contact = order.GetContact();
+
+			// assert
+			Assert.That(contact, Is.EqualTo("123@dsd.dss"));
+		}
+
+		[Test(Description = "Возврат любого номера из точки доставки если не самовывоз, у точки доставки есть НЕ мобильный номер и у клиента нет контактов")]
+		public void GetContact_WhenNotSelfdeliveryAndClientHasNoContactsAndDeliveryPointHasNotMobilePhoneNumber_ThenReturnsDeliveryPointsNotMobilePhoneNumber()
+		{
+			// arrange
+			var client = Substitute.For<Counterparty>();
+			var dp = Substitute.For<DeliveryPoint>();
+			dp.Phones.Returns<IList<Phone>>(
+				new List<Phone> {
+					new Phone { Number = "8121234567" }
+				}
+			);
+
+			Order order = new Order {
+				Client = client,
+				DeliveryPoint = dp
+			};
+
+			// act
+			var contact = order.GetContact();
+
+			// assert
+			Assert.That(contact, Is.EqualTo("8121234567"));
 		}
 	}
 }

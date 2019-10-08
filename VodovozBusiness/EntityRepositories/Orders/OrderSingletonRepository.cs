@@ -419,5 +419,17 @@ namespace Vodovoz.EntityRepositories.Orders
 					OrderStatus.Canceled
 				};
 		}
+
+		public int[] GetShippeIdsStartingFromDate(IUnitOfWork uow, PaymentType paymentType, DateTime? startDate = null)
+		{
+			var result = uow.Session.QueryOver<VodovozOrder>()
+							.Where(o => o.PaymentType == paymentType)
+							.Where(o => o.OrderStatus == OrderStatus.Shipped || o.OrderStatus == OrderStatus.UnloadingOnStock)
+							.Where(o => !o.SelfDelivery)
+							;
+			if(startDate.HasValue)
+				result.Where(o => o.DeliveryDate >= startDate.Value);
+			return result.Select(o => o.Id).List<int>().ToArray();
+		}
 	}
 }
