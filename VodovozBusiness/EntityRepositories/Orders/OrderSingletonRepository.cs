@@ -39,12 +39,15 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped)
 		{
-			var query = QueryOver.Of<VodovozOrder>();
+			var query = QueryOver.Of<VodovozOrder>().Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery && !order.IsService)
+													.Where(o => o.DeliverySchedule != null)
+													.Where(x => x.DeliveryPoint != null)
+													;
 			if(!showShipped)
 				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
 			else
 				query.Where(order => order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder && order.OrderStatus != OrderStatus.WaitForPayment);
-			return query.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery && !order.IsService);
+			return query;
 		}
 
 		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, ScheduleRestrictedDistrict district)
@@ -405,6 +408,16 @@ namespace Vodovoz.EntityRepositories.Orders
 				OrderStatus.UnloadingOnStock,
 				OrderStatus.WaitForPayment
 			};
+		}
+
+		public OrderStatus[] GetUndeliveryStatuses()
+		{
+			return new OrderStatus[]
+				{
+					OrderStatus.NotDelivered,
+					OrderStatus.DeliveryCanceled,
+					OrderStatus.Canceled
+				};
 		}
 	}
 }

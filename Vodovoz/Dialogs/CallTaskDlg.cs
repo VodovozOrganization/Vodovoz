@@ -72,7 +72,7 @@ namespace Vodovoz.Dialogs
 			yentryTareReturn.Binding.AddBinding(Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 
-			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
 			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
 			EmployeeyEntryreferencevm.RepresentationModel = employeeVM;

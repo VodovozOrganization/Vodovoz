@@ -2,7 +2,7 @@
 
 namespace Vodovoz.TempAdapters
 {
-	public interface IGtkTabsOpenerFromComplaintViewModel : IGtkOrderDlgOpener, IGtkRouteListCreateDlgOpener
+	public interface IGtkTabsOpenerForRouteListViewAndOrderView : IGtkOrderDlgOpener, IGtkRouteListCreateDlgOpener
 	{
 	}
 

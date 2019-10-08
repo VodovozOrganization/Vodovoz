@@ -698,7 +698,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 					entityConfigurationProvider,
 					ServicesConfig.CommonServices,
 					undeliveriesViewOpener,
-					ServicesConfig.EmployeeService,
+					VodovozGtkServicesConfig.EmployeeService,
 					employeeSelectorFactory,
 					counterpartySelectorFactory,
 					routeListItemRepository,

@@ -1028,6 +1028,7 @@ namespace Vodovoz
 			}
 			this.Hide();
 			this.ycheckHideCells.Toggled += new global::System.EventHandler(this.OnYcheckHideCellsToggled);
+			this.ytreeviewFuelDocuments.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewFuelDocumentsRowActivated);
 			this.buttonAddFuelDocument.Clicked += new global::System.EventHandler(this.OnButtonAddFuelDocumentClicked);
 			this.buttonDeleteFuelDocument.Clicked += new global::System.EventHandler(this.OnButtonDeleteFuelDocumentClicked);
 			this.buttonReturnedRefresh.Clicked += new global::System.EventHandler(this.OnButtonReturnedRefreshClicked);

@@ -15,7 +15,7 @@ namespace Vodovoz
 		{
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
 
-			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filter.SetAndRefilterAtOnce(x => x.ShowFired = false);
 			repEntryAccountable.RepresentationModel = new EmployeesVM(filter);
 		}

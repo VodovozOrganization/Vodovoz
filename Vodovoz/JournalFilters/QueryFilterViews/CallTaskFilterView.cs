@@ -23,7 +23,7 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			EmployeesVM employeeVM = new EmployeesVM(UoW);
 			comboboxDateType.ItemsEnum = typeof(TaskFilterDateType);
 			comboboxDateType.Binding.AddBinding(Filter, x => x.DateType, w => w.SelectedItem).InitializeFromSource();
-			employeeVM.Filter = new Filters.ViewModels.EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			employeeVM.Filter = new Filters.ViewModels.EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			entryreferencevmEmployee.RepresentationModel = employeeVM;
 			checkbuttonHideCompleted.Binding.AddBinding(Filter, x => x.HideCompleted, w => w.Active).InitializeFromSource();
 			showWithoutCheckButton.Binding.AddBinding(Filter, x => x.ShowOnlyWihoutEmployee, w => w.Active).InitializeFromSource();

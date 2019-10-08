@@ -29,7 +29,7 @@ namespace Vodovoz.JournalFilters
 			refOldOrder.RepresentationModel = new OrdersVM(new OrdersFilter(UoW));
 			refOldOrder.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
-			var driversFilter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var driversFilter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			driversFilter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false
@@ -39,7 +39,7 @@ namespace Vodovoz.JournalFilters
 			refClient.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
 			refDeliveryPoint.RepresentationModel = new DeliveryPointsVM(new DeliveryPointFilter(UoW));
 
-			var authorsFilter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var authorsFilter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			authorsFilter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.ShowFired = false

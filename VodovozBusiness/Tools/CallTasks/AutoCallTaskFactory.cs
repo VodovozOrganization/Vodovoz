@@ -5,6 +5,7 @@ using System.Data.Bindings.Utilities;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
@@ -144,7 +145,7 @@ namespace Vodovoz.Tools.CallTasks
 
 			var newTask = new CallTask();	
 			callTaskFactory.FillNewTask(order.UoW, newTask, employeeRepository);
-			newTask.AssignedEmployee = personProvider.GetDefaultEmployeeForDepositReturnTask(order.UoW);
+			newTask.AssignedEmployee = order.UoW.GetById<Employee>(personProvider.GetDefaultEmployeeForDepositReturnTask());
 			newTask.TaskState = CallTaskStatus.DepositReturn;
 			newTask.DeliveryPoint = order.DeliveryPoint;
 			newTask.Counterparty = order.Client;

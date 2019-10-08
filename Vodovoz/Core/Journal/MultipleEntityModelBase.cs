@@ -5,13 +5,13 @@ using Gamma.ColumnConfig;
 using NLog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.Permissions;
 using QS.Project.Repositories;
 using QS.RepresentationModel;
 using QS.Tdi;
 using System.ComponentModel;
 using QS.DomainModel.NotifyChange;
 using QS.RepresentationModel.GtkUI;
+using QS.Project.Services;
 
 namespace Vodovoz.Core.Journal
 {
@@ -152,11 +152,14 @@ namespace Vodovoz.Core.Journal
 
 		protected EntityPermission GetPermissionForEntity<TEntity>()
 		{
-			if(PermissionsSettings.EntityPermissionValidator == null) {
-				return EntityPermission.AllAllowed;
-			}
 			var user = UserRepository.GetCurrentUser(UoW);
-			return PermissionsSettings.EntityPermissionValidator.Validate<TEntity>(user.Id);
+			var permissionResult = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(typeof(TEntity), user.Id);
+			return new EntityPermission(
+				permissionResult.CanCreate,
+				permissionResult.CanRead,
+				permissionResult.CanUpdate,
+				permissionResult.CanDelete
+			);
 		}
 
 		public MultipleEntityModelBase()

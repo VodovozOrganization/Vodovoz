@@ -401,7 +401,6 @@
     <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkDriverMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkForwarderMap.cs" />
-    <Compile Include="Repositories\Logistics\AtWorkRepository.cs" />
     <Compile Include="Domain\Logistic\DriverDistrictPriority.cs" />
     <Compile Include="HibernateMapping\Logistic\DriverDistrictPriorityMap.cs" />
     <Compile Include="Repositories\Logistics\CarRepository.cs" />
@@ -733,6 +732,20 @@
     <Compile Include="HibernateMapping\WageCalculation\SalesPlanMap.cs" />
     <Compile Include="EntityRepositories\UserSingletonRepository.cs" />
     <Compile Include="EntityRepositories\IUserRepository.cs" />
+    <Compile Include="Domain\Order\Documents\AssemblyListDocument.cs" />
+    <Compile Include="EntityRepositories\Logistic\AtWorkRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\IAtWorkRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\CarRepository.cs" />
+    <Compile Include="EntityRepositories\Logistic\ICarRepository.cs" />
+    <Compile Include="Services\ICommonParametersProvider.cs" />
+    <Compile Include="Domain\Sms\SmsNotification.cs" />
+    <Compile Include="Domain\Sms\SmsNotificationType.cs" />
+    <Compile Include="Domain\Sms\NewClientSmsNotification.cs" />
+    <Compile Include="Domain\Sms\SmsNotificationStatus.cs" />
+    <Compile Include="Domain\Sms\SmsNotifier.cs" />
+    <Compile Include="Domain\Sms\LowBalanceSmsNotification.cs" />
+    <Compile Include="Services\ISmsNotifierParametersProvider.cs" />
+    <Compile Include="HibernateMapping\Sms\SmsNotificationMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -799,6 +812,8 @@
     <Folder Include="EntityRepositories\WageCalculation\" />
     <Folder Include="Domain\WageCalculation\CalculationServices\" />
     <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
+    <Folder Include="Domain\Sms\" />
+    <Folder Include="HibernateMapping\Sms\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

@@ -104,7 +104,7 @@ namespace Vodovoz
 			yentryDeliveryDaySchedule.SubjectType = typeof(DeliveryDaySchedule);
 			yentryDeliveryDaySchedule.Binding.AddBinding(Entity, e => e.DefaultDaySheldule, w => w.Subject).InitializeFromSource();
 
-			var filterDefaultForwarder = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterDefaultForwarder = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterDefaultForwarder.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.ShowFired = false
@@ -156,6 +156,7 @@ namespace Vodovoz
 			yspinDriverSpeed.Binding.AddBinding(Entity, e => e.DriverSpeed, w => w.Value, new MultiplierToPercentConverter()).InitializeFromSource();
 			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
 
+			Entity.CheckAndFixDriverPriorities();
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
 				.AddColumn("Район").AddTextRenderer(x => x.District.DistrictName)
 				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority + 1)
@@ -184,11 +185,11 @@ namespace Vodovoz
 				UoW, 
 				new PresetPermissionValidator(),
 				UserSingletonRepository.GetInstance(), 
-				ServicesConfig.CommonServices
+				QS.Project.Services.ServicesConfig.CommonServices
 			);
 
 			logger.Info("Ok");
-			Entity.CreateDefaultWageParameter();
+			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance());
 		}
 
 		void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

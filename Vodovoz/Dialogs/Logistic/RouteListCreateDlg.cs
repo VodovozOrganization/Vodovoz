@@ -10,6 +10,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Validation.GtkUI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
@@ -105,7 +106,7 @@ namespace Vodovoz
 				}
 			};
 
-			var filterDriver = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterDriver = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false
@@ -113,7 +114,7 @@ namespace Vodovoz
 			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
-			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.ShowFired = false
@@ -295,7 +296,7 @@ namespace Vodovoz
 				Entity.ChangeStatus(RouteListStatus.Confirmed);
 				//Строим маршрут для МЛ.
 				if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
-					RouteOptimizer optimizer = new RouteOptimizer();
+					RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 					var newRoute = optimizer.RebuidOneRoute(Entity);
 					if(newRoute != null) {
 						createroutelistitemsview1.DisableColumnsUpdate = true;

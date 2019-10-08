@@ -1,15 +1,18 @@
 ﻿using System;
-using QS.DomainModel.UoW;
 using QSSupportLib;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.StoredResources;
 using Vodovoz.Services;
 
 namespace Vodovoz.Core.DataService
 {
-	public class BaseParametersProvider : IStandartNomenclatures , IImageProvider, IStandartDiscountsService , IPersonProvider , ISubdivisionService
+	public class BaseParametersProvider : 
+		IStandartNomenclatures , 
+		IImageProvider, 
+		IStandartDiscountsService , 
+		IPersonProvider , 
+		ISubdivisionService,
+		ICommonParametersProvider, 
+		ISmsNotifierParametersProvider
 	{
-
 		public int GetForfeitId()
 		{
 			if(!MainSupport.BaseParameters.All.ContainsKey("forfeit_nomenclature_id")) {
@@ -26,24 +29,20 @@ namespace Vodovoz.Core.DataService
 			return int.Parse(MainSupport.BaseParameters.All["причина_скидки_для_акции_Бутыль"]);
 		}
 
-		public Employee GetDefaultEmployeeForCallTask(IUnitOfWork uow)
+		public int GetDefaultEmployeeForCallTask()
 		{
 			if(!MainSupport.BaseParameters.All.ContainsKey("сотрудник_по_умолчанию_для_crm")) {
 				throw new InvalidProgramException("В параметрах базы не настроен параметр сотрудник по умолчанию для crm (сотрудник_по_умолчанию_для_crm).");
 			}
-			int employeeId = int.Parse(MainSupport.BaseParameters.All["сотрудник_по_умолчанию_для_crm"]);
-
-			return uow.GetById<Employee>(employeeId);
+			return int.Parse(MainSupport.BaseParameters.All["сотрудник_по_умолчанию_для_crm"]); ;
 		}
 
-		public Employee GetDefaultEmployeeForDepositReturnTask(IUnitOfWork uow)
+		public int GetDefaultEmployeeForDepositReturnTask()
 		{
 			if(!MainSupport.BaseParameters.All.ContainsKey("сотрудник_по_умолчанию_для_задач_по_залогам")) {
 				throw new InvalidProgramException("В параметрах базы не настроен параметр сотрудник по умолчанию для crm (сотрудник_по_умолчанию_для_задач_по_залогам).");
 			}
-			int employeeId = int.Parse(MainSupport.BaseParameters.All["сотрудник_по_умолчанию_для_задач_по_залогам"]);
-
-			return uow.GetById<Employee>(employeeId);
+			return int.Parse(MainSupport.BaseParameters.All["сотрудник_по_умолчанию_для_задач_по_залогам"]);
 		}
 
 		public int GetOkkId()
@@ -61,5 +60,71 @@ namespace Vodovoz.Core.DataService
 			}
 			return int.Parse(MainSupport.BaseParameters.All["crm_importance_indicator_id"]);
 		}
+
+		public bool UseOldAutorouting()
+		{
+			if(!MainSupport.BaseParameters.All.ContainsKey("use_old_autorouting") || !bool.TryParse(MainSupport.BaseParameters.All["use_old_autorouting"], out bool res))
+				return false;
+			return res;
+		}
+
+		#region ISmsNotifierParameters implementation
+
+		public bool IsSmsNotificationsEnabled {
+			get {
+				MainSupport.LoadBaseParameters();
+				if(!MainSupport.BaseParameters.All.ContainsKey("is_sms_notification_enabled")) {
+					throw new InvalidProgramException("В параметрах базы не настроен параметр для включения смс уведомлений (is_sms_notification_enabled).");
+				}
+				string value = MainSupport.BaseParameters.All["is_sms_notification_enabled"];
+				if(value == "true" || value == "1") {
+					return true;
+				}
+				return false;
+			}
+		}
+
+		public string GetNewClientSmsTextTemplate()
+		{
+			MainSupport.LoadBaseParameters();
+			if(!MainSupport.BaseParameters.All.ContainsKey("new_client_sms_text_template")) {
+				throw new InvalidProgramException("В параметрах базы не настроен шаблон для смс уведомлений новых клиентов (new_client_sms_text_template).");
+			}
+			return MainSupport.BaseParameters.All["new_client_sms_text_template"];
+		}
+
+		public decimal GetLowBalanceLevel()
+		{
+			MainSupport.LoadBaseParameters();
+			if(!MainSupport.BaseParameters.All.ContainsKey("low_balance_level_for_sms_notifications")) {
+				throw new InvalidProgramException("В параметрах базы не указан минимальный уровень средств на счете при котором будет отправляться уведомление о низком уровне средст на счете (low_balance_level_for_sms_notifications).");
+			}
+			string balanceString = MainSupport.BaseParameters.All["low_balance_level_for_sms_notifications"];
+
+			if(!decimal.TryParse(balanceString, out decimal balance)) {
+				throw new InvalidProgramException("В параметрах базы неверно заполнен (невозможно преобразовать в число) минимальный уровень средств на счете при котором будет отправляться уведомление о низком уровне средст на счете (low_balance_level_for_sms_notifications)");
+			}
+			return balance;
+		}
+
+		public string GetLowBalanceNotifiedPhone()
+		{
+			MainSupport.LoadBaseParameters();
+			if(!MainSupport.BaseParameters.All.ContainsKey("low_balance_sms_notified_phone")) {
+				throw new InvalidProgramException("В параметрах базы не настроен телефон на который будут отправляться сообщения о низком балансе денежных средств на счете для отпарвки смс уведомлений (low_balance_sms_notified_phone).");
+			}
+			return MainSupport.BaseParameters.All["low_balance_sms_notified_phone"];
+		}
+
+		public string GetLowBalanceNotifyText()
+		{
+			MainSupport.LoadBaseParameters();
+			if(!MainSupport.BaseParameters.All.ContainsKey("low_balance_sms_notify_text")) {
+				throw new InvalidProgramException("Текст сообщения о низком балансе средств на счете для отправки смс уведомлений (low_balance_sms_notify_text).");
+			}
+			return MainSupport.BaseParameters.All["low_balance_sms_notify_text"];
+		}
+
+		#endregion ISmsNotifierParameters implementation
 	}
 }

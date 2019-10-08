@@ -4,11 +4,11 @@ using NHibernate;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz.Repository.Logistics
+namespace Vodovoz.EntityRepositories.Logistic
 {
-	public static class AtWorkRepository
+	public class AtWorkRepository : IAtWorkRepository
 	{
-		public static IList<AtWorkDriver> GetDriversAtDay(IUnitOfWork uow, DateTime date)
+		public IList<AtWorkDriver> GetDriversAtDay(IUnitOfWork uow, DateTime date)
 		{
 			return uow.Session.QueryOver<AtWorkDriver>()
 					  .Where(x => x.Date == date)
@@ -16,7 +16,7 @@ namespace Vodovoz.Repository.Logistics
 					  .List();
 		}
 
-		public static IList<AtWorkForwarder> GetForwardersAtDay(IUnitOfWork uow, DateTime date)
+		public IList<AtWorkForwarder> GetForwardersAtDay(IUnitOfWork uow, DateTime date)
 		{
 			return uow.Session.QueryOver<AtWorkForwarder>()
 					  .Where(x => x.Date == date)
@@ -24,4 +24,5 @@ namespace Vodovoz.Repository.Logistics
 					  .List();
 		}
 	}
+
 }

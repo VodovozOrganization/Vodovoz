@@ -27,8 +27,8 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.Domain.Complaints;
 
 namespace Vodovoz
 {
@@ -193,7 +193,6 @@ namespace Vodovoz
 				.AddDeleteDependence<EmployeeContract>(x => x.Organization)
 				;
 
-
 			DeleteConfig.AddHibernateDeleteInfo<FreeRentPackage>()
 				.AddClearDependence<FreeRentEquipment>(x => x.FreeRentPackage);
 
@@ -317,6 +316,7 @@ namespace Vodovoz
 				.AddClearDependence<WriteoffDocumentItem>(x => x.Fine)
 				.AddClearDependence<RegradingOfGoodsDocumentItem>(x => x.Fine)
 				.AddClearDependence<RouteList>(x => x.BottleFine)
+				.AddRemoveFromDependence<Complaint>(x => x.Fines)
 				;
 
 			DeleteConfig.AddHibernateDeleteInfo<FineItem>()
@@ -394,8 +394,8 @@ namespace Vodovoz
 				.AddClearDependence<Counterparty>(x => x.PreviousCounterparty)
 				.AddClearDependence<Equipment>(x => x.AssignedToClient)
 				.AddDeleteDependence<SupplierPriceItem>(x => x.Supplier)
+				.AddDeleteDependence<CallTask>(x => x.Counterparty)
 				;
-
 
 			DeleteConfig.AddHibernateDeleteInfo<Contact>()
 				.AddDeleteDependenceFromCollection(item => item.Emails)
@@ -468,6 +468,7 @@ namespace Vodovoz
 				.AddDeleteDependence<Residue>(x => x.DeliveryPoint)
 				.AddRemoveFromDependence<Proxy>(item => item.DeliveryPoints)
 				.AddRemoveFromDependence<Contact>(x => x.DeliveryPoints)
+				.AddClearDependence<CallTask>(x => x.DeliveryPoint)
 				.AddClearDependence<ServiceClaim>(x => x.DeliveryPoint);
 
 			DeleteConfig.AddHibernateDeleteInfo<TransferOperationDocument>()
@@ -481,7 +482,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<WaterSalesAgreementFixedPrice>();
 
 			DeleteConfig.AddHibernateDeleteInfo<CallTask>();
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<DocTemplate>()
 				.AddClearDependence<AdditionalAgreement>(x => x.DocumentTemplate)
 				.AddClearDependence<CounterpartyContract>(x => x.DocumentTemplate)
@@ -850,7 +851,6 @@ namespace Vodovoz
 				.AddDeleteCascadeDependence(x => x.BottlesMovementOperation)
 				.AddDeleteCascadeDependence(x => x.MoneyMovementOperation);
 
-
 			DeleteConfig.AddHibernateDeleteInfo<ResidueEquipmentDepositItem>();
 
 			#endregion
@@ -1083,6 +1083,30 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<FieldChange>();
 
 			#endregion
+
+			#region Жалобы
+
+			DeleteConfig.AddHibernateDeleteInfo<Complaint>()
+						.AddDeleteDependence<ComplaintDiscussion>(item => item.Complaint)
+						.AddDeleteDependence<ComplaintFile>(item => item.Complaint)
+						.AddDeleteDependence<ComplaintGuiltyItem>(item => item.Complaint)
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintDiscussion>()
+						.AddDeleteDependence<ComplaintDiscussionComment>(item => item.ComplaintDiscussion)
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintFile>()
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintGuiltyItem>()
+						;
+
+			DeleteConfig.AddHibernateDeleteInfo<ComplaintDiscussionComment>()
+						.AddDeleteDependence<ComplaintFile>(item => item.ComplaintDiscussionComment)
+						;
+
+			#endregion Жалобы
 
 			#region stuff
 

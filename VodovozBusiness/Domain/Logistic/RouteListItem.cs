@@ -8,12 +8,10 @@ using QS.HistoryLog;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
@@ -259,13 +257,6 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal ForwarderWage {
 			get => forwarderWage;
 			set => SetField(ref forwarderWage, value, () => ForwarderWage);
-		}
-
-		decimal forwarderWageSurcharge;//не используется пока почему-то
-		[Display(Name = "Надбавка к ЗП экспедитора")]
-		public virtual decimal ForwarderWageSurcharge {
-			get => forwarderWageSurcharge;
-			set => SetField(ref forwarderWageSurcharge, value, () => ForwarderWageSurcharge);
 		}
 
 		[Display(Name = "Оповещение за 30 минут")]
@@ -568,34 +559,6 @@ namespace Vodovoz.Domain.Logistic
 
 			foreach(var deposit in Order.OrderDepositItems)
 				deposit.ActualCount = deposit.Count;
-		}
-
-		public virtual bool FillBottleMovementOperation(IStandartNomenclatures standartNomenclatures, out BottlesMovementOperation bottlesMovementOperation)
-		{
-			bottlesMovementOperation = Order.BottlesMovementOperation;
-
-			int amountDelivered = Order.OrderItems
-								   .Where(item => (item.Nomenclature.Category == NomenclatureCategory.water) && !item.Nomenclature.IsDisposableTare)
-								   .Sum(item => item.ActualCount ?? 0);
-
-			int amountReturned = Order.OrderItems.Where(arg => arg.Nomenclature.Id == standartNomenclatures.GetForfeitId())
-																	   .Sum(x => x.ActualCount ?? 0);
-			amountReturned += BottlesReturned;
-
-			if(amountDelivered == 0 && amountReturned == 0)
-				return false;
-
-			if(bottlesMovementOperation == null)
-				bottlesMovementOperation = new BottlesMovementOperation();
-
-			bottlesMovementOperation.Order = Order;
-			bottlesMovementOperation.Counterparty = Order.Client;
-			bottlesMovementOperation.DeliveryPoint = Order.DeliveryPoint;
-			bottlesMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-			bottlesMovementOperation.Delivered = amountDelivered;
-			bottlesMovementOperation.Returned = amountReturned;
-
-			return true;
 		}
 
 		private Dictionary<int, int> goodsByRouteColumns;

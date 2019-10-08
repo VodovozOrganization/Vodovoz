@@ -30,6 +30,10 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 				return new RouteListItemWageResult(0);
 			}
 
+			if(source.IsTruck) {
+				return new RouteListItemWageResult(0);
+			}
+
 			#region Оплата оборудования, если нет 19л воды в заказе
 			var wageForBottlesOrEquipment = CalculateWageForFull19LBottles(src);
 			if(wageForBottlesOrEquipment <= 0)

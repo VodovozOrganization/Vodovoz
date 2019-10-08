@@ -51,9 +51,11 @@ namespace Vodovoz.Representations
 			var ordersQuery = UoW.Session.QueryOver(() => orderAlias);
 
 			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
-			.JoinAlias(() => bottlesMovementAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
-			.And(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id || orderAlias.SelfDelivery)
+			.And(new Disjunction().Add(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+											.Add(Restrictions.On(() => deliveryPointAlias.Id).IsNull
+														&& Restrictions.On(() => bottlesMovementAlias.DeliveryPoint.Id).IsNull
+														&& Restrictions.On(() => bottlesMovementAlias.Order.Id).IsNotNull))
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
 					NHibernateUtil.Int32, new IProjection[] {
@@ -119,7 +121,7 @@ namespace Vodovoz.Representations
 				if(FilterViewModel.Client != null)
 					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == FilterViewModel.Client.Id);
 				if(FilterViewModel.Address != null)
-					ordersQuery = ordersQuery.Where((arg) => arg.Id == FilterViewModel.Address.Id);
+					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == FilterViewModel.Address.Id);
 				if(FilterViewModel.OPF != null)
 					ordersQuery = ordersQuery.Where(() => counterpartyAlias.PersonType == FilterViewModel.OPF.Value);
 				if(FilterViewModel.LastOrderNomenclature != null)
@@ -246,11 +248,11 @@ namespace Vodovoz.Representations
 					{ "nomenclature_id", FilterViewModel?.LastOrderNomenclature?.Id ?? 0},
 					{ "StartDate", FilterViewModel?.StartDate},
 					{ "EndDate", FilterViewModel?.EndDate},
-					{ "OrderBottlesFrom", FilterViewModel?.LastOrderBottlesFrom ?? int.MinValue},
-					{ "OrderBottlesTo", FilterViewModel?.LastOrderBottlesTo ?? int.MaxValue},
+					{ "OrderBottlesFrom", FilterViewModel?.LastOrderBottlesFrom?.ToString() ?? String.Empty},
+					{ "OrderBottlesTo", FilterViewModel?.LastOrderBottlesTo?.ToString() ?? String.Empty},
 					{ "AddressId", FilterViewModel?.Address?.Id ?? 0},
 					{ "CounterpartyId", FilterViewModel?.Client?.Id ?? 0},
-					{ "OPF", FilterViewModel?.OPF?.ToString()},
+					{ "OPF", FilterViewModel?.OPF?.ToString() ?? String.Empty},
 					{ "DebtBottlesFrom", FilterViewModel?.DebtBottlesFrom ?? int.MinValue},
 					{ "DebtBottlesTo", FilterViewModel?.DebtBottlesTo ?? int.MaxValue}
 				}

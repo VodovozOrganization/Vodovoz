@@ -7,6 +7,7 @@ using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Services;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
@@ -85,7 +86,7 @@ namespace Vodovoz
 
 		private IPermissionResult CheckPermission(Employee employee)
 		{
-			IPermissionService permissionService = ServicesConfig.PermissionService;
+			IPermissionService permissionService = ServicesConfig.CommonServices.PermissionService;
 			return permissionService.ValidateUserPermission(typeof(SelfDeliveryDocument), Repositories.HumanResources.UserRepository.GetCurrentUser(UoW).Id);
 		}
 
@@ -105,12 +106,13 @@ namespace Vodovoz
 			buttonCancel.Sensitive = true;
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse);
-			yentryrefOrder.IsEditable = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing && canEditDocument;
+			yentryrefOrder.IsEditable = lstWarehouse.Sensitive = ytextviewCommnet.Editable = editing && canEditDocument;
 			selfdeliverydocumentitemsview1.Sensitive = hbxTareToReturn.Sensitive = editing && canEditDocument;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.SelfDeliveryEdit);
-			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+			lstWarehouse.ItemsList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.SelfDeliveryEdit);
+			lstWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.SelectedItem).InitializeFromSource();
+			lstWarehouse.ItemSelected += OnWarehouseSelected;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new OrdersFilter(UoW);
 			filter.SetAndRefilterAtOnce(
@@ -227,7 +229,7 @@ namespace Vodovoz
 			UpdateAmounts();
 		}
 
-		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
+		protected void OnWarehouseSelected(object sender, EventArgs e)
 		{
 			Entity.FillByOrder();
 			Entity.UpdateStockAmount(UoW);

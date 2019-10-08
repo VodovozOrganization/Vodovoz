@@ -31,7 +31,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 				case PercentWageTypes.Service:
 					var wageForService = src.OrderItemsSource
 											.Where(i => i.IsMasterNomenclature && i.ActualCount.HasValue)
-											.Sum(i => i.ActualCount.Value * i.Price / i.PercentForMaster);
+											.Sum(i => i.ActualCount.Value * i.Price * i.PercentForMaster / 100);
 					return new RouteListItemWageResult(wageForService);
 				default:
 					throw new NotImplementedException();

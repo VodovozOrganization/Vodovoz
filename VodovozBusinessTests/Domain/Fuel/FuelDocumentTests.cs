@@ -463,6 +463,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
+			fuelDocument.FuelPaymentType = FuelPaymentType.Cash;
 			fuelDocument.Car = carMock;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;
@@ -519,6 +520,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			var fuelDocument = new FuelDocument();
 			fuelDocument.Driver = Substitute.For<Employee>();
 			fuelDocument.Car = carMock;
+			fuelDocument.FuelPaymentType = FuelPaymentType.Cash;
 			fuelDocument.Date = DateTime.Now;
 			fuelDocument.LastEditDate = DateTime.Now;
 			fuelDocument.Fuel = fuelTypeMock;

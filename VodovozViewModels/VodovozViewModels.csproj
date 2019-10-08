@@ -81,7 +81,7 @@
     <Compile Include="FilterViewModels\ComplaintFilterViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
-    <Compile Include="TempAdapters\IGtkTabsOpenerFromComplaintViewModel.cs" />
+    <Compile Include="TempAdapters\IGtkTabsOpenerForRouteListViewAndOrderView.cs" />
     <Compile Include="FilterViewModels\Goods\NomenclatureFilterViewModel.cs" />
     <Compile Include="FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
     <Compile Include="JournalNodes\RequestToSupplierJournalNode.cs" />

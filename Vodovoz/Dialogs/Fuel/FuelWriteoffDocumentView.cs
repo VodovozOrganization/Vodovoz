@@ -35,10 +35,10 @@ namespace Vodovoz.Dialogs.Fuel
 			IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
 			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(() => {
 				var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(x => x.Name,
-						() => new ExpenseCategoryViewModel(EntityConstructorParam.ForCreate(), ServicesConfig.CommonServices),
-						(node) => new ExpenseCategoryViewModel(EntityConstructorParam.ForOpen(node.Id), ServicesConfig.CommonServices),
+						() => new ExpenseCategoryViewModel(EntityConstructorParam.ForCreate(), QS.Project.Services.ServicesConfig.CommonServices),
+						(node) => new ExpenseCategoryViewModel(EntityConstructorParam.ForOpen(node.Id), QS.Project.Services.ServicesConfig.CommonServices),
 						entityConfigurationProvider, 
-						ServicesConfig.CommonServices
+						QS.Project.Services.ServicesConfig.CommonServices
 					);
 				expenseCategoryJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 				return expenseCategoryJournalViewModel;

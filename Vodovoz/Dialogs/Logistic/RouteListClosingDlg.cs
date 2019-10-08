@@ -25,6 +25,11 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.FuelDocuments;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Employees;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -128,7 +133,7 @@ namespace Vodovoz
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.Changed += ReferenceForwarder_Changed;
 
-			var filterLogistican = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterLogistican = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterLogistican.SetAndRefilterAtOnce(x => x.ShowFired = false);
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
@@ -1021,7 +1026,27 @@ namespace Vodovoz
 
 		protected void OnButtonAddFuelDocumentClicked(object sender, EventArgs e)
 		{
-			var tab = new FuelDocumentDlg(UoW, Entity);
+			var tab = new FuelDocumentViewModel(
+					  UoW,
+					  Entity,
+					  ServicesConfig.CommonServices,
+					  new SubdivisionRepository(),
+					  EmployeeSingletonRepository.GetInstance(),
+					  new FuelRepository()
+  			);
+			TabParent.AddSlaveTab(this, tab);
+		}
+
+		protected void OnYtreeviewFuelDocumentsRowActivated(object o, RowActivatedArgs args)
+		{
+			var tab = new FuelDocumentViewModel(
+				  UoW,
+				  ytreeviewFuelDocuments.GetSelectedObject<FuelDocument>(),
+				  ServicesConfig.CommonServices,
+				  new SubdivisionRepository(),
+				  EmployeeSingletonRepository.GetInstance(),
+				  new FuelRepository()
+		  	);
 			TabParent.AddSlaveTab(this, tab);
 		}
 

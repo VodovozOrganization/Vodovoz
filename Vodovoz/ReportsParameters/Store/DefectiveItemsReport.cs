@@ -23,7 +23,7 @@ namespace Vodovoz.ReportsParameters.Store
 			yEnumCmbSource.ItemsEnum = typeof(DefectSource);
 			yEnumCmbSource.AddEnumToHideList(new Enum[] { DefectSource.None });
 
-			var driversFilter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var driversFilter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			driversFilter.RestrictCategory = EmployeeCategory.driver;
 			driversFilter.ShowFired = false;
 			yEntryRefDriver.RepresentationModel = new EmployeesVM(driversFilter);

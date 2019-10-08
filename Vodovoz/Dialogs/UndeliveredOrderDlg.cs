@@ -5,6 +5,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using QS.Validation.GtkUI;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
@@ -77,7 +78,7 @@ namespace Vodovoz.Dialogs
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return false;
 			if(UndeliveredOrder.Id == 0) {
-				UndeliveredOrder.OldOrder.SetUndeliveredStatus();
+				UndeliveredOrder.OldOrder.SetUndeliveredStatus(UoW, new BaseParametersProvider());
 			}
 			undeliveryView.BeforeSaving();
 			//случай, если создавать новый недовоз не нужно, но нужно обновить старый заказ

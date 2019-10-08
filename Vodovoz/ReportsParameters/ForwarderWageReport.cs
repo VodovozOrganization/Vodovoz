@@ -19,7 +19,7 @@ namespace Vodovoz.Reports
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
-			var filterForwarder = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterForwarder = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterForwarder.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.ShowFired = false

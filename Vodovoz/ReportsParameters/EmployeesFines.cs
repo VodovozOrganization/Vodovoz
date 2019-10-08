@@ -17,7 +17,7 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filter.ShowFired = false;
 			yentryDriver.RepresentationModel = new EmployeesVM(filter);
 		}
@@ -93,7 +93,7 @@ namespace Vodovoz.Reports
 
 		protected void OnRadioCatAllToggled(object sender, EventArgs e)
 		{
-			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filter.ShowFired = false;
 			if(radioCatDriver.Active) {
 				filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);

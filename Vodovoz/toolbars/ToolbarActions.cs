@@ -2,22 +2,31 @@
 using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Config;
+using QS.EntityRepositories;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using Vodovoz;
+using Vodovoz.Core.DataService;
 using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Sale;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
@@ -25,11 +34,8 @@ using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
-using Vodovoz.Domain.Goods;
-using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.EntityRepositories.Employees;
-using QS.EntityRepositories;
 
 public partial class MainWindow : Window
 {
@@ -140,7 +146,7 @@ public partial class MainWindow : Window
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
 		ActionRevisionBottlesAndDeposits = new Action("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
-		ActionResidue = new Action("ActionResidue", "Вввод остатков", null, "table");
+		ActionResidue = new Action("ActionResidue", "Ввод остатков", null, "table");
 		ActionTransferOperationJournal = new Action("ActionTransferOperationJournal", "Переносы между точками доставки", null, "table");
 		//Кадры
 		ActionEmployeeWorkChart = new Action("ActionEmployeeWorkChart", "График работы сотрудников", null, "table");
@@ -277,9 +283,9 @@ public partial class MainWindow : Window
 			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
 			() => new RequestToSupplierViewModel(
 				EntityConstructorParam.ForCreate(),
-				ServicesConfig.CommonServices,
+				QS.Project.Services.ServicesConfig.CommonServices,
 				new DefaultEntityConfigurationProvider(),
-				ServicesConfig.EmployeeService,
+				VodovozGtkServicesConfig.EmployeeService,
 				new SupplierPriceItemsRepository()
 			)
 		);
@@ -287,14 +293,14 @@ public partial class MainWindow : Window
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
 	{
-		IEntitySelectorFactory nomenclatureSelectorFactory = new DefaultEntitySelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+		IEntitySelectorFactory nomenclatureSelectorFactory = new DefaultEntitySelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices);
 		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
-		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(ServicesConfig.CommonServices.InteractiveService, nomenclatureSelectorFactory);
+		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService, nomenclatureSelectorFactory);
 		var requestsJournal = new RequestsToSuppliersJournalViewModel(
 			filter,
 			entityConfigurationProvider,
-			ServicesConfig.CommonServices,
-			ServicesConfig.EmployeeService,
+			QS.Project.Services.ServicesConfig.CommonServices,
+			VodovozGtkServicesConfig.EmployeeService,
 			new SupplierPriceItemsRepository()
 		);
 		tdiMain.AddTab(requestsJournal);
@@ -318,9 +324,9 @@ public partial class MainWindow : Window
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
-		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService);
 		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
-		var debtorsJournal = new DebtorsJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
+		var debtorsJournal = new DebtorsJournalViewModel(filter, entityConfigurationProvider, QS.Project.Services.ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
 
 		tdiMain.AddTab(debtorsJournal);
 
@@ -377,10 +383,25 @@ public partial class MainWindow : Window
 
 	void ActionRouteListsAtDay_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
-			() => new RoutesAtDayDlg()
-		);
+		if(new BaseParametersProvider().UseOldAutorouting())
+			tdiMain.OpenTab(
+				TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
+				() => new RoutesAtDayDlg()
+			);
+		else
+			tdiMain.OpenTab(
+				"AutoRouting",
+				() => new RouteListsOnDayViewModel(
+					ServicesConfig.CommonServices,
+					new GtkTabsOpener(),
+					new DefaultEntityConfigurationProvider(),
+					new RouteListRepository(),
+					new SubdivisionRepository(),
+					OrderSingletonRepository.GetInstance(),
+					new AtWorkRepository(),
+					new CarRepository()
+				)
+			);
 	}
 
 	void ActionAccountingTable_Activated(object sender, System.EventArgs e)
@@ -417,7 +438,7 @@ public partial class MainWindow : Window
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService);
 		filter.SetAndRefilterAtOnce(
 			x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
 			x => x.RestrictOnlySelfDelivery = true,
@@ -428,7 +449,7 @@ public partial class MainWindow : Window
 			x => x.RestrictOnlyWithoutCoodinates = false
 		);
 		filter.HidenByDefault = true;
-		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(filter, new DefaultEntityConfigurationProvider(), ServicesConfig.CommonServices);
+		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(filter, new DefaultEntityConfigurationProvider(), QS.Project.Services.ServicesConfig.CommonServices);
 		tdiMain.AddTab(selfDeliveriesJournal);
 	}
 
@@ -451,7 +472,7 @@ public partial class MainWindow : Window
 				IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
 				SubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 				FuelRepository fuelRepository = new FuelRepository();
-				var vm = new FuelDocumentsJournalViewModel(entityConfigurationProvider, ServicesConfig.EmployeeService, ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, ServicesConfig.RepresentationEntityPicker);
+				var vm = new FuelDocumentsJournalViewModel(entityConfigurationProvider, VodovozGtkServicesConfig.EmployeeService, QS.Project.Services.ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, VodovozGtkServicesConfig.RepresentationEntityPicker);
 				return new MultipleEntityJournal("Журнал учета топлива", vm, vm);
 			}
 		);
@@ -666,9 +687,9 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService);
 		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
-		var ordersJournal = new OrderJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices);
+		var ordersJournal = new OrderJournalViewModel(filter, entityConfigurationProvider, QS.Project.Services.ServicesConfig.CommonServices);
 		tdiMain.AddTab(ordersJournal);
 	}
 
@@ -695,8 +716,8 @@ public partial class MainWindow : Window
 		var residueJournalViewModel = new ResidueJournalViewModel(
 			filter,
 			entityConfigurationProvider,
-			ServicesConfig.EmployeeService,
-			ServicesConfig.RepresentationEntityPicker,
+			VodovozGtkServicesConfig.EmployeeService,
+			VodovozGtkServicesConfig.RepresentationEntityPicker,
 			moneyRepository,
 			depositRepository,
 			bottlesRepository,

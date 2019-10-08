@@ -137,7 +137,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		TransportInvoice,
 		[DocumentOfOrder]
 		[Display(Name = "ТОРГ-2")]
-		Torg2
+		Torg2,
+		[DocumentOfOrder]
+		[Display(Name = "Лист сборки")]
+		AssemblyList
 	}
 
 	public interface ITemplateOdtDocument

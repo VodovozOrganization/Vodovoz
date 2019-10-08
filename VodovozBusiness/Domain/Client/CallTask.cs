@@ -133,8 +133,8 @@ namespace Vodovoz.Domain.Client
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(DeliveryPoint == null)
-				yield return new ValidationResult("Должна быть выбрана точка доставки", new[] { "Address" });
+			if(Counterparty == null)
+				yield return new ValidationResult("Должна быть выбранан контрагент", new[] { "Countrerparty" });
 		}
 
 		public virtual void AddComment(IUnitOfWork UoW , string comment , out string lastComment, IEmployeeRepository employeeRepository)

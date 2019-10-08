@@ -74,10 +74,6 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 			var rate = GetCurrentWageDistrictLevelRate(src).WageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Address);
 
-			if(wageCalculationSource.EmployeeCategory == EmployeeCategory.forwarder) {
-
-			}
-
 			return GetRateValue(src, rate);
 		}
 
@@ -88,7 +84,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			var rate = GetCurrentWageDistrictLevelRate(src).WageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.MinBottlesQtyInBigOrder);
 
-			return src.FullBottle19LCount >= (GetRateValue(src, rate));
+			return src.FullBottle19LCount >= GetRateValue(src, rate);
 		}
 
 		/// <summary>

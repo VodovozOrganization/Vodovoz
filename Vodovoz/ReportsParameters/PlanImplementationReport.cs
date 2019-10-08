@@ -28,7 +28,7 @@ namespace Vodovoz.ReportsParameters
 			dateperiodpicker.StartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
 			dateperiodpicker.EndDate = dateperiodpicker.StartDate.AddMonths(1).AddTicks(-1);
 
-			filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 
 			var availablePlansToUse = new[] { WageParameterTypes.SalesPlan };
 			lstCmbPlanType.SetRenderTextFunc<WageParameterTypes>(t => t.GetEnumTitle());

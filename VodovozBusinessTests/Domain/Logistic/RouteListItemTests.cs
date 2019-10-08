@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
+using QS.DomainModel.UoW;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -49,19 +50,20 @@ namespace VodovozBusinessTests.Domain.Logistic
 		{
 			//arrange
 			RouteListItem testRLItem = new RouteListItem();
-			BottlesMovementOperation testOperation;
+			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			testRLItem.Order = new Order();
+			testRLItem.Order.UoW = uow;
 			testRLItem.Order.OrderItems = orderItems;
 			testRLItem.Order.DeliveryDate = DateTime.Now;
 			var standartNom = Substitute.For<IStandartNomenclatures>();
 			standartNom.GetForfeitId().Returns(33);
 
 			// act
-			testRLItem.FillBottleMovementOperation(standartNom,out testOperation);
+			testRLItem.Order.UpdateBottleMovementOperation(uow,standartNom,testRLItem.BottlesReturned);
 
 			// assert
-			Assert.AreEqual(returned, testOperation.Returned);
-			Assert.AreEqual(delivered, testOperation.Delivered);
+			Assert.AreEqual(returned, testRLItem.Order.BottlesMovementOperation.Returned);
+			Assert.AreEqual(delivered, testRLItem.Order.BottlesMovementOperation.Delivered);
 		}
 		#endregion создание операций
 	}
