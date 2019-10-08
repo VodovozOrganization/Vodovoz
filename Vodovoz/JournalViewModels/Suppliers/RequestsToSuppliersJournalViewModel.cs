@@ -20,23 +20,20 @@ namespace Vodovoz.JournalViewModels.Suppliers
 	public class RequestsToSuppliersJournalViewModel : FilterableSingleEntityJournalViewModelBase<RequestToSupplier, RequestToSupplierViewModel, RequestToSupplierJournalNode, RequestsToSuppliersFilterViewModel>
 	{
 		readonly RequestsToSuppliersFilterViewModel filterViewModel;
-		readonly IEntityConfigurationProvider entityConfigurationProvider;
 		readonly ICommonServices commonServices;
 		readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 		readonly IEmployeeService employeeService;
 
 		public RequestsToSuppliersJournalViewModel(
 			RequestsToSuppliersFilterViewModel filterViewModel,
-			IEntityConfigurationProvider entityConfigurationProvider,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository
-		) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		) : base(filterViewModel, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.filterViewModel = filterViewModel;
 			TabName = "Журнал заявок поставщикам";
 			SetOrder(c => c.Id, true);
@@ -98,7 +95,6 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		protected override Func<RequestToSupplierViewModel> CreateDialogFunction => () => new RequestToSupplierViewModel(
 			EntityConstructorParam.ForCreate(),
 			commonServices,
-			entityConfigurationProvider,
 			employeeService,
 			supplierPriceItemsRepository
 		);
@@ -106,7 +102,6 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
 			EntityConstructorParam.ForOpen(n.Id),
 			commonServices,
-			entityConfigurationProvider,
 			employeeService,
 			supplierPriceItemsRepository
 		);

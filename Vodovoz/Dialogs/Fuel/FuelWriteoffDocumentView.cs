@@ -32,12 +32,10 @@ namespace Vodovoz.Dialogs.Fuel
 			ydatepickerDate.Binding.AddBinding(ViewModel, e => e.CanEditDate, w => w.Sensitive).InitializeFromSource();
 			ylabelCashierValue.Binding.AddBinding(ViewModel.Entity, e => e.Cashier, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
 
-			IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
 			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(() => {
 				var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(x => x.Name,
 						() => new ExpenseCategoryViewModel(EntityConstructorParam.ForCreate(), QS.Project.Services.ServicesConfig.CommonServices),
 						(node) => new ExpenseCategoryViewModel(EntityConstructorParam.ForOpen(node.Id), QS.Project.Services.ServicesConfig.CommonServices),
-						entityConfigurationProvider, 
 						QS.Project.Services.ServicesConfig.CommonServices
 					);
 				expenseCategoryJournalViewModel.SelectionMode = JournalSelectionMode.Single;

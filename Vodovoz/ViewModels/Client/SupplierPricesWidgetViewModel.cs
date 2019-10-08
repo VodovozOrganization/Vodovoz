@@ -17,17 +17,15 @@ namespace Vodovoz.ViewModels.Client
 {
 	public class SupplierPricesWidgetViewModel : EntityWidgetViewModelBase<Counterparty>
 	{
-		readonly IEntityConfigurationProvider entityConfigurationProvider;
 		readonly ITdiTab dialogTab;
 
 		public event EventHandler ListContentChanged;
 
 		public IJournalSearch Search { get; private set; }
 
-		public SupplierPricesWidgetViewModel(Counterparty entity, IUnitOfWork uow, ITdiTab dialogTab, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(entity, commonServices)
+		public SupplierPricesWidgetViewModel(Counterparty entity, IUnitOfWork uow, ITdiTab dialogTab, ICommonServices commonServices) : base(entity, commonServices)
 		{
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
 			RefreshPrices();
@@ -75,7 +73,6 @@ namespace Vodovoz.ViewModels.Client
 					};
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 						filter,
-						entityConfigurationProvider,
 						CommonServices
 					) {
 						SelectionMode = JournalSelectionMode.Single,

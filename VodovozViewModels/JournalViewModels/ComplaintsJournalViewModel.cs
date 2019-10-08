@@ -31,7 +31,6 @@ namespace Vodovoz.JournalViewModels
 {
 	public class ComplaintsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<ComplaintJournalNode, ComplaintFilterViewModel>, IComplaintsInfoProvider
 	{
-		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 		private readonly ICommonServices commonServices;
 		private readonly IUndeliveriesViewOpener undeliveriesViewOpener;
 		private readonly IEmployeeService employeeService;
@@ -54,7 +53,6 @@ namespace Vodovoz.JournalViewModels
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
 		public ComplaintsJournalViewModel(
-			IEntityConfigurationProvider entityConfigurationProvider,
 			ICommonServices commonServices,
 			IUndeliveriesViewOpener undeliveriesViewOpener,
 			IEmployeeService employeeService,
@@ -68,9 +66,8 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionRepository subdivisionRepository,
 			IReportViewOpener reportViewOpener,
 			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener
-		) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		) : base(filterViewModel, commonServices)
 		{
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.undeliveriesViewOpener = undeliveriesViewOpener ?? throw new ArgumentNullException(nameof(undeliveriesViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -341,7 +338,6 @@ namespace Vodovoz.JournalViewModels
 						employeeService,
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
-						entityConfigurationProvider,
 						filePickerService,
 						subdivisionRepository
 					),
@@ -363,7 +359,6 @@ namespace Vodovoz.JournalViewModels
 						employeeService,
 						employeeSelectorFactory,
 						counterpartySelectorFactory,
-						entityConfigurationProvider,
 						filePickerService,
 						subdivisionRepository
 					),
@@ -451,7 +446,6 @@ namespace Vodovoz.JournalViewModels
 								employeeService,
 								employeeSelectorFactory,
 								counterpartySelectorFactory,
-								entityConfigurationProvider,
 								filePickerService,
 								subdivisionRepository
 							);
@@ -477,7 +471,6 @@ namespace Vodovoz.JournalViewModels
 								employeeService,
 								employeeSelectorFactory,
 								counterpartySelectorFactory,
-								entityConfigurationProvider,
 								filePickerService,
 								subdivisionRepository
 							);

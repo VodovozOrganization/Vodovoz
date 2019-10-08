@@ -26,7 +26,7 @@ namespace Vodovoz.JournalViewModels
 {
 	public class OrderJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel>
 	{
-		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
 		{
 			TabName = "Журнал заказов";
 			SetOrder(x => x.CreateDate, true);

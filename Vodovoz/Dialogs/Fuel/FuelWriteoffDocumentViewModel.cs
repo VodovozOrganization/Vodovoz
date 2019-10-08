@@ -21,7 +21,6 @@ namespace Vodovoz.Dialogs.Fuel
 {
 	public class FuelWriteoffDocumentViewModel : EntityTabViewModelBase<FuelWriteoffDocument>
 	{
-		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 		private readonly IEmployeeService employeeService;
 		private readonly IFuelRepository fuelRepository;
 		private readonly ISubdivisionRepository subdivisionRepository;
@@ -29,14 +28,12 @@ namespace Vodovoz.Dialogs.Fuel
 
 		public FuelWriteoffDocumentViewModel(
 			IEntityConstructorParam ctorParam,
-			IEntityConfigurationProvider entityConfigurationProvider,
 			IEmployeeService employeeService,
 			IFuelRepository fuelRepository,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices) 
 		: base(ctorParam, commonServices)
 		{
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -139,7 +136,6 @@ namespace Vodovoz.Dialogs.Fuel
 					var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(x => x.Name,
 						() => new FuelTypeViewModel(EntityConstructorParam.ForCreate(), commonServices),
 						(node) => new FuelTypeViewModel(EntityConstructorParam.ForOpen(node.Id), commonServices),
-						entityConfigurationProvider,
 						commonServices
 					);
 					fuelTypeJournalViewModel.SetRestriction(() => {

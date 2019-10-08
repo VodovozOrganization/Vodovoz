@@ -15,7 +15,7 @@ namespace Vodovoz.JournalViewModels
 {
 	public class CounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
-		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
 		{
 			TabName = "Журнал контрагентов";
 			UpdateOnChanges(

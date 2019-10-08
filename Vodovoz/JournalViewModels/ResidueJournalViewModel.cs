@@ -20,14 +20,13 @@ namespace Vodovoz.JournalViewModels
 	{
 		public ResidueJournalViewModel(
 			ResidueFilterViewModel filterViewModel,
-			IEntityConfigurationProvider entityConfigurationProvider,
 			IEmployeeService employeeService,
 			IRepresentationEntityPicker representationEntityPicker,
 			IMoneyRepository moneyRepository,
 			IDepositRepository depositRepository,
 			IBottlesRepository bottlesRepository,
 			ICommonServices commonServices) 
-		: base(filterViewModel, entityConfigurationProvider, commonServices)
+		: base(filterViewModel, commonServices)
 		{
 			TabName = "Журнал остатков";
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
