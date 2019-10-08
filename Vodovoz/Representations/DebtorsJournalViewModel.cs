@@ -53,9 +53,9 @@ namespace Vodovoz.Representations
 			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
 			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
 			.And(new Disjunction().Add(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
-											.Add(Restrictions.On(() => deliveryPointAlias.Id).IsNull) 
-														&& (Restrictions.On(() => bottlesMovementAlias.DeliveryPoint.Id).IsNull) 
-														&& Restrictions.On(() => bottlesMovementAlias.Order.Id).IsNotNull)
+											.Add(Restrictions.On(() => deliveryPointAlias.Id).IsNull
+														&& Restrictions.On(() => bottlesMovementAlias.DeliveryPoint.Id).IsNull
+														&& Restrictions.On(() => bottlesMovementAlias.Order.Id).IsNotNull))
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
 					NHibernateUtil.Int32, new IProjection[] {
