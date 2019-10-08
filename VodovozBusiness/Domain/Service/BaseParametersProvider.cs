@@ -67,8 +67,22 @@ namespace Vodovoz.Core.DataService
 				return false;
 			return res;
 		}
-		
+
 		#region ISmsNotifierParameters implementation
+
+		public bool IsSmsNotificationsEnabled {
+			get {
+				MainSupport.LoadBaseParameters();
+				if(!MainSupport.BaseParameters.All.ContainsKey("is_sms_notification_enabled")) {
+					throw new InvalidProgramException("В параметрах базы не настроен параметр для включения смс уведомлений (is_sms_notification_enabled).");
+				}
+				string value = MainSupport.BaseParameters.All["is_sms_notification_enabled"];
+				if(value == "true" || value == "1") {
+					return true;
+				}
+				return false;
+			}
+		}
 
 		public string GetNewClientSmsTextTemplate()
 		{

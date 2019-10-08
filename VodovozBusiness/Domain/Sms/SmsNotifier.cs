@@ -22,6 +22,10 @@ namespace Vodovoz.Domain.Sms
 		/// </summary>
 		public void NotifyIfNewClient(Order order)
 		{
+			if(!smsNotifierParametersProvider.IsSmsNotificationsEnabled) {
+				return;
+			}
+
 			if(order == null || order.Id == 0 || order.OrderStatus == OrderStatus.NewOrder || !order.DeliveryDate.HasValue) {
 				return;
 			}
