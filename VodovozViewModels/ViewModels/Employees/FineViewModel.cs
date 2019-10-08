@@ -21,7 +21,6 @@ namespace Vodovoz.ViewModels.Employees
 	{
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
-		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 
 		public FineViewModel(
@@ -29,14 +28,12 @@ namespace Vodovoz.ViewModels.Employees
 			IUndeliveriesViewOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
-			IEntityConfigurationProvider entityConfigurationProvider,
 			ICommonServices commonServices
 		) : base(ctorParam, commonServices)
 		{
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateEmployeeList();
@@ -201,7 +198,6 @@ namespace Vodovoz.ViewModels.Employees
 					var fineTemplatesJournalViewModel = new SimpleEntityJournalViewModel<FineTemplate, FineTemplateViewModel>(x => x.Reason,
 						() => new FineTemplateViewModel(EntityConstructorParam.ForCreate(), CommonServices),
 						(node) => new FineTemplateViewModel(EntityConstructorParam.ForOpen(node.Id), CommonServices),
-						entityConfigurationProvider,
 						CommonServices
 					);
 					fineTemplatesJournalViewModel.SelectionMode = JournalSelectionMode.Single;

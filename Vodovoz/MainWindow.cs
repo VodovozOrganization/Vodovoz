@@ -391,8 +391,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
 		CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
-		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
-		var counterpartyJournal = new CounterpartyJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices);
+		var counterpartyJournal = new CounterpartyJournalViewModel(filter, ServicesConfig.CommonServices);
 
 		tdiMain.AddTab(counterpartyJournal);
 	}
@@ -684,7 +683,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
-		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
 		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
 		IEntitySelectorFactory employeeSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Employee), () => new EmployeesVM());
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
@@ -695,7 +693,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			() => {
 				return new ComplaintsJournalViewModel(
-					entityConfigurationProvider,
 					ServicesConfig.CommonServices,
 					undeliveriesViewOpener,
 					VodovozGtkServicesConfig.EmployeeService,
@@ -1088,8 +1085,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ClientCameFromFilterViewModel filter = new ClientCameFromFilterViewModel(ServicesConfig.CommonServices.InteractiveService) {
 			HidenByDefault = true
 		};
-		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
-		var journal = new ClientCameFromJournalViewModel(filter, entityConfigurationProvider, ServicesConfig.CommonServices);
+		var journal = new ClientCameFromJournalViewModel(filter, ServicesConfig.CommonServices);
 		tdiMain.AddTab(journal);
 	}
 
@@ -1385,13 +1381,10 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionComplaintSourcesActivated(object sender, EventArgs e)
 	{
-		IEntityConfigurationProvider entityConfigurationProvider = new DefaultEntityConfigurationProvider();
-
 		var complaintSourcesViewModel = new SimpleEntityJournalViewModel<ComplaintSource, ComplaintSourceViewModel>(
 			x => x.Name,
 			() => new ComplaintSourceViewModel(EntityConstructorParam.ForCreate(), ServicesConfig.CommonServices),
 			(node) => new ComplaintSourceViewModel(EntityConstructorParam.ForOpen(node.Id), ServicesConfig.CommonServices),
-			entityConfigurationProvider,
 			ServicesConfig.CommonServices
 		);
 		tdiMain.AddTab(complaintSourcesViewModel);
@@ -1403,7 +1396,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			x => x.Name,
 			() => new ComplaintResultViewModel(EntityConstructorParam.ForCreate(), ServicesConfig.CommonServices),
 			(node) => new ComplaintResultViewModel(EntityConstructorParam.ForOpen(node.Id), ServicesConfig.CommonServices),
-			new DefaultEntityConfigurationProvider(),
 			ServicesConfig.CommonServices
 		);
 		tdiMain.AddTab(complaintResultsViewModel);
@@ -1426,7 +1418,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		tdiMain.AddTab(
 			new WageDistrictsJournalViewModel(
-				new DefaultEntityConfigurationProvider(),
 				ServicesConfig.CommonServices
 			)
 		);
@@ -1436,7 +1427,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		tdiMain.AddTab(
 			new WageDistrictLevelRatesJournalViewModel(
-				new DefaultEntityConfigurationProvider(),
 				ServicesConfig.CommonServices
 			)
 		);
@@ -1456,7 +1446,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		tdiMain.AddTab(
 			new SalesPlanJournalViewModel(
-				new DefaultEntityConfigurationProvider(),
 				ServicesConfig.CommonServices
 			)
 		);

@@ -18,7 +18,7 @@ namespace Vodovoz.JournalViewModels.Organization
 	{
 		private readonly ICommonServices commonServices;
 
-		public SubdivisionsJournalViewModel(SubdivisionFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		public SubdivisionsJournalViewModel(SubdivisionFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			TabName = "Выбор подразделения";

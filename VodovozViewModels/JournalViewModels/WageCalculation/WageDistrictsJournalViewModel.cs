@@ -14,7 +14,7 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 {
 	public class WageDistrictsJournalViewModel : SingleEntityJournalViewModelBase<WageDistrict, WageDistrictViewModel, WageDistrictJournalNode>
 	{
-		public WageDistrictsJournalViewModel(IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(entityConfigurationProvider, commonServices)
+		public WageDistrictsJournalViewModel(ICommonServices commonServices) : base(commonServices)
 		{
 			TabName = "Журнал групп зарплатных районов";
 			SetOrder(

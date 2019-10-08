@@ -41,14 +41,12 @@ namespace Vodovoz.ViewModels.Logistic
 		readonly IOrderRepository orderRepository;
 		readonly IAtWorkRepository atWorkRepository;
 		readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener;
-		readonly IEntityConfigurationProvider entityConfigurationProvider;
 		readonly ICarRepository carRepository;
 		readonly ICommonServices commonServices;
 
 		public RouteListsOnDayViewModel(
 			ICommonServices commonServices,
 			IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener,
-			IEntityConfigurationProvider entityConfigurationProvider,
 			IRouteListRepository routeListRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IOrderRepository orderRepository,
@@ -58,7 +56,6 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -196,7 +193,6 @@ namespace Vodovoz.ViewModels.Logistic
 					);
 					var drvJournalViewModel = new EmployeesJournalViewModel(
 						drvFilter,
-						entityConfigurationProvider,
 						commonServices
 					) {
 						SelectionMode = JournalSelectionMode.Multiple
@@ -256,7 +252,6 @@ namespace Vodovoz.ViewModels.Logistic
 					);
 					var fwdJournalViewModel = new EmployeesJournalViewModel(
 						fwdFilter,
-						entityConfigurationProvider,
 						commonServices
 					) {
 						SelectionMode = JournalSelectionMode.Multiple

@@ -14,7 +14,7 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 {
 	public class SalesPlanJournalViewModel : SingleEntityJournalViewModelBase<SalesPlan, SalesPlanViewModel, SalesPlanJournalNode>
 	{
-		public SalesPlanJournalViewModel(IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(entityConfigurationProvider, commonServices)
+		public SalesPlanJournalViewModel(ICommonServices commonServices) : base(commonServices)
 		{
 			TabName = "Журнал планов продаж";
 			SetOrder(
