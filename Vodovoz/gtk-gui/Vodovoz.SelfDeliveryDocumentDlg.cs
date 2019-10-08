@@ -36,9 +36,9 @@ namespace Vodovoz
 
 		private global::Gtk.Label label5;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry yentryrefOrder;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox lstWarehouse;
 
-		private global::Gamma.Widgets.yEntryReference yentryrefWarehouse;
+		private global::QS.Widgets.GtkUI.RepresentationEntry yentryrefOrder;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelDate;
 
@@ -234,26 +234,29 @@ namespace Vodovoz
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
+			this.lstWarehouse = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.lstWarehouse.Name = "lstWarehouse";
+			this.lstWarehouse.AddIfNotExist = false;
+			this.lstWarehouse.DefaultFirst = false;
+			this.lstWarehouse.ShowSpecialStateAll = false;
+			this.lstWarehouse.ShowSpecialStateNot = false;
+			this.tableWriteoff.Add(this.lstWarehouse);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.lstWarehouse]));
+			w17.TopAttach = ((uint)(1));
+			w17.BottomAttach = ((uint)(2));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(0));
+			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.yentryrefOrder = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.yentryrefOrder.Events = ((global::Gdk.EventMask)(256));
 			this.yentryrefOrder.Name = "yentryrefOrder";
 			this.tableWriteoff.Add(this.yentryrefOrder);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryrefOrder]));
-			w17.LeftAttach = ((uint)(3));
-			w17.RightAttach = ((uint)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.yentryrefWarehouse = new global::Gamma.Widgets.yEntryReference();
-			this.yentryrefWarehouse.Events = ((global::Gdk.EventMask)(256));
-			this.yentryrefWarehouse.Name = "yentryrefWarehouse";
-			this.tableWriteoff.Add(this.yentryrefWarehouse);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryrefWarehouse]));
-			w18.TopAttach = ((uint)(1));
-			w18.BottomAttach = ((uint)(2));
-			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(0));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableWriteoff[this.yentryrefOrder]));
+			w18.LeftAttach = ((uint)(3));
+			w18.RightAttach = ((uint)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.ylabelDate = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDate.Name = "ylabelDate";
@@ -393,7 +396,6 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.yentryrefWarehouse.ChangedByUser += new global::System.EventHandler(this.OnYentryrefWarehouseChangedByUser);
 			this.yentryrefOrder.ChangedByUser += new global::System.EventHandler(this.OnYentryrefOrderChangedByUser);
 			this.btnAddOtherGoods.Clicked += new global::System.EventHandler(this.OnBtnAddOtherGoodsClicked);
 		}
