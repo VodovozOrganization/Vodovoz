@@ -253,8 +253,8 @@ namespace Vodovoz.Representations
 					{ "AddressId", FilterViewModel?.Address?.Id ?? 0},
 					{ "CounterpartyId", FilterViewModel?.Client?.Id ?? 0},
 					{ "OPF", FilterViewModel?.OPF?.ToString() ?? String.Empty},
-					{ "DebtBottlesFrom", FilterViewModel?.DebtBottlesFrom ?? int.MinValue},
-					{ "DebtBottlesTo", FilterViewModel?.DebtBottlesTo ?? int.MaxValue}
+					{ "DebtBottlesFrom", FilterViewModel?.DebtBottlesFrom != null ? FilterViewModel?.DebtBottlesFrom.Value.ToString() : ""},
+					{ "DebtBottlesTo", FilterViewModel?.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : ""}
 				}
 			};
 			var dlg = new ReportViewDlg(reportInfo);
