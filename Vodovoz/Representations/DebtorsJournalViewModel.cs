@@ -139,7 +139,7 @@ namespace Vodovoz.Representations
 				if(FilterViewModel.DebtBottlesFrom != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
 				if(FilterViewModel.DebtBottlesTo != null)
-					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Gt(bottleDebtByAddressQuery);
+					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
 			}
 
 			#endregion Filter
@@ -253,8 +253,8 @@ namespace Vodovoz.Representations
 					{ "AddressId", FilterViewModel?.Address?.Id ?? 0},
 					{ "CounterpartyId", FilterViewModel?.Client?.Id ?? 0},
 					{ "OPF", FilterViewModel?.OPF?.ToString() ?? String.Empty},
-					{ "DebtBottlesFrom", FilterViewModel?.DebtBottlesFrom != null ? FilterViewModel?.DebtBottlesFrom.Value.ToString() : ""},
-					{ "DebtBottlesTo", FilterViewModel?.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : ""}
+					{ "DebtBottlesFrom", FilterViewModel.DebtBottlesFrom != null ? FilterViewModel?.DebtBottlesFrom.Value.ToString() : int.MinValue.ToString()},
+					{ "DebtBottlesTo", FilterViewModel.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : int.MaxValue.ToString()}
 				}
 			};
 			var dlg = new ReportViewDlg(reportInfo);

@@ -10,6 +10,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Filters.ViewModels
@@ -99,16 +100,6 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref discountReason, value, () => DiscountReason);
 		}
 
-		private IRepresentationModel counterpartyVM;
-		public virtual IRepresentationModel CounterpartyVM {
-			get {
-				if(counterpartyVM == null) {
-					counterpartyVM = new CounterpartyVM(UoW);
-				}
-				return counterpartyVM;
-			}
-		}
-
 		private IRepresentationModel deliveryPointVM;
 		public virtual IRepresentationModel DeliveryPointVM {
 			get {
@@ -131,6 +122,16 @@ namespace Vodovoz.Filters.ViewModels
 						});
 				}
 				return nomenclatureVM;
+			}
+		}
+
+		private IEntityAutocompleteSelectorFactory counterpartyVM;
+		public virtual IEntityAutocompleteSelectorFactory CounterpartyVM {
+			get {
+				if(counterpartyVM == null) {
+					counterpartyVM = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices);
+				};
+				return counterpartyVM;
 			}
 		}
 	}
