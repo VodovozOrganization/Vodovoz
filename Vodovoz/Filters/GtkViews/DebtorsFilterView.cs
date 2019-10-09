@@ -18,7 +18,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private void Configure()
 		{
-			entryreferenceClient.RepresentationModel = ViewModel.CounterpartyVM;
+			entryreferenceClient.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyVM);
 			entryreferenceDeliveryPoint.RepresentationModel = ViewModel.DeliveryPointVM;
 			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(ViewModel.NomenclatureVM);
 
