@@ -29,7 +29,7 @@
           </BorderStyle>
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>30.5pt</Width>
           </TableColumn>
           <TableColumn>
@@ -47,7 +47,7 @@
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
                       <Value>№</Value>
@@ -57,8 +57,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -73,8 +73,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -89,8 +89,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -105,8 +105,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -121,7 +121,7 @@
             <TableRow>
               <Height>30.9pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
                       <Value>=RowNumber()</Value>
@@ -129,14 +129,14 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <PaddingTop >10pt</PaddingTop>
-                        <PaddingBottom >10pt</PaddingBottom>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -151,13 +151,13 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <PaddingTop >10pt</PaddingTop>
-                        <PaddingBottom >10pt</PaddingBottom>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -171,13 +171,13 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <PaddingTop >10pt</PaddingTop>
-                        <PaddingBottom >10pt</PaddingBottom>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -191,14 +191,14 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <PaddingTop >10pt</PaddingTop>
-                        <PaddingBottom >10pt</PaddingBottom>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -310,6 +310,32 @@ WHERE
     AND (@OrderBottlesTo = '' OR bottles_movement_operations.delivered &lt;= @OrderBottlesTo)
     AND (@StartDate = '' OR orders.delivery_date &gt;= DATE(@StartDate))
     AND (@EndDate = '' OR orders.delivery_date &lt;= DATE(@EndDate))
+    AND (@DebtBottlesFrom = '' OR EXISTS 
+    (
+		SELECT 
+			SUM(CAST(bm.delivered AS SIGNED) - CAST(bm.returned AS SIGNED)) AS sum
+		FROM 
+			bottles_movement_operations AS bm
+		WHERE 
+			bm.counterparty_id = counterparty.id 
+			AND (delivery_points.id = bm.delivery_point_id 
+					OR (delivery_points.id IS NULL AND bm.delivery_point_id IS NULL AND bm.order_id IS NOT NULL)
+				)
+        HAVING sum &gt;= @DebtBottlesFrom         
+    ))
+    AND (@DebtBottlesTo = '' OR EXISTS 
+    (
+		SELECT 
+			SUM(CAST(bm.delivered AS SIGNED) - CAST(bm.returned AS SIGNED)) AS sum
+		FROM 
+			bottles_movement_operations AS bm
+		WHERE 
+			bm.counterparty_id = counterparty.id 
+			AND (delivery_points.id = bm.delivery_point_id 
+					OR (delivery_points.id IS NULL AND bm.delivery_point_id IS NULL AND bm.order_id IS NOT NULL)
+				)
+        HAVING sum &lt;= @DebtBottlesTo         
+    ))
     AND orders.id = 
     (
         SELECT
@@ -328,7 +354,7 @@ WHERE
             AND ord.order_status = 'Closed'
         ORDER BY
             ord.id DESC LIMIT 1
-    )
+    ) 
 GROUP BY
     delivery_points.id,
     counterparty.id</CommandText>
@@ -359,6 +385,12 @@ GROUP BY
           </QueryParameter>
           <QueryParameter Name="EndDate">
             <Value>={?EndDate}</Value>
+          </QueryParameter>
+          <QueryParameter Name="DebtBottlesFrom">
+            <Value>={?DebtBottlesFrom}</Value>
+          </QueryParameter>
+          <QueryParameter Name="DebtBottlesTo">
+            <Value>={?DebtBottlesTo}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
