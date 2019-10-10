@@ -62,15 +62,18 @@ using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Organization;
 using Vodovoz.ViewModels.Suppliers;
+using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.Views;
 using Vodovoz.Views.Complaints;
 using Vodovoz.Views.Employees;
+using Vodovoz.Views.Logistic;
 using Vodovoz.Views.Organization;
 using Vodovoz.Views.Suppliers;
-using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.Views.WageCalculation;
+using Vodovoz.ViewModels.FuelDocuments;
 
 namespace Vodovoz
 {
@@ -134,13 +137,16 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_complete_complaint_discussion", new PresetUserPermissionSource("can_complete_complaint_discussion", "Завершение обсуждения в жалобе", "Дает возможность пользователю завершить обсуждение в жалобе"));
 			PermissionsSettings.PresetPermissions.Add("can_change_fuel_card_number", new PresetUserPermissionSource("can_change_fuel_card_number", "Изменение номера ТК в карточке автомобиля", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_change_car_load_and_unload_docs", new PresetUserPermissionSource("can_change_car_load_and_unload_docs", "Редактирование талонов разгрузки и погрузки по закрытым МЛ", string.Empty));
-			UserDialog.UserPermissionViewsCreator = delegate {
+			PermissionsSettings.PresetPermissions.Add("can_change_district_wage_type", new PresetUserPermissionSource("can_change_district_wage_type", "Изменение зарплатного типа района", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_change_cars_volume_weight_consumption", new PresetUserPermissionSource("can_change_cars_volume_weight_consumption", "Изменение в автомобиле расхода топлива, объема груза, грузоподъемности", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_edit_delivered_goods_transfer_documents", new PresetUserPermissionSource("can_edit_delivered_goods_transfer_documents", "Редактирование складского документа перемещения в статусе \"Доставлен\"", string.Empty));
+			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {
 					new SubdivisionForUserEntityPermissionWidget()
 				};
 			};
 
-			UserDialog.PermissionViewsCreator = delegate {
+			UserDialog.PermissionViewsCreator = () => {
 				return new List<IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
 			};		
 		}
@@ -165,7 +171,13 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<SubdivisionViewModel, SubdivisionView>()
 				.RegisterWidgetForTabViewModel<FineViewModel, FineView>()
 				.RegisterWidgetForTabViewModel<RequestToSupplierViewModel, RequestToSupplierView>()
+				.RegisterWidgetForTabViewModel<WageDistrictViewModel, WageDistrictView>()
+				.RegisterWidgetForTabViewModel<WageDistrictLevelRatesViewModel, WageDistrictLevelRatesView>()
 				.RegisterWidgetForTabViewModel<WageParameterViewModel, WageParameterView>()
+				.RegisterWidgetForTabViewModel<CarsWageParametersViewModel, CarsWageParametersView>()
+				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
+				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
+				.RegisterWidgetForTabViewModel <FuelDocumentViewModel, FuelDocumentView>()
 				;
 
 			//Регистрация фильтров

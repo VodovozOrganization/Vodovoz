@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Repositories.HumanResources
 {
+	[Obsolete("Используйте одноимённый класс из Vodovoz.EntityRepositories.UserSingletonRepository")]
 	public static class UserRepository
 	{
 		public static User GetCurrentUser (IUnitOfWork uow)

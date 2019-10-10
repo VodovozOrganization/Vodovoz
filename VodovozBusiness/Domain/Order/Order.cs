@@ -5,15 +5,16 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Gamma.Utilities;
+using NHibernate.Exceptions;
 using NHibernate.Util;
 using QS.Contacts;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.EntityRepositories;
 using QS.HistoryLog;
 using QS.Project.Repositories;
-using QS.Services;
 using QSSupportLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -60,10 +61,10 @@ namespace Vodovoz.Domain.Orders
 		private IAutoCallTaskFactory callTaskFactory; //FIXME: До перехода на MVVM
 		public virtual IAutoCallTaskFactory CallTaskAutoFactory {
 			get { return callTaskFactory; }
-			set { 
-					callTaskFactory = value;
-					if(callTaskFactory != null)
-						callTaskFactory.Order = this;
+			set {
+				callTaskFactory = value;
+				if(callTaskFactory != null)
+					callTaskFactory.Order = this;
 			}
 		}
 
@@ -594,6 +595,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref onlineOrder, value, () => OnlineOrder);
 		}
 
+		private int? eShopOrder;
+		[Display(Name = "Заказ из интернет магазина")]
+		public virtual int? EShopOrder {
+			get => eShopOrder;
+			set => SetField(ref eShopOrder, value);
+		}
+
+
 		private bool isContractCloser;
 
 		[Display(Name = "Заказ - закрывашка по контракту?")]
@@ -1110,6 +1119,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		[Obsolete("Должно быть не актуально после ввода новой системы расчёта ЗП (I-2150)")]
 		public virtual decimal MoneyForMaster =>
 			ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master && i.ActualCount.HasValue)
 								.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount.Value * i.Price);
@@ -1594,9 +1604,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void AddEquipmentNomenclatureToClient(Nomenclature nomenclature, IUnitOfWork UoW)
 		{
-			if(!nomenclature.IsSerial) {
-				ObservableOrderEquipments.Add(new OrderEquipment {
-
+			ObservableOrderEquipments.Add(
+				new OrderEquipment {
 					Order = this,
 					Direction = Direction.Deliver,
 					Equipment = null,
@@ -1604,16 +1613,15 @@ namespace Vodovoz.Domain.Orders
 					Reason = Reason.Service,
 					Confirmed = true,
 					Nomenclature = nomenclature
-				});
-			}
+				}
+			);
 			UpdateDocuments();
 		}
 
 		public virtual void AddEquipmentNomenclatureFromClient(Nomenclature nomenclature, IUnitOfWork UoW)
 		{
-			if(!nomenclature.IsSerial) {
-				ObservableOrderEquipments.Add(new OrderEquipment {
-
+			ObservableOrderEquipments.Add(
+				new OrderEquipment {
 					Order = this,
 					Direction = Direction.PickUp,
 					Equipment = null,
@@ -1621,8 +1629,8 @@ namespace Vodovoz.Domain.Orders
 					Reason = Reason.Service,
 					Confirmed = true,
 					Nomenclature = nomenclature
-				});
-			}
+				}
+			);
 			UpdateDocuments();
 		}
 
@@ -2710,7 +2718,7 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Виновный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(GuiltyTypes? guilty = GuiltyTypes.Client)
+		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
 
@@ -2738,6 +2746,7 @@ namespace Vodovoz.Domain.Orders
 					}
 					break;
 			}
+			UpdateBottleMovementOperation(uow, standartNomenclatures, 0);
 		}
 
 		public virtual void ChangeStatus(OrderStatus newStatus)
@@ -2827,12 +2836,12 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Отправка самовывоза на погрузку
 		/// </summary>
-		public virtual void SelfDeliveryToLoading()
+		public virtual void SelfDeliveryToLoading(IUserPermissionRepository permissionRepository)
 		{
 			if(!SelfDelivery) {
 				return;
 			}
-			if(OrderStatus == OrderStatus.Accepted && UserPermissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"]) {
+			if(OrderStatus == OrderStatus.Accepted && permissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"]) {
 				ChangeStatus(OrderStatus.OnLoading);
 				LoadAllowedBy = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			}
@@ -2914,7 +2923,7 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatus(OrderStatus.Closed);
-					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository(),incomeCash, expenseCash);
+					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
 				} else
 					ChangeStatus(OrderStatus.OnLoading);
 
@@ -2943,7 +2952,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool SelfDeliveryIsFullyIncomePaid()
 		{
-			decimal totalPaid =new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
 
 			return OrderSumTotal == totalPaid;
 		}
@@ -3248,39 +3257,26 @@ namespace Vodovoz.Domain.Orders
 		}
 
 
-		/// <summary>
-		/// Создание операций перемещения бутылей для заказов без доставки
-		/// </summary>
-		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ICashRepository cashRepository, decimal incomeCash = 0, decimal expenseCash = 0)
+		public virtual bool UpdateBottleMovementOperation(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, int returnByStock, int? forfeitQuantity = null)
 		{
-			if(routeListItemRepository == null)
-				throw new ArgumentNullException(nameof(routeListItemRepository));
-			if(cashRepository == null)
-				throw new ArgumentNullException(nameof(cashRepository));
-
-			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
-			//не должны создаваться операции перемещения тары
 			if(IsContractCloser)
-				return;
-
-			if(routeListItemRepository.HasRouteListItemsForOrder(uow, this))
-				return;
-
-			foreach(OrderItem item in OrderItems)
-				if(!item.ActualCount.HasValue)
-					item.ActualCount = item.Count;
+				return false;
 
 			int amountDelivered = OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-											.Sum(item => item.ActualCount.Value);
+								.Sum(item => item.ActualCount.Value);
 
-			int forfeitQuantity = 0;
-
-			if(!SelfDelivery || SelfDeliveryIsFullyPaid(cashRepository, incomeCash, expenseCash))
+			if(forfeitQuantity == null) {
 				forfeitQuantity = OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
-											.Select(i => i.ActualCount.Value)
-											.Sum();
+							.Select(i => i.ActualCount.Value)
+							.Sum();
+			}
 
-			if(amountDelivered != 0 || ReturnedTare > 0 || forfeitQuantity > 0) {
+			bool isValidCondition = amountDelivered != 0;
+			isValidCondition |= returnByStock > 0;
+			isValidCondition |= forfeitQuantity > 0;
+			isValidCondition &= !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
+
+			if(isValidCondition) {
 				if(BottlesMovementOperation == null) {
 					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
@@ -3290,12 +3286,49 @@ namespace Vodovoz.Domain.Orders
 				}
 				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 				BottlesMovementOperation.Delivered = amountDelivered;
-				BottlesMovementOperation.Returned = ReturnedTare.GetValueOrDefault() + forfeitQuantity;
+				BottlesMovementOperation.Returned = returnByStock + forfeitQuantity.Value;
 				uow.Save(BottlesMovementOperation);
-			} else if(BottlesMovementOperation != null) {
-				uow.Delete(BottlesMovementOperation);
-				BottlesMovementOperation = null;
+			} else {
+				DeleteBottlesMovementOperation(uow);
 			}
+
+			return true;
+		}
+
+		/// <summary>
+		/// Создание операций перемещения бутылей для заказов без доставки
+		/// </summary>
+		public virtual void UpdateBottlesMovementOperationWithoutDelivery(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ICashRepository cashRepository, decimal incomeCash = 0, decimal expenseCash = 0)
+		{
+			if(routeListItemRepository == null)
+				throw new ArgumentNullException(nameof(routeListItemRepository));
+			if(cashRepository == null)
+				throw new ArgumentNullException(nameof(cashRepository));
+			if(standartNomenclatures == null)
+				throw new ArgumentNullException(nameof(standartNomenclatures));
+
+			//По заказам, у которых проставлен крыжик "Закрывашка по контракту", 
+			//не должны создаваться операции перемещения тары
+			if(IsContractCloser) {
+				DeleteBottlesMovementOperation(uow);
+				return;
+			}
+
+			if(routeListItemRepository.HasRouteListItemsForOrder(uow, this))
+				return;
+
+			foreach(OrderItem item in OrderItems)
+				if(!item.ActualCount.HasValue)
+					item.ActualCount = item.Count;
+
+			int? forfeitQuantity = null;
+
+			if(!SelfDelivery || SelfDeliveryIsFullyPaid(cashRepository, incomeCash, expenseCash))
+				forfeitQuantity = OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
+											.Select(i => i.ActualCount.Value)
+											.Sum();
+
+			UpdateBottleMovementOperation(uow, standartNomenclatures, ReturnedTare ?? 0, forfeitQuantity ?? 0);
 		}
 
 		#region Работа с документами
@@ -3454,6 +3487,9 @@ namespace Vodovoz.Domain.Orders
 				case OrderDocumentType.Torg2:
 					newDoc = new Torg2Document();
 					break;
+				case OrderDocumentType.AssemblyList:
+					newDoc = new AssemblyListDocument();
+					break;
 				default:
 					throw new NotImplementedException();
 			}
@@ -3462,6 +3498,55 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Возврат первого попавшегося контакта из цепочки:
+		/// 1. Мобильный телефон точки доставки;
+		/// 2. Мобильный телефон контрагента;
+		/// 3. Эл.почта для счетов контрагента;
+		/// 4. Городской телефон точки доставки;
+		/// 5. Городской телефон контрагента.
+		/// </summary>
+		/// <returns>Контакт с минимальным весом.</returns>
+		public virtual string GetContact()
+		{
+			if(Client == null)
+				return null;
+			//Dictionary<вес контакта, контакт>
+			Dictionary<int, string> contacts = new Dictionary<int, string>();
+			try {
+				if(!SelfDelivery && DeliveryPoint != null && DeliveryPoint.Phones.Any()) {
+					var phone = DeliveryPoint.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
+					if(phone != null)
+						contacts[0] = phone.DigitsNumber;
+					else if(DeliveryPoint.Phones.Any(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)))
+						contacts[3] = DeliveryPoint.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+				}
+			} catch(GenericADOException ex) {
+				logger.Error(ex.Message);
+			}
+			try {
+				if(Client.Phones.Any()) {
+					var phone = Client.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
+					if(phone != null)
+						contacts[1] = phone.DigitsNumber;
+					else if(Client.Phones.Any(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)))
+						contacts[4] = Client.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+				}
+			} catch(GenericADOException ex) {
+				logger.Error(ex.Message);
+			}
+			try {
+				if(Client.Emails.Any())
+					contacts[2] = Client.Emails.FirstOrDefault().Address;
+			} catch(GenericADOException ex) {
+				logger.Error(ex.Message);
+			}
+			if(!contacts.Any())
+				return null;
+			int minWeight = contacts.Min(c => c.Key);
+			return contacts[minWeight];
+		}
 
 		public virtual void SaveOrderComment()
 		{
@@ -3525,9 +3610,9 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Можем применить акцию "Бутыль"?
 		/// </summary>
-		public virtual bool CanAddStockBottle()
+		public virtual bool CanAddStockBottle(IOrderRepository orderRepository)
 		{
-			bool result = Client != null && orderRepository.GetFirstRealOrderForClient(UoW, Client) == null;
+			bool result = Client != null && orderRepository.GetFirstRealOrderForClientForActionBottle(UoW, Client) == null;
 			if(result) {
 				BottlesReturn = 0;
 			}
@@ -3712,4 +3797,3 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 	}
 }
-

@@ -13,12 +13,10 @@ namespace Vodovoz.ReportsParameters
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class MastersVisitReport : SingleUoWWidgetBase, IParametersWidget
 	{
-		IUnitOfWork uow;
-
 		public MastersVisitReport()
 		{
 			this.Build();
-			uow = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			yentryrefEmployee.ItemsQuery = EmployeeRepository.DriversQuery();
 			ButtonSensivity();
 		}

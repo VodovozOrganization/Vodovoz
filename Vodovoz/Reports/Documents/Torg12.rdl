@@ -101,7 +101,7 @@ WHERE
     orders.id AS order_id, 
     orders.delivery_date AS order_date,
 
-    IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_number), counterparty.special_contract_number, counterparty_contract.id) AS contract_number,
+    IF(counterparty.use_special_doc_fields AND !IS_NULL_OR_WHITESPACE(counterparty.special_contract_number), counterparty.special_contract_number, CONCAT(counterparty_contract.id, ' от ', DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y'))) AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
     counterparty.full_name AS client_name, 
     counterparty.jur_address AS client_address, 
@@ -3170,7 +3170,7 @@ First({cargo_receiver}, "Order")</Value>
           <BorderWidth />
           <FontSize>7.5pt</FontSize>
         </Style>
-        <CanGrow >true</CanGrow>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox75" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>20.00pt</Height>
@@ -3194,7 +3194,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BorderWidth />
           <FontSize>7.5pt</FontSize>
         </Style>
-        <CanGrow >true</CanGrow>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox89" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>20.00pt</Height>
@@ -3270,7 +3270,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BorderWidth />
           <FontSize>7.5pt</FontSize>
         </Style>
-        <CanGrow >true</CanGrow>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox139" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>13.25pt</Height>
@@ -3292,10 +3292,10 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
       <Textbox Name="Textbox141" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.00pt</Height>
         <Width>555.75pt</Width>
-        <Value>="по договору " + First({contract_number}, "Order") + " от " + First({contract_date}, "Order")</Value>
+        <Value>="по договору " + First({contract_number}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>105.4pt</Left>
-        <Top>146.5pt</Top>
+        <Left>105.40pt</Left>
+        <Top>146.50pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -3304,7 +3304,7 @@ Iif(First({org_bank_cor_account}, "Order") != null and First({org_bank_cor_accou
           <BorderWidth />
           <FontSize>10pt</FontSize>
         </Style>
-        <CanGrow >true</CanGrow>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox145" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>9.01pt</Height>

@@ -2,7 +2,7 @@
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;

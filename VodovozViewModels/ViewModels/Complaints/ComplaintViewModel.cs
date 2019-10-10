@@ -28,7 +28,6 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
-		private readonly IEntityConfigurationProvider entityConfigurationProvider;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 
@@ -41,12 +40,10 @@ namespace Vodovoz.ViewModels.Complaints
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
-			IEntityConfigurationProvider entityConfigurationProvider,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository
 			) : base(ctorParam, commonServices)
 		{
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));
@@ -156,7 +153,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public ComplaintDiscussionsViewModel DiscussionsViewModel {
 			get {
 				if(discussionsViewModel == null) {
-					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, this, UoW, entityConfigurationProvider, filePickerService, employeeService, CommonServices);
+					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, this, UoW, filePickerService, employeeService, CommonServices);
 				}
 				return discussionsViewModel;
 			}
@@ -265,7 +262,6 @@ namespace Vodovoz.ViewModels.Complaints
 						undeliveryViewOpener,
 						employeeService,
 						employeeSelectorFactory,
-						entityConfigurationProvider,
 						CommonServices
 					);
 					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -298,7 +294,6 @@ namespace Vodovoz.ViewModels.Complaints
 						undeliveryViewOpener,
 						employeeService,
 						employeeSelectorFactory,
-						entityConfigurationProvider,
 						CommonServices
 					);
 					fineViewModel.FineReasonString = Entity.GetFineReason();

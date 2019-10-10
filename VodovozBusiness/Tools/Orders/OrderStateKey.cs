@@ -74,6 +74,9 @@ namespace Vodovoz.Tools.Orders
 		[Display(Name = "Тип документа")]
 		public DefaultDocumentType? DefaultDocumentType { get; set; } = Domain.Client.DefaultDocumentType.upd;
 
+		[Display(Name = "Заказ интернет магазина ?")]
+		public bool HasEShopOrder { get; set; } = false;
+
 		#endregion
 
 		#region для проверки цены доставки
@@ -109,6 +112,7 @@ namespace Vodovoz.Tools.Orders
 			this.NeedMaster = Order.OrderItems.Any(i => i.Nomenclature.Category == Domain.Goods.NomenclatureCategory.master);
 			this.IsSelfDelivery = Order.SelfDelivery;
 			this.PayAfterShipment = Order.PayAfterShipment;
+			this.HasEShopOrder = Order.EShopOrder.HasValue;
 
 			//для проверки цены доставки
 			this.Water19LCount = Order.OrderItems

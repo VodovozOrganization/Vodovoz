@@ -9,9 +9,9 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Report;
+using QS.Validation;
 using QSProjectsLib;
 using QSSupportLib;
-using QSValidation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -20,6 +20,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
@@ -61,7 +63,7 @@ namespace Vodovoz.Domain.Logistic
 					if(Id == 0 || oldDriver != driver)
 						Forwarder = GetDefaultForwarder(driver);
 				}
- 			}
+			}
 		}
 
 		Employee forwarder;
@@ -452,11 +454,11 @@ namespace Vodovoz.Domain.Logistic
 															  .Distinct()
 															  .Count();
 
-		public virtual bool NeedMileageCheck => Car.TypeOfUse != CarTypeOfUse.Truck && !Driver.VisitingMaster;
+		public virtual bool NeedMileageCheck => Car.TypeOfUse != CarTypeOfUse.Truck && !Driver.VisitingMaster && NeedMileageCheckByWage;
 
 		public virtual decimal PhoneSum {
 			get {
-				if(Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.withoutPayment)
+				if(Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster)
 					return 0;
 
 				return Wages.GetDriverRates(Date).PhoneServiceCompensationRate * UniqueAddressCount;
@@ -467,7 +469,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal MoneyToReturn {
 			get {
-				decimal payedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue).Sum(x => x.PayedForFuel.Value);
+				decimal payedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue && x.FuelPaymentType.HasValue && x.FuelPaymentType == FuelPaymentType.Cash).Sum(x => x.PayedForFuel.Value);
 
 				return Total - payedForFuel;
 			}
@@ -824,7 +826,7 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListStatus.OnClosing:
 					if(
-					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster))
+					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || !NeedMileageCheckByWage))
 					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.Truck))
 					|| Status == RouteListStatus.MileageCheck
 					|| Status == RouteListStatus.Closed) {
@@ -896,11 +898,6 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void RecalculateAllWages()
-		{
-			Addresses.ToList().ForEach(x => x.RecalculateWages());
-		}
-
 		#endregion
 
 		#region IValidatableObject implementation
@@ -916,14 +913,19 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.Closed: break;
 					case RouteListStatus.MileageCheck:
 						foreach(var address in Addresses) {
-							var valid = new QSValidator<Order>(
+							var orderValidator = new ObjectValidator();
+							orderValidator.Validate(
 									address.Order,
-									new Dictionary<object, object> {
-										{ "NewStatus", OrderStatus.Closed }
-									}
+									new ValidationContext(
+										address.Order,
+										null,
+										new Dictionary<object, object> {
+											{ "NewStatus", OrderStatus.Closed }
+										}
+									)
 								);
 
-							foreach(var result in valid.Results)
+							foreach(var result in orderValidator.Results)
 								yield return result;
 						}
 						break;
@@ -955,12 +957,24 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции относящиеся к закрытию МЛ
 
+		/// <summary>
+		/// Проверка по установленным вариантам расчета зарплаты, должен ли водитель на данном автомобилей проходить проверку километража
+		/// </summary>
+		private bool NeedMileageCheckByWage {
+			get {
+				if(Car.IsCompanyHavings) {
+					return true;
+				}
+				var actualWageParameter = Driver.GetActualWageParameter(Date);
+				return actualWageParameter == null || actualWageParameter.WageParameterType != WageParameterTypes.RatesLevel;
+			}
+		}
 		public virtual void CompleteRoute()
 		{
-			if(Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster) {
-				ChangeStatus(RouteListStatus.OnClosing);
-			} else {
+			if(NeedMileageCheck) {
 				ChangeStatus(RouteListStatus.MileageCheck);
+			} else {
+				ChangeStatus(RouteListStatus.OnClosing);
 			}
 
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
@@ -973,122 +987,6 @@ namespace Vodovoz.Domain.Logistic
 			UoW.Save(this);
 		}
 
-		/// <summary>
-		/// Возвращает пересчитанную заного зарплату водителя (не записывает)
-		/// </summary>
-		public virtual decimal GetRecalculatedDriverWage()
-		{
-			if(Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute) {
-				return FixedDriverWage;
-			}
-			decimal result = 0m;
-			foreach(var address in Addresses) {
-				result += address.CalculateDriverWage() + address.DriverWageSurcharge;
-			}
-			return result;
-		}
-
-		/// <summary>
-		/// Возвращает пересчитанную заного зарплату экспедитора (не записывает)
-		/// </summary>
-		public virtual decimal GetRecalculatedForwarderWage()
-		{
-			if(Forwarder == null) {
-				return 0;
-			}
-			if(Forwarder.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay || Forwarder.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute) {
-				return FixedForwarderWage;
-			}
-			decimal result = 0m;
-			foreach(var address in Addresses) {
-				result += address.CalculateForwarderWage() + address.ForwarderWageSurcharge;
-			}
-			return result;
-		}
-
-		/// <summary>
-		/// Возвращает текущую зарплату водителя
-		/// </summary>
-		public virtual decimal GetDriversTotalWage()
-		{
-			if(Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay
-			  || Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute) {
-				//Если все заказы не выполнены, то нет зарплаты
-				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed)) {
-					return FixedDriverWage;
-				} else {
-					return 0m;
-				}
-			}
-			return Addresses.Sum(item => item.DriverWage) + Addresses.Sum(item => item.DriverWageSurcharge);
-		}
-
-		/// <summary>
-		/// Возвращает текущую зарплату экспедитора
-		/// </summary>
-		public virtual decimal GetForwardersTotalWage()
-		{
-			if(Forwarder == null) {
-				return 0;
-			}
-			if(Forwarder.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay
-			  || Forwarder.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute) {
-				//Если все заказы не выполнены, то нет зарплаты
-				if(ObservableAddresses.Any(x => x.Status == RouteListItemStatus.Completed)) {
-					return FixedForwarderWage;
-				} else {
-					return 0m;
-				}
-			}
-			return Addresses.Sum(item => item.ForwarderWage);
-		}
-
-		/// <summary>
-		/// Расчитывает и записывает зарплату
-		/// </summary>
-		public virtual void CalculateWages()
-		{
-			if(Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay || Driver.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute)
-				FixedDriverWage = GetDriverFixedWage();
-
-			if(Forwarder?.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedDay || Forwarder?.WageCalculationParameter?.WageCalcType == WageCalculationType.fixedRoute)
-				FixedForwarderWage = Forwarder.WageCalculationParameter.WageCalcRate;
-
-			Addresses.ToList().ForEach(x => x.RecalculateWages());
-		}
-
-		//FIXME
-		/// <summary>
-		/// Костыльный метод для расчёта ЗП водилы фуры при заборе воды с Семиозерья или Вартемяг.
-		/// Удалить после задачи I-1626.
-		/// </summary>
-		/// <returns>The driver fixed wage.</returns>
-		decimal GetDriverFixedWage()
-		{
-			var address = Addresses.FirstOrDefault();
-			if(Driver.DriverOf.HasValue && Driver.DriverOf.Value == CarTypeOfUse.Truck && address != null) {
-				var truckRates = "ставки_водителя_фуры_id=rate=dateStart";
-				if(!MainSupport.BaseParameters.All.ContainsKey(truckRates))
-					throw new InvalidProgramException($"В параметрах базы не определены ставки для водителей фур [{truckRates}]");
-				var rates = MainSupport.BaseParameters.All[truckRates].Trim(';').Split(';');//парсим строку из параметров
-
-				//создаём лист и заполняем его. можно было бы не делать так, если бы не нужна была сортировка по дате
-				List<object[]> ratesList = new List<object[]>();
-				foreach(var r in rates) {
-					var rate = r.Split('=');
-					ratesList.Add(new[] { int.Parse(rate[0]), decimal.Parse(rate[1]), (object)DateTime.Parse(rate[2]) });
-				}
-				var sortedRatesList = ratesList.OrderByDescending(x => x[2]).ToList();
-
-				foreach(var r in sortedRatesList) {
-					if(address.Order.DeliveryPoint.Id == (int)r[0]) {
-						if(ClosingDate.HasValue && ClosingDate.Value >= (DateTime)r[2] || !ClosingDate.HasValue && Date >= (DateTime)r[2])
-							return (decimal)r[1];
-					}
-				}
-			}
-			return Driver.WageCalculationParameter?.WageCalcRate ?? 0;
-		}
 
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
 		public virtual void FirstFillClosing()
@@ -1108,21 +1006,10 @@ namespace Vodovoz.Domain.Logistic
 			ClosingFilled = true;
 		}
 
-		public virtual List<BottlesMovementOperation> UpdateBottlesMovementOperation(IStandartNomenclatures standartNomenclatures)
+		public virtual void UpdateBottlesMovementOperation(IStandartNomenclatures standartNomenclatures)
 		{
-			var result = new List<BottlesMovementOperation>();
-			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered && x.Status != RouteListItemStatus.Canceled).ToList();
-
-			foreach(RouteListItem address in addresesDelivered) {
-				if(address.FillBottleMovementOperation(standartNomenclatures, out BottlesMovementOperation bottlesMovementOperation)) {
-					address.Order.BottlesMovementOperation = bottlesMovementOperation;
-					result.Add(bottlesMovementOperation);
-				} else if(bottlesMovementOperation != null) {
-					UoW.Delete(bottlesMovementOperation);
-					address.Order.BottlesMovementOperation = null;
-				}
-			}
-			return result;
+			foreach(RouteListItem address in addresses.Where(x => x.Status != RouteListItemStatus.Transfered))
+				address.Order.UpdateBottleMovementOperation(UoW, standartNomenclatures, returnByStock: address.BottlesReturned);
 		}
 
 		public virtual List<CounterpartyMovementOperation> UpdateCounterpartyMovementOperations()
@@ -1242,7 +1129,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput)
 		{
 			string message;
-			if(Cashier?.Subdivision == null) 
+			if(Cashier?.Subdivision == null)
 				return "Создающий кассовый документ пользователь - не привязан к сотруднику!";
 
 			cashExpense = new Expense {
@@ -1393,45 +1280,6 @@ namespace Vodovoz.Domain.Logistic
 				/ 100 * km;
 		}
 
-		public virtual void UpdateWageOperation()
-		{
-			decimal driverWage = GetDriversTotalWage();
-
-			if(DriverWageOperation == null) {
-				DriverWageOperation = new WagesMovementOperations {
-					OperationTime = this.Date,
-					Employee = Driver,
-					Money = driverWage,
-					OperationType = WagesType.AccrualWage
-				};
-
-			} else {
-				DriverWageOperation.Employee = Driver;
-				DriverWageOperation.Money = driverWage;
-			}
-			UoW.Save(DriverWageOperation);
-
-			decimal forwarderWage = GetForwardersTotalWage();
-
-			if(ForwarderWageOperation == null && forwarderWage > 0) {
-				ForwarderWageOperation = new WagesMovementOperations {
-					OperationTime = this.Date,
-					Employee = Forwarder,
-					Money = forwarderWage,
-					OperationType = WagesType.AccrualWage
-				};
-			} else if(ForwarderWageOperation != null && forwarderWage > 0) {
-				ForwarderWageOperation.Money = forwarderWage;
-				ForwarderWageOperation.Employee = Forwarder;
-			} else if(ForwarderWageOperation != null) {
-				UoW.Delete(ForwarderWageOperation);
-				ForwarderWageOperation = null;
-			}
-
-			if(ForwarderWageOperation != null)
-				UoW.Save(ForwarderWageOperation);
-		}
-
 		#endregion
 
 		public RouteList()
@@ -1517,15 +1365,14 @@ namespace Vodovoz.Domain.Logistic
 
 			var counterpartyMovementOperations = this.UpdateCounterpartyMovementOperations();
 			var moneyMovementOperations = this.UpdateMoneyMovementOperations();
-			var bottleMovementOperations = this.UpdateBottlesMovementOperation(new BaseParametersProvider());
 			var depositsOperations = this.UpdateDepositOperations(UoW);
 
 			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-			bottleMovementOperations.ForEach(op => UoW.Save(op));
+			UpdateBottlesMovementOperation(new BaseParametersProvider());
 			depositsOperations.ForEach(op => UoW.Save(op));
 			moneyMovementOperations.ForEach(op => UoW.Save(op));
 
-			this.UpdateWageOperation();
+			UpdateWageOperation();
 		}
 
 		#region Для логистических расчетов
@@ -1734,6 +1581,169 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion
+
+		#region Зарплата
+
+		private IRouteListWageCalculationService GetDriverWageCalculationService()
+		{
+			var wageServiceFactory = Driver.GetWageCalculationServiceFactory();
+			return wageServiceFactory.GetRouteListWageCalculationService(DriverWageCalculationSrc);
+		}
+
+		private IRouteListWageCalculationService GetForwarderWageCalculationService()
+		{
+			if(Forwarder == null) {
+				return null;
+			}
+			var wageServiceFactory = Forwarder.GetWageCalculationServiceFactory();
+			return wageServiceFactory.GetRouteListWageCalculationService(ForwarderWageCalculationSrc);
+		}
+
+
+		/// <summary>
+		/// Возвращает пересчитанную заново зарплату водителя (не записывает)
+		/// </summary>
+		public virtual decimal GetRecalculatedDriverWage()
+		{
+			var routeListWageCalculationService = GetDriverWageCalculationService();
+			var wageResult = routeListWageCalculationService.CalculateWage();
+			return wageResult.Wage;
+		}
+
+		/// <summary>
+		/// Возвращает пересчитанную заного зарплату экспедитора (не записывает)
+		/// </summary>
+		public virtual decimal GetRecalculatedForwarderWage()
+		{
+			if(Forwarder == null) {
+				return 0;
+			}
+
+			var routeListWageCalculationService = GetForwarderWageCalculationService();
+			var wageResult = routeListWageCalculationService.CalculateWage();
+			return wageResult.Wage;
+		}
+
+		/// <summary>
+		/// Возвращает текущую зарплату водителя
+		/// </summary>
+		public virtual decimal GetDriversTotalWage()
+		{
+			if(FixedDriverWage > 0) {
+				//Если все заказы не выполнены, то нет зарплаты
+				return DriverWageCalculationSrc.HasAnyCompletedAddress ? FixedDriverWage : 0;
+			}
+			return Addresses.Sum(item => item.DriverWage);
+		}
+
+		/// <summary>
+		/// Возвращает текущую зарплату экспедитора
+		/// </summary>
+		public virtual decimal GetForwardersTotalWage()
+		{
+			if(FixedForwarderWage > 0) {
+				//Если все заказы не выполнены, то нет зарплаты
+				return ForwarderWageCalculationSrc.HasAnyCompletedAddress ? FixedForwarderWage : 0;
+			}
+			return Addresses.Sum(item => item.ForwarderWage);
+		}
+
+		public virtual void RecalculateWagesForRouteListItem(RouteListItem address)
+		{
+			if(!Addresses.Contains(address)) {
+				throw new InvalidOperationException("Расчет зарплаты возможен только для адресов текущего маршрутного листа.");
+			}
+
+			var routeListDriverWageCalculationService = GetDriverWageCalculationService();
+			var drvWageResult = routeListDriverWageCalculationService.CalculateWageForRouteListItem(address.DriverWageCalculationSrc);
+			address.DriverWage = drvWageResult.Wage;
+			address.DriverWageCalcMethodicTemporaryStore = drvWageResult.WageDistrictLevelRate;
+			if(Forwarder != null) {
+				var routeListForwarderWageCalculationService = GetForwarderWageCalculationService();
+				var fwdWageResult = routeListForwarderWageCalculationService.CalculateWageForRouteListItem(address.ForwarderWageCalculationSrc);
+				address.ForwarderWage = fwdWageResult.Wage;
+				address.ForwarderWageCalcMethodicTemporaryStore = fwdWageResult.WageDistrictLevelRate;
+			}
+		}
+
+		/// <summary>
+		/// Расчитывает и записывает зарплату
+		/// </summary>
+		public virtual void CalculateWages()
+		{
+			var routeListDriverWageCalculationService = GetDriverWageCalculationService();
+			FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().FixedWage;
+
+			IRouteListWageCalculationService routeListForwarderWageCalculationService = null;
+			if(Forwarder != null) {
+				routeListForwarderWageCalculationService = GetForwarderWageCalculationService();
+				FixedForwarderWage = routeListForwarderWageCalculationService.CalculateWage().FixedWage;
+			}
+
+			foreach(var address in Addresses) {
+				var drvWageResult = routeListDriverWageCalculationService.CalculateWageForRouteListItem(address.DriverWageCalculationSrc);
+				address.DriverWage = drvWageResult.Wage;
+				address.DriverWageCalcMethodicTemporaryStore = drvWageResult.WageDistrictLevelRate;
+				if(Forwarder != null) {
+					var fwdWageResult = routeListForwarderWageCalculationService.CalculateWageForRouteListItem(address.ForwarderWageCalculationSrc);
+					address.ForwarderWage = fwdWageResult.Wage;
+					address.ForwarderWageCalcMethodicTemporaryStore = fwdWageResult.WageDistrictLevelRate;
+				}
+			}
+		}
+
+		public virtual void RecalculateAllWages()
+		{
+			CalculateWages();
+		}
+
+		void UpdateWageOperation()
+		{
+			decimal driverWage = GetDriversTotalWage();
+
+			if(DriverWageOperation == null) {
+				DriverWageOperation = new WagesMovementOperations {
+					OperationTime = this.Date,
+					Employee = Driver,
+					Money = driverWage,
+					OperationType = WagesType.AccrualWage
+				};
+			} else {
+				DriverWageOperation.Employee = Driver;
+				DriverWageOperation.Money = driverWage;
+			}
+			UoW.Save(DriverWageOperation);
+
+			decimal forwarderWage = GetForwardersTotalWage();
+
+			if(ForwarderWageOperation == null && forwarderWage > 0) {
+				ForwarderWageOperation = new WagesMovementOperations {
+					OperationTime = this.Date,
+					Employee = Forwarder,
+					Money = forwarderWage,
+					OperationType = WagesType.AccrualWage
+				};
+			} else if(ForwarderWageOperation != null && forwarderWage > 0) {
+				ForwarderWageOperation.Money = forwarderWage;
+				ForwarderWageOperation.Employee = Forwarder;
+			} else if(ForwarderWageOperation != null) {
+				UoW.Delete(ForwarderWageOperation);
+				ForwarderWageOperation = null;
+			}
+
+			if(ForwarderWageOperation != null)
+				UoW.Save(ForwarderWageOperation);
+
+			foreach(var address in Addresses) {
+				address.SaveWageCalculationMethodics();
+			}
+		}
+
+		IRouteListWageCalculationSource DriverWageCalculationSrc => new RouteListWageCalculationSource(this, EmployeeCategory.driver);
+
+		IRouteListWageCalculationSource ForwarderWageCalculationSrc => new RouteListWageCalculationSource(this, EmployeeCategory.forwarder);
+
+		#endregion Зарплата
 	}
 
 	public enum RouteListStatus

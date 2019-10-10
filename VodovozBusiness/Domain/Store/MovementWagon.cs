@@ -1,7 +1,5 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Store
@@ -21,15 +19,12 @@ namespace Vodovoz.Domain.Store
 		[Required (ErrorMessage = "Название фуры должно быть заполнено.")]
 		[Display (Name = "Название")]
 		public virtual string Name {
-			get { return name; }
-			set { SetField (ref name, value, () => Name); }
+			get => name;
+			set => SetField(ref name, value, () => Name);
 		}
 
 		#endregion
 
-		public MovementWagon ()
-		{
-			Name = String.Empty;
-		}
+		public MovementWagon() => Name = string.Empty;
 	}
 }

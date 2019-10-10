@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -9,6 +10,8 @@ using QS.HistoryLog;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Domain.Employees
@@ -22,17 +25,20 @@ namespace Vodovoz.Domain.Employees
 	{
 		#region Свойства
 
-		public override EmployeeType EmployeeType { 
+		public override EmployeeType EmployeeType {
 			get { return EmployeeType.Employee; }
-			set {}
+			set { }
 		}
 
 		EmployeeCategory category;
 
 		[Display(Name = "Категория")]
 		public virtual EmployeeCategory Category {
-			get { return category; }
-			set { SetField(ref category, value, () => Category); }
+			get => category;
+			set {
+				if(SetField(ref category, value) && Id == 0)
+					CreateDefaultWageParameter(WageCalculationRepository);
+			}
 		}
 
 		RegistrationType? registration;
@@ -144,9 +150,9 @@ namespace Vodovoz.Domain.Employees
 
 		private bool largusDriver;
 		[Display(Name = "Сотрудник - водитель Ларгуса")]
-		public virtual bool LargusDriver{
+		public virtual bool LargusDriver {
 			get { return largusDriver; }
-			set {SetField(ref largusDriver, value, () => LargusDriver);}
+			set { SetField(ref largusDriver, value, () => LargusDriver); }
 		}
 
 		private CarTypeOfUse? driverOf;
@@ -196,19 +202,39 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		WageParameter wageCalculationParameter;
-		[Display(Name = "Параметр расчёта ЗП")]
-		public virtual WageParameter WageCalculationParameter {
-			get => wageCalculationParameter;
-			set => SetField(ref wageCalculationParameter, value);
+		IList<WageParameter> wageParameters = new List<WageParameter>();
+		[Display(Name = "Параметры расчета зарплаты")]
+		public virtual IList<WageParameter> WageParameters {
+			get => wageParameters;
+			set => SetField(ref wageParameters, value, () => WageParameters);
+		}
+
+		GenericObservableList<WageParameter> observableWageParameters;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<WageParameter> ObservableWageParameters {
+			get {
+				if(observableWageParameters == null)
+					observableWageParameters = new GenericObservableList<WageParameter>(WageParameters);
+				return observableWageParameters;
+			}
 		}
 
 		bool visitingMaster;
+		public virtual bool VisitingMaster {
+			get => visitingMaster;
+			set {
+				if(SetField(ref visitingMaster, value) && Id == 0)
+					CreateDefaultWageParameter(WageCalculationRepository);
+			}
+		}
 
-		public virtual bool VisitingMaster
-		{
-			get { return visitingMaster; }
-			set { SetField(ref visitingMaster, value, () => VisitingMaster);}
+		bool isDriverForOneDay;
+		public virtual bool IsDriverForOneDay {
+			get => isDriverForOneDay;
+			set {
+				if(SetField(ref isDriverForOneDay, value) && Id == 0)
+					CreateDefaultWageParameter(WageCalculationRepository);
+			}
 		}
 
 		#endregion
@@ -232,30 +258,25 @@ namespace Vodovoz.Domain.Employees
 				yield return item;
 			}
 
-			if(!String.IsNullOrEmpty(AndroidLogin)) {
+			if(!string.IsNullOrEmpty(AndroidLogin)) {
 				Employee exist = EmployeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
 				if(exist != null && exist.Id != Id)
-					yield return new ValidationResult(String.Format("Другой водитель с логином {0} для Android уже есть в БД.", AndroidLogin),
+					yield return new ValidationResult(string.Format("Другой водитель с логином {0} для Android уже есть в БД.", AndroidLogin),
 						new[] { this.GetPropertyName(x => x.AndroidLogin) });
 			}
-
-			if(WageCalculationParameter == null) 
-				yield return new ValidationResult(
-					"Выберите тип расчёта заработной платы.",
-					new[] { this.GetPropertyName(x => x.WageCalculationParameter) }
-				);
 		}
 
 		#endregion
 
 		#region Функции
 
-		public virtual string GetPersonNameWithInitials()
-		{
-			return PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
-		}
+		public virtual IWageCalculationRepository WageCalculationRepository { get; set; } = WageSingletonRepository.GetInstance();
 
-		private void CheckDistrictsPriorities()
+		public virtual string GetPersonNameWithInitials() => PersonHelper.PersonNameWithInitials(LastName, Name, Patronymic);
+
+		public virtual void CheckAndFixDriverPriorities() => CheckDistrictsPriorities();
+
+		void CheckDistrictsPriorities()
 		{
 			for(int i = 0; i < Districts.Count; i++) {
 				if(Districts[i] == null) {
@@ -269,9 +290,88 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		public virtual double TimeCorrection(long timeValue)
+		public virtual double TimeCorrection(long timeValue) => (double)timeValue / DriverSpeed;
+
+		public virtual bool CheckStartDateForNewWageParameter(DateTime newStartDate)
 		{
-			return (double)timeValue / DriverSpeed;
+			WageParameter oldWageParameter = ObservableWageParameters.FirstOrDefault(x => x.EndDate == null);
+			if(oldWageParameter == null) {
+				return true;
+			}
+
+			return oldWageParameter.StartDate < newStartDate;
+		}
+
+		public virtual void ChangeWageParameter(WageParameter wageParameter, DateTime startDate)
+		{
+			if(wageParameter == null) {
+				throw new ArgumentNullException(nameof(wageParameter));
+			}
+
+			wageParameter.Employee = this;
+			wageParameter.StartDate = startDate.AddTicks(1);
+			WageParameter oldWageParameter = ObservableWageParameters.FirstOrDefault(x => x.EndDate == null);
+			if(oldWageParameter != null) {
+				if(oldWageParameter.StartDate > startDate) {
+					throw new InvalidOperationException("Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
+				}
+				oldWageParameter.EndDate = startDate;
+			}
+			ObservableWageParameters.Add(wageParameter);
+		}
+
+		public virtual WageParameter GetActualWageParameter(DateTime date)
+		{
+			return WageParameters.Where(x => x.StartDate <= date)
+								 .OrderByDescending(x => x.StartDate)
+								 .Take(1)
+								 .SingleOrDefault();
+		}
+
+		private WageCalculationServiceFactory wageCalculationServiceFactory;
+		public virtual WageCalculationServiceFactory GetWageCalculationServiceFactory()
+		{
+			if(wageCalculationServiceFactory == null) {
+				wageCalculationServiceFactory = new WageCalculationServiceFactory(this, WageSingletonRepository.GetInstance());
+			}
+			return wageCalculationServiceFactory;
+		}
+
+		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository)
+		{
+			if(wageRepository == null)
+				throw new ArgumentNullException(nameof(wageRepository));
+
+			if(Id == 0) {
+				ObservableWageParameters.Clear();
+				switch(Category) {
+					case EmployeeCategory.driver:
+						WageParameter parameterForDriver = new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars };
+						if(VisitingMaster && !IsDriverForOneDay)
+							parameterForDriver = new PercentWageParameter {
+								PercentWageType = PercentWageTypes.Service,
+								WageParameterTarget = WageParameterTargets.ForMercenariesCars
+							};
+						else if(!IsDriverForOneDay)
+							parameterForDriver = new RatesLevelWageParameter {
+								WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
+								WageParameterTarget = WageParameterTargets.ForMercenariesCars
+							};
+						ChangeWageParameter(parameterForDriver, DateTime.Today);
+						break;
+					case EmployeeCategory.forwarder:
+						var parameterForForwarder = new RatesLevelWageParameter {
+							WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
+							WageParameterTarget = WageParameterTargets.ForMercenariesCars
+						};
+						ChangeWageParameter(parameterForForwarder, DateTime.Today);
+						break;
+					case EmployeeCategory.office:
+					default:
+						ChangeWageParameter(new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars }, DateTime.Today);
+						break;
+				}
+			}
 		}
 
 		#endregion
@@ -289,11 +389,11 @@ namespace Vodovoz.Domain.Employees
 
 	public enum EmployeeCategory
 	{
-		[Display (Name = "Офисный работник")]
+		[Display(Name = "Офисный работник")]
 		office,
-		[Display (Name = "Водитель")]
+		[Display(Name = "Водитель")]
 		driver,
-		[Display (Name = "Экспедитор")]
+		[Display(Name = "Экспедитор")]
 		forwarder
 	}
 
@@ -315,7 +415,7 @@ namespace Vodovoz.Domain.Employees
 
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType
 	{
-		public EmployeeCategoryStringType () : base (typeof(EmployeeCategory))
+		public EmployeeCategoryStringType() : base(typeof(EmployeeCategory))
 		{
 		}
 	}

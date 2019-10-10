@@ -6,14 +6,12 @@ using Gdk;
 using QSSupportLib;
 using Vodovoz.Additions;
 using Vodovoz.DriverTerminal;
-using QS.Permissions;
 using QS.Project.Repositories;
 using EmailService;
 using QS.Project.Dialogs.GtkUI;
 using QS.Tools;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Utilities.Text;
-using QS.DomainModel.Entity.PresetPermissions;
 
 namespace Vodovoz
 {
@@ -45,6 +43,7 @@ namespace Vodovoz
 			ConfigureJournalColumnsConfigs();
 
 			QSMain.SetupFromArgs(args);
+
 			// Создаем окно входа
 			Login LoginDialog = new Login ();
 			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png");
@@ -67,10 +66,7 @@ namespace Vodovoz
 			//Настройка базы
 			CreateBaseConfig ();
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
-
-			PermissionsSettings.ConfigureEntityPermissionFinder(new Vodovoz.Domain.Permissions.EntitiesWithPermissionFinder());
-			PermissionsSettings.EntityPermissionValidator = new Vodovoz.Domain.Permissions.EntityPermissionValidator();
-			PermissionsSettings.PresetPermissionValidator = new PresetPermissionValidator();
+			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
 
 			MainSupport.LoadBaseParameters();
 

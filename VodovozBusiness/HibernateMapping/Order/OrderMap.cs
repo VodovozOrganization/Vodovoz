@@ -54,6 +54,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.IsBottleStock)					.Column("is_bottle_stock");
 			Map(x => x.BottlesByStockCount)				.Column("bottles_by_stock_count");
 			Map(x => x.BottlesByStockActualCount)		.Column("bottles_by_stock_actual_count");
+			Map(x => x.EShopOrder)						.Column("e_shop_order");
 
 			Map(x => x.NeedCheque)						.Column("need_cheque").CustomType<ChequeResponseStringType>();
 			Map(x => x.OrderStatus)						.Column("order_status").CustomType<OrderStatusStringType> ();

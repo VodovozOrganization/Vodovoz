@@ -27,7 +27,7 @@ namespace Vodovoz.Representations
 
 		IEmployeeRepository employeeRepository { get; set;}
 
-		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices, IEmployeeRepository employeeRepository) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, ICommonServices commonServices, IEmployeeRepository employeeRepository) : base(filterViewModel, commonServices)
 		{
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
@@ -51,9 +51,11 @@ namespace Vodovoz.Representations
 			var ordersQuery = UoW.Session.QueryOver(() => orderAlias);
 
 			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
-			.JoinAlias(() => bottlesMovementAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
-			.And(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id || orderAlias.SelfDelivery)
+			.And(new Disjunction().Add(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+											.Add(Restrictions.On(() => deliveryPointAlias.Id).IsNull
+														&& Restrictions.On(() => bottlesMovementAlias.DeliveryPoint.Id).IsNull
+														&& Restrictions.On(() => bottlesMovementAlias.Order.Id).IsNotNull))
 			.Select(
 				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
 					NHibernateUtil.Int32, new IProjection[] {
@@ -112,6 +114,8 @@ namespace Vodovoz.Representations
 
 			#endregion LastOrder
 
+			ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
+
 			#region Filter
 
 			if(FilterViewModel != null) 
@@ -119,13 +123,9 @@ namespace Vodovoz.Representations
 				if(FilterViewModel.Client != null)
 					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == FilterViewModel.Client.Id);
 				if(FilterViewModel.Address != null)
-					ordersQuery = ordersQuery.Where((arg) => arg.Id == FilterViewModel.Address.Id);
+					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == FilterViewModel.Address.Id);
 				if(FilterViewModel.OPF != null)
 					ordersQuery = ordersQuery.Where(() => counterpartyAlias.PersonType == FilterViewModel.OPF.Value);
-				if(FilterViewModel.LastOrderNomenclature != null)
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderNomenclatures);
-				if(FilterViewModel.DiscountReason != null)
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderDiscount);
 				if(FilterViewModel.LastOrderBottlesFrom != null)
 					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered >= FilterViewModel.LastOrderBottlesFrom.Value);
 				if(FilterViewModel.LastOrderBottlesTo != null)
@@ -134,10 +134,14 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate.Value);
 				if(FilterViewModel.EndDate != null)
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= FilterViewModel.EndDate.Value);
+				if(FilterViewModel.LastOrderNomenclature != null)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderNomenclatures);
+				if(FilterViewModel.DiscountReason != null)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderDiscount);
 				if(FilterViewModel.DebtBottlesFrom != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
 				if(FilterViewModel.DebtBottlesTo != null)
-					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Gt(bottleDebtByAddressQuery);
+					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
 			}
 
 			#endregion Filter
@@ -168,7 +172,6 @@ namespace Vodovoz.Representations
 				   .SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
 				   .SelectSubQuery(TaskExistQuery).WithAlias(() => resultAlias.RowColor)
 					 )
-				.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery)
 				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
 
 			return resultQuery;
@@ -216,6 +219,10 @@ namespace Vodovoz.Representations
 					OpenReport(selectedNode.ClientId, selectedNode.AddressId);
 				}
 			}));
+
+			NodeActionsList.Add(new JournalAction("Печатная форма", x => true, x => true, selectedItems => {
+				OpenPrintingForm();
+			}));
 		}
 
 		protected override Func<CallTaskDlg> CreateDialogFunction => () => new CallTaskDlg();
@@ -228,6 +235,30 @@ namespace Vodovoz.Representations
 		public void OpenReport(int counterpartyId, int deliveryPointId = -1)
 		{
 			var dlg = CreateReportDlg(counterpartyId, deliveryPointId);
+			TabParent.AddTab(dlg, this);
+		}
+
+		public void OpenPrintingForm()
+		{
+			var reportInfo = new QS.Report.ReportInfo {
+				Title = TabName,
+				Identifier = "Client.BottleDebtorsJournal",
+				Parameters = new Dictionary<string, object>
+				{
+					{ "discount_reason_id", FilterViewModel?.DiscountReason?.Id ?? 0 },
+					{ "nomenclature_id", FilterViewModel?.LastOrderNomenclature?.Id ?? 0},
+					{ "StartDate", FilterViewModel?.StartDate},
+					{ "EndDate", FilterViewModel?.EndDate},
+					{ "OrderBottlesFrom", FilterViewModel?.LastOrderBottlesFrom?.ToString() ?? String.Empty},
+					{ "OrderBottlesTo", FilterViewModel?.LastOrderBottlesTo?.ToString() ?? String.Empty},
+					{ "AddressId", FilterViewModel?.Address?.Id ?? 0},
+					{ "CounterpartyId", FilterViewModel?.Client?.Id ?? 0},
+					{ "OPF", FilterViewModel?.OPF?.ToString() ?? String.Empty},
+					{ "DebtBottlesFrom", FilterViewModel.DebtBottlesFrom != null ? FilterViewModel?.DebtBottlesFrom.Value.ToString() : int.MinValue.ToString()},
+					{ "DebtBottlesTo", FilterViewModel.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : int.MaxValue.ToString()}
+				}
+			};
+			var dlg = new ReportViewDlg(reportInfo);
 			TabParent.AddTab(dlg, this);
 		}
 

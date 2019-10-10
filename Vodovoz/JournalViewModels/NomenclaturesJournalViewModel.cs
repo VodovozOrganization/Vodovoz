@@ -22,9 +22,8 @@ namespace Vodovoz.JournalViewModels
 
 		public NomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filterViewModel,
-			IEntityConfigurationProvider entityConfigurationProvider,
 			ICommonServices commonServices
-		) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		) : base(filterViewModel, commonServices)
 		{
 			TabName = "Журнал ТМЦ";
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

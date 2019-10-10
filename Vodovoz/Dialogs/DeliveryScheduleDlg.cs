@@ -2,7 +2,7 @@
 using NLog;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QSValidation;
+using QS.Validation.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Domain.Logistic;
 

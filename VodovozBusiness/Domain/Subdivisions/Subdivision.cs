@@ -101,12 +101,6 @@ namespace Vodovoz
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
 		}
 
-		WageParameter defaultWageParameter;
-		[Display(Name = "Параметр по умолчанию для сотрудников отдела")]
-		public virtual WageParameter DefaultWageParameter {
-			get => defaultWageParameter;
-			set => SetField(ref defaultWageParameter, value);
-		}
 		#endregion
 
 		#region Геттеры и методы

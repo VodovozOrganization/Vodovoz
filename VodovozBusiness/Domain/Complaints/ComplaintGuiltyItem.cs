@@ -45,7 +45,23 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref subdivision, value, () => Subdivision);
 		}
 
-		public virtual string Title => string.Format("Виновный №{0} в жалобе №{1}", Id, Complaint?.Id);
+		public virtual string Title {
+			get {
+				if(!GuiltyType.HasValue)
+					return string.Format("Виновный №{0} в жалобе №{1}", Id, Complaint?.Id);
+				switch(GuiltyType.Value) {
+					case ComplaintGuiltyTypes.None:
+					case ComplaintGuiltyTypes.Client:
+						return $"Виновный \"{GuiltyType.GetEnumTitle()}\"";
+					case ComplaintGuiltyTypes.Subdivision:
+						return $"Виновный \"{Subdivision?.Name}\"";
+					case ComplaintGuiltyTypes.Employee:
+						return $"Виновный сотрудник {Employee?.ShortName}";
+					default:
+						return string.Format("Виновный №{0} в жалобе №{1}", Id, Complaint?.Id);
+				}
+			}
+		}
 
 		public ComplaintGuiltyItem() { }
 

@@ -765,8 +765,8 @@
     <Compile Include="Dialogs\Logistic\FuelTypeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelTypeDlg.cs" />
     <Compile Include="Dialogs\Logistic\CarsDlg.cs" />
-    <Compile Include="Dialogs\Logistic\FuelDocumentDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FuelDocumentDlg.cs" />
+    <Compile Include="Dialogs\Logistic\FuelDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FuelDocumentView.cs" />
     <Compile Include="Dialogs\Logistic\RoutesAtDayDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RoutesAtDayDlg.cs" />
     <Compile Include="Additions\Logistic\PointMarker.cs" />
@@ -1143,7 +1143,7 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.EmployeeFilterView.cs" />
     <Compile Include="Filters\RepresentationFilterViewModelBase.cs" />
     <Compile Include="Infrastructure\Converters\DecimalToStringConverter.cs" />
-    <Compile Include="ServicesConfig.cs" />
+    <Compile Include="VodovozGtkServicesConfig.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelIncomeInvoiceView.cs" />
@@ -1290,11 +1290,43 @@
     <Compile Include="Infrastructure\Services\GtkTaskCreationInteractive.cs" />
     <Compile Include="ViewWidgets\TaskCreationDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.TaskCreationDialog.cs" />
-    <Compile Include="Views\WageCalculation\WageParameterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageParameterView.cs" />
     <Compile Include="ReportsParameters\PlanImplementationReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PlanImplementationReport.cs" />
     <Compile Include="Core\Permissions\PermissionExtensionStore.cs" />
+    <Compile Include="Views\WageCalculation\WageDistrictLevelRateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictLevelRateView.cs" />
+    <Compile Include="Views\WageCalculation\WageParameterView.cs" />
+    <Compile Include="Views\WageCalculation\FixedWageParameterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.FixedWageParameterView.cs" />
+    <Compile Include="Views\WageCalculation\PercentWageParameterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.PercentWageParameterView.cs" />
+    <Compile Include="Views\WageCalculation\SalesPlanWageParameterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.SalesPlanWageParameterView.cs" />
+    <Compile Include="Views\WageCalculation\RatesLevelWageParameterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.RatesLevelWageParameterView.cs" />
+    <Compile Include="Views\WageCalculation\WageDistrictLevelRatesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictLevelRatesView.cs" />
+    <Compile Include="Views\WageCalculation\EmployeeWageParametersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.EmployeeWageParametersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictView.cs" />
+    <Compile Include="Views\WageCalculation\WageDistrictView.cs" />
+    <Compile Include="Views\WageCalculation\CarsWageParametersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.CarsWageParametersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageParameterView.cs" />
+    <Compile Include="Views\WageCalculation\OldRatesWageParameterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.OldRatesWageParameterView.cs" />
+    <Compile Include="Views\WageCalculation\SalesPlanView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.SalesPlanView.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListsOnDayViewModel.cs" />
+    <Compile Include="Views\Logistic\RouteListsOnDayView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListsOnDayView.cs" />
+    <Compile Include="ViewModels\Logistic\GeographicGroupNode.cs" />
+    <Compile Include="ViewModels\Logistic\RouteColumnTag.cs" />
+    <Compile Include="Additions\Logistic\PointMarkerType.cs" />
+    <Compile Include="Additions\Logistic\PointMarkerShape.cs" />
+    <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
+    <Compile Include="JournalViewModels\EmployeesJournalViewModel.cs" />
+    <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1532,6 +1564,9 @@
     <Folder Include="ViewModels\Suppliers\" />
     <Folder Include="JournalViewModels\Suppliers\" />
     <Folder Include="Views\WageCalculation\" />
+    <Folder Include="ViewModels\Logistic\" />
+    <Folder Include="Views\Logistic\" />
+    <Folder Include="ViewModels\FuelDocuments\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1970,6 +2005,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Sales\PlanImplementationFullReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Client\BottleDebtorsJournal.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\AssemblyList.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\SeparateAssemblyList.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

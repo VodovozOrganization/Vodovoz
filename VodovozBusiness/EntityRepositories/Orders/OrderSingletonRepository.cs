@@ -39,12 +39,15 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped)
 		{
-			var query = QueryOver.Of<VodovozOrder>();
+			var query = QueryOver.Of<VodovozOrder>().Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery && !order.IsService)
+													.Where(o => o.DeliverySchedule != null)
+													.Where(x => x.DeliveryPoint != null)
+													;
 			if(!showShipped)
 				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
 			else
 				query.Where(order => order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder && order.OrderStatus != OrderStatus.WaitForPayment);
-			return query.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery && !order.IsService);
+			return query;
 		}
 
 		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, ScheduleRestrictedDistrict district)
@@ -138,20 +141,16 @@ namespace Vodovoz.EntityRepositories.Orders
 				.List<VodovozOrder>();
 		}
 
-		internal static Func<IUnitOfWork, Counterparty, VodovozOrder> GetFirstRealOrderForClientTestGap;
 		/// <summary>
 		/// Первый заказ контрагента, который можно считать выполненым.
 		/// </summary>
 		/// <returns>Первый заказ</returns>
 		/// <param name="uow">UoW</param>
 		/// <param name="counterparty">Контрагент</param>
-		public VodovozOrder GetFirstRealOrderForClient(IUnitOfWork uow, Counterparty counterparty)
+		public VodovozOrder GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Counterparty counterparty)
 		{
 			if(counterparty?.FirstOrder != null && GetValidStatusesToUseActionBottle().Contains(counterparty.FirstOrder.OrderStatus))
 				return counterparty.FirstOrder;
-
-			if(GetFirstRealOrderForClientTestGap != null)
-				return GetFirstRealOrderForClientTestGap(uow, counterparty);
 
 			var query = uow.Session.QueryOver<VodovozOrder>()
 						   .Where(o => o.Id > 0)
@@ -409,6 +408,28 @@ namespace Vodovoz.EntityRepositories.Orders
 				OrderStatus.UnloadingOnStock,
 				OrderStatus.WaitForPayment
 			};
+		}
+
+		public OrderStatus[] GetUndeliveryStatuses()
+		{
+			return new OrderStatus[]
+				{
+					OrderStatus.NotDelivered,
+					OrderStatus.DeliveryCanceled,
+					OrderStatus.Canceled
+				};
+		}
+
+		public int[] GetShippeIdsStartingFromDate(IUnitOfWork uow, PaymentType paymentType, DateTime? startDate = null)
+		{
+			var result = uow.Session.QueryOver<VodovozOrder>()
+							.Where(o => o.PaymentType == paymentType)
+							.Where(o => o.OrderStatus == OrderStatus.Shipped || o.OrderStatus == OrderStatus.UnloadingOnStock)
+							.Where(o => !o.SelfDelivery)
+							;
+			if(startDate.HasValue)
+				result.Where(o => o.DeliveryDate >= startDate.Value);
+			return result.Select(o => o.Id).List<int>().ToArray();
 		}
 	}
 }

@@ -7,7 +7,7 @@ using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 

@@ -1,13 +1,12 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Complaints
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
-		NominativePlural = "комментарии к обсуждению жалобы",
-		Nominative = "комментарий к обсуждению жалобы"
+		NominativePlural = "приложения к жалобе",
+		Nominative = "приложение к жалобе"
 	)]
 	[HistoryTrace]
 	public class ComplaintFile : PropertyChangedBase, IDomainObject
@@ -41,5 +40,7 @@ namespace Vodovoz.Domain.Complaints
 			get => byteFile;
 			set => SetField(ref byteFile, value, () => ByteFile);
 		}
+
+		public virtual string Title => $"Файл \"{FileStorageId}\"";
 	}
 }

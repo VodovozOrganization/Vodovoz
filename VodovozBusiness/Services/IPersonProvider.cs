@@ -1,13 +1,9 @@
-﻿using System;
-using QS.DomainModel.UoW;
-using Vodovoz.Domain.Employees;
-
-namespace Vodovoz.Services
+﻿namespace Vodovoz.Services
 {
 	public interface IPersonProvider
 	{
-		Employee GetDefaultEmployeeForCallTask(IUnitOfWork uow);
+		int GetDefaultEmployeeForCallTask();
 
-		Employee GetDefaultEmployeeForDepositReturnTask(IUnitOfWork uow);
+		int GetDefaultEmployeeForDepositReturnTask();
 	}
 }

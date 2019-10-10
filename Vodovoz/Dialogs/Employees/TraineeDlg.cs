@@ -13,7 +13,7 @@ using QSBanks;
 using QS.Contacts;
 using QSOrmProject;
 using QSProjectsLib;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Dialogs.Employees

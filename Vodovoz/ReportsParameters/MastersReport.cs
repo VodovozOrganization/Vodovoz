@@ -8,29 +8,24 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QS.Dialog.Gtk;
+using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class MastersReport : WidgetOnDialogBase, ISingleUoWDialog, IParametersWidget
+	public partial class MastersReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		public MastersReport()
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false
 			);
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 		}
-
-		#region IOrmDialog implementation
-
-		public IUnitOfWork UoW { get; private set; }
-
-		#endregion
 
 		#region IParametersWidget implementation
 

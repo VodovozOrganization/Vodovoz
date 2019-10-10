@@ -26,7 +26,7 @@ namespace Vodovoz.JournalViewModels
 {
 	public class OrderJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel>
 	{
-		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
 		{
 			TabName = "Журнал заказов";
 			SetOrder(x => x.CreateDate, true);
@@ -149,7 +149,8 @@ namespace Vodovoz.JournalViewModels
 				() => deliveryPointAlias.CompiledAddress,
 				() => authorAlias.LastName,
 				() => orderAlias.DriverCallId,
-				() => orderAlias.OnlineOrder
+				() => orderAlias.OnlineOrder,
+				() => orderAlias.EShopOrder
 			));
 
 			var resultQuery = query
@@ -178,6 +179,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => deliveryPointAlias.Building).WithAlias(() => resultAlias.Building)
 				   .Select(() => deliveryPointAlias.Latitude).WithAlias(() => resultAlias.Latitude)
 				   .Select(() => deliveryPointAlias.Longitude).WithAlias(() => resultAlias.Longitude)
+				   .Select(() => orderAlias.EShopOrder).WithAlias(() => resultAlias.EShopOrder)
 				   .SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
 				   .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 				   .SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)

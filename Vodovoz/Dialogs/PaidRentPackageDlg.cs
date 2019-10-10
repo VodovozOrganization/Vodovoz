@@ -1,7 +1,7 @@
 ﻿using NHibernate.Criterion;
 using NLog;
 using QS.DomainModel.UoW;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 

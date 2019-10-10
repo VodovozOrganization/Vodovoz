@@ -9,7 +9,7 @@ using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Contacts;
 using QSOrmProject;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz

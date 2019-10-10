@@ -167,7 +167,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>=First({counterparty_fullname}, "Order")</Value>
+                      <Value>=First({cargo_receiver}, "Order")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -236,7 +236,7 @@
                         <BackgroundColor>
                         </BackgroundColor>
                       </Style>
-                      <Value>=First({counterparty_fullname}, "Order")</Value>
+                      <Value>=First({payer}, "Order")</Value>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
@@ -3070,7 +3070,7 @@
       <Textbox Name="Textbox190" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>8.25pt</Height>
         <Width>392.19pt</Width>
-        <Value>=First({counterparty_fullname}, "Order")</Value>
+        <Value>=First({payer}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>91.05pt</Left>
         <Top>299.2pt</Top>
@@ -11870,7 +11870,19 @@
 			
 			CONCAT('р/с ', counterparty_accounts.number, ' в ', banks.name, ', БИК ', banks.bik, ', к/с ', banks_cor_accounts.cor_account_number)
 		)
-	)	AS counterparty_fullname,
+	)	AS cargo_receiver,
+	#плательщик	
+	CONCAT_WS(', ',	
+		CONCAT(counterparty.full_name, ', ИНН ', counterparty.inn, '/', counterparty.kpp, ', ',  counterparty.jur_address),			
+		#телефоны, выбирается только 2 первых
+		NULLIF(
+			(SELECT REPLACE(phones.number, ' ', '') 
+			FROM phones 
+			WHERE phones.counterparty_id = counterparty.id AND phones.type_id = GET_PARAMETER('тип_телефона_отображаемого_в_документах')
+			LIMIT 1) ,
+		''),			
+		CONCAT('р/с ', counterparty_accounts.number, ' в ', banks.name, ', БИК ', banks.bik, ', к/с ', banks_cor_accounts.cor_account_number)
+	)	AS payer,
 	#грузоотправитель
 	CONCAT_WS(', ', 
 		organizations.name,
@@ -11911,8 +11923,8 @@ GROUP BY orders.id</CommandText>
           <DataField>organization_fullname</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="counterparty_fullname">
-          <DataField>counterparty_fullname</DataField>
+        <Field Name="cargo_receiver">
+          <DataField>cargo_receiver</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="org_name">
@@ -11925,6 +11937,10 @@ GROUP BY orders.id</CommandText>
         </Field>
         <Field Name="organization_address">
           <DataField>organization_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="payer">
+          <DataField>payer</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

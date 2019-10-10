@@ -42,7 +42,7 @@ namespace Vodovoz.Dialogs.Goods
 
 		public override bool Save()
 		{
-			var valid = new QSValidation.QSValidator<Folder1c>(UoWGeneric.Root);
+			var valid = new QS.Validation.GtkUI.QSValidator<Folder1c>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 

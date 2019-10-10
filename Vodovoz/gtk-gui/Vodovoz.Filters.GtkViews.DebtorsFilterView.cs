@@ -8,7 +8,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.Table table1;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferenceClient;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryreferenceClient;
 
 		private global::QS.Widgets.GtkUI.RepresentationEntry entryreferenceDeliveryPoint;
 
@@ -72,9 +72,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferenceClient = new global::QS.Widgets.GtkUI.RepresentationEntry();
+			this.entryreferenceClient = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryreferenceClient.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferenceClient.Name = "entryreferenceClient";
+			this.entryreferenceClient.CanEditReference = false;
 			this.table1.Add(this.entryreferenceClient);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferenceClient]));
 			w1.LeftAttach = ((uint)(1));
@@ -339,7 +340,7 @@ namespace Vodovoz.Filters.GtkViews
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.entryreferenceClient.Changed += new global::System.EventHandler(this.OnEntryreferenceClientChanged);
+			this.entryreferenceClient.ChangedByUser += new global::System.EventHandler(this.OnEntryreferenceClientChanged);
 		}
 	}
 }

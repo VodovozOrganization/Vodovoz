@@ -3,7 +3,7 @@ using System.Linq;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSValidation;
+using QS.Validation.GtkUI;
 using QS.Project.Repositories;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
@@ -53,7 +53,7 @@ namespace Vodovoz.Dialogs.Employees
 				UpdateStates();
 			};
 
-			var filterDefaultForwarder = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filterDefaultForwarder = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filterDefaultForwarder.ShowFired = false;
 			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryDriver.RepresentationModel = new EmployeesVM(filterDefaultForwarder);

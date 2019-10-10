@@ -49,6 +49,9 @@ namespace Vodovoz.JournalNodes
 		public int? OnlineOrder { get; set; }
 		public string OnLineNumber => OnlineOrder?.ToString() ?? string.Empty;
 
+		public int? EShopOrder { get; set; }
+		public string EShopNumber=> EShopOrder?.ToString() ?? string.Empty;
+
 		public decimal? Latitude { get; set; }
 		public decimal? Longitude { get; set; }
 		public string Coordinates {

@@ -7,66 +7,6 @@ using GMap.NET.GtkSharp;
 
 namespace Vodovoz.Additions.Logistic
 {
-
-	public enum PointMarkerType
-	{
-		none = 0,
-		black_and_red,
-		black,
-		blue,
-		blue_stripes,
-		white,
-		gray,
-		green,
-		orange,
-		purple,
-		red,
-		color2,
-		color3,
-		color4,
-		color5,
-		color6,
-		color7,
-		color8,
-		color9,
-		color10,
-		color11,
-		color12,
-		color13,
-		color14,
-		color15,
-		color16,
-		color17,
-		color18,
-		color20,
-		color21,
-		color22,
-		color23,
-		color24,
-		red_stripes,
-		yellow_stripes,
-		green_stripes,
-		grey_stripes,
-		vodonos
-	}
-
-	public enum PointMarkerShape
-	{
-		none = 0, 
-		// < 6 бутылей
-		circle,
-		// 6 - 10 бутылей
-		triangle,
-		// 10 - 20 бутылей
-		square,
-		// 20 - 40 бутылей
-		cross,
-		// > 40 бутылей
-		star,
-		//без формы
-		custom
-	}
-
 	[Serializable]
 	public class PointMarker : GMapMarker, ISerializable, IDeserializationCallback
 	{

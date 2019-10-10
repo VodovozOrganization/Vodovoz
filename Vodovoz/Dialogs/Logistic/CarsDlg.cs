@@ -6,12 +6,14 @@ using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSOrmProject;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
+using Vodovoz.Repositories.Permissions;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -60,7 +62,7 @@ namespace Vodovoz
 			yentryFuelCardNumber.Binding.AddBinding(Entity, e => e.FuelCardNumber, w => w.Text).InitializeFromSource();
 			yentryFuelCardNumber.Binding.AddFuncBinding(Entity, e => e.CanEditFuelCardNumber, w => w.Sensitive).InitializeFromSource();
 
-			var filter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			var filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false
@@ -96,6 +98,13 @@ namespace Vodovoz
 			}
 			OnDataentryreferenceDriverChanged(null, null);
 			textDriverInfo.Selectable = true;
+
+			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
+			bool canChangeVolumeWeightConsumption = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_volume_weight_consumption", currentUserId) || Entity.Id == 0 || !Entity.IsCompanyHavings;
+
+			dataspinbutton1.Sensitive = canChangeVolumeWeightConsumption;
+			maxVolumeSpin.Sensitive = canChangeVolumeWeightConsumption;
+			maxWeightSpin.Sensitive = canChangeVolumeWeightConsumption;
 
 			checkIsCompanyHavings.Sensitive = CarTypeIsEditable();
 			checkIsRaskat.Sensitive = CarTypeIsEditable();

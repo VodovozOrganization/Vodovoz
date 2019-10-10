@@ -1,7 +1,6 @@
 ﻿using System;
 using NHibernate;
 using NHibernate.Transform;
-using QS.DomainModel.Config;
 using QS.Services;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Domain.Client;
@@ -14,7 +13,7 @@ namespace Vodovoz.JournalViewModels
 	public class ClientCameFromJournalViewModel : FilterableSingleEntityJournalViewModelBase<ClientCameFrom, ClientCameFromViewModel, ClientCameFromJournalNode, ClientCameFromFilterViewModel>
 	{
 		readonly ICommonServices commonServices;
-		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, IEntityConfigurationProvider entityConfigurationProvider, ICommonServices commonServices) : base(filterViewModel, entityConfigurationProvider, commonServices)
+		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
 		{
 			TabName = "Откуда клиент";
 			SetOrder(x => x.Name);

@@ -16,7 +16,7 @@ using QS.Project.Repositories;
 using QS.Tdi.Gtk;
 using QSOsm.DTO;
 using QSProjectsLib;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Dialogs.Phones;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;

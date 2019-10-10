@@ -12,7 +12,7 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
@@ -67,7 +67,7 @@ namespace Vodovoz
 					if(Client.Id == BaseOrder.Client.Id && DeliveryPoint.Id != BaseOrder.DeliveryPoint.Id) {
 						return ChangedType.DeliveryPoint;
 					}
-					if(Client.Id != BaseOrder.Client.Id && DeliveryPoint.Id != BaseOrder.DeliveryPoint.Id) {
+					if(Client.Id != BaseOrder.Client.Id/* && DeliveryPoint.Id != BaseOrder.DeliveryPoint.Id*/) {
 						return ChangedType.Both;
 					}
 					return ChangedType.None;

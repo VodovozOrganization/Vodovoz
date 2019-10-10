@@ -313,10 +313,11 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			RouteList routeListAlias = null;
 			RouteListItem routeListItemAlias = null;
-			return uow.Session.QueryOver<RouteList>(() => routeListAlias)
-				.Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
-				.Where(() => routeListItemAlias.Order.Id == order.Id)
-				.List().FirstOrDefault();
+			return uow.Session.QueryOver(() => routeListAlias)
+							  .Left.JoinAlias(() => routeListAlias.Addresses, () => routeListItemAlias)
+							  .Where(() => routeListItemAlias.Order.Id == order.Id)
+							  .List()
+							  .FirstOrDefault();
 		}
 
 		public bool RouteListWasChanged(RouteList routeList)

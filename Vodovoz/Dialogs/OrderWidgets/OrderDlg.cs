@@ -34,7 +34,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using QSSupportLib;
-using QSValidation;
+using QS.Validation.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -64,6 +64,8 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using QS.EntityRepositories;
+using Vodovoz.Domain.Sms;
 
 namespace Vodovoz
 {
@@ -277,7 +279,7 @@ namespace Vodovoz
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices)
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
@@ -287,7 +289,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			var filterAuthor = new EmployeeFilterViewModel(ServicesConfig.CommonServices) {
+			var filterAuthor = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices) {
 				ShowFired = false
 			};
 			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
@@ -297,7 +299,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPoint.Sensitive = (Entity.Client != null);
 			referenceDeliveryPoint.CanEditReference = true;
-			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"];
+			chkContractCloser.Sensitive = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_set_contract_closer"];
 
 			buttonViewDocument.Sensitive = false;
 			btnDeleteOrderItem.Sensitive = false;
@@ -372,6 +374,9 @@ namespace Vodovoz
 			enumNeedOfCheque.ItemsEnum = typeof(ChequeResponse);
 			enumNeedOfCheque.Binding.AddBinding(Entity, c => c.NeedCheque, w => w.SelectedItemOrNull).InitializeFromSource();
 
+			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
+			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new IntToStringConverter());
+
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<WaterSalesAgreement>(WaterSalesAgreement_ObjectUpdatedGeneric);
@@ -414,7 +419,7 @@ namespace Vodovoz
 
 		void ControlsActionBottleAccessibility()
 		{
-			bool canAddAction = Entity.CanAddStockBottle() || Entity.IsBottleStock;
+			bool canAddAction = Entity.CanAddStockBottle(OrderSingletonRepository.GetInstance()) || Entity.IsBottleStock;
 			hboxBottlesByStock.Visible = canAddAction;
 			lblActionBtlTareFromClient.Visible = yEntTareActBtlFromClient.Visible = yChkActionBottle.Active;
 			hboxReturnTare.Visible = !canAddAction;
@@ -714,7 +719,14 @@ namespace Vodovoz
 
 			treeItems.Selection.UnselectAll();
 			Save();
+			ProcessSmsNotification();
 			UpdateUIState();
+		}
+
+		private void ProcessSmsNotification()
+		{
+			SmsNotifier smsNotifier = new SmsNotifier(new BaseParametersProvider());
+ 			smsNotifier.NotifyIfNewClient(Entity);
 		}
 
 		private bool ValidateAndFormOrder()
@@ -787,7 +799,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonSelfDeliveryToLoadingClicked(object sender, EventArgs e)
 		{
-			Entity.SelfDeliveryToLoading();
+			Entity.SelfDeliveryToLoading(UserPermissionSingletonRepository.GetInstance());
 			UpdateUIState();
 		}
 
@@ -1952,7 +1964,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (sender, e) => {
-				Entity.SetUndeliveredStatus();
+				Entity.SetUndeliveredStatus(UoW, new BaseParametersProvider());
 				UpdateUIState();
 
 				var routeListItem = routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);

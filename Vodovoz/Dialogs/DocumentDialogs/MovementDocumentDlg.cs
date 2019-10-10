@@ -6,10 +6,11 @@ using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
+using QS.Project.Services;
 using QS.Report;
+using QS.Validation.GtkUI;
 using QSOrmProject;
 using QSReport;
-using QSValidation;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
@@ -61,25 +62,19 @@ namespace Vodovoz
 				return;
 			}
 
-			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.MovementEdit, Entity.FromWarehouse, Entity.ToWarehouse);
-			enumMovementType.Sensitive = repEntryEmployee.IsEditable = referenceWarehouseTo.Sensitive
-				 = yentryrefWagon.IsEditable = textComment.Sensitive = editing;
-			movementdocumentitemsview1.Sensitive = editing;
-
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 
-			referenceCounterpartyFrom.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
+			referenceCounterpartyFrom.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
 
-			referenceCounterpartyTo.RepresentationModel = new ViewModel.CounterpartyVM(new CounterpartyFilter(UoW));
+			referenceCounterpartyTo.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
 			referenceWarehouseTo.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
 			referenceWarehouseTo.Binding.AddBinding(Entity, e => e.ToWarehouse, w => w.Subject).InitializeFromSource();
 			referenceWarehouseFrom.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.MovementEdit);
 			referenceWarehouseFrom.Binding.AddBinding(Entity, e => e.FromWarehouse, w => w.Subject).InitializeFromSource();
-			referenceWarehouseFrom.IsEditable = StoreDocumentHelper.CanEditDocument(WarehousePermissions.MovementEdit, Entity.FromWarehouse);
 			referenceDeliveryPointTo.CanEditReference = false;
 			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPointTo.Binding.AddBinding(Entity, e => e.ToDeliveryPoint, w => w.Subject).InitializeFromSource();
@@ -103,10 +98,35 @@ namespace Vodovoz
 				Entity.Category = MovementDocumentCategory.Transportation;
 			}
 
+			moveingNomenclaturesView.DocumentUoW = UoWGeneric;
+
+			UpdateAcessibility();
+		}
+
+		void UpdateAcessibility()
+		{
+			bool canEditOldDocument = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission(
+				"can_edit_delivered_goods_transfer_documents",
+				ServicesConfig.CommonServices.UserService.CurrentUserId
+			);
+			if(Entity.TransportationStatus == TransportationStatus.Delivered && !canEditOldDocument) {
+				HasChanges = false;
+				tableCommon.Sensitive = false;
+				hbxSenderAddressee.Sensitive = false;
+				moveingNomenclaturesView.Sensitive = false;
+				buttonSave.Sensitive = false;
+				return;
+			}
+
+			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.MovementEdit, Entity.FromWarehouse, Entity.ToWarehouse);
+			enumMovementType.Sensitive = repEntryEmployee.IsEditable = referenceWarehouseTo.Sensitive
+				 = yentryrefWagon.IsEditable = textComment.Sensitive = editing;
+			moveingNomenclaturesView.Sensitive = editing;
+
+			referenceWarehouseFrom.IsEditable = StoreDocumentHelper.CanEditDocument(WarehousePermissions.MovementEdit, Entity.FromWarehouse);
+
 			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged
 				&& CurrentPermissions.Warehouse[WarehousePermissions.MovementEdit, Entity.ToWarehouse];
-
-			movementdocumentitemsview1.DocumentUoW = UoWGeneric;
 		}
 
 		public override bool Save()
@@ -214,4 +234,3 @@ namespace Vodovoz
 		public MovementDocumentRdl(MovementDocument document) => Document = document;
 	}
 }
-

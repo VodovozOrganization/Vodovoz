@@ -4,41 +4,19 @@ namespace Vodovoz.Views.WageCalculation
 {
 	public partial class WageParameterView
 	{
-		private global::Gtk.VBox vbox2;
+		private global::Gtk.VBox vboxDialog;
 
 		private global::Gtk.HBox hboxDialogButtons;
 
-		private global::Gamma.GtkWidgets.yButton btnSave;
+		private global::Gamma.GtkWidgets.yButton buttonSave;
 
-		private global::Gamma.GtkWidgets.yButton btnCancel;
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
 
-		private global::Gtk.VBox vbox3;
+		private global::Gtk.HBox hboxWageType;
 
-		private global::Gtk.HBox hbox1;
+		private global::Gamma.GtkWidgets.yLabel ylabelWageType;
 
-		private global::QS.Widgets.GtkUI.SpecialListComboBox cmbWageCalcType;
-
-		private global::Gamma.GtkWidgets.yLabel lblEmpty;
-
-		private global::Gtk.HBox hbox2;
-
-		private global::Gamma.GtkWidgets.ySpinButton spinWageCalcRate;
-
-		private global::Gamma.GtkWidgets.yLabel lblUnit;
-
-		private global::Gtk.HBox hbox3;
-
-		private global::Gamma.GtkWidgets.ySpinButton spinQuantityOfFullBottlesToSell;
-
-		private global::Gamma.GtkWidgets.yLabel lblPlanFullUnit;
-
-		private global::Gtk.HBox hbox4;
-
-		private global::Gamma.GtkWidgets.ySpinButton spinQuantityOfEmptyBottlesToTake;
-
-		private global::Gamma.GtkWidgets.yLabel lblPlanEmptyUnit;
-
-		private global::Gamma.GtkWidgets.yCheckButton chkIsArchive;
+		private global::Gamma.Widgets.yEnumComboBox comboWageType;
 
 		protected virtual void Build()
 		{
@@ -47,196 +25,76 @@ namespace Vodovoz.Views.WageCalculation
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.WageCalculation.WageParameterView";
 			// Container child Vodovoz.Views.WageCalculation.WageParameterView.Gtk.Container+ContainerChild
-			this.vbox2 = new global::Gtk.VBox();
-			this.vbox2.Name = "vbox2";
-			this.vbox2.Spacing = 6;
-			// Container child vbox2.Gtk.Box+BoxChild
+			this.vboxDialog = new global::Gtk.VBox();
+			this.vboxDialog.Name = "vboxDialog";
+			this.vboxDialog.Spacing = 6;
+			// Container child vboxDialog.Gtk.Box+BoxChild
 			this.hboxDialogButtons = new global::Gtk.HBox();
 			this.hboxDialogButtons.Name = "hboxDialogButtons";
 			this.hboxDialogButtons.Spacing = 6;
 			// Container child hboxDialogButtons.Gtk.Box+BoxChild
-			this.btnSave = new global::Gamma.GtkWidgets.yButton();
-			this.btnSave.CanFocus = true;
-			this.btnSave.Name = "btnSave";
-			this.btnSave.UseUnderline = true;
-			this.btnSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
+			this.buttonSave.CanFocus = true;
+			this.buttonSave.Name = "buttonSave";
+			this.buttonSave.UseUnderline = true;
+			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
 			global::Gtk.Image w1 = new global::Gtk.Image();
 			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
-			this.btnSave.Image = w1;
-			this.hboxDialogButtons.Add(this.btnSave);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.btnSave]));
+			this.buttonSave.Image = w1;
+			this.hboxDialogButtons.Add(this.buttonSave);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.buttonSave]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hboxDialogButtons.Gtk.Box+BoxChild
-			this.btnCancel = new global::Gamma.GtkWidgets.yButton();
-			this.btnCancel.CanFocus = true;
-			this.btnCancel.Name = "btnCancel";
-			this.btnCancel.UseUnderline = true;
-			this.btnCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
+			this.buttonCancel.CanFocus = true;
+			this.buttonCancel.Name = "buttonCancel";
+			this.buttonCancel.UseUnderline = true;
+			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
 			global::Gtk.Image w3 = new global::Gtk.Image();
 			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
-			this.btnCancel.Image = w3;
-			this.hboxDialogButtons.Add(this.btnCancel);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.btnCancel]));
+			this.buttonCancel.Image = w3;
+			this.hboxDialogButtons.Add(this.buttonCancel);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.buttonCancel]));
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
-			this.vbox2.Add(this.hboxDialogButtons);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxDialogButtons]));
+			this.vboxDialog.Add(this.hboxDialogButtons);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hboxDialogButtons]));
 			w5.Position = 0;
 			w5.Expand = false;
-			// Container child vbox2.Gtk.Box+BoxChild
-			this.vbox3 = new global::Gtk.VBox();
-			this.vbox3.Name = "vbox3";
-			this.vbox3.Spacing = 6;
-			// Container child vbox3.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.cmbWageCalcType = new global::QS.Widgets.GtkUI.SpecialListComboBox();
-			this.cmbWageCalcType.Name = "cmbWageCalcType";
-			this.cmbWageCalcType.AddIfNotExist = false;
-			this.cmbWageCalcType.DefaultFirst = false;
-			this.cmbWageCalcType.ShowSpecialStateAll = false;
-			this.cmbWageCalcType.ShowSpecialStateNot = false;
-			this.hbox1.Add(this.cmbWageCalcType);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.cmbWageCalcType]));
+			w5.Fill = false;
+			// Container child vboxDialog.Gtk.Box+BoxChild
+			this.hboxWageType = new global::Gtk.HBox();
+			this.hboxWageType.Name = "hboxWageType";
+			this.hboxWageType.Spacing = 6;
+			// Container child hboxWageType.Gtk.Box+BoxChild
+			this.ylabelWageType = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelWageType.Name = "ylabelWageType";
+			this.ylabelWageType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип зарплаты:");
+			this.hboxWageType.Add(this.ylabelWageType);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxWageType[this.ylabelWageType]));
 			w6.Position = 0;
 			w6.Expand = false;
 			w6.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.lblEmpty = new global::Gamma.GtkWidgets.yLabel();
-			this.lblEmpty.Name = "lblEmpty";
-			this.lblEmpty.Xalign = 0F;
-			this.hbox1.Add(this.lblEmpty);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lblEmpty]));
+			// Container child hboxWageType.Gtk.Box+BoxChild
+			this.comboWageType = new global::Gamma.Widgets.yEnumComboBox();
+			this.comboWageType.Name = "comboWageType";
+			this.comboWageType.ShowSpecialStateAll = false;
+			this.comboWageType.ShowSpecialStateNot = false;
+			this.comboWageType.UseShortTitle = false;
+			this.comboWageType.DefaultFirst = false;
+			this.hboxWageType.Add(this.comboWageType);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxWageType[this.comboWageType]));
 			w7.Position = 1;
 			w7.Expand = false;
-			w7.Fill = false;
-			this.vbox3.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox1]));
-			w8.Position = 0;
+			this.vboxDialog.Add(this.hboxWageType);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hboxWageType]));
+			w8.Position = 1;
 			w8.Expand = false;
 			w8.Fill = false;
-			// Container child vbox3.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.spinWageCalcRate = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
-			this.spinWageCalcRate.CanFocus = true;
-			this.spinWageCalcRate.Name = "spinWageCalcRate";
-			this.spinWageCalcRate.Adjustment.PageIncrement = 10D;
-			this.spinWageCalcRate.ClimbRate = 1D;
-			this.spinWageCalcRate.Numeric = true;
-			this.spinWageCalcRate.ValueAsDecimal = 0m;
-			this.spinWageCalcRate.ValueAsInt = 0;
-			this.hbox2.Add(this.spinWageCalcRate);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.spinWageCalcRate]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.lblUnit = new global::Gamma.GtkWidgets.yLabel();
-			this.lblUnit.Name = "lblUnit";
-			this.lblUnit.Xalign = 0F;
-			this.lblUnit.LabelProp = global::Mono.Unix.Catalog.GetString("%/Р.");
-			this.hbox2.Add(this.lblUnit);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblUnit]));
-			w10.Position = 1;
-			w10.Expand = false;
-			w10.Fill = false;
-			this.vbox3.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
-			// Container child vbox3.Gtk.Box+BoxChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.spinQuantityOfFullBottlesToSell = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
-			this.spinQuantityOfFullBottlesToSell.CanFocus = true;
-			this.spinQuantityOfFullBottlesToSell.Name = "spinQuantityOfFullBottlesToSell";
-			this.spinQuantityOfFullBottlesToSell.Adjustment.PageIncrement = 10D;
-			this.spinQuantityOfFullBottlesToSell.ClimbRate = 1D;
-			this.spinQuantityOfFullBottlesToSell.Numeric = true;
-			this.spinQuantityOfFullBottlesToSell.ValueAsDecimal = 0m;
-			this.spinQuantityOfFullBottlesToSell.ValueAsInt = 0;
-			this.hbox3.Add(this.spinQuantityOfFullBottlesToSell);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.spinQuantityOfFullBottlesToSell]));
-			w12.Position = 0;
-			w12.Expand = false;
-			w12.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.lblPlanFullUnit = new global::Gamma.GtkWidgets.yLabel();
-			this.lblPlanFullUnit.Name = "lblPlanFullUnit";
-			this.lblPlanFullUnit.Xalign = 0F;
-			this.lblPlanFullUnit.LabelProp = global::Mono.Unix.Catalog.GetString("полных бут. продать");
-			this.hbox3.Add(this.lblPlanFullUnit);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.lblPlanFullUnit]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
-			this.vbox3.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox3]));
-			w14.Position = 2;
-			w14.Expand = false;
-			w14.Fill = false;
-			// Container child vbox3.Gtk.Box+BoxChild
-			this.hbox4 = new global::Gtk.HBox();
-			this.hbox4.Name = "hbox4";
-			this.hbox4.Spacing = 6;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.spinQuantityOfEmptyBottlesToTake = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
-			this.spinQuantityOfEmptyBottlesToTake.CanFocus = true;
-			this.spinQuantityOfEmptyBottlesToTake.Name = "spinQuantityOfEmptyBottlesToTake";
-			this.spinQuantityOfEmptyBottlesToTake.Adjustment.PageIncrement = 10D;
-			this.spinQuantityOfEmptyBottlesToTake.ClimbRate = 1D;
-			this.spinQuantityOfEmptyBottlesToTake.Numeric = true;
-			this.spinQuantityOfEmptyBottlesToTake.ValueAsDecimal = 0m;
-			this.spinQuantityOfEmptyBottlesToTake.ValueAsInt = 0;
-			this.hbox4.Add(this.spinQuantityOfEmptyBottlesToTake);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.spinQuantityOfEmptyBottlesToTake]));
-			w15.Position = 0;
-			w15.Expand = false;
-			w15.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.lblPlanEmptyUnit = new global::Gamma.GtkWidgets.yLabel();
-			this.lblPlanEmptyUnit.Name = "lblPlanEmptyUnit";
-			this.lblPlanEmptyUnit.Xalign = 0F;
-			this.lblPlanEmptyUnit.LabelProp = global::Mono.Unix.Catalog.GetString("пустых бут. забрать");
-			this.hbox4.Add(this.lblPlanEmptyUnit);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.lblPlanEmptyUnit]));
-			w16.Position = 1;
-			w16.Expand = false;
-			w16.Fill = false;
-			this.vbox3.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox4]));
-			w17.Position = 3;
-			w17.Expand = false;
-			w17.Fill = false;
-			// Container child vbox3.Gtk.Box+BoxChild
-			this.chkIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
-			this.chkIsArchive.CanFocus = true;
-			this.chkIsArchive.Name = "chkIsArchive";
-			this.chkIsArchive.Label = global::Mono.Unix.Catalog.GetString("В архиве");
-			this.chkIsArchive.DrawIndicator = true;
-			this.chkIsArchive.UseUnderline = true;
-			this.vbox3.Add(this.chkIsArchive);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.chkIsArchive]));
-			w18.Position = 4;
-			w18.Expand = false;
-			w18.Fill = false;
-			this.vbox2.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vbox3]));
-			w19.Position = 1;
-			w19.Expand = false;
-			w19.Fill = false;
-			this.Add(this.vbox2);
+			this.Add(this.vboxDialog);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

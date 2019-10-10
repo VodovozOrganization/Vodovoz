@@ -411,7 +411,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -421,7 +421,16 @@
 	sold.full_sold AS full_sold,
 	sold.empty_returned AS empty_returned
 FROM employees e
-LEFT JOIN wage_parameters w ON w.id = wage_calculation_parameter_id
+JOIN (
+	SELECT
+		sales_plans.empty_bottles_to_take_salesplan_wage AS empty_quantity,
+		sales_plans.full_bottles_to_sell_salesplan_wage AS full_quantity,
+		wage_parameters.employee_id
+	FROM wage_parameters
+	LEFT JOIN sales_plans ON sales_plans.id = wage_parameters.sales_plan_id
+	WHERE wage_parameters.wage_type = 'SalesPlan'
+		AND (wage_parameters.end_date IS NULL OR wage_parameters.end_date &gt;= CURDATE())
+) w ON w.employee_id = e.id
 LEFT JOIN (
 	SELECT
 		o.id AS order_id,
@@ -446,20 +455,20 @@ LEFT JOIN (
 		LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
 		WHERE o.create_date BETWEEN @start_date AND @end_date
 			AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
+			AND !o.is_contract_closer
 			AND n.category = 'water' AND n.tare_volume = 'Vol19L'
 		GROUP BY o.id
 	) AS items ON o.id = items.order_id
 	LEFT JOIN route_list_addresses a ON a.order_id = o.id
 	WHERE o.create_date BETWEEN @start_date AND @end_date
 		AND o.order_status NOT IN('Canceled', 'DeliveryCanceled', 'NotDelivered')
+		AND !o.is_contract_closer
 		AND (items.nom_id IS NOT NULL OR a.bottles_returned &gt; 0 OR o.bottles_return &gt; 0)
 		AND !(a.status &lt;=&gt; 'Transfered')
 	GROUP BY o.author_employee_id
 ) AS sold ON sold.employee_id = e.id
-WHERE w.wage_calc_type = 'salesPlan'
-	AND (sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL)
-;
-</CommandText>
+WHERE sold.full_sold IS NOT NULL OR sold.empty_returned IS NOT NULL
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -469,7 +478,7 @@ WHERE w.wage_calc_type = 'salesPlan'
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>

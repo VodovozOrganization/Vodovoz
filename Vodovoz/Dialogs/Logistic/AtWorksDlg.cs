@@ -136,10 +136,10 @@ namespace Vodovoz.Dialogs.Logistic
 			UoW.Session.Clear();
 
 			logger.Info("Загружаем экспедиторов на {0:d}...", DialogAtDate);
-			ForwardersAtDay = AtWorkRepository.GetForwardersAtDay(UoW, DialogAtDate);
+			ForwardersAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetForwardersAtDay(UoW, DialogAtDate);
 
 			logger.Info("Загружаем водителей на {0:d}...", DialogAtDate);
-			DriversAtDay = AtWorkRepository.GetDriversAtDay(UoW, DialogAtDate);
+			DriversAtDay = new EntityRepositories.Logistic.AtWorkRepository().GetDriversAtDay(UoW, DialogAtDate);
 
 			logger.Info("Ок");
 		}

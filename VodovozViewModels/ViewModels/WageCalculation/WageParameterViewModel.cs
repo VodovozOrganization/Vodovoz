@@ -1,104 +1,158 @@
-﻿using System.Linq;
+﻿using System;
 using QS.Project.Domain;
 using QS.Services;
-using QS.Utilities;
 using QS.ViewModels;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
+using QS.Dialog;
+using QS.DomainModel.UoW;
+using Gamma.Utilities;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
-	public class WageParameterViewModel : EntityTabViewModelBase<WageParameter>
+	public class WageParameterViewModel : TabViewModelBase, ISingleUoWDialog
 	{
-		public WageParameterViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		private readonly WageParameterTargets wageParameterTarget;
+		private readonly ICommonServices commonServices;
+
+		public IUnitOfWork UoW { get; private set; }
+		public event EventHandler<WageParameter> OnWageParameterCreated;
+		private readonly bool isNewEntity;
+
+		public WageParameterViewModel(IUnitOfWork uow, WageParameterTargets wageParameterTarget, ICommonServices commonServices) : base(commonServices.InteractiveService)
 		{
-			ConfigureEntityPropertyChanges();
-			SetVisibility();
+			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
+			this.wageParameterTarget = wageParameterTarget;
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			isNewEntity = true;
+			TabName = "Новый расчет зарплаты";
+			CreateWageParameter();
 		}
 
-		bool isWageCalcRateVisible;
-		public virtual bool IsWageCalcRateVisible {
-			get => isWageCalcRateVisible;
-			set => SetField(ref isWageCalcRateVisible, value);
-		}
-
-		bool areQuantitiesForSalesPlanVisible;
-		public virtual bool AreQuantitiesForSalesPlanVisible {
-			get => areQuantitiesForSalesPlanVisible;
-			set => SetField(ref areQuantitiesForSalesPlanVisible, value);
-		}
-
-		public WageCalculationType[] AvailableWageCalcTypes => WageParameter.WageCalculationTypesForEmployeeCategory();
-
-		public double WageCalcRateMaxValue => Entity.WageCalcType == WageCalculationType.percentage ? 100 : 100000;
-		public string WageCalcRateUnit => Entity.WageCalcType == WageCalculationType.percentage ? "%" : CurrencyWorks.CurrencyShortName;
-
-		void SetVisibility()
+		public WageParameterViewModel(WageParameter wageParameter, IUnitOfWork uow, ICommonServices commonServices) : base(commonServices.InteractiveService)
 		{
-			IsWageCalcRateVisible = WageParameter.WageCalculationTypesWithRates.Contains(Entity.WageCalcType);
-			AreQuantitiesForSalesPlanVisible = Entity.WageCalcType == WageCalculationType.salesPlan;
+			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			isNewEntity = false;
+			TabName = wageParameter.Title;
+			WageParameter = wageParameter ?? throw new ArgumentNullException(nameof(wageParameter));
+			WageParameterType = WageParameter.WageParameterType;
 		}
 
-		void FixValues()
+		public bool CanEdit => isNewEntity;
+
+		private WageParameter wageParameter;
+		public virtual WageParameter WageParameter {
+			get => wageParameter;
+			set => SetField(ref wageParameter, value, () => WageParameter);
+		}
+
+		private WageParameterTypes wageParameterType;
+		public virtual WageParameterTypes WageParameterType {
+			get => wageParameterType;
+			set {
+				if(SetField(ref wageParameterType, value, () => WageParameterType)) {
+					UpdateWageParameter();
+				}
+			}
+		}
+
+		private WidgetViewModelBase typedWageParameterViewModel;
+		public virtual WidgetViewModelBase TypedWageParameterViewModel {
+			get => typedWageParameterViewModel;
+			set => SetField(ref typedWageParameterViewModel, value, () => TypedWageParameterViewModel);
+		}
+
+		private void UpdateWageParameter()
 		{
-			switch(Entity.WageCalcType) {
-				case WageCalculationType.percentage:
-				case WageCalculationType.fixedRoute:
-				case WageCalculationType.fixedDay:
-					Entity.QuantityOfFullBottlesToSell = 0;
-					Entity.QuantityOfEmptyBottlesToTake = 0;
+			if(isNewEntity) {
+				CreateWageParameter();
+			}
+			CreateWageParameterViewModel();
+		}
+
+		private void CreateWageParameterViewModel()
+		{
+			(TypedWageParameterViewModel as IDisposable)?.Dispose();
+
+			switch(WageParameterType) {
+				case WageParameterTypes.Fixed:
+					TypedWageParameterViewModel = new FixedWageParameterViewModel((FixedWageParameter)WageParameter, CanEdit, commonServices);
 					break;
-				case WageCalculationType.salesPlan:
-					Entity.WageCalcRate = 0;
+				case WageParameterTypes.Percent:
+					TypedWageParameterViewModel = new PercentWageParameterViewModel((PercentWageParameter)WageParameter, CanEdit, commonServices);
 					break;
+				case WageParameterTypes.RatesLevel:
+					TypedWageParameterViewModel = new RatesLevelWageParameterViewModel(
+						UoW,
+						(RatesLevelWageParameter)WageParameter,
+						CanEdit,
+						commonServices
+					);
+					break;
+				case WageParameterTypes.SalesPlan:
+					TypedWageParameterViewModel = new SalesPlanWageParameterViewModel(
+						UoW,
+						(SalesPlanWageParameter)WageParameter,
+						CanEdit,
+						commonServices
+					);
+					break;
+				case WageParameterTypes.OldRates:
+					TypedWageParameterViewModel = new OldRatesWageParameterViewModel((OldRatesWageParameter)WageParameter, commonServices);
+					break;
+				case WageParameterTypes.Manual:
+					TypedWageParameterViewModel = null;
+					break;				
 				default:
-					Entity.WageCalcRate = 0;
-					Entity.QuantityOfFullBottlesToSell = 0;
-					Entity.QuantityOfEmptyBottlesToTake = 0;
 					break;
 			}
 		}
 
-		//decimal wageCalcRate;
-		//public virtual decimal WageCalcRate {
-		//	get => Entity.WageCalcRate;
-		//	set {
-		//		if(Entity.WageCalcType == WageCalculationType.percentage)
-		//			value = value > 100 ? 100 : value;
-		//		if(SetField(ref wageCalcRate, value))
-		//			Entity.WageCalcRate = value;
-		//	}
-		//}
-
-		void ConfigureEntityPropertyChanges()
+		private void CreateWageParameter()
 		{
-			OnEntityPropertyChanged(
-				SetVisibility,
-				e => e.WageCalcType
-			);
+			if(!isNewEntity || (WageParameter != null && WageParameterType == WageParameter.WageParameterType)) {
+				return;
+			}
 
-			OnEntityPropertyChanged(
-				FixValues,
-				e => e.WageCalcType
-			);
+			switch(WageParameterType) {
+				case WageParameterTypes.Fixed:
+					WageParameter = new FixedWageParameter();
+					break;
+				case WageParameterTypes.Percent:
+					WageParameter = new PercentWageParameter();
+					break;
+				case WageParameterTypes.RatesLevel:
+					WageParameter = new RatesLevelWageParameter();
+					break;
+				case WageParameterTypes.SalesPlan:
+					WageParameter = new SalesPlanWageParameter();
+					break;
+				case WageParameterTypes.Manual:
+					WageParameter = new ManualWageParameter();
+					break;
+				case WageParameterTypes.OldRates:
+					WageParameter = new OldRatesWageParameter();
+					break;
+				default:
+					throw new NotImplementedException($"Не описано какой параметер должен создаваться для типа {WageParameterType.GetEnumTitle()}");
+			}
 
-			OnEntityPropertyChanged(
-				() => Entity.Comment = Entity.Title,
-				e => e.WageCalcType,
-				e => e.WageCalcRate,
-				e => e.QuantityOfFullBottlesToSell,
-				e => e.QuantityOfEmptyBottlesToTake
-			);
+			WageParameter.WageParameterTarget = wageParameterTarget;
+		}
 
-			SetPropertyChangeRelation(
-				e => e.WageCalcType,
-				() => WageCalcRateMaxValue
-			);
+		public void Save()
+		{
+			if(WageParameter == null || !isNewEntity) {
+				return;
+			}
 
-			SetPropertyChangeRelation(
-				e => e.WageCalcType,
-				() => WageCalcRateUnit
-			);
+			var validator = commonServices.ValidationService.GetValidator();
+			if(!validator.Validate(WageParameter)) {
+				return;
+			}
+
+			OnWageParameterCreated?.Invoke(this, WageParameter);
+			Close(false);
 		}
 	}
 }

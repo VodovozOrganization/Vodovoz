@@ -62,6 +62,10 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.Button buttonDeleteSchedule;
 
+		private global::Gtk.VBox vbox3;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox cmbWageDistrict;
+
 		private global::Gtk.VBox vboxGeographicGroups;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
@@ -354,6 +358,22 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vboxSchedules]));
 			w25.Position = 0;
 			// Container child hbox1.Gtk.Box+BoxChild
+			this.vbox3 = new global::Gtk.VBox();
+			this.vbox3.Name = "vbox3";
+			this.vbox3.Spacing = 6;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.cmbWageDistrict = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.cmbWageDistrict.Name = "cmbWageDistrict";
+			this.cmbWageDistrict.AddIfNotExist = false;
+			this.cmbWageDistrict.DefaultFirst = false;
+			this.cmbWageDistrict.ShowSpecialStateAll = false;
+			this.cmbWageDistrict.ShowSpecialStateNot = true;
+			this.cmbWageDistrict.NameForSpecialStateNot = "Зарплатный район...";
+			this.vbox3.Add(this.cmbWageDistrict);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.cmbWageDistrict]));
+			w26.Position = 0;
+			w26.Expand = false;
+			// Container child vbox3.Gtk.Box+BoxChild
 			this.vboxGeographicGroups = new global::Gtk.VBox();
 			this.vboxGeographicGroups.Name = "vboxGeographicGroups";
 			this.vboxGeographicGroups.Spacing = 6;
@@ -368,8 +388,8 @@ namespace Vodovoz.Dialogs.Logistic
 			this.yTreeGeographicGroups.EnableSearch = false;
 			this.GtkScrolledWindow1.Add(this.yTreeGeographicGroups);
 			this.vboxGeographicGroups.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxGeographicGroups[this.GtkScrolledWindow1]));
-			w27.Position = 0;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxGeographicGroups[this.GtkScrolledWindow1]));
+			w28.Position = 0;
 			// Container child vboxGeographicGroups.Gtk.Box+BoxChild
 			this.hbuttonbox2 = new global::Gtk.HButtonBox();
 			this.hbuttonbox2.Name = "hbuttonbox2";
@@ -380,9 +400,9 @@ namespace Vodovoz.Dialogs.Logistic
 			this.btnAddGeographicGroup.UseUnderline = true;
 			this.btnAddGeographicGroup.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			this.hbuttonbox2.Add(this.btnAddGeographicGroup);
-			global::Gtk.ButtonBox.ButtonBoxChild w28 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnAddGeographicGroup]));
-			w28.Expand = false;
-			w28.Fill = false;
+			global::Gtk.ButtonBox.ButtonBoxChild w29 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnAddGeographicGroup]));
+			w29.Expand = false;
+			w29.Fill = false;
 			// Container child hbuttonbox2.Gtk.ButtonBox+ButtonBoxChild
 			this.btnRemoveGeographicGroup = new global::Gtk.Button();
 			this.btnRemoveGeographicGroup.CanFocus = true;
@@ -390,27 +410,32 @@ namespace Vodovoz.Dialogs.Logistic
 			this.btnRemoveGeographicGroup.UseUnderline = true;
 			this.btnRemoveGeographicGroup.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.hbuttonbox2.Add(this.btnRemoveGeographicGroup);
-			global::Gtk.ButtonBox.ButtonBoxChild w29 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnRemoveGeographicGroup]));
-			w29.Position = 1;
-			w29.Expand = false;
-			w29.Fill = false;
-			this.vboxGeographicGroups.Add(this.hbuttonbox2);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxGeographicGroups[this.hbuttonbox2]));
+			global::Gtk.ButtonBox.ButtonBoxChild w30 = ((global::Gtk.ButtonBox.ButtonBoxChild)(this.hbuttonbox2[this.btnRemoveGeographicGroup]));
 			w30.Position = 1;
 			w30.Expand = false;
 			w30.Fill = false;
-			this.hbox1.Add(this.vboxGeographicGroups);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vboxGeographicGroups]));
+			this.vboxGeographicGroups.Add(this.hbuttonbox2);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxGeographicGroups[this.hbuttonbox2]));
 			w31.Position = 1;
-			this.vbox5.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox1]));
+			w31.Expand = false;
+			w31.Fill = false;
+			this.vbox3.Add(this.vboxGeographicGroups);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.vboxGeographicGroups]));
 			w32.Position = 1;
-			w32.Expand = false;
-			w32.Fill = false;
-			this.hbox5.Add(this.vbox5);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox5]));
-			w33.Position = 0;
+			this.hbox1.Add(this.vbox3);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox3]));
+			w33.Position = 1;
 			w33.Expand = false;
+			w33.Fill = false;
+			this.vbox5.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox1]));
+			w34.Position = 1;
+			w34.Expand = false;
+			w34.Fill = false;
+			this.hbox5.Add(this.vbox5);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox5]));
+			w35.Position = 0;
+			w35.Expand = false;
 			// Container child hbox5.Gtk.Box+BoxChild
 			this.vbox4 = new global::Gtk.VBox();
 			this.vbox4.Name = "vbox4";
@@ -432,8 +457,8 @@ namespace Vodovoz.Dialogs.Logistic
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
 			this.vbox4.Add(this.gmapWidget);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.gmapWidget]));
-			w34.Position = 0;
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.gmapWidget]));
+			w36.Position = 0;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.hbox6 = new global::Gtk.HBox();
 			this.hbox6.Name = "hbox6";
@@ -445,10 +470,10 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonCreateBorder.UseUnderline = true;
 			this.buttonCreateBorder.Label = global::Mono.Unix.Catalog.GetString("Создать границу");
 			this.hbox6.Add(this.buttonCreateBorder);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonCreateBorder]));
-			w35.Position = 0;
-			w35.Expand = false;
-			w35.Fill = false;
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonCreateBorder]));
+			w37.Position = 0;
+			w37.Expand = false;
+			w37.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonRemoveBorder = new global::Gtk.Button();
 			this.buttonRemoveBorder.CanFocus = true;
@@ -456,10 +481,10 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonRemoveBorder.UseUnderline = true;
 			this.buttonRemoveBorder.Label = global::Mono.Unix.Catalog.GetString("Удалить границу");
 			this.hbox6.Add(this.buttonRemoveBorder);
-			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveBorder]));
-			w36.Position = 1;
-			w36.Expand = false;
-			w36.Fill = false;
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveBorder]));
+			w38.Position = 1;
+			w38.Expand = false;
+			w38.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonAddVertex = new global::Gtk.Button();
 			this.buttonAddVertex.CanFocus = true;
@@ -467,10 +492,10 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonAddVertex.UseUnderline = true;
 			this.buttonAddVertex.Label = global::Mono.Unix.Catalog.GetString("Добавить вершину");
 			this.hbox6.Add(this.buttonAddVertex);
-			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAddVertex]));
-			w37.Position = 2;
-			w37.Expand = false;
-			w37.Fill = false;
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAddVertex]));
+			w39.Position = 2;
+			w39.Expand = false;
+			w39.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonMoveVertex = new global::Gtk.Button();
 			this.buttonMoveVertex.CanFocus = true;
@@ -478,10 +503,10 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonMoveVertex.UseUnderline = true;
 			this.buttonMoveVertex.Label = global::Mono.Unix.Catalog.GetString("Переместить вершину");
 			this.hbox6.Add(this.buttonMoveVertex);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonMoveVertex]));
-			w38.Position = 3;
-			w38.Expand = false;
-			w38.Fill = false;
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonMoveVertex]));
+			w40.Position = 3;
+			w40.Expand = false;
+			w40.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonRemoveVertex = new global::Gtk.Button();
 			this.buttonRemoveVertex.CanFocus = true;
@@ -489,10 +514,10 @@ namespace Vodovoz.Dialogs.Logistic
 			this.buttonRemoveVertex.UseUnderline = true;
 			this.buttonRemoveVertex.Label = global::Mono.Unix.Catalog.GetString("Удалить вершину");
 			this.hbox6.Add(this.buttonRemoveVertex);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveVertex]));
-			w39.Position = 4;
-			w39.Expand = false;
-			w39.Fill = false;
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonRemoveVertex]));
+			w41.Position = 4;
+			w41.Expand = false;
+			w41.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.yenumcomboMapType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboMapType.Name = "yenumcomboMapType";
@@ -501,22 +526,22 @@ namespace Vodovoz.Dialogs.Logistic
 			this.yenumcomboMapType.UseShortTitle = false;
 			this.yenumcomboMapType.DefaultFirst = true;
 			this.hbox6.Add(this.yenumcomboMapType);
-			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yenumcomboMapType]));
-			w40.PackType = ((global::Gtk.PackType)(1));
-			w40.Position = 5;
-			w40.Expand = false;
-			w40.Fill = false;
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.yenumcomboMapType]));
+			w42.PackType = ((global::Gtk.PackType)(1));
+			w42.Position = 5;
+			w42.Expand = false;
+			w42.Fill = false;
 			this.vbox4.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
-			w41.Position = 1;
-			w41.Expand = false;
-			w41.Fill = false;
-			this.hbox5.Add(this.vbox4);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox4]));
-			w42.Position = 1;
-			this.vbox1.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox6]));
 			w43.Position = 1;
+			w43.Expand = false;
+			w43.Fill = false;
+			this.hbox5.Add(this.vbox4);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.vbox4]));
+			w44.Position = 1;
+			this.vbox1.Add(this.hbox5);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
+			w45.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

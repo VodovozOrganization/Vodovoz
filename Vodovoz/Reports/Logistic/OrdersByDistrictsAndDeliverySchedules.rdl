@@ -13,272 +13,78 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-	IFNULL(d_name, '{район не размечен}') AS d_name,
-	GROUP_CONCAT(
-		IF(
-			delivery_schedule = 'before_12',
-			CONCAT(o_cnt, ' зак./', btls_cnt, ' бут.'),
-			NULL
-		)
-	) AS before_12,
-	SUM(
-		IF(
-			delivery_schedule = 'before_12',
-			o_cnt,
-			NULL
-		)
-	) AS orders_before_12,
-	SUM(
-		IF(
-			delivery_schedule = 'before_12',
-			btls_cnt,
-			NULL
-		)
-	) AS bottles_before_12,
-	GROUP_CONCAT(
-		IF(
-			delivery_schedule = 'before_15',
-			CONCAT(o_cnt, ' зак./', btls_cnt, ' бут.'),
-			NULL
-		)
-	) AS before_15,
-	SUM(
-		IF(
-			delivery_schedule = 'before_15',
-			o_cnt,
-			NULL
-		)
-	) AS orders_before_15,
-	SUM(
-		IF(
-			delivery_schedule = 'before_15',
-			btls_cnt,
-			NULL
-		)
-	) AS bottles_before_15,
-	GROUP_CONCAT(
-		IF(
-			delivery_schedule = 'before_18',
-			CONCAT(o_cnt, ' зак./', btls_cnt, ' бут.'),
-			NULL
-		)
-	) AS before_18,
-	SUM(
-		IF(
-			delivery_schedule = 'before_18',
-			o_cnt,
-			NULL
-		)
-	) AS orders_before_18,
-	SUM(
-		IF(
-			delivery_schedule = 'before_18',
-			btls_cnt,
-			NULL
-		)
-	) AS bottles_before_18,
-	GROUP_CONCAT(
-		IF(
-			delivery_schedule = 'after_18',
-			CONCAT(o_cnt, ' зак./', btls_cnt, ' бут.'),
-			NULL
-		)
-	) AS after_18,
-	SUM(
-		IF(
-			delivery_schedule = 'after_18',
-			o_cnt,
-			NULL
-		)
-	) AS orders_after_18,
-	SUM(
-		IF(
-			delivery_schedule = 'after_18',
-			btls_cnt,
-			NULL
-		)
-	) AS bottles_after_18,
-	GROUP_CONCAT(
-		IF(
-			delivery_schedule = 'other',
-			CONCAT(o_cnt, ' зак./', btls_cnt, ' бут.'),
-			NULL
-		)
-	) AS other,
-	SUM(
-		IF(
-			delivery_schedule = 'other', o_cnt, NULL)
-	) AS orders_other,
-	SUM(
-		IF(
-			delivery_schedule = 'other', btls_cnt, NULL)
-	) AS bottles_other,
-	GROUP_CONCAT(
-		IF(
-			delivery_schedule = 'self_delivery',
-			CONCAT(o_cnt, ' зак./', btls_cnt, ' бут.'),
-			NULL
-		)
-	) AS self_delivery,
-	SUM(
-		IF(
-			delivery_schedule = 'self_delivery',
-			o_cnt,
-			NULL
-		)
-	) AS orders_self_delivery,
-	SUM(
-		IF(
-			delivery_schedule = 'self_delivery',
-			btls_cnt,
-			NULL
-		)
-	) AS bottles_self_delivery,
-	CONCAT(
-		CAST(
-			SUM(
-				IF(
-					delivery_schedule != 'self_delivery',
-					o_cnt,
-					0
-				)
-			) AS CHAR
-		),
-		' зак./',
-		CAST(
-			SUM(
-				IF(
-					delivery_schedule != 'self_delivery',
-					btls_cnt,
-					0
-				)
-			) AS CHAR
-		),
-		' бут.'
-	) AS total_for_district
-FROM(
-	SELECT
-		COUNT(o.id) AS o_cnt,
-		SUM(i.count) AS btls_cnt,
-		distr.district_name AS d_name,
-		CASE
-			WHEN o.self_delivery THEN 'self_delivery'
-			WHEN HOUR(dsch.from_time) * 60 &gt;= 0 AND HOUR(dsch.to_time) * 60 &lt;= 720 THEN 'before_12'
-			WHEN HOUR(dsch.from_time) * 60 &gt;= 0 AND HOUR(dsch.to_time) * 60 &gt; 720 AND HOUR(dsch.to_time) * 60 &lt;= 900 THEN 'before_15'
-			WHEN HOUR(dsch.from_time) * 60 &gt;= 0 AND HOUR(dsch.to_time) * 60 &gt; 900 AND HOUR(dsch.to_time) * 60 &lt;= 1080 THEN 'before_18'
-			WHEN HOUR(dsch.from_time) * 60 &gt;= 1080 AND HOUR(dsch.to_time) * 60 &lt;= 1439 THEN 'after_18'
-			WHEN HOUR(dsch.from_time) * 60 &lt; 1080 AND HOUR(dsch.to_time) * 60 &lt;= 1439 THEN 'other'
-			ELSE 'unknown'
-		END AS delivery_schedule
-	FROM
-		orders o
-	LEFT JOIN
-		order_items i ON o.id = i.order_id
-	LEFT JOIN
-		delivery_points dp ON dp.id = o.delivery_point_id AND dp.latitude IS NOT NULL AND dp.longitude IS NOT NULL
-	LEFT JOIN
-		nomenclature n ON i.nomenclature_id = n.id
-	LEFT JOIN
-		schedule_restricted_districts distr ON ST_CONTAINS(distr.district_border, POINT(dp.latitude, dp.longitude))
-	LEFT JOIN
-		delivery_schedule dsch ON o.delivery_schedule_id = dsch.id
-	WHERE
-		o.delivery_date = @date
-	AND
-		n.category = 'water' AND n.tare_volume = 'Vol19L'
-	GROUP BY distr.id, delivery_schedule
-) AS int_tbl
-GROUP BY d_name
-;</CommandText>
+        <CommandText>SELECT		
+	distr.district_name AS d_name,		
+	NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &lt; 13,  o.id, NULL)), 0) AS orders_before_13,
+	NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18, o.id, NULL)),0) AS orders_between_13_18,
+	NULLIF(COUNT(DISTINCT IF(HOUR(dsch.to_time) &gt; 18, o.id, NULL)),0) AS orders_after_18,
+	NULLIF(SUM(IF(HOUR(dsch.to_time) &lt; 13, IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)),0) AS bottles_before_13,
+	NULLIF(SUM(IF(HOUR(dsch.to_time) &gt;= 13 AND HOUR(dsch.to_time) &lt;= 18, IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)),0) AS bottles_between_13_18,
+	NULLIF(SUM(IF(HOUR(dsch.to_time) &gt; 18,IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, 0), 0)),0) AS bottles_after_18,
+	COUNT(DISTINCT o.id) AS total_orders_count,
+	SUM(IF(n.category = 'water' AND n.tare_volume = 'Vol19L', i.count, NULL)) AS total_bottles_count,
+	HOUR(dsch.to_time) AS delivery_schedule
+FROM
+	orders o
+LEFT JOIN
+	order_items i ON o.id = i.order_id
+LEFT JOIN
+	delivery_points dp ON dp.id = o.delivery_point_id AND dp.latitude IS NOT NULL AND dp.longitude IS NOT NULL
+LEFT JOIN
+	nomenclature n ON i.nomenclature_id = n.id
+LEFT JOIN
+	schedule_restricted_districts distr ON ST_CONTAINS(distr.district_border, POINT(dp.latitude, dp.longitude))
+LEFT JOIN
+	delivery_schedule dsch ON o.delivery_schedule_id = dsch.id
+WHERE
+	o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled') 
+	AND EXISTS (SELECT route_list_addresses.id FROM route_list_addresses WHERE route_list_addresses.order_id = o.id)
+	AND o.delivery_date = @date
+GROUP BY distr.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>={?date}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="d_name">
           <DataField>d_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="before_12">
-          <DataField>before_12</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
+        <Field Name="orders_before_13">
+          <DataField>orders_before_13</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
-        <Field Name="orders_before_12">
-          <DataField>orders_before_12</DataField>
-          <rd:TypeName>System.UInt64</rd:TypeName>
+        <Field Name="bottles_before_13">
+          <DataField>bottles_before_13</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
-        <Field Name="bottles_before_12">
-          <DataField>bottles_before_12</DataField>
-          <rd:TypeName>System.Double</rd:TypeName>
+        <Field Name="orders_between_13_18">
+          <DataField>orders_between_13_18</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
-        <Field Name="before_15">
-          <DataField>before_15</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="orders_before_15">
-          <DataField>orders_before_15</DataField>
-          <rd:TypeName>System.UInt64</rd:TypeName>
-        </Field>
-        <Field Name="bottles_before_15">
-          <DataField>bottles_before_15</DataField>
-          <rd:TypeName>System.Double</rd:TypeName>
-        </Field>
-        <Field Name="before_18">
-          <DataField>before_18</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="orders_before_18">
-          <DataField>orders_before_18</DataField>
-          <rd:TypeName>System.UInt64</rd:TypeName>
-        </Field>
-        <Field Name="bottles_before_18">
-          <DataField>bottles_before_18</DataField>
-          <rd:TypeName>System.Double</rd:TypeName>
-        </Field>
-        <Field Name="after_18">
-          <DataField>after_18</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
+        <Field Name="bottles_between_13_18">
+          <DataField>bottles_between_13_18</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
         <Field Name="orders_after_18">
           <DataField>orders_after_18</DataField>
-          <rd:TypeName>System.UInt64</rd:TypeName>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
         <Field Name="bottles_after_18">
           <DataField>bottles_after_18</DataField>
-          <rd:TypeName>System.Double</rd:TypeName>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
-        <Field Name="other">
-          <DataField>other</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
+        <Field Name="total_orders_count">
+          <DataField>total_orders_count</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
-        <Field Name="orders_other">
-          <DataField>orders_other</DataField>
-          <rd:TypeName>System.UInt64</rd:TypeName>
-        </Field>
-        <Field Name="bottles_other">
-          <DataField>bottles_other</DataField>
-          <rd:TypeName>System.Double</rd:TypeName>
-        </Field>
-        <Field Name="self_delivery">
-          <DataField>self_delivery</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="orders_self_delivery">
-          <DataField>orders_self_delivery</DataField>
-          <rd:TypeName>System.UInt64</rd:TypeName>
-        </Field>
-        <Field Name="bottles_self_delivery">
-          <DataField>bottles_self_delivery</DataField>
-          <rd:TypeName>System.Double</rd:TypeName>
-        </Field>
-        <Field Name="total_for_district">
-          <DataField>total_for_district</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
+        <Field Name="total_bottles_count">
+          <DataField>total_bottles_count</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -330,25 +136,31 @@ GROUP BY d_name
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>170.2pt</Width>
+            <Width>255.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.0pt</Width>
+            <Width>53.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.0pt</Width>
+            <Width>50.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.0pt</Width>
+            <Width>57.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.0pt</Width>
+            <Width>51.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.0pt</Width>
+            <Width>53.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>147.6pt</Width>
+            <Width>53.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>57.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>59.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -376,7 +188,7 @@ GROUP BY d_name
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>до 12:00</Value>
+                      <Value>до 13:00</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -389,11 +201,12 @@ GROUP BY d_name
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>до 15:00</Value>
+                      <Value>13:00-18:00</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -406,11 +219,12 @@ GROUP BY d_name
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>до 18:00</Value>
+                      <Value>после 18:00</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -423,11 +237,36 @@ GROUP BY d_name
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>с 18:00</Value>
+                      <Value>Всего</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>26.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -443,8 +282,8 @@ GROUP BY d_name
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Value>Остальные интервалы</Value>
+                    <Textbox Name="Textbox38">
+                      <Value>Заказы</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -452,9 +291,7 @@ GROUP BY d_name
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
-                        <BorderWidth>
-                          <Right>3pt</Right>
-                        </BorderWidth>
+                        <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -462,8 +299,110 @@ GROUP BY d_name
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox25">
-                      <Value>Итого по району</Value>
+                    <Textbox Name="Textbox45">
+                      <Value>Бутыли</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value>Заказы</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox71">
+                      <Value>Бутыли</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Value>Заказы</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox72">
+                      <Value>Бутыли</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox70">
+                      <Value>Заказы</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox73">
+                      <Value>Бутыли</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -503,18 +442,18 @@ GROUP BY d_name
                         <BorderWidth>
                           <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanShrink>false</CanShrink>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="money">
-                      <Value>={before_12}</Value>
+                      <Value>={orders_before_13}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -533,8 +472,46 @@ GROUP BY d_name
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>={bottles_before_13}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>={before_15}</Value>
+                      <Value>={orders_between_13_18}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>={bottles_between_13_18}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -553,7 +530,26 @@ GROUP BY d_name
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>={before_18}</Value>
+                      <Value>={orders_after_18}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Bottom>1pt</Bottom>
+                        </BorderWidth>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>={bottles_after_18}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -572,7 +568,7 @@ GROUP BY d_name
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
-                      <Value>={after_18}</Value>
+                      <Value>={total_orders_count}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -590,28 +586,8 @@ GROUP BY d_name
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox23">
-                      <Value>={other}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Right>3pt</Right>
-                          <Bottom>1pt</Bottom>
-                        </BorderWidth>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox26">
-                      <Value>={total_for_district}</Value>
+                    <Textbox Name="Textbox65">
+                      <Value>={total_bottles_count}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -656,7 +632,7 @@ GROUP BY d_name
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>Итого по интервалу:</Value>
+                      <Value>Итого:</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -675,7 +651,26 @@ GROUP BY d_name
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>=Sum({orders_before_12}) + " зак./" + Sum({bottles_before_12}) + " бут."</Value>
+                      <Value>=Sum({orders_before_13})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>=Sum({bottles_before_13})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>Solid</Top>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>3pt</Top>
+                        </BorderWidth>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -694,7 +689,26 @@ GROUP BY d_name
                           <Top>3pt</Top>
                         </BorderWidth>
                       </Style>
-                      <Value>=Sum({orders_before_15}) + " зак./" + Sum({bottles_before_15}) + " бут."</Value>
+                      <Value>=Sum({orders_between_13_18})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value>=Sum({bottles_between_13_18})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>Solid</Top>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>3pt</Top>
+                        </BorderWidth>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -713,7 +727,26 @@ GROUP BY d_name
                           <Top>3pt</Top>
                         </BorderWidth>
                       </Style>
-                      <Value>=Sum({orders_before_18}) + " зак./" + Sum({bottles_before_18}) + " бут."</Value>
+                      <Value>=Sum({orders_after_18})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>=Sum({bottles_after_18})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>Solid</Top>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth>
+                          <Top>3pt</Top>
+                        </BorderWidth>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -732,45 +765,14 @@ GROUP BY d_name
                           <Top>3pt</Top>
                         </BorderWidth>
                       </Style>
-                      <Value>=Sum({orders_after_18}) + " зак./" + Sum({bottles_after_18}) + " бут."</Value>
+                      <Value>=Sum({total_orders_count})</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox28">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Top>Solid</Top>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth>
-                          <Right>3pt</Right>
-                          <Top>3pt</Top>
-                        </BorderWidth>
-                      </Style>
-                      <Value>=Sum({orders_other}) + " зак./" + Sum({bottles_other}) + " бут."</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Value>=Sum({orders_before_12})
-+Sum({orders_before_15})
-+Sum({orders_before_18})
-+Sum({orders_after_18})
-+Sum({orders_other})
- + " зак./" +
-(Sum({bottles_before_12})
-+Sum({bottles_before_15})
-+Sum({bottles_before_18})
-+Sum({bottles_after_18})
-+Sum({bottles_other}))
- + " бут."</Value>
+                    <Textbox Name="Textbox66">
+                      <Value>=Sum({total_bottles_count})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -782,312 +784,6 @@ GROUP BY d_name
                         <BorderWidth>
                           <Top>3pt</Top>
                         </BorderWidth>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox10">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox13">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox19">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox20">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox21">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox30">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox31">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox32">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox33">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox34">
-                      <Value>Самовывоз:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <TextAlign>Right</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox35">
-                      <Value>=Sum({orders_self_delivery}) + " зак./" + Sum({bottles_self_delivery}) + " бут."</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontWeight>Normal</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox36">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontWeight>Normal</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1097,8 +793,17 @@ GROUP BY d_name
           </TableRows>
         </Footer>
       </Table>
+      <Textbox Name="Textbox10" >
+        <Height>26.35pt</Height>
+        <Width>765.78pt</Width>
+        <Value>В отчет не попадают заказы в статусах: Доставка отменена, Недовоз, Отменен.
+Также не попадают заказы без МЛ</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>104.70pt</Top>
+      </Textbox>
     </ReportItems>
-    <Height>97.4pt</Height>
+    <Height>135.0pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>

@@ -1,7 +1,7 @@
 ﻿using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain;
 
 namespace Vodovoz

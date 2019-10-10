@@ -25,7 +25,6 @@ namespace Vodovoz.Domain.Employees
 		short TripPriority { get; set; }
 		IList<DriverDistrictPriority> Districts { get; set; }
 		GenericObservableList<DriverDistrictPriority> ObservableDistricts { get; }
-		WageParameter WageCalculationParameter { get; set; }
 		bool VisitingMaster { get; set; }
 
 		double TimeCorrection(long timeValue);

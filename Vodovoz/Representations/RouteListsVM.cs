@@ -10,6 +10,7 @@ using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi.Gtk;
 using QS.Utilities.Text;
@@ -18,6 +19,11 @@ using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Repositories.HumanResources;
+using Vodovoz.ViewModels.FuelDocuments;
 
 namespace Vodovoz.ViewModel
 {
@@ -347,7 +353,13 @@ namespace Vodovoz.ViewModel
 							var RouteList = UoW.GetById<RouteList>(routeListId);
 							MainClass.MainWin.TdiMain.OpenTab(
 									DialogHelper.GenerateDialogHashName<RouteList>(routeListId),
-									() => new FuelDocumentDlg(RouteList)
+									() => new FuelDocumentViewModel(
+														RouteList, 
+														ServicesConfig.CommonServices, 
+														new SubdivisionRepository(), 
+														EmployeeSingletonRepository.GetInstance(), 
+														new FuelRepository()
+									)
 								);
 						}
 					},

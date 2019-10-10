@@ -2,18 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text.RegularExpressions;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Services;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
@@ -233,13 +231,14 @@ namespace Vodovoz.Domain.Logistic
 		private string terminalPaymentNumber;
 
 		[Display(Name = "№ оплаты(по терминалу)")]
-		public virtual string TerminalPaymentNumber{
+		public virtual string TerminalPaymentNumber {
 			get { return terminalPaymentNumber; }
 			set { SetField(ref terminalPaymentNumber, value, () => TerminalPaymentNumber); }
 		}
 
 		decimal driverWage;
 		[Display(Name = "ЗП водителя")]
+		//Зарплана с уже включенной надбавкой DriverWageSurcharge
 		public virtual decimal DriverWage {
 			get => driverWage;
 			set => SetField(ref driverWage, value, () => DriverWage);
@@ -252,23 +251,13 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref driverWageSurcharge, value, () => DriverWageSurcharge);
 		}
 
-		public virtual decimal DriverWageTotal => DriverWage + DriverWageSurcharge;
-
 		decimal forwarderWage;
 		[Display(Name = "ЗП экспедитора")]
+		//Зарплана с уже включенной надбавкой ForwarderWageSurcharge
 		public virtual decimal ForwarderWage {
 			get => forwarderWage;
 			set => SetField(ref forwarderWage, value, () => ForwarderWage);
 		}
-
-		decimal forwarderWageSurcharge;
-		[Display(Name = "Надбавка к ЗП экспедитора")]
-		public virtual decimal ForwarderWageSurcharge {
-			get => forwarderWageSurcharge;
-			set => SetField(ref forwarderWageSurcharge, value, () => ForwarderWageSurcharge);
-		}
-
-		public virtual decimal ForwarderWageTotal { get { return ForwarderWage + ForwarderWageSurcharge; } }
 
 		[Display(Name = "Оповещение за 30 минут")]
 		[IgnoreHistoryTrace]
@@ -292,6 +281,20 @@ namespace Vodovoz.Domain.Logistic
 		public virtual TimeSpan? PlanTimeEnd {
 			get => planTimeEnd;
 			set => SetField(ref planTimeEnd, value, () => PlanTimeEnd);
+		}
+
+		WageDistrictLevelRate forwarderWageCalulationMethodic;
+		[Display(Name = "Методика расчёта ЗП экспедитора")]
+		public virtual WageDistrictLevelRate ForwarderWageCalculationMethodic {
+			get => forwarderWageCalulationMethodic;
+			set => SetField(ref forwarderWageCalulationMethodic, value);
+		}
+
+		WageDistrictLevelRate driverWageCalulationMethodic;
+		[Display(Name = "Методика расчёта ЗП водителя")]
+		public virtual WageDistrictLevelRate DriverWageCalculationMethodic {
+			get => driverWageCalulationMethodic;
+			set => SetField(ref driverWageCalulationMethodic, value);
 		}
 
 		#endregion
@@ -414,6 +417,10 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual WageDistrictLevelRate DriverWageCalcMethodicTemporaryStore { get; set; }
+
+		public virtual WageDistrictLevelRate ForwarderWageCalcMethodicTemporaryStore { get; set; }
+
 		#endregion
 
 		public RouteListItem() { }
@@ -464,120 +471,7 @@ namespace Vodovoz.Domain.Logistic
 			uow.Save(Order);
 		}
 
-		public virtual void RecalculateWages()
-		{
-			DriverWage = CalculateDriverWage();
-			ForwarderWage = CalculateForwarderWage();
-		}
-
 		public virtual void RecalculateTotalCash() => TotalCash = CalculateTotalCash();
-
-		public virtual decimal CalculateDriverWage()
-		{
-			if(!IsDelivered())
-				return 0;
-
-			switch(RouteList.Driver.WageCalculationParameter?.WageCalcType) {
-				case WageCalculationType.fixedDay:
-				case WageCalculationType.withoutPayment:
-				case WageCalculationType.fixedRoute: return 0;
-				case WageCalculationType.percentage: return Order.TotalSum * RouteList.Driver.WageCalculationParameter.WageCalcRate / 100;
-				case WageCalculationType.percentageForService: return Order.MoneyForMaster;
-				case WageCalculationType.normal:
-				default:
-					break;
-			}
-			bool withForwarder = RouteList.Forwarder != null;
-			bool ich = RouteList.Car.IsCompanyHavings && !RouteList.NormalWage;
-			var rates = ich ? Wages.GetDriverRatesWithOurCar(RouteList.Date) : Wages.GetDriverRates(RouteList.Date, withForwarder);
-
-			return CalculateWage(rates);
-		}
-
-		public virtual decimal CalculateForwarderWage()
-		{
-			if(!WithForwarder || RouteList.Forwarder == null)
-				return 0;
-
-			if(!IsDelivered())
-				return 0;
-
-			switch(RouteList.Forwarder.WageCalculationParameter?.WageCalcType) {
-				case WageCalculationType.fixedDay:
-				case WageCalculationType.withoutPayment:
-				case WageCalculationType.fixedRoute: return 0;
-				case WageCalculationType.percentage: return Order.TotalSum * RouteList.Forwarder.WageCalculationParameter.WageCalcRate / 100;
-				case WageCalculationType.percentageForService:
-				case WageCalculationType.normal:
-				default:
-					break;
-			}
-
-			var rates = Wages.GetForwarderRates();
-
-			return CalculateWage(rates);
-		}
-
-		public virtual decimal CalculateWage(Wages.Rates rates)
-		{
-			var firstOrderForAddress = RouteList.Addresses.Where(address => address.IsDelivered())
-														  .Select(item => item.Order)
-														  .First(ord => ord.DeliveryPoint?.Id == Order.DeliveryPoint?.Id)
-														  .Id == Order.Id;
-
-			var paymentForAddress = firstOrderForAddress ? rates.PaymentPerAddress : 0;
-
-			var fullBottleCount = Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol19L)
-												  .Sum(item => item.ActualCount ?? 0);
-
-			var smallBottleCount = Order.OrderItems.Where(item => Regex.Match(item.Nomenclature.Name, @".*(0[\.,]6).*").Length > 0)
-												   .Sum(item => item.ActualCount ?? 0);
-
-			bool largeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
-
-			var bottleCollectionOrder = Order.CollectBottles;
-
-			decimal paymentPerEmptyBottle = largeOrder
-				? rates.LargeOrderEmptyBottleRate
-				: rates.EmptyBottleRate;
-			var largeFullBottlesPayment = largeOrder
-				? fullBottleCount * rates.LargeOrderFullBottleRate
-				: fullBottleCount * rates.FullBottleRate;
-
-			var smallBottlePayment = Math.Truncate(smallBottleCount * rates.SmallBottleRate / 36);
-
-			var payForEquipment = fullBottleCount == 0
-				&& (Order.OrderEquipments.Any(item => item.Direction == Direction.Deliver && item.Confirmed) || bottleCollectionOrder);
-			var equpmentPayment = payForEquipment ? rates.CoolerRate : 0;
-
-			var contractCancelationPayment = bottleCollectionOrder ? rates.ContractCancelationRate : 0;
-			var emptyBottlesPayment = bottleCollectionOrder ? 0 : paymentPerEmptyBottle * bottlesReturned;
-			var smallFullBottlesPayment =
-				rates.SmallFullBottleRate * Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && item.Nomenclature.TareVolume == TareVolume.Vol6L)
-															.Sum(item => item.ActualCount ?? 0);
-
-			var wage = equpmentPayment + largeFullBottlesPayment + smallBottlePayment
-				+ contractCancelationPayment + emptyBottlesPayment
-				+ smallFullBottlesPayment + paymentForAddress;
-
-			var payForEquipmentShort = fullBottleCount == 0
-				&& (!string.IsNullOrWhiteSpace(Order.EquipmentsToClient)
-					|| bottleCollectionOrder
-					|| Order.OrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.additional)
-									   .Any(i => i.ActualCount.HasValue && i.ActualCount > 0)
-				);
-			var equpmentPaymentShort = payForEquipmentShort ? rates.CoolerRate : 0;
-
-			wage += equpmentPaymentShort;
-
-			// Расчет зарплаты если в заказе указано расторжение
-			if(Order.ToClientText?.ToLower().Contains("раст") == true
-				&& this.routeList.Date > new DateTime(2018, 1, 10)) {
-				wage = rates.PaymentWithRast;
-			}
-
-			return wage;
-		}
 
 		public virtual decimal CalculateTotalCash() => IsDelivered() ? AddressCashSum : 0;
 
@@ -624,10 +518,7 @@ namespace Vodovoz.Domain.Logistic
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
 			RecalculateTotalCash();
-			var bottleDepositPrice = new NomenclatureRepository().GetBottleDeposit(uow).GetPrice(Order.BottlesReturn);
-			PerformanceHelper.AddTimePoint("Получили прайс");
-			RecalculateWages();
-			PerformanceHelper.AddTimePoint("Пересчет");
+			RouteList.RecalculateWagesForRouteListItem(this);
 		}
 
 		/// <summary>
@@ -668,34 +559,6 @@ namespace Vodovoz.Domain.Logistic
 
 			foreach(var deposit in Order.OrderDepositItems)
 				deposit.ActualCount = deposit.Count;
-		}
-
-		public virtual bool FillBottleMovementOperation(IStandartNomenclatures standartNomenclatures , out BottlesMovementOperation bottlesMovementOperation)
-		{
-			bottlesMovementOperation = Order.BottlesMovementOperation;
-
-			int amountDelivered = Order.OrderItems
-								   .Where(item => (item.Nomenclature.Category == NomenclatureCategory.water) && !item.Nomenclature.IsDisposableTare)
-								   .Sum(item => item.ActualCount ?? 0);
-								   
-			int amountReturned = Order.OrderItems.Where(arg => arg.Nomenclature.Id == standartNomenclatures.GetForfeitId())
-																	   .Sum(x => x.ActualCount ?? 0);
-			amountReturned += BottlesReturned;
-
-			if(amountDelivered == 0 && amountReturned == 0)
-				return false;
-
-			if(bottlesMovementOperation == null)
-				bottlesMovementOperation = new BottlesMovementOperation();
-
-			bottlesMovementOperation.Order = Order;
-			bottlesMovementOperation.Counterparty = Order.Client;
-			bottlesMovementOperation.DeliveryPoint = Order.DeliveryPoint;
-			bottlesMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-			bottlesMovementOperation.Delivered = amountDelivered;
-			bottlesMovementOperation.Returned = amountReturned;
-
-			return true;
 		}
 
 		private Dictionary<int, int> goodsByRouteColumns;
@@ -750,10 +613,6 @@ namespace Vodovoz.Domain.Logistic
 			return null;
 		}
 
-		public virtual void SetDriversWage(decimal wage) => this.DriverWage = wage;
-
-		public virtual void SetForwardersWage(decimal wage) => this.ForwarderWage = wage;
-
 		#endregion
 
 		#region Для расчетов в логистике
@@ -784,6 +643,20 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion
+
+		#region Зарплата
+
+		public virtual IRouteListItemWageCalculationSource DriverWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.driver);
+
+		public virtual IRouteListItemWageCalculationSource ForwarderWageCalculationSrc => new RouteListItemWageCalculationSource(this, EmployeeCategory.forwarder);
+
+		public virtual void SaveWageCalculationMethodics()
+		{
+			DriverWageCalculationMethodic = DriverWageCalcMethodicTemporaryStore;
+			ForwarderWageCalculationMethodic = ForwarderWageCalcMethodicTemporaryStore;
+		}
+
+		#endregion Зарплата
 	}
 
 	public enum RouteListItemStatus

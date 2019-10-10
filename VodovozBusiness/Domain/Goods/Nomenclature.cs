@@ -14,6 +14,8 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Client;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -421,6 +423,27 @@ namespace Vodovoz.Domain.Goods
 
 		#region Свойства товаров для магазина
 
+		private decimal purchasePrice;
+		[Display(Name = "Цена закупки")]
+		public virtual decimal PurchasePrice {
+			get => purchasePrice;
+			set => SetField(ref purchasePrice, value);
+		}
+
+		private Counterparty shipperCounterparty;
+		[Display(Name = "Поставщик")]
+		public virtual Counterparty ShipperCounterparty {
+			get => shipperCounterparty;
+			set => SetField(ref shipperCounterparty, value);
+		}
+
+		private string storageCell;
+		[Display(Name = "Ячейка хранения")]
+		public virtual string StorageCell {
+			get => storageCell;
+			set => SetField(ref storageCell, value);
+		}
+
 		private string color;
 
 		[Display(Name = "Цвет")]
@@ -589,11 +612,11 @@ namespace Vodovoz.Domain.Goods
 
 		}
 
-		public virtual void SetNomenclatureCreationInfo()
+		public virtual void SetNomenclatureCreationInfo(IUserRepository userRepository)
 		{
 			if(Id == 0 && !CreateDate.HasValue) {
 				CreateDate = DateTime.Now;
-				CreatedBy = Vodovoz.Repositories.HumanResources.UserRepository.GetCurrentUser(UoW);
+				CreatedBy = userRepository.GetCurrentUser(UoW);
 			}
 		}
 

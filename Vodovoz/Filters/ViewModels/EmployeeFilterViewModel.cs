@@ -2,6 +2,8 @@
 using QS.DomainModel.Entity;
 using QS.Services;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.WageCalculation;
+
 namespace Vodovoz.Filters.ViewModels
 {
 	public class EmployeeFilterViewModel : RepresentationFilterViewModelBase<EmployeeFilterViewModel>
@@ -40,8 +42,8 @@ namespace Vodovoz.Filters.ViewModels
 			}
 		}
 
-		WageCalculationType? restrictWageType;
-		public virtual WageCalculationType? RestrictWageType {
+		WageParameterTypes? restrictWageType;
+		public virtual WageParameterTypes? RestrictWageType {
 			get => restrictWageType;
 			set => UpdateFilterField(ref restrictWageType, value);
 		}

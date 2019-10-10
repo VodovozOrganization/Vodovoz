@@ -2,7 +2,7 @@
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Utilities;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Repositories.HumanResources;

@@ -71,7 +71,7 @@ namespace Vodovoz.Dialogs.Employees
 			if(Entity.Author == null) {
 				Entity.Author = author;
 			}
-			var valid = new QSValidation.QSValidator<Premium>(UoWGeneric.Root);
+			var valid = new QS.Validation.GtkUI.QSValidator<Premium>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 

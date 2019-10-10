@@ -1,7 +1,7 @@
 ﻿using System;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSValidation;
+using QS.Validation.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
@@ -72,7 +72,7 @@ namespace Vodovoz.Dialogs
 			yentryTareReturn.Binding.AddBinding(Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 
-			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
 			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
 			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
 			EmployeeyEntryreferencevm.RepresentationModel = employeeVM;

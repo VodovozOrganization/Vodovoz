@@ -7,6 +7,7 @@ using QS.HistoryLog;
 using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -14,7 +15,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
 	[HistoryTrace]
-	public class OrderItem : PropertyChangedBase, IDomainObject
+	public class OrderItem : PropertyChangedBase, IDomainObject, IOrderItemWageCalculationSource
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -459,6 +460,16 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public virtual string Title => $"[{Order.Title}] {Nomenclature.Name} - {Count}*{Price}={Sum}";
+
+		#region IOrderItemWageCalculationSource implementation
+
+		public virtual int InitialCount => Count;
+
+		public virtual decimal PercentForMaster => (decimal)Nomenclature.PercentForMaster;
+
+		public virtual bool IsMasterNomenclature => Nomenclature.Category == NomenclatureCategory.master;
+
+		#endregion IOrderItemWageCalculationSource implementation
 
 		#endregion
 

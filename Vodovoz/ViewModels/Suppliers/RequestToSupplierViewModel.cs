@@ -23,7 +23,6 @@ namespace Vodovoz.ViewModels.Suppliers
 	public class RequestToSupplierViewModel : EntityTabViewModelBase<RequestToSupplier>
 	{
 		readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
-		readonly IEntityConfigurationProvider entityConfigurationProvider;
 		readonly IEmployeeService employeeService;
 		readonly ICommonServices commonServices;
 		public event EventHandler ListContentChanged;
@@ -31,14 +30,12 @@ namespace Vodovoz.ViewModels.Suppliers
 		public RequestToSupplierViewModel(
 			IEntityConstructorParam ctorParam,
 			ICommonServices commonServices,
-			IEntityConfigurationProvider entityConfigurationProvider,
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository
 		) : base(ctorParam, commonServices)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			this.entityConfigurationProvider = entityConfigurationProvider ?? throw new ArgumentNullException(nameof(entityConfigurationProvider));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			CreateCommands();
 			RefreshSuppliers();
@@ -167,7 +164,6 @@ namespace Vodovoz.ViewModels.Suppliers
 					};
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 						filter,
-						entityConfigurationProvider,
 						CommonServices
 					) {
 						SelectionMode = JournalSelectionMode.Single,
@@ -223,7 +219,6 @@ namespace Vodovoz.ViewModels.Suppliers
 					RequestToSupplierViewModel vm = new RequestToSupplierViewModel(
 						EntityConstructorParam.ForCreate(),
 						commonServices,
-						entityConfigurationProvider,
 						employeeService,
 						supplierPriceItemsRepository
 					);
