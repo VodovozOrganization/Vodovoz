@@ -9,6 +9,7 @@ using QS.Permissions;
 using QS.Project.Domain;
 using QS.Project.Repositories;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.Permissions;
 
 namespace Vodovoz.Core.Permissions
@@ -98,12 +99,12 @@ namespace Vodovoz.Core.Permissions
 		private Subdivision subdivision;
 		private IList<PermissionNode> originalPermissionList;
 		private IList<TypeOfEntity> originalTypeOfEntityList;
-		public IPermissionExtensionFactory ExtensionFactory { get; set; }
+		public PermissionExtensionStore ExtensionFactory { get; set; }
 
 		public GenericObservableList<PermissionNode> ObservablePermissionsList { get; private set; }
 		public GenericObservableList<TypeOfEntity> ObservableTypeOfEntitiesList { get; private set; }
 
-		public EntitySubdivisionPermissionModel(IUnitOfWork uow, Subdivision subdivision, IPermissionExtensionFactory extensionFactory)
+		public EntitySubdivisionPermissionModel(IUnitOfWork uow, Subdivision subdivision, PermissionExtensionStore extensionFactory)
 		{
 			this.subdivision = subdivision;
 			this.uow = uow;

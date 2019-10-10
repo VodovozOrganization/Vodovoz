@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QS.Project.Domain;
 using System.Linq;
-using QS.Project.Services;
 using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.PermissionExtensions

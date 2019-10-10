@@ -8,6 +8,7 @@ using QS.Project.Domain;
 using QSSupportLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.Repositories.Permissions

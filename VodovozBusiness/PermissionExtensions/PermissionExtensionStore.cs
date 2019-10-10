@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using QS.Permissions;
-using QS.Project.Services;
-using Vodovoz.Domain.Permissions;
 
-namespace Vodovoz.Core.Permissions
+namespace Vodovoz.PermissionExtensions
 {
 	public class PermissionExtensionStore
 	{

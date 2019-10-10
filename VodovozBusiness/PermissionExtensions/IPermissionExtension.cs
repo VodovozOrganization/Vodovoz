@@ -1,7 +1,7 @@
 ﻿using System;
 using QS.Project.Domain;
 
-namespace Vodovoz.Core.Permissions
+namespace Vodovoz.PermissionExtensions
 {
 	public interface IPermissionExtension
 	{

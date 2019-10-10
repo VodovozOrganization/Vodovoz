@@ -1292,7 +1292,6 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.TaskCreationDialog.cs" />
     <Compile Include="ReportsParameters\PlanImplementationReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PlanImplementationReport.cs" />
-    <Compile Include="Core\Permissions\PermissionExtensionStore.cs" />
     <Compile Include="Views\WageCalculation\WageDistrictLevelRateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictLevelRateView.cs" />
     <Compile Include="Views\WageCalculation\WageParameterView.cs" />
