@@ -226,13 +226,19 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			RemoveDriverCommand = new DelegateCommand<AtWorkDriver[]>(
 				driversToDel => {
+					if(driversToDel == null)
+						driversToDel = SelectedDrivers;
 					foreach(var driver in driversToDel) {
 						if(driver.Id > 0)
 							UoW.Delete(driver);
 						ObservableDriversOnDay.Remove(driver);
 					}
 				},
-				driversToDel => driversToDel != null && driversToDel.Any()
+				driversToDel => {
+					if(driversToDel == null)
+						driversToDel = SelectedDrivers;
+					return driversToDel != null && driversToDel.Any();
+				}
 			);
 		}
 
@@ -350,11 +356,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public RouteGeometryCalculator DistanceCalculator { get; } = new RouteGeometryCalculator(DistanceProvider.Osrm);
 
-		AtWorkDriver selectedDriver;
-		[PropertyChangedAlso(nameof(IsDriverSelected))]
-		public virtual AtWorkDriver SelectedDriver {
-			get => selectedDriver;
-			set => SetField(ref selectedDriver, value);
+		AtWorkDriver[] selectedDrivers;
+		[PropertyChangedAlso(nameof(AreDriversSelected))]
+		public virtual AtWorkDriver[] SelectedDrivers {
+			get => selectedDrivers;
+			set => SetField(ref selectedDrivers, value);
 		}
 
 		AtWorkForwarder selectedForwarder;
@@ -373,7 +379,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		public bool IsDriverSelected => SelectedDriver != null;
+		public bool AreDriversSelected => SelectedDrivers != null && SelectedDrivers.Any();
 
 		public bool IsForwarderSelected => SelectedForwarder != null;
 
@@ -596,6 +602,18 @@ namespace Vodovoz.ViewModels.Logistic
 			return null;
 		}
 
+		public string GetRowVolume(object row)
+		{
+			if(row is RouteList rl) {
+				var volume = rl.Addresses.Sum(x => x.Order.TotalVolume);
+				return FormatOccupancy(volume, null, rl.Car.MaxVolume);
+			}
+
+			if(row is RouteListItem rli)
+				return rli.Order.TotalVolume.ToString();
+			return null;
+		}
+
 		public string GetRowDistance(object row)
 		{
 			if(row is RouteList rl) {
@@ -641,6 +659,21 @@ namespace Vodovoz.ViewModels.Logistic
 		}
 
 		string FormatOccupancy(int val, int? min, int? max)
+		{
+			string color = "green";
+			if(val > max)
+				color = "red";
+			if(val < min)
+				color = "blue";
+
+			if(min.HasValue && max.HasValue)
+				return string.Format("<span foreground=\"{0}\">{1}</span>({2}-{3})", color, val, min, max);
+			if(max.HasValue)
+				return string.Format("<span foreground=\"{0}\">{1}</span>({2})", color, val, max);
+			return string.Format("<span foreground=\"{0}\">{1}</span>(min {2})", color, val, min);
+		}
+
+		string FormatOccupancy(double val, double? min, double? max)
 		{
 			string color = "green";
 			if(val > max)
