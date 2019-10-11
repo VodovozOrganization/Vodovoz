@@ -6,6 +6,8 @@ namespace Vodovoz.PermissionExtensions
 {
 	public class PermissionExtensionStore
 	{
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
 		private SortedList<string, IPermissionExtension> permissionExtensions;
 		public SortedList<string, IPermissionExtension> PermissionExtensions {
 			get 
@@ -35,6 +37,7 @@ namespace Vodovoz.PermissionExtensions
 						extensions.Add(instance.PermissionId ,instance);
 				}
 				catch(MissingMethodException ex) {
+					logger.Error(ex, $"Ошибка при создании экземпляра класса {item.Name}, у класса отсутствует пустой конструктор");
 					continue;
 				}
 			}
