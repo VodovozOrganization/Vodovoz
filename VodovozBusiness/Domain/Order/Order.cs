@@ -3263,7 +3263,7 @@ namespace Vodovoz.Domain.Orders
 				return false;
 
 			int amountDelivered = OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
-								.Sum(item => item.ActualCount.Value);
+								.Sum(item => item?.ActualCount ?? 0);
 
 			if(forfeitQuantity == null) 
 			{
