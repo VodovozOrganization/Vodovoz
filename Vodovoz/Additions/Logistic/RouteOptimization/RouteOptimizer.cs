@@ -203,7 +203,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			/// <c>maxWaitTime</c> - Максимальное время ожидания водителя. То есть водитель закончил разгрузку следующий
 			/// адрес в маршруте у него не должен быть позже чем на 3 часа ожидания.
 			int horizon = 24 * 3600;
-			int maxWaitTime = 3 * 3600;
+			int maxWaitTime = 6 * 3600;
 			var timeEvaluators = possibleRoutes.Select(x => new CallbackTime(Nodes, x, distanceCalculator)).ToArray();
 			routing.AddDimensionWithVehicleTransits(timeEvaluators, maxWaitTime, horizon, false, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
