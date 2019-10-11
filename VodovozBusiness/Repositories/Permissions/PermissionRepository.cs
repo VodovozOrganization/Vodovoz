@@ -33,7 +33,7 @@ namespace Vodovoz.Repositories.Permissions
 			EntitySubdivisionForUserPermission entitySubdivisionPermissionAlias = null;
 			Subdivision subdivisionAlias = null;
 			TypeOfEntity typeOfEntityAlias = null;
-			return uow.Session.QueryOver<EntitySubdivisionForUserPermission>(() => entitySubdivisionPermissionAlias)
+			return uow.Session.QueryOver(() => entitySubdivisionPermissionAlias)
 				.Left.JoinAlias(() => entitySubdivisionPermissionAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => entitySubdivisionPermissionAlias.TypeOfEntity, () => typeOfEntityAlias)
 				.Where(() => entitySubdivisionPermissionAlias.Subdivision.Id == subdisionId)
@@ -46,7 +46,7 @@ namespace Vodovoz.Repositories.Permissions
 		{
 			EntitySubdivisionForUserPermission entitySubdivisionPermissionAlias = null;
 			TypeOfEntity typeOfEntityAlias = null;
-			return uow.Session.QueryOver<EntitySubdivisionForUserPermission>(() => entitySubdivisionPermissionAlias)
+			return uow.Session.QueryOver(() => entitySubdivisionPermissionAlias)
 				.Left.JoinAlias(() => entitySubdivisionPermissionAlias.TypeOfEntity, () => typeOfEntityAlias)
 				.Where(() => entitySubdivisionPermissionAlias.User.Id == userId)
 				.WhereRestrictionOn(() => typeOfEntityAlias.Type).IsIn(entityNames)
@@ -57,7 +57,7 @@ namespace Vodovoz.Repositories.Permissions
 		{
 			EntitySubdivisionForUserPermission entitySubdivisionPermissionAlias = null;
 			TypeOfEntity typeOfEntityAlias = null;
-			return uow.Session.QueryOver<EntitySubdivisionForUserPermission>(() => entitySubdivisionPermissionAlias)
+			return uow.Session.QueryOver(() => entitySubdivisionPermissionAlias)
 				.Left.JoinAlias(() => entitySubdivisionPermissionAlias.TypeOfEntity, () => typeOfEntityAlias)
 				.Where(() => entitySubdivisionPermissionAlias.User.Id == userId)
 				.Where(() => typeOfEntityAlias.Type == entityName)
@@ -74,7 +74,7 @@ namespace Vodovoz.Repositories.Permissions
 				var node = new PermissionNode();
 				node.EntitySubdivisionOnlyPermission = item;
 				node.TypeOfEntity = item.TypeOfEntity;
-				node.EntityPermissionExtended = new SortedList<string, EntityPermissionExtended>(StringComparer.Ordinal);
+				node.EntityPermissionExtended = new List<EntityPermissionExtended>();
 				foreach(var extension in permissionExtensionFactory.PermissionExtensions) 
 				{
 					Subdivision subdivisionAlias = null;
@@ -82,24 +82,24 @@ namespace Vodovoz.Repositories.Permissions
 					EntityPermissionExtended permissionExtendedAlias = null;
 
 					var permission = uow.Session.QueryOver(() => permissionExtendedAlias)
-						.JoinAlias(x => x.User, () => userAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-						.JoinAlias(x => x.Subdivision, () => subdivisionAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+						.Left.JoinAlias(x => x.User, () => userAlias)
+						.Left.JoinAlias(x => x.Subdivision, () => subdivisionAlias)
 						.Where(x => subdivisionAlias.Id == subdivisionId)
-						.And(Restrictions.On(() => userAlias).IsNull)
-						.And(Restrictions.Eq(permissionExtendedAlias.PermissionId,extension.Key))
-						.Take(1).List()?.FirstOrDefault();
+						.And(Restrictions.On(() => userAlias.Id).IsNull)
+						.And(() => permissionExtendedAlias.PermissionId == extension.PermissionId)
+						.Take(1)?.List()?.FirstOrDefault();
 
 					if(permission != null) {
-						node.EntityPermissionExtended.Add(permission.PermissionId, permission);
+						node.EntityPermissionExtended.Add(permission);
 						continue;
 					}
 
 					permission = new EntityPermissionExtended();
 					permission.IsPermissionAvailable = false;
-					permission.PermissionId = extension.Value.PermissionId;
+					permission.PermissionId = extension.PermissionId;
 					permission.Subdivision = item.Subdivision;
 					permission.TypeOfEntity = item.TypeOfEntity;
-					//node.EntitySubdivisionEntityPermissionWidgetPermissionExtended.Add(permission.PermissionId, permission);
+					node.EntityPermissionExtended.Add(permission);
 				}
 
 				yield return node;
@@ -136,6 +136,6 @@ namespace Vodovoz.Repositories.Permissions
 	{
 		public TypeOfEntity TypeOfEntity { get; set; }
 		public EntitySubdivisionOnlyPermission EntitySubdivisionOnlyPermission { get; set; }
-		public SortedList<string,EntityPermissionExtended> EntityPermissionExtended { get; set; }
+		public IList<EntityPermissionExtended> EntityPermissionExtended { get; set; }
 	}
 }

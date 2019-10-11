@@ -11,6 +11,7 @@ namespace Vodovoz.HibernateMapping.Permissions
 			Table("entity_permission_extended");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Map(x => x.PermissionId).Column("permission_id");
 
 			Map(x => x.IsPermissionAvailable).Column("is_permission_available");
 

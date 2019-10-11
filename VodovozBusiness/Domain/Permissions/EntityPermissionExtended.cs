@@ -46,6 +46,5 @@ namespace Vodovoz.Domain.Permissions
 			set => SetField(ref subdivision, value);
 		}
 
-
 	}
 }

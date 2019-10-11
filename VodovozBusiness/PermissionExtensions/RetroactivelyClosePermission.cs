@@ -11,6 +11,8 @@ namespace Vodovoz.PermissionExtensions
 		public string Name { get => "Изменение документа задним числом"; }
 		public string Description { get => "Возможность изменять документы задним числом"; }
 
+		public RetroactivelyClosePermission() {}
+
 		public bool IsValidType(TypeOfEntity typeOfEntity)
 		{
 			if(typeOfEntity == null)

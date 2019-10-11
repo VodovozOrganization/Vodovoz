@@ -44,8 +44,13 @@ namespace Vodovoz.Core.Permissions
 
 			var extensions = model.ExtensionFactory.PermissionExtensions;
 
-			foreach(var item in extensions)
-				columns.AddColumn(item.Value.Name).AddToggleRenderer(x => x.EntityPermissionExtended[item.Key].IsPermissionAvailable);
+			extensions.OrderBy(x => x.PermissionId);
+
+			//foreach(PermissionNode item in model.ObservablePermissionsList)
+				//item.EntityPermissionExtended.OrderBy(x => x.PermissionId);
+
+			//for(int i = 0; i < extensions.Count; i++)
+				//columns.AddColumn(extensions[i].Name).AddToggleRenderer(x => x.EntityPermissionExtended[i].IsPermissionAvailable).Editing();
 
 			ytreeviewPermissions.ColumnsConfig = columns.Finish();
 
@@ -138,13 +143,13 @@ namespace Vodovoz.Core.Permissions
 					Subdivision = subdivision,
 					TypeOfEntity = entityNode
 				};
-				savedPermission.EntityPermissionExtended = new SortedList<string, EntityPermissionExtended>(StringComparer.Ordinal);
+				savedPermission.EntityPermissionExtended = new List<EntityPermissionExtended>();
 				foreach(var item in ExtensionFactory.PermissionExtensions) {
 					var node = new EntityPermissionExtended();
 					node.Subdivision = subdivision;
 					node.TypeOfEntity = entityNode;
-					node.PermissionId = item.Value.PermissionId;
-					savedPermission.EntityPermissionExtended.Add(node.PermissionId,node);
+					node.PermissionId = item.PermissionId;
+					savedPermission.EntityPermissionExtended.Add(node);
 				}
 				savedPermission.TypeOfEntity = entityNode;
 				ObservablePermissionsList.Add(savedPermission);
@@ -154,7 +159,7 @@ namespace Vodovoz.Core.Permissions
 			}
 			uow.Save(savedPermission.EntitySubdivisionOnlyPermission);
 			foreach(var permission in savedPermission.EntityPermissionExtended)
-				uow.Save(permission.Value);
+				uow.Save(permission);
 		}
 
 		public void DeletePermission(PermissionNode deletedPermission)
@@ -166,7 +171,7 @@ namespace Vodovoz.Core.Permissions
 			ObservablePermissionsList.Remove(deletedPermission);
 			uow.Delete(deletedPermission.EntitySubdivisionOnlyPermission);
 			foreach(var permission in deletedPermission.EntityPermissionExtended)
-				uow.Delete(permission.Value);
+				uow.Delete(permission);
 		}
 	}
 }

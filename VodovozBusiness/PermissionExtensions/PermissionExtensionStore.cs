@@ -8,8 +8,8 @@ namespace Vodovoz.PermissionExtensions
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private SortedList<string, IPermissionExtension> permissionExtensions;
-		public SortedList<string, IPermissionExtension> PermissionExtensions {
+		private IList<IPermissionExtension> permissionExtensions;
+		public IList<IPermissionExtension> PermissionExtensions {
 			get 
 			{
 				if(permissionExtensions == null)
@@ -19,9 +19,9 @@ namespace Vodovoz.PermissionExtensions
 			}
 		}
 
-		protected SortedList<string,IPermissionExtension> GetExtensions()
+		protected IList<IPermissionExtension> GetExtensions()
 		{
-			SortedList<string, IPermissionExtension> extensions = new SortedList<string, IPermissionExtension>(StringComparer.Ordinal);
+			IList<IPermissionExtension> extensions = new List<IPermissionExtension>();
 			Type parent = typeof(IPermissionExtension);
 			IEnumerable<Type> types = new List<Type>();
 
@@ -34,7 +34,7 @@ namespace Vodovoz.PermissionExtensions
 				try 
 				{
 					if(Activator.CreateInstance(item) is IPermissionExtension instance)
-						extensions.Add(instance.PermissionId ,instance);
+						extensions.Add(instance);
 				}
 				catch(MissingMethodException ex) {
 					logger.Error(ex, $"Ошибка при создании экземпляра класса {item.Name}, у класса отсутствует пустой конструктор");
