@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.DomainModel.Config;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -53,6 +54,7 @@ namespace Vodovoz.JournalViewModels
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
 		public ComplaintsJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IUndeliveriesViewOpener undeliveriesViewOpener,
 			IEmployeeService employeeService,
@@ -66,7 +68,7 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionRepository subdivisionRepository,
 			IReportViewOpener reportViewOpener,
 			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener
-		) : base(filterViewModel, commonServices)
+		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.undeliveriesViewOpener = undeliveriesViewOpener ?? throw new ArgumentNullException(nameof(undeliveriesViewOpener));
@@ -110,10 +112,11 @@ namespace Vodovoz.JournalViewModels
 				typeof(RouteList),
 				typeof(RouteListItem)
 			);
-			this.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(sender, new CurrentObjectChangedArgs(null));
+			this.DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(sender, new CurrentObjectChangedArgs(null));
+			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 		}
 
-		private IQueryOver<Complaint> GetComplaintQuery()
+		private IQueryOver<Complaint> GetComplaintQuery(IUnitOfWork uow)
 		{
 			ComplaintJournalNode resultAlias = null;
 
@@ -220,7 +223,7 @@ namespace Vodovoz.JournalViewModels
 				Projections.Property(() => fineAlias.TotalMoney),
 				Projections.Constant("\n"));
 
-			var query = UoW.Session.QueryOver(() => complaintAlias)
+			var query = uow.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
 				.Left.JoinAlias(() => complaintAlias.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(() => complaintAlias.Order, () => orderAlias)
@@ -374,12 +377,11 @@ namespace Vodovoz.JournalViewModels
 			complaintConfig.FinishConfiguration();
 		}
 
-		protected override void BeforeItemsUpdated()
+		protected void BeforeItemsUpdated(IList items, uint start)
 		{
-			foreach(ComplaintJournalNode item in Items) {
+			foreach(var item in items.Cast<ComplaintJournalNode>().Skip((int)start)) {
 				item.SequenceNumber = Items.IndexOf(item) + 1;
 			}
-			base.BeforeItemsUpdated();
 		}
 
 		protected override void CreatePopupActions()

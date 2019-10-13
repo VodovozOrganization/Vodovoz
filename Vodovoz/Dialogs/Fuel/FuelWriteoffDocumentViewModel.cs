@@ -136,6 +136,7 @@ namespace Vodovoz.Dialogs.Fuel
 					var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(x => x.Name,
 						() => new FuelTypeViewModel(EntityConstructorParam.ForCreate(), commonServices),
 						(node) => new FuelTypeViewModel(EntityConstructorParam.ForOpen(node.Id), commonServices),
+						UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					);
 					fuelTypeJournalViewModel.SetRestriction(() => {

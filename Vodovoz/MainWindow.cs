@@ -9,6 +9,7 @@ using QS.Contacts;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Config;
+using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
@@ -391,7 +392,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
 		CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
-		var counterpartyJournal = new CounterpartyJournalViewModel(filter, ServicesConfig.CommonServices);
+		var counterpartyJournal = new CounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 
 		tdiMain.AddTab(counterpartyJournal);
 	}
@@ -693,6 +694,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			() => {
 				return new ComplaintsJournalViewModel(
+					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
 					undeliveriesViewOpener,
 					VodovozGtkServicesConfig.EmployeeService,
@@ -1085,7 +1087,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ClientCameFromFilterViewModel filter = new ClientCameFromFilterViewModel(ServicesConfig.CommonServices.InteractiveService) {
 			HidenByDefault = true
 		};
-		var journal = new ClientCameFromJournalViewModel(filter, ServicesConfig.CommonServices);
+		var journal = new ClientCameFromJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 		tdiMain.AddTab(journal);
 	}
 
@@ -1385,6 +1387,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			x => x.Name,
 			() => new ComplaintSourceViewModel(EntityConstructorParam.ForCreate(), ServicesConfig.CommonServices),
 			(node) => new ComplaintSourceViewModel(EntityConstructorParam.ForOpen(node.Id), ServicesConfig.CommonServices),
+			 UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices
 		);
 		tdiMain.AddTab(complaintSourcesViewModel);
@@ -1396,6 +1399,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			x => x.Name,
 			() => new ComplaintResultViewModel(EntityConstructorParam.ForCreate(), ServicesConfig.CommonServices),
 			(node) => new ComplaintResultViewModel(EntityConstructorParam.ForOpen(node.Id), ServicesConfig.CommonServices),
+			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices
 		);
 		tdiMain.AddTab(complaintResultsViewModel);
@@ -1418,6 +1422,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		tdiMain.AddTab(
 			new WageDistrictsJournalViewModel(
+				 UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			)
 		);
@@ -1427,6 +1432,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		tdiMain.AddTab(
 			new WageDistrictLevelRatesJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			)
 		);
@@ -1446,6 +1452,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		tdiMain.AddTab(
 			new SalesPlanJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			)
 		);

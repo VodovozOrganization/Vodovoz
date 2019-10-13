@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
-using QS.Project.Journal.EntitySelector;
-using System.Linq;
-using QS.Tdi;
-using Vodovoz.JournalViewModels.Organization;
-using QS.DomainModel.Config;
-using QS.Project.Journal;
 using Vodovoz.FilterViewModels.Organization;
-using QS.Project.Services;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalViewModels.Organization;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -111,7 +109,7 @@ namespace Vodovoz.ViewModels.Complaints
 				() => {
 					var filter = new SubdivisionFilterViewModel(CommonServices.InteractiveService);
 					filter.ExcludedSubdivisions = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
-					var subdivisionSelector = new SubdivisionsJournalViewModel(filter, CommonServices);
+					var subdivisionSelector = new SubdivisionsJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, CommonServices);
 					subdivisionSelector.SelectionMode = JournalSelectionMode.Single;
 					subdivisionSelector.OnEntitySelectedResult += (sender, e) => {
 						var selectedNode = e.SelectedNodes.FirstOrDefault();

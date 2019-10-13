@@ -193,6 +193,7 @@ namespace Vodovoz.ViewModels.Logistic
 					);
 					var drvJournalViewModel = new EmployeesJournalViewModel(
 						drvFilter,
+						UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					) {
 						SelectionMode = JournalSelectionMode.Multiple
@@ -258,6 +259,7 @@ namespace Vodovoz.ViewModels.Logistic
 					);
 					var fwdJournalViewModel = new EmployeesJournalViewModel(
 						fwdFilter,
+						UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					) {
 						SelectionMode = JournalSelectionMode.Multiple

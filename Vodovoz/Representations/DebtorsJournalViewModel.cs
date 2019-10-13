@@ -8,6 +8,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.Config;
+using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
 using QSReport;
@@ -27,14 +28,14 @@ namespace Vodovoz.Representations
 
 		IEmployeeRepository employeeRepository { get; set;}
 
-		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, ICommonServices commonServices, IEmployeeRepository employeeRepository) : base(filterViewModel, commonServices)
+		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEmployeeRepository employeeRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
 			this.employeeRepository = employeeRepository;
 		}
 
-		protected override Func<IQueryOver<Domain.Orders.Order>> ItemsSourceQueryFunction => () => {
+		protected override Func<IUnitOfWork, IQueryOver<Domain.Orders.Order>> ItemsSourceQueryFunction => (uow) => {
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
 			BottlesMovementOperation bottleMovementOperationAlias = null;
@@ -48,7 +49,7 @@ namespace Vodovoz.Representations
 			DiscountReason discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			var ordersQuery = UoW.Session.QueryOver(() => orderAlias);
+			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
 
 			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
 			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
@@ -152,7 +153,6 @@ namespace Vodovoz.Representations
 					() => counterpartyAlias.Id,
 					() => counterpartyAlias.Name
 			));
-
 
 			var resultQuery = ordersQuery
 				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)

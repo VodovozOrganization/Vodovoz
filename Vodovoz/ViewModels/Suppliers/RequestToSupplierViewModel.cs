@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
-using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -164,6 +164,7 @@ namespace Vodovoz.ViewModels.Suppliers
 					};
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 						filter,
+						UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
 					) {
 						SelectionMode = JournalSelectionMode.Single,
