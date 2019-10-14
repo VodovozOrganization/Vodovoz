@@ -1578,7 +1578,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverInfo">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	route_lists.date AS date,
@@ -1619,7 +1619,7 @@
 			END,
 			0) AS wage,
 	IFNULL(COUNT(IF(Adresses.status = 'Overdue'
-					OR Adresses.status = 'Canceled',
+					OR Adresses.status = 'Canceled' OR Adresses.transfered_to_id IS NOT NULL,
 				NULL,
 				Adresses.id)),
 			0) AS addresses_count
@@ -1641,7 +1641,7 @@ FROM
 		AND (Adresses.trans_rl_driver = route_lists.driver_id
 		OR Adresses.trans_rl_driver IS NULL)
 		LEFT JOIN
-	bottles_movement_operations ON bottles_movement_operations.order_id = Adresses.order_id
+	bottles_movement_operations ON bottles_movement_operations.order_id = Adresses.order_id AND Adresses.transfered_to_id IS NULL
 WHERE
 	route_lists.driver_id = @driver_id
 		AND date &gt;= @start_date
@@ -1662,7 +1662,7 @@ GROUP BY route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
