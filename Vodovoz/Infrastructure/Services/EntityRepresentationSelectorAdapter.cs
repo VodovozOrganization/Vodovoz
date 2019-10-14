@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.RepresentationModel.GtkUI;
@@ -97,6 +97,7 @@ namespace Vodovoz.Infrastructure.Services
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
+		public event EventHandler TabClosed;
 
 		public bool CompareHashName(string hashName)
 		{
@@ -119,6 +120,11 @@ namespace Vodovoz.Infrastructure.Services
 		public void SearchValues(params string[] values)
 		{
 			model.SearchStrings = values;
+		}
+
+		public void OnTabClosed()
+		{
+			TabClosed?.Invoke(this, EventArgs.Empty);
 		}
 
 		#endregion IEntityAutocompleteSelector implementation
