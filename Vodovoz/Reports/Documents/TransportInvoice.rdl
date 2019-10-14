@@ -5615,13 +5615,12 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox310" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>15.79pt</Height>
-        <Width>60.28pt</Width>
-        <Value>принял водитель
--экспедитор</Value>
+        <Height>14.28pt</Height>
+        <Width>36.20pt</Width>
+        <Value>ПРИНЯЛ</Value>
         <ZIndex>1</ZIndex>
-        <Left>205.6pt</Left>
-        <Top>509.8pt</Top>
+        <Left>205.60pt</Left>
+        <Top>509.80pt</Top>
         <Style>
           <FontSize>7pt</FontSize>
           <TextAlign>Left</TextAlign>
@@ -5637,7 +5636,7 @@
         <Width>33.23pt</Width>
         <Value>подпись</Value>
         <ZIndex>1</ZIndex>
-        <Left>267.0pt</Left>
+        <Left>257.4pt</Left>
         <Top>519.3pt</Top>
         <Style>
           <FontSize>5pt</FontSize>
@@ -5651,13 +5650,13 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox312" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>8.25pt</Height>
-        <Width>33.23pt</Width>
+        <Height>9.76pt</Height>
+        <Width>57.32pt</Width>
         <Value>
         </Value>
         <ZIndex>1</ZIndex>
-        <Left>267.0pt</Left>
-        <Top>509.9pt</Top>
+        <Left>242.91pt</Left>
+        <Top>508.39pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -11845,7 +11844,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	organizations.name AS org_name,
@@ -11914,7 +11913,7 @@ GROUP BY orders.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="delivery_date">
           <DataField>delivery_date</DataField>
           <TypeName>System.DateTime</TypeName>

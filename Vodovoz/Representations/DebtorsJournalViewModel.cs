@@ -114,6 +114,8 @@ namespace Vodovoz.Representations
 
 			#endregion LastOrder
 
+			ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
+
 			#region Filter
 
 			if(FilterViewModel != null) 
@@ -124,10 +126,6 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == FilterViewModel.Address.Id);
 				if(FilterViewModel.OPF != null)
 					ordersQuery = ordersQuery.Where(() => counterpartyAlias.PersonType == FilterViewModel.OPF.Value);
-				if(FilterViewModel.LastOrderNomenclature != null)
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderNomenclatures);
-				if(FilterViewModel.DiscountReason != null)
-					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderDiscount);
 				if(FilterViewModel.LastOrderBottlesFrom != null)
 					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered >= FilterViewModel.LastOrderBottlesFrom.Value);
 				if(FilterViewModel.LastOrderBottlesTo != null)
@@ -136,6 +134,10 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate.Value);
 				if(FilterViewModel.EndDate != null)
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= FilterViewModel.EndDate.Value);
+				if(FilterViewModel.LastOrderNomenclature != null)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderNomenclatures);
+				if(FilterViewModel.DiscountReason != null)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderDiscount);
 				if(FilterViewModel.DebtBottlesFrom != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
 				if(FilterViewModel.DebtBottlesTo != null)
@@ -170,7 +172,6 @@ namespace Vodovoz.Representations
 				   .SelectSubQuery(bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
 				   .SelectSubQuery(TaskExistQuery).WithAlias(() => resultAlias.RowColor)
 					 )
-				.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery)
 				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
 
 			return resultQuery;

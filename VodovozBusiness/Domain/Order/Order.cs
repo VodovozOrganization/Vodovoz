@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Gamma.Utilities;
+using NHibernate.Exceptions;
 using NHibernate.Util;
 using QS.Contacts;
 using QS.Dialog;
@@ -14,7 +15,6 @@ using QS.DomainModel.UoW;
 using QS.EntityRepositories;
 using QS.HistoryLog;
 using QS.Project.Repositories;
-using QS.Services;
 using QSSupportLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -61,10 +61,10 @@ namespace Vodovoz.Domain.Orders
 		private IAutoCallTaskFactory callTaskFactory; //FIXME: До перехода на MVVM
 		public virtual IAutoCallTaskFactory CallTaskAutoFactory {
 			get { return callTaskFactory; }
-			set { 
-					callTaskFactory = value;
-					if(callTaskFactory != null)
-						callTaskFactory.Order = this;
+			set {
+				callTaskFactory = value;
+				if(callTaskFactory != null)
+					callTaskFactory.Order = this;
 			}
 		}
 
@@ -1123,7 +1123,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal MoneyForMaster =>
 			ObservableOrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.master && i.ActualCount.HasValue)
 								.Sum(i => (decimal)i.Nomenclature.PercentForMaster / 100 * i.ActualCount.Value * i.Price);
-			
+
 		public virtual decimal? ActualGoodsTotalSum =>
 			OrderItems.Sum(item => item.Price * item.ActualCount - item.DiscountMoney);
 
@@ -2718,7 +2718,7 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Виновный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures ,GuiltyTypes? guilty = GuiltyTypes.Client)
+		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
 
@@ -2923,7 +2923,7 @@ namespace Vodovoz.Domain.Orders
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
 					ChangeStatus(OrderStatus.Closed);
-					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository(),incomeCash, expenseCash);
+					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
 				} else
 					ChangeStatus(OrderStatus.OnLoading);
 
@@ -2952,7 +2952,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool SelfDeliveryIsFullyIncomePaid()
 		{
-			decimal totalPaid =new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
+			decimal totalPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
 
 			return OrderSumTotal == totalPaid;
 		}
@@ -3265,24 +3265,20 @@ namespace Vodovoz.Domain.Orders
 			int amountDelivered = OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water && !item.Nomenclature.IsDisposableTare)
 								.Sum(item => item?.ActualCount ?? 0);
 
-			if(forfeitQuantity == null) 
-			{
+			if(forfeitQuantity == null) {
 				forfeitQuantity = OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
 							.Select(i => i.ActualCount.Value)
 							.Sum();
 			}
-			
+
 			bool isValidCondition = amountDelivered != 0;
 			isValidCondition |= returnByStock > 0;
 			isValidCondition |= forfeitQuantity > 0;
 			isValidCondition &= !orderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
 
-			if(isValidCondition) 
-			{
-				if(BottlesMovementOperation == null) 
-				{
-					BottlesMovementOperation = new BottlesMovementOperation 
-					{
+			if(isValidCondition) {
+				if(BottlesMovementOperation == null) {
+					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
 						Counterparty = Client,
 						DeliveryPoint = DeliveryPoint
@@ -3292,9 +3288,7 @@ namespace Vodovoz.Domain.Orders
 				BottlesMovementOperation.Delivered = amountDelivered;
 				BottlesMovementOperation.Returned = returnByStock + forfeitQuantity.Value;
 				uow.Save(BottlesMovementOperation);
-			} 
-			else
-			{
+			} else {
 				DeleteBottlesMovementOperation(uow);
 			}
 
@@ -3326,7 +3320,7 @@ namespace Vodovoz.Domain.Orders
 			foreach(OrderItem item in OrderItems)
 				if(!item.ActualCount.HasValue)
 					item.ActualCount = item.Count;
-					
+
 			int? forfeitQuantity = null;
 
 			if(!SelfDelivery || SelfDeliveryIsFullyPaid(cashRepository, incomeCash, expenseCash))
@@ -3504,6 +3498,55 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Возврат первого попавшегося контакта из цепочки:
+		/// 1. Мобильный телефон точки доставки;
+		/// 2. Мобильный телефон контрагента;
+		/// 3. Эл.почта для счетов контрагента;
+		/// 4. Городской телефон точки доставки;
+		/// 5. Городской телефон контрагента.
+		/// </summary>
+		/// <returns>Контакт с минимальным весом.</returns>
+		public virtual string GetContact()
+		{
+			if(Client == null)
+				return null;
+			//Dictionary<вес контакта, контакт>
+			Dictionary<int, string> contacts = new Dictionary<int, string>();
+			try {
+				if(!SelfDelivery && DeliveryPoint != null && DeliveryPoint.Phones.Any()) {
+					var phone = DeliveryPoint.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
+					if(phone != null)
+						contacts[0] = phone.DigitsNumber;
+					else if(DeliveryPoint.Phones.Any(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)))
+						contacts[3] = DeliveryPoint.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+				}
+			} catch(GenericADOException ex) {
+				logger.Error(ex.Message);
+			}
+			try {
+				if(Client.Phones.Any()) {
+					var phone = Client.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
+					if(phone != null)
+						contacts[1] = phone.DigitsNumber;
+					else if(Client.Phones.Any(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)))
+						contacts[4] = Client.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+				}
+			} catch(GenericADOException ex) {
+				logger.Error(ex.Message);
+			}
+			try {
+				if(Client.Emails.Any())
+					contacts[2] = Client.Emails.FirstOrDefault().Address;
+			} catch(GenericADOException ex) {
+				logger.Error(ex.Message);
+			}
+			if(!contacts.Any())
+				return null;
+			int minWeight = contacts.Min(c => c.Key);
+			return contacts[minWeight];
+		}
 
 		public virtual void SaveOrderComment()
 		{
@@ -3754,4 +3797,3 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 	}
 }
-

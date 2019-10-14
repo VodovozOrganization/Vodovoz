@@ -20,7 +20,7 @@
 	(
 		SELECT COUNT(*) = 0
 		FROM route_lists
-		WHERE route_lists.date = byOrders.date AND route_lists.status != 'Closed'
+		WHERE route_lists.date BETWEEN @start_date AND @end_date AND route_lists.status != 'Closed'
 	) AS all_closed,
 	(
 		SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
@@ -29,7 +29,7 @@
 		INNER JOIN store_car_load_document_items ON store_car_load_document_items.car_load_document_id = store_car_load_documents.id
 		INNER JOIN warehouse_movement_operations ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
 		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-		WHERE route_lists.date = byOrders.date
+		WHERE route_lists.date BETWEEN @start_date AND @end_date
 			AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
 			AND nomenclature.is_new_bottle = 0
 			AND nomenclature.is_defective_bottle = 0
@@ -41,7 +41,7 @@
 		INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
 		INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
 		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-		WHERE route_lists.date = byOrders.date
+		WHERE route_lists.date BETWEEN @start_date AND @end_date
 			AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
 			AND nomenclature.is_new_bottle = 0
 			AND nomenclature.is_defective_bottle = 0
@@ -53,8 +53,8 @@
 		INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
 		INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
 		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-		WHERE route_lists.date = byOrders.date
-			AND nomenclature.category = 'bottle'
+		WHERE store_car_unload_documents.time_stamp BETWEEN @start_date AND DATE_ADD(@end_date, INTERVAL 86399 SECOND)
+			#AND nomenclature.category = 'bottle'
 			AND nomenclature.is_defective_bottle = 1
 	) +
 	(
@@ -63,9 +63,8 @@
 		INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
 		INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
 		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-		WHERE store_incoming_invoice.time_stamp &gt;= byOrders.date
-			AND store_incoming_invoice.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
-			AND nomenclature.category = 'bottle'
+		WHERE store_incoming_invoice.time_stamp BETWEEN @start_date AND DATE_ADD(@end_date, INTERVAL 86399 SECOND)
+			#AND nomenclature.category = 'bottle'
 			AND nomenclature.is_defective_bottle = 1
 	) +
 	(
@@ -74,9 +73,8 @@
 		INNER JOIN store_inventory_item ON store_inventory_item.store_inventory_id = store_inventory.id
 		INNER JOIN warehouse_movement_operations ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
 		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-		WHERE store_inventory.time_stamp &gt;= byOrders.date
-			AND store_inventory.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
-			AND nomenclature.category = 'bottle'
+		WHERE store_inventory.time_stamp BETWEEN @start_date AND DATE_ADD(@end_date, INTERVAL 86399 SECOND)
+			#AND nomenclature.category = 'bottle'
 			AND nomenclature.is_defective_bottle = 1
 	) +
 	(
@@ -85,9 +83,8 @@
 		INNER JOIN store_regrading_of_goods_items ON store_regrading_of_goods_items.store_regrading_of_goods_id = store_regrading_of_goods.id
 		INNER JOIN warehouse_movement_operations ON store_regrading_of_goods_items.warehouse_income_operation_id = warehouse_movement_operations.id
 		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-		WHERE store_regrading_of_goods.time_stamp &gt;= byOrders.date
-			AND store_regrading_of_goods.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
-			AND nomenclature.category = 'bottle'
+		WHERE store_regrading_of_goods.time_stamp BETWEEN @start_date AND DATE_ADD(@end_date, INTERVAL 86399 SECOND)
+			#AND nomenclature.category = 'bottle'
 			AND nomenclature.is_defective_bottle = 1
 	) AS defective_count,
 	(
@@ -97,7 +94,7 @@
 		INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
 		INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
 		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-		WHERE route_lists.date = byOrders.date
+		WHERE route_lists.date BETWEEN @start_date AND @end_date
 			AND nomenclature.category = 'bottle'
 			AND nomenclature.is_new_bottle = 1
 	) +
@@ -107,8 +104,7 @@
 		INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
 		INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
 		INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-		WHERE store_incoming_invoice.time_stamp &gt;= byOrders.date
-			AND store_incoming_invoice.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
+		WHERE store_incoming_invoice.time_stamp BETWEEN @start_date AND DATE_ADD(@end_date, INTERVAL 86399 SECOND)
 			AND nomenclature.category = 'bottle'
 			AND nomenclature.is_new_bottle = 1
 	) AS new_bottle_count
@@ -199,7 +195,7 @@ FROM(
 		(
 			SELECT COUNT(*) = 0
 			FROM route_lists
-			WHERE route_lists.date = byOrders.date AND route_lists.status != 'Closed'
+			WHERE route_lists.date BETWEEN @start_date AND @end_date AND route_lists.status != 'Closed'
 		) AS all_closed,
 		(
 			SELECT IFNULL(SUM(warehouse_movement_operations.amount), 0)
@@ -208,7 +204,7 @@ FROM(
 			INNER JOIN store_car_load_document_items ON store_car_load_document_items.car_load_document_id = store_car_load_documents.id
 			INNER JOIN warehouse_movement_operations ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
 			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-			WHERE route_lists.date = byOrders.date
+			WHERE route_lists.date BETWEEN @start_date AND @end_date
 				AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
 				AND nomenclature.is_new_bottle = 0
 				AND nomenclature.is_defective_bottle = 0
@@ -220,7 +216,7 @@ FROM(
 			INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
 			INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
 			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-			WHERE route_lists.date = byOrders.date
+			WHERE route_lists.date BETWEEN @start_date AND @end_date
 				AND (nomenclature.category = 'water' AND !nomenclature.is_disposable_tare OR nomenclature.category = 'bottle')
 				AND nomenclature.is_new_bottle = 0
 				AND nomenclature.is_defective_bottle = 0
@@ -232,8 +228,8 @@ FROM(
 			INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
 			INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
 			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-			WHERE route_lists.date = byOrders.date
-				AND nomenclature.category = 'bottle'
+			WHERE store_car_unload_documents.time_stamp BETWEEN @start_date AND DATE_ADD(@end_date, INTERVAL 86399 SECOND)
+				#AND nomenclature.category = 'bottle'
 				AND nomenclature.is_defective_bottle = 1
 		) +
 		(
@@ -242,9 +238,8 @@ FROM(
 			INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
 			INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
 			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-			WHERE store_incoming_invoice.time_stamp &gt;= byOrders.date
-				AND store_incoming_invoice.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
-				AND nomenclature.category = 'bottle'
+			WHERE store_incoming_invoice.time_stamp BETWEEN @start_date AND DATE_ADD(@end_date, INTERVAL 86399 SECOND)
+				#AND nomenclature.category = 'bottle'
 				AND nomenclature.is_defective_bottle = 1
 		) +
 		(
@@ -253,9 +248,8 @@ FROM(
 			INNER JOIN store_inventory_item ON store_inventory_item.store_inventory_id = store_inventory.id
 			INNER JOIN warehouse_movement_operations ON store_inventory_item.warehouse_movement_operation_id = warehouse_movement_operations.id
 			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-			WHERE store_inventory.time_stamp &gt;= byOrders.date
-				AND store_inventory.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
-				AND nomenclature.category = 'bottle'
+			WHERE store_inventory.time_stamp BETWEEN @start_date AND DATE_ADD(@end_date, INTERVAL 86399 SECOND)
+				#AND nomenclature.category = 'bottle'
 				AND nomenclature.is_defective_bottle = 1
 		) +
 		(
@@ -264,9 +258,8 @@ FROM(
 			INNER JOIN store_regrading_of_goods_items ON store_regrading_of_goods_items.store_regrading_of_goods_id = store_regrading_of_goods.id
 			INNER JOIN warehouse_movement_operations ON store_regrading_of_goods_items.warehouse_income_operation_id = warehouse_movement_operations.id
 			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-			WHERE store_regrading_of_goods.time_stamp &gt;= byOrders.date
-				AND store_regrading_of_goods.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
-				AND nomenclature.category = 'bottle'
+			WHERE store_regrading_of_goods.time_stamp BETWEEN @start_date AND DATE_ADD(@end_date, INTERVAL 86399 SECOND)
+				#AND nomenclature.category = 'bottle'
 				AND nomenclature.is_defective_bottle = 1
 		) AS defective_count,
 		(
@@ -276,7 +269,7 @@ FROM(
 			INNER JOIN store_car_unload_document_items ON store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
 			INNER JOIN warehouse_movement_operations ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
 			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-			WHERE route_lists.date = byOrders.date
+			WHERE route_lists.date BETWEEN @start_date AND @end_date
 				AND nomenclature.category = 'bottle'
 				AND nomenclature.is_new_bottle = 1
 		) +
@@ -286,8 +279,7 @@ FROM(
 			INNER JOIN store_incoming_invoice_items ON store_incoming_invoice_items.incoming_invoice_id = store_incoming_invoice.id
 			INNER JOIN warehouse_movement_operations ON store_incoming_invoice_items.good_move_operation_id = warehouse_movement_operations.id
 			INNER JOIN nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
-			WHERE store_incoming_invoice.time_stamp &gt;= byOrders.date
-				AND store_incoming_invoice.time_stamp &lt; DATE_ADD(byOrders.date, INTERVAL 1 DAY)
+			WHERE store_incoming_invoice.time_stamp BETWEEN @start_date AND DATE_ADD(@end_date, INTERVAL 86399 SECOND)
 				AND nomenclature.category = 'bottle'
 				AND nomenclature.is_new_bottle = 1
 		) AS new_bottle_count
@@ -1465,7 +1457,7 @@ GROUP BY T1.date
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2019-04-01</Value>
+          <Value>2019-10-01</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1478,7 +1470,7 @@ GROUP BY T1.date
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2019-04-14</Value>
+          <Value>2019-10-01</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1488,7 +1480,7 @@ GROUP BY T1.date
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
