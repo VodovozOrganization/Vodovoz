@@ -752,7 +752,8 @@
     <Compile Include="Domain\Order\CashReceipt.cs" />
     <Compile Include="HibernateMapping\Order\CashReceiptMap.cs" />
     <Compile Include="PermissionExtensions\IPermissionExtension.cs" />
-    <Compile Include="PermissionExtensions\PermissionExtensionStore.cs" />
+    <Compile Include="PermissionExtensions\PermissionExtensionSingletonStore.cs" />
+    <Compile Include="ViewModels\PermissionListViewModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
