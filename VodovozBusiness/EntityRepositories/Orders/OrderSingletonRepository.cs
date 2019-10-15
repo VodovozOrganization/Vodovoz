@@ -424,7 +424,11 @@ namespace Vodovoz.EntityRepositories.Orders
 		{
 			var result = uow.Session.QueryOver<VodovozOrder>()
 							.Where(o => o.PaymentType == paymentType)
-							.Where(o => o.OrderStatus == OrderStatus.UnloadingOnStock || o.OrderStatus == OrderStatus.Closed)
+							.Where(
+								o => o.OrderStatus == OrderStatus.Shipped
+								|| o.OrderStatus == OrderStatus.UnloadingOnStock
+								|| o.OrderStatus == OrderStatus.Closed
+							)
 							.Where(o => !o.SelfDelivery)
 							;
 			if(startDate.HasValue)
