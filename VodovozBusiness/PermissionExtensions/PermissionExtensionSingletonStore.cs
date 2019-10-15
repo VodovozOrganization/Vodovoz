@@ -4,9 +4,20 @@ using System.Linq;
 
 namespace Vodovoz.PermissionExtensions
 {
-	public class PermissionExtensionStore
+	public class PermissionExtensionSingletonStore
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private static PermissionExtensionSingletonStore instance;
+
+		public static PermissionExtensionSingletonStore GetInstance()
+		{
+			if(instance == null)
+				instance = new PermissionExtensionSingletonStore();
+			return instance;
+		}
+
+		protected PermissionExtensionSingletonStore() { }
 
 		private IList<IPermissionExtension> permissionExtensions;
 		public IList<IPermissionExtension> PermissionExtensions {
