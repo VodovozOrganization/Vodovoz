@@ -12,7 +12,7 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
-	public class CarsWageParametersViewModel : UoWTabViewModelBase
+	public class CarsWageParametersViewModel : DialogTabViewModelBase
 	{
 		private readonly IWageCalculationRepository wageCalculationRepository;
 		private readonly ICommonServices commonServices;

@@ -34,7 +34,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-	public class RouteListsOnDayViewModel : UoWTabViewModelBase
+	public class RouteListsOnDayViewModel : DialogTabViewModelBase
 	{
 		readonly IRouteListRepository routeListRepository;
 		readonly ISubdivisionRepository subdivisionRepository;
