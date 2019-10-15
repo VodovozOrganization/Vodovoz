@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using QS.DomainModel.Entity;
+using QS.Project.Dialogs;
+using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi;
-using QS.Project.Dialogs.GtkUI;
-using System.Collections.Generic;
-using QS.Project.Dialogs;
-using System.Collections;
-using QS.DomainModel.Entity;
 using QS.Utilities.Text;
 
 namespace Vodovoz.Infrastructure.Services
