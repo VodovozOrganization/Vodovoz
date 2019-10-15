@@ -1326,6 +1326,8 @@
     <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
     <Compile Include="JournalViewModels\EmployeesJournalViewModel.cs" />
     <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
+    <Compile Include="Core\Permissions\PermissionListView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Core.Permissions.PermissionListView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
