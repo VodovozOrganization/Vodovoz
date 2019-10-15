@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using NHibernate.Criterion;
+using QS.Commands;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Repositories;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
-using Vodovoz.EntityRepositories.Fuel;
-using Vodovoz.Infrastructure.Services;
-using QS.Commands;
-using QS.Project.Journal;
 using Vodovoz.Domain.Logistic;
-using QS.DomainModel.Config;
-using System.Linq;
-using NHibernate.Criterion;
+using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
-using QS.Project.Repositories;
-using QS.DomainModel.UoW;
+using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -136,7 +134,7 @@ namespace Vodovoz.Dialogs.Fuel
 					var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(x => x.Name,
 						() => new FuelTypeViewModel(EntityConstructorParam.ForCreate(), commonServices),
 						(node) => new FuelTypeViewModel(EntityConstructorParam.ForOpen(node.Id), commonServices),
-						UnitOfWorkFactory.GetDefaultFactory,
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					);
 					fuelTypeJournalViewModel.SetRestriction(() => {

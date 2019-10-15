@@ -199,7 +199,7 @@ namespace Vodovoz.ViewModels.Employees
 					var fineTemplatesJournalViewModel = new SimpleEntityJournalViewModel<FineTemplate, FineTemplateViewModel>(x => x.Reason,
 						() => new FineTemplateViewModel(EntityConstructorParam.ForCreate(), CommonServices),
 						(node) => new FineTemplateViewModel(EntityConstructorParam.ForOpen(node.Id), CommonServices),
-						UnitOfWorkFactory.GetDefaultFactory,
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
 					);
 					fineTemplatesJournalViewModel.SelectionMode = JournalSelectionMode.Single;

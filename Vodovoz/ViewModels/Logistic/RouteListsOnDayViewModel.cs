@@ -6,9 +6,7 @@ using System.Text;
 using NHibernate;
 using NHibernate.Criterion;
 using QS.Commands;
-using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
@@ -52,7 +50,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IOrderRepository orderRepository,
 			IAtWorkRepository atWorkRepository,
 			ICarRepository carRepository
-		) : base(commonServices.InteractiveService)
+		) : base(QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices.InteractiveService)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
@@ -193,7 +191,7 @@ namespace Vodovoz.ViewModels.Logistic
 					);
 					var drvJournalViewModel = new EmployeesJournalViewModel(
 						drvFilter,
-						UnitOfWorkFactory.GetDefaultFactory,
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					) {
 						SelectionMode = JournalSelectionMode.Multiple
@@ -259,7 +257,7 @@ namespace Vodovoz.ViewModels.Logistic
 					);
 					var fwdJournalViewModel = new EmployeesJournalViewModel(
 						fwdFilter,
-						UnitOfWorkFactory.GetDefaultFactory,
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					) {
 						SelectionMode = JournalSelectionMode.Multiple

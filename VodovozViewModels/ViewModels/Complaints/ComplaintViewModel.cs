@@ -262,7 +262,7 @@ namespace Vodovoz.ViewModels.Complaints
 						undeliveryViewOpener,
 						employeeService,
 						employeeSelectorFactory,
-						UnitOfWorkFactory.GetDefaultFactory,
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
 					);
 					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;

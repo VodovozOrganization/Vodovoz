@@ -19,7 +19,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 
 		public event EventHandler OnParameterNodesUpdated;
 
-		public CarsWageParametersViewModel(IWageCalculationRepository wageCalculationRepository, ICommonServices commonServices) : base(commonServices.InteractiveService)
+		public CarsWageParametersViewModel(IWageCalculationRepository wageCalculationRepository, ICommonServices commonServices) : base(null, commonServices.InteractiveService)
 		{
 			TabName = "Ставки для автомобилей компании";
 
