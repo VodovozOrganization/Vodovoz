@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.RepresentationModel.GtkUI;
@@ -114,8 +114,6 @@ namespace Vodovoz.Infrastructure.Services
 		#region IEntityAutocompleteSelector implementation
 
 		public IList Items => model.ItemsList;
-
-		public bool IsActive => model.UoW.IsAlive;
 
 		public void SearchValues(params string[] values)
 		{

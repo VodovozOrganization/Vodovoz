@@ -3,7 +3,6 @@ using System.Linq;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
-using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
