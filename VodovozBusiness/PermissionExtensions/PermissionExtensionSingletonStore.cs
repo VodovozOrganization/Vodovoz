@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Vodovoz.PermissionExtensions
 {
-	public class PermissionExtensionSingletonStore
+	public class PermissionExtensionSingletonStore : IPermissionExtensionStore
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 

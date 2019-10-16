@@ -11,6 +11,6 @@ namespace Vodovoz.PermissionExtensions
 
 		string Description { get; }
 
-		bool IsValidType(TypeOfEntity typeOfEntity);
+		bool IsValidType(Type typeOfEntity);
 	}
 }

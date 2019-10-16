@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using QS.Project.Domain;
 using System.Linq;
 using Vodovoz.Domain.Documents;
+using System;
 
 namespace Vodovoz.PermissionExtensions
 {
@@ -13,15 +13,16 @@ namespace Vodovoz.PermissionExtensions
 
 		public RetroactivelyClosePermission() {}
 
-		public bool IsValidType(TypeOfEntity typeOfEntity)
+		public bool IsValidType(Type typeOfEntity)
 		{
 			if(typeOfEntity == null)
 				return false;
 
-			return ValidTypes().Contains(typeOfEntity.Type);
+			return ValidTypes().Contains(typeOfEntity.ToString());
 		}
+	 
 
-		public IEnumerable<string> ValidTypes()
+		protected IEnumerable<string> ValidTypes()
 		{
 			yield return nameof(InventoryDocument);
 		}

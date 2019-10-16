@@ -64,13 +64,14 @@ namespace Vodovoz.Repositories.Permissions
 				.List();
 		}
 
-		public static IEnumerable<PermissionNode> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdivisionId, PermissionExtensionStore permissionExtensionFactory) //TODO : Вынести в фабрику (ну или в Helper) 
+		public static IEnumerable<PermissionNode> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdivisionId, PermissionExtensionSingletonStore permissionExtensionFactory) //TODO : Вынести в фабрику (ну или в Helper) 
 		{
 			var basePermission = uow.Session.QueryOver<EntitySubdivisionOnlyPermission>()
 				.Where(x => x.Subdivision.Id == subdivisionId)
 				.List();
 
-			foreach(var item in basePermission) {
+			foreach(var item in basePermission) 
+			{
 				var node = new PermissionNode();
 				node.EntitySubdivisionOnlyPermission = item;
 				node.TypeOfEntity = item.TypeOfEntity;
@@ -95,7 +96,7 @@ namespace Vodovoz.Repositories.Permissions
 					}
 
 					permission = new EntityPermissionExtended();
-					permission.IsPermissionAvailable = false;
+					permission.IsPermissionAvailable = null;
 					permission.PermissionId = extension.PermissionId;
 					permission.Subdivision = item.Subdivision;
 					permission.TypeOfEntity = item.TypeOfEntity;

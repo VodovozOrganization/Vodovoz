@@ -12,9 +12,9 @@ namespace Vodovoz.Domain.Permissions
 
 		public virtual int Id { get; set; }
 
-		private bool isPermissionAvailable;
+		private bool? isPermissionAvailable;
 		[Display(Name = "Доступно ли право ?")]
-		public virtual bool IsPermissionAvailable {
+		public virtual bool? IsPermissionAvailable {
 			get => isPermissionAvailable;
 			set => SetField(ref isPermissionAvailable, value);
 		}
