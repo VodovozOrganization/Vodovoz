@@ -256,7 +256,6 @@ namespace Vodovoz.Domain.Logistic
 		/// Внутренее поле говорящее о том что первоначалная подготовка маршрутного листа к закрытию выполнена.
 		/// Эта операция выполняется 1 раз при первом открытии диалога закрытия МЛ, тут оставляется пометка о том что операция выполнена.
 		/// </summary>
-		[IgnoreHistoryTrace]
 		public virtual bool ClosingFilled {
 			get => closingFilled;
 			set => SetField(ref closingFilled, value, () => ClosingFilled);
