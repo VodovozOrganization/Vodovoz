@@ -19,6 +19,12 @@ namespace Vodovoz.ViewModels
 
 		public PermissionExtensionSingletonStore PermissionExtensionStore { get; set; }
 
+		private PermissionNode selectedNode;
+		public virtual PermissionNode SelectedNode {
+			get => selectedNode;
+			set => SetField(ref selectedNode, value);
+		}
+
 		private bool readOnly = false;
 		public virtual bool ReadOnly {
 			get => readOnly;
@@ -33,9 +39,11 @@ namespace Vodovoz.ViewModels
 
 		public void SaveExtendedPermissions(IUnitOfWork uow)
 		{
-			foreach(var item in PermissionsList.SelectMany(x => x.EntityPermissionExtended).Where(x => x.IsPermissionAvailable != null)) {
+			foreach(var item in PermissionsList.SelectMany(x => x.EntityPermissionExtended).Where(x => x.IsPermissionAvailable != null)) 
 				uow.Save(item);
-			}
+			
+			foreach(var item in PermissionsList.SelectMany(x => x.EntityPermissionExtended).Where(x => x.IsPermissionAvailable == null && x.Id > 0))
+				uow.Delete(item);
 		}
 
 		#region Commands

@@ -18,9 +18,7 @@ namespace Vodovoz.Core.Permissions
 
 		private global::Gtk.Button buttonDelete;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-
-		private global::Gamma.GtkWidgets.yTreeView ytreeviewPermissions;
+		private global::Vodovoz.Core.Permissions.PermissionListView permissionlistview;
 
 		protected virtual void Build()
 		{
@@ -80,20 +78,17 @@ namespace Vodovoz.Core.Permissions
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeviewPermissions = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewPermissions.CanFocus = true;
-			this.ytreeviewPermissions.Name = "ytreeviewPermissions";
-			this.GtkScrolledWindow.Add(this.ytreeviewPermissions);
-			this.hbox2.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.GtkScrolledWindow]));
-			w7.Position = 2;
+			this.permissionlistview = new global::Vodovoz.Core.Permissions.PermissionListView();
+			this.permissionlistview.Events = ((global::Gdk.EventMask)(256));
+			this.permissionlistview.Name = "permissionlistview";
+			this.hbox2.Add(this.permissionlistview);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.permissionlistview]));
+			w6.Position = 2;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.vbox2.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
-			w8.Position = 0;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
+			w7.Position = 0;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
@@ -103,7 +98,6 @@ namespace Vodovoz.Core.Permissions
 			this.ytreeviewEntitiesList.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewEntitiesListRowActivated);
 			this.buttonAdd.Clicked += new global::System.EventHandler(this.OnButtonAddClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
-			this.ytreeviewPermissions.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewPermissionsRowActivated);
 		}
 	}
 }

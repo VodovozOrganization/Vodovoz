@@ -18,7 +18,7 @@ namespace Vodovoz.Core.Permissions
 
 		private global::Gamma.GtkWidgets.yLabel ylabelPermDelete;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelPermExtension;
+		private global::Gtk.HBox hboxExtension;
 
 		private global::Gtk.ScrolledWindow scrolledwindow1;
 
@@ -51,6 +51,7 @@ namespace Vodovoz.Core.Permissions
 			w1.Fill = false;
 			// Container child hboxHeader.Gtk.Box+BoxChild
 			this.ylabelPermView = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelPermView.WidthRequest = 100;
 			this.ylabelPermView.Name = "ylabelPermView";
 			this.ylabelPermView.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Просмотр</b>");
 			this.ylabelPermView.UseMarkup = true;
@@ -61,6 +62,7 @@ namespace Vodovoz.Core.Permissions
 			w2.Fill = false;
 			// Container child hboxHeader.Gtk.Box+BoxChild
 			this.ylabelPermCreate = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelPermCreate.WidthRequest = 100;
 			this.ylabelPermCreate.Name = "ylabelPermCreate";
 			this.ylabelPermCreate.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Создание</b>");
 			this.ylabelPermCreate.UseMarkup = true;
@@ -71,6 +73,7 @@ namespace Vodovoz.Core.Permissions
 			w3.Fill = false;
 			// Container child hboxHeader.Gtk.Box+BoxChild
 			this.ylabelPermEdit = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelPermEdit.WidthRequest = 120;
 			this.ylabelPermEdit.Name = "ylabelPermEdit";
 			this.ylabelPermEdit.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Редактирование</b>");
 			this.ylabelPermEdit.UseMarkup = true;
@@ -81,6 +84,7 @@ namespace Vodovoz.Core.Permissions
 			w4.Fill = false;
 			// Container child hboxHeader.Gtk.Box+BoxChild
 			this.ylabelPermDelete = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelPermDelete.WidthRequest = 100;
 			this.ylabelPermDelete.Name = "ylabelPermDelete";
 			this.ylabelPermDelete.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Удаление</b>");
 			this.ylabelPermDelete.UseMarkup = true;
@@ -90,15 +94,12 @@ namespace Vodovoz.Core.Permissions
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hboxHeader.Gtk.Box+BoxChild
-			this.ylabelPermExtension = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelPermExtension.Name = "ylabelPermExtension";
-			this.ylabelPermExtension.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Расширенные права</b>");
-			this.ylabelPermExtension.UseMarkup = true;
-			this.hboxHeader.Add(this.ylabelPermExtension);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxHeader[this.ylabelPermExtension]));
+			this.hboxExtension = new global::Gtk.HBox();
+			this.hboxExtension.Name = "hboxExtension";
+			this.hboxExtension.Spacing = 6;
+			this.hboxHeader.Add(this.hboxExtension);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxHeader[this.hboxExtension]));
 			w6.Position = 5;
-			w6.Expand = false;
-			w6.Fill = false;
 			this.vbox3.Add(this.hboxHeader);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hboxHeader]));
 			w7.Position = 0;
