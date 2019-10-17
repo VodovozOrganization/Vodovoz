@@ -1442,6 +1442,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		tdiMain.AddTab(
 			new CarsWageParametersViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
 				WageSingletonRepository.GetInstance(),
 				ServicesConfig.CommonServices
 			)

@@ -19,14 +19,12 @@ namespace Vodovoz.ViewModels.WageCalculation
 
 		public event EventHandler OnParameterNodesUpdated;
 
-		public CarsWageParametersViewModel(IWageCalculationRepository wageCalculationRepository, ICommonServices commonServices) : base(null, commonServices.InteractiveService)
+		public CarsWageParametersViewModel(IUnitOfWorkFactory unitOfWorkFactory, IWageCalculationRepository wageCalculationRepository, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices.InteractiveService)
 		{
 			TabName = "Ставки для автомобилей компании";
 
 			this.wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			ObservableWageParameters.ElementAdded += (aList, aIdx) => WageParametersUpdated();
 			ObservableWageParameters.ElementRemoved += (aList, aIdx, aObject) => WageParametersUpdated();
