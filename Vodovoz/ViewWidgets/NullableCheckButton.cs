@@ -11,19 +11,19 @@ namespace Vodovoz.ViewWidgets
 {
 	[ToolboxItem(true)]
 	[Category("QsProjectsLib")]
-	public class NullableCheckButton: yButton, INotifyPropertyChanged
+	public class NullableCheckButton : yButton
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
-
 		public BindingControler<NullableCheckButton> Binding { get; private set; }
 
-		public RenderMode RenderMode { get; set; } = RenderMode.Symbol;
+
+		private RenderMode renderMode = RenderMode.Symbol;
+		public RenderMode RenderMode { get => renderMode; set { renderMode = value; ConfigureValue(); } }
 
 		private Pixbuf noIcon;
 		public virtual Pixbuf NoIcon {
 			get {
 				if(noIcon == null)
-					noIcon = new Pixbuf("Vodovoz.icons.buttons.NullableCheckBox.close-button.png").ScaleSimple(50, 50, InterpType.Nearest);
+					noIcon = new Pixbuf(System.Reflection.Assembly.GetExecutingAssembly(), "Vodovoz.icons.buttons.NullableCheckBox.close-button.png").ScaleSimple(13, 13, InterpType.Bilinear);
 				return noIcon;
 			}
 			set => noIcon = value;
@@ -33,7 +33,7 @@ namespace Vodovoz.ViewWidgets
 		public virtual Pixbuf OkIcon {
 			get {
 				if(okIcon == null)
-					okIcon = new Pixbuf("Vodovoz.icons.buttons.NullableCheckBox.check-symbol.png").ScaleSimple(50, 50, InterpType.Nearest);
+					okIcon = new Pixbuf(System.Reflection.Assembly.GetExecutingAssembly(), "Vodovoz.icons.buttons.NullableCheckBox.check-symbol.png").ScaleSimple(13, 13, InterpType.Bilinear);
 				return okIcon;
 			}
 			set => okIcon = value;
@@ -43,7 +43,7 @@ namespace Vodovoz.ViewWidgets
 		public virtual Pixbuf NullIcon {
 			get {
 				if(nullIcon == null)
-					nullIcon = new Pixbuf("Vodovoz.icons.buttons.NullableCheckBox.blank-square.png").ScaleSimple(50, 50, InterpType.Nearest);
+					nullIcon = new Pixbuf(System.Reflection.Assembly.GetExecutingAssembly(), "Vodovoz.icons.buttons.NullableCheckBox.blank-square.png").ScaleSimple(13, 13, InterpType.Bilinear);
 				return nullIcon;
 			}
 			set => nullIcon = value;
@@ -51,21 +51,25 @@ namespace Vodovoz.ViewWidgets
 
 
 		private bool? active;
+
 		public virtual bool? Active {
 			get { return active; }
-			set 
-			{ 
+			set {
 				active = value;
-
-				if(active == null)
-					NullValueConfigure();
-				else if(active.Value)
-					OkValueConfigure();
-				else 
-					NoValueConfigure();
+				ConfigureValue();
 
 				Binding.FireChange(x => x.Active);
 			}
+		}
+
+		private void ConfigureValue()
+		{
+			if(active == null)
+				NullValueConfigure();
+			else if(active.Value)
+				OkValueConfigure();
+			else
+				NoValueConfigure();
 		}
 
 		public NullableCheckButton()
@@ -75,6 +79,7 @@ namespace Vodovoz.ViewWidgets
 			});
 			BorderWidth = 0;
 			this.Relief = ReliefStyle.None;
+			ConfigureValue();
 		}
 
 		#region valueConfig
