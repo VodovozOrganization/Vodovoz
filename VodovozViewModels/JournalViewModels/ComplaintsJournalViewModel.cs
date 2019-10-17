@@ -85,6 +85,10 @@ namespace Vodovoz.JournalViewModels
 
 			TabName = "Журнал жалоб";
 
+			RegisterComplaints();
+			SetOrder(c => c.Id, true);
+			FinishJournalConfiguration();
+
 			FilterViewModel.SubdivisionService = subdivisionService;
 			FilterViewModel.EmployeeRepository = employeeRepository;
 
@@ -94,11 +98,8 @@ namespace Vodovoz.JournalViewModels
 			else
 				FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
 
-			RegisterComplaints();
 
-			SetOrder(c => c.Id, true);
 
-			FinishJournalConfiguration();
 
 			UpdateOnChanges(
 				typeof(Complaint),
