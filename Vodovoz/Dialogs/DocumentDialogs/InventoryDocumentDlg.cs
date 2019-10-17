@@ -9,6 +9,9 @@ using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Domain.Permissions;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz
 {
@@ -16,13 +19,13 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private IEmployeeRepository employeeRepository { get; } = EmployeeSingletonRepository.GetInstance();
+		private IEmployeeRepository EmployeeRepository { get; } = EmployeeSingletonRepository.GetInstance();
 
 		public InventoryDocumentDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<InventoryDocument> ();
-			Entity.Author = employeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Author == null)
 			{
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -86,15 +89,34 @@ namespace Vodovoz
 			}
 
 			inventoryitemsview.DocumentUoW = UoWGeneric;
+
+
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance(), UserSingletonRepository.GetInstance());
+			Entity.CanEdit = permmissionValidator.Validate(typeof(InventoryDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
+				ydatepickerDocDate.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yenumcomboboxNomType.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yentryrefWarehouse.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yentryreferenceNom.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yentryreferenceNomGroup.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				buttonSave.Sensitive = false;
+				inventoryitemsview.Sensitive = false;
+			} else {
+				Entity.CanEdit = true;
+			}
 		}
 
 		public override bool Save ()
 		{
+			if(!Entity.CanEdit)
+				return false;
+
 			var valid = new QSValidator<InventoryDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = employeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null)
 			{
