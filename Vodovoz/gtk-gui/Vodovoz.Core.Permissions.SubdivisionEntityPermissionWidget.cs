@@ -16,8 +16,6 @@ namespace Vodovoz.Core.Permissions
 
 		private global::Gtk.Button buttonAdd;
 
-		private global::Gtk.Button buttonDelete;
-
 		private global::Vodovoz.Core.Permissions.PermissionListView permissionlistview;
 
 		protected virtual void Build()
@@ -61,34 +59,21 @@ namespace Vodovoz.Core.Permissions
 			w3.Position = 1;
 			w3.Expand = false;
 			w3.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonDelete = new global::Gtk.Button();
-			this.buttonDelete.CanFocus = true;
-			this.buttonDelete.Name = "buttonDelete";
-			this.buttonDelete.UseUnderline = true;
-			this.buttonDelete.Label = global::Mono.Unix.Catalog.GetString("<");
-			this.vbox1.Add(this.buttonDelete);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonDelete]));
-			w4.Position = 2;
+			this.hbox2.Add(this.vbox1);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox1]));
+			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
-			this.hbox2.Add(this.vbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox1]));
-			w5.Position = 1;
-			w5.Expand = false;
-			w5.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.permissionlistview = new global::Vodovoz.Core.Permissions.PermissionListView();
 			this.permissionlistview.Events = ((global::Gdk.EventMask)(256));
 			this.permissionlistview.Name = "permissionlistview";
 			this.hbox2.Add(this.permissionlistview);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.permissionlistview]));
-			w6.Position = 2;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.permissionlistview]));
+			w5.Position = 2;
 			this.vbox2.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
-			w7.Position = 0;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
+			w6.Position = 0;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
@@ -97,7 +82,6 @@ namespace Vodovoz.Core.Permissions
 			this.Hide();
 			this.ytreeviewEntitiesList.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewEntitiesListRowActivated);
 			this.buttonAdd.Clicked += new global::System.EventHandler(this.OnButtonAddClicked);
-			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
 		}
 	}
 }
