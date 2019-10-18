@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.EntityRepositories;
 using QS.Project.Repositories;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
@@ -11,9 +12,13 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Store;
 using Vodovoz.ViewWidgets.Store;
@@ -68,7 +73,7 @@ namespace Vodovoz
 		void ConfigureNewDoc()
 		{
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument>();
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -106,7 +111,7 @@ namespace Vodovoz
 			filter.SetAndRefilterAtOnce(x => x.RestrictStatus = RouteListStatus.EnRoute);
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
-			yentryrefRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
+			yentryrefRouteList.CanEditReference = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_delete"];
 
 			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
 			spnTareToReturn.Binding.AddBinding(Entity, e => e.TareToReturn, w => w.ValueAsInt).InitializeFromSource();
@@ -119,10 +124,35 @@ namespace Vodovoz
 				HasChanges = false;
 			if(!UoW.IsNew)
 				LoadReception();
+
+			var permmissionValidator = new EntityExtendedPermissionValidator
+			(
+				PermissionExtensionSingletonStore.GetInstance(), 
+				EmployeeSingletonRepository.GetInstance(), 
+				UserSingletonRepository.GetInstance()
+			);
+			Entity.CanEdit = permmissionValidator.Validate(typeof(CarUnloadDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
+				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yentryrefRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				spnTareToReturn.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				defectiveitemsreceptionview1.Sensitive = false;
+				nonserialequipmentreceptionview1.Sensitive = false;
+				returnsreceptionview1.Sensitive = false;
+
+				buttonSave.Sensitive = false;
+			} else {
+				Entity.CanEdit = true;
+			}
 		}
 
 		public override bool Save()
 		{
+			if(!Entity.CanEdit)
+				return false;
+
 			if(!UpdateReceivedItemsOnEntity())
 				return false;
 
@@ -135,7 +165,7 @@ namespace Vodovoz
 				return false;
 			}
 
-			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");

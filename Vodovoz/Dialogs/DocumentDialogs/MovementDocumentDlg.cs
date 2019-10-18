@@ -16,7 +16,11 @@ using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
@@ -31,7 +35,7 @@ namespace Vodovoz
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument>();
 
-			Entity.Author = Entity.ResponsiblePerson = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = Entity.ResponsiblePerson = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -101,6 +105,27 @@ namespace Vodovoz
 			moveingNomenclaturesView.DocumentUoW = UoWGeneric;
 
 			UpdateAcessibility();
+
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance(), UserSingletonRepository.GetInstance());
+			Entity.CanEdit = permmissionValidator.Validate(typeof(MovementDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
+				enumMovementType.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yentryrefWagon.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				referenceWarehouseTo.Sensitive = false;
+				referenceWarehouseFrom.Sensitive = false;
+				referenceCounterpartyTo.Sensitive = false;
+				referenceDeliveryPointTo.Sensitive = false;
+				referenceCounterpartyFrom.Sensitive = false;
+				referenceDeliveryPointFrom.Sensitive = false;
+				repEntryEmployee.Sensitive = false;
+				textComment.Sensitive = false;
+				buttonDelivered.Sensitive = false;
+				moveingNomenclaturesView.Sensitive = false;
+
+				buttonSave.Sensitive = false;
+			} else {
+				Entity.CanEdit = true;
+			}
 		}
 
 		void UpdateAcessibility()
@@ -131,6 +156,9 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			if(!Entity.CanEdit)
+				return false;
+
 			var valid = new QSValidator<MovementDocument>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;

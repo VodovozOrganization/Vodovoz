@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.EntityRepositories;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Services;
@@ -17,11 +18,15 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Permissions;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services;
 
@@ -40,7 +45,7 @@ namespace Vodovoz
 			this.Build();
 
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<SelfDeliveryDocument>();
-			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -48,7 +53,7 @@ namespace Vodovoz
 			}
 
 			Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.SelfDeliveryEdit);
-			var validationResult = CheckPermission(EmployeeRepository.GetEmployeeForCurrentUser(UoW));
+			var validationResult = CheckPermission(EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
 				FailInitialize = true;
@@ -69,7 +74,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument>(id);
-			var validationResult = CheckPermission(EmployeeRepository.GetEmployeeForCurrentUser(UoW));
+			var validationResult = CheckPermission(EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
 			if(!validationResult.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Нет прав для доступа к документу отпуска самовывоза");
 				FailInitialize = true;
@@ -94,7 +99,7 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
-			var validationResult = CheckPermission(EmployeeRepository.GetEmployeeForCurrentUser(UoW));
+			var validationResult = CheckPermission(EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW));
 
 			if(StoreDocumentHelper.CheckAllPermissions(UoW.IsNew, WarehousePermissions.SelfDeliveryEdit, Entity.Warehouse)) {
 				FailInitialize = true;
@@ -121,7 +126,7 @@ namespace Vodovoz
 			);
 			yentryrefOrder.RepresentationModel = new ViewModel.OrdersVM(filter);
 			yentryrefOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
-			yentryrefOrder.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
+			yentryrefOrder.CanEditReference = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_delete"];
 
 			UpdateOrderInfo();
 			Entity.UpdateStockAmount(UoW);
@@ -144,6 +149,23 @@ namespace Vodovoz
 				.Finish();
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
+
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance(), UserSingletonRepository.GetInstance());
+			Entity.CanEdit = permmissionValidator.Validate(typeof(SelfDeliveryDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
+				yTreeOtherGoods.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yentryrefOrder.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ytextviewOrderInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				lstWarehouse.Sensitive = false;
+				selfdeliverydocumentitemsview1.Sensitive = false;
+				spnTareToReturn.Sensitive = false;
+				btnAddOtherGoods.Sensitive = false;
+
+				buttonSave.Sensitive = false;
+			} else {
+				Entity.CanEdit = true;
+			}
 		}
 
 		void FillTrees()
@@ -178,11 +200,14 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			if(!Entity.CanEdit)
+				return false;
+
 			var valid = new QS.Validation.GtkUI.QSValidator<SelfDeliveryDocument>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");

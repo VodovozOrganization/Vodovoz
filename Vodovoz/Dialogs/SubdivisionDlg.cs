@@ -20,6 +20,8 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		SubdivisionsVM subdivisionsVM;
 
+		public override bool HasChanges { get => true; set { } }
+
 		public SubdivisionDlg()
 		{
 			this.Build();
@@ -83,6 +85,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			subdivisionentitypermissionwidget.ViewModel.PermissionListViewModel.SaveExtendedPermissions(UoW);
 			var valid = new QSValidator<Subdivision>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;

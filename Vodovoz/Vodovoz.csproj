@@ -458,6 +458,9 @@
     <EmbeddedResource Include="icons\toolbar\complaints.png" />
     <EmbeddedResource Include="icons\toolbar\suppliers.png" />
     <EmbeddedResource Include="toolbars\suppliers.xml" />
+    <EmbeddedResource Include="icons\buttons\NullableCheckBox\blank-square.png" />
+    <EmbeddedResource Include="icons\buttons\NullableCheckBox\check-symbol.png" />
+    <EmbeddedResource Include="icons\buttons\NullableCheckBox\close-button.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -1326,6 +1329,9 @@
     <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
     <Compile Include="JournalViewModels\EmployeesJournalViewModel.cs" />
     <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
+    <Compile Include="Core\Permissions\PermissionListView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Core.Permissions.PermissionListView.cs" />
+    <Compile Include="ViewWidgets\NullableCheckButton.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1566,6 +1572,7 @@
     <Folder Include="ViewModels\Logistic\" />
     <Folder Include="Views\Logistic\" />
     <Folder Include="ViewModels\FuelDocuments\" />
+    <Folder Include="icons\buttons\NullableCheckBox\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

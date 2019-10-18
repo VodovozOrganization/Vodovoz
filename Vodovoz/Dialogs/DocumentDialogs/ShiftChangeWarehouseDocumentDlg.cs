@@ -8,6 +8,10 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Domain.Permissions;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -49,6 +53,12 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		void ConfigureDlg()
 		{
 			var editing = !UoW.IsNew && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
+
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance(), UserSingletonRepository.GetInstance());
+			Entity.CanEdit = permmissionValidator.Validate(typeof(ShiftChangeWarehouseDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			Entity.CanEdit &= Entity.TimeStamp.Date == DateTime.Now.Date;
+			editing &= Entity.CanEdit;
+
 			var canCreate = UoW.IsNew && !StoreDocumentHelper.CheckCreateDocument(WarehousePermissions.ShiftChangeCreate, Entity.Warehouse);
 
 			if(!canCreate && UoW.IsNew){
@@ -90,6 +100,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		public override bool Save()
 		{
+			if(!Entity.CanEdit)
+				return false;
+
 			var valid = new QSValidator<ShiftChangeWarehouseDocument>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
