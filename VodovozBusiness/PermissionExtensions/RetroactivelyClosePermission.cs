@@ -17,14 +17,7 @@ namespace Vodovoz.PermissionExtensions
 		{
 			if(typeOfEntity == null)
 				return false;
-
-			return ValidTypes().Contains(typeOfEntity.ToString());
-		}
-	 
-
-		protected IEnumerable<string> ValidTypes()
-		{
-			yield return nameof(InventoryDocument);
+			return typeOfEntity.IsSubclassOf(typeof(Document));
 		}
 	}
 }
