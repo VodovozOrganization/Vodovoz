@@ -85,6 +85,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			subdivisionentitypermissionwidget.ViewModel.PermissionListViewModel.SaveExtendedPermissions(UoW);
 			var valid = new QSValidator<Subdivision>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
