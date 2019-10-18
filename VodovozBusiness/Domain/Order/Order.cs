@@ -3267,7 +3267,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(forfeitQuantity == null) {
 				forfeitQuantity = OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
-							.Select(i => i.ActualCount.Value)
+							.Select(i => i?.ActualCount ?? 0)
 							.Sum();
 			}
 
@@ -3325,7 +3325,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(!SelfDelivery || SelfDeliveryIsFullyPaid(cashRepository, incomeCash, expenseCash))
 				forfeitQuantity = OrderItems.Where(i => i.Nomenclature.Id == standartNomenclatures.GetForfeitId())
-											.Select(i => i.ActualCount.Value)
+											.Select(i => i.ActualCount ?? 0)
 											.Sum();
 
 			UpdateBottleMovementOperation(uow, standartNomenclatures, ReturnedTare ?? 0, forfeitQuantity ?? 0);
