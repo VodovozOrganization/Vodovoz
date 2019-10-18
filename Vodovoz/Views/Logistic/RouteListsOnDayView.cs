@@ -96,8 +96,10 @@ namespace Vodovoz.Views.Logistic
 																		.AddTextRenderer(x => ViewModel.GetRowBottlesSix(x))
 																   .AddColumn("Бут. менее 6л")
 																		.AddTextRenderer(x => ViewModel.GetRowBottlesSmall(x))
-																   .AddColumn("Вес")
+																   .AddColumn("Вес, кг")
 																		.AddTextRenderer(x => ViewModel.GetRowWeight(x), useMarkup: true)
+																   .AddColumn("Объём, куб.м.")
+																		.AddTextRenderer(x => ViewModel.GetRowVolume(x), useMarkup: true)
 																   .AddColumn("Погрузка")
 																		.Tag(RouteColumnTag.OnloadTime)
 																		.AddTextRenderer(x => ViewModel.GetRowOnloadTime(x), useMarkup: true)
@@ -139,15 +141,15 @@ namespace Vodovoz.Views.Logistic
 																		  .AddColumn("")
 																		  .Finish();
 			ytreeviewOnDayDrivers.Selection.Mode = SelectionMode.Multiple;
-			ytreeviewOnDayDrivers.Selection.Changed += (sender, e) => ViewModel.SelectedDriver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().FirstOrDefault();
+			ytreeviewOnDayDrivers.Selection.Changed += (sender, e) => ViewModel.SelectedDrivers = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().ToArray();
 			ytreeviewOnDayDrivers.Binding.AddBinding(ViewModel, vm => vm.ObservableDriversOnDay, w => w.ItemsDataSource).InitializeFromSource();
 
 			buttonAddDriver.Clicked += (sender, e) => ViewModel.AddDriverCommand.Execute();
 
-			buttonRemoveDriver.Binding.AddBinding(ViewModel, vm => vm.IsDriverSelected, w => w.Sensitive).InitializeFromSource();
-			buttonRemoveDriver.Clicked += (sender, e) => ViewModel.AddDriverCommand.Execute();
+			buttonRemoveDriver.Binding.AddBinding(ViewModel, vm => vm.AreDriversSelected, w => w.Sensitive).InitializeFromSource();
+			buttonRemoveDriver.Clicked += (sender, e) => ViewModel.RemoveDriverCommand.Execute(null);
 
-			buttonDriverSelectAuto.Binding.AddBinding(ViewModel, vm => vm.IsDriverSelected, w => w.Sensitive).InitializeFromSource();
+			buttonDriverSelectAuto.Binding.AddBinding(ViewModel, vm => vm.AreDriversSelected, w => w.Sensitive).InitializeFromSource();
 
 
 			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()

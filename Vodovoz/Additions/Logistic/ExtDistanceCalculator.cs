@@ -301,7 +301,7 @@ namespace Vodovoz.Tools.Logistic
 				return cache[fromHash][toHash];
 
 			if(ErrorWays.Any(x => x.FromHash == fromHash && x.ToHash == toHash)) {
-				logger.Warn("Повторный запрос дистанции с ошибкой расчета. Пропускаем...");
+				logger.Warn(string.Format("Повторный запрос дистанции с ошибкой расчета для FromHash = {0} и ToHash = {1}. Пропускаем...", fromHash, toHash));
 				return null;
 			}
 			if(MultiTaskLoad && tasks.Any(x => x != null && !x.IsCompleted)) {
@@ -377,6 +377,12 @@ namespace Vodovoz.Tools.Logistic
 				}
 				return cachedValue;
 			}
+			if(ok) {
+				AddNewCacheDistance(cachedValue);
+				addedCached++;
+				return cachedValue;
+			}
+
 			ErrorWays.Add(new WayHash(fromHash, toHash));
 			totalErrors++;
 			//FIXME Реализовать запрос манхентанского расстояния.

@@ -756,6 +756,7 @@
     <Compile Include="ViewModels\PermissionListViewModel.cs" />
     <Compile Include="Domain\Permissions\EntityExtendedPermissionValidator.cs" />
     <Compile Include="PermissionExtensions\IPermissionExtensionStore.cs" />
+    <Compile Include="EntityRepositories\Orders\ReceiptForOrderNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

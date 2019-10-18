@@ -19,7 +19,7 @@
       <Textbox Name="Textbox29">
         <Height>29.31pt</Height>
         <Width>757.36pt</Width>
-        <Value>="Отчёт по движению бутылей за " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") +Iif({?start_date}={?end_date}, "", " - " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
+        <Value>="Отчёт по движению бутылей (по МЛ) за " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") +Iif({?start_date}={?end_date}, "", " - " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>0.07pt</Top>
@@ -1673,7 +1673,7 @@ GROUP BY route_lists.id
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

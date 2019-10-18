@@ -14,7 +14,6 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
-
 namespace Vodovoz.EntityRepositories.Orders
 {
 	public class OrderSingletonRepository : IOrderRepository
@@ -420,16 +419,47 @@ namespace Vodovoz.EntityRepositories.Orders
 				};
 		}
 
-		public int[] GetShippeIdsStartingFromDate(IUnitOfWork uow, PaymentType paymentType, DateTime? startDate = null)
+		public ReceiptForOrderNode[] GetShippedOrdersWithReceiptsForDates(IUnitOfWork uow, PaymentType paymentType, DateTime? startDate = null)
 		{
-			var result = uow.Session.QueryOver<VodovozOrder>()
-							.Where(o => o.PaymentType == paymentType)
-							.Where(o => o.OrderStatus == OrderStatus.Shipped || o.OrderStatus == OrderStatus.UnloadingOnStock)
-							.Where(o => !o.SelfDelivery)
-							;
+			OrderItem orderItemAlias = null;
+			VodovozOrder orderAlias = null;
+			ReceiptForOrderNode resultAlias = null;
+
+			var orderStatusesForReceipts = new OrderStatus[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+
+			var result = uow.Session.QueryOver<CashReceipt>()
+								 .Right.JoinAlias(r => r.Order, () => orderAlias)
+								 .Where(() => orderAlias.PaymentType == paymentType)
+								 .Where(() => orderAlias.OrderStatus.IsIn(orderStatusesForReceipts))
+								 .Where(() => !orderAlias.SelfDelivery)
+								 ;
+
 			if(startDate.HasValue)
-				result.Where(o => o.DeliveryDate >= startDate.Value);
-			return result.Select(o => o.Id).List<int>().ToArray();
+				result.Where(() => orderAlias.DeliveryDate >= startDate.Value);
+
+			result.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+					   .Where(
+							Restrictions.Gt(
+								Projections.Sum(
+									Projections.SqlFunction(
+										new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1 * ?2 - ?3, 0)"),
+										NHibernateUtil.Decimal,
+										Projections.Property(() => orderItemAlias.Count),
+										Projections.Property(() => orderItemAlias.Price),
+										Projections.Property(() => orderItemAlias.DiscountMoney)
+									)
+								),
+								0
+							)
+					   )
+					  .SelectList(
+					   		list => list.Select(r => r.Id).WithAlias(() => resultAlias.ReceiptId)
+										.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+										.Select(r => r.Sent).WithAlias(() => resultAlias.WasSent)
+					  )
+					  .TransformUsing(Transformers.AliasToBean<ReceiptForOrderNode>())
+				  ;
+			return result.List<ReceiptForOrderNode>().ToArray();
 		}
 	}
 }

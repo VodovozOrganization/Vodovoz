@@ -24,9 +24,9 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref sent, value);
 		}
 
-		int httpCode;
+		int? httpCode;
 		[Display(Name = "HTTP код статуса отправки")]
-		public virtual int HttpCode {
+		public virtual int? HttpCode {
 			get => httpCode;
 			set => SetField(ref httpCode, value);
 		}

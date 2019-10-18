@@ -13,14 +13,14 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Nomenclature">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     nomenclature.official_name AS name,
     nomenclature.id AS nomenclature_id,
     IFNULL(order_items.actual_count, order_items.count) AS items_count,
     nomenclature.storage_cell,
-    order_items.price,
+    ROUND(order_items.price - (order_items.discount_money / IFNULL(order_items.actual_count,order_items.count)),2) AS price,
     GET_TOTAL_SUM_FOR_ORDER_ITEM(order_items.id) AS total_item_price
 FROM
     order_items
@@ -33,7 +33,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
         </Field>
