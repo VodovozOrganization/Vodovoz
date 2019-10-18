@@ -4,7 +4,6 @@ using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.EntityRepositories;
-using QS.Project.Repositories;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
@@ -19,7 +18,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Store;
 using Vodovoz.ViewWidgets.Store;
 
@@ -29,6 +27,9 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+		private IEmployeeRepository EmployeeRepository { get { return EmployeeSingletonRepository.GetInstance(); } }
+		private IUserPermissionRepository UserPermissionRepository { get { return UserPermissionSingletonRepository.GetInstance(); } }
+		private ICarUnloadRepository CarUnloadRepository { get { return CarUnloadSingletonRepository.GetInstance(); } }
 		IList<Equipment> alreadyUnloadedEquipment;
 
 		public override bool HasChanges => true;
@@ -73,7 +74,7 @@ namespace Vodovoz
 		void ConfigureNewDoc()
 		{
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CarUnloadDocument>();
-			Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -111,7 +112,7 @@ namespace Vodovoz
 			filter.SetAndRefilterAtOnce(x => x.RestrictStatus = RouteListStatus.EnRoute);
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
-			yentryrefRouteList.CanEditReference = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_delete"];
+			yentryrefRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
 			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
 			spnTareToReturn.Binding.AddBinding(Entity, e => e.TareToReturn, w => w.ValueAsInt).InitializeFromSource();
@@ -128,7 +129,7 @@ namespace Vodovoz
 			var permmissionValidator = new EntityExtendedPermissionValidator
 			(
 				PermissionExtensionSingletonStore.GetInstance(), 
-				EmployeeSingletonRepository.GetInstance(), 
+				EmployeeRepository, 
 				UserSingletonRepository.GetInstance()
 			);
 			Entity.CanEdit = permmissionValidator.Validate(typeof(CarUnloadDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
@@ -160,12 +161,12 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			if(!CarUnloadRepository.IsUniqDocument(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
+			if(!CarUnloadRepository.IsUniqueDocumentAtDay(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
 				MessageDialogHelper.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
 				return false;
 			}
 
-			Entity.LastEditor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");

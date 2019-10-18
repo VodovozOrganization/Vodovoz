@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.EntityRepositories;
 using QS.Project.Repositories;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
@@ -22,6 +23,10 @@ namespace Vodovoz
 	public partial class CarLoadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarLoadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private IEmployeeRepository EmployeeRepository { get { return EmployeeSingletonRepository.GetInstance(); } }
+		private IUserPermissionRepository UserPermissionRepository { get { return UserPermissionSingletonRepository.GetInstance(); } }
+
 		public CarLoadDocumentDlg()
 		{
 			this.Build();

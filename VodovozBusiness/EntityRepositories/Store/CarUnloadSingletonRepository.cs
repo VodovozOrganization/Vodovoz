@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
@@ -10,15 +11,22 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Repository.Store
 {
-	public static class CarUnloadRepository
+	public class CarUnloadSingletonRepository : ICarUnloadRepository
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		public static Dictionary<int, decimal> NomenclatureUnloaded(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse, CarUnloadDocument excludeDoc)
+		private static CarUnloadSingletonRepository instance;
+		public static CarUnloadSingletonRepository GetInstance()
+		{
+			if(instance == null)
+				instance = new CarUnloadSingletonRepository();
+			return instance;
+		}
+		protected CarUnloadSingletonRepository() { }
+
+		public Dictionary<int, decimal> NomenclatureUnloaded(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse, CarUnloadDocument excludeDoc)
 		{
 			CarUnloadDocument docAlias = null;
 			CarUnloadDocumentItem docItemsAlias = null;
 			WarehouseMovementOperation movementOperationAlias = null;
-
 
 			var unloadedlist = UoW.Session.QueryOver<CarUnloadDocument>(() => docAlias)
 								  .Where(d => d.RouteList.Id == routeList.Id)
@@ -33,15 +41,20 @@ namespace Vodovoz.Repository.Store
 			return unloadedlist.ToDictionary(r => (int)r[0], r => (decimal)r[1]);
 		}
 
-		public static bool IsUniqDocument(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse,int documentId)
+		public bool IsUniqueDocumentAtDay(IUnitOfWork UoW, RouteList routeList, Warehouse warehouse,int documentId)
 		{
 			if(documentId != 0)
 				return true;
 
+			var start = DateTime.Now.Date;
+			var end = DateTime.Now.Date.AddHours(23).AddMinutes(59).AddSeconds(59).AddMilliseconds(59).AddTicks(59);
+
 			CarUnloadDocument carUnloadDocument = null;
 			var getSimilarCarUnloadDoc = QueryOver.Of<CarUnloadDocument>(() => carUnloadDocument)
 									.Where(() => carUnloadDocument.RouteList.Id == routeList.Id)
-									.Where(() => carUnloadDocument.Warehouse.Id == warehouse.Id);
+									.And(() => carUnloadDocument.Warehouse.Id == warehouse.Id)
+									.And(() => start <= carUnloadDocument.TimeStamp)
+									.And(() => carUnloadDocument.TimeStamp <= end);
 			IList<CarUnloadDocument> documents = getSimilarCarUnloadDoc.GetExecutableQueryOver(UoW.Session)
 				.List();
 

@@ -542,7 +542,6 @@
     <Compile Include="Domain\Permissions\EntitySubdivisionForUserPermissionValidator.cs" />
     <Compile Include="Domain\Permissions\ISubdivisionEntity.cs" />
     <Compile Include="Repositories\Orders\OrderRepository.cs" />
-    <Compile Include="Repositories\Store\CarUnloadRepository.cs" />
     <Compile Include="Repositories\Store\CarLoadRepository.cs" />
     <Compile Include="Domain\Certificate.cs" />
     <Compile Include="HibernateMapping\CertificateMap.cs" />
@@ -757,6 +756,8 @@
     <Compile Include="Domain\Permissions\EntityExtendedPermissionValidator.cs" />
     <Compile Include="PermissionExtensions\IPermissionExtensionStore.cs" />
     <Compile Include="EntityRepositories\Orders\ReceiptForOrderNode.cs" />
+    <Compile Include="EntityRepositories\Store\CarUnloadSingletonRepository.cs" />
+    <Compile Include="EntityRepositories\Store\ICarUnloadRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
