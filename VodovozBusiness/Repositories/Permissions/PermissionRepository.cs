@@ -88,6 +88,7 @@ namespace Vodovoz.Repositories.Permissions
 						.Where(x => subdivisionAlias.Id == subdivisionId)
 						.And(Restrictions.On(() => userAlias.Id).IsNull)
 						.And(() => permissionExtendedAlias.PermissionId == extension.PermissionId)
+						.And(x => x.TypeOfEntity.Id == node.TypeOfEntity.Id)
 						.Take(1)?.List()?.FirstOrDefault();
 
 					if(permission != null) {

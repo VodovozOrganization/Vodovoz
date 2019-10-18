@@ -15,15 +15,10 @@ namespace Vodovoz.ViewModels
 		public PermissionListViewModel(IInteractiveService interactiveService, PermissionExtensionSingletonStore permissionExtensionStore) : base(interactiveService)
 		{
 			PermissionExtensionStore = permissionExtensionStore ?? throw new NullReferenceException(nameof(permissionExtensionStore));
+			CreateCommands();
 		}
 
 		public PermissionExtensionSingletonStore PermissionExtensionStore { get; set; }
-
-		private PermissionNode selectedNode;
-		public virtual PermissionNode SelectedNode {
-			get => selectedNode;
-			set => SetField(ref selectedNode, value);
-		}
 
 		private bool readOnly = false;
 		public virtual bool ReadOnly {

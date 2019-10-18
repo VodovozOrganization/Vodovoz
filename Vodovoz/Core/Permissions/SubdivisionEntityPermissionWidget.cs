@@ -8,9 +8,11 @@ using QS.DomainModel.UoW;
 using QS.Permissions;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using QS.Project.Services.GtkUI;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.Permissions;
+using Vodovoz.ViewModels;
 
 namespace Vodovoz.Core.Permissions
 {
@@ -27,40 +29,28 @@ namespace Vodovoz.Core.Permissions
 			Sensitive = false;
 		}
 
-		EntitySubdivisionPermissionModel model;
+		internal virtual EntitySubdivisionPermissionModel ViewModel { get; set; }
 
 		public void ConfigureDlg(IUnitOfWork uow, Subdivision subdivision)
 		{
 			UoW = uow;
 			this.subdivision = subdivision;
-			model = new EntitySubdivisionPermissionModel(UoW, subdivision,new PermissionExtensionStore());
+			var permissionExtension = PermissionExtensionSingletonStore.GetInstance();
+			permissionlistview.ViewModel = new PermissionListViewModel(new GtkInteractiveService(), permissionExtension);
+			ViewModel = new EntitySubdivisionPermissionModel(UoW, subdivision, permissionExtension, permissionlistview.ViewModel);
 
-			var columns = ColumnsConfigFactory.Create<PermissionNode>()
-				.AddColumn("Документ").AddTextRenderer(x => x.TypeOfEntity.CustomName)
-				.AddColumn("Просмотр").AddToggleRenderer(x => x.EntitySubdivisionOnlyPermission.CanRead).Editing()
-				.AddColumn("Создание").AddToggleRenderer(x => x.EntitySubdivisionOnlyPermission.CanCreate).Editing()
-				.AddColumn("Редактирование").AddToggleRenderer(x => x.EntitySubdivisionOnlyPermission.CanUpdate).Editing()
-				.AddColumn("Удаление").AddToggleRenderer(x => x.EntitySubdivisionOnlyPermission.CanDelete).Editing();
-
-			var extensions = model.ExtensionFactory.PermissionExtensions;
+			var extensions = ViewModel.ExtensionStore.PermissionExtensions;
 
 			extensions.OrderBy(x => x.PermissionId);
 
-			//foreach(PermissionNode item in model.ObservablePermissionsList)
-				//item.EntityPermissionExtended.OrderBy(x => x.PermissionId);
-
-			//for(int i = 0; i < extensions.Count; i++)
-				//columns.AddColumn(extensions[i].Name).AddToggleRenderer(x => x.EntityPermissionExtended[i].IsPermissionAvailable).Editing();
-
-			ytreeviewPermissions.ColumnsConfig = columns.Finish();
-
-			ytreeviewPermissions.ItemsDataSource = model.ObservablePermissionsList;
+			foreach(PermissionNode item in ViewModel.ObservablePermissionsList)
+				item.EntityPermissionExtended.OrderBy(x => x.PermissionId);
 
 			ytreeviewEntitiesList.ColumnsConfig = ColumnsConfigFactory.Create<TypeOfEntity>()
 				.AddColumn("Документ").AddTextRenderer(x => x.CustomName)
 				.Finish();
 
-			ytreeviewEntitiesList.ItemsDataSource = model.ObservableTypeOfEntitiesList;
+			ytreeviewEntitiesList.ItemsDataSource = ViewModel.ObservableTypeOfEntitiesList;
 
 			Sensitive = true;
 		}
@@ -68,7 +58,7 @@ namespace Vodovoz.Core.Permissions
 		private void AddPermission()
 		{
 			var selected = ytreeviewEntitiesList.GetSelectedObject() as TypeOfEntity;
-			model.AddPermission(selected);
+			ViewModel.AddPermission(selected);
 		}
 
 		private void OnButtonAddClicked(object sender, EventArgs e)
@@ -80,22 +70,6 @@ namespace Vodovoz.Core.Permissions
 		{
 			AddPermission();
 		}
-
-		private void DeletePermission()
-		{
-			var selected = ytreeviewPermissions.GetSelectedObject() as PermissionNode;
-			model.DeletePermission(selected);
-		}
-
-		private void OnButtonDeleteClicked(object sender, EventArgs e)
-		{
-			DeletePermission();
-		}
-
-		protected void OnYtreeviewPermissionsRowActivated(object o, RowActivatedArgs args)
-		{
-			DeletePermission();
-		}
 	}
 
 	internal sealed class EntitySubdivisionPermissionModel
@@ -104,19 +78,25 @@ namespace Vodovoz.Core.Permissions
 		private Subdivision subdivision;
 		private IList<PermissionNode> originalPermissionList;
 		private IList<TypeOfEntity> originalTypeOfEntityList;
-		public PermissionExtensionStore ExtensionFactory { get; set; }
+		public PermissionExtensionSingletonStore ExtensionStore { get; set; }
+		public PermissionListViewModel PermissionListViewModel { get; set; }
 
 		public GenericObservableList<PermissionNode> ObservablePermissionsList { get; private set; }
 		public GenericObservableList<TypeOfEntity> ObservableTypeOfEntitiesList { get; private set; }
 
-		public EntitySubdivisionPermissionModel(IUnitOfWork uow, Subdivision subdivision, PermissionExtensionStore extensionFactory)
+		public EntitySubdivisionPermissionModel(IUnitOfWork uow, Subdivision subdivision, PermissionExtensionSingletonStore extensionStore, PermissionListViewModel permissionListViewModel)
 		{
+			ExtensionStore = extensionStore ?? throw new NullReferenceException(nameof(extensionStore));
+			PermissionListViewModel = permissionListViewModel ?? throw new NullReferenceException(nameof(permissionListViewModel));
+
 			this.subdivision = subdivision;
 			this.uow = uow;
-			ExtensionFactory = extensionFactory ?? throw new NullReferenceException(nameof(extensionFactory));
 
-			originalPermissionList = PermissionRepository.GetAllSubdivisionEntityPermissions(uow, subdivision.Id, ExtensionFactory).ToList();
+			originalPermissionList = PermissionRepository.GetAllSubdivisionEntityPermissions(uow, subdivision.Id, ExtensionStore).ToList();
 			ObservablePermissionsList = new GenericObservableList<PermissionNode>(originalPermissionList);
+			ObservablePermissionsList.ElementRemoved += (aList, aIdx, aObject) => DeletePermission(aObject as PermissionNode);
+
+			PermissionListViewModel.PermissionsList = ObservablePermissionsList;
 
 			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
 			//убираем типы уже загруженные в права
@@ -130,9 +110,8 @@ namespace Vodovoz.Core.Permissions
 
 		public void AddPermission(TypeOfEntity entityNode)
 		{
-			if(entityNode == null) {
+			if(entityNode == null) 
 				return;
-			}
 
 			ObservableTypeOfEntitiesList.Remove(entityNode);
 			PermissionNode savedPermission;
@@ -144,7 +123,7 @@ namespace Vodovoz.Core.Permissions
 					TypeOfEntity = entityNode
 				};
 				savedPermission.EntityPermissionExtended = new List<EntityPermissionExtended>();
-				foreach(var item in ExtensionFactory.PermissionExtensions) {
+				foreach(var item in ExtensionStore.PermissionExtensions) {
 					var node = new EntityPermissionExtended();
 					node.Subdivision = subdivision;
 					node.TypeOfEntity = entityNode;
@@ -158,8 +137,6 @@ namespace Vodovoz.Core.Permissions
 				ObservablePermissionsList.Add(savedPermission);
 			}
 			uow.Save(savedPermission.EntitySubdivisionOnlyPermission);
-			foreach(var permission in savedPermission.EntityPermissionExtended)
-				uow.Save(permission);
 		}
 
 		public void DeletePermission(PermissionNode deletedPermission)
