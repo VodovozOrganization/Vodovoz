@@ -653,13 +653,13 @@ public partial class MainWindow : Window
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
+		var filter = new StockBalanceFilter();
+		filter.SetAndRefilterAtOnce(x => x.ShowArchive = true);
+		var tab = new PermissionControlledRepresentationJournal(new StockBalanceVM(filter));
+		tab.CustomTabName("Складские остатки");
 		tdiMain.OpenTab(
 			RepresentationJournalDialog.GenerateHashName<StockBalanceVM>(),
-			() => {
-				var filter = new StockBalanceFilter();
-				filter.SetAndRefilterAtOnce(x => x.ShowArchive = true);
-				return new PermissionControlledRepresentationJournal(new StockBalanceVM(filter));
-			}
+			() => tab
 		);
 	}
 
