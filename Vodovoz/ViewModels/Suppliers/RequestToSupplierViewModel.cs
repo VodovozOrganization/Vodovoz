@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
-using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;

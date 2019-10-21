@@ -1,11 +1,10 @@
 ﻿using System;
-using QS.Project.Domain;
+using Gamma.Utilities;
+using QS.Dialog;
+using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
-using QS.Dialog;
-using QS.DomainModel.UoW;
-using Gamma.Utilities;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
@@ -153,6 +152,12 @@ namespace Vodovoz.ViewModels.WageCalculation
 
 			OnWageParameterCreated?.Invoke(this, WageParameter);
 			Close(false);
+		}
+
+		public override void Dispose()
+		{
+			UoW?.Dispose();
+			base.Dispose();
 		}
 	}
 }

@@ -45,10 +45,7 @@ namespace Vodovoz.ViewModel
 
 		#region Конструкторы
 
-		public ProxyDocumentsVM()
-		{
-			CreateDisposableUoW();
-		}
+		public ProxyDocumentsVM() { }
 
 		public ProxyDocumentsVM(IUnitOfWork uow) : base()
 		{

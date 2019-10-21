@@ -112,7 +112,6 @@ namespace Vodovoz.ViewModel
 
 		public ClientEquipmentBalanceVM ()
 		{
-			CreateDisposableUoW();
 			CreateRepresentationFilter = () => new ClientBalanceFilter (UoW);
 		}
 

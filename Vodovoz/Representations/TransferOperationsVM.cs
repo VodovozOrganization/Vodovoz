@@ -79,9 +79,7 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc(TransferOperationDocument updatedSubject) => true;
 
-		public TransferOperationsVM() {
-			CreateDisposableUoW();
-		}
+		public TransferOperationsVM() { }
 
 		public TransferOperationsVM(IUnitOfWork uow)
 		{
