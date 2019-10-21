@@ -396,10 +396,6 @@ namespace Vodovoz
 				Entity.RecalculateStockBottles(standartDiscountsService);
 				ControlsActionBottleAccessibility();
 			};
-
-			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
-			HasChanges = true;
-			UoW.CanCheckIfDirty = false;
 		}
 
 		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)

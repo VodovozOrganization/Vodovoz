@@ -301,7 +301,6 @@ namespace Vodovoz.Views.Logistic
 				var item = new MenuItem(string.Format("Открыть {0}", order));
 				item.Activated += (sender, e) => {
 					var dlg = new OrderDlg(order);
-					dlg.UoWGeneric.CanCheckIfDirty = false;
 					dlg.HasChanges = false;
 					dlg.SetDlgToReadOnly();
 					Tab.TabParent.AddSlaveTab(Tab, dlg);

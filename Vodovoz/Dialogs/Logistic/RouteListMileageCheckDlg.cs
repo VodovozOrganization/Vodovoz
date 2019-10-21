@@ -42,7 +42,6 @@ namespace Vodovoz
 		{
 			if(!editing) {
 				MessageDialogHelper.RunWarningDialog("Не достаточно прав. Обратитесь к руководителю.");
-				UoWGeneric.CanCheckIfDirty = false;
 				HasChanges = false;
 				vbxMain.Sensitive = false;
 			}

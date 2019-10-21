@@ -191,9 +191,9 @@ namespace Vodovoz
 		{
 			selectedItem = ytreeviewAddresses.GetSelectedObjects<RouteListKeepingItemNode>().FirstOrDefault();
 			if(selectedItem != null) {
-				var dlg = new OrderDlg(selectedItem.RouteListItem.Order);
-				dlg.UoWGeneric.CanCheckIfDirty = false;
-				dlg.HasChanges = false;
+				var dlg = new OrderDlg(selectedItem.RouteListItem.Order) {
+					HasChanges = false
+				};
 				dlg.SetDlgToReadOnly();
 				OpenSlaveTab(dlg);
 			}

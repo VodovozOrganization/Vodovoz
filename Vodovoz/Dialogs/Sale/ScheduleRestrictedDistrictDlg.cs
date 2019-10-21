@@ -35,7 +35,6 @@ namespace Vodovoz.Dialogs.Sale
 
 		void ConfigureDlg()
 		{
-			UoW.CanCheckIfDirty = false;
 			HasChanges = true;
 			var colorRed = new Color(255, 0, 0);
 			var colorWhite = new Color(255, 255, 255);
