@@ -53,7 +53,7 @@ namespace Vodovoz.Filters.GtkViews
 			enumcomboStatus.Sensitive = ViewModel.CanChangeStatus;
 			enumcomboPaymentType.Sensitive = ViewModel.CanChangePaymentType;
 			entryCounterparty.Sensitive = ViewModel.CanChangeCounterparty;
-			representationentryDeliveryPoint.Sensitive = ViewModel.CanChangeDeliveryPoint;
+			representationentryDeliveryPoint.Sensitive = ViewModel.CanChangeDeliveryPoint && ViewModel.RestrictCounterparty != null;
 			dateperiodOrders.Sensitive = ViewModel.CanChangeStartDate && ViewModel.CanChangeEndDate;
 			ycheckOnlySelfdelivery.Sensitive = ViewModel.CanChangeOnlySelfDelivery;
 			ycheckWithoutSelfdelivery.Sensitive = ViewModel.CanChangeWithoutSelfDelivery;
