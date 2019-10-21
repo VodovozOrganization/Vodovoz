@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Suppliers
 		public event EventHandler ListContentChanged;
 
 		public RequestToSupplierViewModel(
-			IEntityConstructorParam ctorParam,
+			IEntityUoWBuilder ctorParam,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository
@@ -217,7 +217,7 @@ namespace Vodovoz.ViewModels.Suppliers
 						return;
 
 					RequestToSupplierViewModel vm = new RequestToSupplierViewModel(
-						EntityConstructorParam.ForCreate(),
+						EntityUoWBuilder.ForCreate(),
 						commonServices,
 						employeeService,
 						supplierPriceItemsRepository

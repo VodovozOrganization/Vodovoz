@@ -110,7 +110,7 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<ResidueViewModel> CreateDialogFunction => () => new ResidueViewModel(
-			EntityConstructorParam.ForCreate(), 
+			EntityUoWBuilder.ForCreate(), 
 			employeeService, 
 			representationEntityPicker, 
 			bottlesRepository, 
@@ -120,7 +120,7 @@ namespace Vodovoz.JournalViewModels
 		);
 
 		protected override Func<ResidueJournalNode, ResidueViewModel> OpenDialogFunction => (node) => new ResidueViewModel(
-			EntityConstructorParam.ForOpen(node.Id), 
+			EntityUoWBuilder.ForOpen(node.Id), 
 			employeeService, 
 			representationEntityPicker, 
 			bottlesRepository, 

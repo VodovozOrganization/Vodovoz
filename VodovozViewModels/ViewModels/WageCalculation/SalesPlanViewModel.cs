@@ -7,7 +7,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 {
 	public class SalesPlanViewModel : EntityTabViewModelBase<SalesPlan>
 	{
-		public SalesPlanViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		public SalesPlanViewModel(IEntityUoWBuilder ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
 		{
 		}
 	}

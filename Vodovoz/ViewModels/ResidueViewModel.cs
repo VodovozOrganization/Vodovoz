@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModels
 		private readonly IDepositRepository depositRepository;
 		private readonly IMoneyRepository moneyRepository;
 
-		public ResidueViewModel(IEntityConstructorParam ctorParam,
+		public ResidueViewModel(IEntityUoWBuilder ctorParam,
 			IEmployeeService employeeService,
 			IRepresentationEntityPicker entityPicker,
 			IBottlesRepository bottlesRepository,

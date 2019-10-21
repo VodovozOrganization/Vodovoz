@@ -8,7 +8,7 @@ namespace Vodovoz.Dialogs.Cash
 {
 	public class ExpenseCategoryViewModel : EntityTabViewModelBase<ExpenseCategory>
 	{
-		public ExpenseCategoryViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		public ExpenseCategoryViewModel(IEntityUoWBuilder ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
 		{
 		}
 	}

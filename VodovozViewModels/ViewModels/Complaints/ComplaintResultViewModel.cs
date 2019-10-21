@@ -7,7 +7,7 @@ namespace Vodovoz.ViewModels.Complaints
 {
 	public class ComplaintResultViewModel : EntityTabViewModelBase<ComplaintResult>
 	{
-		public ComplaintResultViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		public ComplaintResultViewModel(IEntityUoWBuilder ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
 		{
 			TabName = "Результат рассмотрения жалобы";
 		}

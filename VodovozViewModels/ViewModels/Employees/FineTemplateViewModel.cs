@@ -7,7 +7,7 @@ namespace Vodovoz.ViewModels.Employees
 {
 	public class FineTemplateViewModel : EntityTabViewModelBase<FineTemplate>
 	{
-		public FineTemplateViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		public FineTemplateViewModel(IEntityUoWBuilder ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
 		{
 			TabName = "Шаблон основания штрафа";
 		}

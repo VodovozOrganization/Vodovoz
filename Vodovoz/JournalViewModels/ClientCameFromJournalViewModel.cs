@@ -49,12 +49,12 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<ClientCameFromViewModel> CreateDialogFunction => () => new ClientCameFromViewModel (
-			EntityConstructorParam.ForCreate(),
+			EntityUoWBuilder.ForCreate(),
 			commonServices
 		);
 
 		protected override Func<ClientCameFromJournalNode, ClientCameFromViewModel> OpenDialogFunction => node => new ClientCameFromViewModel(
-			EntityConstructorParam.ForOpen(node.Id),
+			EntityUoWBuilder.ForOpen(node.Id),
 			commonServices
 		);
 	}

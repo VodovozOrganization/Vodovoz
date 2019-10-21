@@ -105,7 +105,7 @@ namespace Vodovoz.JournalViewModels.Employees
 		};
 
 		protected override Func<FineViewModel> CreateDialogFunction => () => new FineViewModel(
-			EntityConstructorParam.ForCreate(),
+			EntityUoWBuilder.ForCreate(),
 			undeliveryViewOpener,
 			employeeService,
 			employeeSelectorFactory,
@@ -113,7 +113,7 @@ namespace Vodovoz.JournalViewModels.Employees
 		);
 
 		protected override Func<FineJournalNode, FineViewModel> OpenDialogFunction => (node) => new FineViewModel(
-			EntityConstructorParam.ForOpen(node.Id),
+			EntityUoWBuilder.ForOpen(node.Id),
 			undeliveryViewOpener,
 			employeeService,
 			employeeSelectorFactory,

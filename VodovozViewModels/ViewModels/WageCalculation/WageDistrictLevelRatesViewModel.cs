@@ -12,7 +12,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 {
 	public class WageDistrictLevelRatesViewModel : EntityTabViewModelBase<WageDistrictLevelRates>
 	{
-		public WageDistrictLevelRatesViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices, IUnitOfWork uow) : base(ctorParam, commonServices)
+		public WageDistrictLevelRatesViewModel(IEntityUoWBuilder ctorParam, ICommonServices commonServices, IUnitOfWork uow) : base(ctorParam, commonServices)
 		{
 			UoW = uow;
 			Configure();

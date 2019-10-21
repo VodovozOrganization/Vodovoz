@@ -95,14 +95,14 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		};
 
 		protected override Func<RequestToSupplierViewModel> CreateDialogFunction => () => new RequestToSupplierViewModel(
-			EntityConstructorParam.ForCreate(),
+			EntityUoWBuilder.ForCreate(),
 			commonServices,
 			employeeService,
 			supplierPriceItemsRepository
 		);
 
 		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
-			EntityConstructorParam.ForOpen(n.Id),
+			EntityUoWBuilder.ForOpen(n.Id),
 			commonServices,
 			employeeService,
 			supplierPriceItemsRepository

@@ -7,7 +7,7 @@ namespace Vodovoz.Dialogs.Fuel
 {
 	public class FuelTypeViewModel : EntityTabViewModelBase<FuelType>
 	{
-		public FuelTypeViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		public FuelTypeViewModel(IEntityUoWBuilder ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
 		{
 		}
 	}

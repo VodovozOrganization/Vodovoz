@@ -23,7 +23,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	public class IncomeCashTransferDocumentViewModel : ViewModel<IncomeCashTransferDocument>
 	{
-		public IncomeCashTransferDocumentViewModel(IEntityConstructorParam entityOpenOption) : base(entityOpenOption)
+		public IncomeCashTransferDocumentViewModel(IEntityUoWBuilder entityOpenOption) : base(entityOpenOption)
 		{
 			if(entityOpenOption.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;

@@ -282,7 +282,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
 			() => new RequestToSupplierViewModel(
-				EntityConstructorParam.ForCreate(),
+				EntityUoWBuilder.ForCreate(),
 				QS.Project.Services.ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
 				new SupplierPriceItemsRepository()

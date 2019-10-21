@@ -33,8 +33,8 @@ namespace Vodovoz.Dialogs.Fuel
 
 			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(() => {
 				var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(x => x.Name,
-						() => new ExpenseCategoryViewModel(EntityConstructorParam.ForCreate(), QS.Project.Services.ServicesConfig.CommonServices),
-						(node) => new ExpenseCategoryViewModel(EntityConstructorParam.ForOpen(node.Id), QS.Project.Services.ServicesConfig.CommonServices),
+						() => new ExpenseCategoryViewModel(EntityUoWBuilder.ForCreate(), QS.Project.Services.ServicesConfig.CommonServices),
+						(node) => new ExpenseCategoryViewModel(EntityUoWBuilder.ForOpen(node.Id), QS.Project.Services.ServicesConfig.CommonServices),
 						 UnitOfWorkFactory.GetDefaultFactory,
 						QS.Project.Services.ServicesConfig.CommonServices
 					);

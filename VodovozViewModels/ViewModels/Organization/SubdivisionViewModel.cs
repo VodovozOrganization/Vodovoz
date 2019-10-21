@@ -10,7 +10,7 @@ namespace Vodovoz.ViewModels.Organization
 {
 	public class SubdivisionViewModel : EntityTabViewModelBase<Subdivision>
 	{
-		public SubdivisionViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		public SubdivisionViewModel(IEntityUoWBuilder ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
 		{
 			ConfigureEntityChangingRelations();
 			CreateCommands();

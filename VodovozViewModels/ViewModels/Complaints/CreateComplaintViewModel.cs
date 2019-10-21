@@ -17,7 +17,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public CreateComplaintViewModel(
-			IEntityConstructorParam ctorParam,
+			IEntityUoWBuilder ctorParam,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,

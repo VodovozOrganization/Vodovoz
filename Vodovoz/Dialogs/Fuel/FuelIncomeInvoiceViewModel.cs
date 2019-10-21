@@ -31,7 +31,7 @@ namespace Vodovoz.Dialogs.Fuel
 
 		public FuelIncomeInvoiceViewModel
 		(
-			IEntityConstructorParam entityCtorParam, 
+			IEntityUoWBuilder entityCtorParam, 
 			IEmployeeService employeeService,
 			IRepresentationEntityPicker entityPicker,
 			ISubdivisionRepository subdivisionRepository,

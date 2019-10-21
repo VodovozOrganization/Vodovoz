@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.Employees
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 
 		public FineViewModel(
-			IEntityConstructorParam ctorParam,
+			IEntityUoWBuilder ctorParam,
 			IUndeliveriesViewOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
@@ -197,8 +197,8 @@ namespace Vodovoz.ViewModels.Employees
 			SelectReasonTemplateCommand = new DelegateCommand(
 				() => {
 					var fineTemplatesJournalViewModel = new SimpleEntityJournalViewModel<FineTemplate, FineTemplateViewModel>(x => x.Reason,
-						() => new FineTemplateViewModel(EntityConstructorParam.ForCreate(), CommonServices),
-						(node) => new FineTemplateViewModel(EntityConstructorParam.ForOpen(node.Id), CommonServices),
+						() => new FineTemplateViewModel(EntityUoWBuilder.ForCreate(), CommonServices),
+						(node) => new FineTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), CommonServices),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
 					);

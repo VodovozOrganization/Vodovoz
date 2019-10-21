@@ -19,7 +19,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		private IEnumerable<Subdivision> cashSubdivisions;
 		private IEnumerable<Subdivision> availableSubdivisionsForUser;
 
-		public CommonCashTransferDocumentViewModel(IEntityConstructorParam entityOpenOption) : base(entityOpenOption)
+		public CommonCashTransferDocumentViewModel(IEntityUoWBuilder entityOpenOption) : base(entityOpenOption)
 		{
 			if(entityOpenOption.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;

@@ -27,7 +27,7 @@ namespace Vodovoz.Dialogs.Fuel
 		private readonly IFuelRepository fuelRepository;
 
 		public FuelTransferDocumentViewModel(
-			IEntityConstructorParam entityCtorParam,
+			IEntityUoWBuilder entityCtorParam,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository,

@@ -51,12 +51,12 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 		};
 
 		protected override Func<SalesPlanViewModel> CreateDialogFunction => () => new SalesPlanViewModel(
-		   EntityConstructorParam.ForCreate(),
+		   EntityUoWBuilder.ForCreate(),
 		   commonServices
 		);
 
 		protected override Func<SalesPlanJournalNode, SalesPlanViewModel> OpenDialogFunction => n => new SalesPlanViewModel(
-		   EntityConstructorParam.ForOpen(n.Id),
+		   EntityUoWBuilder.ForOpen(n.Id),
 		   commonServices
 	   	);
 	}

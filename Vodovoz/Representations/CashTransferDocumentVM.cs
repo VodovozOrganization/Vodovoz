@@ -126,12 +126,12 @@ namespace Vodovoz.Representations
 				"По ордерам",
 				//функция диалога создания документа
 				() => {
-					var viewModel = new IncomeCashTransferDocumentViewModel(EntityConstructorParam.ForCreate());
+					var viewModel = new IncomeCashTransferDocumentViewModel(EntityUoWBuilder.ForCreate());
 					return viewModel.View as IncomeCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
-					var viewModel = new IncomeCashTransferDocumentViewModel(EntityConstructorParam.ForOpen(node.DocumentId));
+					var viewModel = new IncomeCashTransferDocumentViewModel(EntityUoWBuilder.ForOpen(node.DocumentId));
 					return viewModel.View as IncomeCashTransferDlg;
 				}
 			);
@@ -202,12 +202,12 @@ namespace Vodovoz.Representations
 				"На сумму",
 				//функция диалога создания документа
 				() => {
-					var viewModel = new CommonCashTransferDocumentViewModel(EntityConstructorParam.ForCreate());
+					var viewModel = new CommonCashTransferDocumentViewModel(EntityUoWBuilder.ForCreate());
 					return viewModel.View as CommonCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
-					var viewModel = new CommonCashTransferDocumentViewModel(EntityConstructorParam.ForOpen(node.DocumentId));
+					var viewModel = new CommonCashTransferDocumentViewModel(EntityUoWBuilder.ForOpen(node.DocumentId));
 					return viewModel.View as CommonCashTransferDlg;
 				}
 			);

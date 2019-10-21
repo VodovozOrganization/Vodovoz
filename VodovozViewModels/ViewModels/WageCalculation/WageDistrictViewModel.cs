@@ -7,7 +7,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 {
 	public class WageDistrictViewModel : EntityTabViewModelBase<WageDistrict>
 	{
-		public WageDistrictViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		public WageDistrictViewModel(IEntityUoWBuilder ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
 		{
 		}
 	}

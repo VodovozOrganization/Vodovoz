@@ -25,17 +25,13 @@ namespace Vodovoz.ViewModelBased
 
 		public TEntity Entity => UoWGeneric?.Root;
 
-		protected ViewModel(IEntityConstructorParam entityOpenOption)
+		protected ViewModel(IEntityUoWBuilder entityOpenOption)
 		{
 			if(entityOpenOption == null) {
 				throw new ArgumentNullException(nameof(entityOpenOption));
 			}
 
-			if(entityOpenOption.IsNewEntity) {
-				UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<TEntity>();
-			} else {
-				UoWGeneric = UnitOfWorkFactory.CreateForRoot<TEntity>(entityOpenOption.EntityOpenId);
-			}
+			UoWGeneric = entityOpenOption.CreateUoW<TEntity>(UnitOfWorkFactory.GetDefaultFactory);
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
 		}

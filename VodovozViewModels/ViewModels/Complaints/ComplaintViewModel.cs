@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public ComplaintViewModel(
-			IEntityConstructorParam ctorParam,
+			IEntityUoWBuilder ctorParam,
 			ICommonServices commonServices,
 			IUndeliveriesViewOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
@@ -291,7 +291,7 @@ namespace Vodovoz.ViewModels.Complaints
 			AddFineCommand = new DelegateCommand<ITdiTab>(
 				t => {
 					FineViewModel fineViewModel = new FineViewModel(
-						EntityConstructorParam.ForCreate(),
+						EntityUoWBuilder.ForCreate(),
 						undeliveryViewOpener,
 						employeeService,
 						employeeSelectorFactory,

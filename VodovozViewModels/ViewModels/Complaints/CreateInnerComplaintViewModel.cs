@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ISubdivisionRepository subdivisionRepository;
 
 		public CreateInnerComplaintViewModel(
-			IEntityConstructorParam ctorParam,
+			IEntityUoWBuilder ctorParam,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices

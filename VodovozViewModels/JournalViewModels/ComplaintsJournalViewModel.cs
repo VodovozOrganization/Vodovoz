@@ -328,7 +328,7 @@ namespace Vodovoz.JournalViewModels
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
 					() => new CreateComplaintViewModel(
-						EntityConstructorParam.ForCreate(),
+						EntityUoWBuilder.ForCreate(),
 						employeeService,
 						counterpartySelectorFactory,
 						subdivisionRepository,
@@ -336,7 +336,7 @@ namespace Vodovoz.JournalViewModels
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
-						EntityConstructorParam.ForOpen(node.Id),
+						EntityUoWBuilder.ForOpen(node.Id),
 						commonServices,
 						undeliveriesViewOpener,
 						employeeService,
@@ -354,10 +354,10 @@ namespace Vodovoz.JournalViewModels
 				)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new CreateInnerComplaintViewModel(EntityConstructorParam.ForCreate(), employeeService, subdivisionRepository, commonServices),
+					() => new CreateInnerComplaintViewModel(EntityUoWBuilder.ForCreate(), employeeService, subdivisionRepository, commonServices),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
-						EntityConstructorParam.ForOpen(node.Id),
+						EntityUoWBuilder.ForOpen(node.Id),
 						commonServices,
 						undeliveriesViewOpener,
 						employeeService,
@@ -443,7 +443,7 @@ namespace Vodovoz.JournalViewModels
 						ComplaintViewModel currentComplaintVM = null;
 						if(currentComplaintId.HasValue) {
 							currentComplaintVM = new ComplaintViewModel(
-								EntityConstructorParam.ForOpen(currentComplaintId.Value),
+								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
 								commonServices,
 								undeliveriesViewOpener,
 								employeeService,
@@ -468,7 +468,7 @@ namespace Vodovoz.JournalViewModels
 						ComplaintViewModel currentComplaintVM = null;
 						if(currentComplaintId.HasValue) {
 							currentComplaintVM = new ComplaintViewModel(
-								EntityConstructorParam.ForOpen(currentComplaintId.Value),
+								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
 								commonServices,
 								undeliveriesViewOpener,
 								employeeService,
