@@ -108,6 +108,8 @@ namespace Vodovoz
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 			yentryrefRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
+			Entity.PropertyChanged += (sender, e) => { if(e.PropertyName == nameof(Entity.Warehouse)) OnWarehouseChanged();};
+
 			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
 			spnTareToReturn.Binding.AddBinding(Entity, e => e.TareToReturn, w => w.ValueAsInt).InitializeFromSource();
 
@@ -427,7 +429,7 @@ namespace Vodovoz
 				this);
 		}
 
-		protected void OnYSpecCmbWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		protected void OnWarehouseChanged()
 		{
 			UpdateWidgetsVisible();
 			returnsreceptionview1.Warehouse = Entity.Warehouse;

@@ -399,7 +399,6 @@ namespace Vodovoz
 			}
 			this.Hide();
 			this.buttonPrint.Clicked += new global::System.EventHandler(this.OnButtonPrintClicked);
-			this.ySpecCmbWarehouses.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYSpecCmbWarehousesItemSelected);
 			this.yentryrefRouteList.Changed += new global::System.EventHandler(this.OnYentryrefRouteListChanged);
 		}
 	}
