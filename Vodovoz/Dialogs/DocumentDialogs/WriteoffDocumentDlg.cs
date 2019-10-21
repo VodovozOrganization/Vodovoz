@@ -12,6 +12,10 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Domain.Permissions;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz
 {
@@ -23,7 +27,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<WriteoffDocument> ();
-			Entity.Author = Entity.ResponsibleEmployee = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Author = Entity.ResponsibleEmployee = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser (UoW);
 			if(Entity.Author == null)
 			{
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -94,15 +98,34 @@ namespace Vodovoz
 			Entity.ObservableItems.ElementAdded += (aList, aIdx) => ySpecCmbWarehouses.Sensitive = !Entity.ObservableItems.Any();
 			Entity.ObservableItems.ElementRemoved += (aList, aIdx, aObject) => ySpecCmbWarehouses.Sensitive = !Entity.ObservableItems.Any();
 			ySpecCmbWarehouses.Sensitive = editing && !Entity.Items.Any();
+
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance(), UserSingletonRepository.GetInstance());
+			Entity.CanEdit = permmissionValidator.Validate(typeof(WriteoffDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
+				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				referenceCounterparty.Sensitive = false;
+				referenceDeliveryPoint.Sensitive = false;
+				comboType.Sensitive = false;
+				repEntryEmployee.Sensitive = false;
+				textComment.Sensitive = false;
+				writeoffdocumentitemsview1.Sensitive = false;
+
+				buttonSave.Sensitive = false;
+			} else {
+				Entity.CanEdit = true;
+			}
 		}
 
 		public override bool Save ()
 		{
+			if(!Entity.CanEdit)
+				return false;
+
 			var valid = new QSValidator<WriteoffDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser (UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null)
 			{

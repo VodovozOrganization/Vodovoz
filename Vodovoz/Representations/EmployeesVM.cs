@@ -93,7 +93,6 @@ namespace Vodovoz.ViewModel
 
 		public EmployeesVM()
 		{
-			CreateDisposableUoW();
 			CreateRepresentationFilter = () => new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices) { ShowFired = false };
 		}
 

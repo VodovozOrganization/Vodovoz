@@ -78,12 +78,12 @@ namespace Vodovoz.Reports
 		{
 			if ((yentryreferenceDriver.Subject as Employee) == null)
 			{
-				MessageDialogWorks.RunErrorDialog("Необходимо выбрать водителя");
+				MessageDialogHelper.RunErrorDialog("Необходимо выбрать водителя");
 				return;
 			}
 			if(dateperiodpicker.StartDateOrNull == null)
 			{
-				MessageDialogWorks.RunErrorDialog("Необходимо выбрать дату");
+				MessageDialogHelper.RunErrorDialog("Необходимо выбрать дату");
 				return;
 			}
 			OnUpdate(true);

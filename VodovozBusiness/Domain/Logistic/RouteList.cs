@@ -991,7 +991,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void FirstFillClosing()
 		{
 			PerformanceHelper.StartMeasurement("Первоначальное заполнение");
-			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
+			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered);
 			foreach(var routeListItem in addresesDelivered) {
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 

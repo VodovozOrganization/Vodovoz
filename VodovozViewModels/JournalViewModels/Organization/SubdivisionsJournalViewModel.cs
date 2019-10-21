@@ -37,7 +37,7 @@ namespace Vodovoz.JournalViewModels.Organization
 				.WithSubquery.WhereProperty(x => x.Id).NotIn(firstLevelSubQuery)
 				.WithSubquery.WhereProperty(x => x.Id).NotIn(secondLevelSubquery);
 
-			if(FilterViewModel.ExcludedSubdivisions.Any()) {
+			if(FilterViewModel?.ExcludedSubdivisions?.Any() ?? false) {
 				query.WhereRestrictionOn(() => subdivisionAlias.Id).Not.IsIn(FilterViewModel.ExcludedSubdivisions);
 			}
 

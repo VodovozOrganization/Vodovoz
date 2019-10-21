@@ -2215,13 +2215,17 @@ CONCAT_WS(' ', IFNULL(delivery_points.compiled_address_short, delivery_points.co
 counterparty.need_new_bottles AS NeedNewBottles,
 CONCAT_WS(
 	' ', 
-	GROUP_CONCAT(DISTINCT
+	GROUP_CONCAT(
+		DISTINCT
 		CONCAT(
 			' ', 
 			eq_qry.name, 
-			': ', 
-			eq_qry.cnt)
-		), 
+            IFNULL(
+				CONCAT(': ', eq_qry.cnt),
+            	''
+            )
+		)
+	), 
 	IF(
 		(orders.to_client_text IS NOT NULL) AND (eq_qry.name IS NOT NULL), 
 		"; ", 
@@ -2290,37 +2294,48 @@ LEFT JOIN (
 #WHERE order_equipment.direction = 'Deliver'
 #GROUP BY order_id, nomenclature_id
 #Для SHORT версии.
-	SELECT 
-		order_items.order_id as order_id, 
-		nomenclature.id AS nomenclature_id,
-		IFNULL(nomenclature.short_name, nomenclature.name) as name, 
-		SUM(order_items.count) AS cnt 
-	FROM order_items
-		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id 
-	WHERE 
-		nomenclature.category = 'equipment' 
-		OR nomenclature.category = 'additional' 
-		AND nomenclature.hide = 0
-	GROUP BY order_id, nomenclature_id
-UNION ALL
-	SELECT 
-		order_equipment.order_id as order_id, 
-		nomenclature.id AS nomenclature_id,
-		CONCAT(
-			IFNULL(nomenclature.short_name, nomenclature.name), 
-			case
-				when order_equipment.own_type = 'Rent' then '(Аренда)'
-				when order_equipment.own_type = 'Client' then '(Клиент)'
-				when order_equipment.own_type = 'Duty' then '(Дежурный)'
-				else ''
-			end
-		) as name, 
-		SUM(order_equipment.count) AS cnt 
-	FROM order_equipment
+	SELECT
+		T.order_id AS order_id,
+		nomenclature_id AS nomenclature_id,
+		T.name AS name,
+		IF(nomenclature_id = -1, NULL, SUM(T.cnt)) AS cnt
+	FROM(
+		SELECT 
+			order_items.order_id AS order_id,
+			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), -1, nomenclature_id) AS nomenclature_id,
+			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), 'Заказ ИМ', IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
+			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), 1, SUM(order_items.count)) AS cnt
+		FROM order_items
+		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+		JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
+		WHERE (nomenclature.category = 'equipment' OR nomenclature.category = 'additional') AND nomenclature.hide = 0
+			AND route_list_addresses.route_list_id = @route_list_id
+		GROUP BY order_id, nomenclature_id 
+
+		UNION ALL
+
+		SELECT 
+			order_equipment.order_id AS order_id,
+			nomenclature.id AS nomenclature_id,
+			CONCAT(
+				IFNULL(nomenclature.short_name, nomenclature.name),
+				' ',
+				CASE
+					WHEN order_equipment.own_type = 'Rent' THEN '(Аренда)'
+					WHEN order_equipment.own_type = 'Client' THEN '(Клиент)'
+					WHEN order_equipment.own_type = 'Duty' THEN '(Дежурный)'
+					ELSE order_equipment.own_type
+				END
+			) AS name,
+			SUM(order_equipment.count) AS cnt
+		FROM order_equipment
 		LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
-	WHERE 
-		order_equipment.direction = 'Deliver' AND nomenclature.hide = 0
-	GROUP BY order_id, nomenclature_id
+		JOIN route_list_addresses ON route_list_addresses.order_id = order_equipment.order_id
+		WHERE order_equipment.direction = 'Deliver' AND nomenclature.hide = 0
+			AND route_list_addresses.route_list_id = @route_list_id
+		GROUP BY order_id, nomenclature_id
+	) AS T
+	GROUP BY nomenclature_id, name
 ) AS eq_qry ON eq_qry.order_id = orders.id
 
 LEFT JOIN (

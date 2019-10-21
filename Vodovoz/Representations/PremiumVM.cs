@@ -20,7 +20,6 @@ namespace Vodovoz.Representations
 
 		public PremiumVM()
 		{
-			CreateDisposableUoW();
 			CreateRepresentationFilter = () => new PremiumFilter(UoW);
 		}
 

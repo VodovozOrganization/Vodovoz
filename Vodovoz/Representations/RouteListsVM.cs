@@ -156,7 +156,6 @@ namespace Vodovoz.ViewModel
 
 		public RouteListsVM()
 		{
-			CreateDisposableUoW();
 			CreateRepresentationFilter = () => new RouteListsFilter(UoW);
 		}
 

@@ -20,7 +20,6 @@ namespace Vodovoz.ViewModel
 
 		public FinesVM()
 		{
-			CreateDisposableUoW();
 			CreateRepresentationFilter = () => new FineFilter(UoW);
 		}
 

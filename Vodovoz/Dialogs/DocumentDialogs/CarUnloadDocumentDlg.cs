@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
+using QS.EntityRepositories;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
@@ -11,10 +11,13 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Store;
 using Vodovoz.ViewWidgets.Store;
 
@@ -24,6 +27,9 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
+		private IEmployeeRepository EmployeeRepository { get { return EmployeeSingletonRepository.GetInstance(); } }
+		private IUserPermissionRepository UserPermissionRepository { get { return UserPermissionSingletonRepository.GetInstance(); } }
+		private ICarUnloadRepository CarUnloadRepository { get { return CarUnloadSingletonRepository.GetInstance(); } }
 		IList<Equipment> alreadyUnloadedEquipment;
 
 		public override bool HasChanges => true;
@@ -108,6 +114,8 @@ namespace Vodovoz
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 			yentryrefRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
 
+			Entity.PropertyChanged += (sender, e) => { if(e.PropertyName == nameof(Entity.Warehouse)) OnWarehouseChanged();};
+
 			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
 			spnTareToReturn.Binding.AddBinding(Entity, e => e.TareToReturn, w => w.ValueAsInt).InitializeFromSource();
 
@@ -119,10 +127,35 @@ namespace Vodovoz
 				HasChanges = false;
 			if(!UoW.IsNew)
 				LoadReception();
+
+			var permmissionValidator = new EntityExtendedPermissionValidator
+			(
+				PermissionExtensionSingletonStore.GetInstance(), 
+				EmployeeRepository, 
+				UserSingletonRepository.GetInstance()
+			);
+			Entity.CanEdit = permmissionValidator.Validate(typeof(CarUnloadDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
+				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yentryrefRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				spnTareToReturn.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				defectiveitemsreceptionview1.Sensitive = false;
+				nonserialequipmentreceptionview1.Sensitive = false;
+				returnsreceptionview1.Sensitive = false;
+
+				buttonSave.Sensitive = false;
+			} else {
+				Entity.CanEdit = true;
+			}
 		}
 
 		public override bool Save()
 		{
+			if(!Entity.CanEdit)
+				return false;
+
 			if(!UpdateReceivedItemsOnEntity())
 				return false;
 
@@ -130,7 +163,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			if(!CarUnloadRepository.IsUniqDocument(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
+			if(!CarUnloadRepository.IsUniqueDocumentAtDay(UoW, Entity.RouteList, Entity.Warehouse, Entity.Id)) {
 				MessageDialogHelper.RunErrorDialog("Документ по данному МЛ и складу уже сформирован");
 				return false;
 			}
@@ -427,7 +460,7 @@ namespace Vodovoz
 				this);
 		}
 
-		protected void OnYSpecCmbWarehousesItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		protected void OnWarehouseChanged()
 		{
 			UpdateWidgetsVisible();
 			returnsreceptionview1.Warehouse = Entity.Warehouse;
