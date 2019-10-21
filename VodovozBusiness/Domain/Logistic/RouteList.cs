@@ -23,6 +23,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository.Cash;
@@ -817,7 +818,10 @@ namespace Vodovoz.Domain.Logistic
 					if(Status == RouteListStatus.InLoading || Status == RouteListStatus.Confirmed) {
 						Status = RouteListStatus.EnRoute;
 						foreach(var item in Addresses) {
-							item.Order.OrderStatus = OrderStatus.OnTheWay;
+							bool isInvalidStatus =  OrderSingletonRepository.GetInstance().GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
+
+							if(!isInvalidStatus)
+								item.Order.OrderStatus = OrderStatus.OnTheWay;
 						}
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
