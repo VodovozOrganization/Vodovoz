@@ -93,11 +93,11 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id, 
-    DATE_FORMAT(orders.delivery_date, '%d.%m.%y') AS order_date,
+    DATE_FORMAT(orders.delivery_date, '%d.%m.%Y') AS order_date,
 
     counterparty_contract.id AS contract_number, 
     DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
@@ -157,7 +157,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2096,12 +2096,21 @@ WHERE
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>183378</Value>
+          <Value>455555</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -2111,13 +2120,4 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>
