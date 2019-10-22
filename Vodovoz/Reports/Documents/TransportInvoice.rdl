@@ -39,7 +39,7 @@
       <Textbox Name="Textbox20">
         <Height>12.05pt</Height>
         <Width>177.76pt</Width>
-        <Value>ТОВАРНО-ТРАНСПОРТНАЯ НАКЛАДНАЯ</Value>
+        <Value>ТОВАРНО-ТРАНСПОРТНАЯ НАКЛАДНАЯ №</Value>
         <ZIndex>1</ZIndex>
         <Left>98.50pt</Left>
         <Top>12.90pt</Top>
@@ -56,8 +56,7 @@
       <Textbox Name="Textbox21">
         <Height>12.05pt</Height>
         <Width>186.69pt</Width>
-        <Value>
-        </Value>
+        <Value>=First({order_id}, "Order") + " от " + First({order_date}, "Order") + "г."</Value>
         <ZIndex>1</ZIndex>
         <Left>276.80pt</Left>
         <Top>12.90pt</Top>
@@ -69,6 +68,7 @@
           <BorderWidth />
           <BackgroundColor>
           </BackgroundColor>
+          <FontSize>8pt</FontSize>
         </Style>
       </Textbox>
       <fyi:Grid xmlns:fyi="http://www.fyireporting.com/schemas" Name="Grid2">
@@ -11198,7 +11198,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox176">
-                      <Value>10262322</Value>
+                      <Value>=First({order_id}, "Order")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -11212,6 +11212,7 @@
                         <FontSize>7pt</FontSize>
                         <BackgroundColor>
                         </BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -11581,6 +11582,7 @@
                         <FontSize>7pt</FontSize>
                         <BackgroundColor>
                         </BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -11615,7 +11617,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>10262322</Value>
+                      <Value>=First({order_id}, "Order")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -11629,6 +11631,7 @@
                         <FontSize>7pt</FontSize>
                         <BackgroundColor>
                         </BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -11676,6 +11679,7 @@
                         <FontSize>7pt</FontSize>
                         <BackgroundColor>
                         </BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Format(First({delivery_date}, "Order"), "dd.MM.yy")</Value>
                     </Textbox>
@@ -11847,6 +11851,8 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
+	orders.id AS order_id, 
+	DATE_FORMAT(orders.delivery_date, '%d.%m.%Y') AS order_date,
 	organizations.name AS org_name,
 	COMPILE_ADDRESS(delivery_points.id) AS counterparty_address,
 	SUBSTRING(organizations.jur_address FROM 10) AS organization_address,
@@ -11941,6 +11947,14 @@ GROUP BY orders.id</CommandText>
         <Field Name="payer">
           <DataField>payer</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="order_date">
+          <DataField>order_date</DataField>
+          <TypeName>System.DateTime</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -12531,7 +12545,7 @@ Public Function SummaOnlyString(ByVal Summa As String) As String
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=192.168.0.7;SslMode=none;</ConnectString>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
@@ -12539,6 +12553,11 @@ Public Function SummaOnlyString(ByVal Summa As String) As String
   <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>455555</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

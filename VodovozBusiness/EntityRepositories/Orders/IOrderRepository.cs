@@ -37,7 +37,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		double GetAvgRandeBetwenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, DateTime? startDate = null, DateTime? endDate = null);
 		double GetAvgRandeBetwenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, out int? orderCount, DateTime? startDate = null, DateTime? endDate = null);
 		OrderStatus[] GetUndeliveryStatuses();
-		int[] GetShippeIdsStartingFromDate(IUnitOfWork uow, PaymentType paymentType, DateTime? startDate = null);
+		ReceiptForOrderNode[] GetShippedOrdersWithReceiptsForDates(IUnitOfWork uow, PaymentType paymentType, DateTime? startDate = null);
 	}
 
 	public class ClientEquipmentNode

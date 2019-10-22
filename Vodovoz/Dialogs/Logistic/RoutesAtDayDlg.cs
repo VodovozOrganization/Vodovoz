@@ -362,9 +362,9 @@ namespace Vodovoz
 				Menu popupMenu = new Menu();
 				var item = new MenuItem(string.Format("Открыть {0}", order));
 				item.Activated += (sender, e) => {
-					var dlg = new OrderDlg(order);
-					dlg.UoWGeneric.CanCheckIfDirty = false;
-					dlg.HasChanges = false;
+					var dlg = new OrderDlg(order) {
+						HasChanges = false
+					};
 					dlg.SetDlgToReadOnly();
 					OpenSlaveTab(dlg);
 				};

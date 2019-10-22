@@ -50,7 +50,6 @@ namespace Vodovoz.Representations
 
 		public CallTasksVM(IImageProvider imageProvider)
 		{
-			CreateDisposableUoW();
 			img = new Pixbuf(UoW.GetById<StoredImageResource>(imageProvider.GetCrmIndicatorId()).BinaryFile);
 			emptyImg = img.Copy();
 			emptyImg.Fill(0xffffffff);

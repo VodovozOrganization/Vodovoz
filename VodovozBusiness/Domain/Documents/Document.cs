@@ -9,6 +9,8 @@ namespace Vodovoz.Domain.Documents
 	{
 		public virtual int Id { get; set; }
 
+		public virtual bool CanEdit { get; set; }
+
 		DateTime timeStamp = DateTime.Now;
 
 		public virtual DateTime TimeStamp {

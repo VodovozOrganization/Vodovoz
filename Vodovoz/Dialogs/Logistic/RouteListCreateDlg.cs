@@ -163,10 +163,6 @@ namespace Vodovoz
 			ggToStringWidget.Label = "Район города:";
 			ggToStringWidget.Binding.AddBinding(Entity, x => x.ObservableGeographicGroups, x => x.Items).InitializeFromSource();
 
-			//FIXME костыли, необходимо избавится от этого кода когда решим проблему с сессиями и flush nhibernate
-			HasChanges = true;
-			UoW.CanCheckIfDirty = false;
-
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.LoadSofiyskaya, false);
 			enumPrint.SetVisibility(RouteListPrintableDocuments.TimeList, false);

@@ -658,7 +658,9 @@ public partial class MainWindow : Window
 			() => {
 				var filter = new StockBalanceFilter();
 				filter.SetAndRefilterAtOnce(x => x.ShowArchive = true);
-				return new PermissionControlledRepresentationJournal(new StockBalanceVM(filter));
+				var tab = new PermissionControlledRepresentationJournal(new StockBalanceVM(filter));
+				tab.CustomTabName("Складские остатки");
+				return tab;
 			}
 		);
 	}

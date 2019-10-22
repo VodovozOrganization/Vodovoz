@@ -10,6 +10,9 @@ namespace Vodovoz.ViewModels.Organization
 {
 	public class SubdivisionViewModel : EntityTabViewModelBase<Subdivision>
 	{
+
+		public event Action OnSavedEntity;
+
 		public SubdivisionViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
 		{
 			ConfigureEntityChangingRelations();
@@ -28,6 +31,12 @@ namespace Vodovoz.ViewModels.Organization
 
 			Entity.ObservableChildSubdivisions.ElementAdded += (aList, aIdx) => OnPropertyChanged(() => GeographicGroupVisible);
 			Entity.ObservableChildSubdivisions.ElementRemoved += (aList, aIdx, aObject) => OnPropertyChanged(() => GeographicGroupVisible);
+		}
+
+		protected override void BeforeSave()
+		{
+			OnSavedEntity?.Invoke();
+			base.BeforeSave();
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;

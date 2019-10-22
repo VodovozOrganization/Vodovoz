@@ -3,14 +3,19 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.EntityRepositories;
 using QS.Project.Repositories;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz
@@ -18,6 +23,10 @@ namespace Vodovoz
 	public partial class CarLoadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarLoadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		private IEmployeeRepository EmployeeRepository { get { return EmployeeSingletonRepository.GetInstance(); } }
+		private IUserPermissionRepository UserPermissionRepository { get { return UserPermissionSingletonRepository.GetInstance(); } }
+
 		public CarLoadDocumentDlg()
 		{
 			this.Build();
@@ -99,10 +108,28 @@ namespace Vodovoz
 			if(UoW.IsNew && Entity.Warehouse != null)
 				carloaddocumentview1.FillItemsByWarehouse();
 			ySpecCmbWarehouses.ItemSelected += OnYSpecCmbWarehousesItemSelected;
+
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance(), UserSingletonRepository.GetInstance());
+			Entity.CanEdit = permmissionValidator.Validate(typeof(CarLoadDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
+				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				yentryrefRouteList.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ySpecCmbWarehouses.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				ytextviewRouteListInfo.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				carloaddocumentview1.Sensitive = false;
+
+
+				buttonSave.Sensitive = false;
+			} else {
+				Entity.CanEdit = true;
+			}
 		}
 
 		public override bool Save()
 		{
+			if(!Entity.CanEdit)
+				return false;
+
 			Entity.UpdateAlreadyLoaded(UoW, new RouteListRepository());
 			var valid = new QS.Validation.GtkUI.QSValidator<CarLoadDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))

@@ -9,6 +9,10 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Domain.Permissions;
+using Vodovoz.PermissionExtensions;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz
 {
@@ -67,10 +71,27 @@ namespace Vodovoz
 			referenceDstWarehouse.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();
 
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
+
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance(), UserSingletonRepository.GetInstance());
+			Entity.CanEdit = permmissionValidator.Validate(typeof(IncomingWater), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
+				spinAmount.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
+				referenceProduct.Sensitive = false;
+				referenceDstWarehouse.Sensitive = false;
+				referenceSrcWarehouse.Sensitive = false;
+				buttonFill.Sensitive = false;
+				incomingwatermaterialview1.Sensitive = false;
+				buttonSave.Sensitive = false;
+			} else {
+				Entity.CanEdit = true;
+			}
 		}
 
 		public override bool Save ()
 		{
+			if(!Entity.CanEdit)
+				return false;
+
 			if(CheckWarehouseItems() == false){
 				MessageDialogHelper.RunErrorDialog("На складе не хватает материалов");
 				return false;
@@ -80,7 +101,7 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.LastEditor = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditor = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser (UoW);
 			Entity.LastEditedTime = DateTime.Now;
 			if(Entity.LastEditor == null)
 			{
