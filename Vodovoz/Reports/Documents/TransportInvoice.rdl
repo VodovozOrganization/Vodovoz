@@ -11198,7 +11198,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox176">
-                      <Value>10262322</Value>
+                      <Value>=First({order_id}, "Order")</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -11212,6 +11212,7 @@
                         <FontSize>7pt</FontSize>
                         <BackgroundColor>
                         </BackgroundColor>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
