@@ -196,6 +196,23 @@ namespace Vodovoz.Views.Logistic
 				ViewModel.IsAutoroutingModeActive = false;
 				FillDialogAtDay();
 			};
+			btnRefresh.Clicked += (sender, e) => Refresh();
+			ydateForRoutes.DateChanged += (sender, e) => Refresh();
+			Refresh();
+			buttonRemoveAddress.Clicked+= (sender, e) => {
+				ViewModel.RemoveRLItemCommand.Execute(ytreeRoutes.GetSelectedObject<RouteListItem>());
+				RoutesWasUpdated();
+				UpdateAddressesOnMap();
+			};
+			checkShowCompleted.Toggled += (sender, e) => FillDialogAtDay();
+			buttonOpen.Clicked += (sender, e) => ViewModel.OpenOrderOrRouteListCommand.Execute(ytreeRoutes.GetSelectedObject());
+			buttonMapHelp.Clicked += (sender, e) => new RouresAtDayInfoWnd().Show();
+			buttonRebuildRoute.Clicked += (sender, e) => {
+				ViewModel.RebuilOneRouteCommand.Execute(ytreeRoutes.GetSelectedObject());
+				ytreeRoutes.YTreeModel.EmitModelChanged();
+			};
+			buttonWarnings.Clicked += (sender, e) => ViewModel.ShowWarningsCommand.Execute();
+			ytreeviewOnDayDrivers.RowActivated += OnButtonDriverSelectAutoClicked;
 		}
 
 		void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
@@ -506,11 +523,6 @@ namespace Vodovoz.Views.Logistic
 			FillFullOrdersInfo();
 		}
 
-		protected void OnYdateForRoutesDateChanged(object sender, EventArgs e)
-		{
-			Refresh();
-		}
-
 		void UpdateOrdersInfo()
 		{
 			textOrdersInfo.Buffer.Text = ViewModel.GetOrdersInfo(addressesWithoutCoordinats, addressesWithoutRoutes, totalBottlesCountAtDay, bottlesWithoutRL);
@@ -608,28 +620,6 @@ namespace Vodovoz.Views.Logistic
 			return orders;
 		}
 
-		protected void OnButtonRemoveAddressClicked(object sender, EventArgs e)
-		{
-			ViewModel.RemoveRLItemCommand.Execute(ytreeRoutes.GetSelectedObject<RouteListItem>());
-			RoutesWasUpdated();
-			UpdateAddressesOnMap();
-		}
-
-		protected void OnCheckShowCompletedToggled(object sender, EventArgs e)
-		{
-			FillDialogAtDay();
-		}
-
-		protected void OnButtonOpenClicked(object sender, EventArgs e)
-		{
-			ViewModel.OpenOrderOrRouteListCommand.Execute(ytreeRoutes.GetSelectedObject());
-		}
-
-		protected void OnButtonMapHelpClicked(object sender, EventArgs e)
-		{
-			new RouresAtDayInfoWnd().Show();
-		}
-
 		protected void FillItems()
 		{
 			if(ViewModel.DateForRouting != default(DateTime))
@@ -715,26 +705,10 @@ namespace Vodovoz.Views.Logistic
 				ViewModel.RecalculateOnLoadTime();
 		}
 
-		protected void OnButtonRebuildRouteClicked(object sender, EventArgs e)
-		{
-			ViewModel.RebuilOneRouteCommand.Execute(ytreeRoutes.GetSelectedObject());
-			ytreeRoutes.YTreeModel.EmitModelChanged();
-		}
-
-		protected void OnButtonWarningsClicked(object sender, EventArgs e)
-		{
-			ViewModel.ShowWarningsCommand.Execute();
-		}
-
 		private void UpdateWarningButton()
 		{
 			buttonWarnings.Visible = ViewModel.Optimizer.WarningMessages.Any();
 			buttonWarnings.Label = ViewModel.Optimizer.WarningMessages.Count.ToString();
-		}
-
-		protected void OnButtonLoadClicked(object sender, EventArgs e)
-		{
-			FillItems();
 		}
 
 		protected void OnFilterWidgetEvent(object o, WidgetEventArgs args)
@@ -756,16 +730,6 @@ namespace Vodovoz.Views.Logistic
 
 				TabParent.AddSlaveTab(this, new OptimizingParametersDlg());
 			}*/
-		}
-
-		protected void OnYtreeviewOnDayDriversRowActivated(object o, RowActivatedArgs args)
-		{
-			OnButtonDriverSelectAutoClicked(o, args);
-		}
-
-		protected void OnBtnRefreshClicked(object sender, EventArgs e)
-		{
-			Refresh();
 		}
 
 		public override void Destroy()

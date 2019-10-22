@@ -476,7 +476,7 @@ namespace Vodovoz.Views.Logistic
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 2;
+			this.notebook1.CurrentPage = 0;
 			this.notebook1.TabPos = ((global::Gtk.PositionType)(0));
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vboxDrivers = new global::Gtk.VBox();
@@ -842,22 +842,12 @@ namespace Vodovoz.Views.Logistic
 			}
 			this.buttonWarnings.Hide();
 			this.Hide();
-			this.ydateForRoutes.DateChanged += new global::System.EventHandler(this.OnYdateForRoutesDateChanged);
 			this.ytimeToDeliveryTo.WidgetEvent += new global::Gtk.WidgetEventHandler(this.OnFilterWidgetEvent);
 			this.ytimeToDeliveryFrom.WidgetEvent += new global::Gtk.WidgetEventHandler(this.OnFilterWidgetEvent);
 			this.ySpnMin19Btls.WidgetEvent += new global::Gtk.WidgetEventHandler(this.OnFilterWidgetEvent);
-			this.buttonFilter.Clicked += new global::System.EventHandler(this.OnButtonLoadClicked);
 			this.label2.WidgetEvent += new global::Gtk.WidgetEventHandler(this.OnLabel2WidgetEvent);
-			this.checkShowCompleted.Toggled += new global::System.EventHandler(this.OnCheckShowCompletedToggled);
-			this.buttonWarnings.Clicked += new global::System.EventHandler(this.OnButtonWarningsClicked);
 			this.buttonAutoCreate.Clicked += new global::System.EventHandler(this.OnButtonAutoCreateClicked);
-			this.ytreeviewOnDayDrivers.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewOnDayDriversRowActivated);
 			this.buttonDriverSelectAuto.Clicked += new global::System.EventHandler(this.OnButtonDriverSelectAutoClicked);
-			this.buttonOpen.Clicked += new global::System.EventHandler(this.OnButtonOpenClicked);
-			this.buttonRebuildRoute.Clicked += new global::System.EventHandler(this.OnButtonRebuildRouteClicked);
-			this.buttonRemoveAddress.Clicked += new global::System.EventHandler(this.OnButtonRemoveAddressClicked);
-			this.btnRefresh.Clicked += new global::System.EventHandler(this.OnBtnRefreshClicked);
-			this.buttonMapHelp.Clicked += new global::System.EventHandler(this.OnButtonMapHelpClicked);
 		}
 	}
 }
