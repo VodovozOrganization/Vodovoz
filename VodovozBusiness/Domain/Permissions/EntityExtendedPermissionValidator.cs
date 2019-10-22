@@ -45,7 +45,7 @@ namespace Vodovoz.Domain.Permissions
 				Employee employee = EmployeeRepository.GetEmployeesForUser(uow, userId).FirstOrDefault();
 
 				TypeOfEntity typeOfEntity = uow.Session.QueryOver<TypeOfEntity>()
-						.Where(x => x.Type == entityType.ToString())
+						.Where(x => x.Type == entityType.Name)
 						.Take(1).List().FirstOrDefault();
 
 				if(user == null)
