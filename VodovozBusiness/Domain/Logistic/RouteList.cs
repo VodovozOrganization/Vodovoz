@@ -1640,10 +1640,11 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual decimal GetForwardersTotalWage()
 		{
-			if(FixedForwarderWage > 0) {
+			if(Forwarder == null)
+				return 0;
+			if(FixedForwarderWage > 0)
 				//Если все заказы не выполнены, то нет зарплаты
 				return ForwarderWageCalculationSrc.HasAnyCompletedAddress ? FixedForwarderWage : 0;
-			}
 			return Addresses.Sum(item => item.ForwarderWage);
 		}
 
