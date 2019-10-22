@@ -176,7 +176,13 @@ namespace Vodovoz.Domain.Client
 		[StringLength(45)]
 		public virtual string City {
 			get => city;
-			set => SetField(ref city, value, () => City);
+			set {
+				if(SetField(ref city, value, () => City)) {
+					Building = null;
+					Street = null;
+					StreetDistrict = null;
+				}
+			}
 		}
 
 		LocalityType localityType;
