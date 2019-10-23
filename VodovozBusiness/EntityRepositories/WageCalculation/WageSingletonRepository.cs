@@ -40,7 +40,7 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 		{
 			return uow.Session.QueryOver<WageParameter>()
 				.Where(x => x.StartDate <= dateTime)
-				.OrderBy(x => x.StartDate).Asc
+				.OrderBy(x => x.StartDate).Desc
 				.Take(1)
 				.SingleOrDefault();
 		}
