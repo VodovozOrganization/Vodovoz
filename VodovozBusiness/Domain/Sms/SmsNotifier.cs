@@ -58,10 +58,12 @@ namespace Vodovoz.Domain.Sms
 
 			//формирование текста сообщения
 			const string orderIdVariable = "$order_id$";
-			const string deliveryDateTimeVariable = "$delivery_date_time$";
+			const string deliveryDateVariable = "$delivery_date$";
+			const string deliveryTimeVariable = "$delivery_time$";
 			messageText = messageText.Replace(orderIdVariable, $"{order.Id}");
 			string orderScheduleTimeString = order.DeliverySchedule != null ? $"c {order.DeliverySchedule.From.Hours}:{order.DeliverySchedule.From.Minutes:D2} по {order.DeliverySchedule.To.Hours}:{order.DeliverySchedule.To.Minutes:D2}" : "";
-			messageText = messageText.Replace(deliveryDateTimeVariable, $"{order.DeliveryDate.Value.ToString("dd.MM.yyyy")} {orderScheduleTimeString}");
+			messageText = messageText.Replace(deliveryDateVariable, $"{order.DeliveryDate.Value.ToString("dd.MM.yyyy")}");
+			messageText = messageText.Replace(deliveryTimeVariable, $"{orderScheduleTimeString}");
 
 			//создание нового уведомления для отправки
 			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<NewClientSmsNotification>()) {
