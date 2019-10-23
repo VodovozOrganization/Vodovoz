@@ -18,11 +18,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public IInfoProvider InfoProvider { get; set; }
 
-		public bool VisibleOnPanel {
-			get {
-				return DeliveryPoint != null;
-			}
-		}
+		public bool VisibleOnPanel => DeliveryPoint != null;
 
 		public void OnCurrentObjectChanged(object changedObject)
 		{
@@ -35,7 +31,7 @@ namespace Vodovoz.SidePanel.InfoViews
 		public void Refresh()
 		{
 			DeliveryPoint = (InfoProvider as IDeliveryPointInfoProvider)?.DeliveryPoint;
-			if(DeliveryPoint == null) {
+			if(DeliveryPoint == null || string.IsNullOrWhiteSpace(DeliveryPoint?.City)) {
 				return;
 			}
 

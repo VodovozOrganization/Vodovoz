@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Nomenclature">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     nomenclature.official_name AS name,
@@ -33,7 +33,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
         </Field>
@@ -171,10 +171,10 @@ WHERE
             <Width>76.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.2pt</Width>
+            <Width>69.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>130.3pt</Width>
+            <Width>114.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -361,7 +361,7 @@ WHERE
             </TableRow>
           </TableRows>
         </Details>
-        <Left>9.4pt</Left>
+        <Left>16.6pt</Left>
         <Top>69.1pt</Top>
         <Footer>
           <TableRows>
@@ -522,13 +522,13 @@ WHERE
             <Width>183.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>186.2pt</Width>
+            <Width>177.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>132.5pt</Width>
+            <Width>115.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1393,7 +1393,7 @@ WHERE
             </TableRow>
           </TableRows>
         </Details>
-        <Left>6.0pt</Left>
+        <Left>5.2pt</Left>
         <Top>269.0pt</Top>
         <Footer>
           <TableRows>
@@ -1511,7 +1511,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>Будем рады вашей обратной связи о нашей работе на телефон: 493-50-93</Value>
+                      <Value>Будем рады вашей обратной связи о нашей работе на телефон: 8(812)-467-81-66</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1689,7 +1689,7 @@ WHERE
             </TableRow>
           </TableRows>
         </Details>
-        <Left>188.3pt</Left>
+        <Left>173.1pt</Left>
         <Top>155.0pt</Top>
         <Footer>
           <TableRows>

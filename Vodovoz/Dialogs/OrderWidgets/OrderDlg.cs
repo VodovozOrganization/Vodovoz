@@ -1,4 +1,4 @@
-﻿ using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
@@ -20,6 +20,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QS.EntityRepositories;
 using QS.Print;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
@@ -29,12 +30,12 @@ using QS.Project.Repositories;
 using QS.Report;
 using QS.Tdi;
 using QS.Tdi.Gtk;
+using QS.Validation.GtkUI;
 using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using QSSupportLib;
-using QS.Validation.GtkUI;
 using QSWidgetLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -46,8 +47,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
+using Vodovoz.Domain.Sms;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -63,9 +64,6 @@ using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
-using Vodovoz.Tools.CallTasks;
-using QS.EntityRepositories;
-using Vodovoz.Domain.Sms;
 
 namespace Vodovoz
 {

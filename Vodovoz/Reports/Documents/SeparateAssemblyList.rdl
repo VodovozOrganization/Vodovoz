@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Nomenclature">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     nomenclature.official_name AS name,
@@ -33,7 +33,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
         </Field>
@@ -171,10 +171,10 @@ WHERE
             <Width>76.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.2pt</Width>
+            <Width>74.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>130.3pt</Width>
+            <Width>121.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -293,7 +293,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox22">
                       <Value>=Fields!name.Value</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -310,7 +310,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox23">
                       <Value>=Fields!nomenclature_id.Value</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -327,7 +327,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox24">
                       <Value>=Fields!items_count.Value</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -344,7 +344,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox25">
                       <Value>=Fields!storage_cell.Value</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -361,7 +361,7 @@ WHERE
             </TableRow>
           </TableRows>
         </Details>
-        <Left>9.4pt</Left>
+        <Left>15.0pt</Left>
         <Top>69.1pt</Top>
         <Footer>
           <TableRows>
@@ -516,10 +516,10 @@ WHERE
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>21.2pt</Width>
+            <Width>24.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>183.0pt</Width>
+            <Width>172.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>186.2pt</Width>
@@ -528,7 +528,7 @@ WHERE
             <Width>50.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>132.5pt</Width>
+            <Width>120.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -539,8 +539,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox1">
-                      <Value>
-                      </Value>
+                      <Value>Клиент:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -561,32 +560,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox38">
-                      <Value>Клиент:</Value>
-                      <Style>
-                        <TextAlign>Right</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingRight>2pt</PaddingRight>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan >2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -609,7 +583,7 @@ WHERE
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -677,8 +651,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>
-                      </Value>
+                      <Value>Телефон:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -699,32 +672,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox34">
-                      <Value>Телефон:</Value>
-                      <Style>
-                        <TextAlign>Right</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingRight>2pt</PaddingRight>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan >2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -747,7 +695,7 @@ WHERE
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -776,7 +724,7 @@ WHERE
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>2</ColSpan>
@@ -789,8 +737,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>
-                      </Value>
+                      <Value>Адрес доставки:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -811,32 +758,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox30">
-                      <Value>Адрес доставки:</Value>
-                      <Style>
-                        <TextAlign>Right</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingRight>2pt</PaddingRight>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan >2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -859,7 +781,7 @@ WHERE
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -888,7 +810,7 @@ WHERE
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                   <ColSpan>2</ColSpan>
@@ -901,8 +823,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>
-                      </Value>
+                      <Value>Комментарий:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -923,32 +844,7 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox26">
-                      <Value>Комментарий:</Value>
-                      <Style>
-                        <TextAlign>Right</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingRight>2pt</PaddingRight>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan >2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -972,7 +868,7 @@ WHERE
                         <PaddingBottom>2pt</PaddingBottom>
                         <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1301,7 +1197,7 @@ WHERE
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1309,7 +1205,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox14">
                       <Value>=Fields!name.Value</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1330,7 +1226,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox15">
                       <Value>={items_count}</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1351,7 +1247,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox16">
                       <Value>={price}</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1372,7 +1268,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>={total_item_price}</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1393,8 +1289,8 @@ WHERE
             </TableRow>
           </TableRows>
         </Details>
-        <Left>6.0pt</Left>
-        <Top>269.0pt</Top>
+        <Left>3.6pt</Left>
+        <Top>269.8pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1511,7 +1407,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>Будем рады вашей обратной связи о нашей работе на телефон: 493-50-93</Value>
+                      <Value>Будем рады вашей обратной связи о нашей работе на телефон: 8(812)-467-81-66</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1604,7 +1500,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox69">
                       <Value>='/' + First({name}, "author") + '/'</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1681,7 +1577,7 @@ WHERE
                         <BorderWidth />
                         <VerticalAlign>Bottom</VerticalAlign>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1689,7 +1585,7 @@ WHERE
             </TableRow>
           </TableRows>
         </Details>
-        <Left>188.3pt</Left>
+        <Left>171.5pt</Left>
         <Top>155.0pt</Top>
         <Footer>
           <TableRows>

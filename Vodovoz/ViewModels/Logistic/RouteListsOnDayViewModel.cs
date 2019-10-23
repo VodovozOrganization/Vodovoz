@@ -762,38 +762,21 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public string GetOrdersInfo()
 		{
-			int totalOrders = 0, totalBottles = 0;
-
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			GeographicGroup geographicGroupAlias = null;
-			DeliveryPoint deliveryPointAlias = null;
-			ScheduleRestrictedDistrict scheduleRestrictedDistrictAlias = null;
 
-			var baseOrderQuery = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, ShowCompleted)
-												.GetExecutableQueryOver(UoW.Session);
-			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected)
-															  .Select(x => x.GeographicGroup);
-			if(selectedGeographicGroup.Any()) {
-				baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-							  .Left.JoinAlias(() => deliveryPointAlias.District, () => scheduleRestrictedDistrictAlias)
-							  .Left.JoinAlias(() => scheduleRestrictedDistrictAlias.GeographicGroups, () => geographicGroupAlias)
-							  .Where(
-							  	Restrictions.In(
-									Projections.Property(() => geographicGroupAlias.Id),
-									selectedGeographicGroup.Select(x => x.Id).ToArray()
-								)
-							  );
-
-				totalOrders = baseOrderQuery.Select(Projections.Count<Order>(x => x.Id))
-							  				.SingleOrDefault<int>();
-
-				totalBottles = baseOrderQuery.JoinAlias(o => o.OrderItems, () => orderItemAlias)
-											 .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
-											 .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-											 .Select(Projections.Sum(() => orderItemAlias.Count))
+			int totalOrders = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+											 .GetExecutableQueryOver(UoW.Session)
+											 .Select(Projections.Count<Order>(x => x.Id))
 											 .SingleOrDefault<int>();
-			}
+
+			int totalBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+											  .GetExecutableQueryOver(UoW.Session)
+											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
+											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+											  .Select(Projections.Sum(() => orderItemAlias.Count))
+											  .SingleOrDefault<int>();
 
 			var text = new List<string> {
 				NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."),

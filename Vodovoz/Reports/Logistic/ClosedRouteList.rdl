@@ -1836,7 +1836,7 @@ LEFT JOIN (
 			AND route_list_addresses.route_list_id = @route_list_id
 		GROUP BY order_id, nomenclature_id
 	) AS T
-	GROUP BY nomenclature_id, name
+	GROUP BY order_id, nomenclature_id, name
 ) AS eq_qry ON eq_qry.order_id = orders.id
 
 LEFT JOIN (
