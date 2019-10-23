@@ -25,6 +25,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.WageCalculation;
+using Vodovoz.Core.DataService;
 
 namespace Vodovoz
 {
@@ -189,7 +190,6 @@ namespace Vodovoz
 			);
 
 			logger.Info("Ok");
-			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance());
 		}
 
 		void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -223,6 +223,8 @@ namespace Vodovoz
 						return false;
 				}
 			}
+
+			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
 			phonesView.RemoveEmpty();
 			logger.Info("Сохраняем сотрудника...");
