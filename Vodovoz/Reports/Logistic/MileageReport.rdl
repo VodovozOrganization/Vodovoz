@@ -665,7 +665,7 @@ FROM
 WHERE
 	route_lists.status = 'Closed'
 		AND (cars.type_of_use IS NULL
-		OR cars.type_of_use &lt;&gt; 'Truck')
+		OR cars.type_of_use &lt;&gt; 'CompanyTruck')
 		AND drivers.visiting_master = FALSE
 		AND (@start_date = - 1
 		OR route_lists.closing_date &gt;= @start_date)

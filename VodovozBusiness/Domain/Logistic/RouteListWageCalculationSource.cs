@@ -43,7 +43,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public DateTime RouteListDate => rl.Date;
 
-		public bool IsTruck => rl.Car.TypeOfUse.HasValue && rl.Car.TypeOfUse.Value == CarTypeOfUse.Truck;
+		public bool IsTruck => rl.Car.TypeOfUse.HasValue && rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyTruck;
 
 		#endregion IRouteListWageCalculationSource implementation
 	}

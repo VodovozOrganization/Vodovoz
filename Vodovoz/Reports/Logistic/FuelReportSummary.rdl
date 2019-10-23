@@ -3994,7 +3994,7 @@ LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
 LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
 LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
 LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE (cars.type_of_use = 'Other' OR cars.type_of_use IS NULL)
+WHERE (cars.type_of_use = 'DriverCar' OR cars.type_of_use IS NULL)
     AND fuel_documents.date &gt;= @start_date
     AND fuel_documents.date &lt; @end_date
     AND (@author = - 1 OR author_id = @author)
@@ -4097,7 +4097,7 @@ LEFT JOIN employees as driver on driver.id = fuel_documents.driver_id
 LEFT JOIN employees as author on author.id = fuel_documents.author_id
 LEFT JOIN employees as last_editor on last_editor.id = fuel_documents.last_editor_id
 LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE cars.type_of_use = 'Truck'
+WHERE cars.type_of_use = 'CompanyTruck'
 	AND fuel_documents.date &gt;= @start_date
 	AND fuel_documents.date &lt; @end_date 
 	AND (@author = -1 OR author_id = @author)
@@ -4198,7 +4198,7 @@ LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
 LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
 LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
 LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE cars.type_of_use = 'GAZelle'
+WHERE cars.type_of_use = 'CompanyGAZelle'
 	AND fuel_documents.date &gt;= @start_date
 	AND fuel_documents.date &lt; @end_date
 	AND (@author = - 1 OR author_id = @author)
@@ -4299,7 +4299,7 @@ LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
 LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
 LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
 LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE cars.type_of_use = 'Largus'
+WHERE cars.type_of_use = 'CompanyLargus'
 	AND fuel_documents.date &gt;= @start_date
 	AND fuel_documents.date &lt; @end_date
 	AND (@author = - 1 OR author_id = @author)

@@ -31,7 +31,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = string.Format("Контроль за километражом маршрутного листа №{0}", Entity.Id);
 			var canConfirmMileage = UserPermissionRepository.CurrentUserPresetPermissions["can_confirm_mileage_for_our_GAZelles_Larguses"];
-			editing &= canConfirmMileage || !(Entity.Car.TypeOfUse.HasValue && Entity.Car.IsCompanyHavings && new[] { CarTypeOfUse.GAZelle, CarTypeOfUse.Largus }.Contains(Entity.Car.TypeOfUse.Value));
+			editing &= canConfirmMileage || !(Entity.Car.TypeOfUse.HasValue && Entity.Car.IsCompanyHavings && new[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus }.Contains(Entity.Car.TypeOfUse.Value));
 
 			ConfigureDlg();
 		}

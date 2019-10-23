@@ -312,7 +312,7 @@ namespace Vodovoz
 
 				Save();
 
-				if(Entity.Car.TypeOfUse == CarTypeOfUse.Truck) {
+				if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck) {
 					if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
 						Entity.CompleteRoute();
 					}

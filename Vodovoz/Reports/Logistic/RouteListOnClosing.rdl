@@ -46,7 +46,7 @@
 				WHERE
 					(is_company_havings = 0
 						OR (is_company_havings = 1
-						AND (cars.type_of_use &lt;&gt; 'Truck'
+						AND (cars.type_of_use &lt;&gt; 'CompanyTruck'
 						OR cars.type_of_use IS NULL)))
 						AND route_list_addresses.status = 'Completed'
 						AND route_list_addresses.route_list_id = routeListId),
@@ -97,11 +97,11 @@ WHERE
 	# скрыть сегодняшние МЛ
 	AND ((@todayRloff = 1 AND route_lists.date &lt; CURDATE()) OR @todayRloff = 0)
 	# скрыть МЛ с фурами
-	AND ((@RemTruckRLs = 1 AND !(cars.type_of_use IS NOT NULL AND cars.type_of_use = 'Truck')) OR @RemTruckRLs = 0)
+	AND ((@RemTruckRLs = 1 AND !(cars.type_of_use IS NOT NULL AND cars.type_of_use = 'CompanyTruck')) OR @RemTruckRLs = 0)
 	# скрыть МЛ с выездными мастерами
 	AND ((@RemServiceRLs = 1 AND employees.visiting_master = 0) OR @RemServiceRLs = 0)
 	# скрыть МЛ наёмников (наёмник = не мастер, не фура, не собственность компании)
-	AND ((@RemMercRLs = 1 AND (employees.visiting_master = 1 OR cars.type_of_use = 'Truck')) OR @RemMercRLs = 0)
+	AND ((@RemMercRLs = 1 AND (employees.visiting_master = 1 OR cars.type_of_use = 'CompanyTruck')) OR @RemMercRLs = 0)
 GROUP BY routeListId
 ;</CommandText>
         <QueryParameters>

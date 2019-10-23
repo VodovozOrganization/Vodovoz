@@ -454,11 +454,11 @@ namespace Vodovoz.Domain.Logistic
 															  .Distinct()
 															  .Count();
 
-		public virtual bool NeedMileageCheck => Car.TypeOfUse != CarTypeOfUse.Truck && !Driver.VisitingMaster && NeedMileageCheckByWage;
+		public virtual bool NeedMileageCheck => Car.TypeOfUse != CarTypeOfUse.CompanyTruck && !Driver.VisitingMaster && NeedMileageCheckByWage;
 
 		public virtual decimal PhoneSum {
 			get {
-				if(Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster)
+				if(Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster)
 					return 0;
 
 				return Wages.GetDriverRates(Date).PhoneServiceCompensationRate * UniqueAddressCount;
@@ -829,8 +829,8 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListStatus.OnClosing:
 					if(
-					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.Truck || Driver.VisitingMaster || !NeedMileageCheckByWage))
-					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.Truck))
+					(Status == RouteListStatus.EnRoute && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck || Driver.VisitingMaster || !NeedMileageCheckByWage))
+					|| (Status == RouteListStatus.Confirmed && (Car.TypeOfUse == CarTypeOfUse.CompanyTruck))
 					|| Status == RouteListStatus.MileageCheck
 					|| Status == RouteListStatus.Closed) {
 						Status = newStatus;
@@ -1498,7 +1498,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual long TimeOnLoadMinuts {
 			get {
-				return Car.TypeOfUse == CarTypeOfUse.Largus ? 15 : 30;
+				return Car.TypeOfUse == CarTypeOfUse.CompanyLargus ? 15 : 30;
 			}
 		}
 
@@ -1522,7 +1522,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Проверка на перегруз автомобиля
 		/// </summary>
 		/// <returns><c>true</c>, если автомобиль "Ларгус" или "раскат" и имеется его перегруз, <c>false</c> в остальных случаях.</returns>
-		public virtual bool HasOverweight() => Car != null && (Car.IsRaskat || Car.TypeOfUse == CarTypeOfUse.Largus) && Car.MaxWeight < GetTotalWeight();
+		public virtual bool HasOverweight() => Car != null && (Car.IsRaskat || Car.TypeOfUse == CarTypeOfUse.CompanyLargus) && Car.MaxWeight < GetTotalWeight();
 
 		/// <summary>
 		/// Перегруз в килограммах
