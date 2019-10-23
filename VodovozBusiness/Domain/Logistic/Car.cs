@@ -279,6 +279,9 @@ namespace Vodovoz.Domain.Logistic
 			if(FuelConsumption <= 0)
 				yield return new ValidationResult("Расход топлива должен быть больше 0", new[] { "FuelConsumption" });
 
+			if(!TypeOfUse.HasValue)
+				yield return new ValidationResult("Вид автомобиля должен быть заполнен", new[] { nameof(TypeOfUse) });
+
 			var cars = UoW.Session.QueryOver<Car>()
 				.Where(c => c.RegistrationNumber == this.RegistrationNumber)
 				.WhereNot(c => c.Id == this.Id)
