@@ -341,6 +341,9 @@ namespace Vodovoz.Domain.Employees
 		{
 			if(wageRepository == null)
 				throw new ArgumentNullException(nameof(wageRepository));
+			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
+			if(defaultLevel == null)
+				throw new InvalidOperationException("В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников\"!");
 
 			if(Id == 0) {
 				ObservableWageParameters.Clear();
@@ -354,14 +357,14 @@ namespace Vodovoz.Domain.Employees
 							};
 						else if(!IsDriverForOneDay)
 							parameterForDriver = new RatesLevelWageParameter {
-								WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
+								WageDistrictLevelRates = defaultLevel,
 								WageParameterTarget = WageParameterTargets.ForMercenariesCars
 							};
 						ChangeWageParameter(parameterForDriver, DateTime.Today);
 						break;
 					case EmployeeCategory.forwarder:
 						var parameterForForwarder = new RatesLevelWageParameter {
-							WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
+							WageDistrictLevelRates = defaultLevel,
 							WageParameterTarget = WageParameterTargets.ForMercenariesCars
 						};
 						ChangeWageParameter(parameterForForwarder, DateTime.Today);
