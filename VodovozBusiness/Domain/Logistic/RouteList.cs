@@ -1590,7 +1590,7 @@ namespace Vodovoz.Domain.Logistic
 		private IRouteListWageCalculationService GetDriverWageCalculationService()
 		{
 			var wageServiceFactory = Driver.GetWageCalculationServiceFactory();
-			return wageServiceFactory.GetRouteListWageCalculationService(DriverWageCalculationSrc);
+			return wageServiceFactory.GetRouteListWageCalculationService(UoW, DriverWageCalculationSrc);
 		}
 
 		private IRouteListWageCalculationService GetForwarderWageCalculationService()
@@ -1599,7 +1599,7 @@ namespace Vodovoz.Domain.Logistic
 				return null;
 			}
 			var wageServiceFactory = Forwarder.GetWageCalculationServiceFactory();
-			return wageServiceFactory.GetRouteListWageCalculationService(ForwarderWageCalculationSrc);
+			return wageServiceFactory.GetRouteListWageCalculationService(UoW, ForwarderWageCalculationSrc);
 		}
 
 
