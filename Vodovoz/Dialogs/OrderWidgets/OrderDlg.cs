@@ -25,8 +25,10 @@ using QS.Print;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Report;
 using QS.Tdi;
 using QS.Tdi.Gtk;
@@ -55,6 +57,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories;
@@ -1138,18 +1141,28 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
-			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			var nomenclatureFilter = new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
 			nomenclatureFilter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.master },
-				x => x.DefaultSelectedCategory = NomenclatureCategory.master
+				x => x.AvailableCategories = new [] { NomenclatureCategory.master },
+				x => x.RestrictCategory = NomenclatureCategory.master,
+				x => x.RestrictArchive = false
 			);
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = JournalSelectMode.Single,
-				ShowFilter = true
+
+			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+				nomenclatureFilter,
+				ServicesConfig.CommonServices
+			) {
+				SelectionMode = JournalSelectionMode.Single,
 			};
-			SelectDialog.CustomTabName("Выезд мастера");
-			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
-			TabParent.AddSlaveTab(this, SelectDialog);
+			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+			journalViewModel.TabName = "Выезд мастера";
+			journalViewModel.OnEntitySelectedResult += (s, ea) => {
+				var selectedNode = ea.SelectedNodes.FirstOrDefault();
+				if(selectedNode == null)
+					return;
+				TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+			};
+			this.TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
 		protected void OnButtonAddForSaleClicked(object sender, EventArgs e)
@@ -1157,20 +1170,29 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
-			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			var nomenclatureFilter = new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
 			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-				x => x.DefaultSelectedCategory = NomenclatureCategory.water,
-				x => x.DefaultSelectedSaleCategory = SaleCategory.forSale
+				x => x.SelectCategory = NomenclatureCategory.water,
+				x => x.SelectSaleCategory = SaleCategory.forSale,
+				x => x.RestrictArchive = false
 			);
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = JournalSelectMode.Single,
-				ShowFilter = true
-			};
-			SelectDialog.CustomTabName("Номенклатура на продажу");
-			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
-			TabParent.AddSlaveTab(this, SelectDialog);
 
+			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+				nomenclatureFilter,
+				ServicesConfig.CommonServices
+			) {
+				SelectionMode = JournalSelectionMode.Single,
+			};
+			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+			journalViewModel.TabName = "Номенклатура на продажу";
+			journalViewModel.OnEntitySelectedResult += (s, ea) => {
+				var selectedNode = ea.SelectedNodes.FirstOrDefault();
+				if(selectedNode == null)
+					return;
+				TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+			};
+			this.TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
 		#region Рекламные наборы
@@ -1186,15 +1208,6 @@ namespace Vodovoz
 		}
 
 		#endregion
-
-		void NomenclatureForSaleSelected(object sender, JournalObjectSelectedEventArgs e)
-		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			if(selectedId == 0) {
-				return;
-			}
-			TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedId));
-		}
 
 		void NomenclatureSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{

@@ -4,7 +4,6 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
-using QS.DomainModel.Config;
 using QS.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -17,7 +16,6 @@ namespace Vodovoz.JournalViewModels
 {
 	public class NomenclaturesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureDlg, NomenclatureJournalNode, NomenclatureFilterViewModel>
 	{
-		readonly ICommonServices commonServices;
 		readonly int currentUserId;
 
 		public NomenclaturesJournalViewModel(
@@ -26,7 +24,6 @@ namespace Vodovoz.JournalViewModels
 		) : base(filterViewModel, commonServices)
 		{
 			TabName = "Журнал ТМЦ";
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.currentUserId = commonServices.UserService.CurrentUserId;
 			SetOrder(x => x.Name);
 			UpdateOnChanges(
@@ -40,12 +37,9 @@ namespace Vodovoz.JournalViewModels
 
 		public int[] ExcludingNomenclatureIds { get; set; }
 
-		protected override Func<IQueryOver<Nomenclature>> ItemsSourceQueryFunction => () => {
-			var canAddSpares = commonServices.PermissionService.ValidateUserPresetPermission("can_add_spares_to_order", currentUserId);
-			var canAddBottles = commonServices.PermissionService.ValidateUserPresetPermission("can_add_bottles_to_order", currentUserId);
-			var canAddMaterials = commonServices.PermissionService.ValidateUserPresetPermission("can_add_materials_to_order", currentUserId);
-			var canAddEquipmentNotForSale = commonServices.PermissionService.ValidateUserPresetPermission("can_add_equipment_not_for_sale_to_order", currentUserId);
+		public IAdditionalJournalRestriction<Nomenclature> AdditionalJournalRestriction { get; set; } = null;
 
+		protected override Func<IQueryOver<Nomenclature>> ItemsSourceQueryFunction => () => {
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits unitAlias = null;
 			NomenclatureJournalNode resultAlias = null;
@@ -73,9 +67,10 @@ namespace Vodovoz.JournalViewModels
 					   || orderAlias.OrderStatus == OrderStatus.OnLoading)
 				.Select(Projections.Sum(() => orderItemsAlias.Count));
 
-			var itemsQuery = UoW.Session.QueryOver(() => nomenclatureAlias)
-								.Where(() => !nomenclatureAlias.IsArchive)
-								;
+			var itemsQuery = UoW.Session.QueryOver(() => nomenclatureAlias);
+
+			if(!FilterViewModel.RestrictArchive)
+				itemsQuery.Where(() => !nomenclatureAlias.IsArchive);
 
 			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));
@@ -89,37 +84,47 @@ namespace Vodovoz.JournalViewModels
 
 			if(!FilterViewModel.RestrictDilers)
 				itemsQuery.Where(() => !nomenclatureAlias.IsDiler);
-			if(FilterViewModel.SelectedCategories.Contains(NomenclatureCategory.water))
+			if(FilterViewModel.RestrictCategory == NomenclatureCategory.water)
 				itemsQuery.Where(() => nomenclatureAlias.IsDisposableTare == FilterViewModel.RestrictDisposbleTare);
 
-			itemsQuery.Where(n => n.Category.IsIn(FilterViewModel.SelectedCategories));
+			if(FilterViewModel.RestrictCategory.HasValue)
+				itemsQuery.Where(n => n.Category == FilterViewModel.RestrictCategory.Value);
 
-			if(FilterViewModel.SelectedCategories.Count() == 1 && Nomenclature.GetCategoriesWithSaleCategory().Contains(FilterViewModel.SelectedCategories.FirstOrDefault()))
-				itemsQuery.Where(n => n.SaleCategory.IsIn(FilterViewModel.SelectedSubCategories));
-			if(!canAddSpares)
-				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.spare_parts && n.SaleCategory == SaleCategory.notForSale));
-			if(!canAddBottles)
-				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.bottle && n.SaleCategory == SaleCategory.notForSale));
-			if(!canAddMaterials)
-				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.material && n.SaleCategory == SaleCategory.notForSale));
-			if(!canAddEquipmentNotForSale)
-				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.equipment && n.SaleCategory == SaleCategory.notForSale));
+			if(FilterViewModel.SelectCategory.HasValue && FilterViewModel.SelectSaleCategory.HasValue && Nomenclature.GetCategoriesWithSaleCategory().Contains(FilterViewModel.SelectCategory.Value))
+				itemsQuery.Where(n => n.SaleCategory == FilterViewModel.SelectSaleCategory);
 
-			itemsQuery.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
-				.Where(() => !nomenclatureAlias.IsSerial)
-				.SelectList(list => list
-					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.Category)
-					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
-					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
-					.SelectSubQuery(subqueryAdded).WithAlias(() => resultAlias.Added)
-					.SelectSubQuery(subqueryRemoved).WithAlias(() => resultAlias.Removed)
-					.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved)
-				)
-				.OrderBy(x => x.Name).Asc
-				.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>())
-				;
+			if(AdditionalJournalRestriction != null)
+				foreach(var expr in AdditionalJournalRestriction.ExternalRestrictions)
+					itemsQuery.Where(expr);
+
+			if(AdditionalJournalRestriction is NomenclaturesForOrderJournalRestriction restr && restr.CalculateQtyOnStock) {
+				itemsQuery.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)
+					.Where(() => !nomenclatureAlias.IsSerial)
+					.SelectList(list => list
+						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
+						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.Category)
+						.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
+						.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
+						.SelectSubQuery(subqueryAdded).WithAlias(() => resultAlias.Added)
+						.SelectSubQuery(subqueryRemoved).WithAlias(() => resultAlias.Removed)
+						.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved)
+					)
+					.OrderBy(x => x.Name).Asc
+					.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>())
+					;
+			} else {
+				itemsQuery.Where(() => !nomenclatureAlias.IsSerial)
+					.SelectList(list => list
+						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
+						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.Category)
+						.Select(() => false).WithAlias(() => resultAlias.CalculateQtyOnStock)
+					)
+					.OrderBy(x => x.Name).Asc
+					.TransformUsing(Transformers.AliasToBean<NomenclatureJournalNode>())
+					;
+			}
 
 			return itemsQuery;
 		};
