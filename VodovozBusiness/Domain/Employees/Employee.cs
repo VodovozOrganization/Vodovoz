@@ -14,6 +14,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services;
+using Vodovoz.Core.DataService;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -324,7 +325,7 @@ namespace Vodovoz.Domain.Employees
 		public virtual WageCalculationServiceFactory GetWageCalculationServiceFactory()
 		{
 			if(wageCalculationServiceFactory == null) {
-				wageCalculationServiceFactory = new WageCalculationServiceFactory(this, WageSingletonRepository.GetInstance());
+				wageCalculationServiceFactory = new WageCalculationServiceFactory(this, WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 			}
 			return wageCalculationServiceFactory;
 		}
