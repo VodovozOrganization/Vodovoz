@@ -113,7 +113,7 @@ namespace Vodovoz.JournalViewModels
 				typeof(RouteList),
 				typeof(RouteListItem)
 			);
-			this.DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(sender, new CurrentObjectChangedArgs(null));
+			this.DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 		}
 
