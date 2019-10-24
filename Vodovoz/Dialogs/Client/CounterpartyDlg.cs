@@ -28,6 +28,8 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using Gtk;
 using Vodovoz.Domain.Goods;
+using QS.Services;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -222,6 +224,15 @@ namespace Vodovoz
 			rbnPrices.Toggled += OnRbnPricesToggled;
 			SetVisibilityForCloseDeliveryComments();
 
+			int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
+			bool canEditCounterpartyDetails = !UoW.IsNew && ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_edit_counterparty_details", userId);
+			accountsView.CanEdit = canEditCounterpartyDetails;
+			datalegalname1.Sensitive = canEditCounterpartyDetails;
+			enumPersonType.Sensitive = canEditCounterpartyDetails;
+			datatable4.Sensitive = canEditCounterpartyDetails;
+			entryFullName.Sensitive = canEditCounterpartyDetails;
+
+			//accountsView.
 			#region Особая печать
 
 			ytreeviewSpecialNomenclature.ColumnsConfig = ColumnsConfigFactory.Create<SpecialNomenclature>()
