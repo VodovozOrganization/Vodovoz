@@ -54,6 +54,17 @@ namespace Vodovoz.Domain.WageCalculation
 			set => SetField(ref wageParameterTarget, value, () => WageParameterTarget);
 		}
 
+		private bool isStartedWageParameter;
+		/// <summary>
+		/// Расчет является стартовым для нового водителя.
+		/// Устанавливается автоматически при создании водителя.
+		/// </summary>
+		[Display(Name = "Стартовый расчет")]
+		public virtual bool IsStartedWageParameter {
+			get => isStartedWageParameter;
+			set => SetField(ref isStartedWageParameter, value, () => IsStartedWageParameter);
+		}
+
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

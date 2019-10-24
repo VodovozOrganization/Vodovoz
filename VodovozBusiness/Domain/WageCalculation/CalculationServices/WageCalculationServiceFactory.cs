@@ -2,6 +2,8 @@
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.DomainModel.UoW;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -18,12 +20,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		public IRouteListWageCalculationService GetRouteListWageCalculationService(IUnitOfWork uow, IRouteListWageCalculationSource source)
 		{
-			WageParameter actualWageParameter;
+			ChangeWageParameter(uow, source.RouteListId);
 
-			if(source.DriverOfOurCar && !source.IsTruck) {
+			WageParameter actualWageParameter = employee.GetActualWageParameter(source.RouteListDate);
+			if(source.IsLargus && actualWageParameter is RatesLevelWageParameter) {
 				actualWageParameter = wageCalculationRepository.GetActualParameterForOurCars(uow, source.RouteListDate);
-			} else {
-				actualWageParameter = employee.GetActualWageParameter(source.RouteListDate);
 			}
 
 			if(actualWageParameter == null) {
@@ -44,6 +45,31 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 				case WageParameterTypes.SalesPlan:
 				default:
 					return new DefaultRouteListWageCalculationService();
+			}
+		}
+
+		private void ChangeWageParameter(IUnitOfWork uow, int currentRouteListId)
+		{
+			if(employee.WageParameters.Count != 1) {
+				return;
+			}
+
+			var startedWageParameter = employee.WageParameters.FirstOrDefault();
+			if(startedWageParameter == null) {
+				return;
+			}
+
+			IEnumerable<DateTime> workedDays = wageCalculationRepository.GetDaysWorkedWithRouteLists(uow, employee, currentRouteListId);
+			DateTime lastWorkedDay = workedDays.Max();
+
+			if(workedDays.Count() >= 5 && startedWageParameter.IsStartedWageParameter && lastWorkedDay < DateTime.Today) {
+				employee.ChangeWageParameter(
+					new RatesLevelWageParameter {
+						WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployees(uow),
+						WageParameterTarget = WageParameterTargets.ForMercenariesCars
+					}, 
+					lastWorkedDay.AddDays(1)
+				);
 			}
 		}
 	}

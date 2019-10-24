@@ -343,7 +343,7 @@ namespace Vodovoz.Domain.Employees
 			if(Id != 0) {
 				return;
 			}
-			
+
 			ObservableWageParameters.Clear();
 			switch(Category) {
 				case EmployeeCategory.driver:
@@ -357,27 +357,29 @@ namespace Vodovoz.Domain.Employees
 						parameterForDriver = new FixedWageParameter {
 							FixedWageType = FixedWageTypes.RouteList,
 							RouteListFixedWage = wageParametersProvider.GetFixedWageForNewLargusDrivers(),
-							WageParameterTarget = WageParameterTargets.ForMercenariesCars
+							WageParameterTarget = WageParameterTargets.ForMercenariesCars,
+							IsStartedWageParameter = true
 						};
 					else if(!IsDriverForOneDay)
 						parameterForDriver = new RatesLevelWageParameter {
 							WageDistrictLevelRates = defaultLevel,
 							WageParameterTarget = WageParameterTargets.ForMercenariesCars
 						};
-				ChangeWageParameter(parameterForDriver, DateTime.Today);
-				break;
-			case EmployeeCategory.forwarder:
-				var parameterForForwarder = new RatesLevelWageParameter {
-					WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
-					WageParameterTarget = WageParameterTargets.ForMercenariesCars
-				};
-				ChangeWageParameter(parameterForForwarder, DateTime.Today);
-				break;
-			case EmployeeCategory.office:
-			default:
-				ChangeWageParameter(new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars }, DateTime.Today);
-				break;
-			
+					ChangeWageParameter(parameterForDriver, DateTime.Today);
+					break;
+				case EmployeeCategory.forwarder:
+					var parameterForForwarder = new RatesLevelWageParameter {
+						WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
+						WageParameterTarget = WageParameterTargets.ForMercenariesCars
+					};
+					ChangeWageParameter(parameterForForwarder, DateTime.Today);
+					break;
+				case EmployeeCategory.office:
+				default:
+					ChangeWageParameter(new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars }, DateTime.Today);
+					break;
+
+			}
 		}
 
 		#endregion
