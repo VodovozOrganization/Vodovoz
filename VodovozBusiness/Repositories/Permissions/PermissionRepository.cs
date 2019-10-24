@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Permissions;
 using QS.Project.Domain;
@@ -64,7 +65,7 @@ namespace Vodovoz.Repositories.Permissions
 				.List();
 		}
 
-		public static IEnumerable<PermissionNode> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdivisionId, PermissionExtensionSingletonStore permissionExtensionFactory) //TODO : Вынести в фабрику (ну или в Helper) 
+		public static IEnumerable<SubdivisionPermissionNode> GetAllSubdivisionEntityPermissions(IUnitOfWork uow, int subdivisionId, IPermissionExtensionStore permissionExtensionStore)
 		{
 			var basePermission = uow.Session.QueryOver<EntitySubdivisionOnlyPermission>()
 				.Where(x => x.Subdivision.Id == subdivisionId)
@@ -72,21 +73,16 @@ namespace Vodovoz.Repositories.Permissions
 
 			foreach(var item in basePermission) 
 			{
-				var node = new PermissionNode();
+				var node = new SubdivisionPermissionNode();
 				node.EntitySubdivisionOnlyPermission = item;
 				node.TypeOfEntity = item.TypeOfEntity;
-				node.EntityPermissionExtended = new List<EntityPermissionExtended>();
-				foreach(var extension in permissionExtensionFactory.PermissionExtensions) 
+				node.EntityPermissionExtended = new List<EntitySubdivisionPermissionExtended>();
+				foreach(var extension in permissionExtensionStore.PermissionExtensions) 
 				{
-					Subdivision subdivisionAlias = null;
-					User userAlias = null;
-					EntityPermissionExtended permissionExtendedAlias = null;
+					EntitySubdivisionPermissionExtended permissionExtendedAlias = null;
 
 					var permission = uow.Session.QueryOver(() => permissionExtendedAlias)
-						.Left.JoinAlias(x => x.User, () => userAlias)
-						.Left.JoinAlias(x => x.Subdivision, () => subdivisionAlias)
-						.Where(x => subdivisionAlias.Id == subdivisionId)
-						.And(Restrictions.On(() => userAlias.Id).IsNull)
+						.Where(x => x.Subdivision.Id == subdivisionId)
 						.And(() => permissionExtendedAlias.PermissionId == extension.PermissionId)
 						.And(x => x.TypeOfEntity.Id == node.TypeOfEntity.Id)
 						.Take(1)?.List()?.FirstOrDefault();
@@ -96,7 +92,7 @@ namespace Vodovoz.Repositories.Permissions
 						continue;
 					}
 
-					permission = new EntityPermissionExtended();
+					permission = new EntitySubdivisionPermissionExtended();
 					permission.IsPermissionAvailable = null;
 					permission.PermissionId = extension.PermissionId;
 					permission.Subdivision = item.Subdivision;
@@ -134,10 +130,17 @@ namespace Vodovoz.Repositories.Permissions
 		}
 	}
 
-	public class PermissionNode
+	public class SubdivisionPermissionNode : IPermissionNode
 	{
 		public TypeOfEntity TypeOfEntity { get; set; }
 		public EntitySubdivisionOnlyPermission EntitySubdivisionOnlyPermission { get; set; }
-		public IList<EntityPermissionExtended> EntityPermissionExtended { get; set; }
+		public IList<EntitySubdivisionPermissionExtended> EntityPermissionExtended { get; set; }
+
+		public EntityPermissionBase EntityPermission => EntitySubdivisionOnlyPermission;
+		IList<EntityPermissionExtendedBase> IPermissionNode.EntityPermissionExtended 
+		{ 
+			get => EntityPermissionExtended.OfType<EntityPermissionExtendedBase>().ToList();
+			set => EntityPermissionExtended = value.OfType<EntitySubdivisionPermissionExtended>().ToList();
+		}
 	}
 }

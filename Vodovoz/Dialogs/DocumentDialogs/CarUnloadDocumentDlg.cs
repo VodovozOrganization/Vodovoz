@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.EntityRepositories;
 using QSOrmProject;
@@ -128,12 +129,7 @@ namespace Vodovoz
 			if(!UoW.IsNew)
 				LoadReception();
 
-			var permmissionValidator = new EntityExtendedPermissionValidator
-			(
-				PermissionExtensionSingletonStore.GetInstance(), 
-				EmployeeRepository, 
-				UserSingletonRepository.GetInstance()
-			);
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeRepository);
 			Entity.CanEdit = permmissionValidator.Validate(typeof(CarUnloadDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ytextviewCommnet.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();

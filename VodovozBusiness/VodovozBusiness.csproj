@@ -697,9 +697,8 @@
     <Compile Include="Domain\WageCalculation\PercentWageTypes.cs" />
     <Compile Include="Domain\WageCalculation\FixedWageTypes.cs" />
     <Compile Include="Domain\WageCalculation\WageParameter.cs" />
-    <Compile Include="Domain\Permissions\EntityPermissionExtended.cs" />
     <Compile Include="PermissionExtensions\RetroactivelyClosePermission.cs" />
-    <Compile Include="HibernateMapping\Permissions\EntityPermissionExtendedMap.cs" />
+    <Compile Include="HibernateMapping\Permissions\EntitySubdivisionPermissionExtendedMap.cs" />
     <Compile Include="Domain\WageCalculation\WageParameterTypes.cs" />
     <Compile Include="Domain\WageCalculation\PercentWageParameter.cs" />
     <Compile Include="Domain\WageCalculation\FixedWageParameter.cs" />
@@ -750,15 +749,12 @@
     <Compile Include="HibernateMapping\Sms\SmsNotificationMap.cs" />
     <Compile Include="Domain\Order\CashReceipt.cs" />
     <Compile Include="HibernateMapping\Order\CashReceiptMap.cs" />
-    <Compile Include="PermissionExtensions\IPermissionExtension.cs" />
-    <Compile Include="PermissionExtensions\PermissionExtensionSingletonStore.cs" />
-    <Compile Include="ViewModels\PermissionListViewModel.cs" />
-    <Compile Include="Domain\Permissions\EntityExtendedPermissionValidator.cs" />
-    <Compile Include="PermissionExtensions\IPermissionExtensionStore.cs" />
     <Compile Include="EntityRepositories\Orders\ReceiptForOrderNode.cs" />
     <Compile Include="EntityRepositories\Store\CarUnloadSingletonRepository.cs" />
     <Compile Include="EntityRepositories\Store\ICarUnloadRepository.cs" />
     <Compile Include="Services\IWageParametersProvider.cs" />
+    <Compile Include="Domain\Permissions\EntitySubdivisionPermissionExtended.cs" />
+    <Compile Include="PermissionExtensions\EntityExtendedPermissionValidator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

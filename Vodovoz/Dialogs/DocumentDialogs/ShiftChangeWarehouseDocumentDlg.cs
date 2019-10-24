@@ -12,6 +12,7 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {

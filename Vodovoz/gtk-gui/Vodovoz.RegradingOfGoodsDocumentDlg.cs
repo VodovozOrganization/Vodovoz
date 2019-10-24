@@ -165,7 +165,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.regradingofgoodsitemsview]));
 			w14.Position = 2;
 			this.Add(this.vbox4);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

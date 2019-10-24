@@ -2,6 +2,7 @@
 using System.Linq;
 using Vodovoz.Domain.Documents;
 using System;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 
 namespace Vodovoz.PermissionExtensions
 {
