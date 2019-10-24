@@ -3001,7 +3001,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(OrderItems.All(x => x.Nomenclature.Id == 157))
 				foreach(var oi in orderItems)
-					oi.ActualCount = oi.Count > 0 ? oi.Count : oi.ActualCount ?? 0;
+					oi.ActualCount = oi.Count > 0 ? oi.Count : (oi.ActualCount ?? 0);
 		}
 
 		public virtual void AcceptOrder()

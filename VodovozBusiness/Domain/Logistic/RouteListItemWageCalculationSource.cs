@@ -80,7 +80,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public decimal DriverWageSurcharge => item.DriverWageSurcharge;
 
-		public bool IsDelivered => item.IsDelivered();
+		public bool IsDelivered => item.IsDelivered() && item.Status != RouteListItemStatus.Transfered;
 
 		#endregion IRouteListItemWageCalculationSource implementation
 	}
