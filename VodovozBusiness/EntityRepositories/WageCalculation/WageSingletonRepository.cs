@@ -39,8 +39,9 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 		public WageParameter GetActualParameterForOurCars(IUnitOfWork uow, DateTime dateTime)
 		{
 			return uow.Session.QueryOver<WageParameter>()
+				.Where(x => x.WageParameterTarget == WageParameterTargets.ForOurCars)
 				.Where(x => x.StartDate <= dateTime)
-				.OrderBy(x => x.StartDate).Asc
+				.OrderBy(x => x.StartDate).Desc
 				.Take(1)
 				.SingleOrDefault();
 		}

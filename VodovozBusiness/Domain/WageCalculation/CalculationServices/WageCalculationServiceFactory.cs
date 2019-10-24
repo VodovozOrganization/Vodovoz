@@ -16,14 +16,12 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			this.wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 		}
 
-		public IRouteListWageCalculationService GetRouteListWageCalculationService(IRouteListWageCalculationSource source)
+		public IRouteListWageCalculationService GetRouteListWageCalculationService(IUnitOfWork uow, IRouteListWageCalculationSource source)
 		{
 			WageParameter actualWageParameter;
 
 			if(source.DriverOfOurCar && !source.IsTruck) {
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-					actualWageParameter = wageCalculationRepository.GetActualParameterForOurCars(uow, source.RouteListDate);
-				}
+				actualWageParameter = wageCalculationRepository.GetActualParameterForOurCars(uow, source.RouteListDate);
 			} else {
 				actualWageParameter = employee.GetActualWageParameter(source.RouteListDate);
 			}
