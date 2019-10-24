@@ -150,14 +150,6 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref isArchive, value, () => IsArchive); }
 		}
 
-		private bool isCompanyHavings;
-
-		[Display(Name = "Имущество компании")]
-		public virtual bool IsCompanyHavings {
-			get { return isCompanyHavings; }
-			set { SetField(ref isCompanyHavings, value, () => IsCompanyHavings); }
-		}
-
 		private bool isRaskat;
 
 		[Display(Name = "Раскат")]
@@ -260,6 +252,11 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);
 		public virtual bool CanEditFuelCardNumber => UserPermissionRepository.CurrentUserPresetPermissions["can_change_fuel_card_number"];
 
+		[Display(Name = "Имущество компании")]
+		public virtual bool IsCompanyHavings => TypeOfUse.HasValue && CompanyHavingsTypes.Contains(TypeOfUse.Value);
+
+		private CarTypeOfUse[] CompanyHavingsTypes => new CarTypeOfUse[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyTruck };
+
 		public Car()
 		{
 			Model = String.Empty;
@@ -282,6 +279,9 @@ namespace Vodovoz.Domain.Logistic
 			if(FuelConsumption <= 0)
 				yield return new ValidationResult("Расход топлива должен быть больше 0", new[] { "FuelConsumption" });
 
+			if(!TypeOfUse.HasValue)
+				yield return new ValidationResult("Вид автомобиля должен быть заполнен", new[] { nameof(TypeOfUse) });
+
 			var cars = UoW.Session.QueryOver<Car>()
 				.Where(c => c.RegistrationNumber == this.RegistrationNumber)
 				.WhereNot(c => c.Id == this.Id)
@@ -296,14 +296,25 @@ namespace Vodovoz.Domain.Logistic
 
 	public enum CarTypeOfUse
 	{
-		[Display(Name = "Ларгус")]
+		//Временные, удалить при завершении задачи
+		[Display(Name = "[Не выбирать]Ларгус")]
 		Largus,
-		[Display(Name = "Фура")]
+		[Display(Name = "[Не выбирать]Фура")]
 		Truck,
-		[Display(Name = "ГАЗель")]
+		[Display(Name = "[Не выбирать]ГАЗель")]
 		GAZelle,
-		[Display(Name = "Прочее")]
-		Other
+		[Display(Name = "[Не выбирать]Автомобиль")]
+		Other,
+		//Временные
+
+		[Display(Name = "Ларгус компании")]
+		CompanyLargus,
+		[Display(Name = "Фура компании")]
+		CompanyTruck,
+		[Display(Name = "ГАЗель компании")]
+		CompanyGAZelle,
+		[Display(Name = "Автомобиль водителя")]
+		DriverCar
 	}
 
 	public class CarTypeOfUseStringType : NHibernate.Type.EnumStringType

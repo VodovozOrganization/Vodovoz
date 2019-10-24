@@ -81,13 +81,13 @@ namespace Vodovoz.ViewModel
 				case RLFilterTransport.Raskat:
 					query.Where(() => carAlias.IsRaskat); break;
 				case RLFilterTransport.Largus:
-					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.Largus); break;
+					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.CompanyLargus); break;
 				case RLFilterTransport.GAZelle:
-					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.GAZelle); break;
+					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.CompanyGAZelle); break;
 				case RLFilterTransport.Waggon:
-					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.Truck); break;
+					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.CompanyTruck); break;
 				case RLFilterTransport.Others:
-					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.Other); break;
+					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.DriverCar); break;
 				default: break;
 			}
 

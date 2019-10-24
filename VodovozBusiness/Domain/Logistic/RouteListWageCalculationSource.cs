@@ -41,9 +41,13 @@ namespace Vodovoz.Domain.Logistic
 
 		public bool DriverOfOurCar => rl.Car.IsCompanyHavings;
 
+		public bool IsLargus => rl.Car.TypeOfUse.HasValue && rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyLargus;
+
 		public DateTime RouteListDate => rl.Date;
 
-		public bool IsTruck => rl.Car.TypeOfUse.HasValue && rl.Car.TypeOfUse.Value == CarTypeOfUse.Truck;
+		public bool IsTruck => rl.Car.TypeOfUse.HasValue && rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyTruck;
+
+		public int RouteListId => rl.Id;
 
 		#endregion IRouteListWageCalculationSource implementation
 	}

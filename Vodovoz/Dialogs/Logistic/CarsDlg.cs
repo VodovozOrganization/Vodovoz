@@ -85,7 +85,6 @@ namespace Vodovoz
 			photoviewCar.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewCar.GetSaveFileName = () => String.Format("{0}({1})", Entity.Model, Entity.RegistrationNumber);
 
-			checkIsCompanyHavings.Binding.AddBinding(Entity, e => e.IsCompanyHavings, w => w.Active).InitializeFromSource();
 			checkIsRaskat.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Active).InitializeFromSource();
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
@@ -106,7 +105,6 @@ namespace Vodovoz
 			maxVolumeSpin.Sensitive = canChangeVolumeWeightConsumption;
 			maxWeightSpin.Sensitive = canChangeVolumeWeightConsumption;
 
-			checkIsCompanyHavings.Sensitive = CarTypeIsEditable();
 			checkIsRaskat.Sensitive = CarTypeIsEditable();
 			comboTypeOfUse.Sensitive = CarTypeIsEditable();
 
@@ -115,6 +113,8 @@ namespace Vodovoz
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
 				.Finish();
 			yTreeGeographicGroups.ItemsDataSource = Entity.ObservableGeographicGroups;
+
+			UpdateSensitivity();
 		}
 
 		bool CarTypeIsEditable() => Entity.Id == 0;
@@ -179,36 +179,6 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnCheckIsCompanyHavingsToggled(object sender, EventArgs e)
-		{
-			Entity.IsCompanyHavings = checkIsCompanyHavings.Active;
-			dataentryreferenceDriver.Sensitive = !Entity.IsCompanyHavings;
-
-			comboTypeOfUse.Sensitive = Entity.IsCompanyHavings && CarTypeIsEditable();
-			checkIsRaskat.Sensitive = !Entity.IsCompanyHavings && CarTypeIsEditable();
-
-			if(Entity.IsCompanyHavings) {
-				Entity.Driver = null;
-				checkIsRaskat.Active = false;
-				Entity.IsRaskat = false;
-			}
-		}
-
-		protected void OnCheckIsRakatToggled(object sender, EventArgs e)
-		{
-			Entity.IsRaskat = checkIsRaskat.Active;
-
-			dataentryreferenceDriver.Sensitive = Entity.IsRaskat;
-
-			checkIsCompanyHavings.Sensitive = !Entity.IsRaskat && CarTypeIsEditable();
-
-			if(Entity.IsRaskat) {
-				checkIsCompanyHavings.Active = false;
-				Entity.IsCompanyHavings = false;
-				Entity.TypeOfUse = null;
-			}
-		}
-
 		protected void OnBtnAddGeographicGroupClicked(object sender, EventArgs e)
 		{
 			var selectGeographicGroups = new OrmReference(typeof(GeographicGroup), UoW);
@@ -231,6 +201,22 @@ namespace Vodovoz
 			var ggList = yTreeGeographicGroups.ItemsDataSource as GenericObservableList<GeographicGroup>;
 			if(yTreeGeographicGroups.GetSelectedObject() is GeographicGroup selectedObj && ggList != null)
 				ggList.Remove(selectedObj);
+		}
+
+		protected void OnComboTypeOfUseChangedByUser(object sender, EventArgs e)
+		{
+			UpdateSensitivity();
+
+			if(Entity.IsCompanyHavings) {
+				Entity.Driver = null;
+				Entity.IsRaskat = false;
+			}
+		}
+
+		private void UpdateSensitivity()
+		{
+			dataentryreferenceDriver.Sensitive = !Entity.IsCompanyHavings;
+			checkIsRaskat.Visible = !Entity.IsCompanyHavings && CarTypeIsEditable();
 		}
 	}
 }

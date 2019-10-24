@@ -758,6 +758,7 @@
     <Compile Include="EntityRepositories\Orders\ReceiptForOrderNode.cs" />
     <Compile Include="EntityRepositories\Store\CarUnloadSingletonRepository.cs" />
     <Compile Include="EntityRepositories\Store\ICarUnloadRepository.cs" />
+    <Compile Include="Services\IWageParametersProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

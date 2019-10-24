@@ -363,14 +363,14 @@ namespace Vodovoz.Dialogs.Logistic
 			var districtsBottles = orders.GroupBy(x => x.DistrictId).ToDictionary(x => x.Key, x => x.Sum(o => o.WaterCount));
 
 			foreach(var forwarder in toAdd) {
-				var driversToAdd = DriversAtDay.Where(x => x.WithForwarder == null && x.Car != null && x.Car.TypeOfUse != CarTypeOfUse.Largus).ToList();
+				var driversToAdd = DriversAtDay.Where(x => x.WithForwarder == null && x.Car != null && x.Car.TypeOfUse != CarTypeOfUse.CompanyLargus).ToList();
 
 				if(driversToAdd.Count == 0) {
 					logger.Warn("Не осталось водителей для добавленя экспедиторов.");
 					break;
 				}
 
-				Func<int, int> ManOnDistrict = (int districtId) => driversAtDay.Where(dr => dr.Car != null && dr.Car.TypeOfUse != CarTypeOfUse.Largus && dr.Districts.Any(dd2 => dd2.District.Id == districtId))
+				Func<int, int> ManOnDistrict = (int districtId) => driversAtDay.Where(dr => dr.Car != null && dr.Car.TypeOfUse != CarTypeOfUse.CompanyLargus && dr.Districts.Any(dd2 => dd2.District.Id == districtId))
 																			   .Sum(dr => dr.WithForwarder == null ? 1 : 2);
 
 				var driver = driversToAdd.OrderByDescending(

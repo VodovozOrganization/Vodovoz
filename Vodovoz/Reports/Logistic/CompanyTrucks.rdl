@@ -17,13 +17,13 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	CASE cars.type_of_use
-		WHEN 'Largus' THEN '(25адр * 30руб) + (75бут * 10руб) + (70бут * 5руб) = 1850\n1850руб * 22 дн. = 40700 руб в месяц'
-		WHEN 'GAZelle' THEN '(15адр * 30руб) + (100бут * 10руб) + (90бут * 5руб) = 1900\n1900руб*22 дн. = 41800руб в месяц'
+		WHEN 'CompanyLargus' THEN '(25адр * 30руб) + (75бут * 10руб) + (70бут * 5руб) = 1850\n1850руб * 22 дн. = 40700 руб в месяц'
+		WHEN 'CompanyGAZelle' THEN '(15адр * 30руб) + (100бут * 10руб) + (90бут * 5руб) = 1900\n1900руб*22 дн. = 41800руб в месяц'
 		ELSE '(20адр * 50руб) + (75бут * 20руб) + (70бут * 5руб) = 2850\n2850руб*22 дн. = 62700 руб в месяц'
 	END AS text,
 	CASE cars.type_of_use
-		WHEN 'Largus' THEN 'Ларгусы'
-		WHEN 'GAZelle' THEN 'ГАЗели'
+		WHEN 'CompanyLargus' THEN 'Ларгусы'
+		WHEN 'CompanyGAZelle' THEN 'ГАЗели'
 		ELSE 'Раскат'
 	END AS type_of_use,
 	cars.is_raskat,
@@ -133,7 +133,7 @@ FROM
 	cars ON route_lists.car_id = cars.id
 WHERE
 	(route_lists.date BETWEEN @start_date AND @end_date)
-		AND ((cars.is_company_havings = 1 AND (cars.type_of_use = 'Largus' OR cars.type_of_use = 'GAZelle')) OR cars.is_raskat = 1)
+		AND ((cars.is_company_havings = 1 AND (cars.type_of_use = 'CompanyLargus' OR cars.type_of_use = 'CompanyGAZelle')) OR cars.is_raskat = 1)
 GROUP BY route_lists.id
 ORDER BY driver_name</CommandText>
         <QueryParameters>
