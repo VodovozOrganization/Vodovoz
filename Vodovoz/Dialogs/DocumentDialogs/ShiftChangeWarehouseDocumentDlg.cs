@@ -50,27 +50,32 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 		}
 
+		bool canCreate;
+		bool canEdit;
+
+		public bool CanSave => canCreate || canEdit;
+
 		void ConfigureDlg()
 		{
-			var editing = !UoW.IsNew && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
+			canEdit = !UoW.IsNew && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance(), UserSingletonRepository.GetInstance());
-			Entity.CanEdit = permmissionValidator.Validate(typeof(ShiftChangeWarehouseDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
-			Entity.CanEdit &= Entity.TimeStamp.Date == DateTime.Now.Date;
-			editing &= Entity.CanEdit;
+			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today) {
+				var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance(), UserSingletonRepository.GetInstance());
+				canEdit &= permmissionValidator.Validate(typeof(ShiftChangeWarehouseDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			}
 
-			var canCreate = UoW.IsNew && !StoreDocumentHelper.CheckCreateDocument(WarehousePermissions.ShiftChangeCreate, Entity.Warehouse);
+			canCreate = UoW.IsNew && !StoreDocumentHelper.CheckCreateDocument(WarehousePermissions.ShiftChangeCreate, Entity.Warehouse);
 
 			if(!canCreate && UoW.IsNew){
 				FailInitialize = true;
 				return;
 			}
 
-			if(!editing && !UoW.IsNew)
+			if(!canEdit && !UoW.IsNew)
 				MessageDialogHelper.RunWarningDialog("У вас нет прав на изменение этого документа.");
 
-			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = editing || canCreate;
-			shiftchangewarehousedocumentitemsview1.Sensitive = editing || canCreate;
+			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = canEdit || canCreate;
+			shiftchangewarehousedocumentitemsview1.Sensitive = canEdit || canCreate;
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			if(UoW.IsNew)
 				yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.ShiftChangeCreate);
@@ -100,7 +105,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		public override bool Save()
 		{
-			if(!Entity.CanEdit)
+			if(!CanSave)
 				return false;
 
 			var valid = new QSValidator<ShiftChangeWarehouseDocument>(UoWGeneric.Root);
