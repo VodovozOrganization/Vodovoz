@@ -1904,6 +1904,7 @@ namespace Vodovoz
 				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
 				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.BeveragesWorld);
+			spinSumDifference.Visible = spinSumDifference.Visible && UserPermissionRepository.CurrentUserPresetPermissions["can_edit_order_extra_cash"];
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
