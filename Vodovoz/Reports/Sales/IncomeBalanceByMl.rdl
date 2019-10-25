@@ -2362,7 +2362,7 @@ FROM
             route_list_addresses.route_list_id as rl_id,
             ROUND(
                 SUM(IFNULL(order_items.price * order_items.count - order_items.discount_money, 0))
-                - SUM(IFNULL(order_deposit_items.count * order_deposit_items.deposit_sum, 0))
+                - SUM(IFNULL(order_deposit_items.count * order_deposit_items.deposit_sum, 0)) + SUM(orders.extra_money)
             , 2) AS TotalOrdersSum
         FROM
             orders
@@ -2440,6 +2440,7 @@ FROM
                 status = 'transfered'
                 OR was_transfered = TRUE
             )
+            AND orders.payment_type IN ('cash','BeveragesWorld')
         ) AS internal_trans
         GROUP BY 
             internal_trans.route_list_id
@@ -2470,7 +2471,9 @@ WHERE
     route_lists.status IN ('Closed' , 'MileageCheck')
     AND route_lists.date &gt;= @StartDate
     AND route_lists.date &lt;= @EndDate
-GROUP BY route_lists.id</CommandText>
+GROUP BY route_lists.id
+
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
