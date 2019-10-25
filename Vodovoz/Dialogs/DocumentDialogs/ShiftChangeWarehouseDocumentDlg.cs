@@ -61,8 +61,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			canEdit = !UoW.IsNew && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, Entity.Warehouse);
 
 			if(Entity.Id != 0 && Entity.TimeStamp < DateTime.Today) {
-				var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
-				canEdit &= permmissionValidator.Validate(typeof(ShiftChangeWarehouseDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+				var permissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
+				canEdit &= permissionValidator.Validate(typeof(ShiftChangeWarehouseDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			}
 
 			canCreate = UoW.IsNew && !StoreDocumentHelper.CheckCreateDocument(WarehousePermissions.ShiftChangeCreate, Entity.Warehouse);

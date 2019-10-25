@@ -16,6 +16,9 @@ namespace Vodovoz.Core.Permissions
 		[Display(Name = "Изменение талона разгрузки")]
 		[DocumentType(DocumentType.CarUnloadDocument)]
 		CarUnloadEdit,
+		[Display(Name = "Создание входящей накладной")]
+		[DocumentType(DocumentType.IncomingInvoice)]
+		IncomingInvoiceCreate,
 		[Display(Name = "Изменение входящей накладной")]
 		[DocumentType(DocumentType.IncomingInvoice)]
 		IncomingInvoiceEdit,
