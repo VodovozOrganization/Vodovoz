@@ -71,11 +71,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	private static Logger logger = LogManager.GetCurrentClassLogger();
 	uint LastUiId;
 
-	public TdiNotebook TdiMain {
-		get {
-			return tdiMain;
-		}
-	}
+	public TdiNotebook TdiMain => tdiMain;
 
 	public MainWindow() : base(Gtk.WindowType.Toplevel)
 	{
@@ -106,7 +102,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		bool hasAccessToWagesAndBonuses = UserPermissionRepository.CurrentUserPresetPermissions["access_to_fines_bonuses"];
 		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
 		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses;
-		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
 		ActionDriverWages.Sensitive = hasAccessToSalaries;
 		ActionWagesOperations.Sensitive = hasAccessToSalaries;
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries;
@@ -118,7 +113,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		//ActionServices.Visible = false;
 		ActionDocTemplates.Visible = QSMain.User.Admin;
 		ActionService.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["database_maintenance"];
-
+		ActionEmployeeWorkChart.Sensitive = false;
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle) {
 			case ToolbarStyle.Both:
