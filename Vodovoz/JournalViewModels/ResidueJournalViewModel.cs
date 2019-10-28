@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -25,8 +26,9 @@ namespace Vodovoz.JournalViewModels
 			IMoneyRepository moneyRepository,
 			IDepositRepository depositRepository,
 			IBottlesRepository bottlesRepository,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices) 
-		: base(filterViewModel, commonServices)
+		: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал остатков";
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -49,7 +51,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IBottlesRepository bottlesRepository;
 		private readonly ICommonServices commonServices;
 
-		protected override Func<IQueryOver<Residue>> ItemsSourceQueryFunction => () => {
+		protected override Func<IUnitOfWork, IQueryOver<Residue>> ItemsSourceQueryFunction => (uow) => {
 			Counterparty counterpartyAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
@@ -57,7 +59,7 @@ namespace Vodovoz.JournalViewModels
 			Residue residueAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 
-			var residueQuery = UoW.Session.QueryOver<Residue>(() => residueAlias)
+			var residueQuery = uow.Session.QueryOver<Residue>(() => residueAlias)
 				.JoinQueryOver(() => residueAlias.Customer, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => residueAlias.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => residueAlias.LastEditAuthor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)

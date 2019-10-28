@@ -6,9 +6,7 @@ using System.Text;
 using NHibernate;
 using NHibernate.Criterion;
 using QS.Commands;
-using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
@@ -34,7 +32,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-	public class RouteListsOnDayViewModel : UoWTabViewModelBase
+	public class RouteListsOnDayViewModel : DialogTabViewModelBase
 	{
 		readonly IRouteListRepository routeListRepository;
 		readonly ISubdivisionRepository subdivisionRepository;
@@ -52,7 +50,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IOrderRepository orderRepository,
 			IAtWorkRepository atWorkRepository,
 			ICarRepository carRepository
-		) : base(commonServices.InteractiveService)
+		) : base(QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices.InteractiveService)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
@@ -193,6 +191,7 @@ namespace Vodovoz.ViewModels.Logistic
 					);
 					var drvJournalViewModel = new EmployeesJournalViewModel(
 						drvFilter,
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					) {
 						SelectionMode = JournalSelectionMode.Multiple
@@ -258,6 +257,7 @@ namespace Vodovoz.ViewModels.Logistic
 					);
 					var fwdJournalViewModel = new EmployeesJournalViewModel(
 						fwdFilter,
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					) {
 						SelectionMode = JournalSelectionMode.Multiple

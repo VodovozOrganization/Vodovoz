@@ -1,7 +1,7 @@
 ﻿using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
-using QS.DomainModel.Config;
+using QS.DomainModel.UoW;
 using QS.EntityRepositories;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
@@ -296,6 +296,7 @@ public partial class MainWindow : Window
 		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService, nomenclatureSelectorFactory);
 		var requestsJournal = new RequestsToSuppliersJournalViewModel(
 			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
 			QS.Project.Services.ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			new SupplierPriceItemsRepository()
@@ -322,7 +323,7 @@ public partial class MainWindow : Window
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
 		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService);
-		var debtorsJournal = new DebtorsJournalViewModel(filter, QS.Project.Services.ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
+		var debtorsJournal = new DebtorsJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, QS.Project.Services.ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
 
 		tdiMain.AddTab(debtorsJournal);
 
@@ -444,7 +445,7 @@ public partial class MainWindow : Window
 			x => x.RestrictOnlyWithoutCoodinates = false
 		);
 		filter.HidenByDefault = true;
-		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(filter, QS.Project.Services.ServicesConfig.CommonServices);
+		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, QS.Project.Services.ServicesConfig.CommonServices);
 		tdiMain.AddTab(selfDeliveriesJournal);
 	}
 
@@ -684,7 +685,7 @@ public partial class MainWindow : Window
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
 		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService);
-		var ordersJournal = new OrderJournalViewModel(filter, QS.Project.Services.ServicesConfig.CommonServices);
+		var ordersJournal = new OrderJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, QS.Project.Services.ServicesConfig.CommonServices);
 		tdiMain.AddTab(ordersJournal);
 	}
 
@@ -714,6 +715,7 @@ public partial class MainWindow : Window
 			moneyRepository,
 			depositRepository,
 			bottlesRepository,
+			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices
 		);
 		tdiMain.AddTab(residueJournalViewModel);

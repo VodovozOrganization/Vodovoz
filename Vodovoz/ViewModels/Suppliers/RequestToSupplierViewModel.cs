@@ -163,6 +163,7 @@ namespace Vodovoz.ViewModels.Suppliers
 					};
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 						filter,
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
 					) {
 						SelectionMode = JournalSelectionMode.Single,
