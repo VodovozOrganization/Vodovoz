@@ -819,7 +819,8 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(validationContext.Items.ContainsKey("NewStatus")) {
 				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
-				if(newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) {
+				if((newStatus == OrderStatus.Accepted || newStatus == OrderStatus.WaitForPayment) && Client != null) {
+
 					var key = new OrderStateKey(this, newStatus);
 					var messages = new List<string>();
 					if(!OrderAcceptProhibitionRulesRepository.CanAcceptOrder(key, ref messages)) {
