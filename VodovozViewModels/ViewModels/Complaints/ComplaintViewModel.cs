@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.Commands;
+using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -262,7 +262,6 @@ namespace Vodovoz.ViewModels.Complaints
 						undeliveryViewOpener,
 						employeeService,
 						employeeSelectorFactory,
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
 					);
 					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;

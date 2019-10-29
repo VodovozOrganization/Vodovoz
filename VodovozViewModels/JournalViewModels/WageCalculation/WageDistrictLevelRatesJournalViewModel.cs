@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using NHibernate;
 using NHibernate.Transform;
-using QS.DomainModel.UoW;
+using QS.DomainModel.Config;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.JournalNodes;
@@ -14,21 +14,23 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 {
 	public class WageDistrictLevelRatesJournalViewModel : SingleEntityJournalViewModelBase<WageDistrictLevelRates, WageDistrictLevelRatesViewModel, WageDistrictLevelRatesJournalNode>
 	{
-		public WageDistrictLevelRatesJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
+		public WageDistrictLevelRatesJournalViewModel(ICommonServices commonServices) : base(commonServices)
 		{
 			TabName = "Журнал ставок по уровням";
-
-			var threadLoader = DataLoader as ThreadDataLoader<WageDistrictLevelRatesJournalNode>;
-			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
-			threadLoader.MergeInOrderBy(x => x.Name, false);
+			SetOrder(
+				new Dictionary<Func<WageDistrictLevelRatesJournalNode, object>, bool> {
+					{ x => x.IsArchive, false },
+					{ x => x.Name, false }
+				}
+			);
 
 			UpdateOnChanges(typeof(WageDistrictLevelRates));
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<WageDistrictLevelRates>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IQueryOver<WageDistrictLevelRates>> ItemsSourceQueryFunction => () => {
 			WageDistrictLevelRatesJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver<WageDistrictLevelRates>();
+			var query = UoW.Session.QueryOver<WageDistrictLevelRates>();
 			query.Where(
 				GetSearchCriterion<WageDistrictLevelRates>(
 					x => x.Id

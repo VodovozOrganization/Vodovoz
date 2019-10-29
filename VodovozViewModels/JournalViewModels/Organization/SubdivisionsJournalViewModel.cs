@@ -4,7 +4,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.DomainModel.UoW;
+using QS.DomainModel.Config;
 using QS.Project.Domain;
 using QS.Services;
 using Vodovoz.Domain.Employees;
@@ -18,17 +18,17 @@ namespace Vodovoz.JournalViewModels.Organization
 	{
 		private readonly ICommonServices commonServices;
 
-		public SubdivisionsJournalViewModel(SubdivisionFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public SubdivisionsJournalViewModel(SubdivisionFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			TabName = "Выбор подразделения";
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<Subdivision>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IQueryOver<Subdivision>> ItemsSourceQueryFunction => () => {
 			Subdivision subdivisionAlias = null;
 			Employee chiefAlias = null;
 			SubdivisionJournalNode resultAlias = null;
-			var query = uow.Session.QueryOver<Subdivision>(() => subdivisionAlias);
+			var query = UoW.Session.QueryOver<Subdivision>(() => subdivisionAlias);
 
 			var firstLevelSubQuery = QueryOver.Of<Subdivision>().WhereRestrictionOn(x => x.ParentSubdivision).IsNull().Select(x => x.Id);
 			var secondLevelSubquery = QueryOver.Of<Subdivision>().WithSubquery.WhereProperty(x => x.ParentSubdivision.Id).In(firstLevelSubQuery).Select(x => x.Id);

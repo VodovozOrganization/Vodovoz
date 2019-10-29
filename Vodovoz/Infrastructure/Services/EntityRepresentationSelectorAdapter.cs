@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using QS.DomainModel.Entity;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi;
+using QS.Project.Dialogs.GtkUI;
+using System.Collections.Generic;
+using QS.Project.Dialogs;
+using System.Collections;
+using QS.DomainModel.Entity;
 using QS.Utilities.Text;
 
 namespace Vodovoz.Infrastructure.Services
@@ -97,7 +97,6 @@ namespace Vodovoz.Infrastructure.Services
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
-		public event EventHandler TabClosed;
 
 		public bool CompareHashName(string hashName)
 		{
@@ -115,14 +114,11 @@ namespace Vodovoz.Infrastructure.Services
 
 		public IList Items => model.ItemsList;
 
+		public bool IsActive => model.UoW.IsAlive;
+
 		public void SearchValues(params string[] values)
 		{
 			model.SearchStrings = values;
-		}
-
-		public void OnTabClosed()
-		{
-			TabClosed?.Invoke(this, EventArgs.Empty);
 		}
 
 		#endregion IEntityAutocompleteSelector implementation

@@ -12,19 +12,21 @@ using QS.DomainModel.Entity;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
-	public class CarsWageParametersViewModel : DialogTabViewModelBase
+	public class CarsWageParametersViewModel : UoWTabViewModelBase
 	{
 		private readonly IWageCalculationRepository wageCalculationRepository;
 		private readonly ICommonServices commonServices;
 
 		public event EventHandler OnParameterNodesUpdated;
 
-		public CarsWageParametersViewModel(IUnitOfWorkFactory unitOfWorkFactory, IWageCalculationRepository wageCalculationRepository, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices.InteractiveService)
+		public CarsWageParametersViewModel(IWageCalculationRepository wageCalculationRepository, ICommonServices commonServices) : base(commonServices.InteractiveService)
 		{
 			TabName = "Ставки для автомобилей компании";
 
 			this.wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			ObservableWageParameters.ElementAdded += (aList, aIdx) => WageParametersUpdated();
 			ObservableWageParameters.ElementRemoved += (aList, aIdx, aObject) => WageParametersUpdated();

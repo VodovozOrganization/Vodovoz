@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.DomainModel.UoW;
+using QS.DomainModel.Config;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -54,7 +53,6 @@ namespace Vodovoz.JournalViewModels
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
 
 		public ComplaintsJournalViewModel(
-			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IUndeliveriesViewOpener undeliveriesViewOpener,
 			IEmployeeService employeeService,
@@ -68,7 +66,7 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionRepository subdivisionRepository,
 			IReportViewOpener reportViewOpener,
 			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		) : base(filterViewModel, commonServices)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.undeliveriesViewOpener = undeliveriesViewOpener ?? throw new ArgumentNullException(nameof(undeliveriesViewOpener));
@@ -85,10 +83,6 @@ namespace Vodovoz.JournalViewModels
 
 			TabName = "Журнал жалоб";
 
-			RegisterComplaints();
-			SetOrder(c => c.Id, true);
-			FinishJournalConfiguration();
-
 			FilterViewModel.SubdivisionService = subdivisionService;
 			FilterViewModel.EmployeeRepository = employeeRepository;
 
@@ -98,8 +92,11 @@ namespace Vodovoz.JournalViewModels
 			else
 				FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
 
+			RegisterComplaints();
 
+			SetOrder(c => c.Id, true);
 
+			FinishJournalConfiguration();
 
 			UpdateOnChanges(
 				typeof(Complaint),
@@ -113,11 +110,10 @@ namespace Vodovoz.JournalViewModels
 				typeof(RouteList),
 				typeof(RouteListItem)
 			);
-			this.DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
-			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
+			this.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(sender, new CurrentObjectChangedArgs(null));
 		}
 
-		private IQueryOver<Complaint> GetComplaintQuery(IUnitOfWork uow)
+		private IQueryOver<Complaint> GetComplaintQuery()
 		{
 			ComplaintJournalNode resultAlias = null;
 
@@ -224,7 +220,7 @@ namespace Vodovoz.JournalViewModels
 				Projections.Property(() => fineAlias.TotalMoney),
 				Projections.Constant("\n"));
 
-			var query = uow.Session.QueryOver(() => complaintAlias)
+			var query = UoW.Session.QueryOver(() => complaintAlias)
 				.Left.JoinAlias(() => complaintAlias.CreatedBy, () => authorAlias)
 				.Left.JoinAlias(() => complaintAlias.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(() => complaintAlias.Order, () => orderAlias)
@@ -378,11 +374,12 @@ namespace Vodovoz.JournalViewModels
 			complaintConfig.FinishConfiguration();
 		}
 
-		protected void BeforeItemsUpdated(IList items, uint start)
+		protected override void BeforeItemsUpdated()
 		{
-			foreach(var item in items.Cast<ComplaintJournalNode>().Skip((int)start)) {
+			foreach(ComplaintJournalNode item in Items) {
 				item.SequenceNumber = Items.IndexOf(item) + 1;
 			}
+			base.BeforeItemsUpdated();
 		}
 
 		protected override void CreatePopupActions()

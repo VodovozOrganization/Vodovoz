@@ -3,17 +3,17 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
+using QS.DomainModel.Config;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.FilterViewModels.Employees;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
-using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.FilterViewModels.Employees;
+using QS.Project.Domain;
+using Vodovoz.TempAdapters;
+using Vodovoz.Infrastructure.Services;
+using QS.Project.Journal.EntitySelector;
 
 namespace Vodovoz.JournalViewModels.Employees
 {
@@ -29,9 +29,8 @@ namespace Vodovoz.JournalViewModels.Employees
 			IUndeliveriesViewOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
-			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices
-		) : base(filterViewModel, unitOfWorkFactory,  commonServices)
+		) : base(filterViewModel, commonServices)
 		{
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -41,7 +40,7 @@ namespace Vodovoz.JournalViewModels.Employees
 			TabName = "Журнал штрафов";
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<Fine>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IQueryOver<Fine>> ItemsSourceQueryFunction => () => {
 			FineJournalNode resultAlias = null;
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
@@ -49,7 +48,7 @@ namespace Vodovoz.JournalViewModels.Employees
 			Subdivision subdivisionAlias = null;
 			RouteList routeListAlias = null;
 
-			var query = uow.Session.QueryOver<Fine>(() => fineAlias)
+			var query = UoW.Session.QueryOver<Fine>(() => fineAlias)
 				.JoinAlias(f => f.Items, () => fineItemAlias)
 				.JoinAlias(() => fineItemAlias.Employee, () => employeeAlias)
 				.JoinAlias(f => f.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);

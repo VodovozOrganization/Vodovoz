@@ -7,7 +7,6 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.DomainModel.Config;
-using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Client;
@@ -27,7 +26,7 @@ namespace Vodovoz.JournalViewModels
 {
 	public class OrderJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel>
 	{
-		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
 		{
 			TabName = "Журнал заказов";
 			SetOrder(x => x.CreateDate, true);
@@ -38,7 +37,7 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => () => {
 			OrderJournalNode resultAlias = null;
 			VodovozOrder orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -52,7 +51,7 @@ namespace Vodovoz.JournalViewModels
 		
 			Nomenclature sanitizationNomenclature = new NomenclatureRepository().GetSanitisationNomenclature(UoW);
 
-			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
+			var query = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
 			if(FilterViewModel.RestrictStatus != null) {
 				query.Where(o => o.OrderStatus == FilterViewModel.RestrictStatus);

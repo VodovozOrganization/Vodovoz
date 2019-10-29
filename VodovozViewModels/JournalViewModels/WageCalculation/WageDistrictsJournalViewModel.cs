@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using NHibernate;
 using NHibernate.Transform;
-using QS.DomainModel.UoW;
+using QS.DomainModel.Config;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.JournalNodes;
@@ -14,13 +14,15 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 {
 	public class WageDistrictsJournalViewModel : SingleEntityJournalViewModelBase<WageDistrict, WageDistrictViewModel, WageDistrictJournalNode>
 	{
-		public WageDistrictsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
+		public WageDistrictsJournalViewModel(ICommonServices commonServices) : base(commonServices)
 		{
 			TabName = "Журнал групп зарплатных районов";
-
-			var threadLoader = DataLoader as ThreadDataLoader<WageDistrictJournalNode>;
-			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
-			threadLoader.MergeInOrderBy(x => x.Name, false);
+			SetOrder(
+				new Dictionary<Func<WageDistrictJournalNode, object>, bool> {
+					{ x => x.IsArchive, false },
+					{ x => x.Name, false }
+				}
+			);
 
 			UpdateOnChanges(typeof(WageDistrict));
 		}
@@ -35,10 +37,10 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 			commonServices
 		);
 
-		protected override Func<IUnitOfWork, IQueryOver<WageDistrict>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IQueryOver<WageDistrict>> ItemsSourceQueryFunction => () => {
 			WageDistrictJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver<WageDistrict>();
+			var query = UoW.Session.QueryOver<WageDistrict>();
 			query.Where(
 				GetSearchCriterion<WageDistrict>(
 					x => x.Id

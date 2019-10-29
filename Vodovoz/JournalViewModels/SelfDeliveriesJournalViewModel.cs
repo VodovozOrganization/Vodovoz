@@ -10,7 +10,6 @@ using NHibernate.Transform;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Config;
-using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
 using QSProjectsLib;
@@ -30,7 +29,7 @@ namespace Vodovoz.Representations
 {
 	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
 	{
-		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
 		{
 			TabName = "Журнал самовывозов";
 			SetOrder(x => x.Date, true);
@@ -40,7 +39,7 @@ namespace Vodovoz.Representations
 			);
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => () => {
 			SelfDeliveryJournalNode resultAlias = null;
 			VodovozOrder orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -52,7 +51,7 @@ namespace Vodovoz.Representations
 			DeliveryPoint deliveryPointAlias = null;
 			Employee authorAlias = null;
 
-			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
+			var query = UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
 								   .Where(() => orderAlias.SelfDelivery)
 								   .Where(() => !orderAlias.IsService);
 
@@ -150,22 +149,21 @@ namespace Vodovoz.Representations
 
 		public override string FooterInfo {
 			get {
+				var lst = ItemsSourceQueryFunction().List<SelfDeliveryJournalNode>();
 				StringBuilder sb = new StringBuilder();
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-					var lst = ItemsSourceQueryFunction(uow).List<SelfDeliveryJournalNode>();
-					sb.Append("Сумма БН: <b>").Append(lst.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Сумма нал: <b>").Append(lst.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Из них возврат: <b>").Append(lst.Sum(n => n.OrderReturnSum).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Приход: <b>").Append(lst.Sum(n => n.CashPaid).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Возврат: <b>").Append(lst.Sum(n => n.CashReturn).ToShortCurrencyString()).Append("</b>\t|\t");
-					sb.Append("Итог: <b>").Append(lst.Sum(n => n.CashTotal).ToShortCurrencyString()).Append("</b>\t|\t");
-					var difference = lst.Sum(n => n.TotalCashDiff);
-					if(difference == 0)
-						sb.Append("Расх.нал: <b>").Append(difference.ToShortCurrencyString()).Append("</b>\t\t");
-					else
-						sb.Append("Расх.нал: <span foreground=\"Red\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
-					sb.Append("<span foreground=\"Grey\"><b>").Append(base.FooterInfo).Append("</b></span>");
-				}
+				sb.Append("Сумма БН: <b>").Append(lst.Sum(n => n.OrderCashlessSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Сумма нал: <b>").Append(lst.Sum(n => n.OrderCashSumTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Из них возврат: <b>").Append(lst.Sum(n => n.OrderReturnSum).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Приход: <b>").Append(lst.Sum(n => n.CashPaid).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Возврат: <b>").Append(lst.Sum(n => n.CashReturn).ToShortCurrencyString()).Append("</b>\t|\t");
+				sb.Append("Итог: <b>").Append(lst.Sum(n => n.CashTotal).ToShortCurrencyString()).Append("</b>\t|\t");
+				var difference = lst.Sum(n => n.TotalCashDiff);
+				if(difference == 0)
+					sb.Append("Расх.нал: <b>").Append(difference.ToShortCurrencyString()).Append("</b>\t\t");
+				else
+					sb.Append("Расх.нал: <span foreground=\"Red\"><b>").Append(difference.ToShortCurrencyString()).Append("</b></span>\t\t");
+				sb.Append("<span foreground=\"Grey\"><b>").Append(base.FooterInfo).Append("</b></span>");
+
 				return sb.ToString();
 			}
 		}

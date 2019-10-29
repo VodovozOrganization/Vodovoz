@@ -1,20 +1,19 @@
 ﻿using System;
 using NHibernate;
 using NHibernate.Transform;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
 using QS.Services;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using QS.Project.Domain;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class ClientCameFromJournalViewModel : FilterableSingleEntityJournalViewModelBase<ClientCameFrom, ClientCameFromViewModel, ClientCameFromJournalNode, ClientCameFromFilterViewModel>
 	{
 		readonly ICommonServices commonServices;
-		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
 		{
 			TabName = "Откуда клиент";
 			SetOrder(x => x.Name);
@@ -23,11 +22,11 @@ namespace Vodovoz.JournalViewModels
 			UpdateOnChanges(typeof(ClientCameFrom));
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<ClientCameFrom>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IQueryOver<ClientCameFrom>> ItemsSourceQueryFunction => () => {
 			ClientCameFrom clientCameFromAlias = null;
 			ClientCameFromJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver(() => clientCameFromAlias);
+			var query = UoW.Session.QueryOver(() => clientCameFromAlias);
 			if(!FilterViewModel.RestrictArchive)
 				query.Where(() => !clientCameFromAlias.IsArchive);
 

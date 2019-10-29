@@ -4,6 +4,7 @@ using System.IO;
 using Gtk;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using QSOrmProject;
 using QSProjectsLib;
 using QS.Tdi;
 using Vodovoz.Domain.Goods;
@@ -29,8 +30,6 @@ namespace Vodovoz
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
-		public event EventHandler TabClosed;
-
 		public HandleSwitchIn HandleSwitchIn { get; private set; }
 		public HandleSwitchOut HandleSwitchOut { get; private set; }
 
@@ -199,12 +198,6 @@ namespace Vodovoz
 			if (CloseTab != null)
 				CloseTab (this, new TdiTabCloseEventArgs (false));
 		}
-
-		public void OnTabClosed()
-		{
-			TabClosed?.Invoke(this, EventArgs.Empty);
-		}
-
 	}
 
 	public class EquipmentCreatedEventArgs : EventArgs

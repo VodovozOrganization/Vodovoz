@@ -1,6 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gamma.Widgets;
-using QS.DomainModel.UoW;
+using QS.DomainModel.Config;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Views.GtkUI;
@@ -58,7 +58,7 @@ namespace Vodovoz.Views.Complaints
 				if(ViewModel.Entity.Counterparty != null) {
 					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
 				}
-				return new OrderJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				return new OrderJournalViewModel(filter, ServicesConfig.CommonServices);
 			});
 
 			entryOrder.SetEntityAutocompleteSelectorFactory(orderSelectorFactory);

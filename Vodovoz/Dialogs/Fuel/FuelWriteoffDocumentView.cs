@@ -1,16 +1,17 @@
-﻿using Gamma.ColumnConfig;
-using QS.DomainModel.UoW;
-using QS.Project.Domain;
-using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
-using QS.Views.GtkUI;
-using Vodovoz.Dialogs.Cash;
+﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal;
+using Vodovoz.Dialogs.Cash;
+using QS.Project.Domain;
+using QS.DomainModel.Config;
+using Vodovoz.Infrastructure.Services;
+using Gamma.ColumnConfig;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.ViewModel;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -35,7 +36,6 @@ namespace Vodovoz.Dialogs.Fuel
 				var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(x => x.Name,
 						() => new ExpenseCategoryViewModel(EntityConstructorParam.ForCreate(), QS.Project.Services.ServicesConfig.CommonServices),
 						(node) => new ExpenseCategoryViewModel(EntityConstructorParam.ForOpen(node.Id), QS.Project.Services.ServicesConfig.CommonServices),
-						 UnitOfWorkFactory.GetDefaultFactory,
 						QS.Project.Services.ServicesConfig.CommonServices
 					);
 				expenseCategoryJournalViewModel.SelectionMode = JournalSelectionMode.Single;

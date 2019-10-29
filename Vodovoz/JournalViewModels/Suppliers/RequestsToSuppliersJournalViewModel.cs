@@ -4,7 +4,6 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Config;
-using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using Vodovoz.Domain.Employees;
@@ -27,11 +26,10 @@ namespace Vodovoz.JournalViewModels.Suppliers
 
 		public RequestsToSuppliersJournalViewModel(
 			RequestsToSuppliersFilterViewModel filterViewModel,
-			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		) : base(filterViewModel, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
@@ -43,7 +41,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			UpdateOnChanges(typeof(RequestToSupplier));
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<RequestToSupplier>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IQueryOver<RequestToSupplier>> ItemsSourceQueryFunction => () => {
 			Employee authorAlias = null;
 			Nomenclature nomenclaturesAlias = null;
 			RequestToSupplierJournalNode resultAlias = null;
@@ -56,7 +54,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 				Projections.Property(() => authorAlias.Patronymic)
 			);
 
-			var query = uow.Session.QueryOver<RequestToSupplier>()
+			var query = UoW.Session.QueryOver<RequestToSupplier>()
 								   .Left.JoinAlias(x => x.Creator, () => authorAlias)
 								   .Left.JoinAlias(x => x.RequestingNomenclatureItems, () => nomenclaturesAlias)
 								   ;
