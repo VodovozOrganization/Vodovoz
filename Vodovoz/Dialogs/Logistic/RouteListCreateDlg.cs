@@ -359,8 +359,10 @@ namespace Vodovoz
 		{
 			while(Entity.ObservableGeographicGroups.Any())
 				Entity.ObservableGeographicGroups.Remove(Entity.ObservableGeographicGroups.FirstOrDefault());
-			foreach(var group in Entity.Car.GeographicGroups)
-				Entity.ObservableGeographicGroups.Add(group);
+
+			if(Entity.Car != null)
+				foreach(var group in Entity.Car.GeographicGroups)
+					Entity.ObservableGeographicGroups.Add(group);
 		}
 	}
 }
