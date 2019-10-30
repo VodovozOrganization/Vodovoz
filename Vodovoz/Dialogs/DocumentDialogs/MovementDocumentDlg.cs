@@ -101,6 +101,7 @@ namespace Vodovoz
 			enumMovementType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 			if(Entity.Id == 0) {
 				Entity.Category = MovementDocumentCategory.Transportation;
+				OnEnumMovementTypeChanged(null, null);
 			}
 
 			moveingNomenclaturesView.DocumentUoW = UoWGeneric;
