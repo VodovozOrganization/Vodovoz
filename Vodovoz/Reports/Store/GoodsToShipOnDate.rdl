@@ -717,6 +717,7 @@ LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
 JOIN counterparty c ON c.id = o.client_id 
 WHERE DATE(o.delivery_date) = @date
 	AND eq.direction = 'Deliver'
+	AND eq.own_type = 'Client'
 	AND o.order_status IN(
 		'Accepted',
 		'InTravelList',
