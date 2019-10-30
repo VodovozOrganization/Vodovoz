@@ -298,7 +298,6 @@ namespace Vodovoz
 			referenceAuthor.Sensitive = false;
 
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
-			referenceDeliveryPoint.Sensitive = (Entity.Client != null);
 			referenceDeliveryPoint.CanEditReference = true;
 			chkContractCloser.Sensitive = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_set_contract_closer"];
 
@@ -2332,7 +2331,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
 				entityVMEntryClient.IsEditable = val;
 			referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
-			lblDeliveryPoint.Sensitive = referenceDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val;
+			lblDeliveryPoint.Sensitive = referenceDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
 			buttonAddMaster.Sensitive = !checkSelfDelivery.Active && val && !Entity.IsLoadedFrom1C;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =
 				enumDocumentType.Sensitive = val;
