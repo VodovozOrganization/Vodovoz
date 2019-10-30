@@ -211,13 +211,13 @@ namespace Vodovoz
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.spinAmount = new global::Gamma.GtkWidgets.ySpinButton(0, 10000, 1);
+			this.spinAmount = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 1D);
 			this.spinAmount.CanFocus = true;
 			this.spinAmount.Name = "spinAmount";
-			this.spinAmount.Adjustment.PageIncrement = 10;
-			this.spinAmount.ClimbRate = 1;
+			this.spinAmount.Adjustment.PageIncrement = 10D;
+			this.spinAmount.ClimbRate = 1D;
 			this.spinAmount.Numeric = true;
-			this.spinAmount.Value = 1;
+			this.spinAmount.Value = 1D;
 			this.spinAmount.ValueAsDecimal = 0m;
 			this.spinAmount.ValueAsInt = 0;
 			this.tableWater.Add(this.spinAmount);
@@ -232,7 +232,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.tableWater]));
 			w18.Position = 1;
 			this.Add(this.vbox2);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

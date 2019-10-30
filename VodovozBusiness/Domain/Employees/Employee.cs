@@ -13,6 +13,8 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Services;
+using Vodovoz.Core.DataService;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -35,10 +37,7 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Категория")]
 		public virtual EmployeeCategory Category {
 			get => category;
-			set {
-				if(SetField(ref category, value) && Id == 0)
-					CreateDefaultWageParameter(WageCalculationRepository);
-			}
+			set => SetField(ref category, value);
 		}
 
 		RegistrationType? registration;
@@ -222,19 +221,13 @@ namespace Vodovoz.Domain.Employees
 		bool visitingMaster;
 		public virtual bool VisitingMaster {
 			get => visitingMaster;
-			set {
-				if(SetField(ref visitingMaster, value) && Id == 0)
-					CreateDefaultWageParameter(WageCalculationRepository);
-			}
+			set => SetField(ref visitingMaster, value);
 		}
 
 		bool isDriverForOneDay;
 		public virtual bool IsDriverForOneDay {
 			get => isDriverForOneDay;
-			set {
-				if(SetField(ref isDriverForOneDay, value) && Id == 0)
-					CreateDefaultWageParameter(WageCalculationRepository);
-			}
+			set => SetField(ref isDriverForOneDay, value);
 		}
 
 		#endregion
@@ -332,45 +325,61 @@ namespace Vodovoz.Domain.Employees
 		public virtual WageCalculationServiceFactory GetWageCalculationServiceFactory()
 		{
 			if(wageCalculationServiceFactory == null) {
-				wageCalculationServiceFactory = new WageCalculationServiceFactory(this, WageSingletonRepository.GetInstance());
+				wageCalculationServiceFactory = new WageCalculationServiceFactory(this, WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 			}
 			return wageCalculationServiceFactory;
 		}
 
-		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository)
+		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository, IWageParametersProvider wageParametersProvider)
 		{
 			if(wageRepository == null)
 				throw new ArgumentNullException(nameof(wageRepository));
+			if(wageParametersProvider == null) {
+				throw new ArgumentNullException(nameof(wageParametersProvider));
+			}
+			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
+			if(defaultLevel == null)
+				throw new InvalidOperationException("В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников\"!");
 
-			if(Id == 0) {
-				ObservableWageParameters.Clear();
-				switch(Category) {
-					case EmployeeCategory.driver:
-						WageParameter parameterForDriver = new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars };
-						if(VisitingMaster && !IsDriverForOneDay)
-							parameterForDriver = new PercentWageParameter {
-								PercentWageType = PercentWageTypes.Service,
-								WageParameterTarget = WageParameterTargets.ForMercenariesCars
-							};
-						else if(!IsDriverForOneDay)
-							parameterForDriver = new RatesLevelWageParameter {
-								WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
-								WageParameterTarget = WageParameterTargets.ForMercenariesCars
-							};
-						ChangeWageParameter(parameterForDriver, DateTime.Today);
-						break;
-					case EmployeeCategory.forwarder:
-						var parameterForForwarder = new RatesLevelWageParameter {
-							WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
+			if(Id != 0) {
+				return;
+			}
+
+			ObservableWageParameters.Clear();
+			switch(Category) {
+				case EmployeeCategory.driver:
+					WageParameter parameterForDriver = new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars };
+					if(VisitingMaster && !IsDriverForOneDay)
+						parameterForDriver = new PercentWageParameter {
+							PercentWageType = PercentWageTypes.Service,
 							WageParameterTarget = WageParameterTargets.ForMercenariesCars
 						};
-						ChangeWageParameter(parameterForForwarder, DateTime.Today);
-						break;
-					case EmployeeCategory.office:
-					default:
-						ChangeWageParameter(new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars }, DateTime.Today);
-						break;
-				}
+					else if(DriverOf == CarTypeOfUse.CompanyLargus)
+						parameterForDriver = new FixedWageParameter {
+							FixedWageType = FixedWageTypes.RouteList,
+							RouteListFixedWage = wageParametersProvider.GetFixedWageForNewLargusDrivers(),
+							WageParameterTarget = WageParameterTargets.ForMercenariesCars,
+							IsStartedWageParameter = true
+						};
+					else if(!IsDriverForOneDay)
+						parameterForDriver = new RatesLevelWageParameter {
+							WageDistrictLevelRates = defaultLevel,
+							WageParameterTarget = WageParameterTargets.ForMercenariesCars
+						};
+					ChangeWageParameter(parameterForDriver, DateTime.Today);
+					break;
+				case EmployeeCategory.forwarder:
+					var parameterForForwarder = new RatesLevelWageParameter {
+						WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
+						WageParameterTarget = WageParameterTargets.ForMercenariesCars
+					};
+					ChangeWageParameter(parameterForForwarder, DateTime.Today);
+					break;
+				case EmployeeCategory.office:
+				default:
+					ChangeWageParameter(new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars }, DateTime.Today);
+					break;
+
 			}
 		}
 

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using QS.Dialog;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Sale;
-using QS.Dialog.GtkUI;
+using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.ReportsParameters.Store
 {
@@ -17,13 +15,15 @@ namespace Vodovoz.ReportsParameters.Store
 		public NomenclatureForShipment()
 		{
 			this.Build();
-			ydatepicker.Date = DateTime.Now.Date.AddDays(1);
+			ydatepicker.Date = DateTime.Today.AddDays(1);
 			ConfigureDlg();
 		}
 
 		void ConfigureDlg()
 		{
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			lstGeoGrp.SetRenderTextFunc<GeographicGroup>(g => string.Format("{0}", g.Name));
+			lstGeoGrp.ItemsList = GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW);
 		}
 
 		#region IParametersWidget implementation
@@ -38,12 +38,11 @@ namespace Vodovoz.ReportsParameters.Store
 		private ReportInfo GetReportInfo()
 		{
 			var repInfo = new ReportInfo {
-				Identifier = "Store.NomenclatureForShipment",
+				Identifier = "Store.GoodsToShipOnDate",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "date", ydatepicker.Date.Date },
-					{ "hideNorth", !checkbuttonN.Active },
-					{ "hideSouth", !checkbuttonS.Active }
+					{ "date", ydatepicker.Date.ToString("yyyy-MM-dd") },
+					{ "geo_group_id", (lstGeoGrp.SelectedItem as GeographicGroup)?.Id ?? 0 }
 				}
 			};
 			return repInfo;

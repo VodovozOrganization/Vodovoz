@@ -1,6 +1,7 @@
 ﻿using System;
 using QSSupportLib;
 using Vodovoz.Services;
+using System.Globalization;
 
 namespace Vodovoz.Core.DataService
 {
@@ -11,7 +12,8 @@ namespace Vodovoz.Core.DataService
 		IPersonProvider , 
 		ISubdivisionService,
 		ICommonParametersProvider, 
-		ISmsNotifierParametersProvider
+		ISmsNotifierParametersProvider,
+		IWageParametersProvider
 	{
 		public int GetForfeitId()
 		{
@@ -126,5 +128,37 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion ISmsNotifierParameters implementation
+
+		#region IWageParametersProvider implementation
+
+		public int GetDaysWorkedForMinRatesLevel()
+		{
+			MainSupport.LoadBaseParameters();
+			if(!MainSupport.BaseParameters.All.ContainsKey("days_worked_for_min_rates_level")) {
+				throw new InvalidProgramException("В параметрах базы не указано количество дней которые новый водитель должен отработать для автоматической смены расчета зарплаты на уровневый расчет (days_worked_for_min_rates_level).");
+			}
+			string balanceString = MainSupport.BaseParameters.All["days_worked_for_min_rates_level"];
+
+			if(!int.TryParse(balanceString, out int days)) {
+				throw new InvalidProgramException("В параметрах базы неверно заполнено (невозможно преобразовать в число) количество дней которые новый водитель должен отработать для автоматической смены расчета зарплаты на уровневый расчет (fixed_wage_for_new_largus_drivers)");
+			}
+			return days;
+		}
+
+		public decimal GetFixedWageForNewLargusDrivers()
+		{
+			MainSupport.LoadBaseParameters();
+			if(!MainSupport.BaseParameters.All.ContainsKey("fixed_wage_for_new_largus_drivers")) {
+				throw new InvalidProgramException("В параметрах базы не указана фикса для новых водителей ларгусов (fixed_wage_for_new_largus_drivers).");
+			}
+			string balanceString = MainSupport.BaseParameters.All["fixed_wage_for_new_largus_drivers"];
+
+			if(!decimal.TryParse(balanceString, NumberStyles.Number, CultureInfo.CreateSpecificCulture("ru-RU"), out decimal balance)) {
+				throw new InvalidProgramException("В параметрах базы неверно заполнена (невозможно преобразовать в число) фикса для новых водителей ларгусов (fixed_wage_for_new_largus_drivers)");
+			}
+			return balance;
+		}
+
+		#endregion IWageParametersProvider implementation
 	}
 }

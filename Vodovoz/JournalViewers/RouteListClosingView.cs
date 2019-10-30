@@ -53,6 +53,7 @@ namespace Vodovoz
 			switch(node.StatusEnum) {
 				case RouteListStatus.New:
 				case RouteListStatus.InLoading:
+				case RouteListStatus.Confirmed:
 					TabParent.OpenTab(RouteListCreateDlg.GenerateHashName(node.Id), () => new RouteListCreateDlg(node.Id));
 					break;
 				case RouteListStatus.EnRoute:

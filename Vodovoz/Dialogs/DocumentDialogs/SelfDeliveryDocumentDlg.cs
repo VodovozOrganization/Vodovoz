@@ -5,6 +5,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NHibernate.Transform;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.EntityRepositories;
 using QS.Project.Repositories;
@@ -150,7 +151,7 @@ namespace Vodovoz
 			yTreeOtherGoods.ColumnsConfig = goodsColumnsConfig;
 			yTreeOtherGoods.ItemsDataSource = GoodsReceptionList;
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance(), UserSingletonRepository.GetInstance());
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
 			Entity.CanEdit = permmissionValidator.Validate(typeof(SelfDeliveryDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				yTreeOtherGoods.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();

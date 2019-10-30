@@ -13,9 +13,12 @@ namespace Vodovoz.FilterViewModels.Goods
 		{ }
 
 		NomenclatureCategory[] availableCategories;
-		[PropertyChangedAlso(nameof(SelectedCategories))]
 		public virtual NomenclatureCategory[] AvailableCategories {
-			get => availableCategories;
+			get {
+				return availableCategories != null && availableCategories.Any()
+					? availableCategories
+					: Enum.GetValues(typeof(NomenclatureCategory)).OfType<NomenclatureCategory>().ToArray();
+			}
 			set => UpdateFilterField(ref availableCategories, value);
 		}
 
@@ -24,7 +27,7 @@ namespace Vodovoz.FilterViewModels.Goods
 			nameof(IsDispossableTareApplicable),
 			nameof(AreDilersApplicable),
 			nameof(IsSaleCategoryApplicable),
-			nameof(SelectedCategories)
+			nameof(SelectCategory)
 		)]
 		public virtual NomenclatureCategory? RestrictCategory {
 			get => restrictCategory;
@@ -65,22 +68,40 @@ namespace Vodovoz.FilterViewModels.Goods
 		}
 		public bool CanChangeShowDilers { get; private set; } = true;
 
-		public NomenclatureCategory[] SelectedCategories {
-			get {
-				if(!RestrictCategory.HasValue)
-					return AvailableCategories != null && AvailableCategories.Any()
-						? AvailableCategories
-						: Enum.GetValues(typeof(NomenclatureCategory)).OfType<NomenclatureCategory>().ToArray();
-				return new NomenclatureCategory[] { RestrictCategory.Value };
+		bool restrictArchive;
+		public virtual bool RestrictArchive {
+			get => restrictArchive;
+			set {
+				UpdateFilterField(ref restrictArchive, value);
+				CanChangeShowArchive = false;
 			}
 		}
+		public bool CanChangeShowArchive { get; private set; } = true;
 
-		public SaleCategory[] SelectedSubCategories {
+		[PropertyChangedAlso(
+			nameof(IsDispossableTareApplicable),
+			nameof(AreDilersApplicable),
+			nameof(IsSaleCategoryApplicable),
+			nameof(RestrictCategory)
+		)]
+		public NomenclatureCategory? SelectCategory {
+			get => restrictCategory;
+			set => UpdateFilterField(ref restrictCategory, value);
+		}
+
+		SaleCategory[] availableSalesCategories;
+		public SaleCategory[] AvailableSalesCategories {
 			get {
-				if(!RestrictSaleCategory.HasValue)
-					return Enum.GetValues(typeof(SaleCategory)).OfType<SaleCategory>().ToArray();
-				return new SaleCategory[] { RestrictSaleCategory.Value };
+				return availableSalesCategories != null && availableSalesCategories.Any()
+					? availableSalesCategories
+					: Enum.GetValues(typeof(SaleCategory)).OfType<SaleCategory>().ToArray();
 			}
+			set => UpdateFilterField(ref availableSalesCategories, value);
+		}
+
+		public SaleCategory? SelectSaleCategory {
+			get => restrictSaleCategory;
+			set => UpdateFilterField(ref restrictSaleCategory, value);
 		}
 
 		public bool IsSaleCategoryApplicable {

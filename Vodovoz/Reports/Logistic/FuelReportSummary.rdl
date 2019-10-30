@@ -75,14 +75,17 @@
           <TableColumn>
             <Width>48.0pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>48.0pt</Width>
+          </TableColumn>
           <TableColumn>
-            <Width>79.1pt</Width>
+            <Width>65.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>76.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>97.8pt</Width>
+            <Width>76.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -250,7 +253,25 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox168">
-                      <Value>Выдано деньгами</Value>
+                      <Value>Выдано деньгами (нал)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Выдано деньгами (безнал)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -312,6 +333,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -343,7 +365,7 @@
                         <PaddingRight>3pt</PaddingRight>
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -365,7 +387,7 @@
                         <PaddingRight>3pt</PaddingRight>
                         <PaddingTop>10pt</PaddingTop>
                         <PaddingBottom>10pt</PaddingBottom>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -518,7 +540,27 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox169">
-                      <Value>=Fields!payed_for_fuel.Value</Value>
+                      <Value>={payed_for_fuel}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>={cashless_payed_for_fuel}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -782,8 +824,25 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox170">
-                      <Value>
-                      </Value>
+                      <Value>=Sum({payed_for_fuel})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>=Sum({cashless_payed_for_fuel})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1500,14 +1559,17 @@
           <TableColumn>
             <Width>48.0pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>48.0pt</Width>
+          </TableColumn>
           <TableColumn>
-            <Width>79.1pt</Width>
+            <Width>64.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>76.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>97.8pt</Width>
+            <Width>77.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1675,7 +1737,25 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox198">
-                      <Value>Выдано деньгами</Value>
+                      <Value>Выдано деньгами (нал)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>Выдано деньгами (безнал)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1737,6 +1817,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1941,7 +2022,27 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox211">
-                      <Value>=Fields!payed_for_fuel.Value</Value>
+                      <Value>={payed_for_fuel}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>={cashless_payed_for_fuel}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2026,7 +2127,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0pt</Left>
+        <Left>0.0pt</Left>
         <Top>139.8pt</Top>
         <Footer>
           <TableRows>
@@ -2205,8 +2306,25 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox224">
-                      <Value>
-                      </Value>
+                      <Value>=Sum({payed_for_fuel})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>=Sum({cashless_payed_for_fuel})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2324,14 +2442,17 @@
           <TableColumn>
             <Width>48.0pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>48.0pt</Width>
+          </TableColumn>
           <TableColumn>
-            <Width>79.1pt</Width>
+            <Width>65.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>76.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>97.8pt</Width>
+            <Width>77.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -2499,7 +2620,25 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox87">
-                      <Value>Выдано деньгами</Value>
+                      <Value>Выдано деньгами (нал)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>Выдано деньгами (безнал)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -2561,6 +2700,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2765,7 +2905,27 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox106">
-                      <Value>=Fields!payed_for_fuel.Value</Value>
+                      <Value>={payed_for_fuel}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>={cashless_payed_for_fuel}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -3029,8 +3189,25 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox173">
-                      <Value>
-                      </Value>
+                      <Value>=Sum({payed_for_fuel})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>=Sum({cashless_payed_for_fuel})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -3148,14 +3325,17 @@
           <TableColumn>
             <Width>48.0pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>48.0pt</Width>
+          </TableColumn>
           <TableColumn>
-            <Width>79.1pt</Width>
+            <Width>67.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>76.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>97.8pt</Width>
+            <Width>80.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -3323,7 +3503,25 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox115">
-                      <Value>Выдано деньгами</Value>
+                      <Value>Выдано деньгами (нал)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>Выдано деньгами (безнал)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -3385,6 +3583,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize >8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3589,7 +3788,27 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox140">
-                      <Value>=Fields!payed_for_fuel.Value</Value>
+                      <Value>={payed_for_fuel}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>={cashless_payed_for_fuel}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -3853,8 +4072,25 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox179">
-                      <Value>
-                      </Value>
+                      <Value>=Sum({payed_for_fuel})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>=Sum({cashless_payed_for_fuel})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -3931,7 +4167,7 @@
           </TableRows>
         </Footer>
       </Table>
-      <Textbox Name="Textbox5" >
+      <Textbox Name="Textbox5">
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>ГАЗели:</Value>
@@ -3983,7 +4219,8 @@
     GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
     fuel_documents.last_edit_date AS last_edit_date,
     fuel_documents.fuel_card AS fuel_card_number,
-    fuel_documents.payed_for_fuel AS payed_for_fuel,
+    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
+    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
     IFNULL(gived_operation.liters_gived,0) - IFNULL(fuel_documents.fuel_coupons,0) AS liters_payed
 FROM fuel_documents
 LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
@@ -3994,7 +4231,7 @@ LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
 LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
 LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
 LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE (cars.type_of_use = 'Other' OR cars.type_of_use IS NULL)
+WHERE (cars.type_of_use = 'DriverCar' OR cars.type_of_use IS NULL)
     AND fuel_documents.date &gt;= @start_date
     AND fuel_documents.date &lt; @end_date
     AND (@author = - 1 OR author_id = @author)
@@ -4068,6 +4305,9 @@ WHERE (cars.type_of_use = 'Other' OR cars.type_of_use IS NULL)
           <DataField>liters_payed</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="cashless_payed_for_fuel">
+          <DataField>cashless_payed_for_fuel</DataField>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="FuelTruck">
@@ -4086,7 +4326,8 @@ WHERE (cars.type_of_use = 'Other' OR cars.type_of_use IS NULL)
 	GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
 	fuel_documents.last_edit_date AS last_edit_date,
 	fuel_documents.fuel_card AS fuel_card_number,
-    fuel_documents.payed_for_fuel AS payed_for_fuel,
+    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
+    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
     IFNULL(gived_operation.liters_gived,0) - IFNULL(fuel_documents.fuel_coupons,0) AS liters_payed
 FROM fuel_documents
 LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
@@ -4097,7 +4338,7 @@ LEFT JOIN employees as driver on driver.id = fuel_documents.driver_id
 LEFT JOIN employees as author on author.id = fuel_documents.author_id
 LEFT JOIN employees as last_editor on last_editor.id = fuel_documents.last_editor_id
 LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE cars.type_of_use = 'Truck'
+WHERE cars.type_of_use = 'CompanyTruck'
 	AND fuel_documents.date &gt;= @start_date
 	AND fuel_documents.date &lt; @end_date 
 	AND (@author = -1 OR author_id = @author)
@@ -4169,6 +4410,9 @@ WHERE cars.type_of_use = 'Truck'
         <Field Name="liters_payed">
           <DataField>liters_payed</DataField>
         </Field>
+        <Field Name="cashless_payed_for_fuel">
+          <DataField>cashless_payed_for_fuel</DataField>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="FuelGAZelle">
@@ -4187,7 +4431,8 @@ WHERE cars.type_of_use = 'Truck'
 	GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
 	fuel_documents.last_edit_date AS last_edit_date,
 	fuel_documents.fuel_card AS fuel_card_number,
-    fuel_documents.payed_for_fuel AS payed_for_fuel,
+    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
+    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
     IFNULL(gived_operation.liters_gived,0) - IFNULL(fuel_documents.fuel_coupons,0) AS liters_payed
 FROM fuel_documents
 LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
@@ -4198,7 +4443,7 @@ LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
 LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
 LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
 LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE cars.type_of_use = 'GAZelle'
+WHERE cars.type_of_use = 'CompanyGAZelle'
 	AND fuel_documents.date &gt;= @start_date
 	AND fuel_documents.date &lt; @end_date
 	AND (@author = - 1 OR author_id = @author)
@@ -4269,6 +4514,9 @@ WHERE cars.type_of_use = 'GAZelle'
         </Field>
         <Field Name="payed_for_fuel">
           <DataField>payed_for_fuel</DataField>
+        </Field>
+        <Field Name="cashless_payed_for_fuel">
+          <DataField>cashless_payed_for_fuel</DataField>
         </Field>
       </Fields>
     </DataSet>
@@ -4288,7 +4536,8 @@ WHERE cars.type_of_use = 'GAZelle'
 	GET_PERSON_NAME_WITH_INITIALS(last_editor.last_name, last_editor.name, last_editor.patronymic) AS last_editor_name,
 	fuel_documents.last_edit_date AS last_edit_date,
 	fuel_documents.fuel_card AS fuel_card_number,
-    fuel_documents.payed_for_fuel AS payed_for_fuel,
+    IF(fuel_documents.fuel_payment_type = 'Cash', fuel_documents.payed_for_fuel, 0) AS payed_for_fuel,
+    IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
     IFNULL(gived_operation.liters_gived,0) - IFNULL(fuel_documents.fuel_coupons,0) AS liters_payed
 FROM fuel_documents
 LEFT JOIN route_lists ON route_lists.id = fuel_documents.route_list_id
@@ -4299,7 +4548,7 @@ LEFT JOIN employees AS driver ON driver.id = fuel_documents.driver_id
 LEFT JOIN employees AS author ON author.id = fuel_documents.author_id
 LEFT JOIN employees AS last_editor ON last_editor.id = fuel_documents.last_editor_id
 LEFT JOIN fuel_types ON fuel_types.id = fuel_documents.fuel_type_id
-WHERE cars.type_of_use = 'Largus'
+WHERE cars.type_of_use = 'CompanyLargus'
 	AND fuel_documents.date &gt;= @start_date
 	AND fuel_documents.date &lt; @end_date
 	AND (@author = - 1 OR author_id = @author)
@@ -4370,6 +4619,9 @@ WHERE cars.type_of_use = 'Largus'
         </Field>
         <Field Name="payed_for_fuel">
           <DataField>payed_for_fuel</DataField>
+        </Field>
+        <Field Name="cashless_payed_for_fuel">
+          <DataField>cashless_payed_for_fuel</DataField>
         </Field>
       </Fields>
     </DataSet>

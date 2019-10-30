@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Domain.Logistic;
+using NHibernate.Criterion;
 
 namespace Vodovoz.EntityRepositories.WageCalculation
 {
@@ -58,6 +61,22 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 							  .Where(x => x.IsDefaultLevel)
 							  .Take(1)
 							  .SingleOrDefault();
+		}
+
+		public IEnumerable<DateTime> GetDaysWorkedWithRouteLists(IUnitOfWork uow, Employee employee)
+		{
+			if(uow == null) {
+				throw new ArgumentNullException(nameof(uow));
+			}
+
+			if(employee == null) {
+				throw new ArgumentNullException(nameof(employee));
+			}
+
+			return uow.Session.QueryOver<RouteList>()
+				.Where(x => x.Driver.Id == employee.Id)
+				.Select(Projections.Distinct(Projections.Property<RouteList>(x => x.Date)))
+				.List<DateTime>();
 		}
 	}
 }

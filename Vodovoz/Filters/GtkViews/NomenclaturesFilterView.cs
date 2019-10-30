@@ -1,6 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
+using Gamma.Utilities;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -16,29 +17,31 @@ namespace Vodovoz.Filters.GtkViews
 
 		void Configure()
 		{
-			enumcomboCategory.ItemsEnum = typeof(NomenclatureCategory);
-			enumcomboCategory.Binding.AddBinding(ViewModel, s => s.RestrictCategory, w => w.SelectedItemOrNull).InitializeFromSource();
+			lstCategory.ItemsList = ViewModel.AvailableCategories;
+			lstCategory.SetRenderTextFunc<NomenclatureCategory>(x => x.GetEnumTitle());
+			lstCategory.Binding.AddBinding(ViewModel, s => s.RestrictCategory, w => w.SelectedItem).InitializeFromSource();
 
-			cmbSaleCategory.ItemsEnum = typeof(SaleCategory);
-			cmbSaleCategory.Binding.AddBinding(ViewModel, s => s.RestrictSaleCategory, w => w.SelectedItemOrNull).InitializeFromSource();
-			//cmbSaleCategory.Binding.AddBinding(ViewModel, s => s.CanChangeSaleCategory, w => w.Sensitive).InitializeFromSource();
-			cmbSaleCategory.Binding.AddBinding(ViewModel, s => s.IsSaleCategoryApplicable, w => w.Visible).InitializeFromSource();
+			lstSaleCategory.ItemsList = ViewModel.AvailableSalesCategories;
+			lstSaleCategory.SetRenderTextFunc<SaleCategory>(x => x.GetEnumTitle());
+			lstSaleCategory.Binding.AddBinding(ViewModel, s => s.RestrictSaleCategory, w => w.SelectedItem).InitializeFromSource();
+			lstSaleCategory.Binding.AddBinding(ViewModel, s => s.IsSaleCategoryApplicable, w => w.Visible).InitializeFromSource();
 
 			chkShowDilers.Binding.AddBinding(ViewModel, s => s.RestrictDilers, w => w.Active).InitializeFromSource();
-			//chkShowDilers.Binding.AddBinding(ViewModel, s => s.CanChangeShowDilers, w => w.Sensitive).InitializeFromSource();
 			chkShowDilers.Binding.AddBinding(ViewModel, s => s.AreDilersApplicable, w => w.Visible).InitializeFromSource();
 
 			chkOnlyDisposableTare.Binding.AddBinding(ViewModel, s => s.RestrictDisposbleTare, w => w.Active).InitializeFromSource();
-			//chkOnlyDisposableTare.Binding.AddBinding(ViewModel, s => s.CanChangeShowDisposableTare, w => w.Sensitive).InitializeFromSource();
 			chkOnlyDisposableTare.Binding.AddBinding(ViewModel, s => s.IsDispossableTareApplicable, w => w.Visible).InitializeFromSource();
+
+			chkShowArchive.Binding.AddBinding(ViewModel, vm => vm.RestrictArchive, w => w.Active).InitializeFromSource();
 		}
 
 		void InitializeRestrictions()
 		{
-			enumcomboCategory.Sensitive = ViewModel.CanChangeCategory;
-			cmbSaleCategory.Sensitive = ViewModel.CanChangeSaleCategory;
+			lstCategory.Sensitive = ViewModel.CanChangeCategory;
+			lstSaleCategory.Sensitive = ViewModel.CanChangeSaleCategory;
 			chkShowDilers.Sensitive = ViewModel.CanChangeShowDilers;
 			chkOnlyDisposableTare.Sensitive = ViewModel.CanChangeShowDisposableTare;
+			chkShowArchive.Sensitive = ViewModel.CanChangeShowArchive;
 		}
 	}
 }

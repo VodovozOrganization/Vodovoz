@@ -515,7 +515,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 1;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -1459,6 +1459,7 @@ namespace Vodovoz
 			this.accountsView = new global::QSBanks.AccountsView();
 			this.accountsView.Events = ((global::Gdk.EventMask)(256));
 			this.accountsView.Name = "accountsView";
+			this.accountsView.CanEdit = false;
 			this.vbox6.Add(this.accountsView);
 			global::Gtk.Box.BoxChild w106 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.accountsView]));
 			w106.Position = 1;

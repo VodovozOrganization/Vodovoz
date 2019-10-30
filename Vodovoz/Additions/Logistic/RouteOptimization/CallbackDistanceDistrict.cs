@@ -98,7 +98,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			long distance = 0;
 
 			//Если у нас ларгус, а адрес большой, ларгусу вкатываем оромный штраф.
-			if(Trip.Car.TypeOfUse == CarTypeOfUse.Largus && !addressForLargus) {
+			if(Trip.Car.TypeOfUse == CarTypeOfUse.CompanyLargus && !addressForLargus) {
 #if DEBUG
 				SLargusPenality[Trip]++;
 #endif
@@ -106,7 +106,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 
 			//Если адрес для ларгуса, то обычным водителям добавляем штраф.
-			if(Trip.Car.TypeOfUse != CarTypeOfUse.Largus && addressForLargus)
+			if(Trip.Car.TypeOfUse != CarTypeOfUse.CompanyLargus && addressForLargus)
 				distance += RouteOptimizer.SmallOrderNotLargusPenalty;
 
 			var area = Nodes[second_index - 1].District;

@@ -18,6 +18,7 @@ namespace Vodovoz.HibernateMapping.WageCalculation
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.EndDate).Column("end_date");
 			Map(x => x.WageParameterTarget).Column("wage_parameter_target").CustomType<WageParameterTargetsStringType>();
+			Map(x => x.IsStartedWageParameter).Column("is_started_wage_parameter");
 		}
 	}
 

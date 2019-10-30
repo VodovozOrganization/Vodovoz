@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -9,6 +10,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 	/// </summary>
 	public interface IRouteListWageCalculationSource
 	{
+		int RouteListId { get; }
+
 		/// <summary>
 		/// Итоговая сумма за все адреса в МЛ
 		/// </summary>
@@ -27,6 +30,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// Водитель использует в МЛ наш автомобиль
 		/// </summary>
 		bool DriverOfOurCar { get; }
+
+		bool IsLargus { get; }
 
 		/// <summary>
 		/// Фура

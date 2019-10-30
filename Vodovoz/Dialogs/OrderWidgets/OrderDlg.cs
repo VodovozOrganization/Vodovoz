@@ -25,8 +25,10 @@ using QS.Print;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Report;
 using QS.Tdi;
 using QS.Tdi.Gtk;
@@ -55,6 +57,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories;
@@ -295,7 +298,6 @@ namespace Vodovoz
 			referenceAuthor.Sensitive = false;
 
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
-			referenceDeliveryPoint.Sensitive = (Entity.Client != null);
 			referenceDeliveryPoint.CanEditReference = true;
 			chkContractCloser.Sensitive = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_set_contract_closer"];
 
@@ -1138,18 +1140,28 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
-			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			var nomenclatureFilter = new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
 			nomenclatureFilter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = new NomenclatureCategory[] { NomenclatureCategory.master },
-				x => x.DefaultSelectedCategory = NomenclatureCategory.master
+				x => x.AvailableCategories = new [] { NomenclatureCategory.master },
+				x => x.RestrictCategory = NomenclatureCategory.master,
+				x => x.RestrictArchive = false
 			);
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = JournalSelectMode.Single,
-				ShowFilter = true
+
+			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+				nomenclatureFilter,
+				ServicesConfig.CommonServices
+			) {
+				SelectionMode = JournalSelectionMode.Single,
 			};
-			SelectDialog.CustomTabName("Выезд мастера");
-			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
-			TabParent.AddSlaveTab(this, SelectDialog);
+			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+			journalViewModel.TabName = "Выезд мастера";
+			journalViewModel.OnEntitySelectedResult += (s, ea) => {
+				var selectedNode = ea.SelectedNodes.FirstOrDefault();
+				if(selectedNode == null)
+					return;
+				TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+			};
+			this.TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
 		protected void OnButtonAddForSaleClicked(object sender, EventArgs e)
@@ -1157,20 +1169,29 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
-			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			var nomenclatureFilter = new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
 			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-				x => x.DefaultSelectedCategory = NomenclatureCategory.water,
-				x => x.DefaultSelectedSaleCategory = SaleCategory.forSale
+				x => x.SelectCategory = NomenclatureCategory.water,
+				x => x.SelectSaleCategory = SaleCategory.forSale,
+				x => x.RestrictArchive = false
 			);
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter)) {
-				Mode = JournalSelectMode.Single,
-				ShowFilter = true
-			};
-			SelectDialog.CustomTabName("Номенклатура на продажу");
-			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
-			TabParent.AddSlaveTab(this, SelectDialog);
 
+			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+				nomenclatureFilter,
+				ServicesConfig.CommonServices
+			) {
+				SelectionMode = JournalSelectionMode.Single,
+			};
+			journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+			journalViewModel.TabName = "Номенклатура на продажу";
+			journalViewModel.OnEntitySelectedResult += (s, ea) => {
+				var selectedNode = ea.SelectedNodes.FirstOrDefault();
+				if(selectedNode == null)
+					return;
+				TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+			};
+			this.TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
 		#region Рекламные наборы
@@ -1186,15 +1207,6 @@ namespace Vodovoz
 		}
 
 		#endregion
-
-		void NomenclatureForSaleSelected(object sender, JournalObjectSelectedEventArgs e)
-		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			if(selectedId == 0) {
-				return;
-			}
-			TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedId));
-		}
 
 		void NomenclatureSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
@@ -1891,6 +1903,7 @@ namespace Vodovoz
 				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
 				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.BeveragesWorld);
+			spinSumDifference.Visible = spinSumDifference.Visible && UserPermissionRepository.CurrentUserPresetPermissions["can_edit_order_extra_cash"];
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
@@ -2318,7 +2331,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
 				entityVMEntryClient.IsEditable = val;
 			referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
-			lblDeliveryPoint.Sensitive = referenceDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val;
+			lblDeliveryPoint.Sensitive = referenceDeliveryPoint.Sensitive = !checkSelfDelivery.Active && val && Entity.Client != null;
 			buttonAddMaster.Sensitive = !checkSelfDelivery.Active && val && !Entity.IsLoadedFrom1C;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =
 				enumDocumentType.Sensitive = val;
@@ -2390,7 +2403,7 @@ namespace Vodovoz
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
 			buttonWaitForPayment.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder && IsPaymentTypeBarterOrCashless() && !Entity.SelfDelivery;
 
-			buttonCancelOrder.Sensitive = orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus) || (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading);
+			buttonCancelOrder.Sensitive = (orderRepository.GetStatusesForOrderCancelation().Contains(Entity.OrderStatus) || (Entity.SelfDelivery && Entity.OrderStatus == OrderStatus.OnLoading)) && Entity.OrderStatus != OrderStatus.NewOrder;
 
 			menuItemSelfDeliveryToLoading.Sensitive = Entity.SelfDelivery
 				&& Entity.OrderStatus == OrderStatus.Accepted

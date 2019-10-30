@@ -14,5 +14,6 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 		IList<WageParameter> GetWageParameters(IUnitOfWork uow, WageParameterTargets wageParameterTarget);
 		WageParameter GetActualParameterForOurCars(IUnitOfWork uow, DateTime dateTime);
 		WageDistrictLevelRates DefaultLevelForNewEmployees(IUnitOfWork uow);
+		IEnumerable<DateTime> GetDaysWorkedWithRouteLists(IUnitOfWork uow, Employee employee);
 	}
 }

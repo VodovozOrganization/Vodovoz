@@ -166,7 +166,7 @@
       <HintPath>..\packages\FluentNHibernate.2.1.2\lib\net461\FluentNHibernate.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data">
-      <HintPath>..\packages\MySql.Data.8.0.17\lib\net452\MySql.Data.dll</HintPath>
+      <HintPath>..\packages\MySql.Data.8.0.18\lib\net452\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.4.6.6\lib\net45\NLog.dll</HintPath>
@@ -1329,9 +1329,8 @@
     <Compile Include="ViewModels\FuelDocuments\FuelDocumentViewModel.cs" />
     <Compile Include="JournalViewModels\EmployeesJournalViewModel.cs" />
     <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
-    <Compile Include="Core\Permissions\PermissionListView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Core.Permissions.PermissionListView.cs" />
-    <Compile Include="ViewWidgets\NullableCheckButton.cs" />
+    <Compile Include="JournalViewModels\IAdditionalJournalRestriction.cs" />
+    <Compile Include="JournalViewModels\NomenclaturesForOrderJournalRestriction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2020,6 +2019,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\SeparateAssemblyList.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\IncomingInvoice.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\GoodsToShipOnDate.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

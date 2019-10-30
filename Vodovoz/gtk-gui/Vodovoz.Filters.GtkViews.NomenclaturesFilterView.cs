@@ -8,13 +8,15 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yCheckButton chkOnlyDisposableTare;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkShowArchive;
+
 		private global::Gamma.GtkWidgets.yCheckButton chkShowDilers;
 
-		private global::Gamma.Widgets.yEnumComboBox cmbSaleCategory;
-
-		private global::Gamma.Widgets.yEnumComboBox enumcomboCategory;
-
 		private global::Gtk.Label labelType;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox lstCategory;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox lstSaleCategory;
 
 		protected virtual void Build()
 		{
@@ -23,7 +25,7 @@ namespace Vodovoz.Filters.GtkViews
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Filters.GtkViews.NomenclaturesFilterView";
 			// Container child Vodovoz.Filters.GtkViews.NomenclaturesFilterView.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(5)), false);
+			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(6)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -41,6 +43,19 @@ namespace Vodovoz.Filters.GtkViews
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.chkShowArchive = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkShowArchive.CanFocus = true;
+			this.chkShowArchive.Name = "chkShowArchive";
+			this.chkShowArchive.Label = global::Mono.Unix.Catalog.GetString("Показать архивные");
+			this.chkShowArchive.DrawIndicator = true;
+			this.chkShowArchive.UseUnderline = true;
+			this.table1.Add(this.chkShowArchive);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.chkShowArchive]));
+			w2.LeftAttach = ((uint)(5));
+			w2.RightAttach = ((uint)(6));
+			w2.XOptions = ((global::Gtk.AttachOptions)(4));
+			w2.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.chkShowDilers = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkShowDilers.CanFocus = true;
 			this.chkShowDilers.Name = "chkShowDilers";
@@ -48,43 +63,43 @@ namespace Vodovoz.Filters.GtkViews
 			this.chkShowDilers.DrawIndicator = true;
 			this.chkShowDilers.UseUnderline = true;
 			this.table1.Add(this.chkShowDilers);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.chkShowDilers]));
-			w2.LeftAttach = ((uint)(3));
-			w2.RightAttach = ((uint)(4));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.cmbSaleCategory = new global::Gamma.Widgets.yEnumComboBox();
-			this.cmbSaleCategory.Name = "cmbSaleCategory";
-			this.cmbSaleCategory.ShowSpecialStateAll = true;
-			this.cmbSaleCategory.ShowSpecialStateNot = false;
-			this.cmbSaleCategory.UseShortTitle = false;
-			this.cmbSaleCategory.DefaultFirst = true;
-			this.table1.Add(this.cmbSaleCategory);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.cmbSaleCategory]));
-			w3.LeftAttach = ((uint)(2));
-			w3.RightAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.chkShowDilers]));
+			w3.LeftAttach = ((uint)(3));
+			w3.RightAttach = ((uint)(4));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.enumcomboCategory = new global::Gamma.Widgets.yEnumComboBox();
-			this.enumcomboCategory.Name = "enumcomboCategory";
-			this.enumcomboCategory.ShowSpecialStateAll = true;
-			this.enumcomboCategory.ShowSpecialStateNot = false;
-			this.enumcomboCategory.UseShortTitle = false;
-			this.enumcomboCategory.DefaultFirst = true;
-			this.table1.Add(this.enumcomboCategory);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboCategory]));
-			w4.LeftAttach = ((uint)(1));
-			w4.RightAttach = ((uint)(2));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelType = new global::Gtk.Label();
 			this.labelType.Name = "labelType";
 			this.labelType.LabelProp = global::Mono.Unix.Catalog.GetString("Категория");
 			this.table1.Add(this.labelType);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType]));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.labelType]));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.lstCategory = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.lstCategory.Name = "lstCategory";
+			this.lstCategory.AddIfNotExist = false;
+			this.lstCategory.DefaultFirst = false;
+			this.lstCategory.ShowSpecialStateAll = true;
+			this.lstCategory.ShowSpecialStateNot = false;
+			this.table1.Add(this.lstCategory);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.lstCategory]));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.lstSaleCategory = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.lstSaleCategory.Name = "lstSaleCategory";
+			this.lstSaleCategory.AddIfNotExist = false;
+			this.lstSaleCategory.DefaultFirst = false;
+			this.lstSaleCategory.ShowSpecialStateAll = true;
+			this.lstSaleCategory.ShowSpecialStateNot = false;
+			this.table1.Add(this.lstSaleCategory);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.lstSaleCategory]));
+			w6.LeftAttach = ((uint)(2));
+			w6.RightAttach = ((uint)(3));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{

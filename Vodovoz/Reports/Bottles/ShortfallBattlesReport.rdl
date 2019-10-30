@@ -1463,7 +1463,7 @@ WHERE
 	AND (	
 		(	
 			@driver_call = 1 
-			AND type_of_use = 'Largus' 
+			AND type_of_use = 'CompanyLargus' 
 			AND driver_call_type = 'NoCall' 
 			AND returned &lt; delivered 
 			AND (CAST(bottles_return AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0

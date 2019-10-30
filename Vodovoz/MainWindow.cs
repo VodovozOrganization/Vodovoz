@@ -8,7 +8,6 @@ using QS.BusinessCommon.Domain;
 using QS.Contacts;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Config;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
@@ -44,6 +43,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
@@ -71,11 +71,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	private static Logger logger = LogManager.GetCurrentClassLogger();
 	uint LastUiId;
 
-	public TdiNotebook TdiMain {
-		get {
-			return tdiMain;
-		}
-	}
+	public TdiNotebook TdiMain => tdiMain;
 
 	public MainWindow() : base(Gtk.WindowType.Toplevel)
 	{
@@ -106,7 +102,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		bool hasAccessToWagesAndBonuses = UserPermissionRepository.CurrentUserPresetPermissions["access_to_fines_bonuses"];
 		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
 		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses;
-		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
 		ActionDriverWages.Sensitive = hasAccessToSalaries;
 		ActionWagesOperations.Sensitive = hasAccessToSalaries;
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries;
@@ -118,7 +113,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		//ActionServices.Visible = false;
 		ActionDocTemplates.Visible = QSMain.User.Admin;
 		ActionService.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["database_maintenance"];
-
+		ActionEmployeeWorkChart.Sensitive = false;
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle) {
 			case ToolbarStyle.Both:
@@ -375,11 +370,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionNomenclatureActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(Nomenclature));
-		refWin.ButtonMode = ReferenceButtonMode.CanEdit;
-		refWin.ButtonMode |= UserPermissionRepository.CurrentUserPresetPermissions["can_create_and_arc_nomenclatures"] ? ReferenceButtonMode.CanAdd : ReferenceButtonMode.None;
-		refWin.ButtonMode |= UserPermissionRepository.CurrentUserPresetPermissions["can_delete_nomenclatures"] ? ReferenceButtonMode.CanDelete : ReferenceButtonMode.None;
-		tdiMain.AddTab(refWin);
+		tdiMain.OpenTab(
+			() => {
+				return new NomenclaturesJournalViewModel(
+					new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService) { HidenByDefault = true },
+					ServicesConfig.CommonServices
+				);
+			}
+		);
 	}
 
 	protected void OnActionPhoneTypesActivated(object sender, EventArgs e)

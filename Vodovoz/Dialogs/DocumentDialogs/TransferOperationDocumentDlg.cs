@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
 using QS.Validation.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 
@@ -48,11 +51,11 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			datepickerDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
-			referenceCounterpartyFrom.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceCounterpartyFrom.SetEntitySelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
 
 			counterpartyFilter = new CounterpartyFilter(UoW);
-			referenceCounterpartyTo.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceCounterpartyTo.SetEntitySelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
 			repEntryEmployee.RepresentationModel = new EmployeesVM();

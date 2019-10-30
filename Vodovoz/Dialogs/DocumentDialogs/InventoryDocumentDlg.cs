@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 
 namespace Vodovoz
 {
@@ -91,7 +92,7 @@ namespace Vodovoz
 			inventoryitemsview.DocumentUoW = UoWGeneric;
 
 
-			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance(), UserSingletonRepository.GetInstance());
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
 			Entity.CanEdit = permmissionValidator.Validate(typeof(InventoryDocument), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 			if(!Entity.CanEdit && Entity.TimeStamp.Date != DateTime.Now.Date) {
 				ydatepickerDocDate.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();

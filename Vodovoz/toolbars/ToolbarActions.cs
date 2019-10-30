@@ -1,7 +1,6 @@
 ﻿using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
-using QS.DomainModel.Config;
 using QS.EntityRepositories;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
