@@ -35,6 +35,7 @@ namespace Vodovoz.ViewWidgets
 			UoW = uow;
 			Counterparty = counterparty;
 			ytreeDocuments.Selection.Mode = Gtk.SelectionMode.Single;
+			ytreeDocuments.Selection.Changed += Selection_Changed;
 			ytreeDocuments.RowActivated += (o, args) => buttonViewDocument.Click();
 
 			var columnConfig = FluentColumnsConfig<CounterpartyDocumentNode>.Create();
@@ -160,11 +161,13 @@ namespace Vodovoz.ViewWidgets
 				return;
 
 			CounterpartyDocumentNode selectedPrintableDocuments = (ytreeDocuments.GetSelectedObject() as CounterpartyDocumentNode);
+
 			if(selectedPrintableDocuments.Document is CounterpartyContract) {
 				int contractID = (selectedPrintableDocuments.Document as CounterpartyContract).Id;
 				ITdiDialog dlg = new CounterpartyContractDlg(contractID);
 				mytab.TabParent.AddTab(dlg, mytab);
 			}
+
 			if(selectedPrintableDocuments.Document is AdditionalAgreement) {
 				AdditionalAgreement agreement = (selectedPrintableDocuments.Document as AdditionalAgreement);
 				var type = NHibernateProxyHelper.GuessClass(agreement);
@@ -173,9 +176,10 @@ namespace Vodovoz.ViewWidgets
 					() => OrmMain.CreateObjectDialog(type, agreement.Id)
 				);
 			}
+
 			if(selectedPrintableDocuments.Document is OrderDocument) {
 				var rdlDoc = (selectedPrintableDocuments.Document as IPrintableRDLDocument);
-				if(rdlDoc != null){
+				if(rdlDoc != null) {
 					mytab.TabParent.AddTab(DocumentPrinter.GetPreviewTab(rdlDoc), mytab);
 				}
 			}
@@ -187,6 +191,12 @@ namespace Vodovoz.ViewWidgets
 				result.AddRange(item.GetSelectedDocuments());
 			}
 			return result;
+		}
+
+		void Selection_Changed(object sender, EventArgs e)
+		{
+			CounterpartyDocumentNode selectedDocument = (ytreeDocuments.GetSelectedObject() as CounterpartyDocumentNode);
+			buttonViewDocument.Sensitive = selectedDocument != null;
 		}
 	}
 
