@@ -12,9 +12,11 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private global::Gamma.Widgets.yDatePicker ydatepicker;
 
-		private global::Gtk.CheckButton checkbuttonS;
+		private global::Gtk.HBox hbox2;
 
-		private global::Gtk.CheckButton checkbuttonN;
+		private global::Gtk.Label lblGeoGrp;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox lstGeoGrp;
 
 		private global::Gtk.Button buttonCreateRepot;
 
@@ -35,6 +37,7 @@ namespace Vodovoz.ReportsParameters.Store
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
+			this.label2.Xalign = 1F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
 			this.hbox3.Add(this.label2);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label2]));
@@ -58,30 +61,34 @@ namespace Vodovoz.ReportsParameters.Store
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.checkbuttonS = new global::Gtk.CheckButton();
-			this.checkbuttonS.CanFocus = true;
-			this.checkbuttonS.Name = "checkbuttonS";
-			this.checkbuttonS.Label = global::Mono.Unix.Catalog.GetString("ЮГ");
-			this.checkbuttonS.Active = true;
-			this.checkbuttonS.DrawIndicator = true;
-			this.checkbuttonS.UseUnderline = true;
-			this.vbox2.Add(this.checkbuttonS);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.checkbuttonS]));
-			w4.Position = 1;
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.lblGeoGrp = new global::Gtk.Label();
+			this.lblGeoGrp.Name = "lblGeoGrp";
+			this.lblGeoGrp.Xalign = 1F;
+			this.lblGeoGrp.LabelProp = global::Mono.Unix.Catalog.GetString("Группа районов:");
+			this.hbox2.Add(this.lblGeoGrp);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblGeoGrp]));
+			w4.Position = 0;
 			w4.Expand = false;
 			w4.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
-			this.checkbuttonN = new global::Gtk.CheckButton();
-			this.checkbuttonN.CanFocus = true;
-			this.checkbuttonN.Name = "checkbuttonN";
-			this.checkbuttonN.Label = global::Mono.Unix.Catalog.GetString("СЕВЕР");
-			this.checkbuttonN.DrawIndicator = true;
-			this.checkbuttonN.UseUnderline = true;
-			this.vbox2.Add(this.checkbuttonN);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.checkbuttonN]));
-			w5.Position = 2;
-			w5.Expand = false;
-			w5.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.lstGeoGrp = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.lstGeoGrp.Name = "lstGeoGrp";
+			this.lstGeoGrp.AddIfNotExist = false;
+			this.lstGeoGrp.DefaultFirst = false;
+			this.lstGeoGrp.ShowSpecialStateAll = true;
+			this.lstGeoGrp.ShowSpecialStateNot = false;
+			this.hbox2.Add(this.lstGeoGrp);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lstGeoGrp]));
+			w5.Position = 1;
+			this.vbox2.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.buttonCreateRepot = new global::Gtk.Button();
 			this.buttonCreateRepot.CanFocus = true;
@@ -89,10 +96,10 @@ namespace Vodovoz.ReportsParameters.Store
 			this.buttonCreateRepot.UseUnderline = true;
 			this.buttonCreateRepot.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox2.Add(this.buttonCreateRepot);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateRepot]));
-			w6.Position = 4;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateRepot]));
+			w7.Position = 4;
+			w7.Expand = false;
+			w7.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{
