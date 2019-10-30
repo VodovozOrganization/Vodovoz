@@ -53,28 +53,29 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		private void ChangeWageParameter(IUnitOfWork uow, int currentRouteListId)
 		{
+			//Проверка на то, что сотрудник имеет только один стартовый расчет зарплаты
 			if(employee.WageParameters.Count != 1) {
 				return;
 			}
-
 			var startedWageParameter = employee.WageParameters.FirstOrDefault();
-			if(startedWageParameter == null) {
+			if(startedWageParameter == null || !startedWageParameter.IsStartedWageParameter) {
 				return;
 			}
 
-			IEnumerable<DateTime> workedDays = wageCalculationRepository.GetDaysWorkedWithRouteLists(uow, employee, currentRouteListId);
-			DateTime lastWorkedDay = workedDays.Max();
+			IEnumerable<DateTime> workedDays = wageCalculationRepository.GetDaysWorkedWithRouteLists(uow, employee).OrderBy(x => x);
 			int daysWorkedNeeded = wageParametersProvider.GetDaysWorkedForMinRatesLevel();
-
-			if(workedDays.Count() >= daysWorkedNeeded && startedWageParameter.IsStartedWageParameter && lastWorkedDay < DateTime.Today) {
-				employee.ChangeWageParameter(
-					new RatesLevelWageParameter {
-						WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployees(uow),
-						WageParameterTarget = WageParameterTargets.ForMercenariesCars
-					}, 
-					lastWorkedDay.AddDays(1)
-				);
+			if(workedDays.Count() < daysWorkedNeeded || daysWorkedNeeded < 1) {
+				return;
 			}
+			DateTime wageChangeDate = workedDays.ToArray()[daysWorkedNeeded-1].AddDays(1);
+
+			employee.ChangeWageParameter(
+				new RatesLevelWageParameter {
+					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployees(uow),
+					WageParameterTarget = WageParameterTargets.ForMercenariesCars
+				},
+				wageChangeDate
+			);
 		}
 	}
 }

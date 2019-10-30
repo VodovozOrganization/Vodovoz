@@ -63,7 +63,7 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 							  .SingleOrDefault();
 		}
 
-		public IEnumerable<DateTime> GetDaysWorkedWithRouteLists(IUnitOfWork uow, Employee employee, int currentRouteListId)
+		public IEnumerable<DateTime> GetDaysWorkedWithRouteLists(IUnitOfWork uow, Employee employee)
 		{
 			if(uow == null) {
 				throw new ArgumentNullException(nameof(uow));
@@ -75,7 +75,6 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 
 			return uow.Session.QueryOver<RouteList>()
 				.Where(x => x.Driver.Id == employee.Id)
-				.Where(x => x.Id != currentRouteListId)
 				.Select(Projections.Distinct(Projections.Property<RouteList>(x => x.Date)))
 				.List<DateTime>();
 		}
