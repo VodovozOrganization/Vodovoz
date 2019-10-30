@@ -94,7 +94,7 @@ namespace Vodovoz
 
 			ylabelTransportationStatus.Binding.AddBinding(Entity, e => e.TransportationDescription, w => w.LabelProp).InitializeFromSource();
 
-			MovementDocumentCategory[] filteredDoctypeList = { MovementDocumentCategory.counterparty };
+			MovementDocumentCategory[] filteredDoctypeList = { MovementDocumentCategory.counterparty, MovementDocumentCategory.warehouse };
 			object[] MovementDocumentList = Array.ConvertAll(filteredDoctypeList, x => (object)x);
 			enumMovementType.ItemsEnum = typeof(MovementDocumentCategory);
 			enumMovementType.AddEnumToHideList(MovementDocumentList);
