@@ -253,7 +253,17 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool CanEditFuelCardNumber => UserPermissionRepository.CurrentUserPresetPermissions["can_change_fuel_card_number"];
 
 		[Display(Name = "Имущество компании")]
-		public virtual bool IsCompanyHavings => TypeOfUse.HasValue && CompanyHavingsTypes.Contains(TypeOfUse.Value);
+		public virtual bool IsCompanyCar => TypeOfUse.HasValue && CompanyHavingsTypes.Contains(TypeOfUse.Value);
+
+		private bool isCompanyHavings;
+		[Display(Name = "Имущество компании")]
+		public virtual bool IsCompanyHavings {
+			get => isCompanyHavings;
+			set => SetField(ref isCompanyHavings, value, () => IsCompanyHavings);
+		}
+
+
+
 
 		private CarTypeOfUse[] CompanyHavingsTypes => new CarTypeOfUse[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus, CarTypeOfUse.CompanyTruck };
 
