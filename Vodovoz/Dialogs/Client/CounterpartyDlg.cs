@@ -225,7 +225,7 @@ namespace Vodovoz
 			SetVisibilityForCloseDeliveryComments();
 
 			int userId = ServicesConfig.CommonServices.UserService.CurrentUserId;
-			bool canEditCounterpartyDetails = !UoW.IsNew && ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_edit_counterparty_details", userId);
+			bool canEditCounterpartyDetails = UoW.IsNew || ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_edit_counterparty_details", userId);
 			accountsView.CanEdit = canEditCounterpartyDetails;
 			datalegalname1.Sensitive = canEditCounterpartyDetails;
 			enumPersonType.Sensitive = canEditCounterpartyDetails;
