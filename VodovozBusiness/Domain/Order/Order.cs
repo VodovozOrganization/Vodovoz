@@ -126,7 +126,7 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				if(SetField(ref client, value, () => Client)) {
-					if(DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id)) {
+					if(Client == null || (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id))) {
 						//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
 						logger.Warn("Очищаем точку доставки, при установке клиента. Возможно это не нужно.");
 						DeliveryPoint = null;
