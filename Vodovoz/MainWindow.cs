@@ -376,6 +376,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => {
 				return new NomenclaturesJournalViewModel(
 					new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService) { HidenByDefault = true },
+					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices
 				);
 			}

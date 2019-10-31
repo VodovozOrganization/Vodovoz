@@ -1149,6 +1149,7 @@ namespace Vodovoz
 
 			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			) {
 				SelectionMode = JournalSelectionMode.Single,
@@ -1179,6 +1180,7 @@ namespace Vodovoz
 
 			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			) {
 				SelectionMode = JournalSelectionMode.Single,
