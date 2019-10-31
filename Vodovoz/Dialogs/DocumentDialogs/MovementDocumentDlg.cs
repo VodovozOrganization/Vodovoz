@@ -69,22 +69,10 @@ namespace Vodovoz
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 
-			referenceCounterpartyFrom.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
-			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
-
-			referenceCounterpartyTo.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
-			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
-
 			referenceWarehouseTo.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
 			referenceWarehouseTo.Binding.AddBinding(Entity, e => e.ToWarehouse, w => w.Subject).InitializeFromSource();
 			referenceWarehouseFrom.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.MovementEdit);
 			referenceWarehouseFrom.Binding.AddBinding(Entity, e => e.FromWarehouse, w => w.Subject).InitializeFromSource();
-			referenceDeliveryPointTo.CanEditReference = false;
-			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPointTo.Binding.AddBinding(Entity, e => e.ToDeliveryPoint, w => w.Subject).InitializeFromSource();
-			referenceDeliveryPointFrom.CanEditReference = false;
-			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPointFrom.Binding.AddBinding(Entity, e => e.FromDeliveryPoint, w => w.Subject).InitializeFromSource();
 			repEntryEmployee.RepresentationModel = new EmployeesVM();
 			repEntryEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
@@ -93,7 +81,7 @@ namespace Vodovoz
 
 			ylabelTransportationStatus.Binding.AddBinding(Entity, e => e.TransportationDescription, w => w.LabelProp).InitializeFromSource();
 
-			MovementDocumentCategory[] filteredDoctypeList = { MovementDocumentCategory.counterparty, MovementDocumentCategory.warehouse };
+			MovementDocumentCategory[] filteredDoctypeList = { MovementDocumentCategory.warehouse };
 			object[] MovementDocumentList = Array.ConvertAll(filteredDoctypeList, x => (object)x);
 			enumMovementType.ItemsEnum = typeof(MovementDocumentCategory);
 			enumMovementType.AddEnumToHideList(MovementDocumentList);
@@ -114,10 +102,6 @@ namespace Vodovoz
 				yentryrefWagon.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				referenceWarehouseTo.Sensitive = false;
 				referenceWarehouseFrom.Sensitive = false;
-				referenceCounterpartyTo.Sensitive = false;
-				referenceDeliveryPointTo.Sensitive = false;
-				referenceCounterpartyFrom.Sensitive = false;
-				referenceDeliveryPointFrom.Sensitive = false;
 				repEntryEmployee.Sensitive = false;
 				textComment.Sensitive = false;
 				buttonDelivered.Sensitive = false;
@@ -183,35 +167,9 @@ namespace Vodovoz
 			referenceWarehouseTo.Visible = referenceWarehouseFrom.Visible = labelStockFrom.Visible = labelStockTo.Visible
 				= (selected == MovementDocumentCategory.warehouse || selected == MovementDocumentCategory.Transportation);
 
-			referenceCounterpartyTo.Visible = referenceCounterpartyFrom.Visible = labelClientFrom.Visible = labelClientTo.Visible
-				= referenceDeliveryPointFrom.Visible = referenceDeliveryPointTo.Visible = labelPointFrom.Visible = labelPointTo.Visible
-				= (selected == MovementDocumentCategory.counterparty);
-			referenceDeliveryPointFrom.Sensitive = (referenceCounterpartyFrom.Subject != null && selected == MovementDocumentCategory.counterparty);
-			referenceDeliveryPointTo.Sensitive = (referenceCounterpartyTo.Subject != null && selected == MovementDocumentCategory.counterparty);
-
 			//Траспортировка
 			labelWagon.Visible = hboxTransportation.Visible = yentryrefWagon.Visible = labelTransportationTitle.Visible
 				= selected == MovementDocumentCategory.Transportation;
-		}
-
-		protected void OnReferenceCounterpartyFromChanged(object sender, EventArgs e)
-		{
-			referenceDeliveryPointFrom.Sensitive = referenceCounterpartyFrom.Subject != null;
-			if(referenceCounterpartyFrom.Subject != null) {
-				var points = ((Counterparty)referenceCounterpartyFrom.Subject).DeliveryPoints.Select(o => o.Id).ToList();
-				referenceDeliveryPointFrom.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint>()
-					.Add(Restrictions.In("Id", points));
-			}
-		}
-
-		protected void OnReferenceCounterpartyToChanged(object sender, EventArgs e)
-		{
-			referenceDeliveryPointTo.Sensitive = referenceCounterpartyTo.Subject != null;
-			if(referenceCounterpartyTo.Subject != null) {
-				var points = ((Counterparty)referenceCounterpartyTo.Subject).DeliveryPoints.Select(o => o.Id).ToList();
-				referenceDeliveryPointTo.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint>()
-					.Add(Restrictions.In("Id", points));
-			}
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
@@ -219,8 +177,6 @@ namespace Vodovoz
 			buttonDelivered.Sensitive = false;
 			Entity.TransportationCompleted();
 		}
-
-
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{

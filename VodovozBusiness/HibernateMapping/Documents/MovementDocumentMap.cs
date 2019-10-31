@@ -20,11 +20,7 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.LastEditor).Column ("last_editor_id");
 			References (x => x.MovementWagon).Column ("transportation_wagon_id");
 			References (x => x.ResponsiblePerson).Column ("responsible_person_id");
-			References (x => x.FromDeliveryPoint).Column ("delivery_point_from_id");
-			References (x => x.FromClient).Column ("counterparty_from_id");
 			References (x => x.FromWarehouse).Column ("warehouse_from_id");
-			References (x => x.ToDeliveryPoint).Column ("delivery_point_to_id");
-			References (x => x.ToClient).Column ("counterparty_to_id");
 			References (x => x.ToWarehouse).Column ("warehouse_to_id");
 			HasMany (x => x.Items).Cascade.AllDeleteOrphan ().Inverse ().KeyColumn ("movement_document_id");
 		}

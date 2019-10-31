@@ -379,15 +379,11 @@ namespace Vodovoz
 				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.IncomingCounterparty)
 				.AddDeleteDependence<IncomingInvoice>(item => item.Contractor)
 				.AddDeleteDependence<MoneyMovementOperation>(item => item.Counterparty)
-				.AddDeleteDependence<MovementDocument>(item => item.FromClient)
-				.AddDeleteDependence<MovementDocument>(item => item.ToClient)
 				.AddDeleteDependence<Order>(item => item.Client)
 				.AddDeleteDependence<ServiceClaim>(x => x.Counterparty)
 				.AddDeleteDependence<WriteoffDocument>(item => item.Client)
 				.AddDeleteDependence<AccountIncome>(item => item.Counterparty)
 				.AddDeleteDependence<AccountExpense>(item => item.Counterparty)
-				.AddDeleteDependence<MovementDocument>(item => item.FromClient)
-				.AddDeleteDependence<MovementDocument>(item => item.ToClient)
 				.AddDeleteDependence<Income>(x => x.Customer)
 				.AddDeleteDependence<Residue>(x => x.Customer)
 				.AddClearDependence<Counterparty>(item => item.MainCounterparty)
@@ -462,8 +458,6 @@ namespace Vodovoz
 				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.WriteoffDeliveryPoint)
 				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.IncomingDeliveryPoint)
 				.AddClearDependence<Order>(x => x.DeliveryPoint)
-				.AddDeleteDependence<MovementDocument>(x => x.FromDeliveryPoint)
-				.AddDeleteDependence<MovementDocument>(x => x.ToDeliveryPoint)
 				.AddDeleteDependence<WriteoffDocument>(x => x.DeliveryPoint)
 				.AddDeleteDependence<Residue>(x => x.DeliveryPoint)
 				.AddRemoveFromDependence<Proxy>(item => item.DeliveryPoints)
@@ -781,7 +775,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<MovementDocumentItem>()
 				.AddDeleteCascadeDependence(x => x.WarehouseMovementOperation)
-				.AddDeleteCascadeDependence(x => x.CounterpartyMovementOperation)
 				.AddDeleteCascadeDependence(x => x.DeliveryMovementOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<WriteoffDocument>()
@@ -881,7 +874,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyMovementOperation>()
 				.RequiredCascadeDeletion()
-				.AddDeleteDependence<MovementDocumentItem>(x => x.CounterpartyMovementOperation)
 				.AddDeleteDependence<WriteoffDocumentItem>(x => x.CounterpartyWriteoffOperation)
 				.AddDeleteDependence<OrderItem>(x => x.CounterpartyMovementOperation)
 				.AddDeleteDependence<OrderEquipment>(x => x.CounterpartyMovementOperation)

@@ -16,7 +16,6 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.Nomenclature).Column ("nomenclature_id").Not.Nullable ();
 			References (x => x.WarehouseMovementOperation).Column("warehouse_movement_operation_id").Cascade.All();
 			References (x => x.DeliveryMovementOperation).Column ("delivery_movement_operation_id").Cascade.All();
-			References (x => x.CounterpartyMovementOperation).Column ("counterparty_movement_operation_id").Cascade.All ();
 		}
 	}
 }

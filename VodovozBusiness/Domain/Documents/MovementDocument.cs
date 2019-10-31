@@ -7,7 +7,6 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
@@ -25,21 +24,8 @@ namespace Vodovoz.Domain.Documents
 
 		[Display(Name = "Тип документа перемещения")]
 		public virtual MovementDocumentCategory Category {
-			get { return category; }
-			set {
-				if(SetField(ref category, value, () => Category))
-					switch(category) {
-						case MovementDocumentCategory.counterparty:
-							FromWarehouse = null;
-							ToWarehouse = null;
-							break;
-						case MovementDocumentCategory.Transportation:
-						case MovementDocumentCategory.warehouse:
-							FromClient = null;
-							ToClient = null;
-							break;
-					}
-			}
+			get => category;
+			set => SetField(ref category, value, () => Category);
 		}
 
 		public override DateTime TimeStamp {
@@ -49,8 +35,6 @@ namespace Vodovoz.Domain.Documents
 				foreach(var item in Items) {
 					if(item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.OperationTime != TimeStamp)
 						item.WarehouseMovementOperation.OperationTime = TimeStamp;
-					if(item.CounterpartyMovementOperation != null && item.CounterpartyMovementOperation.OperationTime != TimeStamp)
-						item.CounterpartyMovementOperation.OperationTime = TimeStamp;
 				}
 			}
 		}
@@ -104,70 +88,6 @@ namespace Vodovoz.Domain.Documents
 		public virtual Employee ResponsiblePerson {
 			get { return responsiblePerson; }
 			set { SetField(ref responsiblePerson, value, () => ResponsiblePerson); }
-		}
-
-		Counterparty fromClient;
-
-		[Display(Name = "Клиент отправки")]
-		public virtual Counterparty FromClient {
-			get { return fromClient; }
-			set {
-				SetField(ref fromClient, value, () => FromClient);
-				if(FromClient == null ||
-					(FromDeliveryPoint != null && FromClient.DeliveryPoints.All(p => p.Id != FromDeliveryPoint.Id))) {
-					FromDeliveryPoint = null;
-				}
-				foreach(var item in Items) {
-					if(item.CounterpartyMovementOperation != null && item.CounterpartyMovementOperation.WriteoffCounterparty != fromClient)
-						item.CounterpartyMovementOperation.WriteoffCounterparty = fromClient;
-				}
-			}
-		}
-
-		Counterparty toClient;
-
-		[Display(Name = "Клиент получения")]
-		public virtual Counterparty ToClient {
-			get { return toClient; }
-			set {
-				SetField(ref toClient, value, () => ToClient);
-				if(ToClient == null ||
-					(ToDeliveryPoint != null && ToClient.DeliveryPoints.All(p => p.Id != ToDeliveryPoint.Id))) {
-					ToDeliveryPoint = null;
-				}
-				foreach(var item in Items) {
-					if(item.CounterpartyMovementOperation != null && item.CounterpartyMovementOperation.IncomingCounterparty != toClient)
-						item.CounterpartyMovementOperation.IncomingCounterparty = toClient;
-				}
-			}
-		}
-
-		DeliveryPoint fromDeliveryPoint;
-
-		[Display(Name = "Точка отправки")]
-		public virtual DeliveryPoint FromDeliveryPoint {
-			get { return fromDeliveryPoint; }
-			set {
-				SetField(ref fromDeliveryPoint, value, () => FromDeliveryPoint);
-				foreach(var item in Items) {
-					if(item.CounterpartyMovementOperation != null && item.CounterpartyMovementOperation.WriteoffDeliveryPoint != fromDeliveryPoint)
-						item.CounterpartyMovementOperation.WriteoffDeliveryPoint = fromDeliveryPoint;
-				}
-			}
-		}
-
-		DeliveryPoint toDeliveryPoint;
-
-		[Display(Name = "Точка получения")]
-		public virtual DeliveryPoint ToDeliveryPoint {
-			get { return toDeliveryPoint; }
-			set {
-				SetField(ref toDeliveryPoint, value, () => ToDeliveryPoint);
-				foreach(var item in Items) {
-					if(item.CounterpartyMovementOperation != null && item.CounterpartyMovementOperation.IncomingDeliveryPoint != toDeliveryPoint)
-						item.CounterpartyMovementOperation.IncomingDeliveryPoint = toDeliveryPoint;
-				}
-			}
 		}
 
 		Warehouse fromWarehouse;
@@ -267,24 +187,6 @@ namespace Vodovoz.Domain.Documents
 						new[] { this.GetPropertyName(o => o.ToWarehouse) });
 			}
 
-			if(Category == MovementDocumentCategory.counterparty) {
-				if(FromClient == null)
-					yield return new ValidationResult("Клиент отправитель должен быть указан.",
-						new[] { this.GetPropertyName(o => o.FromClient) });
-				if(ToClient == null)
-					yield return new ValidationResult("Клиент получатель должен быть указан.",
-						new[] { this.GetPropertyName(o => o.ToClient) });
-				if(FromDeliveryPoint == null)
-					yield return new ValidationResult("Точка доставки отправителя должена быть указана.",
-						new[] { this.GetPropertyName(o => o.FromDeliveryPoint) });
-				if(ToDeliveryPoint == null)
-					yield return new ValidationResult("Точка доставки получателя должена быть указана.",
-						new[] { this.GetPropertyName(o => o.ToDeliveryPoint) });
-				if(FromDeliveryPoint == ToDeliveryPoint)
-					yield return new ValidationResult("Точки отправления и получения должны различатся.",
-						new[] { this.GetPropertyName(o => o.FromDeliveryPoint), this.GetPropertyName(o => o.ToDeliveryPoint) });
-			}
-
 			if(Category == MovementDocumentCategory.Transportation) {
 				if(MovementWagon == null)
 					yield return new ValidationResult("Фура не указана.",
@@ -343,8 +245,6 @@ namespace Vodovoz.Domain.Documents
 
 	public enum MovementDocumentCategory
 	{
-		[Display(Name = "Именное списание")]
-		counterparty,
 		[Display(Name = "Внутреннее перемещение")]
 		warehouse,
 		[Display(Name = "Транспортировка")]

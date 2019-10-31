@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
@@ -30,9 +29,6 @@ namespace Vodovoz.Domain.Documents
 				SetField(ref nomenclature, value, () => Nomenclature);
 				if(WarehouseMovementOperation != null && WarehouseMovementOperation.Nomenclature != nomenclature)
 					WarehouseMovementOperation.Nomenclature = nomenclature;
-
-				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Nomenclature != nomenclature)
-					CounterpartyMovementOperation.Nomenclature = nomenclature;
 			}
 		}
 
@@ -45,9 +41,6 @@ namespace Vodovoz.Domain.Documents
 				SetField(ref equipment, value, () => Equipment);
 				if(WarehouseMovementOperation != null && WarehouseMovementOperation.Equipment != equipment)
 					WarehouseMovementOperation.Equipment = equipment;
-
-				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
-					CounterpartyMovementOperation.Equipment = equipment;
 			}
 		}
 
@@ -64,9 +57,6 @@ namespace Vodovoz.Domain.Documents
 
 				if(DeliveryMovementOperation != null && DeliveryMovementOperation.Amount != amount)
 					DeliveryMovementOperation.Amount = amount;
-
-				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Amount != amount)
-					CounterpartyMovementOperation.Amount = amount;
 			}
 		}
 
@@ -95,13 +85,6 @@ namespace Vodovoz.Domain.Documents
 			set { SetField(ref deliveryMovementOperation, value, () => DeliveryMovementOperation); }
 		}
 
-		CounterpartyMovementOperation counterpartyMovementOperation;
-
-		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
-			get { return counterpartyMovementOperation; }
-			set { SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
-		}
-
 		#region Функции
 
 		public virtual string Title {
@@ -121,7 +104,6 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void UpdateOperation(Warehouse warehouseSrc, Warehouse warehouseDst, DateTime time, TransportationStatus status)
 		{
-			CounterpartyMovementOperation = null;
 
 			if(WarehouseMovementOperation == null) {
 				WarehouseMovementOperation = new WarehouseMovementOperation();

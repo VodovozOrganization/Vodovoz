@@ -145,9 +145,7 @@ namespace Vodovoz.ViewModel
 					movementQuery.Where (o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
 
 				var movementList = movementQuery
-				.JoinQueryOver (() => movementAlias.FromClient, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => movementAlias.FromWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinQueryOver (() => movementAlias.ToClient, () => secondCounterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => movementAlias.ToWarehouse, () => secondWarehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (() => movementAlias.MovementWagon, () => wagonAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (() => movementAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -160,20 +158,10 @@ namespace Vodovoz.ViewModel
 					.Select (() => movementAlias.TransportationStatus).WithAlias(() => resultAlias.Status)          
 					.Select (() => wagonAlias.Name).WithAlias (() => resultAlias.CarNumber)
 					.Select (Projections.Conditional (
-					                  Restrictions.Where (() => counterpartyAlias.Name == null),
-					                  Projections.Constant ("Не указан", NHibernateUtil.String),
-					                  Projections.Property (() => counterpartyAlias.Name)))
-					.WithAlias (() => resultAlias.Counterparty)
-					.Select (Projections.Conditional (
 					                  Restrictions.Where (() => warehouseAlias.Name == null),
 					                  Projections.Constant ("Не указан", NHibernateUtil.String),
 					                  Projections.Property (() => warehouseAlias.Name)))
 					.WithAlias (() => resultAlias.Warehouse)
-					.Select (Projections.Conditional (
-					                  Restrictions.Where (() => secondCounterpartyAlias.Name == null),
-					                  Projections.Constant ("Не указан", NHibernateUtil.String),
-					                  Projections.Property (() => secondCounterpartyAlias.Name)))
-					.WithAlias (() => resultAlias.SecondCounterparty)
 					.Select (Projections.Conditional (
 					                  Restrictions.Where (() => secondWarehouseAlias.Name == null),
 					                  Projections.Constant ("Не указан", NHibernateUtil.String),
@@ -534,8 +522,6 @@ namespace Vodovoz.ViewModel
 					case DocumentType.IncomingWater:
 						return string.Format("Количество: {0}; Склад поступления: {1};", Amount, Warehouse);
 					case DocumentType.MovementDocument:
-						if (MDCategory == MovementDocumentCategory.counterparty)
-							return string.Format("\"{0}\" -> \"{1}\"", Counterparty, SecondCounterparty);
 						if (MDCategory == MovementDocumentCategory.Transportation)
 							return string.Format("{0} -> {1}{2} - {3}", Warehouse, SecondWarehouse,
 							string.IsNullOrEmpty(CarNumber) ? null : string.Format(", Фура: {0}", CarNumber), Status == TransportationStatus.Delivered ? "Доставлено" : "");
