@@ -48,6 +48,8 @@ namespace Vodovoz.ViewModel
 			   	.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 				.Select(Projections.Sum(() => ordItemsAlias.Count));
 
+			var isCompanyHavingProjection = Projections.Conditional(Restrictions.In(Projections.Property(() => carAlias.TypeOfUse), Car.GetCompanyHavingsTypes()), Projections.Constant(true), Projections.Constant(false));
+
 			var trackSubquery = QueryOver.Of<Track>()
 				.Where(x => x.RouteList.Id == routeListAlias.Id)
 				.Select(x => x.Id);
@@ -68,7 +70,7 @@ namespace Vodovoz.ViewModel
 					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.LastName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.Patronymic)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
-					.Select(() => carAlias.IsCompanyHavings).WithAlias(() => resultAlias.IsVodovozAuto)
+					.Select(isCompanyHavingProjection).WithAlias(() => resultAlias.IsVodovozAuto)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
 					.SelectSubQuery(addressesSubquery).WithAlias(() => resultAlias.AddressesAll)
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)

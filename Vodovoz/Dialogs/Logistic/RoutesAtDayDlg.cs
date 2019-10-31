@@ -205,7 +205,7 @@ namespace Vodovoz
 																		  .AddColumn("Водитель")
 																		 	.AddTextRenderer(x => x.Employee.ShortName)
 																		  .AddColumn("Автомобиль")
-																			.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
+																			.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
 																			.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 																		  .AddColumn("База")
 																			.AddComboRenderer(x => x.GeographicGroup)
