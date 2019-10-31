@@ -12,7 +12,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModel;
-using Vodovoz.Repositories.Permissions;
 using QS.Project.Services;
 
 namespace Vodovoz
@@ -121,9 +120,6 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			if(!Entity.IsCompanyCar)
-				Entity.TypeOfUse = null;
-
 			var valid = new QSValidator<Car>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;

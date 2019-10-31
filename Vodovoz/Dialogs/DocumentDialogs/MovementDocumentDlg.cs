@@ -17,7 +17,6 @@ using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
