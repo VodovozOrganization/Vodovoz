@@ -32,7 +32,7 @@ namespace Vodovoz
 			this.TabName = "Готовые к отправке";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			tableReadyForShipment.Selection.Changed += OnSelectionChanged;
-			tableReadyForShipment.ButtonReleaseEvent += TableReadyForShipment_ButtonReleaseEvent;
+			/*tableReadyForShipment.ButtonReleaseEvent += TableReadyForShipment_ButtonReleaseEvent;*/
 		}
 
 		RepresentationSelectResult[] lastMenuSelected;
