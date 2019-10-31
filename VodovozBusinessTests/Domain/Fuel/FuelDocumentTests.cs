@@ -41,7 +41,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelTypeMock.Cost.Returns(30);
 
 			Car carMock = Substitute.For<Car>();
-			carMock.IsCompanyHavings.Returns(false);
+			carMock.IsCompanyCar.Returns(false);
 
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
 
@@ -89,7 +89,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelTypeMock.Cost.Returns(30);
 
 			Car carMock = Substitute.For<Car>();
-			carMock.IsCompanyHavings.Returns(true);
+			carMock.IsCompanyCar.Returns(true);
 
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
 
@@ -155,7 +155,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelTypeMock.Cost.Returns(30);
 
 			Car carMock = Substitute.For<Car>();
-			carMock.IsCompanyHavings.Returns(true);
+			carMock.IsCompanyCar.Returns(true);
 
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
 
@@ -200,7 +200,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelTypeMock.Cost.Returns(30);
 
 			Car carMock = Substitute.For<Car>();
-			carMock.IsCompanyHavings.Returns(false);
+			carMock.IsCompanyCar.Returns(false);
 
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
 
@@ -266,7 +266,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelTypeMock.Cost.Returns(30);
 
 			Car carMock = Substitute.For<Car>();
-			carMock.IsCompanyHavings.Returns(true);
+			carMock.IsCompanyCar.Returns(true);
 
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
 
@@ -329,7 +329,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelTypeMock.Cost.Returns(30);
 
 			Car carMock = Substitute.For<Car>();
-			carMock.IsCompanyHavings.Returns(true);
+			carMock.IsCompanyCar.Returns(true);
 
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
 
@@ -368,7 +368,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelTypeMock.Cost.Returns(30);
 
 			Car carMock = Substitute.For<Car>();
-			carMock.IsCompanyHavings.Returns(true);
+			carMock.IsCompanyCar.Returns(true);
 
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
 
@@ -410,7 +410,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelTypeMock.Cost.Returns(30);
 
 			Car carMock = Substitute.For<Car>();
-			carMock.IsCompanyHavings.Returns(true);
+			carMock.IsCompanyCar.Returns(true);
 
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
 
@@ -451,7 +451,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelTypeMock.Cost.Returns(30);
 
 			Car carMock = Substitute.For<Car>();
-			carMock.IsCompanyHavings.Returns(false);
+			carMock.IsCompanyCar.Returns(false);
 
 			VodovozRouteList routeListMock = Substitute.For<VodovozRouteList>();
 			Subdivision subdivisionMock = Substitute.For<Subdivision>();
@@ -506,7 +506,7 @@ namespace VodovozBusinessTests.Domain.Fuel
 			fuelTypeMock.Cost.Returns(30);
 
 			Car carMock = Substitute.For<Car>();
-			carMock.IsCompanyHavings.Returns(false);
+			carMock.IsCompanyCar.Returns(false);
 
 			IUnitOfWork uowMock = Substitute.For<IUnitOfWork>();
 

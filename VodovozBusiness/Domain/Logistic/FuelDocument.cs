@@ -227,8 +227,8 @@ namespace Vodovoz.Domain.Logistic
 			var litersPaid = PayedForFuel.HasValue ? PayedLiters : 0;
 
 			FuelOperation = new FuelOperation() {
-				Driver = Car.IsCompanyHavings ? null : Driver,
-				Car = Car.IsCompanyHavings ? Car : null,
+				Driver = Car.IsCompanyCar ? null : Driver,
+				Car = Car.IsCompanyCar ? Car : null,
 				Fuel = Fuel,
 				LitersGived = FuelCoupons + litersPaid,
 				LitersOutlayed = 0,

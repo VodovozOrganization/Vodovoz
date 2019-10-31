@@ -91,7 +91,7 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddComboRenderer(x => x.WithForwarder)
 					.SetDisplayFunc(x => x.Employee.ShortName).Editing().Tag(Columns.Forwarder)
 				.AddColumn("Автомобиль")
-					.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
+					.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
 					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 				.AddColumn("База")
 					.AddComboRenderer(x => x.GeographicGroup)

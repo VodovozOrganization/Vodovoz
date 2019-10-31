@@ -25,8 +25,10 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public QueryOver<Car> ActiveCompanyCarsQuery()
 		{
+			var isCompanyHavingRestriction = Restrictions.In(Projections.Property<Car>(x => x.TypeOfUse), Car.GetCompanyHavingsTypes());
 			return QueryOver.Of<Car>()
-							.Where(x => x.IsCompanyHavings && !x.IsArchive);
+				.Where(isCompanyHavingRestriction)
+				.Where(x => !x.IsArchive);
 		}
 
 		public QueryOver<Car> ActiveCarsQuery()
