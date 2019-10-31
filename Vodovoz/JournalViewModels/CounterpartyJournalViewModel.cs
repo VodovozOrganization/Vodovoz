@@ -4,9 +4,8 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Contacts;
-using QS.DomainModel.Config;
+using QS.DomainModel.UoW;
 using QS.Services;
-using QS.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
@@ -15,7 +14,7 @@ namespace Vodovoz.JournalViewModels
 {
 	public class CounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
-		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
+		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал контрагентов";
 			UpdateOnChanges(
@@ -27,7 +26,7 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
-		protected override Func<IQueryOver<Counterparty>> ItemsSourceQueryFunction => () => {
+		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
 			CounterpartyJournalNode resultAlias = null;
 			Counterparty counterpartyAlias = null;
 			Counterparty counterpartyAliasForSubquery = null;
@@ -37,7 +36,7 @@ namespace Vodovoz.JournalViewModels
 			DeliveryPoint deliveryPointAlias = null;
 			Tag tagAliasForSubquery = null;
 
-			var query = UoW.Session.QueryOver<Counterparty>(() => counterpartyAlias);
+			var query = uow.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
 			if(FilterViewModel != null && !FilterViewModel.RestrictIncludeArchive) {
 				query.Where(c => !c.IsArchive);

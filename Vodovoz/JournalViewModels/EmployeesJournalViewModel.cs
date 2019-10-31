@@ -4,6 +4,8 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Config;
+using QS.DomainModel.UoW;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
@@ -16,27 +18,28 @@ namespace Vodovoz.JournalViewModels
 	{
 		public EmployeesJournalViewModel(
 			EmployeeFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices
 		) : base(
 			filterViewModel,
+			unitOfWorkFactory,
 			commonServices
 		)
 		{
-			SetOrder(
-				new Dictionary<Func<EmployeeJournalNode, object>, bool> {
-					{x => x.EmpLastName , false},
-					{x => x.EmpFirstName , false},
-					{x => x.EmpMiddleName , false}
-				}
-			);
+
+			var threadLoader = DataLoader as ThreadDataLoader<EmployeeJournalNode>;
+			threadLoader.MergeInOrderBy(x => x.EmpLastName, false);
+			threadLoader.MergeInOrderBy(x => x.EmpFirstName, false);
+			threadLoader.MergeInOrderBy(x => x.EmpMiddleName, false);
+
 			UpdateOnChanges(typeof(Employee));
 		}
 
-		protected override Func<IQueryOver<Employee>> ItemsSourceQueryFunction => () => {
+		protected override Func<IUnitOfWork, IQueryOver<Employee>> ItemsSourceQueryFunction => (uow) => {
 			EmployeeJournalNode resultAlias = null;
 			Employee employeeAlias = null;
 
-			var query = UoW.Session.QueryOver(() => employeeAlias);
+			var query = uow.Session.QueryOver(() => employeeAlias);
 
 			if(!FilterViewModel.ShowFired)
 				query.Where(e => !e.IsFired);

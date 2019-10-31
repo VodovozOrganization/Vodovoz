@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using NHibernate;
 using NHibernate.Transform;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.JournalNodes;
@@ -13,23 +15,21 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 {
 	public class SalesPlanJournalViewModel : SingleEntityJournalViewModelBase<SalesPlan, SalesPlanViewModel, SalesPlanJournalNode>
 	{
-		public SalesPlanJournalViewModel(ICommonServices commonServices) : base(commonServices)
+		public SalesPlanJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал планов продаж";
-			SetOrder(
-				new Dictionary<Func<SalesPlanJournalNode, object>, bool> {
-					{ x => x.IsArchive, false },
-					{ x => x.Id, false }
-				}
-			);
+
+			var threadLoader = DataLoader as ThreadDataLoader<SalesPlanJournalNode>;
+			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
+			threadLoader.MergeInOrderBy(x => x.Id, false);
 
 			UpdateOnChanges(typeof(SalesPlan));
 		}
 
-		protected override Func<IQueryOver<SalesPlan>> ItemsSourceQueryFunction => () => {
+		protected override Func<IUnitOfWork, IQueryOver<SalesPlan>> ItemsSourceQueryFunction => (uow) => {
 			SalesPlanJournalNode resultAlias = null;
 
-			var query = UoW.Session.QueryOver<SalesPlan>();
+			var query = uow.Session.QueryOver<SalesPlan>();
 			query.Where(
 				GetSearchCriterion<SalesPlan>(
 					x => x.Id
