@@ -222,7 +222,10 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Самовывоз")]
 		public virtual bool SelfDelivery {
 			get => selfDelivery;
-			set => SetField(ref selfDelivery, value, () => SelfDelivery);
+			set {
+				if(SetField(ref selfDelivery, value, () => SelfDelivery) && value)
+					IsContractCloser = false;
+			}
 		}
 
 		bool payAfterShipment;
