@@ -306,17 +306,6 @@ namespace Vodovoz.Domain.Logistic
 
 	public enum CarTypeOfUse
 	{
-		//Временные, удалить при завершении задачи
-		[Display(Name = "[Не выбирать]Ларгус")]
-		Largus,
-		[Display(Name = "[Не выбирать]Фура")]
-		Truck,
-		[Display(Name = "[Не выбирать]ГАЗель")]
-		GAZelle,
-		[Display(Name = "[Не выбирать]Автомобиль")]
-		Other,
-		//Временные
-
 		[Display(Name = "Ларгус компании")]
 		CompanyLargus,
 		[Display(Name = "Фура компании")]
