@@ -213,6 +213,7 @@ namespace Vodovoz.Views.Logistic
 			};
 			buttonWarnings.Clicked += (sender, e) => ViewModel.ShowWarningsCommand.Execute();
 			ytreeviewOnDayDrivers.RowActivated += OnButtonDriverSelectAutoClicked;
+			buttonFilter.Clicked += (sender, e) => FillItems();
 		}
 
 		void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
@@ -454,7 +455,7 @@ namespace Vodovoz.Views.Logistic
 				}
 
 				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
-					PointMarkerShape shape = ViewModel.GetMarkerShape(order.Total19LBottlesToDeliver);
+					PointMarkerShape shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver);
 
 					PointMarkerType type = PointMarkerType.black;
 					if(route == null) {
@@ -545,7 +546,7 @@ namespace Vodovoz.Views.Logistic
 				return;
 			pixbufMarkers = new Pixbuf[ViewModel.RoutesOnDay.Count];
 			for(int i = 0; i < ViewModel.RoutesOnDay.Count; i++) {
-				PointMarkerShape shape = ViewModel.GetMarkerShape(ViewModel.RoutesOnDay[i].TotalFullBottlesToClient);
+				PointMarkerShape shape = ViewModel.GetMarkerShapeFromBottleQuantity(ViewModel.RoutesOnDay[i].TotalFullBottlesToClient);
 				pixbufMarkers[i] = PointMarker.GetIconPixbuf(ViewModel.GetAddressMarker(i).ToString(), shape);
 			}
 		}

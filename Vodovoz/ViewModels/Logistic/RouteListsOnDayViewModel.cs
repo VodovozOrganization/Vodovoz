@@ -747,7 +747,7 @@ namespace Vodovoz.ViewModels.Logistic
 			return shape;
 		}
 
-		PointMarkerShape GetMarkerShapeFromBottleQuantity(int bottlesCount)
+		public PointMarkerShape GetMarkerShapeFromBottleQuantity(int bottlesCount)
 		{
 			if(bottlesCount < 6)
 				return PointMarkerShape.triangle;

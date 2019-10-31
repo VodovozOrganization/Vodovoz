@@ -26,31 +26,31 @@ namespace Vodovoz.Dialogs.Logistic
 					PointMarker.GetIconPixbuf("red", PointMarkerShape.triangle),
 					PointMarker.GetIconPixbuf("orange", PointMarkerShape.triangle),
 					PointMarker.GetIconPixbuf("green", PointMarkerShape.triangle),
-					"Адрес с количеством бутылей менее 6 шт."
+					"Адрес с количеством бутылей не более 5 шт."
 				},
 				new object[] {
 					PointMarker.GetIconPixbuf("red", PointMarkerShape.circle),
 					PointMarker.GetIconPixbuf("orange", PointMarkerShape.circle),
 					PointMarker.GetIconPixbuf("green", PointMarkerShape.circle),
-					"Адрес с количеством бутылей 6-10 шт."
+					"Адрес с количеством бутылей 6-9 шт."
 				},
 				new object[] {
 					PointMarker.GetIconPixbuf("red", PointMarkerShape.square),
 					PointMarker.GetIconPixbuf("orange", PointMarkerShape.square),
 					PointMarker.GetIconPixbuf("green", PointMarkerShape.square),
-					"Адрес с количеством бутылей 10-20 шт."
+					"Адрес с количеством бутылей 10-19 шт."
 				},
 				new object[] {
 					PointMarker.GetIconPixbuf("red", PointMarkerShape.cross),
 					PointMarker.GetIconPixbuf("orange", PointMarkerShape.cross),
 					PointMarker.GetIconPixbuf("green", PointMarkerShape.cross),
-					"Адрес с количеством бутылей 20-40 шт."
+					"Адрес с количеством бутылей 20-39 шт."
 				},
 				new object[] {
 					PointMarker.GetIconPixbuf("red", PointMarkerShape.star),
 					PointMarker.GetIconPixbuf("orange", PointMarkerShape.star),
 					PointMarker.GetIconPixbuf("green", PointMarkerShape.star),
-					"Адрес с количеством бутылей более 40 шт."
+					"Адрес с количеством бутылей не менее 40 шт."
 				},
 					new object[] {
 					PointMarker.GetIconPixbuf("black", PointMarkerShape.circle),
