@@ -19,19 +19,22 @@ namespace Vodovoz.Dialogs.Fuel
 {
 	public class FuelWriteoffDocumentViewModel : EntityTabViewModelBase<FuelWriteoffDocument>
 	{
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly IEmployeeService employeeService;
 		private readonly IFuelRepository fuelRepository;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
 
 		public FuelWriteoffDocumentViewModel(
-			IEntityConstructorParam ctorParam,
+			IEntityUoWBuilder uoWBuilder, 
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IFuelRepository fuelRepository,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices) 
-		: base(ctorParam, commonServices)
+		: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -132,8 +135,8 @@ namespace Vodovoz.Dialogs.Fuel
 			AddWriteoffItemCommand = new DelegateCommand(
 				() => {
 					var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(x => x.Name,
-						() => new FuelTypeViewModel(EntityConstructorParam.ForCreate(), commonServices),
-						(node) => new FuelTypeViewModel(EntityConstructorParam.ForOpen(node.Id), commonServices),
+						() => new FuelTypeViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices),
+						(node) => new FuelTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					);

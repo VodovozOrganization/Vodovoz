@@ -14,8 +14,12 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 {
 	public class WageDistrictsJournalViewModel : SingleEntityJournalViewModelBase<WageDistrict, WageDistrictViewModel, WageDistrictJournalNode>
 	{
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+
 		public WageDistrictsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
 			TabName = "Журнал групп зарплатных районов";
 
 			var threadLoader = DataLoader as ThreadDataLoader<WageDistrictJournalNode>;
@@ -26,12 +30,14 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 		}
 
 		protected override Func<WageDistrictViewModel> CreateDialogFunction => () => new WageDistrictViewModel(
-			EntityConstructorParam.ForCreate(),
+			EntityUoWBuilder.ForCreate(),
+			unitOfWorkFactory,
 			commonServices
 		);
 
 		protected override Func<WageDistrictJournalNode, WageDistrictViewModel> OpenDialogFunction => n => new WageDistrictViewModel(
-			EntityConstructorParam.ForOpen(n.Id),
+			EntityUoWBuilder.ForOpen(n.Id),
+			unitOfWorkFactory,
 			commonServices
 		);
 

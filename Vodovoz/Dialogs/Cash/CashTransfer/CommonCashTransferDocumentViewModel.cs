@@ -11,6 +11,7 @@ using Vodovoz.ViewModelBased;
 using Vodovoz.Repository.Cash;
 using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
@@ -19,9 +20,9 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 		private IEnumerable<Subdivision> cashSubdivisions;
 		private IEnumerable<Subdivision> availableSubdivisionsForUser;
 
-		public CommonCashTransferDocumentViewModel(IEntityConstructorParam entityOpenOption) : base(entityOpenOption)
+		public CommonCashTransferDocumentViewModel(IEntityUoWBuilder entityUoWBuilder, IUnitOfWorkFactory factory) : base(entityUoWBuilder, factory)
 		{
-			if(entityOpenOption.IsNewEntity) {
+			if(entityUoWBuilder.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;
 				Entity.Author = Cashier;
 			}

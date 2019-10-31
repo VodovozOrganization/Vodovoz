@@ -36,6 +36,7 @@ namespace Vodovoz.JournalViewModels
 			this.moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
 			this.depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
 			this.bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			SetOrder(x => x.Date, true);
@@ -49,6 +50,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly IMoneyRepository moneyRepository;
 		private readonly IDepositRepository depositRepository;
 		private readonly IBottlesRepository bottlesRepository;
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices commonServices;
 
 		protected override Func<IUnitOfWork, IQueryOver<Residue>> ItemsSourceQueryFunction => (uow) => {
@@ -110,7 +112,8 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<ResidueViewModel> CreateDialogFunction => () => new ResidueViewModel(
-			EntityConstructorParam.ForCreate(), 
+			EntityUoWBuilder.ForCreate(),
+			unitOfWorkFactory,
 			employeeService, 
 			representationEntityPicker, 
 			bottlesRepository, 
@@ -120,7 +123,8 @@ namespace Vodovoz.JournalViewModels
 		);
 
 		protected override Func<ResidueJournalNode, ResidueViewModel> OpenDialogFunction => (node) => new ResidueViewModel(
-			EntityConstructorParam.ForOpen(node.Id), 
+			EntityUoWBuilder.ForOpen(node.Id),
+			unitOfWorkFactory,
 			employeeService, 
 			representationEntityPicker, 
 			bottlesRepository, 

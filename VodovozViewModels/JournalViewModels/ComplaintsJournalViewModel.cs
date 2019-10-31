@@ -32,6 +32,7 @@ namespace Vodovoz.JournalViewModels
 {
 	public class ComplaintsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<ComplaintJournalNode, ComplaintFilterViewModel>, IComplaintsInfoProvider
 	{
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices commonServices;
 		private readonly IUndeliveriesViewOpener undeliveriesViewOpener;
 		private readonly IEmployeeService employeeService;
@@ -70,6 +71,7 @@ namespace Vodovoz.JournalViewModels
 			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.undeliveriesViewOpener = undeliveriesViewOpener ?? throw new ArgumentNullException(nameof(undeliveriesViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -328,7 +330,8 @@ namespace Vodovoz.JournalViewModels
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
 					() => new CreateComplaintViewModel(
-						EntityConstructorParam.ForCreate(),
+						EntityUoWBuilder.ForCreate(),
+						unitOfWorkFactory,
 						employeeService,
 						counterpartySelectorFactory,
 						subdivisionRepository,
@@ -336,7 +339,8 @@ namespace Vodovoz.JournalViewModels
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
-						EntityConstructorParam.ForOpen(node.Id),
+						EntityUoWBuilder.ForOpen(node.Id),
+						unitOfWorkFactory,
 						commonServices,
 						undeliveriesViewOpener,
 						employeeService,
@@ -354,10 +358,17 @@ namespace Vodovoz.JournalViewModels
 				)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new CreateInnerComplaintViewModel(EntityConstructorParam.ForCreate(), employeeService, subdivisionRepository, commonServices),
+					() => new CreateInnerComplaintViewModel(
+						EntityUoWBuilder.ForCreate(),
+						unitOfWorkFactory,
+						employeeService, 
+						subdivisionRepository, 
+						commonServices
+					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(
-						EntityConstructorParam.ForOpen(node.Id),
+						EntityUoWBuilder.ForOpen(node.Id),
+						unitOfWorkFactory,
 						commonServices,
 						undeliveriesViewOpener,
 						employeeService,
@@ -443,7 +454,8 @@ namespace Vodovoz.JournalViewModels
 						ComplaintViewModel currentComplaintVM = null;
 						if(currentComplaintId.HasValue) {
 							currentComplaintVM = new ComplaintViewModel(
-								EntityConstructorParam.ForOpen(currentComplaintId.Value),
+								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
+								unitOfWorkFactory,
 								commonServices,
 								undeliveriesViewOpener,
 								employeeService,
@@ -468,7 +480,8 @@ namespace Vodovoz.JournalViewModels
 						ComplaintViewModel currentComplaintVM = null;
 						if(currentComplaintId.HasValue) {
 							currentComplaintVM = new ComplaintViewModel(
-								EntityConstructorParam.ForOpen(currentComplaintId.Value),
+								EntityUoWBuilder.ForOpen(currentComplaintId.Value),
+								unitOfWorkFactory,
 								commonServices,
 								undeliveriesViewOpener,
 								employeeService,

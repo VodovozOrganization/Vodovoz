@@ -1384,8 +1384,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		var complaintSourcesViewModel = new SimpleEntityJournalViewModel<ComplaintSource, ComplaintSourceViewModel>(
 			x => x.Name,
-			() => new ComplaintSourceViewModel(EntityConstructorParam.ForCreate(), ServicesConfig.CommonServices),
-			(node) => new ComplaintSourceViewModel(EntityConstructorParam.ForOpen(node.Id), ServicesConfig.CommonServices),
+			() => new ComplaintSourceViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
+			(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
 			 UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices
 		);
@@ -1396,8 +1396,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		var complaintResultsViewModel = new SimpleEntityJournalViewModel<ComplaintResult, ComplaintResultViewModel>(
 			x => x.Name,
-			() => new ComplaintResultViewModel(EntityConstructorParam.ForCreate(), ServicesConfig.CommonServices),
-			(node) => new ComplaintResultViewModel(EntityConstructorParam.ForOpen(node.Id), ServicesConfig.CommonServices),
+			() => new ComplaintResultViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
+			(node) => new ComplaintResultViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices
 		);

@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
@@ -8,7 +9,7 @@ namespace Vodovoz.Dialogs.Cash
 {
 	public class ExpenseCategoryViewModel : EntityTabViewModelBase<ExpenseCategory>
 	{
-		public ExpenseCategoryViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		public ExpenseCategoryViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 		}
 	}

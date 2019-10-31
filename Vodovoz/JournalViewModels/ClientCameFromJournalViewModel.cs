@@ -13,13 +13,14 @@ namespace Vodovoz.JournalViewModels
 {
 	public class ClientCameFromJournalViewModel : FilterableSingleEntityJournalViewModelBase<ClientCameFrom, ClientCameFromViewModel, ClientCameFromJournalNode, ClientCameFromFilterViewModel>
 	{
-		readonly ICommonServices commonServices;
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+
 		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
 			TabName = "Откуда клиент";
 			SetOrder(x => x.Name);
-
-			this.commonServices = commonServices;
 			UpdateOnChanges(typeof(ClientCameFrom));
 		}
 
@@ -49,12 +50,14 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<ClientCameFromViewModel> CreateDialogFunction => () => new ClientCameFromViewModel (
-			EntityConstructorParam.ForCreate(),
+			EntityUoWBuilder.ForCreate(),
+		   	unitOfWorkFactory,
 			commonServices
 		);
 
 		protected override Func<ClientCameFromJournalNode, ClientCameFromViewModel> OpenDialogFunction => node => new ClientCameFromViewModel(
-			EntityConstructorParam.ForOpen(node.Id),
+			EntityUoWBuilder.ForOpen(node.Id),
+		    unitOfWorkFactory,
 			commonServices
 		);
 	}

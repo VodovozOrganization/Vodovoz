@@ -20,18 +20,21 @@ namespace Vodovoz.ViewModels.Employees
 {
 	public class FineViewModel : EntityTabViewModelBase<Fine>
 	{
+		private readonly IUnitOfWorkFactory uowFactory;
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
 		private readonly IEntitySelectorFactory employeeSelectorFactory;
 
 		public FineViewModel(
-			IEntityConstructorParam ctorParam,
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory uowFactory,
 			IUndeliveriesViewOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
 			ICommonServices commonServices
-		) : base(ctorParam, commonServices)
+		) : base(uowBuilder, uowFactory, commonServices)
 		{
+			this.uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
@@ -197,8 +200,8 @@ namespace Vodovoz.ViewModels.Employees
 			SelectReasonTemplateCommand = new DelegateCommand(
 				() => {
 					var fineTemplatesJournalViewModel = new SimpleEntityJournalViewModel<FineTemplate, FineTemplateViewModel>(x => x.Reason,
-						() => new FineTemplateViewModel(EntityConstructorParam.ForCreate(), CommonServices),
-						(node) => new FineTemplateViewModel(EntityConstructorParam.ForOpen(node.Id), CommonServices),
+						() => new FineTemplateViewModel(EntityUoWBuilder.ForCreate(), uowFactory, CommonServices),
+						(node) => new FineTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), uowFactory, CommonServices),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
 					);

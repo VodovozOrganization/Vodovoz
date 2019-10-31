@@ -9,7 +9,6 @@ using QS.Validation.GtkUI;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.ViewModelBased;
 
 namespace Vodovoz
 {
@@ -72,19 +71,10 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public DailyRentAgreementDlg(IEntityConstructorParam ctorParam)
+		public DailyRentAgreementDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			this.Build();
-			if(!ctorParam.IsNewEntity) {
-				UoWGeneric = ctorParam.RootUoW != null
-					? UnitOfWorkFactory.CreateForChildRoot(ctorParam.RootUoW.GetById<DailyRentAgreement>(ctorParam.EntityOpenId), ctorParam.RootUoW)
-					: UnitOfWorkFactory.CreateForRoot<DailyRentAgreement>(ctorParam.EntityOpenId);
-			} else {
-				UoWGeneric = ctorParam.RootUoW != null
-					? UnitOfWorkFactory.CreateWithNewChildRoot<DailyRentAgreement>(ctorParam.RootUoW)
-					: UnitOfWorkFactory.CreateWithNewRoot<DailyRentAgreement>();
-			}
-
+			UoWGeneric = uowBuilder.CreateUoW<DailyRentAgreement>(unitOfWorkFactory);
 			ConfigureDlg();
 		}
 

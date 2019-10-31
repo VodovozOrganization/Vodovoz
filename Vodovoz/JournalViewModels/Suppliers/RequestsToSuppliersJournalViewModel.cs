@@ -21,6 +21,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 	public class RequestsToSuppliersJournalViewModel : FilterableSingleEntityJournalViewModelBase<RequestToSupplier, RequestToSupplierViewModel, RequestToSupplierJournalNode, RequestsToSuppliersFilterViewModel>
 	{
 		readonly RequestsToSuppliersFilterViewModel filterViewModel;
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		readonly ICommonServices commonServices;
 		readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 		readonly IEmployeeService employeeService;
@@ -37,6 +38,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.filterViewModel = filterViewModel;
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			TabName = "Журнал заявок поставщикам";
 			SetOrder(c => c.Id, true);
 
@@ -95,14 +97,16 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		};
 
 		protected override Func<RequestToSupplierViewModel> CreateDialogFunction => () => new RequestToSupplierViewModel(
-			EntityConstructorParam.ForCreate(),
+			EntityUoWBuilder.ForCreate(),
+			unitOfWorkFactory,
 			commonServices,
 			employeeService,
 			supplierPriceItemsRepository
 		);
 
 		protected override Func<RequestToSupplierJournalNode, RequestToSupplierViewModel> OpenDialogFunction => n => new RequestToSupplierViewModel(
-			EntityConstructorParam.ForOpen(n.Id),
+			EntityUoWBuilder.ForOpen(n.Id),
+			unitOfWorkFactory,
 			commonServices,
 			employeeService,
 			supplierPriceItemsRepository

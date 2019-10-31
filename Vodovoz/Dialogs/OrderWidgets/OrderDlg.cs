@@ -836,7 +836,7 @@ namespace Vodovoz
 			   && SaveOrderBeforeContinue<M2ProxyDocument>()) {
 				TabParent.OpenTab(
 					DialogHelper.GenerateDialogHashName<M2ProxyDocument>(0),
-					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), EntityConstructorParam.ForCreateInChildUoW(UoW))
+					() => OrmMain.CreateObjectDialog(typeof(M2ProxyDocument), EntityUoWBuilder.ForCreateInChildUoW(UoW), UnitOfWorkFactory.GetDefaultFactory)
 				);
 			}
 		}
@@ -898,7 +898,7 @@ namespace Vodovoz
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName(type, agreement.Id),
 							() => {
-								var dialog = OrmMain.CreateObjectDialog(type, EntityConstructorParam.ForOpenInChildUoW(agreement.Id, UoW));
+								var dialog = OrmMain.CreateObjectDialog(type, EntityUoWBuilder.ForOpenInChildUoW(agreement.Id, UoW), UnitOfWorkFactory.GetDefaultFactory);
 								if(dialog is IAgreementSaved)
 									(dialog as IAgreementSaved).AgreementSaved += AgreementSaved;
 								return dialog;

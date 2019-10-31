@@ -17,7 +17,6 @@ using NHibernate.Criterion;
 using Vodovoz.EntityRepositories.Fuel;
 using QS.Services;
 using QS.Project.Domain;
-using QS.DomainModel.Config;
 using Vodovoz.Domain.Cash;
 using System.Linq;
 
@@ -26,19 +25,22 @@ namespace Vodovoz.Representations
 	public class FuelDocumentsJournalViewModel : MultipleEntityModelBase<FuelDocumentVMNode>
 	{
 		private readonly IEmployeeService employeeService;
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices services;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IFuelRepository fuelRepository;
 		private readonly IRepresentationEntityPicker representationEntityPicker;
 
 		public FuelDocumentsJournalViewModel(
-			IEmployeeService employeeService, 
+			IEmployeeService employeeService,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices services, 
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository, 
 			IRepresentationEntityPicker representationEntityPicker)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.services = services ?? throw new ArgumentNullException(nameof(services));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
@@ -140,9 +142,9 @@ namespace Vodovoz.Representations
 				//заголовок действия для создания нового документа
 				"Входящая накладная",
 				//функция диалога создания документа
-				() => new FuelIncomeInvoiceViewModel(EntityConstructorParam.ForCreate(), employeeService, representationEntityPicker, subdivisionRepository, fuelRepository, services),
+				() => new FuelIncomeInvoiceViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, employeeService, representationEntityPicker, subdivisionRepository, fuelRepository, services),
 				//функция диалога открытия документа
-				(node) => new FuelIncomeInvoiceViewModel(EntityConstructorParam.ForOpen(node.DocumentId), employeeService, representationEntityPicker, subdivisionRepository, fuelRepository, services)
+				(node) => new FuelIncomeInvoiceViewModel(EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, employeeService, representationEntityPicker, subdivisionRepository, fuelRepository, services)
 			);
 
 			//завершение конфигурации
@@ -196,9 +198,9 @@ namespace Vodovoz.Representations
 				//заголовок действия для создания нового документа
 				"Перемещение",
 				//функция диалога создания документа
-				() =>  new FuelTransferDocumentViewModel(EntityConstructorParam.ForCreate(), employeeService, subdivisionRepository, fuelRepository, services),
+				() =>  new FuelTransferDocumentViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, employeeService, subdivisionRepository, fuelRepository, services),
 				//функция диалога открытия документа
-				(node) => new FuelTransferDocumentViewModel(EntityConstructorParam.ForOpen(node.DocumentId), employeeService, subdivisionRepository, fuelRepository, services)
+				(node) => new FuelTransferDocumentViewModel(EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, employeeService, subdivisionRepository, fuelRepository, services)
 			);
 
 			//завершение конфигурации
@@ -258,9 +260,9 @@ namespace Vodovoz.Representations
 				//заголовок действия для создания нового документа
 				"Акт выдачи топлива",
 				//функция диалога создания документа
-				() => new FuelWriteoffDocumentViewModel(EntityConstructorParam.ForCreate(), employeeService, fuelRepository, subdivisionRepository, services),
+				() => new FuelWriteoffDocumentViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, employeeService, fuelRepository, subdivisionRepository, services),
 				//функция диалога открытия документа
-				(node) => new FuelWriteoffDocumentViewModel(EntityConstructorParam.ForOpen(node.DocumentId), employeeService, fuelRepository, subdivisionRepository, services)
+				(node) => new FuelWriteoffDocumentViewModel(EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, employeeService, fuelRepository, subdivisionRepository, services)
 			);
 
 			//завершение конфигурации

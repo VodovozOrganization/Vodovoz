@@ -15,8 +15,12 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 {
 	public class SalesPlanJournalViewModel : SingleEntityJournalViewModelBase<SalesPlan, SalesPlanViewModel, SalesPlanJournalNode>
 	{
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+
 		public SalesPlanJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
 			TabName = "Журнал планов продаж";
 
 			var threadLoader = DataLoader as ThreadDataLoader<SalesPlanJournalNode>;
@@ -51,13 +55,15 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 		};
 
 		protected override Func<SalesPlanViewModel> CreateDialogFunction => () => new SalesPlanViewModel(
-		   EntityConstructorParam.ForCreate(),
-		   commonServices
+			EntityUoWBuilder.ForCreate(),
+			unitOfWorkFactory,
+			commonServices
 		);
 
-		protected override Func<SalesPlanJournalNode, SalesPlanViewModel> OpenDialogFunction => n => new SalesPlanViewModel(
-		   EntityConstructorParam.ForOpen(n.Id),
-		   commonServices
+		protected override Func<SalesPlanJournalNode, SalesPlanViewModel> OpenDialogFunction => node => new SalesPlanViewModel(
+			EntityUoWBuilder.ForOpen(node.Id),
+			unitOfWorkFactory,
+			commonServices
 	   	);
 	}
 }

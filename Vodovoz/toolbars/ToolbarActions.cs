@@ -282,8 +282,9 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			DialogHelper.GenerateDialogHashName<RequestToSupplier>(0),
 			() => new RequestToSupplierViewModel(
-				EntityConstructorParam.ForCreate(),
-				QS.Project.Services.ServicesConfig.CommonServices,
+				EntityUoWBuilder.ForCreate(),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
 				VodovozGtkServicesConfig.EmployeeService,
 				new SupplierPriceItemsRepository()
 			)
@@ -454,7 +455,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			RepresentationJournalDialog.GenerateHashName<CashTransferDocumentVM>(),
 			() => {
-				var vm = new CashTransferDocumentVM();
+				var vm = new CashTransferDocumentVM(UnitOfWorkFactory.GetDefaultFactory);
 				return new MultipleEntityJournal("Журнал перемещения д/с", vm, vm);
 			}
 		);
@@ -467,7 +468,7 @@ public partial class MainWindow : Window
 			() => {
 				SubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 				FuelRepository fuelRepository = new FuelRepository();
-				var vm = new FuelDocumentsJournalViewModel(VodovozGtkServicesConfig.EmployeeService, QS.Project.Services.ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, VodovozGtkServicesConfig.RepresentationEntityPicker);
+				var vm = new FuelDocumentsJournalViewModel(VodovozGtkServicesConfig.EmployeeService, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, VodovozGtkServicesConfig.RepresentationEntityPicker);
 				return new MultipleEntityJournal("Журнал учета топлива", vm, vm);
 			}
 		);
