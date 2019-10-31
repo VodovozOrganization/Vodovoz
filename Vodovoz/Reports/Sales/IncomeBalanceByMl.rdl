@@ -76,7 +76,7 @@
             <Width>40.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>59.9pt</Width>
+            <Width>60.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>40.8pt</Width>
@@ -477,6 +477,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -496,7 +500,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -515,7 +524,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -534,7 +548,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -553,7 +572,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -572,7 +596,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -591,7 +620,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -610,7 +644,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -629,7 +668,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -648,7 +692,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -667,7 +716,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -686,7 +740,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -705,6 +764,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -728,6 +791,10 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -748,7 +815,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -767,7 +839,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -786,7 +863,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -794,7 +876,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
+        <Left>1.6pt</Left>
         <Top>19.0pt</Top>
         <Footer>
           <TableRows>
@@ -1578,7 +1660,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1597,7 +1684,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1616,7 +1708,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1635,6 +1732,10 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1656,6 +1757,10 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1675,7 +1780,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1694,7 +1804,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1713,7 +1828,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1732,7 +1852,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1751,7 +1876,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1770,7 +1900,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1789,7 +1924,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1808,7 +1948,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1827,7 +1972,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1846,7 +1996,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1865,7 +2020,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1884,7 +2044,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2329,7 +2494,7 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id AS number,
@@ -2483,7 +2648,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>
