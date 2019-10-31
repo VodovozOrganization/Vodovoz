@@ -1145,7 +1145,7 @@
 	employees.category
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN wage_parameters w ON w.employee_id = employees.id
+LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 LEFT JOIN cars ON employees.id = cars.driver_id
 WHERE
 	wages_movement_operations.operation_time &lt;= @date
@@ -1192,7 +1192,7 @@ ORDER BY driver
 	employees.category
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN wage_parameters w ON w.employee_id = employees.id
+LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND w.wage_type != 'Manual'
@@ -1234,7 +1234,7 @@ ORDER BY driver
 	employees.category
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN wage_parameters w ON w.employee_id = employees.id
+LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 LEFT JOIN cars ON employees.id = cars.driver_id
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
@@ -1279,7 +1279,7 @@ ORDER BY driver
 	employees.category
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN wage_parameters w ON w.employee_id = employees.id
+LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 LEFT JOIN cars ON employees.id = cars.driver_id
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
@@ -1321,7 +1321,7 @@ ORDER BY driver
         <CommandText>SELECT SUM(wages_movement_operations.money) AS balance
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN wage_parameters w ON w.employee_id = employees.id
+LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND w.wage_type != 'Manual'
 	AND wages_movement_operations.employee_id IN (@drivers)
@@ -1352,7 +1352,7 @@ HAVING balance &lt;&gt; 0
 	employees.category
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN wage_parameters w ON w.employee_id = employees.id
+LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 LEFT JOIN cars ON employees.id = cars.driver_id
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
