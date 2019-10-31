@@ -78,7 +78,7 @@ namespace VodovozBusinessTests.Domain.Logistic
 			//arrange
 			RouteList routeList = new RouteList();
 			routeList.Car = Substitute.For<Car>();
-			routeList.Car.IsCompanyHavings.Returns(true);
+			routeList.Car.IsCompanyCar.Returns(true);
 			routeList.Car.TypeOfUse.Returns(CarTypeOfUse.CompanyLargus);
 			routeList.Driver = Substitute.For<Employee>();
 			routeList.Driver.VisitingMaster.Returns(false);
@@ -97,7 +97,7 @@ namespace VodovozBusinessTests.Domain.Logistic
 			RouteList routeList = new RouteList();
 			routeList.Date = new DateTime(2019, 09, 25);
 			routeList.Car = Substitute.For<Car>();
-			routeList.Car.IsCompanyHavings.Returns(false);
+			routeList.Car.IsCompanyCar.Returns(false);
 			routeList.Car.TypeOfUse.Returns(CarTypeOfUse.CompanyGAZelle);
 			routeList.Driver = Substitute.For<Employee>();
 			routeList.Driver.VisitingMaster.Returns(false);
@@ -118,7 +118,7 @@ namespace VodovozBusinessTests.Domain.Logistic
 			RouteList routeList = new RouteList();
 			routeList.Date = new DateTime(2019, 09, 25);
 			routeList.Car = Substitute.For<Car>();
-			routeList.Car.IsCompanyHavings.Returns(false);
+			routeList.Car.IsCompanyCar.Returns(false);
 			routeList.Car.TypeOfUse.Returns(CarTypeOfUse.CompanyGAZelle);
 			routeList.Driver = Substitute.For<Employee>();
 			routeList.Driver.VisitingMaster.Returns(false);

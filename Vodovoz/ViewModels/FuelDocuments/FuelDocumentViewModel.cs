@@ -366,7 +366,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				Car car = RouteList.Car;
 				Employee driver = RouteList.Driver;
 
-				if(car.IsCompanyHavings) 
+				if(car.IsCompanyCar) 
 					driver = null;
 				else 
 					car = null;

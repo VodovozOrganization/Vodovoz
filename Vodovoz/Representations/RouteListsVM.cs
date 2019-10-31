@@ -77,17 +77,17 @@ namespace Vodovoz.ViewModel
 			//логика фильтра ТС
 			switch(Filter.RestrictTransport) {
 				case RLFilterTransport.Mercenaries:
-					query.Where(() => !carAlias.IsCompanyHavings && !carAlias.IsRaskat); break;
+					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar && !carAlias.IsRaskat); break;
 				case RLFilterTransport.Raskat:
 					query.Where(() => carAlias.IsRaskat); break;
 				case RLFilterTransport.Largus:
-					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.CompanyLargus); break;
+					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyLargus); break;
 				case RLFilterTransport.GAZelle:
-					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.CompanyGAZelle); break;
+					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyGAZelle); break;
 				case RLFilterTransport.Waggon:
-					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.CompanyTruck); break;
+					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyTruck); break;
 				case RLFilterTransport.Others:
-					query.Where(() => carAlias.IsCompanyHavings && carAlias.TypeOfUse == CarTypeOfUse.DriverCar); break;
+					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar); break;
 				default: break;
 			}
 

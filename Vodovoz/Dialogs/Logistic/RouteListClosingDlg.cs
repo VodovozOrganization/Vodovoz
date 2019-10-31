@@ -805,7 +805,7 @@ namespace Vodovoz
 				Car car = Entity.Car;
 				Employee driver = Entity.Driver;
 
-				if(car.IsCompanyHavings)
+				if(car.IsCompanyCar)
 					driver = null;
 				else
 					car = null;

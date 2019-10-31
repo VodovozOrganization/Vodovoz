@@ -39,7 +39,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public bool DriverOfOurCar => rl.Car.IsCompanyHavings;
+		public bool DriverOfOurCar => rl.Car.IsCompanyCar;
 
 		public bool IsLargus => rl.Car.TypeOfUse.HasValue && rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyLargus;
 

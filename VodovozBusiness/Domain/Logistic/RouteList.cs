@@ -965,7 +965,7 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		private bool NeedMileageCheckByWage {
 			get {
-				if(Car.IsCompanyHavings) {
+				if(Car.IsCompanyCar) {
 					return true;
 				}
 				var actualWageParameter = Driver.GetActualWageParameter(Date);
@@ -1246,8 +1246,8 @@ namespace Vodovoz.Domain.Logistic
 				}
 				decimal litresOutlayed = (decimal)Car.FuelConsumption / 100 * ConfirmedDistance;
 
-				FuelOutlayedOperation.Driver = Car.IsCompanyHavings ? null : Driver;
-				FuelOutlayedOperation.Car = Car.IsCompanyHavings ? Car : null;
+				FuelOutlayedOperation.Driver = Car.IsCompanyCar ? null : Driver;
+				FuelOutlayedOperation.Car = Car.IsCompanyCar ? Car : null;
 				FuelOutlayedOperation.Fuel = Car.FuelType;
 				FuelOutlayedOperation.OperationTime = Date;
 				FuelOutlayedOperation.LitersOutlayed = litresOutlayed;

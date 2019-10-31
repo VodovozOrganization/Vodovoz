@@ -44,10 +44,7 @@
 						LEFT JOIN
 					cars ON cars.id = route_lists.car_id
 				WHERE
-					(is_company_havings = 0
-						OR (is_company_havings = 1
-						AND (cars.type_of_use &lt;&gt; 'CompanyTruck'
-						OR cars.type_of_use IS NULL)))
+					(cars.type_of_use = 'DriverCar' OR cars.type_of_use IS NULL OR cars.type_of_use &lt;&gt; 'CompanyTruck')
 						AND route_list_addresses.status = 'Completed'
 						AND route_list_addresses.route_list_id = routeListId),
 			0) AS paytelephone,

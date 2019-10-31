@@ -99,10 +99,10 @@ namespace Vodovoz
 			referenceCar.ChangedByUser += (sender, e) => {
 				if(Entity.Car != null) {
 					Entity.Driver = (Entity.Car.Driver != null && !Entity.Car.Driver.IsFired) ? Entity.Car.Driver : null;
-					referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyHavings;
+					referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyCar;
 					//Водители на Авто компании катаются без экспедитора
-					Entity.Forwarder = Entity.Car.IsCompanyHavings ? null : Entity.Forwarder;
-					referenceForwarder.IsEditable = !Entity.Car.IsCompanyHavings;
+					Entity.Forwarder = Entity.Car.IsCompanyCar ? null : Entity.Forwarder;
+					referenceForwarder.IsEditable = !Entity.Car.IsCompanyCar;
 				}
 			};
 
