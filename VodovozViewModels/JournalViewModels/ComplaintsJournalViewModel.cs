@@ -190,12 +190,17 @@ namespace Vodovoz.JournalViewModels
 				Projections.Property(() => dicussionAlias.PlannedCompletionDate),
 				Projections.Constant("\n"));
 
+			var lastPlannedCompletionDateProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.DateTime, "MAX(DISTINCT ?1)"),
+				NHibernateUtil.DateTime,
+				Projections.Property(() => dicussionAlias.PlannedCompletionDate));
+
 			var counterpartyWithAddressProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(', ', ?1, COMPILE_ADDRESS(?2))"),
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS('\n', ?1, COMPILE_ADDRESS(?2))"),
 				NHibernateUtil.String,
 				Projections.Property(() => counterpartyAlias.Name),
 				Projections.Property(() => deliveryPointAlias.Id));
-
+			    
 			var guiltyEmployeeProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
 				NHibernateUtil.String,
@@ -217,7 +222,7 @@ namespace Vodovoz.JournalViewModels
 				NHibernateUtil.String,
 				Projections.Property(() => complaintGuiltyItemAlias.GuiltyType),
 				guiltyEmployeeProjection,
-				Projections.Property(() => guiltySubdivisionAlias.Name),
+				Projections.Property(() => guiltySubdivisionAlias.ShortName),
 				Projections.Constant("\n"));
 
 			var finesProjection = Projections.SqlFunction(
@@ -307,6 +312,7 @@ namespace Vodovoz.JournalViewModels
 				.Select(() => complaintAlias.Status).WithAlias(() => resultAlias.Status)
 				.Select(workInSubdivisionsProjection).WithAlias(() => resultAlias.WorkInSubdivision)
 				.Select(plannedCompletionDateProjection).WithAlias(() => resultAlias.PlannedCompletionDate)
+				.Select(lastPlannedCompletionDateProjection).WithAlias(() => resultAlias.LastPlannedCompletionDate)
 				.Select(counterpartyWithAddressProjection).WithAlias(() => resultAlias.ClientNameWithAddress)
 				.Select(guiltiesProjection).WithAlias(() => resultAlias.Guilties)
 				.Select(authorProjection).WithAlias(() => resultAlias.Author)
