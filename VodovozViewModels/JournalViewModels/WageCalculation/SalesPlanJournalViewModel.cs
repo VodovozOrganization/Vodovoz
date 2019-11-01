@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using NHibernate;
 using NHibernate.Transform;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.JournalNodes;
@@ -13,23 +15,25 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 {
 	public class SalesPlanJournalViewModel : SingleEntityJournalViewModelBase<SalesPlan, SalesPlanViewModel, SalesPlanJournalNode>
 	{
-		public SalesPlanJournalViewModel(ICommonServices commonServices) : base(commonServices)
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+
+		public SalesPlanJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
 			TabName = "Журнал планов продаж";
-			SetOrder(
-				new Dictionary<Func<SalesPlanJournalNode, object>, bool> {
-					{ x => x.IsArchive, false },
-					{ x => x.Id, false }
-				}
-			);
+
+			var threadLoader = DataLoader as ThreadDataLoader<SalesPlanJournalNode>;
+			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
+			threadLoader.MergeInOrderBy(x => x.Id, false);
 
 			UpdateOnChanges(typeof(SalesPlan));
 		}
 
-		protected override Func<IQueryOver<SalesPlan>> ItemsSourceQueryFunction => () => {
+		protected override Func<IUnitOfWork, IQueryOver<SalesPlan>> ItemsSourceQueryFunction => (uow) => {
 			SalesPlanJournalNode resultAlias = null;
 
-			var query = UoW.Session.QueryOver<SalesPlan>();
+			var query = uow.Session.QueryOver<SalesPlan>();
 			query.Where(
 				GetSearchCriterion<SalesPlan>(
 					x => x.Id
@@ -51,13 +55,15 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 		};
 
 		protected override Func<SalesPlanViewModel> CreateDialogFunction => () => new SalesPlanViewModel(
-		   EntityConstructorParam.ForCreate(),
-		   commonServices
+			EntityUoWBuilder.ForCreate(),
+			unitOfWorkFactory,
+			commonServices
 		);
 
-		protected override Func<SalesPlanJournalNode, SalesPlanViewModel> OpenDialogFunction => n => new SalesPlanViewModel(
-		   EntityConstructorParam.ForOpen(n.Id),
-		   commonServices
+		protected override Func<SalesPlanJournalNode, SalesPlanViewModel> OpenDialogFunction => node => new SalesPlanViewModel(
+			EntityUoWBuilder.ForOpen(node.Id),
+			unitOfWorkFactory,
+			commonServices
 	   	);
 	}
 }

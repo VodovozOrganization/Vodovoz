@@ -66,19 +66,10 @@ namespace Vodovoz
 
 		public CounterpartyDlg(Counterparty sub) : this(sub.Id) { }
 
-		public CounterpartyDlg(IEntityConstructorParam ctorParam)
+		public CounterpartyDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			this.Build();
-			if(ctorParam.IsNewEntity) {
-				UoWGeneric = ctorParam.RootUoW != null
-					? UnitOfWorkFactory.CreateWithNewChildRoot<Counterparty>(ctorParam.RootUoW)
-					: UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
-			} else {
-				UoWGeneric = ctorParam.RootUoW != null
-					? UnitOfWorkFactory.CreateForChildRoot(ctorParam.RootUoW.GetById<Counterparty>(ctorParam.EntityOpenId), ctorParam.RootUoW)
-					: UnitOfWorkFactory.CreateForRoot<Counterparty>(ctorParam.EntityOpenId);
-			}
-
+			UoWGeneric = uowBuilder.CreateUoW<Counterparty>(unitOfWorkFactory);
 			ConfigureDlg();
 		}
 

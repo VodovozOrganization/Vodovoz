@@ -1,32 +1,34 @@
 ﻿using System;
 using NHibernate;
 using NHibernate.Transform;
+using QS.DomainModel.UoW;
+using QS.Project.Domain;
 using QS.Services;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
-using QS.Project.Domain;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class ClientCameFromJournalViewModel : FilterableSingleEntityJournalViewModelBase<ClientCameFrom, ClientCameFromViewModel, ClientCameFromJournalNode, ClientCameFromFilterViewModel>
 	{
-		readonly ICommonServices commonServices;
-		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+
+		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
 			TabName = "Откуда клиент";
 			SetOrder(x => x.Name);
-
-			this.commonServices = commonServices;
 			UpdateOnChanges(typeof(ClientCameFrom));
 		}
 
-		protected override Func<IQueryOver<ClientCameFrom>> ItemsSourceQueryFunction => () => {
+		protected override Func<IUnitOfWork, IQueryOver<ClientCameFrom>> ItemsSourceQueryFunction => (uow) => {
 			ClientCameFrom clientCameFromAlias = null;
 			ClientCameFromJournalNode resultAlias = null;
 
-			var query = UoW.Session.QueryOver(() => clientCameFromAlias);
+			var query = uow.Session.QueryOver(() => clientCameFromAlias);
 			if(!FilterViewModel.RestrictArchive)
 				query.Where(() => !clientCameFromAlias.IsArchive);
 
@@ -48,12 +50,14 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<ClientCameFromViewModel> CreateDialogFunction => () => new ClientCameFromViewModel (
-			EntityConstructorParam.ForCreate(),
+			EntityUoWBuilder.ForCreate(),
+		   	unitOfWorkFactory,
 			commonServices
 		);
 
 		protected override Func<ClientCameFromJournalNode, ClientCameFromViewModel> OpenDialogFunction => node => new ClientCameFromViewModel(
-			EntityConstructorParam.ForOpen(node.Id),
+			EntityUoWBuilder.ForOpen(node.Id),
+		    unitOfWorkFactory,
 			commonServices
 		);
 	}

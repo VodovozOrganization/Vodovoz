@@ -4,7 +4,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.DomainModel.Config;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using Vodovoz.Domain.Employees;
@@ -16,19 +16,21 @@ namespace Vodovoz.JournalViewModels.Organization
 {
 	public class SubdivisionsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Subdivision, SubdivisionViewModel, SubdivisionJournalNode, SubdivisionFilterViewModel>
 	{
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices commonServices;
 
-		public SubdivisionsJournalViewModel(SubdivisionFilterViewModel filterViewModel, ICommonServices commonServices) : base(filterViewModel, commonServices)
+		public SubdivisionsJournalViewModel(SubdivisionFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			TabName = "Выбор подразделения";
 		}
 
-		protected override Func<IQueryOver<Subdivision>> ItemsSourceQueryFunction => () => {
+		protected override Func<IUnitOfWork, IQueryOver<Subdivision>> ItemsSourceQueryFunction => (uow) => {
 			Subdivision subdivisionAlias = null;
 			Employee chiefAlias = null;
 			SubdivisionJournalNode resultAlias = null;
-			var query = UoW.Session.QueryOver<Subdivision>(() => subdivisionAlias);
+			var query = uow.Session.QueryOver<Subdivision>(() => subdivisionAlias);
 
 			var firstLevelSubQuery = QueryOver.Of<Subdivision>().WhereRestrictionOn(x => x.ParentSubdivision).IsNull().Select(x => x.Id);
 			var secondLevelSubquery = QueryOver.Of<Subdivision>().WithSubquery.WhereProperty(x => x.ParentSubdivision.Id).In(firstLevelSubQuery).Select(x => x.Id);
@@ -63,8 +65,8 @@ namespace Vodovoz.JournalViewModels.Organization
 
 		};
 
-		protected override Func<SubdivisionViewModel> CreateDialogFunction => () => new SubdivisionViewModel(EntityConstructorParam.ForCreate(), commonServices);
+		protected override Func<SubdivisionViewModel> CreateDialogFunction => () => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices);
 
-		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction => (node) => new SubdivisionViewModel(EntityConstructorParam.ForOpen(node.Id), commonServices);
+		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction => (node) => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices);
 	}
 }

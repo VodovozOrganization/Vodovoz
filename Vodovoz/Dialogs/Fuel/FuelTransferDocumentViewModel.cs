@@ -17,6 +17,7 @@ using QS.DomainModel.NotifyChange;
 using Vodovoz.EntityRepositories.Fuel;
 using QS.Project.Domain;
 using QS.Services;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -27,11 +28,12 @@ namespace Vodovoz.Dialogs.Fuel
 		private readonly IFuelRepository fuelRepository;
 
 		public FuelTransferDocumentViewModel(
-			IEntityConstructorParam entityCtorParam,
+			IEntityUoWBuilder uoWBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository,
-			ICommonServices commonServices) : base(entityCtorParam, commonServices)
+			ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -50,7 +52,7 @@ namespace Vodovoz.Dialogs.Fuel
 			UpdateFuelTypes();
 			UpdateBalanceCache();
 
-			if(entityCtorParam.IsNewEntity) {
+			if(uoWBuilder.IsNewEntity) {
 				Entity.CreationTime = DateTime.Now;
 				Entity.Author = CurrentEmployee;
 			}

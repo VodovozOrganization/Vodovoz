@@ -31,13 +31,14 @@ namespace Vodovoz.Dialogs.Fuel
 
 		public FuelIncomeInvoiceViewModel
 		(
-			IEntityConstructorParam entityCtorParam, 
+			IEntityUoWBuilder uoWBuilder, 
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IRepresentationEntityPicker entityPicker,
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository,
 			ICommonServices commonServices
-		) : base(entityCtorParam, commonServices)
+		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService;
 			this.entityPicker = entityPicker ?? throw new ArgumentNullException(nameof(entityPicker));
@@ -49,7 +50,7 @@ namespace Vodovoz.Dialogs.Fuel
 				AbortOpening("К вашему пользователю не привязан сотрудник, невозможно открыть документ");
 			}
 
-			if(entityCtorParam.IsNewEntity) {
+			if(uoWBuilder.IsNewEntity) {
 				Entity.СreationTime = DateTime.Now;
 				Entity.Author = CurrentEmployee;
 			}

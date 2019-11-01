@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using NHibernate;
 using NHibernate.Transform;
-using QS.DomainModel.Config;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.JournalNodes;
@@ -14,33 +14,37 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 {
 	public class WageDistrictsJournalViewModel : SingleEntityJournalViewModelBase<WageDistrict, WageDistrictViewModel, WageDistrictJournalNode>
 	{
-		public WageDistrictsJournalViewModel(ICommonServices commonServices) : base(commonServices)
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+
+		public WageDistrictsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
 			TabName = "Журнал групп зарплатных районов";
-			SetOrder(
-				new Dictionary<Func<WageDistrictJournalNode, object>, bool> {
-					{ x => x.IsArchive, false },
-					{ x => x.Name, false }
-				}
-			);
+
+			var threadLoader = DataLoader as ThreadDataLoader<WageDistrictJournalNode>;
+			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
+			threadLoader.MergeInOrderBy(x => x.Name, false);
 
 			UpdateOnChanges(typeof(WageDistrict));
 		}
 
 		protected override Func<WageDistrictViewModel> CreateDialogFunction => () => new WageDistrictViewModel(
-			EntityConstructorParam.ForCreate(),
+			EntityUoWBuilder.ForCreate(),
+			unitOfWorkFactory,
 			commonServices
 		);
 
 		protected override Func<WageDistrictJournalNode, WageDistrictViewModel> OpenDialogFunction => n => new WageDistrictViewModel(
-			EntityConstructorParam.ForOpen(n.Id),
+			EntityUoWBuilder.ForOpen(n.Id),
+			unitOfWorkFactory,
 			commonServices
 		);
 
-		protected override Func<IQueryOver<WageDistrict>> ItemsSourceQueryFunction => () => {
+		protected override Func<IUnitOfWork, IQueryOver<WageDistrict>> ItemsSourceQueryFunction => (uow) => {
 			WageDistrictJournalNode resultAlias = null;
 
-			var query = UoW.Session.QueryOver<WageDistrict>();
+			var query = uow.Session.QueryOver<WageDistrict>();
 			query.Where(
 				GetSearchCriterion<WageDistrict>(
 					x => x.Id

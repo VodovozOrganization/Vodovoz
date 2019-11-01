@@ -46,19 +46,10 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public RepairAgreementDlg(IEntityConstructorParam ctorParam)
+		public RepairAgreementDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			this.Build();
-			if(!ctorParam.IsNewEntity) {
-				UoWGeneric = ctorParam.RootUoW != null
-					? UnitOfWorkFactory.CreateForChildRoot(ctorParam.RootUoW.GetById<RepairAgreement>(ctorParam.EntityOpenId), ctorParam.RootUoW)
-					: UnitOfWorkFactory.CreateForRoot<RepairAgreement>(ctorParam.EntityOpenId);
-			} else {
-				UoWGeneric = ctorParam.RootUoW != null
-					? UnitOfWorkFactory.CreateWithNewChildRoot<RepairAgreement>(ctorParam.RootUoW)
-					: UnitOfWorkFactory.CreateWithNewRoot<RepairAgreement>();
-			}
-
+			UoWGeneric = uowBuilder.CreateUoW<RepairAgreement>(unitOfWorkFactory);
 			ConfigureDlg();
 		}
 

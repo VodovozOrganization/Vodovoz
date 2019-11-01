@@ -72,19 +72,10 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public FreeRentAgreementDlg(IEntityConstructorParam ctorParam)
+		public FreeRentAgreementDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			this.Build();
-			if(!ctorParam.IsNewEntity) {
-				UoWGeneric = ctorParam.RootUoW != null
-					? UnitOfWorkFactory.CreateForChildRoot(ctorParam.RootUoW.GetById<FreeRentAgreement>(ctorParam.EntityOpenId), ctorParam.RootUoW)
-					: UnitOfWorkFactory.CreateForRoot<FreeRentAgreement>(ctorParam.EntityOpenId);
-			} else {
-				UoWGeneric = ctorParam.RootUoW != null
-					? UnitOfWorkFactory.CreateWithNewChildRoot<FreeRentAgreement>(ctorParam.RootUoW)
-					: UnitOfWorkFactory.CreateWithNewRoot<FreeRentAgreement>();
-			}
-
+			UoWGeneric = uowBuilder.CreateUoW<FreeRentAgreement>(unitOfWorkFactory);
 			ConfigureDlg();
 		}
 

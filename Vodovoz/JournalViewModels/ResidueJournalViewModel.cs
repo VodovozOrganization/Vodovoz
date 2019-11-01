@@ -13,6 +13,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -25,8 +26,9 @@ namespace Vodovoz.JournalViewModels
 			IMoneyRepository moneyRepository,
 			IDepositRepository depositRepository,
 			IBottlesRepository bottlesRepository,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices) 
-		: base(filterViewModel, commonServices)
+		: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал остатков";
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -34,6 +36,7 @@ namespace Vodovoz.JournalViewModels
 			this.moneyRepository = moneyRepository ?? throw new ArgumentNullException(nameof(moneyRepository));
 			this.depositRepository = depositRepository ?? throw new ArgumentNullException(nameof(depositRepository));
 			this.bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
 			SetOrder(x => x.Date, true);
@@ -47,9 +50,10 @@ namespace Vodovoz.JournalViewModels
 		private readonly IMoneyRepository moneyRepository;
 		private readonly IDepositRepository depositRepository;
 		private readonly IBottlesRepository bottlesRepository;
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices commonServices;
 
-		protected override Func<IQueryOver<Residue>> ItemsSourceQueryFunction => () => {
+		protected override Func<IUnitOfWork, IQueryOver<Residue>> ItemsSourceQueryFunction => (uow) => {
 			Counterparty counterpartyAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
@@ -57,7 +61,7 @@ namespace Vodovoz.JournalViewModels
 			Residue residueAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 
-			var residueQuery = UoW.Session.QueryOver<Residue>(() => residueAlias)
+			var residueQuery = uow.Session.QueryOver<Residue>(() => residueAlias)
 				.JoinQueryOver(() => residueAlias.Customer, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => residueAlias.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver(() => residueAlias.LastEditAuthor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -108,7 +112,8 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<ResidueViewModel> CreateDialogFunction => () => new ResidueViewModel(
-			EntityConstructorParam.ForCreate(), 
+			EntityUoWBuilder.ForCreate(),
+			unitOfWorkFactory,
 			employeeService, 
 			representationEntityPicker, 
 			bottlesRepository, 
@@ -118,7 +123,8 @@ namespace Vodovoz.JournalViewModels
 		);
 
 		protected override Func<ResidueJournalNode, ResidueViewModel> OpenDialogFunction => (node) => new ResidueViewModel(
-			EntityConstructorParam.ForOpen(node.Id), 
+			EntityUoWBuilder.ForOpen(node.Id),
+			unitOfWorkFactory,
 			employeeService, 
 			representationEntityPicker, 
 			bottlesRepository, 

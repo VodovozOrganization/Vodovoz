@@ -17,6 +17,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModelBased;
 using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -201,7 +202,7 @@ namespace Vodovoz.SidePanel.InfoViews
 						continue;
 					TDIMain.MainNotebook.OpenTab(
 						DialogHelper.GenerateDialogHashName<WaterSalesAgreement>(wa.Id),
-						() => new WaterAgreementDlg(EntityConstructorParam.ForOpenInChildUoW(wa.Id, InfoProvider.UoW))
+						() => new WaterAgreementDlg(EntityUoWBuilder.ForOpenInChildUoW(wa.Id, InfoProvider.UoW), UnitOfWorkFactory.GetDefaultFactory)
 					);
 				}
 			}

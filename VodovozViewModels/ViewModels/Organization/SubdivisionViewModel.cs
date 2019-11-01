@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
@@ -13,7 +14,7 @@ namespace Vodovoz.ViewModels.Organization
 
 		public event Action OnSavedEntity;
 
-		public SubdivisionViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		public SubdivisionViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			ConfigureEntityChangingRelations();
 			CreateCommands();

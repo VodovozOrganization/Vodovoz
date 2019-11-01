@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.RepresentationModel.GtkUI;
@@ -29,14 +30,16 @@ namespace Vodovoz.ViewModels
 		private readonly IDepositRepository depositRepository;
 		private readonly IMoneyRepository moneyRepository;
 
-		public ResidueViewModel(IEntityConstructorParam ctorParam,
+		public ResidueViewModel(
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory uowFactory,
 			IEmployeeService employeeService,
 			IRepresentationEntityPicker entityPicker,
 			IBottlesRepository bottlesRepository,
 			IDepositRepository depositRepository,
 			IMoneyRepository moneyRepository,
 			ICommonServices commonServices)
-		: base(ctorParam, commonServices)
+		: base(uowBuilder, uowFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.entityPicker = entityPicker ?? throw new ArgumentNullException(nameof(entityPicker));

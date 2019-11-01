@@ -48,19 +48,11 @@ namespace Vodovoz.Dialogs.Employees
 			ConfigureDlg();
 		}
 
-		public M2ProxyDlg(IEntityConstructorParam ctorParam)
+		public M2ProxyDlg(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			this.Build();
-			if(ctorParam.IsNewEntity) {
-				UoWGeneric = ctorParam.RootUoW != null
-					? UnitOfWorkFactory.CreateWithNewChildRoot<M2ProxyDocument>(ctorParam.RootUoW)
-					: UnitOfWorkFactory.CreateWithNewRoot<M2ProxyDocument>();
-			} else {
-				UoWGeneric = ctorParam.RootUoW != null
-					? UnitOfWorkFactory.CreateForChildRoot(ctorParam.RootUoW.GetById<M2ProxyDocument>(ctorParam.EntityOpenId), ctorParam.RootUoW)
-					: UnitOfWorkFactory.CreateForRoot<M2ProxyDocument>(ctorParam.EntityOpenId);
-			}
-			UoWOrder = ctorParam.RootUoW;
+			UoWGeneric = uowBuilder.CreateUoW<M2ProxyDocument>(unitOfWorkFactory);
+			UoWOrder = uowBuilder.RootUoW;
 			Entity.Order = UoWOrder.RootObject as Order;
 
 			ConfigureDlg();

@@ -3,6 +3,7 @@ using System.Linq;
 using QS.Commands;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
@@ -23,16 +24,19 @@ namespace Vodovoz.ViewModels.Suppliers
 	{
 		readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 		readonly IEmployeeService employeeService;
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		readonly ICommonServices commonServices;
 		public event EventHandler ListContentChanged;
 
 		public RequestToSupplierViewModel(
-			IEntityConstructorParam ctorParam,
+			IEntityUoWBuilder uoWBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository
-		) : base(ctorParam, commonServices)
+		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
@@ -163,6 +167,7 @@ namespace Vodovoz.ViewModels.Suppliers
 					};
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 						filter,
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
 					) {
 						SelectionMode = JournalSelectionMode.Single,
@@ -216,7 +221,8 @@ namespace Vodovoz.ViewModels.Suppliers
 						return;
 
 					RequestToSupplierViewModel vm = new RequestToSupplierViewModel(
-						EntityConstructorParam.ForCreate(),
+						EntityUoWBuilder.ForCreate(),
+						unitOfWorkFactory,
 						commonServices,
 						employeeService,
 						supplierPriceItemsRepository

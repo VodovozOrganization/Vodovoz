@@ -21,10 +21,14 @@ namespace Vodovoz.Representations
 {
 	public class CashTransferDocumentVM : MultipleEntityModelBase<CashTransferDocumentVMNode>
 	{
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
+
 		private CashTransferDocumentVMNode resultAlias = null;
 
-		public CashTransferDocumentVM()
+		public CashTransferDocumentVM(IUnitOfWorkFactory unitOfWorkFactory)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			RepresentationFilter = null;
 			JournalFilter = null;
@@ -126,12 +130,12 @@ namespace Vodovoz.Representations
 				"По ордерам",
 				//функция диалога создания документа
 				() => {
-					var viewModel = new IncomeCashTransferDocumentViewModel(EntityConstructorParam.ForCreate());
+					var viewModel = new IncomeCashTransferDocumentViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory);
 					return viewModel.View as IncomeCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
-					var viewModel = new IncomeCashTransferDocumentViewModel(EntityConstructorParam.ForOpen(node.DocumentId));
+					var viewModel = new IncomeCashTransferDocumentViewModel(EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory);
 					return viewModel.View as IncomeCashTransferDlg;
 				}
 			);
@@ -202,12 +206,12 @@ namespace Vodovoz.Representations
 				"На сумму",
 				//функция диалога создания документа
 				() => {
-					var viewModel = new CommonCashTransferDocumentViewModel(EntityConstructorParam.ForCreate());
+					var viewModel = new CommonCashTransferDocumentViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory);
 					return viewModel.View as CommonCashTransferDlg;
 				},
 				//функция диалога открытия документа
 				(CashTransferDocumentVMNode node) => {
-					var viewModel = new CommonCashTransferDocumentViewModel(EntityConstructorParam.ForOpen(node.DocumentId));
+					var viewModel = new CommonCashTransferDocumentViewModel(EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory);
 					return viewModel.View as CommonCashTransferDlg;
 				}
 			);

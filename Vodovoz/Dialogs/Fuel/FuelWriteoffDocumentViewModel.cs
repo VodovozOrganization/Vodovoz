@@ -1,39 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using NHibernate.Criterion;
+using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Repositories;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
-using Vodovoz.EntityRepositories.Fuel;
-using Vodovoz.Infrastructure.Services;
-using QS.Commands;
-using QS.Project.Journal;
 using Vodovoz.Domain.Logistic;
-using QS.DomainModel.Config;
-using System.Linq;
-using NHibernate.Criterion;
+using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
-using QS.Project.Repositories;
-using QS.DomainModel.UoW;
+using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.Dialogs.Fuel
 {
 	public class FuelWriteoffDocumentViewModel : EntityTabViewModelBase<FuelWriteoffDocument>
 	{
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly IEmployeeService employeeService;
 		private readonly IFuelRepository fuelRepository;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
 
 		public FuelWriteoffDocumentViewModel(
-			IEntityConstructorParam ctorParam,
+			IEntityUoWBuilder uoWBuilder, 
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IFuelRepository fuelRepository,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices) 
-		: base(ctorParam, commonServices)
+		: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -134,8 +136,9 @@ namespace Vodovoz.Dialogs.Fuel
 			AddWriteoffItemCommand = new DelegateCommand(
 				() => {
 					var fuelTypeJournalViewModel = new SimpleEntityJournalViewModel<FuelType, FuelTypeViewModel>(x => x.Name,
-						() => new FuelTypeViewModel(EntityConstructorParam.ForCreate(), commonServices),
-						(node) => new FuelTypeViewModel(EntityConstructorParam.ForOpen(node.Id), commonServices),
+						() => new FuelTypeViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices),
+						(node) => new FuelTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices),
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					);
 					fuelTypeJournalViewModel.SetRestriction(() => {

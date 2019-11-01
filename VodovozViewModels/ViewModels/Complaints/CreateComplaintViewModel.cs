@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
@@ -17,12 +18,13 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public CreateComplaintViewModel(
-			IEntityConstructorParam ctorParam,
+			IEntityUoWBuilder uoWBuilder, 
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices
-			) : base(ctorParam, commonServices)
+			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			CounterpartySelectorFactory = counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory));

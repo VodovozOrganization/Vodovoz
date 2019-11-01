@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
@@ -7,7 +8,7 @@ namespace Vodovoz.ViewModels.Employees
 {
 	public class FineTemplateViewModel : EntityTabViewModelBase<FineTemplate>
 	{
-		public FineTemplateViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		public FineTemplateViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Шаблон основания штрафа";
 		}

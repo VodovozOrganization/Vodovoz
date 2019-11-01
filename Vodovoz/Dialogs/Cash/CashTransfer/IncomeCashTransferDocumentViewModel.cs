@@ -18,14 +18,15 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Cash;
 using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Dialogs.Cash.CashTransfer
 {
 	public class IncomeCashTransferDocumentViewModel : ViewModel<IncomeCashTransferDocument>
 	{
-		public IncomeCashTransferDocumentViewModel(IEntityConstructorParam entityOpenOption) : base(entityOpenOption)
+		public IncomeCashTransferDocumentViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory) : base(uowBuilder, unitOfWorkFactory)
 		{
-			if(entityOpenOption.IsNewEntity) {
+			if(uowBuilder.IsNewEntity) {
 				Entity.CreationDate = DateTime.Now;
 				Entity.Author = Cashier;
 			}

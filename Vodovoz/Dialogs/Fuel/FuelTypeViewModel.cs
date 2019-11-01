@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
@@ -7,7 +8,7 @@ namespace Vodovoz.Dialogs.Fuel
 {
 	public class FuelTypeViewModel : EntityTabViewModelBase<FuelType>
 	{
-		public FuelTypeViewModel(IEntityConstructorParam ctorParam, ICommonServices commonServices) : base(ctorParam, commonServices)
+		public FuelTypeViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 		}
 	}

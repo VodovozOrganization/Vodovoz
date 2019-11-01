@@ -197,7 +197,6 @@ namespace Vodovoz
 				.RegisterWidgetForFilterViewModel<RequestsToSuppliersFilterViewModel, RequestsToSuppliersFilterView>()
 				;
 
-			TDIMain.TDIWidgetResolver = ViewModelWidgetResolver.Instance;
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 

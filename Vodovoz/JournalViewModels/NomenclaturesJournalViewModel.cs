@@ -4,6 +4,8 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
+using QS.DomainModel.Config;
+using QS.DomainModel.UoW;
 using QS.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -20,8 +22,9 @@ namespace Vodovoz.JournalViewModels
 
 		public NomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices
-		) : base(filterViewModel, commonServices)
+		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал ТМЦ";
 			this.currentUserId = commonServices.UserService.CurrentUserId;
@@ -39,7 +42,12 @@ namespace Vodovoz.JournalViewModels
 
 		public IAdditionalJournalRestriction<Nomenclature> AdditionalJournalRestriction { get; set; } = null;
 
-		protected override Func<IQueryOver<Nomenclature>> ItemsSourceQueryFunction => () => {
+		protected override Func<IUnitOfWork, IQueryOver<Nomenclature>> ItemsSourceQueryFunction => (uow) => {
+			var canAddSpares = commonServices.PermissionService.ValidateUserPresetPermission("can_add_spares_to_order", currentUserId);
+			var canAddBottles = commonServices.PermissionService.ValidateUserPresetPermission("can_add_bottles_to_order", currentUserId);
+			var canAddMaterials = commonServices.PermissionService.ValidateUserPresetPermission("can_add_materials_to_order", currentUserId);
+			var canAddEquipmentNotForSale = commonServices.PermissionService.ValidateUserPresetPermission("can_add_equipment_not_for_sale_to_order", currentUserId);
+
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits unitAlias = null;
 			NomenclatureJournalNode resultAlias = null;
@@ -67,10 +75,13 @@ namespace Vodovoz.JournalViewModels
 					   || orderAlias.OrderStatus == OrderStatus.OnLoading)
 				.Select(Projections.Sum(() => orderItemsAlias.Count));
 
-			var itemsQuery = UoW.Session.QueryOver(() => nomenclatureAlias);
+			var itemsQuery = uow.Session.QueryOver(() => nomenclatureAlias)
+								.Where(() => !nomenclatureAlias.IsArchive)
+								;
 
 			if(!FilterViewModel.RestrictArchive)
 				itemsQuery.Where(() => !nomenclatureAlias.IsArchive);
+
 
 			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.Commands;
-using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
@@ -34,7 +34,8 @@ namespace Vodovoz.ViewModels.Complaints
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 
 		public ComplaintViewModel(
-			IEntityConstructorParam ctorParam,
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
 			IUndeliveriesViewOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
@@ -42,7 +43,7 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository
-			) : base(ctorParam, commonServices)
+			) : base(uowBuilder, uowFactory, commonServices)
 		{
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
@@ -55,7 +56,7 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.ObservableComplaintDiscussions.ListContentChanged += ObservableComplaintDiscussions_ListContentChanged;
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
 
-			if(ctorParam.IsNewEntity) {
+			if(uowBuilder.IsNewEntity) {
 				AbortOpening("Невозможно создать новую жалобу из текущего диалога, необходимо использовать диалоги создания");
 			}
 
@@ -262,6 +263,7 @@ namespace Vodovoz.ViewModels.Complaints
 						undeliveryViewOpener,
 						employeeService,
 						employeeSelectorFactory,
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices
 					);
 					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
@@ -290,7 +292,8 @@ namespace Vodovoz.ViewModels.Complaints
 			AddFineCommand = new DelegateCommand<ITdiTab>(
 				t => {
 					FineViewModel fineViewModel = new FineViewModel(
-						EntityConstructorParam.ForCreate(),
+						EntityUoWBuilder.ForCreate(),
+						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						undeliveryViewOpener,
 						employeeService,
 						employeeSelectorFactory,
