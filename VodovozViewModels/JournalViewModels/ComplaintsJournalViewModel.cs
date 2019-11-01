@@ -256,7 +256,7 @@ namespace Vodovoz.JournalViewModels
 						.And(() => dicussionAlias.Complaint.Id == complaintAlias.Id);
 				}
 
-				if(FilterViewModel.FilterDateType == DateFilterType.CreationDate) 
+				if(FilterViewModel.FilterDateType == DateFilterType.CreationDate && FilterViewModel.StartDate.HasValue) 
 				{
 					query = query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate)
 								.And(() => FilterViewModel.StartDate == null || complaintAlias.CreationDate >= FilterViewModel.StartDate.Value);
@@ -265,7 +265,7 @@ namespace Vodovoz.JournalViewModels
 						query.WithSubquery.WhereExists(dicussionQuery);
 
 				}
-				else if(FilterViewModel.FilterDateType == DateFilterType.PlannedCompletionDate) {
+				else if(FilterViewModel.FilterDateType == DateFilterType.PlannedCompletionDate && FilterViewModel.StartDate.HasValue) {
 					if(dicussionQuery == null) 
 					{
 						query = query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate)
