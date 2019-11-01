@@ -36,6 +36,7 @@ namespace Vodovoz.JournalNodes
 
 		public string WorkInSubdivision { get; set; }
 
+		public DateTime LastPlannedCompletionDate { get; set; }
 		public string PlannedCompletionDate { get; set; }
 
 		public string ClientNameWithAddress { get; set; }
