@@ -81,6 +81,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
 		this.BuildToolbarActions();
 		this.KeyReleaseEvent += ClipboardWorkaround.HandleKeyReleaseEvent;
+		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
 		this.KeyReleaseEvent += TDIMain.TDIHandleKeyReleaseEvent;
 		//Передаем лебл
