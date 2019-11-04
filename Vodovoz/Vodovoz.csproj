@@ -1331,6 +1331,10 @@
     <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
     <Compile Include="JournalViewModels\IAdditionalJournalRestriction.cs" />
     <Compile Include="JournalViewModels\NomenclaturesForOrderJournalRestriction.cs" />
+    <Compile Include="ViewWidgets\AdvancedWageParameterViews\BottlesCountAdvancedWageParameterWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.BottlesCountAdvancedWageParameterWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.DeliveryTimeAdvancedWageParameterView.cs" />
+    <Compile Include="ViewWidgets\AdvancedWageParameterViews\DeliveryTimeAdvancedWageParameterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1572,6 +1576,7 @@
     <Folder Include="Views\Logistic\" />
     <Folder Include="ViewModels\FuelDocuments\" />
     <Folder Include="icons\buttons\NullableCheckBox\" />
+    <Folder Include="ViewWidgets\AdvancedWageParameterViews\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

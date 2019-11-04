@@ -104,6 +104,8 @@
     <Compile Include="JournalViewModels\WageCalculation\SalesPlanJournalViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\SalesPlanViewModel.cs" />
     <Compile Include="JournalNodes\SalesPlanJournalNode.cs" />
+    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModel\BottlesCountAdvancedWageParameterViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModel\DeliveryTimeAdvancedWageParameterViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -125,6 +127,7 @@
     <Folder Include="FilterViewModels\Suppliers\" />
     <Folder Include="ViewModels\WageCalculation\" />
     <Folder Include="JournalViewModels\WageCalculation\" />
+    <Folder Include="ViewModels\WageCalculation\AdvancedWageParametersViewModel\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
