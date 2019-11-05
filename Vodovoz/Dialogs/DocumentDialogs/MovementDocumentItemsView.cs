@@ -44,7 +44,6 @@ namespace Vodovoz
 
 				treeItemsList.ColumnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<MovementDocumentItem>.Create()
 					.AddColumn("Наименование").AddTextRenderer(i => i.Name)
-					.AddColumn("С/Н оборудования").AddTextRenderer(i => i.EquipmentString)
 
 					.AddColumn("Количество")
 					.AddNumericRenderer(i => i.Amount)

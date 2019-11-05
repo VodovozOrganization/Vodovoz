@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using NHibernate.Criterion;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
@@ -15,7 +13,6 @@ using QSReport;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
@@ -81,7 +78,7 @@ namespace Vodovoz
 
 			ylabelTransportationStatus.Binding.AddBinding(Entity, e => e.TransportationDescription, w => w.LabelProp).InitializeFromSource();
 
-			MovementDocumentCategory[] filteredDoctypeList = { MovementDocumentCategory.warehouse };
+			MovementDocumentCategory[] filteredDoctypeList = { MovementDocumentCategory.InnerTransfer };
 			object[] MovementDocumentList = Array.ConvertAll(filteredDoctypeList, x => (object)x);
 			enumMovementType.ItemsEnum = typeof(MovementDocumentCategory);
 			enumMovementType.AddEnumToHideList(MovementDocumentList);
@@ -165,7 +162,7 @@ namespace Vodovoz
 		{
 			var selected = Entity.Category;
 			referenceWarehouseTo.Visible = referenceWarehouseFrom.Visible = labelStockFrom.Visible = labelStockTo.Visible
-				= (selected == MovementDocumentCategory.warehouse || selected == MovementDocumentCategory.Transportation);
+				= (selected == MovementDocumentCategory.InnerTransfer || selected == MovementDocumentCategory.Transportation);
 
 			//Траспортировка
 			labelWagon.Visible = hboxTransportation.Visible = yentryrefWagon.Visible = labelTransportationTitle.Visible

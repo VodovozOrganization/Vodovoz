@@ -7,9 +7,9 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -21,121 +21,118 @@ namespace Vodovoz.Domain.Documents
 	public class MovementDocument : Document, IValidatableObject
 	{
 		MovementDocumentCategory category;
-
 		[Display(Name = "Тип документа перемещения")]
 		public virtual MovementDocumentCategory Category {
 			get => category;
-			set => SetField(ref category, value, () => Category);
+			set => SetField(ref category, value);
 		}
 
+		private DateTime timeStamp;
 		public override DateTime TimeStamp {
-			get { return base.TimeStamp; }
-			set {
-				base.TimeStamp = value;
-				foreach(var item in Items) {
-					if(item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.OperationTime != TimeStamp)
-						item.WarehouseMovementOperation.OperationTime = TimeStamp;
-				}
-			}
+			get => timeStamp;
+			set => SetField(ref timeStamp, value);
 		}
 
-		DateTime? deliveredTime;
-
-		[PropertyChangedAlso("TransportationDescription")]
-		[Display(Name = "Время доставки")]
-		public virtual DateTime? DeliveredTime {
-			get { return deliveredTime; }
-			set {
-				SetField(ref deliveredTime, value, () => DeliveredTime);
-				if(deliveredTime.HasValue) {
-					foreach(var item in Items) {
-						if(item.DeliveryMovementOperation != null && item.DeliveryMovementOperation.OperationTime != DeliveredTime.Value)
-							item.DeliveryMovementOperation.OperationTime = DeliveredTime.Value;
-					}
-				}
-			}
+		private MovementDocumentStatus status;
+		[Display(Name = "Статус")]
+		public virtual MovementDocumentStatus Status {
+			get => status;
+			set => SetField(ref status, value, () => Status);
 		}
 
-		TransportationStatus transportationStatus;
-
-		[Display(Name = "Статус транспортировки")]
-		[PropertyChangedAlso("TransportationDescription")]
-		public virtual TransportationStatus TransportationStatus {
-			get { return transportationStatus; }
-			protected set { SetField(ref transportationStatus, value, () => TransportationStatus); }
-		}
-
-		MovementWagon movementWagon;
-
+		private MovementWagon movementWagon;
 		[Display(Name = "Фура")]
 		public virtual MovementWagon MovementWagon {
-			get { return movementWagon; }
-			set { SetField(ref movementWagon, value, () => MovementWagon); }
+			get => movementWagon;
+			set => SetField(ref movementWagon, value);
 		}
 
-		string comment;
-
+		private string comment;
 		[Display(Name = "Комментарий")]
 		public virtual string Comment {
-			get { return comment; }
-			set { SetField(ref comment, value, () => Comment); }
+			get => comment;
+			set => SetField(ref comment, value);
 		}
 
-		Employee responsiblePerson;
+		#region Send
 
-		[Required(ErrorMessage = "Должен быть указан ответственнй за перемещение.")]
-		[Display(Name = "Ответственный")]
-		public virtual Employee ResponsiblePerson {
-			get { return responsiblePerson; }
-			set { SetField(ref responsiblePerson, value, () => ResponsiblePerson); }
-		}
-
-		Warehouse fromWarehouse;
-
+		private Warehouse fromWarehouse;
 		[Display(Name = "Склад отправки")]
 		public virtual Warehouse FromWarehouse {
-			get { return fromWarehouse; }
-			set {
-				SetField(ref fromWarehouse, value, () => FromWarehouse);
-				foreach(var item in Items) {
-					if(item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.WriteoffWarehouse != fromWarehouse)
-						item.WarehouseMovementOperation.WriteoffWarehouse = fromWarehouse;
-				}
-			}
+			get => fromWarehouse;
+			set => SetField(ref fromWarehouse, value);
 		}
 
-		Warehouse toWarehouse;
+		private Employee sender;
+		[Display(Name = "Отправитель")]
+		public virtual Employee Sender {
+			get => sender;
+			set => SetField(ref sender, value, () => Sender);
+		}
 
+		private DateTime? sendTime;
+		[Display(Name = "Время отправления")]
+		public virtual DateTime? SendTime {
+			get => sendTime;
+			set => SetField(ref sendTime, value, () => SendTime);
+		}
+
+		#endregion Send
+
+		#region Receive
+
+		private Warehouse toWarehouse;
 		[Display(Name = "Склад получения")]
 		public virtual Warehouse ToWarehouse {
-			get { return toWarehouse; }
-			set {
-				SetField(ref toWarehouse, value, () => ToWarehouse);
-				foreach(var item in Items) {
-					if(Category == MovementDocumentCategory.warehouse) {
-						if(item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.IncomingWarehouse != toWarehouse)
-							item.WarehouseMovementOperation.IncomingWarehouse = toWarehouse;
-					}
-					if(Category == MovementDocumentCategory.Transportation) {
-						if(item.DeliveryMovementOperation != null && item.DeliveryMovementOperation.IncomingWarehouse != toWarehouse)
-							item.DeliveryMovementOperation.IncomingWarehouse = toWarehouse;
-					}
-				}
-			}
+			get => toWarehouse;
+			set => SetField(ref toWarehouse, value);
 		}
 
-		IList<MovementDocumentItem> items = new List<MovementDocumentItem>();
+		private Employee receiver;
+		[Display(Name = "Получатель")]
+		public virtual Employee Receiver {
+			get => receiver;
+			set => SetField(ref receiver, value, () => Receiver);
+		}
 
+		private DateTime? deliveredTime;
+		[Display(Name = "Время получения")]
+		public virtual DateTime? DeliveredTime {
+			get => deliveredTime;
+			set => SetField(ref deliveredTime, value);
+		}
+
+		#endregion Receive
+
+		#region Discrepancy
+
+		private Employee discrepancyAccepter;
+		[Display(Name = "Кто подтвердил расхождения")]
+		public virtual Employee DiscrepancyAccepter {
+			get => discrepancyAccepter;
+			set => SetField(ref discrepancyAccepter, value, () => DiscrepancyAccepter);
+		}
+
+		private DateTime? discrepancyAcceptTime;
+		[Display(Name = "Время подтверждения расхождений")]
+		public virtual DateTime? DiscrepancyAcceptTime {
+			get => discrepancyAcceptTime;
+			set => SetField(ref discrepancyAcceptTime, value, () => DiscrepancyAcceptTime);
+		}
+
+		#endregion Discrepancy
+
+		private IList<MovementDocumentItem> items = new List<MovementDocumentItem>();
 		[Display(Name = "Строки")]
 		public virtual IList<MovementDocumentItem> Items {
-			get { return items; }
+			get => items;
 			set {
-				SetField(ref items, value, () => Items);
+				SetField(ref items, value);
 				observableItems = null;
 			}
 		}
 
-		GenericObservableList<MovementDocumentItem> observableItems;
+		private GenericObservableList<MovementDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<MovementDocumentItem> ObservableItems {
 			get {
@@ -147,24 +144,17 @@ namespace Vodovoz.Domain.Documents
 
 		#region Вычисляемые
 
+		public virtual bool IsDelivered => DeliveredStatuses.Contains(Status);
+
 		public virtual string Title => String.Format("Перемещение ТМЦ №{0} от {1:d}", Id, TimeStamp);
 
-		public virtual string TransportationDescription {
-			get {
-				if(TransportationStatus == TransportationStatus.Delivered)
-					return String.Format("{0} ({1:g})", TransportationStatus.GetEnumTitle(), DeliveredTime);
-				else
-					return String.Format("{0}", TransportationStatus.GetEnumTitle());
-			}
-		}
-
-		#endregion
+		#endregion Вычисляемые
 
 		#region IValidatableObject implementation
 
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Id == 0 && Category == MovementDocumentCategory.warehouse) {
+			if(Id == 0 && Category == MovementDocumentCategory.InnerTransfer) {
 				yield return new ValidationResult(
 					"Внутреннее перемещение на данный момент запрещено.",
 					new[] { this.GetPropertyName(o => o.Category) }
@@ -175,7 +165,7 @@ namespace Vodovoz.Domain.Documents
 				yield return new ValidationResult(String.Format("Табличная часть документа пустая."),
 					new[] { this.GetPropertyName(o => o.Items) });
 
-			if(Category == MovementDocumentCategory.warehouse || Category == MovementDocumentCategory.Transportation) {
+			if(Category == MovementDocumentCategory.InnerTransfer || Category == MovementDocumentCategory.Transportation) {
 				if(FromWarehouse == ToWarehouse)
 					yield return new ValidationResult("Склады отправления и получения должны различатся.",
 						new[] { this.GetPropertyName(o => o.FromWarehouse), this.GetPropertyName(o => o.ToWarehouse) });
@@ -194,10 +184,11 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			foreach(var item in Items) {
-				if(item.Amount <= 0)
+				if(item.SendedAmount <= 0)
 					yield return new ValidationResult(String.Format("Для номенклатуры <{0}> не указано количество.", item.Nomenclature.Name),
 						new[] { this.GetPropertyName(o => o.Items) });
 			}
+
 		}
 
 		#endregion
@@ -208,45 +199,115 @@ namespace Vodovoz.Domain.Documents
 		{
 			var item = new MovementDocumentItem {
 				Nomenclature = nomenclature,
-				Amount = amount,
+				SendedAmount = amount,
 				AmountOnSource = inStock,
 				Document = this
 			};
-			if(Category == MovementDocumentCategory.warehouse)
-				item.UpdateOperation(FromWarehouse, ToWarehouse, TimeStamp, TransportationStatus);
-			else {
-				if(TransportationStatus == TransportationStatus.WithoutTransportation)
-					TransportationStatus = TransportationStatus.Submerged;
-				item.UpdateOperation(FromWarehouse, ToWarehouse, TimeStamp, TransportationStatus);
-			}
 
 			ObservableItems.Add(item);
 		}
 
-		public virtual void TransportationCompleted()
+		public virtual void Send(Employee sender)
 		{
-			if(Category != MovementDocumentCategory.Transportation)
-				throw new InvalidOperationException("Нельзя завершить доставку для документа не имеющего тип транспортировка.");
-			DeliveredTime = DateTime.Now;
-			TransportationStatus = TransportationStatus.Delivered;
+			if(sender == null) {
+				throw new ArgumentNullException(nameof(sender));
+			}
+
+			if(Status != MovementDocumentStatus.New) {
+				return;
+			}
+
+			Status = MovementDocumentStatus.Sended;
+			Sender = sender;
+			SendTime = DateTime.Now;
 
 			foreach(var item in Items) {
-				item.UpdateDeliveryOperation(ToWarehouse, DeliveredTime.Value);
+				item.UpdateWriteoffOperation();
 			}
+		}
+
+		public virtual void Receive(bool canChangeAlreadyDelivered, Employee employeeReceiver)
+		{
+			if(employeeReceiver == null) {
+				throw new ArgumentNullException(nameof(employeeReceiver));
+			}
+
+			if(Status != MovementDocumentStatus.Sended && !(canChangeAlreadyDelivered && IsDelivered)) {
+				return;
+			}
+
+			if(HasDeliveryDiscrepancies()) {
+				Status = MovementDocumentStatus.Discrepancy;
+			} else {
+				Status = MovementDocumentStatus.Accepted;
+			}
+
+			foreach(var item in Items) {
+				item.UpdateIncomeOperation();
+			}
+		}
+
+		private bool HasDeliveryDiscrepancies()
+		{
+			if(Status == MovementDocumentStatus.New || Status == MovementDocumentStatus.Accepted) {
+				return false;
+			}
+			foreach(var item in Items) {
+				if(item.HasDiscrepancy) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public virtual void AcceptDiscrepancy(Employee employeeDiscrepancyAccepter)
+		{
+			if(employeeDiscrepancyAccepter == null) {
+				throw new ArgumentNullException(nameof(employeeDiscrepancyAccepter));
+			}
+
+			if(!HasDeliveryDiscrepancies()) {
+				return;
+			}
+
+			DiscrepancyAccepter = employeeDiscrepancyAccepter;
+			DiscrepancyAcceptTime = DateTime.Now;
+		}
+
+		public virtual void ClearDiscrepancyAccepterInformation()
+		{
+			DiscrepancyAccepter = null;
+			DiscrepancyAcceptTime = null;
 		}
 
 		#endregion
 
-		public MovementDocument()
+		public static IEnumerable<MovementDocumentStatus> DeliveredStatuses => new[] { MovementDocumentStatus.Discrepancy, MovementDocumentStatus.Accepted }; 
+	}
+
+	public enum MovementDocumentStatus
+	{
+		[Display(Name = "Новый")]
+		New,
+		[Display(Name = "Отправлен")]
+		Sended,
+		[Display(Name = "Расхождение")]
+		Discrepancy,
+		[Display(Name = "Принят")]
+		Accepted
+	}
+
+	public class MovementDocumentStatusStringType : NHibernate.Type.EnumStringType
+	{
+		public MovementDocumentStatusStringType() : base(typeof(MovementDocumentStatus))
 		{
-			Comment = String.Empty;
 		}
 	}
 
 	public enum MovementDocumentCategory
 	{
 		[Display(Name = "Внутреннее перемещение")]
-		warehouse,
+		InnerTransfer,
 		[Display(Name = "Транспортировка")]
 		Transportation
 	}
@@ -257,23 +318,5 @@ namespace Vodovoz.Domain.Documents
 		{
 		}
 	}
-
-	public enum TransportationStatus
-	{
-		[Display(Name = "Без транспортировки")]
-		WithoutTransportation,
-		[Display(Name = "Погружено")]
-		Submerged,
-		[Display(Name = "Доставлено")]
-		Delivered
-	}
-
-	public class TransportationStatusStringType : NHibernate.Type.EnumStringType
-	{
-		public TransportationStatusStringType() : base(typeof(TransportationStatus))
-		{
-		}
-	}
-
 }
 

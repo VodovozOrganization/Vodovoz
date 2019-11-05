@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Goods;
 
@@ -9,7 +8,7 @@ namespace Vodovoz.Domain.Operations
 	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "передвижения товаров",
 		Nominative = "передвижение товаров")]
-	public class WarehouseMovementOperation: OperationBase
+	public class WarehouseMovementOperation : OperationBase
 	{
 		#region Свойства
 

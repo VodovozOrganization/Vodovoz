@@ -610,8 +610,6 @@ namespace Vodovoz.ViewModel
 		public string DirverPatronymic { get; set; }
 
 		public MovementDocumentCategory MDCategory { get; set; }
-
-		public TransportationStatus  Status { get; set; }
 	}
 }
 
