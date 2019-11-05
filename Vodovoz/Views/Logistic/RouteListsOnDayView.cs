@@ -55,6 +55,7 @@ namespace Vodovoz.Views.Logistic
 																								.AddTextRenderer(x => x.GeographicGroup.Name)
 																							 .Finish();
 			ytreeviewGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroupNodes, w => w.ItemsDataSource).InitializeFromSource();
+			ytreeviewGeographicGroup.HeadersVisible = false;
 
 			if(progressOrders.Adjustment == null)
 				progressOrders.Adjustment = new Adjustment(0, 0, 0, 1, 1, 0);
@@ -176,12 +177,13 @@ namespace Vodovoz.Views.Logistic
 			ySpnMin19Btls.Binding.AddBinding(ViewModel, vm => vm.MinBottles19L, w => w.ValueAsInt).InitializeFromSource();
 			ydateForRoutes.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
 			checkShowCompleted.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
-			ytimeToDeliveryFrom.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
-			ytimeToDeliveryTo.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
+			timeRngPicker.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
 			ySpnMin19Btls.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
 
-			ytimeToDeliveryFrom.Binding.AddBinding(ViewModel, vm => vm.DeliveryFromTime, w => w.Time).InitializeFromSource();
-			ytimeToDeliveryTo.Binding.AddBinding(ViewModel, vm => vm.DeliveryToTime, w => w.Time).InitializeFromSource();
+			timeRngPicker.Binding.AddBinding(ViewModel, vm => vm.DeliveryFromTime, w => w.TimeStart).InitializeFromSource();
+			timeRngPicker.Binding.AddBinding(ViewModel, vm => vm.DeliveryToTime, w => w.TimeEnd).InitializeFromSource();
+			timeRngPicker.TimePeriodChangedByUser += (sender, e) => FillItems();
+
 			checkShowDistricts.Toggled += (sender, e) => districtsOverlay.IsVisibile = checkShowDistricts.Active;
 
 			ViewModel.AutoroutingResultsSaved += (sender, e) => FillDialogAtDay();
