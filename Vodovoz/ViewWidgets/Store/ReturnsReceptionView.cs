@@ -115,8 +115,7 @@ namespace Vodovoz
 					Restrictions.On(() => warehouseAlias.Id).IsNull,
 					Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
 				))
-				.Where(() => nomenclatureAlias.Category != NomenclatureCategory.rent
-				   && nomenclatureAlias.Category != NomenclatureCategory.deposit)
+				.Where(() => nomenclatureAlias.Category != NomenclatureCategory.deposit)
 				.SelectList(list => list
 				   .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
@@ -136,8 +135,7 @@ namespace Vodovoz
 					Restrictions.On(() => warehouseAlias.Id).IsNull,
 					Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
 				))
-				.Where(() => nomenclatureAlias.Category != NomenclatureCategory.rent
-				   && nomenclatureAlias.Category != NomenclatureCategory.deposit)
+				.Where(() => nomenclatureAlias.Category != NomenclatureCategory.deposit)
 				.SelectList(list => list
 				   .Select(() => equipmentAlias.Id).WithAlias(() => resultAlias.EquipmentId)
 				   .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)

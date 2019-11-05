@@ -2207,8 +2207,7 @@ namespace Vodovoz
 		void FixPrice(int id)
 		{
 			OrderItem item = Entity.ObservableOrderItems[id];
-			if((item.Nomenclature.Category == NomenclatureCategory.deposit || item.Nomenclature.Category == NomenclatureCategory.rent)
-				 && item.Price != 0)
+			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0)
 				return;
 			item.RecalculatePrice();
 		}
@@ -2252,8 +2251,7 @@ namespace Vodovoz
 					if(oItem == null || oItem.PaidRentEquipment == null) {
 						return;
 					}
-					if(oItem.Nomenclature.Category == NomenclatureCategory.rent
-					  || oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
+					if(oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
 						ChangeEquipmentsCount(oItem, oItem.Count);
 					}
 				}
