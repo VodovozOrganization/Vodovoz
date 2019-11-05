@@ -1333,8 +1333,8 @@
     <Compile Include="JournalViewModels\NomenclaturesForOrderJournalRestriction.cs" />
     <Compile Include="ViewWidgets\AdvancedWageParameterViews\BottlesCountAdvancedWageParameterWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.BottlesCountAdvancedWageParameterWidget.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.DeliveryTimeAdvancedWageParameterView.cs" />
-    <Compile Include="ViewWidgets\AdvancedWageParameterViews\DeliveryTimeAdvancedWageParameterView.cs" />
+    <Compile Include="ViewWidgets\AdvancedWageParameterViews\DeliveryTimeAdvancedWagePrameterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.DeliveryTimeAdvancedWagePrameterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
