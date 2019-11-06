@@ -20,11 +20,11 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton buttonFilter;
 
+		private global::Gamma.Widgets.yEnumComboBox enumCmbDeliveryType;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewGeographicGroup;
-
-		private global::Gtk.Label label3;
 
 		private global::Gtk.Label label8;
 
@@ -210,6 +210,19 @@ namespace Vodovoz.Views.Logistic
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
+			this.enumCmbDeliveryType = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumCmbDeliveryType.Name = "enumCmbDeliveryType";
+			this.enumCmbDeliveryType.ShowSpecialStateAll = false;
+			this.enumCmbDeliveryType.ShowSpecialStateNot = false;
+			this.enumCmbDeliveryType.UseShortTitle = false;
+			this.enumCmbDeliveryType.DefaultFirst = false;
+			this.table2.Add(this.enumCmbDeliveryType);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table2[this.enumCmbDeliveryType]));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table2.Gtk.Table+TableChild
 			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
 			this.GtkScrolledWindow3.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
@@ -220,18 +233,8 @@ namespace Vodovoz.Views.Logistic
 			this.ytreeviewGeographicGroup.Name = "ytreeviewGeographicGroup";
 			this.GtkScrolledWindow3.Add(this.ytreeviewGeographicGroup);
 			this.table2.Add(this.GtkScrolledWindow3);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table2[this.GtkScrolledWindow3]));
-			w7.BottomAttach = ((uint)(2));
-			// Container child table2.Gtk.Table+TableChild
-			this.label3 = new global::Gtk.Label();
-			this.label3.Name = "label3";
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Время доставки");
-			this.table2.Add(this.label3);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.label3]));
-			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(2));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.GtkScrolledWindow3]));
+			w8.BottomAttach = ((uint)(2));
 			// Container child table2.Gtk.Table+TableChild
 			this.label8 = new global::Gtk.Label();
 			this.label8.Name = "label8";

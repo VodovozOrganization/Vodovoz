@@ -216,6 +216,9 @@ namespace Vodovoz.Views.Logistic
 			buttonWarnings.Clicked += (sender, e) => ViewModel.ShowWarningsCommand.Execute();
 			ytreeviewOnDayDrivers.RowActivated += OnButtonDriverSelectAutoClicked;
 			buttonFilter.Clicked += (sender, e) => FillItems();
+			enumCmbDeliveryType.ItemsEnum = typeof(DeliveryScheduleFilterType);
+			enumCmbDeliveryType.Binding.AddBinding(ViewModel, vm => vm.DeliveryScheduleType, w => w.SelectedItem).InitializeFromSource();
+			enumCmbDeliveryType.ChangedByUser += (sender, e) => FillItems();
 		}
 
 		void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)

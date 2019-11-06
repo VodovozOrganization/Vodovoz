@@ -481,6 +481,12 @@ namespace Vodovoz.ViewModels.Logistic
 			set => SetField(ref deliveryToTime, value);
 		}
 
+		DeliveryScheduleFilterType deliveryScheduleType = DeliveryScheduleFilterType.DeliveryStart;
+		public virtual DeliveryScheduleFilterType DeliveryScheduleType {
+			get => deliveryScheduleType;
+			set => SetField(ref deliveryScheduleType, value);
+		}
+
 		public virtual GenericObservableList<Subdivision> ObservableSubdivisions { get; set; }
 
 		#endregion
@@ -934,7 +940,9 @@ namespace Vodovoz.ViewModels.Logistic
 			GeographicGroup geographicGroupAlias = null;
 
 			var baseOrderQuery = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, ShowCompleted)
-												.GetExecutableQueryOver(UoW.Session);
+												.GetExecutableQueryOver(UoW.Session)
+												;
+
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 			if(selectedGeographicGroup.Any()) {
 				baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
@@ -950,20 +958,34 @@ namespace Vodovoz.ViewModels.Logistic
 						   .Fetch(SelectMode.Fetch, x => x.OrderItems)
 						   .Future();
 
-			/*var withoutLocation = ordersQuery.Where(x => !x.DeliveryPoint.CoordinatesExist)
+			switch(DeliveryScheduleType) {
+				case DeliveryScheduleFilterType.DeliveryStart:
+					OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+											 .Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
+											 .Where(x => x.DeliverySchedule.From <= DeliveryToTime)
 											 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-											 .ToList();
-			if(withoutLocation.Any())
-				ShowWarningMessage(
-					"Не все заказы были загружены, т.к. отсутствуют координаты: " + string.Join(", ", withoutLocation.Select(x => x.Id.ToString()))
-				);*/
-
-			OrdersOnDay = ordersQuery.Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
-									 .Where(x => x.DeliverySchedule.From <= DeliveryToTime)
-									 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-									 .Where(x => x.DeliveryPoint.CoordinatesExist)
-									 .ToList()
-									 ;
+											 .ToList()
+											 ;
+					break;
+				case DeliveryScheduleFilterType.DeliveryEnd:
+					OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+											 .Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
+											 .Where(x => x.DeliverySchedule.To <= DeliveryToTime)
+											 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+											 .ToList()
+											 ;
+					break;
+				case DeliveryScheduleFilterType.DeliveryStartAndEnd:
+					OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+											 .Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
+											 .Where(x => x.DeliverySchedule.To <= DeliveryToTime)
+											 .Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
+											 .Where(x => x.DeliverySchedule.From <= DeliveryToTime)
+											 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+											 .ToList()
+											 ;
+					break;
+			}
 
 			/*var outLogisticAreas = OrdersOnDay
 				.Where(
