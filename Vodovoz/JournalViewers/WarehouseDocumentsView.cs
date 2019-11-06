@@ -9,7 +9,7 @@ using QSOrmProject;
 using QSOrmProject.UpdateNotification;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
-using Vodovoz.Core.Permissions;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModel;

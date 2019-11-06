@@ -8,7 +8,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Validation.GtkUI;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
-using Vodovoz.Core.Permissions;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Permissions;

@@ -104,6 +104,12 @@
     <Compile Include="JournalViewModels\WageCalculation\SalesPlanJournalViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\SalesPlanViewModel.cs" />
     <Compile Include="JournalNodes\SalesPlanJournalNode.cs" />
+    <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
+    <Compile Include="Infrastructure\Permissions\IWarehousePermissionValidator.cs" />
+    <Compile Include="Infrastructure\Permissions\WarehousePermissions.cs" />
+    <Compile Include="Infrastructure\Permissions\WarehousePermissionValidator.cs" />
+    <Compile Include="Infrastructure\Permissions\IWarehousePermissionValidatorFactory.cs" />
+    <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -125,6 +131,7 @@
     <Folder Include="FilterViewModels\Suppliers\" />
     <Folder Include="ViewModels\WageCalculation\" />
     <Folder Include="JournalViewModels\WageCalculation\" />
+    <Folder Include="Infrastructure\Permissions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

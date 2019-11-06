@@ -918,7 +918,6 @@
     <Compile Include="ServiceDialogs\Database\ReplaceEntityLinksDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.ReplaceEntityLinksDlg.cs" />
     <Compile Include="ReportsParameters\Store\StockMovements.cs" />
-    <Compile Include="Core\Permissions\WarehousePermissions.cs" />
     <Compile Include="Core\CurrentUserSettings.cs" />
     <Compile Include="Core\CurrentPermissions.cs" />
     <Compile Include="Additions\Store\StoreDocumentHelper.cs" />
@@ -1331,6 +1330,8 @@
     <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
     <Compile Include="JournalViewModels\IAdditionalJournalRestriction.cs" />
     <Compile Include="JournalViewModels\NomenclaturesForOrderJournalRestriction.cs" />
+    <Compile Include="Core\WarehousePermissionValidator.cs" />
+    <Compile Include="Core\WarehousePermissionValidatorFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

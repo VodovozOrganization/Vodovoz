@@ -12,7 +12,7 @@ using QSOrmProject;
 using QSReport;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
-using Vodovoz.Core.Permissions;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;

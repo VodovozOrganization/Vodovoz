@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Documents;
 
-namespace Vodovoz.Core.Permissions
+namespace Vodovoz.Infrastructure.Permissions
 {
 	public enum WarehousePermissions
 	{
@@ -58,5 +58,4 @@ namespace Vodovoz.Core.Permissions
 			Type = type;
 		}
 	}
-
 }

@@ -15,7 +15,6 @@ using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Repositories;
-using QS.Tdi.Gtk;
 using QS.Widgets.GtkUI;
 using QSBusinessCommon;
 using QSContacts;
@@ -25,7 +24,7 @@ using QSOrmProject.DomainMapping;
 using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Core;
-using Vodovoz.Core.Permissions;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Dialogs.Cash.CashTransfer;
@@ -74,6 +73,9 @@ using Vodovoz.Views.Organization;
 using Vodovoz.Views.Suppliers;
 using Vodovoz.Views.WageCalculation;
 using Vodovoz.ViewModels.FuelDocuments;
+using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.Services.Permissions;
+using Vodovoz.Core.Permissions;
 
 namespace Vodovoz
 {
@@ -150,7 +152,9 @@ namespace Vodovoz
 
 			UserDialog.PermissionViewsCreator = () => {
 				return new List<IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
-			};		
+			};
+
+			WarehousePermissionService.WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
 		}
 
 		static void ConfigureViewModelWidgetResolver()
