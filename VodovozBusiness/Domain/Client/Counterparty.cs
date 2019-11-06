@@ -255,7 +255,12 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Форма контрагента")]
 		public virtual PersonType PersonType {
 			get => personType;
-			set => SetField(ref personType, value, () => PersonType);
+			set {
+				SetField(ref personType, value, () => PersonType);
+
+				if(value == PersonType.natural)
+					PaymentMethod = PaymentType.cash;
+			}
 		}
 
 		ExpenseCategory defaultExpenseCategory;
