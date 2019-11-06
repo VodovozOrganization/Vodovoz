@@ -1331,6 +1331,7 @@
     <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
     <Compile Include="JournalViewModels\IAdditionalJournalRestriction.cs" />
     <Compile Include="JournalViewModels\NomenclaturesForOrderJournalRestriction.cs" />
+    <Compile Include="ViewModels\Logistic\DeliveryScheduleFilterType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
