@@ -133,7 +133,6 @@ namespace Vodovoz.Core.Permissions
 				savedPermission = foundOriginalPermission;
 				PermissionListViewModel.PermissionsList.Add(savedPermission);
 			}
-			uow.Save(savedPermission.EntitySubdivisionOnlyPermission);
 		}
 
 		public void DeletePermission(SubdivisionPermissionNode deletedPermission)
@@ -146,6 +145,18 @@ namespace Vodovoz.Core.Permissions
 			uow.Delete(deletedPermission.EntitySubdivisionOnlyPermission);
 			foreach(var permission in deletedPermission.EntityPermissionExtended)
 				uow.Delete(permission);
+		}
+
+		public void SavePermissions(IUnitOfWork uow)
+		{
+			IEnumerable<EntitySubdivisionOnlyPermission> permissionList = PermissionListViewModel.PermissionsList
+					.Select(x => x.EntityPermission)
+					.OfType<EntitySubdivisionOnlyPermission>();
+
+			foreach(var item in permissionList)
+				uow.Save(item);
+
+			PermissionListViewModel.SaveExtendedPermissions(uow);
 		}
 	}
 }

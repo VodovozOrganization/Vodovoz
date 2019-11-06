@@ -73,7 +73,7 @@ namespace Vodovoz.Views.Organization
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
 
-			ViewModel.OnSavedEntity += () => subdivisionentitypermissionwidget.ViewModel.PermissionListViewModel.SaveExtendedPermissions(subdivisionentitypermissionwidget.UoW);
+			ViewModel.OnSavedEntity += () => subdivisionentitypermissionwidget.ViewModel.SavePermissions(subdivisionentitypermissionwidget.UoW);
 
 		}
 
