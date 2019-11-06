@@ -34,10 +34,12 @@ namespace Vodovoz.ViewModels.Organization
 			Entity.ObservableChildSubdivisions.ElementRemoved += (aList, aIdx, aObject) => OnPropertyChanged(() => GeographicGroupVisible);
 		}
 
-		protected override void BeforeSave()
+		public override bool Save(bool close)
 		{
+			bool res = base.Save(close);
 			OnSavedEntity?.Invoke();
-			base.BeforeSave();
+			UoW.Commit();
+			return res;
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;
