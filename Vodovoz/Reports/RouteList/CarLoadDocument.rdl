@@ -143,7 +143,7 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Equipment">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	n.official_name,
@@ -180,7 +180,7 @@ GROUP BY eq.nomenclature_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="official_name">
           <DataField>official_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1865,7 +1865,7 @@ GROUP BY eq.nomenclature_id
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>42.5pt</Left>
-        <Top>401.7pt</Top>
+        <Top>408.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1879,7 +1879,7 @@ GROUP BY eq.nomenclature_id
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
         <Left>310.1pt</Left>
-        <Top>401.5pt</Top>
+        <Top>408.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2300,7 +2300,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
-          <PaddingTop>50pt</PaddingTop>
+          <PaddingTop>0pt</PaddingTop>
         </Style>
         <TableColumns>
           <TableColumn>
@@ -2401,7 +2401,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>22.4pt</Left>
-        <Top>365.1pt</Top>
+        <Top>367.5pt</Top>
         <ZIndex>2</ZIndex>
         <Filters>
           <Filter>
@@ -2508,7 +2508,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
         <Left>310.2pt</Left>
-        <Top>509.3pt</Top>
+        <Top>515.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2522,7 +2522,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>42.6pt</Left>
-        <Top>509.5pt</Top>
+        <Top>515.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2543,7 +2543,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
-          <PaddingTop>50pt</PaddingTop>
+          <PaddingTop>0pt</PaddingTop>
         </Style>
         <TableColumns>
           <TableColumn>
@@ -2579,7 +2579,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>400.0pt</Left>
-        <Top>364.8pt</Top>
+        <Top>367.2pt</Top>
         <ZIndex>2</ZIndex>
         <TableGroups>
           <TableGroup>
@@ -2639,7 +2639,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
-          <PaddingTop>50pt</PaddingTop>
+          <PaddingTop>0pt</PaddingTop>
         </Style>
         <TableColumns>
           <TableColumn>
@@ -2675,7 +2675,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>399.8pt</Left>
-        <Top>470.8pt</Top>
+        <Top>473.2pt</Top>
         <ZIndex>2</ZIndex>
         <TableGroups>
           <TableGroup>
@@ -2735,7 +2735,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
-          <PaddingTop>50pt</PaddingTop>
+          <PaddingTop>0pt</PaddingTop>
         </Style>
         <TableColumns>
           <TableColumn>
@@ -2836,7 +2836,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>22.8pt</Left>
-        <Top>470.9pt</Top>
+        <Top>473.3pt</Top>
         <ZIndex>2</ZIndex>
         <Filters>
           <Filter>
@@ -2849,7 +2849,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Filters>
       </Table>
     </ReportItems>
-    <Height>529.1pt</Height>
+    <Height>531.7pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
