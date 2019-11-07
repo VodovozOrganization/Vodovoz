@@ -759,6 +759,9 @@
     <Compile Include="Domain\WageCalculation\AdvancedWageParameter\DeliveryTimeAdvancedWageParameter.cs" />
     <Compile Include="Domain\WageCalculation\AdvancedWageParameter\IAdvancedWageParameter.cs" />
     <Compile Include="Domain\WageCalculation\AdvancedWageParameter\BottlesCountAdvancedWageParameter.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\DeliveryTimeAdvancedWageParameterMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\AdvancedWageParameterMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\BottlesCountAdvancedWageParameterMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -829,6 +832,7 @@
     <Folder Include="Domain\Sms\" />
     <Folder Include="HibernateMapping\Sms\" />
     <Folder Include="Domain\WageCalculation\AdvancedWageParameter\" />
+    <Folder Include="HibernateMapping\WageCalculation\AdvancedWageParameters\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
