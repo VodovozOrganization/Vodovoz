@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.DomainModel.Config;
+using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -22,7 +25,6 @@ namespace Vodovoz.JournalViewModels.Suppliers
 	{
 		readonly RequestsToSuppliersFilterViewModel filterViewModel;
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		readonly ICommonServices commonServices;
 		readonly ISupplierPriceItemsRepository supplierPriceItemsRepository;
 		readonly IEmployeeService employeeService;
 
@@ -36,11 +38,12 @@ namespace Vodovoz.JournalViewModels.Suppliers
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.filterViewModel = filterViewModel;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			TabName = "Журнал заявок поставщикам";
-			SetOrder(c => c.Id, true);
+
+			var threadLoader = DataLoader as ThreadDataLoader<RequestToSupplierJournalNode>;
+			threadLoader.MergeInOrderBy(x => x.Id, true);
 
 			UpdateOnChanges(typeof(RequestToSupplier));
 		}
@@ -111,5 +114,43 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			employeeService,
 			supplierPriceItemsRepository
 		);
+
+		protected override void CreatePopupActions()
+		{
+			PopupActionsList.Add(
+				new JournalAction(
+					"Скопировать заявку",
+					n => EntityConfigs[typeof(RequestToSupplier)].PermissionResult.CanCreate,
+					n => true,
+					n => {
+						var currentRequestId = n.OfType<RequestToSupplierJournalNode>().FirstOrDefault()?.Id;
+						if(currentRequestId.HasValue) {
+							var currentRequest = UoW.GetById<RequestToSupplier>(currentRequestId.Value);
+
+							RequestToSupplierViewModel newRequestVM = new RequestToSupplierViewModel(
+								EntityUoWBuilder.ForCreate(),
+								unitOfWorkFactory,
+								commonServices,
+								employeeService,
+								supplierPriceItemsRepository
+							);
+
+							foreach(ILevelingRequestNode item in currentRequest.ObservableRequestingNomenclatureItems) {
+								if(item is RequestToSupplierItem requestItem) {
+									var newItem = new RequestToSupplierItem {
+										Nomenclature = requestItem.Nomenclature,
+										Quantity = requestItem.Quantity,
+										RequestToSupplier = newRequestVM.Entity
+									};
+									newRequestVM.Entity.ObservableRequestingNomenclatureItems.Add(newItem);
+								}
+							}
+
+							TabParent.AddSlaveTab(this, newRequestVM);
+						}
+					}
+				)
+			);
+		}
 	}
 }
