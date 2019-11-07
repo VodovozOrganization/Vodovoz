@@ -6,6 +6,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.FilterViewModels.Organization;
@@ -17,12 +18,17 @@ namespace Vodovoz.JournalViewModels.Organization
 	public class SubdivisionsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Subdivision, SubdivisionViewModel, SubdivisionJournalNode, SubdivisionFilterViewModel>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
-		private readonly ICommonServices commonServices;
+		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 
-		public SubdivisionsJournalViewModel(SubdivisionFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public SubdivisionsJournalViewModel(
+			SubdivisionFilterViewModel filterViewModel,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			TabName = "Выбор подразделения";
 		}
 
@@ -65,8 +71,8 @@ namespace Vodovoz.JournalViewModels.Organization
 
 		};
 
-		protected override Func<SubdivisionViewModel> CreateDialogFunction => () => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices);
+		protected override Func<SubdivisionViewModel> CreateDialogFunction => () => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, employeeSelectorFactory);
 
-		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction => (node) => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices);
+		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction => (node) => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, employeeSelectorFactory);
 	}
 }

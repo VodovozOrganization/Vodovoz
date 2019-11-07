@@ -8,8 +8,10 @@ using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.Fuel
@@ -31,21 +33,33 @@ namespace Vodovoz.Dialogs.Fuel
 			ydatepickerDate.Binding.AddBinding(ViewModel, e => e.CanEditDate, w => w.Sensitive).InitializeFromSource();
 			ylabelCashierValue.Binding.AddBinding(ViewModel.Entity, e => e.Cashier, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
 
-			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(() => {
-				var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(x => x.Name,
-						() => new ExpenseCategoryViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory.GetDefaultFactory, QS.Project.Services.ServicesConfig.CommonServices),
-						(node) => new ExpenseCategoryViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory.GetDefaultFactory, QS.Project.Services.ServicesConfig.CommonServices),
-						 UnitOfWorkFactory.GetDefaultFactory,
+			var expenseCategorySelectorFactory = new SimpleEntitySelectorFactory<ExpenseCategory, ExpenseCategoryViewModel>(
+				() => {
+					var expenseCategoryJournalViewModel = new SimpleEntityJournalViewModel<ExpenseCategory, ExpenseCategoryViewModel>(
+						x => x.Name,
+						() => new ExpenseCategoryViewModel(
+							EntityUoWBuilder.ForCreate(),
+							UnitOfWorkFactory.GetDefaultFactory,
+							QS.Project.Services.ServicesConfig.CommonServices
+						),
+						(node) => new ExpenseCategoryViewModel(
+							EntityUoWBuilder.ForOpen(node.Id),
+							UnitOfWorkFactory.GetDefaultFactory,
+							QS.Project.Services.ServicesConfig.CommonServices
+						),
+						UnitOfWorkFactory.GetDefaultFactory,
 						QS.Project.Services.ServicesConfig.CommonServices
-					);
-				expenseCategoryJournalViewModel.SelectionMode = JournalSelectionMode.Single;
-				return expenseCategoryJournalViewModel;
-			});
+					) {
+						SelectionMode = JournalSelectionMode.Single
+					};
+					return expenseCategoryJournalViewModel;
+				}
+			);
 			entryExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategorySelectorFactory);
 			entryExpenseCategory.Binding.AddBinding(ViewModel.Entity, e => e.ExpenseCategory, w => w.Subject).InitializeFromSource();
 			entryExpenseCategory.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryEmployee.SetEntityAutocompleteSelectorFactory(new EntityRepresentationAdapterFactory(typeof(Employee), () => new EmployeesVM()));
+			entryEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			entryEmployee.Binding.AddBinding(ViewModel.Entity, e => e.Employee, w => w.Subject).InitializeFromSource();
 			entryEmployee.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
@@ -67,7 +81,7 @@ namespace Vodovoz.Dialogs.Fuel
 			ytreeviewItems.ItemsDataSource = ViewModel.Entity.ObservableFuelWriteoffDocumentItems;
 			ytreeviewItems.Selection.Changed += (sender, e) => {
 				ViewModel.AddWriteoffItemCommand.RaiseCanExecuteChanged();
-				ViewModel.DeleteWriteoffItemCommand.RaiseCanExecuteChanged(); 
+				ViewModel.DeleteWriteoffItemCommand.RaiseCanExecuteChanged();
 			};
 
 			ybuttonAddItem.Clicked += (sender, e) => ViewModel.AddWriteoffItemCommand.Execute();

@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
@@ -14,15 +15,18 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		private readonly IEmployeeService employeeService;
 		private readonly ISubdivisionRepository subdivisionRepository;
+		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 
 		public CreateInnerComplaintViewModel(
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
-			ICommonServices commonServices
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory
 			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			Entity.ComplaintType = ComplaintType.Inner;
@@ -47,7 +51,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public GuiltyItemsViewModel GuiltyItemsViewModel {
 			get {
 				if(guiltyItemsViewModel == null) {
-					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, subdivisionRepository);
+					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, subdivisionRepository, employeeSelectorFactory);
 				}
 
 				return guiltyItemsViewModel;

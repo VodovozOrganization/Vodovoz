@@ -8,7 +8,6 @@ using QS.BusinessCommon.Domain;
 using QS.Contacts;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
@@ -686,7 +685,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
 		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
-		IEntitySelectorFactory employeeSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Employee), () => new EmployeesVM());
+		IEntityAutocompleteSelectorFactory employeeSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
