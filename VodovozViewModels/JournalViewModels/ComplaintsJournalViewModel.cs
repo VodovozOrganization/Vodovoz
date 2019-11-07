@@ -36,7 +36,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICommonServices commonServices;
 		private readonly IUndeliveriesViewOpener undeliveriesViewOpener;
 		private readonly IEmployeeService employeeService;
-		private readonly IEntitySelectorFactory employeeSelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
@@ -59,7 +59,7 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			IUndeliveriesViewOpener undeliveriesViewOpener,
 			IEmployeeService employeeService,
-			IEntitySelectorFactory employeeSelectorFactory,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionService subdivisionService,
@@ -333,6 +333,7 @@ namespace Vodovoz.JournalViewModels
 						EntityUoWBuilder.ForCreate(),
 						unitOfWorkFactory,
 						employeeService,
+						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						subdivisionRepository,
 						commonServices
@@ -363,7 +364,8 @@ namespace Vodovoz.JournalViewModels
 						unitOfWorkFactory,
 						employeeService, 
 						subdivisionRepository, 
-						commonServices
+						commonServices,
+						employeeSelectorFactory
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(

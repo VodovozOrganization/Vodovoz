@@ -1,24 +1,26 @@
 ﻿using System;
-using Vodovoz.Domain.Client;
-using Vodovoz.JournalNodes;
-using QS.DomainModel.Config;
-using QS.Services;
 using NHibernate;
-using Vodovoz.Domain.Employees;
-using NHibernate.Transform;
-using Vodovoz.ViewModels;
-using QS.Project.Domain;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.Filters.ViewModels;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
+using QS.Services;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalNodes;
+using Vodovoz.ViewModels;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class ResidueJournalViewModel : FilterableSingleEntityJournalViewModelBase<Residue, ResidueViewModel, ResidueJournalNode, ResidueFilterViewModel>
 	{
+		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
+
 		public ResidueJournalViewModel(
 			ResidueFilterViewModel filterViewModel,
 			IEmployeeService employeeService,
@@ -27,9 +29,12 @@ namespace Vodovoz.JournalViewModels
 			IDepositRepository depositRepository,
 			IBottlesRepository bottlesRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices) 
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+		) 
 		: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			TabName = "Журнал остатков";
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.representationEntityPicker = representationEntityPicker ?? throw new ArgumentNullException(nameof(representationEntityPicker));
@@ -119,7 +124,8 @@ namespace Vodovoz.JournalViewModels
 			bottlesRepository, 
 			depositRepository, 
 			moneyRepository, 
-			commonServices
+			commonServices,
+			employeeSelectorFactory
 		);
 
 		protected override Func<ResidueJournalNode, ResidueViewModel> OpenDialogFunction => (node) => new ResidueViewModel(
@@ -130,7 +136,8 @@ namespace Vodovoz.JournalViewModels
 			bottlesRepository, 
 			depositRepository, 
 			moneyRepository, 
-			commonServices
+			commonServices,
+			employeeSelectorFactory
 		);
 	}
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using QS.Commands;
+using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.EntityRepositories.Subdivisions;
-using QS.DomainModel.UoW;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -12,9 +13,17 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		readonly ISubdivisionRepository subdivisionRepository;
 		readonly ICommonServices commonServices;
+		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 
-		public GuiltyItemsViewModel(Complaint entity, IUnitOfWork uow, ICommonServices commonServices, ISubdivisionRepository subdivisionRepository) : base(entity, commonServices)
+		public GuiltyItemsViewModel(
+			Complaint entity,
+			IUnitOfWork uow,
+			ICommonServices commonServices,
+			ISubdivisionRepository subdivisionRepository,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+		) : base(entity, commonServices)
 		{
+			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.commonServices = commonServices;
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -55,7 +64,12 @@ namespace Vodovoz.ViewModels.Complaints
 
 		void CreateItem()
 		{
-			CurrentGuiltyVM = new GuiltyItemViewModel(new ComplaintGuiltyItem(), commonServices, subdivisionRepository) {
+			CurrentGuiltyVM = new GuiltyItemViewModel(
+				new ComplaintGuiltyItem(),
+				commonServices,
+				subdivisionRepository,
+				employeeSelectorFactory
+			) {
 				UoW = UoW
 			};
 			UpdateAcessibility();

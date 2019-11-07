@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ICommonServices commonServices;
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
-		private readonly IEntitySelectorFactory employeeSelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 
@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModels.Complaints
 			ICommonServices commonServices,
 			IUndeliveriesViewOpener undeliveryViewOpener,
 			IEmployeeService employeeService,
-			IEntitySelectorFactory employeeSelectorFactory,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository
@@ -154,7 +154,15 @@ namespace Vodovoz.ViewModels.Complaints
 		public ComplaintDiscussionsViewModel DiscussionsViewModel {
 			get {
 				if(discussionsViewModel == null) {
-					discussionsViewModel = new ComplaintDiscussionsViewModel(Entity, this, UoW, filePickerService, employeeService, CommonServices);
+					discussionsViewModel = new ComplaintDiscussionsViewModel(
+						Entity,
+						this,
+						UoW,
+						filePickerService,
+						employeeService,
+						CommonServices,
+						employeeSelectorFactory
+					);
 				}
 				return discussionsViewModel;
 			}
@@ -164,7 +172,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public GuiltyItemsViewModel GuiltyItemsViewModel {
 			get {
 				if(guiltyItemsViewModel == null) {
-					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, subdivisionRepository);
+					guiltyItemsViewModel = new GuiltyItemsViewModel(Entity, UoW, CommonServices, subdivisionRepository, employeeSelectorFactory);
 				}
 
 				return guiltyItemsViewModel;

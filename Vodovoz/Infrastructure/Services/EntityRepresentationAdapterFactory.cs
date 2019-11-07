@@ -9,6 +9,7 @@ namespace Vodovoz.Infrastructure.Services
 		private readonly string tabName;
 		public Type EntityType { get; private set; }
 
+		[Obsolete("Не корректно работает поиск вкладки c этой моделью в QS.Tdi.Gtk.TdiNotebook", true)]
 		public EntityRepresentationAdapterFactory(Type entityType, Func<IRepresentationModel> modelFunc, string tabName = null)
 		{
 			EntityType = entityType;

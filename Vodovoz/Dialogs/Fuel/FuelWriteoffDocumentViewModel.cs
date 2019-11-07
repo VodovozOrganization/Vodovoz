@@ -6,6 +6,7 @@ using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.Services;
 using QS.ViewModels;
@@ -26,15 +27,20 @@ namespace Vodovoz.Dialogs.Fuel
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
 
+		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+
 		public FuelWriteoffDocumentViewModel(
 			IEntityUoWBuilder uoWBuilder, 
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IFuelRepository fuelRepository,
 			ISubdivisionRepository subdivisionRepository,
-			ICommonServices commonServices) 
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+		) 
 		: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));

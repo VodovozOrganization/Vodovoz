@@ -4,17 +4,17 @@ using Gamma.GtkWidgets;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Validation.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Validation.GtkUI;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Representations;
 using Vodovoz.ViewModel;
-using Vodovoz.EntityRepositories.WageCalculation;
+using System;
 
 namespace Vodovoz
 {
+	[Obsolete("Использовать Vodovoz.Views.Organization.SubdivisionView")]
 	public partial class SubdivisionDlg : QS.Dialog.Gtk.EntityDialogBase<Subdivision>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -22,6 +22,7 @@ namespace Vodovoz
 
 		public override bool HasChanges { get => true; set { } }
 
+		[Obsolete("Использовать Vodovoz.Views.Organization.SubdivisionView")]
 		public SubdivisionDlg()
 		{
 			this.Build();
@@ -30,6 +31,7 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		[Obsolete("Использовать Vodovoz.Views.Organization.SubdivisionView")]
 		public SubdivisionDlg(int id)
 		{
 			this.Build();
@@ -38,6 +40,7 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		[Obsolete("Использовать Vodovoz.Views.Organization.SubdivisionView")]
 		public SubdivisionDlg(Subdivision sub) : this(sub.Id) { }
 
 		private void ConfigureDlg()
