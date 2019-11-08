@@ -26,7 +26,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			ChangeWageParameter(uow, source.RouteListId);
 
 			WageParameter actualWageParameter = employee.GetActualWageParameter(source.RouteListDate);
-			if(source.IsLargus && actualWageParameter is RatesLevelWageParameter) {
+			if(source.IsLargusOrGazelle && actualWageParameter is RatesLevelWageParameter) {
 				actualWageParameter = wageCalculationRepository.GetActualParameterForOurCars(uow, source.RouteListDate);
 			}
 
