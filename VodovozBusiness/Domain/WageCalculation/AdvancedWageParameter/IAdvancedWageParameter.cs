@@ -1,12 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
+namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
 	public interface IAdvancedWageParameter
 	{
-		int Id { get; set; }
-		AdvancedWageParameter ParentParameter { get; set; }
-		WageRateTypes? WageRateType { get; set; }
+		IAdvancedWageParameter ParentParameter { get; }
+		WageRate WageRate { get; set; }
 		decimal Wage { get; set; }
 		bool HasConflicWith(IAdvancedWageParameter advancedWageParameter);
 		AdvancedWageParameterType AdvancedWageParameterType { get; }
@@ -18,5 +18,12 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
 		DeliveryTime,
 		[Display(Name = "По количеству бутылей")]
 		BottlesCount
+	}
+
+	public class AdvancedWageParameterStringType : NHibernate.Type.EnumStringType
+	{
+		public AdvancedWageParameterStringType() : base(typeof(AdvancedWageParameterType))
+		{
+		}
 	}
 }

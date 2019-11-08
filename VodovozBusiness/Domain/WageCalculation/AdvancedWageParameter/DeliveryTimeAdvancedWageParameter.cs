@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 
-namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
+namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
 	[Appellative(
 	Gender = GrammaticalGender.Masculine,
@@ -12,6 +13,8 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
 	[HistoryTrace]
 	public class DeliveryTimeAdvancedWageParameter : AdvancedWageParameter
 	{
+		public override AdvancedWageParameterType AdvancedWageParameterType { get => AdvancedWageParameterType.DeliveryTime; set { } }
+
 		private TimeSpan startTime;
 		[Display(Name = "Время доставки от")]
 		public virtual TimeSpan StartTime {
@@ -26,7 +29,6 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
 			set => SetField(ref endTime, value);
 		}
 
-		public override AdvancedWageParameterType AdvancedWageParameterType => throw new NotImplementedException();
 
 		public override bool HasConflicWith(IAdvancedWageParameter advancedWageParameter)
 		{

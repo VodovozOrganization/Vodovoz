@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 
-namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
+namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
 	[Appellative(
 		Gender = GrammaticalGender.Masculine,
@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
 	[HistoryTrace]
 	public class BottlesCountAdvancedWageParameter : AdvancedWageParameter
 	{
-		public override AdvancedWageParameterType AdvancedWageParameterType => AdvancedWageParameterType.BottlesCount;
+		public override AdvancedWageParameterType AdvancedWageParameterType { get => AdvancedWageParameterType.BottlesCount; set { } }
 
 		private int bottlesFrom;
 		[Display(Name = "От")]
@@ -79,5 +79,12 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
 		LessOrEqual,
 		More,
 		MoreOrEqual
+	}
+
+	public class ComparisonSingStringType : NHibernate.Type.EnumStringType
+	{
+		public ComparisonSingStringType() : base(typeof(ComparisonSings))
+		{
+		}
 	}
 }

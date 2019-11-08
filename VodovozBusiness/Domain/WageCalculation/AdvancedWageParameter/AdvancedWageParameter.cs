@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 
-namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
+namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
 	[Appellative(
 	Gender = GrammaticalGender.Masculine,
@@ -12,9 +13,9 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
 	)]
 	public abstract class AdvancedWageParameter : PropertyChangedBase, IAdvancedWageParameter, IDomainObject
 	{
-		public int Id { get; set; }
+		public virtual int Id { get; set; }
 
-		public AdvancedWageParameter parentParameter;
+		private AdvancedWageParameter parentParameter;
 		public virtual AdvancedWageParameter ParentParameter {
 			get => parentParameter;
 			set { 
@@ -24,9 +25,9 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
 			}
 		}
 
-		private WageRateTypes? wageRateType;
+		private WageRate wageRateType;
 		[Display(Name = "Тип ставки для расчета зарплаты")]
-		public virtual WageRateTypes? WageRateType { //Устанавливается только у корневого элемента в иерархии дополнительных параметров
+		public virtual WageRate WageRate { //Устанавливается только у корневого элемента в иерархии дополнительных параметров
 			get => wageRateType;
 			set {
 				SetField(ref wageRateType, value);
@@ -42,7 +43,9 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameter
 			set => SetField(ref wage, value);
 		}
 
-		public abstract AdvancedWageParameterType AdvancedWageParameterType { get; }
+		public abstract AdvancedWageParameterType AdvancedWageParameterType { get; set; }
+
+		IAdvancedWageParameter IAdvancedWageParameter.ParentParameter => ParentParameter;
 
 		public abstract bool HasConflicWith(IAdvancedWageParameter advancedWageParameter);
 

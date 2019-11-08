@@ -11,7 +11,7 @@ namespace Vodovoz.HibernateMapping.WageCalculation.AdvancedWageParameters
 			Table("advanced_wage_parameter");
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			DiscriminateSubClassesOnColumn("type");
-			Map(x => x.AdvancedWageParameterType).Column("type").CustomType<AdvancedWageParameterStringType>();
+			Map(x => x.AdvancedWageParameterType).Column("type").CustomType<AdvancedWageParameterStringType>().Update().Not.Insert();
 
 			Map(x => x.Wage).Column("wage");
 			References(x => x.ParentParameter).Column("parent_id");
