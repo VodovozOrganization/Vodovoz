@@ -137,6 +137,8 @@ namespace Vodovoz.JournalViewModels.Suppliers
 								employeeService,
 								supplierPriceItemsRepository
 							);
+							newRequestVM.Entity.Name = currentRequest.Name;
+							newRequestVM.Entity.WithDelayOnly = currentRequest.WithDelayOnly;
 
 							foreach(ILevelingRequestNode item in currentRequest.ObservableRequestingNomenclatureItems) {
 								if(item is RequestToSupplierItem requestItem) {
