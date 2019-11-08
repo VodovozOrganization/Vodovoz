@@ -105,7 +105,7 @@ namespace Vodovoz.Views.Suppliers
 			treeItems.RowActivated += (o, args) => ViewModel.OpenItemCommand.Execute(GetSelectedTreeItems());
 
 			btnOpenItem.Clicked += (sender, e) => ViewModel.OpenItemCommand.Execute(GetSelectedTreeItems());
-			btnOpenItem.Binding.AddFuncBinding(ViewModel, vm => vm.CanInteractWithNomenclatureNode || vm.CanInteractWithSupplierNode, w => w.Sensitive).InitializeFromSource();
+			btnOpenItem.Binding.AddFuncBinding(ViewModel, vm => vm.AreNomenclatureNodesSelected || vm.AreSupplierNodesSelected, w => w.Sensitive).InitializeFromSource();
 
 			lblMinimalTotalSum.Binding.AddBinding(ViewModel, s => s.MinimalTotalSumText, w => w.Text).InitializeFromSource();
 
@@ -119,10 +119,10 @@ namespace Vodovoz.Views.Suppliers
 			btnAdd.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			btnRemove.Clicked += (sender, e) => ViewModel.RemoveRequestingNomenclatureCommand.Execute(GetSelectedTreeItems());
-			btnRemove.Binding.AddBinding(ViewModel, s => s.CanInteractWithNomenclatureNode, w => w.Sensitive).InitializeFromSource();
+			btnRemove.Binding.AddBinding(ViewModel, s => s.AreNomenclatureNodesSelected, w => w.Sensitive).InitializeFromSource();
 
 			btnTransfer.Clicked += (sender, e) => ViewModel.TransferRequestingNomenclatureCommand.Execute(GetSelectedTreeItems());
-			btnTransfer.Binding.AddBinding(ViewModel, s => s.CanInteractWithNomenclatureNode, w => w.Sensitive).InitializeFromSource();
+			btnTransfer.Binding.AddBinding(ViewModel, s => s.AreNomenclatureNodesSelected, w => w.Sensitive).InitializeFromSource();
 
 			btnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			btnCancel.Clicked += (sender, e) => ViewModel.Close(false);
@@ -130,8 +130,8 @@ namespace Vodovoz.Views.Suppliers
 
 		void UpdateSensitivitiesOnSelectionChanged(object sender, System.EventArgs e)
 		{
-			ViewModel.CanInteractWithNomenclatureNode = GetSelectedTreeItems().All(i => i is RequestToSupplierItem);
-			ViewModel.CanInteractWithSupplierNode = GetSelectedTreeItems().All(i => i is SupplierNode);
+			ViewModel.AreNomenclatureNodesSelected = GetSelectedTreeItems().All(i => i is RequestToSupplierItem);
+			ViewModel.AreSupplierNodesSelected = GetSelectedTreeItems().All(i => i is SupplierNode);
 		}
 
 		ILevelingRequestNode[] GetSelectedTreeItems() => treeItems.GetSelectedObjects<ILevelingRequestNode>();

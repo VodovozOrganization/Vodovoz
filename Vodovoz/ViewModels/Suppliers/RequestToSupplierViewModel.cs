@@ -46,7 +46,8 @@ namespace Vodovoz.ViewModels.Suppliers
 			Entity.ObservableRequestingNomenclatureItems.ListContentChanged += (aList, aIdx) => RefreshSuppliers();
 			Entity.ObservableRequestingNomenclatureItems.ElementRemoved += (aList, aIdx, aObject) => RefreshSuppliers();
 			NotifyConfiguration.Instance.BatchSubscribeOnEntity<SupplierPriceItem>(PriceFromSupplierNotifyCriteria);
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclaturePrice > (NomenclaturePriceNotifyCriteria);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclaturePrice>(NomenclaturePriceNotifyCriteria);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Counterparty>(CounterpartyNotifyCriteria);
 		}
 
 		bool canEdit = true;
@@ -55,16 +56,16 @@ namespace Vodovoz.ViewModels.Suppliers
 			set => SetField(ref canEdit, value);
 		}
 
-		bool canInteractWithNomenclatureNode;
-		public bool CanInteractWithNomenclatureNode {
-			get => canInteractWithNomenclatureNode;
-			set => SetField(ref canInteractWithNomenclatureNode, value);
+		bool areNomenclatureNodesSelected;
+		public bool AreNomenclatureNodesSelected {
+			get => areNomenclatureNodesSelected;
+			set => SetField(ref areNomenclatureNodesSelected, value);
 		}
 
-		bool canInteractWithSupplierNode;
-		public bool CanInteractWithSupplierNode {
-			get => canInteractWithSupplierNode;
-			set => SetField(ref canInteractWithSupplierNode, value);
+		bool areSupplierNodesSelected;
+		public bool AreSupplierNodesSelected {
+			get => areSupplierNodesSelected;
+			set => SetField(ref areSupplierNodesSelected, value);
 		}
 
 		bool needRefresh;
@@ -121,6 +122,27 @@ namespace Vodovoz.ViewModels.Suppliers
 					var response = AskQuestion(
 						"Цены продажи некоторых ТМЦ, выбранных в список номенклатур заявки поставщику, изменились.\nЖелаете обновить список?",
 						"Обновить список цен продажи номенклатур?"
+					);
+					if(response)
+						RefreshCommand.Execute();
+					return;
+				}
+			}
+		}
+
+		void CounterpartyNotifyCriteria(EntityChangeEvent[] e)
+		{
+			var updatedCounterparties = e.Select(ev => ev.GetEntity<Counterparty>());
+			var displayingSuppliers = Entity.ObservableRequestingNomenclatureItems
+											.Where(r => !r.Transfered)
+											.SelectMany(r => r.Children.OfType<SupplierNode>())
+											;
+			foreach(var s in displayingSuppliers) {
+				if(updatedCounterparties.FirstOrDefault(c => c.Id == s.SupplierPriceItem.Supplier.Id)?.DelayDays != s.SupplierPriceItem.Supplier.DelayDays) {
+					NeedRefresh = true;
+					var response = AskQuestion(
+						"Отсрочка у некоторых поставщиков из заявки изменилась.\nЖелаете обновить список?",
+						"Обновить заявку?"
 					);
 					if(response)
 						RefreshCommand.Execute();
@@ -237,7 +259,7 @@ namespace Vodovoz.ViewModels.Suppliers
 					foreach(var item in array)
 						Entity.RemoveNomenclatureRequest(item.Nomenclature.Id);
 				},
-				array => CanEdit && CanInteractWithNomenclatureNode
+				array => CanEdit && AreNomenclatureNodesSelected
 			);
 		}
 
@@ -278,7 +300,7 @@ namespace Vodovoz.ViewModels.Suppliers
 					vm.EntitySaved += (sender, e) => RefreshSuppliers();
 					this.TabParent.AddSlaveTab(this, vm);
 				},
-				array => array.Any() && CanInteractWithNomenclatureNode
+				array => array.Any() && AreNomenclatureNodesSelected
 			);
 		}
 
@@ -303,7 +325,18 @@ namespace Vodovoz.ViewModels.Suppliers
 						return;
 					}
 				},
-				array => array.Count() == 1 && (CanInteractWithNomenclatureNode || CanInteractWithSupplierNode)
+				array => {
+					if(array.Count() != 1)
+						return false;
+
+					if(AreNomenclatureNodesSelected && commonServices.PermissionService.ValidateUserPermission(typeof(Nomenclature), UserService.CurrentUserId).CanRead)
+						return true;
+
+					if(AreSupplierNodesSelected && commonServices.PermissionService.ValidateUserPermission(typeof(Counterparty), UserService.CurrentUserId).CanRead)
+						return true;
+
+					return false;
+				}
 			);
 		}
 

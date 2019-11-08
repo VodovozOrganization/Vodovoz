@@ -154,6 +154,30 @@ namespace Vodovoz.JournalViewModels.Suppliers
 					}
 				)
 			);
+
+			PopupActionsList.Add(
+				new JournalAction(
+					"Закрыть заявку",
+					n => {
+						var currentRequestId = n.OfType<RequestToSupplierJournalNode>().FirstOrDefault()?.Id;
+						if(currentRequestId.HasValue) {
+							var currentRequest = UoW.GetById<RequestToSupplier>(currentRequestId.Value);
+							return currentRequest.Status == RequestStatus.InProcess;
+						}
+						return false;
+					},
+					n => true,
+					n => {
+						var currentRequestId = n.OfType<RequestToSupplierJournalNode>().FirstOrDefault()?.Id;
+						if(currentRequestId.HasValue) {
+							var currentRequest = UoW.GetById<RequestToSupplier>(currentRequestId.Value);
+							currentRequest.Status = RequestStatus.Closed;
+							UoW.Save(currentRequest);
+							UoW.Commit();
+						}
+					}
+				)
+			);
 		}
 	}
 }

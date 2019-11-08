@@ -171,7 +171,9 @@ namespace Vodovoz.Domain.Suppliers
 		{
 			ObservableLevelingRequestNodes.Clear();
 			foreach(var reqItem in RequestingNomenclatureItems.Where(i => !i.Transfered)) {
-				uow.Session.Refresh(reqItem.Nomenclature.NomenclaturePrice.OrderBy(p => p.Price).FirstOrDefault());
+				var price = reqItem.Nomenclature.NomenclaturePrice.OrderBy(p => p.Price).FirstOrDefault();
+				if(price != null)
+					uow.Session.Refresh(price);
 
 				reqItem.Parent = null;
 				reqItem.Children = new List<ILevelingRequestNode>();
@@ -185,6 +187,7 @@ namespace Vodovoz.Domain.Suppliers
 				);
 				foreach(var child in children) {
 					uow.Session.Refresh(child);
+					uow.Session.Refresh(child.Supplier);
 					reqItem.Children.Add(
 						new SupplierNode {
 							Parent = reqItem,
