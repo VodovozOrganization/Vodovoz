@@ -20,7 +20,8 @@ namespace Vodovoz.EntityRepositories.Suppliers
 			IUnitOfWork uow,
 			Nomenclature nomenclature,
 			SupplierOrderingType orderingType,
-			AvailabilityForSale[] availabilityForSale
+			AvailabilityForSale[] availabilityForSale,
+			bool withDelayOnly
 		);
 	}
 }

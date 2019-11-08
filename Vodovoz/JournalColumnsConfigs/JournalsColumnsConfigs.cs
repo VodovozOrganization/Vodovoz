@@ -11,6 +11,7 @@ using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.JournalViewModels.WageCalculation;
 using Vodovoz.Representations;
+using Vodovoz.Domain.Suppliers;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -19,6 +20,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		static Gdk.Color colorBlack = new Gdk.Color(0, 0, 0);
 		static Gdk.Color colorRed = new Gdk.Color(0xfe, 0x5c, 0x5c);
 		static Gdk.Color colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
+		static Gdk.Color colorDarkGrey = new Gdk.Color(0x80, 0x80, 0x80);
 
 		public static void RegisterColumns()
 		{
@@ -178,10 +180,10 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddSetter<CellRenderer>((cell, node) => {
 						var color = colorWhite;
 
-						if(node.Status != Domain.Complaints.ComplaintStatuses.Closed) { 
+						if(node.Status != Domain.Complaints.ComplaintStatuses.Closed) {
 							if(node.LastPlannedCompletionDate.Date < DateTime.Today) {
 								color = colorRed;
-							} 
+							}
 						}
 						cell.CellBackgroundGdk = color;
 					})
@@ -233,6 +235,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Номер")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Статус")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Status.GetEnumTitle())
 					.AddColumn("Название")
 						.HeaderAlignment(0.5f)
 						.SetDataProperty(n => n.Name)
@@ -243,6 +248,8 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Author)
 					.AddColumn("")
+					.RowCells()
+					.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
 

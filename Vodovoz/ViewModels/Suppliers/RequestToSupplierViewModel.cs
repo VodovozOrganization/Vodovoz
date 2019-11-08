@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
-using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -42,10 +41,12 @@ namespace Vodovoz.ViewModels.Suppliers
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			CreateCommands();
 			RefreshSuppliers();
+			ConfigureEntityPropertyChanges();
 			Entity.ObservableRequestingNomenclatureItems.ElementAdded += (aList, aIdx) => RefreshSuppliers();
 			Entity.ObservableRequestingNomenclatureItems.ListContentChanged += (aList, aIdx) => RefreshSuppliers();
 			Entity.ObservableRequestingNomenclatureItems.ElementRemoved += (aList, aIdx, aObject) => RefreshSuppliers();
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<SupplierPriceItem>(NotifyCriteria);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<SupplierPriceItem>(PriceFromSupplierNotifyCriteria);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclaturePrice > (NomenclaturePriceNotifyCriteria);
 		}
 
 		bool canEdit = true;
@@ -54,11 +55,16 @@ namespace Vodovoz.ViewModels.Suppliers
 			set => SetField(ref canEdit, value);
 		}
 
-		bool canRemove;
-		[PropertyChangedAlso(nameof(CanTransfer))]
-		public bool CanRemove {
-			get => canRemove;
-			set => SetField(ref canRemove, value);
+		bool canInteractWithNomenclatureNode;
+		public bool CanInteractWithNomenclatureNode {
+			get => canInteractWithNomenclatureNode;
+			set => SetField(ref canInteractWithNomenclatureNode, value);
+		}
+
+		bool canInteractWithSupplierNode;
+		public bool CanInteractWithSupplierNode {
+			get => canInteractWithSupplierNode;
+			set => SetField(ref canInteractWithSupplierNode, value);
 		}
 
 		bool needRefresh;
@@ -66,8 +72,6 @@ namespace Vodovoz.ViewModels.Suppliers
 			get => needRefresh;
 			set => SetField(ref needRefresh, value);
 		}
-
-		public bool CanTransfer => CanRemove;
 
 		Employee currentEmployee;
 		public Employee CurrentEmployee {
@@ -84,7 +88,7 @@ namespace Vodovoz.ViewModels.Suppliers
 			set => SetField(ref minimalTotalSumText, value);
 		}
 
-		void NotifyCriteria(EntityChangeEvent[] e)
+		void PriceFromSupplierNotifyCriteria(EntityChangeEvent[] e)
 		{
 			var updatedPriceItems = e.Select(ev => ev.GetEntity<SupplierPriceItem>());
 			var displayingNomenclatures = Entity.ObservableRequestingNomenclatureItems
@@ -96,6 +100,27 @@ namespace Vodovoz.ViewModels.Suppliers
 					var response = AskQuestion(
 						"Цены на некоторые ТМЦ, выбранные в список цен поставщиков, изменились.\nЖелаете обновить список?",
 						"Обновить список цен поставщиков?"
+					);
+					if(response)
+						RefreshCommand.Execute();
+					return;
+				}
+			}
+		}
+
+		void NomenclaturePriceNotifyCriteria(EntityChangeEvent[] e)
+		{
+			var updatedPrices = e.Select(ev => ev.GetEntity<NomenclaturePrice>());
+			var displayingPrices = Entity.ObservableRequestingNomenclatureItems
+										 .Where(r => !r.Transfered)
+										 .SelectMany(r => r.Nomenclature.NomenclaturePrice)
+										 ;
+			foreach(var n in displayingPrices) {
+				if(updatedPrices.Select(p => p.Id).Contains(n.Id)) {
+					NeedRefresh = true;
+					var response = AskQuestion(
+						"Цены продажи некоторых ТМЦ, выбранных в список номенклатур заявки поставщику, изменились.\nЖелаете обновить список?",
+						"Обновить список цен продажи номенклатур?"
 					);
 					if(response)
 						RefreshCommand.Execute();
@@ -126,6 +151,14 @@ namespace Vodovoz.ViewModels.Suppliers
 			base.BeforeValidation();
 		}
 
+		void ConfigureEntityPropertyChanges()
+		{
+			OnEntityPropertyChanged(
+				RefreshCommand.Execute,
+				e => e.WithDelayOnly
+			);
+		}
+
 		#region Commands
 
 		void CreateCommands()
@@ -134,6 +167,7 @@ namespace Vodovoz.ViewModels.Suppliers
 			CreateAddRequestingNomenclatureCommand();
 			CreateRemoveRequestingNomenclatureCommand();
 			CreateTransferRequestingNomenclatureCommand();
+			CreateOpenItemCommand();
 		}
 
 		#region RefreshCommand
@@ -203,7 +237,7 @@ namespace Vodovoz.ViewModels.Suppliers
 					foreach(var item in array)
 						Entity.RemoveNomenclatureRequest(item.Nomenclature.Id);
 				},
-				array => CanEdit && CanRemove
+				array => CanEdit && CanInteractWithNomenclatureNode
 			);
 		}
 
@@ -244,11 +278,36 @@ namespace Vodovoz.ViewModels.Suppliers
 					vm.EntitySaved += (sender, e) => RefreshSuppliers();
 					this.TabParent.AddSlaveTab(this, vm);
 				},
-				array => CanTransfer
+				array => array.Any() && CanInteractWithNomenclatureNode
 			);
 		}
 
 		#endregion TransferRequestingNomenclatureCommand
+
+		#region OpenItemCommand
+
+		public DelegateCommand<ILevelingRequestNode[]> OpenItemCommand { get; private set; }
+		void CreateOpenItemCommand()
+		{
+			OpenItemCommand = new DelegateCommand<ILevelingRequestNode[]>(
+				array => {
+					var item = array.FirstOrDefault();
+					if(item is RequestToSupplierItem requestItem) {
+						var nom = requestItem.Nomenclature;
+						this.TabParent.AddSlaveTab(this, new NomenclatureDlg(nom));
+						return;
+					}
+					if(item is SupplierNode supplierItem) {
+						var sup = supplierItem.SupplierPriceItem.Supplier;
+						this.TabParent.AddSlaveTab(this, new CounterpartyDlg(sup));
+						return;
+					}
+				},
+				array => array.Count() == 1 && (CanInteractWithNomenclatureNode || CanInteractWithSupplierNode)
+			);
+		}
+
+		#endregion OpenItemCommand
 
 		#endregion Commands
 

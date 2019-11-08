@@ -5,6 +5,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Project.Repositories;
+using QS.Utilities;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -85,6 +86,8 @@ namespace Vodovoz.Domain.Suppliers
 				);
 			}
 		}
+
+		public virtual string NomenclaturePrice => (Nomenclature?.GetPrice(1) ?? 0).ToShortCurrencyString();
 
 		#endregion Calculatable methods
 	}

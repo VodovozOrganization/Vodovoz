@@ -82,6 +82,20 @@ namespace Vodovoz.Domain.Suppliers
 			}
 		}
 
+		RequestStatus status;
+		[Display(Name = "Статус заявки")]
+		public virtual RequestStatus Status {
+			get => status;
+			set => SetField(ref status, value);
+		}
+
+		bool withDelayOnly;
+		[Display(Name = "Только с отсрочкой")]
+		public virtual bool WithDelayOnly {
+			get => withDelayOnly;
+			set => SetField(ref withDelayOnly, value);
+		}
+
 		#endregion свойства для маппинга
 
 
@@ -157,16 +171,24 @@ namespace Vodovoz.Domain.Suppliers
 		{
 			ObservableLevelingRequestNodes.Clear();
 			foreach(var reqItem in RequestingNomenclatureItems.Where(i => !i.Transfered)) {
+				uow.Session.Refresh(reqItem.Nomenclature.NomenclaturePrice.OrderBy(p => p.Price).FirstOrDefault());
+
 				reqItem.Parent = null;
 				reqItem.Children = new List<ILevelingRequestNode>();
 
-				var children = supplierPriceItemsRepository.GetSupplierPriceItemsForNomenclature(uow, reqItem.Nomenclature, orderingType, new[] { AvailabilityForSale.Available });
+				var children = supplierPriceItemsRepository.GetSupplierPriceItemsForNomenclature(
+					uow,
+					reqItem.Nomenclature,
+					orderingType,
+					new[] { AvailabilityForSale.Available },
+					WithDelayOnly
+				);
 				foreach(var child in children) {
 					uow.Session.Refresh(child);
 					reqItem.Children.Add(
 						new SupplierNode {
 							Parent = reqItem,
-							SupplierPriceItem = child,
+							SupplierPriceItem = child
 						}
 					);
 				}
@@ -201,6 +223,19 @@ namespace Vodovoz.Domain.Suppliers
 	public class SupplierOrderingTypeStringType : EnumStringType
 	{
 		public SupplierOrderingTypeStringType() : base(typeof(SupplierOrderingType)) { }
+	}
+
+	public enum RequestStatus
+	{
+		[Display(Name = "В работе")]
+		InProcess,
+		[Display(Name = "Закрыта")]
+		Closed
+	}
+
+	public class RequestStatusStringType : EnumStringType
+	{
+		public RequestStatusStringType() : base(typeof(RequestStatus)) { }
 	}
 
 	public class SupplierNode : ILevelingRequestNode

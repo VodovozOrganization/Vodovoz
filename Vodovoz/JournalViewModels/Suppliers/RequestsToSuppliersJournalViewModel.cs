@@ -4,7 +4,6 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
@@ -79,6 +78,9 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			if(FilterViewModel != null && FilterViewModel.RestrictEndDate.HasValue)
 				query.Where(o => o.CreatingDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 
+			if(FilterViewModel != null && FilterViewModel.RestrictStatus.HasValue)
+				query.Where(o => o.Status == FilterViewModel.RestrictStatus.Value);
+
 			query.Where(
 				GetSearchCriterion<RequestToSupplier>(
 					x => x.Id,
@@ -91,6 +93,7 @@ namespace Vodovoz.JournalViewModels.Suppliers
 					.Select(x => x.Name).WithAlias(() => resultAlias.Name)
 					.Select(x => x.CreatingDate).WithAlias(() => resultAlias.Created)
 					.Select(authorProjection).WithAlias(() => resultAlias.Author)
+					.Select(x => x.Status).WithAlias(() => resultAlias.Status)
 				)
 				.TransformUsing(Transformers.AliasToBean<RequestToSupplierJournalNode>())
 				.OrderBy(x => x.Id)
