@@ -270,7 +270,7 @@ namespace Vodovoz
 
 		void DeliveryPointRep_ObjectSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			if(e.GetNodes<DeliveryPointVMNode>().FirstOrDefault() is DeliveryPointVMNode node)
+			if(e.GetNodes<ClientDeliveryPointVMNode>().FirstOrDefault() is ClientDeliveryPointVMNode node)
 				yentrySpecialDeliveryAddress.Text = node.CompiledAddress;
 		}
 
