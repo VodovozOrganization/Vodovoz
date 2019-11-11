@@ -549,10 +549,10 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref bottlesByStockActualCount, value, () => BottlesByStockActualCount);
 		}
 
-
 		string onRouteEditReason;
 
 		[Display(Name = "Причина редактирования заказа")]
+		[Obsolete("Кусок выпиленного функционала от I-1060. Даша сказала пока не удалять, но скрыть зачем-то.")]
 		public virtual string OnRouteEditReason {
 			get => onRouteEditReason;
 			set => SetField(ref onRouteEditReason, value, () => OnRouteEditReason);
