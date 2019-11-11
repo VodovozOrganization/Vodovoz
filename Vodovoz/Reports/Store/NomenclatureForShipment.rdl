@@ -141,7 +141,7 @@ FROM
 		(
 			SELECT
 				store_movement_document_items.nomenclature_id AS NomenclatureId,
-				SUM(store_movement_document_items.amount) AS nomenclatureCount ,
+				SUM(store_movement_document_items.sended_amount) AS nomenclatureCount ,
 				GROUP_CONCAT(DISTINCT CONCAT(WareFrom.Name , ' --&gt; ' , WareTo.Name) SEPARATOR ' ') as WarehouseDirection
 			FROM
 				store_movement_document_items
@@ -336,7 +336,7 @@ FROM
 		(
 			SELECT
 				store_movement_document_items.nomenclature_id AS NomenclatureId,
-				SUM(store_movement_document_items.amount) AS nomenclatureCount ,
+				SUM(store_movement_document_items.sended_amount) AS nomenclatureCount ,
 				GROUP_CONCAT(DISTINCT CONCAT(WareFrom.Name , ' --&gt; ' , WareTo.Name) SEPARATOR ' ') as WarehouseDirection
 			FROM
 				store_movement_document_items

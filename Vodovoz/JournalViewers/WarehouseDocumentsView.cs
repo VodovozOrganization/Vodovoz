@@ -9,10 +9,20 @@ using QSOrmProject;
 using QSOrmProject.UpdateNotification;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
-using Vodovoz.Core.Permissions;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Warehouses;
+using QS.Project.Domain;
+using Vodovoz.Services.Permissions;
+using QS.Project.Services;
+using Vodovoz.PermissionExtensions;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.TempAdapters;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz
 {
@@ -64,10 +74,45 @@ namespace Vodovoz
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
 			DocumentType type = (DocumentType)e.ItemEnum;
-			TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
-				() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)),
-				this);
+			switch(type) {
+				case DocumentType.MovementDocument:
+					TabParent.OpenTab(
+						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
+						() => {
+							return new MovementDocumentViewModel(
+								EntityUoWBuilder.ForCreate(),
+								UnitOfWorkFactory.GetDefaultFactory,
+								new WarehousePermissionService(),
+								VodovozGtkServicesConfig.EmployeeService,
+								new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+								new NomenclatureSelectorFactory(),
+								new WarehouseRepository(),
+								UserSingletonRepository.GetInstance(),
+								new RdlPreviewOpener(),
+								ServicesConfig.CommonServices
+							);
+						},
+						this
+					);
+					break;
+				case DocumentType.IncomingInvoice:
+				case DocumentType.IncomingWater:
+				case DocumentType.WriteoffDocument:
+				case DocumentType.SelfDeliveryDocument:
+				case DocumentType.CarLoadDocument:
+				case DocumentType.CarUnloadDocument:
+				case DocumentType.InventoryDocument:
+				case DocumentType.ShiftChangeDocument:
+				case DocumentType.RegradingOfGoodsDocument:
+				default:
+					TabParent.OpenTab(
+						DialogHelper.GenerateDialogHashName(Document.GetDocClass(type), 0),
+						() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)),
+						this
+					);
+					break;
+			}
+
 		}
 
 		protected void OnTableDocumentsRowActivated (object o, RowActivatedArgs args)
@@ -94,11 +139,25 @@ namespace Vodovoz
 							() => new IncomingWaterDlg (id),
 							this);
 						break;
-					case DocumentType.MovementDocument: 
+					case DocumentType.MovementDocument:
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<MovementDocument>(id),
-							() => new MovementDocumentDlg (id),
-							this);
+							() => {
+								return new MovementDocumentViewModel(
+									EntityUoWBuilder.ForOpen(id),
+									UnitOfWorkFactory.GetDefaultFactory,
+									new WarehousePermissionService(),
+									VodovozGtkServicesConfig.EmployeeService,
+									new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance()),
+									new NomenclatureSelectorFactory(),
+									new WarehouseRepository(),
+									UserSingletonRepository.GetInstance(),
+									new RdlPreviewOpener(),
+									ServicesConfig.CommonServices
+								);
+							},
+							this
+						);
 						break;
 					case DocumentType.WriteoffDocument:
 						TabParent.OpenTab(

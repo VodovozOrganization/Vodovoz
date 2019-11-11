@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using QSOrmProject.Permissions;
 using QSProjectsLib;
-using Vodovoz.Core.Permissions;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 

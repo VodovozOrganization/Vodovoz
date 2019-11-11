@@ -17,14 +17,34 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     `nomenclature`.`name` AS nomenclature,
+    nom_discrepancies.id as discrepancy_nom_id,
     ROUND(amount_in_db) amount_in_db,
     ROUND(amount_in_fact) amount_in_fact,
     ROUND(amount_in_fact - amount_in_db) difference,
-    `comment`
+    store_inventory_item.comment
 FROM
     store_inventory_item
         LEFT JOIN
     nomenclature ON nomenclature.id = store_inventory_item.nomenclature_id
+        LEFT JOIN
+    store_inventory ON store_inventory.id = store_inventory_item.store_inventory_id
+        LEFT JOIN
+    (
+        SELECT
+            nomenclature.id
+        FROM
+            store_movement_document_items 
+        left outer join
+            store_movement_document 
+                on store_movement_document_items.movement_document_id=store_movement_document.id 
+        left outer join
+            nomenclature 
+                on store_movement_document_items.nomenclature_id=nomenclature.id 
+        WHERE
+            store_movement_document.status = 'Discrepancy'
+            and store_movement_document.warehouse_from_id = (SELECT store_inventory.warehouse_id FROM store_inventory WHERE id = @inventory_id)
+            and not (store_movement_document_items.sended_amount = store_movement_document_items.received_amount)
+    ) as nom_discrepancies ON nomenclature.id = nom_discrepancies.id
 WHERE
     store_inventory_item.store_inventory_id = @inventory_id;</CommandText>
         <QueryParameters>
@@ -36,6 +56,10 @@ WHERE
       <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="discrepancy_nom_id">
+          <DataField>discrepancy_nom_id</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="amount_in_db">
@@ -267,6 +291,7 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
+                        <FontWeight>=Iif(Fields!discrepancy_nom_id.IsMissing, 'Normal','Bold')</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>

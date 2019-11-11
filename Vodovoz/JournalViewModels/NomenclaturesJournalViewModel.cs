@@ -38,6 +38,7 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
+		[Obsolete("Лучше передавать через фильтр")]
 		public int[] ExcludingNomenclatureIds { get; set; }
 
 		public IAdditionalJournalRestriction<Nomenclature> AdditionalJournalRestriction { get; set; } = null;
@@ -53,6 +54,7 @@ namespace Vodovoz.JournalViewModels
 			NomenclatureJournalNode resultAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;
+			Nomenclature loadedWarehouseAlias = null;
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemsAlias = null;
 
@@ -82,6 +84,15 @@ namespace Vodovoz.JournalViewModels
 			if(!FilterViewModel.RestrictArchive)
 				itemsQuery.Where(() => !nomenclatureAlias.IsArchive);
 
+			if(FilterViewModel.RestrictedExcludedIds != null && FilterViewModel.RestrictedExcludedIds.Any()) {
+				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(FilterViewModel.RestrictedExcludedIds.ToArray()));
+			}
+
+			if(FilterViewModel.RestrictedLoadedWarehouse != null) {
+				itemsQuery
+				.Left.JoinAlias(() => nomenclatureAlias.Warehouses, () => loadedWarehouseAlias)
+				.Where(() => loadedWarehouseAlias.Id == FilterViewModel.RestrictedLoadedWarehouse.Id);
+			}
 
 			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));
