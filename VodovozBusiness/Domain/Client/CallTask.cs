@@ -158,7 +158,7 @@ namespace Vodovoz.Domain.Client
 
 		public virtual ReportInfo CreateReportInfoByClient()
 		{
-			return CreateReportInfo(DeliveryPoint.Counterparty.Id);
+			return CreateReportInfo(Counterparty.Id);
 		}
 
 		public virtual ReportInfo CreateReportInfoByDeliveryPoint()
