@@ -181,8 +181,6 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 		}
 
-		public bool CanChangeAlreadyDeliveredAmount => CommonServices.PermissionService.ValidateUserPresetPermission("can_change_delivered_movement_document_amount", CommonServices.UserService.CurrentUserId);
-
 		private Employee currentEmployee;
 		public Employee CurrentEmployee {
 			get {
@@ -279,6 +277,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public bool CanAcceptDiscrepancy => CanEdit
 			&& Entity.CanAcceptDiscrepancy
+			&& CommonServices.PermissionService.ValidateUserPresetPermission("can_accept_movement_document_dicrepancy", CommonServices.UserService.CurrentUserId)
 			&& warehousePermissionValidator.Validate(WarehousePermissions.MovementEdit, Entity.FromWarehouse);
 
 		private DelegateCommand acceptDiscrepancyCommand;
