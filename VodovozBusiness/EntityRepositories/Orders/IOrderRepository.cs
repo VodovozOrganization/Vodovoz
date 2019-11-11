@@ -100,6 +100,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetUndeliveryStatuses();
 
 		ReceiptForOrderNode[] GetShippedOrdersWithReceiptsForDates(IUnitOfWork uow, PaymentType paymentType, DateTime? startDate = null);
+
+		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order);
 	}
 
 	public class ClientEquipmentNode
