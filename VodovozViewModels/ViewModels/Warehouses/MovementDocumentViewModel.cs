@@ -1,23 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using QS.Commands;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Domain.Employees;
-using QS.DomainModel.Entity.PresetPermissions;
-using Vodovoz.Infrastructure.Permissions;
-using System.Collections.Generic;
-using Vodovoz.Domain.Store;
-using System.Linq;
-using Vodovoz.EntityRepositories;
-using Vodovoz.TempAdapters;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Store;
-using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.Infrastructure.Print;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Warehouses
 {
@@ -29,6 +30,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
 		private readonly IWarehouseRepository warehouseRepository;
 		private readonly IUserRepository userRepository;
+		private readonly IRDLPreviewOpener rdlPreviewOpener;
 		private IWarehousePermissionValidator warehousePermissionValidator;
 
 		public MovementDocumentViewModel(
@@ -40,6 +42,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			IWarehouseRepository warehouseRepository,
 			IUserRepository userRepository,
+			IRDLPreviewOpener rdlPreviewOpener,
 			ICommonServices commonServices) 
 		: base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
@@ -49,36 +52,91 @@ namespace Vodovoz.ViewModels.Warehouses
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+			this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
 			warehousePermissionValidator = warehousePermissionService.GetValidator(CommonServices.UserService.CurrentUserId);
 
 			canEditRectroactively = entityExtendedPermissionValidator.Validate(typeof(MovementDocument), CommonServices.UserService.CurrentUserId, nameof(RetroactivelyClosePermission));
-
+			ConfigureEntityChangingRelations();
 			if(UoW.IsNew) {
+				Entity.DocumentType = MovementDocumentType.Transportation;
 				SetDefaultWarehouseFrom();
 			}
 		}
 
 		private bool canEditRectroactively;
+
 		public bool CanEdit => PermissionResult.CanUpdate && (Entity.TimeStamp.Date == DateTime.Today || canEditRectroactively);
 
 		private void ConfigureEntityChangingRelations()
 		{
-
 			SetPropertyChangeRelation(e => e.CanSend, () => CanSend);
 			SetPropertyChangeRelation(e => e.CanReceive, () => CanReceive);
 			SetPropertyChangeRelation(e => e.CanAcceptDiscrepancy, () => CanAcceptDiscrepancy);
+			SetPropertyChangeRelation(e => e.Status, () => CanEditNewDocument);
+			SetPropertyChangeRelation(e => e.ToWarehouse, () => CanSend, () => CanReceive, () => CanAcceptDiscrepancy);
+			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanSend, () => CanReceive, () => CanAcceptDiscrepancy);
+
 			SetPropertyChangeRelation(e => e.CanAddItem, () => CanAddItem);
 			SetPropertyChangeRelation(e => e.CanDeleteItems, () => CanDeleteItems);
-			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanSelectWarehouseTo);
-			OnEntityPropertyChanged(, e => e.FromWarehouse);
 
-			//SetPropertyChangeRelation(e => e.Status, () => SendVisible, () => ReceiveVisible, () => AcceptDiscrepancyVisible);
+			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanSelectWarehouseTo);
+			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanAddItem);
+			OnEntityPropertyChanged(ReloadAllowedWarehousesTo, e => e.FromWarehouse);
+
+			Entity.ObservableItems.ElementAdded += (aList, aIdx) => OnPropertyChanged(nameof(CanChangeWarehouseFrom));
+			Entity.ObservableItems.ElementRemoved += (aList, aIdx, aObject) => OnPropertyChanged(nameof(CanChangeWarehouseFrom));
+		}
+
+		public string AuthorInfo {
+			get {
+				if(Entity.Author == null) {
+					return null;
+				}
+				return $"{Entity.Author.GetPersonNameWithInitials()}, {Entity.TimeStamp.ToString("dd.MM.yyyy HH:mm")}";
+			}
+		}
+
+		public string LastEditorInfo {
+			get {
+				if(Entity.LastEditor == null) {
+					return null;
+				}
+				return $"{Entity.LastEditor.GetPersonNameWithInitials()}, {Entity.LastEditedTime.ToString("dd.MM.yyyy HH:mm")}";
+			}
+		}
+
+		public string SendedInfo {
+			get {
+				if(Entity.Sender == null || Entity.SendTime == null ) {
+					return null;
+				}
+				return $"{Entity.Sender.GetPersonNameWithInitials()}, {Entity.SendTime.Value.ToString("dd.MM.yyyy HH:mm")}";
+			}
+		}
+
+		public string ReceiverInfo {
+			get {
+				if(Entity.Receiver == null || Entity.ReceiveTime == null) {
+					return null;
+				}
+				return $"{Entity.Receiver.GetPersonNameWithInitials()}, {Entity.ReceiveTime.Value.ToString("dd.MM.yyyy HH:mm")}";
+			}
+		}
+
+		public string DiscrepancyAccepterInfo {
+			get {
+				if(Entity.DiscrepancyAccepter == null || Entity.DiscrepancyAcceptTime == null) {
+					return null;
+				}
+				return $"{Entity.DiscrepancyAccepter.GetPersonNameWithInitials()}, {Entity.DiscrepancyAcceptTime.Value.ToString("dd.MM.yyyy HH:mm")}";
+			}
 		}
 
 		private void ReloadAllowedWarehousesFrom()
 		{
 			var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(WarehousePermissions.MovementEdit);
 			allowedWarehousesFrom = UoW.GetById<Warehouse>(allowedWarehouses.Select(x => x.Id));
+			OnPropertyChanged(nameof(AllowedWarehousesFrom));
 		}
 
 		private void ReloadAllowedWarehousesTo()
@@ -87,9 +145,11 @@ namespace Vodovoz.ViewModels.Warehouses
 			if(allowedWarehouses.Contains(Entity.FromWarehouse)) {
 				allowedWarehouses.Remove(Entity.FromWarehouse);
 			}
-			if(Entity.) {
-
+			if(!allowedWarehouses.Contains(Entity.ToWarehouse)) {
+				Entity.ToWarehouse = null;
 			}
+			allowedWarehousesTo = allowedWarehouses;
+			OnPropertyChanged(nameof(AllowedWarehousesTo));
 		}
 
 		private IEnumerable<Warehouse> allowedWarehousesFrom;
@@ -115,7 +175,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		public IEnumerable<Warehouse> AllowedWarehousesTo {
 			get {
 				if(allowedWarehousesTo == null) {
-					allowedWarehousesTo = UoW.GetAll<Warehouse>();
+					ReloadAllowedWarehousesTo();
 				}
 				return allowedWarehousesTo;
 			}
@@ -156,23 +216,15 @@ namespace Vodovoz.ViewModels.Warehouses
 			return base.Save(close);
 		}
 
-		/*public bool SendVisible {
-			get {
-				if(Entity.Status == MovementDocumentStatus.New || Entity.Status == MovementDocumentStatus.Sended) {
-					return true;
-				}
-				return ;
-			}
-		}*/
-
-		//public bool ReceiveVisible => Entity.Status == MovementDocumentStatus.Sended || (Entity.Status == MovementDocumentStatus.Accepted && );
-		//public bool AcceptDiscrepancyVisible => Entity.Status == MovementDocumentStatus.New || Entity.Status == MovementDocumentStatus.Sended;
-
 		public bool CanSelectWarehouseTo => Entity.FromWarehouse != null;
 
 		public bool CanEditSendedAmount => CanSend;
 
 		public bool CanEditReceivedAmount => CanReceive;
+
+		public bool CanEditNewDocument => CanEdit && (Entity.Status == MovementDocumentStatus.New || Entity.Status == MovementDocumentStatus.Sended);
+
+		public bool CanChangeWarehouseFrom => CanEditNewDocument && !Entity.Items.Any();
 
 		#region Commands
 
@@ -185,10 +237,17 @@ namespace Vodovoz.ViewModels.Warehouses
 			get {
 				if(sendCommand == null) {
 					sendCommand = new DelegateCommand(
-						() => Entity.Send(CurrentEmployee),
+						() => {
+							if(!Validate()) {
+								return;
+							}
+							Entity.Send(CurrentEmployee);
+							SaveAndClose();
+						},
 						() => CanSend
 					);
 					sendCommand.CanExecuteChangedWith(this, x => x.CanSend);
+					sendCommand.CanExecuteChanged += (sender, e) => PrintCommand.RaiseCanExecuteChanged();
 				}
 				return sendCommand;
 			}
@@ -203,7 +262,13 @@ namespace Vodovoz.ViewModels.Warehouses
 			get {
 				if(receiveCommand == null) {
 					receiveCommand = new DelegateCommand(
-						() => Entity.Receive(CurrentEmployee), 
+						() => {
+							if(!Validate()) {
+								return;
+							}
+							Entity.Receive(CurrentEmployee);
+							SaveAndClose();
+						}, 
 						() => CanReceive
 					);
 					receiveCommand.CanExecuteChangedWith(this, x => x.CanReceive);
@@ -221,7 +286,13 @@ namespace Vodovoz.ViewModels.Warehouses
 			get {
 				if(acceptDiscrepancyCommand == null) {
 					acceptDiscrepancyCommand = new DelegateCommand(
-						() => Entity.AcceptDiscrepancy(CurrentEmployee),
+						() => {
+							if(!Validate()) {
+								return;
+							}
+							Entity.AcceptDiscrepancy(CurrentEmployee);
+							SaveAndClose();
+						},
 						() => CanAcceptDiscrepancy
 					);
 					acceptDiscrepancyCommand.CanExecuteChangedWith(this, x => x.CanAcceptDiscrepancy);
@@ -230,7 +301,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 		}
 
-		public bool CanAddItem => Entity.CanAddItem && Entity.FromWarehouse != null;
+		public bool CanAddItem => CanEdit && Entity.CanAddItem && Entity.FromWarehouse != null;
 
 		private DelegateCommand addItemCommand;
 		public DelegateCommand AddItemCommand {
@@ -254,6 +325,9 @@ namespace Vodovoz.ViewModels.Warehouses
 									decimal stock = foundStockInfo?.Stock ?? 0;
 									Entity.AddItem(nomenclature, 0, stock);
 								}
+								OnPropertyChanged(nameof(CanSend));
+								OnPropertyChanged(nameof(CanReceive));
+								OnPropertyChanged(nameof(CanAcceptDiscrepancy));
 							};
 							TabParent.OpenTab(() => nomenclatureSelector, this);
 
@@ -273,7 +347,12 @@ namespace Vodovoz.ViewModels.Warehouses
 			get {
 				if(deleteItemCommand == null) {
 					deleteItemCommand = new DelegateCommand<MovementDocumentItem>(
-						(selectedItem) => Entity.DeleteItem(selectedItem),
+						(selectedItem) => {
+							Entity.DeleteItem(selectedItem);
+							OnPropertyChanged(nameof(CanSend));
+							OnPropertyChanged(nameof(CanReceive));
+							OnPropertyChanged(nameof(CanAcceptDiscrepancy));
+						},
 						(selectedItem) => CanDeleteItems && selectedItem != null
 					);
 					deleteItemCommand.CanExecuteChangedWith(this, x => x.CanDeleteItems);
@@ -282,6 +361,35 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 		}
 
+		private DelegateCommand printCommand;
+		public DelegateCommand PrintCommand {
+			get {
+				if(printCommand == null) {
+					printCommand = new DelegateCommand(
+						() => {
+							if(Entity.Status == MovementDocumentStatus.New && SendCommand.CanExecute()) {
+								if(CommonServices.InteractiveService.InteractiveQuestion.Question("Перед печать необходимо отправить перемещение. Отправить?", "Печать документа перемещения")) {
+									SendCommand.Execute();
+									var doc = new MovementDocumentRdl(Entity);
+									if(doc is IPrintableRDLDocument) {
+										rdlPreviewOpener.OpenRldDocument(typeof(MovementDocument), doc);
+									}
+								}
+							} 
+							else if(Entity.Status != MovementDocumentStatus.New && !UoW.IsNew) {
+								var doc = new MovementDocumentRdl(Entity);
+								if(doc is IPrintableRDLDocument) {
+									rdlPreviewOpener.OpenRldDocument(typeof(MovementDocument), doc);
+								}
+							}
+						},
+						() => (Entity.Status == MovementDocumentStatus.New && SendCommand.CanExecute()) || Entity.Status != MovementDocumentStatus.New
+					);
+					printCommand.CanExecuteChangedWith(this, x => x.CanSend);
+				}
+				return printCommand;
+			}
+		}
 
 		#endregion Commands
 	}

@@ -1336,6 +1336,7 @@
     <Compile Include="Core\WarehousePermissionValidatorFactory.cs" />
     <Compile Include="TempAdapters\NomenclatureSelectorFactory.cs" />
     <Compile Include="Core\BasedOnNameViewModelWidgetResolver.cs" />
+    <Compile Include="Core\RdlPreviewOpener.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

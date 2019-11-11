@@ -19,32 +19,28 @@ namespace Vodovoz.Views.Warehouse
 
 		private void ConfigureView()
 		{
-			ylabelAuthorValue.Binding.AddBinding(ViewModel.Entity, e => e.Author, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
-			ylabelCreationDateValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.Author != null ? e.TimeStamp.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
-
-			ylabelEditorValue.Binding.AddBinding(ViewModel.Entity, e => e.LastEditor, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
-			ylabelEditTimeValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.LastEditor != null ? e.LastEditedTime.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
-
-			ylabelSenderValue.Binding.AddBinding(ViewModel.Entity, e => e.Sender, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
-			ylabelSendTimeValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.SendTime.HasValue ? e.SendTime.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
-
-			ylabelReceiverValue.Binding.AddBinding(ViewModel.Entity, e => e.Receiver, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
-			ylabelReceiveTimeValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.ReceiveTime.HasValue ? e.ReceiveTime.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
-
-			ylabelDiscrepancyAccepterValue.Binding.AddBinding(ViewModel.Entity, e => e.DiscrepancyAccepter, w => w.LabelProp, new EmployeeToLastNameWithInitialsConverter()).InitializeFromSource();
-			ylabelDiscrepancyAcceptTimeValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.DiscrepancyAcceptTime.HasValue ? e.DiscrepancyAcceptTime.Value.ToString("dd.MM.yyyy HH:mm") : "", w => w.LabelProp).InitializeFromSource();
+			ylabelAuthorValue.Binding.AddBinding(ViewModel, vm => vm.AuthorInfo, w => w.LabelProp).InitializeFromSource();
+			ylabelEditorValue.Binding.AddBinding(ViewModel, vm => vm.LastEditorInfo, w => w.LabelProp).InitializeFromSource();
+			ylabelSenderValue.Binding.AddBinding(ViewModel, vm => vm.SendedInfo, w => w.LabelProp).InitializeFromSource();
+			ylabelReceiverValue.Binding.AddBinding(ViewModel, vm => vm.ReceiverInfo, w => w.LabelProp).InitializeFromSource();
+			ylabelDiscrepancyAccepterValue.Binding.AddBinding(ViewModel, vm => vm.DiscrepancyAccepterInfo, w => w.LabelProp).InitializeFromSource();
+			ylabelDiscrepancyAccepterValue.Binding.AddBinding(ViewModel.Entity, e => e.DiscrepancyAccepter, w => w.Visible, new NullToBooleanConverter()).InitializeFromSource();
+			ylabelDiscrepancyAccepter.Binding.AddBinding(ViewModel.Entity, e => e.DiscrepancyAccepter, w => w.Visible, new NullToBooleanConverter()).InitializeFromSource();
 
 			yentryrefWagon.SubjectType = typeof(MovementWagon);
 			yentryrefWagon.Binding.AddBinding(ViewModel.Entity, e => e.MovementWagon, w => w.Subject).InitializeFromSource();
+			yentryrefWagon.Binding.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Sensitive).InitializeFromSource();
 
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
+			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Editable).InitializeFromSource();
 
-			comboWarehouseFrom.ItemsList = ViewModel.AllowedWarehousesFrom;
+			comboWarehouseFrom.Binding.AddBinding(ViewModel, vm => vm.AllowedWarehousesFrom, w => w.ItemsList).InitializeFromSource();
 			comboWarehouseFrom.Binding.AddBinding(ViewModel.Entity, e => e.FromWarehouse, w => w.SelectedItem).InitializeFromSource();
+			comboWarehouseFrom.Binding.AddBinding(ViewModel, vm => vm.CanChangeWarehouseFrom, w => w.Sensitive).InitializeFromSource();
 
-
-			comboWarehouseTo.ItemsList = ViewModel.AllowedWarehousesTo;
+			comboWarehouseTo.Binding.AddBinding(ViewModel, vm => vm.AllowedWarehousesTo, w => w.ItemsList).InitializeFromSource();
 			comboWarehouseTo.Binding.AddBinding(ViewModel.Entity, e => e.ToWarehouse, w => w.SelectedItem).InitializeFromSource();
+			comboWarehouseTo.Binding.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Sensitive).InitializeFromSource();
 
 			ytreeviewItems.ColumnsConfig = FluentColumnsConfig<MovementDocumentItem>.Create()
 					.AddColumn("Наименование").AddTextRenderer(i => i.Name)
@@ -52,15 +48,15 @@ namespace Vodovoz.Views.Warehouse
 						.AddNumericRenderer(i => i.SendedAmount)
 						.AddSetter((c, i) => c.Editable = ViewModel.CanEditSendedAmount)
 						.WidthChars(10)
-						.AddSetter((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
 						.AddSetter((c, i) => c.Adjustment = new Gtk.Adjustment(0, 0, (double)i.AmountOnSource, 1, 100, 0))
+						.AddSetter((c, i) => c.Digits = (uint)(i.Nomenclature?.Unit?.Digits ?? 0))
 						.AddTextRenderer(i => i.Nomenclature.Unit.Name, false)
 					.AddColumn("Принято")
 						.AddNumericRenderer(i => i.ReceivedAmount)
 						.AddSetter((c, i) => c.Editable = ViewModel.CanEditReceivedAmount)
 						.WidthChars(10)
-						.AddSetter((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
-						.AddSetter((c, i) => c.Adjustment = new Gtk.Adjustment(0, 0, (double)i.SendedAmount, 1, 100, 0))
+						.AddSetter((c, i) => c.Adjustment = new Gtk.Adjustment(0, 0, 99999999, 1, 100, 0))
+						.AddSetter((c, i) => c.Digits = (uint)(i.Nomenclature?.Unit?.Digits ?? 0))
 						.AddTextRenderer(i => i.Nomenclature.Unit.Name, false)
 					.AddColumn("")
 					.Finish();
@@ -88,7 +84,11 @@ namespace Vodovoz.Views.Warehouse
 			ViewModel.AcceptDiscrepancyCommand.CanExecuteChanged += (sender, e) => buttonAcceptDiscrepancy.Sensitive = ViewModel.AcceptDiscrepancyCommand.CanExecute();
 			buttonAcceptDiscrepancy.Sensitive = ViewModel.AcceptDiscrepancyCommand.CanExecute();
 
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(true);
+			buttonPrint.Clicked += (sender, e) => ViewModel.PrintCommand.Execute();
+			ViewModel.PrintCommand.CanExecuteChanged += (sender, e) =>  buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
+			buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
+
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false);
 		}
 
 		private MovementDocumentItem GetSelectedItem()

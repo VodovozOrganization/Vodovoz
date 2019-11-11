@@ -10,6 +10,7 @@ using System.Linq;
 using NHibernate.Dialect.Function;
 using NHibernate;
 using NHibernate.Transform;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.EntityRepositories.Store
 {
@@ -124,7 +125,7 @@ namespace Vodovoz.EntityRepositories.Store
 				Projections.Conditional(
 					Restrictions.Eq(Projections.Property(() => warehouseOperation.IncomingWarehouse.Id), warehouseId),
 					Projections.Property(() => warehouseOperation.Amount),
-					Projections.Constant(0)
+					Projections.Constant(0M)
 				)
 			);
 
@@ -132,11 +133,11 @@ namespace Vodovoz.EntityRepositories.Store
 				Projections.Conditional(
 					Restrictions.Eq(Projections.Property(() => warehouseOperation.WriteoffWarehouse.Id), warehouseId),
 					Projections.Property(() => warehouseOperation.Amount),
-					Projections.Constant(0)
+					Projections.Constant(0M)
 				)
 			);
 
-			IProjection stockProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( ?1 - ?2 )"),
+			IProjection stockProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
 					NHibernateUtil.Int32,
 					incomeAmount,
 					writeoffAmount
@@ -151,6 +152,26 @@ namespace Vodovoz.EntityRepositories.Store
 				)
 				.TransformUsing(Transformers.AliasToBean<NomanclatureStockNode>())
 				.List<NomanclatureStockNode>();
+		}
+
+		public IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId)
+		{
+			if(uow == null) {
+				throw new ArgumentNullException(nameof(uow));
+			}
+
+			Nomenclature nomenclatureAlias = null;
+			MovementDocument movementDocumentAlias = null;
+			MovementDocumentItem movementDocumentItemAlias = null;
+
+			return uow.Session.QueryOver(() => movementDocumentItemAlias)
+				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Left.JoinAlias(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
+				.Where(() => movementDocumentAlias.Status == MovementDocumentStatus.Discrepancy)
+				.Where(() => movementDocumentAlias.FromWarehouse.Id == warehouseId)
+				.Where(() => movementDocumentItemAlias.SendedAmount != movementDocumentItemAlias.ReceivedAmount)
+				.Select(Projections.Entity(() => nomenclatureAlias))
+				.List<Nomenclature>();
 		}
 	}
 }

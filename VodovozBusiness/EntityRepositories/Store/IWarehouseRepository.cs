@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.EntityRepositories.Store
@@ -16,6 +17,8 @@ namespace Vodovoz.EntityRepositories.Store
 		IList<Warehouse> WarehousesForPublishOnlineStore(IUnitOfWork uow);
 
 		IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId, IEnumerable<int> nomenclatureIds);
+
+		IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId);
 	}
 
 	public class NomanclatureStockNode

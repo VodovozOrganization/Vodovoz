@@ -113,6 +113,8 @@
     <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
     <Compile Include="TempAdapters\INomenclatureSelectorFactory.cs" />
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
+    <Compile Include="ViewModels\Warehouses\MovementDocumentRDL.cs" />
+    <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -136,6 +138,7 @@
     <Folder Include="JournalViewModels\WageCalculation\" />
     <Folder Include="ViewModels\Warehouses\" />
     <Folder Include="Infrastructure\Permissions\" />
+    <Folder Include="Infrastructure\Print\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

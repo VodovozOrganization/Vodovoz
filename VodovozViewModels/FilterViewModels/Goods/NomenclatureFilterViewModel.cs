@@ -106,10 +106,10 @@ namespace Vodovoz.FilterViewModels.Goods
 			set => UpdateFilterField(ref restrictSaleCategory, value);
 		}
 
-		private IEnumerable<int> restrictedIds;
-		public virtual IEnumerable<int> RestrictedIds {
-			get => restrictedIds;
-			set => UpdateFilterField(ref restrictedIds, value);
+		private IEnumerable<int> restrictedExcludedIds;
+		public virtual IEnumerable<int> RestrictedExcludedIds {
+			get => restrictedExcludedIds;
+			set => UpdateFilterField(ref restrictedExcludedIds, value);
 		}
 
 		private Warehouse restrictedLoadedWarehouse;

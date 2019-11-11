@@ -13,6 +13,7 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz
 {

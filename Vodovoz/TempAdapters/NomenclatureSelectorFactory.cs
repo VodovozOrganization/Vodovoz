@@ -16,7 +16,7 @@ namespace Vodovoz.TempAdapters
 		{
 			NomenclatureFilterViewModel filter = new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService) { HidenByDefault = true };
 			filter.RestrictedLoadedWarehouse = warehouse;
-			filter.RestrictedIds = excludedNomenclatures;
+			filter.RestrictedExcludedIds = excludedNomenclatures;
 
 			NomenclaturesJournalViewModel nomenclatureJournal = new NomenclaturesJournalViewModel(
 					filter,

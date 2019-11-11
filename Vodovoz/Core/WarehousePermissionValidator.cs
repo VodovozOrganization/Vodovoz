@@ -26,7 +26,7 @@ namespace Vodovoz.Core
 				return false;
 			}
 
-			return Validate(warehousePermission, warehouse);
+			return Validate(warehousePermission, warehouse.Id);
 		}
 
 		public bool Validate(WarehousePermissions warehousePermission, int warehouseId)

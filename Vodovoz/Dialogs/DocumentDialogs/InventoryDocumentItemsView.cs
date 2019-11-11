@@ -11,6 +11,9 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Store;
+using Gtk;
+using Gdk;
 
 namespace Vodovoz
 {
@@ -26,7 +29,7 @@ namespace Vodovoz
 			this.Build();
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<InventoryDocumentItem>()
-				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
+				.AddColumn("Номенклатура").AddTextRenderer(x => GetNomenclatureName(x.Nomenclature), useMarkup: true)
 			    .AddColumn("Кол-во в учёте").AddTextRenderer(x => x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInDB) : x.AmountInDB.ToString())
 				.AddColumn("Кол-во по факту").AddNumericRenderer(x => x.AmountInFact).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
@@ -36,9 +39,27 @@ namespace Vodovoz
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
+				.RowCells()
+				.AddSetter<CellRenderer>((cell, node) => {
+					Color color = new Color(255, 255, 255);
+					if(nomenclaturesWithDiscrepancies.Any(x => x.Id == node.Nomenclature.Id)) {
+						color = new Color(255, 125, 125);
+					}
+					cell.CellBackgroundGdk = color;
+				})
 				.Finish();
 
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+
+
+		}
+
+		private string GetNomenclatureName(Nomenclature nomenclature)
+		{
+			if(nomenclaturesWithDiscrepancies.Any(x => x.Id == nomenclature.Id)) {
+				return $"<b>{nomenclature.Name}</b>";
+			}
+			return nomenclature.Name;
 		}
 
 		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
@@ -55,6 +76,8 @@ namespace Vodovoz
 			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
 		}
 
+		IEnumerable<Nomenclature> nomenclaturesWithDiscrepancies = new List<Nomenclature>();
+
 		private IUnitOfWorkGeneric<InventoryDocument> documentUoW;
 
 		public IUnitOfWorkGeneric<InventoryDocument> DocumentUoW {
@@ -65,7 +88,9 @@ namespace Vodovoz
 				documentUoW = value;
 				if (DocumentUoW.Root.Items == null)
 					DocumentUoW.Root.Items = new List<InventoryDocumentItem> ();
-				
+
+				FillDiscrepancies();
+
 				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableItems;
 				UpdateButtonState();
 				if (DocumentUoW.Root.Warehouse != null && DocumentUoW.Root.Items.Count == 0)
@@ -92,8 +117,18 @@ namespace Vodovoz
 				
 		}
 
+		private void FillDiscrepancies()
+		{
+			if(DocumentUoW.Root.Warehouse != null && DocumentUoW.Root.Warehouse.Id > 0) {
+				var warehouseRepository = new WarehouseRepository();
+				nomenclaturesWithDiscrepancies = warehouseRepository.GetDiscrepancyNomenclatures(UoW, DocumentUoW.Root.Warehouse.Id);
+			}
+		}
+
 		protected void OnButtonFillItemsClicked(object sender, EventArgs e)
 		{
+			FillDiscrepancies();
+
 			if(DocumentUoW.Root.Items.Count == 0)
 				DocumentUoW.Root.FillItemsFromStock(DocumentUoW);
 			else

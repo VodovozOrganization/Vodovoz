@@ -149,8 +149,19 @@ namespace Vodovoz.Domain.Documents
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<MovementDocumentItem> ObservableItems {
 			get {
-				if(observableItems == null)
+				if(observableItems == null) {
 					observableItems = new GenericObservableList<MovementDocumentItem>(Items);
+					observableItems.PropertyOfElementChanged += (sender, e) => {
+						var item = sender as MovementDocumentItem;
+						if(item == null) {
+							return;
+						}
+						if(e.PropertyName == nameof(item.ReceivedAmount)) {
+							OnPropertyChanged(nameof(CanSend));
+							OnPropertyChanged(nameof(CanReceive));
+						}
+					};
+				}
 				return observableItems;
 			}
 		}
@@ -183,10 +194,10 @@ namespace Vodovoz.Domain.Documents
 					yield return new ValidationResult("Склады отправления и получения должны различатся.",
 						new[] { this.GetPropertyName(o => o.FromWarehouse), this.GetPropertyName(o => o.ToWarehouse) });
 				if(FromWarehouse == null)
-					yield return new ValidationResult("Склады отправления должен быть указан.",
+					yield return new ValidationResult("Склад отправления должен быть указан.",
 						new[] { this.GetPropertyName(o => o.FromWarehouse) });
 				if(ToWarehouse == null)
-					yield return new ValidationResult("Склады получения должен быть указан.",
+					yield return new ValidationResult("Склад получения должен быть указан.",
 						new[] { this.GetPropertyName(o => o.ToWarehouse) });
 			}
 
@@ -201,7 +212,6 @@ namespace Vodovoz.Domain.Documents
 					yield return new ValidationResult(String.Format("Для номенклатуры <{0}> не указано количество.", item.Nomenclature.Name),
 						new[] { this.GetPropertyName(o => o.Items) });
 			}
-
 		}
 
 		#endregion
@@ -226,7 +236,7 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add(item);
 		}
 
-		public virtual bool CanDeleteItems => Status == MovementDocumentStatus.New;
+		public virtual bool CanDeleteItems => Status == MovementDocumentStatus.New || Status == MovementDocumentStatus.Sended;
 
 		public virtual void DeleteItem(MovementDocumentItem item)
 		{
@@ -245,11 +255,12 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Remove(item);
 		}
 
-		public virtual bool CanSend => (Status == MovementDocumentStatus.New || Status == MovementDocumentStatus.Sended) 
-			&& FromWarehouse != null 
+		public virtual bool CanSend => (Status == MovementDocumentStatus.New || Status == MovementDocumentStatus.Sended)
+			&& FromWarehouse != null
 			&& ToWarehouse != null
-			&& Items.Any();
-
+			&& Items.Any()
+			&& Items.All(x => x.ReceivedAmount == 0);
+		
 		public virtual void Send(Employee sender)
 		{
 			if(sender == null) {
@@ -273,9 +284,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual bool CanReceive {
 			get {
-				//Отправка возможна только в указанных ниже статусах
+				//Принятие возможно только в указанных ниже статусах
 				var receiveStatuses = new[] { MovementDocumentStatus.Sended, MovementDocumentStatus.Discrepancy, MovementDocumentStatus.Accepted };
-				return receiveStatuses.Contains(Status) && FromWarehouse != null && ToWarehouse != null;
+				return receiveStatuses.Contains(Status) && FromWarehouse != null && ToWarehouse != null && Items.Any() && Items.All(x => x.SendedAmount > 0);
 			}
 		}
 
@@ -294,8 +305,12 @@ namespace Vodovoz.Domain.Documents
 
 			if(HasDeliveryDiscrepancies()) {
 				Status = MovementDocumentStatus.Discrepancy;
+				HasDiscrepancy = true;
 			} else {
 				Status = MovementDocumentStatus.Accepted;
+			}
+			if(!ReceiveTime.HasValue) {
+				ReceiveTime = DateTime.Now;
 			}
 
 			foreach(var item in Items) {
@@ -329,7 +344,9 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			DiscrepancyAccepter = employeeDiscrepancyAccepter;
-			DiscrepancyAcceptTime = DateTime.Now;
+			if(!DiscrepancyAcceptTime.HasValue) {
+				DiscrepancyAcceptTime = DateTime.Now;
+			}
 			HasDiscrepancy = true;
 
 			Status = MovementDocumentStatus.Accepted;
