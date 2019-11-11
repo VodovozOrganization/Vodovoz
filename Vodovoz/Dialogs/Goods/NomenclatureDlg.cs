@@ -26,6 +26,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -346,6 +347,10 @@ namespace Vodovoz
 		private void ReloadImages()
 		{
 			Imageslist.Images.Clear();
+
+			if(Entity.Images == null)
+				Entity.Images = new List<NomenclatureImage>();
+
 			foreach(var imageSource in Entity.Images) {
 				Imageslist.AddImage(new Gdk.Pixbuf(imageSource.Image), imageSource);
 			}
