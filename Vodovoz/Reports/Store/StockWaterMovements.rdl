@@ -150,7 +150,7 @@
                     SUM(warehouse_movement_operations.amount)
                 FROM
                     warehouse_movement_operations
-                                 INNER JOIN store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id AND store_movement_document_items.delivery_movement_operation_id IS NULL
+                                 INNER JOIN store_movement_document_items ON store_movement_document_items.writeoff_movement_operation_id = warehouse_movement_operations.id AND store_movement_document_items.income_movement_operation_id IS NULL
                 WHERE
                         warehouse_movement_operations.nomenclature_id = nomenclature.id
                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),

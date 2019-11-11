@@ -32,7 +32,7 @@ namespace Vodovoz
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument>();
 
-			Entity.Author = Entity.ResponsiblePerson = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			//Entity.Author = Entity.ResponsiblePerson = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -71,20 +71,20 @@ namespace Vodovoz
 			referenceWarehouseFrom.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.MovementEdit);
 			referenceWarehouseFrom.Binding.AddBinding(Entity, e => e.FromWarehouse, w => w.Subject).InitializeFromSource();
 			repEntryEmployee.RepresentationModel = new EmployeesVM();
-			repEntryEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
+			//repEntryEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
 			yentryrefWagon.SubjectType = typeof(MovementWagon);
 			yentryrefWagon.Binding.AddBinding(Entity, e => e.MovementWagon, w => w.Subject).InitializeFromSource();
 
-			ylabelTransportationStatus.Binding.AddBinding(Entity, e => e.TransportationDescription, w => w.LabelProp).InitializeFromSource();
+			//ylabelTransportationStatus.Binding.AddBinding(Entity, e => e.TransportationDescription, w => w.LabelProp).InitializeFromSource();
 
-			MovementDocumentCategory[] filteredDoctypeList = { MovementDocumentCategory.InnerTransfer };
+			MovementDocumentType[] filteredDoctypeList = { MovementDocumentType.InnerTransfer };
 			object[] MovementDocumentList = Array.ConvertAll(filteredDoctypeList, x => (object)x);
-			enumMovementType.ItemsEnum = typeof(MovementDocumentCategory);
+			enumMovementType.ItemsEnum = typeof(MovementDocumentType);
 			enumMovementType.AddEnumToHideList(MovementDocumentList);
-			enumMovementType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
+			enumMovementType.Binding.AddBinding(Entity, e => e.DocumentType, w => w.SelectedItem).InitializeFromSource();
 			if(Entity.Id == 0) {
-				Entity.Category = MovementDocumentCategory.Transportation;
+				Entity.DocumentType = MovementDocumentType.Transportation;
 				OnEnumMovementTypeChanged(null, null);
 			}
 
@@ -116,14 +116,14 @@ namespace Vodovoz
 				"can_edit_delivered_goods_transfer_documents",
 				ServicesConfig.CommonServices.UserService.CurrentUserId
 			);
-			if(Entity.TransportationStatus == TransportationStatus.Delivered && !canEditOldDocument) {
+			/*if(Entity.TransportationStatus == TransportationStatus.Delivered && !canEditOldDocument) {
 				HasChanges = false;
 				tableCommon.Sensitive = false;
 				hbxSenderAddressee.Sensitive = false;
 				moveingNomenclaturesView.Sensitive = false;
 				buttonSave.Sensitive = false;
 				return;
-			}
+			}*/
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.MovementEdit, Entity.FromWarehouse, Entity.ToWarehouse);
 			enumMovementType.Sensitive = repEntryEmployee.IsEditable = referenceWarehouseTo.Sensitive
@@ -132,8 +132,8 @@ namespace Vodovoz
 
 			referenceWarehouseFrom.IsEditable = StoreDocumentHelper.CanEditDocument(WarehousePermissions.MovementEdit, Entity.FromWarehouse);
 
-			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged
-				&& CurrentPermissions.Warehouse[WarehousePermissions.MovementEdit, Entity.ToWarehouse];
+			/*buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged
+				&& CurrentPermissions.Warehouse[WarehousePermissions.MovementEdit, Entity.ToWarehouse];*/
 		}
 
 		public override bool Save()
@@ -160,19 +160,19 @@ namespace Vodovoz
 
 		protected void OnEnumMovementTypeChanged(object sender, EventArgs e)
 		{
-			var selected = Entity.Category;
+			var selected = Entity.DocumentType;
 			referenceWarehouseTo.Visible = referenceWarehouseFrom.Visible = labelStockFrom.Visible = labelStockTo.Visible
-				= (selected == MovementDocumentCategory.InnerTransfer || selected == MovementDocumentCategory.Transportation);
+				= (selected == MovementDocumentType.InnerTransfer || selected == MovementDocumentType.Transportation);
 
 			//Траспортировка
 			labelWagon.Visible = hboxTransportation.Visible = yentryrefWagon.Visible = labelTransportationTitle.Visible
-				= selected == MovementDocumentCategory.Transportation;
+				= selected == MovementDocumentType.Transportation;
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
 			buttonDelivered.Sensitive = false;
-			Entity.TransportationCompleted();
+			//Entity.TransportationCompleted();
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)

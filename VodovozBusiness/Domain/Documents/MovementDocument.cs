@@ -20,11 +20,17 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class MovementDocument : Document, IValidatableObject
 	{
-		MovementDocumentCategory category;
+		MovementDocumentType documentType;
 		[Display(Name = "Тип документа перемещения")]
-		public virtual MovementDocumentCategory Category {
-			get => category;
-			set => SetField(ref category, value);
+		public virtual MovementDocumentType DocumentType {
+			get => documentType;
+			set => SetField(ref documentType, value);
+		}
+
+		private DateTime version;
+		public virtual DateTime Version {
+			get => version;
+			set => SetField(ref version, value);
 		}
 
 		private DateTime timeStamp;
@@ -38,6 +44,13 @@ namespace Vodovoz.Domain.Documents
 		public virtual MovementDocumentStatus Status {
 			get => status;
 			set => SetField(ref status, value, () => Status);
+		}
+
+		private bool hasDiscrepancy;
+		[Display(Name = "Имеет расхождение")]
+		public virtual bool HasDiscrepancy {
+			get => hasDiscrepancy;
+			set => SetField(ref hasDiscrepancy, value, () => HasDiscrepancy);
 		}
 
 		private MovementWagon movementWagon;
@@ -95,11 +108,11 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref receiver, value, () => Receiver);
 		}
 
-		private DateTime? deliveredTime;
+		private DateTime? receiveTime;
 		[Display(Name = "Время получения")]
-		public virtual DateTime? DeliveredTime {
-			get => deliveredTime;
-			set => SetField(ref deliveredTime, value);
+		public virtual DateTime? ReceiveTime {
+			get => receiveTime;
+			set => SetField(ref receiveTime, value);
 		}
 
 		#endregion Receive
@@ -154,10 +167,10 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Id == 0 && Category == MovementDocumentCategory.InnerTransfer) {
+			if(Id == 0 && DocumentType == MovementDocumentType.InnerTransfer) {
 				yield return new ValidationResult(
 					"Внутреннее перемещение на данный момент запрещено.",
-					new[] { this.GetPropertyName(o => o.Category) }
+					new[] { this.GetPropertyName(o => o.DocumentType) }
 				);
 			}
 
@@ -165,7 +178,7 @@ namespace Vodovoz.Domain.Documents
 				yield return new ValidationResult(String.Format("Табличная часть документа пустая."),
 					new[] { this.GetPropertyName(o => o.Items) });
 
-			if(Category == MovementDocumentCategory.InnerTransfer || Category == MovementDocumentCategory.Transportation) {
+			if(DocumentType == MovementDocumentType.InnerTransfer || DocumentType == MovementDocumentType.Transportation) {
 				if(FromWarehouse == ToWarehouse)
 					yield return new ValidationResult("Склады отправления и получения должны различатся.",
 						new[] { this.GetPropertyName(o => o.FromWarehouse), this.GetPropertyName(o => o.ToWarehouse) });
@@ -177,7 +190,7 @@ namespace Vodovoz.Domain.Documents
 						new[] { this.GetPropertyName(o => o.ToWarehouse) });
 			}
 
-			if(Category == MovementDocumentCategory.Transportation) {
+			if(DocumentType == MovementDocumentType.Transportation) {
 				if(MovementWagon == null)
 					yield return new ValidationResult("Фура не указана.",
 						new[] { this.GetPropertyName(o => o.MovementWagon) });
@@ -195,8 +208,14 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
+		public virtual bool CanAddItem => Status == MovementDocumentStatus.New;
+
 		public virtual void AddItem(Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
+			if(!CanAddItem) {
+				return;
+			}
+
 			var item = new MovementDocumentItem {
 				Nomenclature = nomenclature,
 				SendedAmount = amount,
@@ -207,34 +226,71 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add(item);
 		}
 
+		public virtual bool CanDeleteItems => Status == MovementDocumentStatus.New;
+
+		public virtual void DeleteItem(MovementDocumentItem item)
+		{
+			if(item == null) {
+				return;
+			}
+
+			if(!CanDeleteItems) {
+				return;
+			}
+
+			if(!ObservableItems.Contains(item)) {
+				return;
+			}
+
+			ObservableItems.Remove(item);
+		}
+
+		public virtual bool CanSend => (Status == MovementDocumentStatus.New || Status == MovementDocumentStatus.Sended) 
+			&& FromWarehouse != null 
+			&& ToWarehouse != null
+			&& Items.Any();
+
 		public virtual void Send(Employee sender)
 		{
 			if(sender == null) {
 				throw new ArgumentNullException(nameof(sender));
 			}
 
-			if(Status != MovementDocumentStatus.New) {
+			if(!CanSend) {
 				return;
 			}
 
 			Status = MovementDocumentStatus.Sended;
 			Sender = sender;
-			SendTime = DateTime.Now;
+			if(!SendTime.HasValue) {
+				SendTime = DateTime.Now;
+			}
 
 			foreach(var item in Items) {
 				item.UpdateWriteoffOperation();
 			}
 		}
 
-		public virtual void Receive(bool canChangeAlreadyDelivered, Employee employeeReceiver)
+		public virtual bool CanReceive {
+			get {
+				//Отправка возможна только в указанных ниже статусах
+				var receiveStatuses = new[] { MovementDocumentStatus.Sended, MovementDocumentStatus.Discrepancy, MovementDocumentStatus.Accepted };
+				return receiveStatuses.Contains(Status) && FromWarehouse != null && ToWarehouse != null;
+			}
+		}
+
+		public virtual void Receive(Employee employeeReceiver)
 		{
 			if(employeeReceiver == null) {
 				throw new ArgumentNullException(nameof(employeeReceiver));
 			}
 
-			if(Status != MovementDocumentStatus.Sended && !(canChangeAlreadyDelivered && IsDelivered)) {
+			if(!CanReceive) {
 				return;
 			}
+
+			//Очищаем информацию о расхождениях так как получение могло быть вызвано повторно из принятого статуса
+			ClearDiscrepancyInfo();
 
 			if(HasDeliveryDiscrepancies()) {
 				Status = MovementDocumentStatus.Discrepancy;
@@ -249,7 +305,7 @@ namespace Vodovoz.Domain.Documents
 
 		private bool HasDeliveryDiscrepancies()
 		{
-			if(Status == MovementDocumentStatus.New || Status == MovementDocumentStatus.Accepted) {
+			if(Status == MovementDocumentStatus.New) {
 				return false;
 			}
 			foreach(var item in Items) {
@@ -260,24 +316,30 @@ namespace Vodovoz.Domain.Documents
 			return false;
 		}
 
+		public virtual bool CanAcceptDiscrepancy => Status == MovementDocumentStatus.Discrepancy && HasDeliveryDiscrepancies();
+
 		public virtual void AcceptDiscrepancy(Employee employeeDiscrepancyAccepter)
 		{
 			if(employeeDiscrepancyAccepter == null) {
 				throw new ArgumentNullException(nameof(employeeDiscrepancyAccepter));
 			}
 
-			if(!HasDeliveryDiscrepancies()) {
+			if(!CanAcceptDiscrepancy) {
 				return;
 			}
 
 			DiscrepancyAccepter = employeeDiscrepancyAccepter;
 			DiscrepancyAcceptTime = DateTime.Now;
+			HasDiscrepancy = true;
+
+			Status = MovementDocumentStatus.Accepted;
 		}
 
-		public virtual void ClearDiscrepancyAccepterInformation()
+		public virtual void ClearDiscrepancyInfo()
 		{
 			DiscrepancyAccepter = null;
 			DiscrepancyAcceptTime = null;
+			HasDiscrepancy = false;
 		}
 
 		#endregion
@@ -304,7 +366,7 @@ namespace Vodovoz.Domain.Documents
 		}
 	}
 
-	public enum MovementDocumentCategory
+	public enum MovementDocumentType
 	{
 		[Display(Name = "Внутреннее перемещение")]
 		InnerTransfer,
@@ -314,7 +376,7 @@ namespace Vodovoz.Domain.Documents
 
 	public class MovementDocumentCategoryStringType : NHibernate.Type.EnumStringType
 	{
-		public MovementDocumentCategoryStringType() : base(typeof(MovementDocumentCategory))
+		public MovementDocumentCategoryStringType() : base(typeof(MovementDocumentType))
 		{
 		}
 	}

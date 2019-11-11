@@ -4,6 +4,8 @@ using QS.Project.Filter;
 using QS.Services;
 using Vodovoz.Domain.Goods;
 using QS.DomainModel.Entity;
+using System.Collections.Generic;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.FilterViewModels.Goods
 {
@@ -102,6 +104,18 @@ namespace Vodovoz.FilterViewModels.Goods
 		public SaleCategory? SelectSaleCategory {
 			get => restrictSaleCategory;
 			set => UpdateFilterField(ref restrictSaleCategory, value);
+		}
+
+		private IEnumerable<int> restrictedIds;
+		public virtual IEnumerable<int> RestrictedIds {
+			get => restrictedIds;
+			set => UpdateFilterField(ref restrictedIds, value);
+		}
+
+		private Warehouse restrictedLoadedWarehouse;
+		public virtual Warehouse RestrictedLoadedWarehouse {
+			get => restrictedLoadedWarehouse;
+			set => UpdateFilterField(ref restrictedLoadedWarehouse, value);
 		}
 
 		public bool IsSaleCategoryApplicable {

@@ -22,16 +22,16 @@ namespace Vodovoz.Core
 				}
 				return instance; 
 			}
+			set => instance = value;
 		}
 
-		private ViewModelWidgetResolver()
+		public ViewModelWidgetResolver()
 		{
-
 		}
 
 		private Dictionary<Type, Type> viewModelWidgets = new Dictionary<Type, Type>();
 
-		public Widget Resolve(ITdiTab tab)
+		public virtual Widget Resolve(ITdiTab tab)
 		{
 			if(tab is Widget) {
 				return (Widget)tab;
@@ -55,7 +55,7 @@ namespace Vodovoz.Core
 			return widget;
 		}
 
-		public Widget Resolve(IJournalFilter filter)
+		public virtual Widget Resolve(IJournalFilter filter)
 		{
 			if(filter == null) {
 				return null;
@@ -74,7 +74,7 @@ namespace Vodovoz.Core
 			return widget;
 		}
 
-		public Widget Resolve(QS.Project.Journal.IJournalFilter filter)
+		public virtual Widget Resolve(QS.Project.Journal.IJournalFilter filter)
 		{
 			if(filter == null) {
 				return null;
@@ -94,7 +94,7 @@ namespace Vodovoz.Core
 			return widget;
 		}
 
-		public ViewModelWidgetResolver RegisterWidgetForTabViewModel<TViewModel, TWidget>()
+		public virtual ViewModelWidgetResolver RegisterWidgetForTabViewModel<TViewModel, TWidget>()
 			where TViewModel : TabViewModelBase
 			where TWidget : Widget
 		{
@@ -108,7 +108,7 @@ namespace Vodovoz.Core
 			return this;
 		}
 
-		public ViewModelWidgetResolver RegisterWidgetForFilterViewModel<TViewModel, TWidget>()
+		public virtual ViewModelWidgetResolver RegisterWidgetForFilterViewModel<TViewModel, TWidget>()
 			where TViewModel : FilterViewModelBase<TViewModel>
 			where TWidget : Widget
 		{

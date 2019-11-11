@@ -1330,8 +1330,12 @@
     <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
     <Compile Include="JournalViewModels\IAdditionalJournalRestriction.cs" />
     <Compile Include="JournalViewModels\NomenclaturesForOrderJournalRestriction.cs" />
+    <Compile Include="Views\Warehouse\MovementDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.MovementDocumentView.cs" />
     <Compile Include="Core\WarehousePermissionValidator.cs" />
     <Compile Include="Core\WarehousePermissionValidatorFactory.cs" />
+    <Compile Include="TempAdapters\NomenclatureSelectorFactory.cs" />
+    <Compile Include="Core\BasedOnNameViewModelWidgetResolver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1573,6 +1577,8 @@
     <Folder Include="Views\Logistic\" />
     <Folder Include="ViewModels\FuelDocuments\" />
     <Folder Include="icons\buttons\NullableCheckBox\" />
+    <Folder Include="Views\Warehouse\" />
+    <Folder Include="TempAdapters\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

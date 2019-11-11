@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
@@ -22,21 +21,21 @@ namespace Vodovoz.Domain.Documents
 		[Display(Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get => nomenclature;
-			set => SetField(ref nomenclature, value, () => Nomenclature);
+			set => SetField(ref nomenclature, value);
 		}
 
 		private decimal sendedAmount;
 		[Display(Name = "Отправлено")]
 		public virtual decimal SendedAmount {
 			get => sendedAmount;
-			set => SetField(ref sendedAmount, value, () => SendedAmount);
+			set => SetField(ref sendedAmount, value);
 		}
 
-		private decimal deliveredAmount;
+		private decimal receivedAmount;
 		[Display(Name = "Принято")]
-		public virtual decimal DeliveredAmount {
-			get => deliveredAmount;
-			set => SetField(ref deliveredAmount, value, () => DeliveredAmount);
+		public virtual decimal ReceivedAmount {
+			get => receivedAmount;
+			set => SetField(ref receivedAmount, value);
 		}
 
 		decimal amountOnSource = 99999999;
@@ -44,19 +43,19 @@ namespace Vodovoz.Domain.Documents
 		[Display(Name = "Имеется на складе")]
 		public virtual decimal AmountOnSource {
 			get => amountOnSource;
-			set => SetField(ref amountOnSource, value, () => AmountOnSource);
+			set => SetField(ref amountOnSource, value);
 		}
 
 		WarehouseMovementOperation warehouseWriteoffOperation;
 		public virtual WarehouseMovementOperation WarehouseWriteoffOperation {
 			get => warehouseWriteoffOperation;
-			set => SetField(ref warehouseWriteoffOperation, value, () => WarehouseWriteoffOperation);
+			set => SetField(ref warehouseWriteoffOperation, value);
 		}
 
 		WarehouseMovementOperation incomeOperation;
 		public virtual WarehouseMovementOperation WarehouseIncomeOperation {
 			get => incomeOperation;
-			set => SetField(ref incomeOperation, value, () => WarehouseIncomeOperation);
+			set => SetField(ref incomeOperation, value);
 		}
 
 		#region Функции
@@ -74,7 +73,7 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual bool CanEditAmount => Nomenclature != null && !Nomenclature.IsSerial;
 
-		public virtual bool HasDiscrepancy => SendedAmount != DeliveredAmount;
+		public virtual bool HasDiscrepancy => SendedAmount != ReceivedAmount;
 
 
 		public virtual void UpdateWriteoffOperation()
@@ -117,7 +116,7 @@ namespace Vodovoz.Domain.Documents
 			WarehouseIncomeOperation.WriteoffWarehouse = null;
 			WarehouseIncomeOperation.IncomingWarehouse = Document.ToWarehouse;
 			//Предполагается что если документ находиться в одном из принятых статусов, то время доставки обязательно установлено
-			WarehouseIncomeOperation.OperationTime = Document.DeliveredTime.Value;
+			WarehouseIncomeOperation.OperationTime = Document.ReceiveTime.Value;
 			WarehouseIncomeOperation.Nomenclature = Nomenclature;
 			WarehouseIncomeOperation.Amount = SendedAmount;
 		}

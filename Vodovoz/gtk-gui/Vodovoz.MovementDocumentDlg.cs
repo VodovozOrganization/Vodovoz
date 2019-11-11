@@ -310,7 +310,7 @@ namespace Vodovoz
 			w22.Expand = false;
 			w22.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.tableSender = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
+			this.tableSender = new global::Gtk.Table(((uint)(1)), ((uint)(2)), false);
 			this.tableSender.Name = "tableSender";
 			this.tableSender.RowSpacing = ((uint)(6));
 			this.tableSender.ColumnSpacing = ((uint)(6));
@@ -362,7 +362,7 @@ namespace Vodovoz
 			w28.Expand = false;
 			w28.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
-			this.tableReceiver = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
+			this.tableReceiver = new global::Gtk.Table(((uint)(1)), ((uint)(2)), false);
 			this.tableReceiver.Name = "tableReceiver";
 			this.tableReceiver.RowSpacing = ((uint)(6));
 			this.tableReceiver.ColumnSpacing = ((uint)(6));
@@ -387,12 +387,16 @@ namespace Vodovoz
 			this.vbox4.Add(this.tableReceiver);
 			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.tableReceiver]));
 			w31.Position = 1;
+			w31.Expand = false;
+			w31.Fill = false;
 			this.hbxSenderAddressee.Add(this.vbox4);
 			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbxSenderAddressee[this.vbox4]));
 			w32.Position = 2;
 			this.vbox3.Add(this.hbxSenderAddressee);
 			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbxSenderAddressee]));
 			w33.Position = 2;
+			w33.Expand = false;
+			w33.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.moveingNomenclaturesView = new global::Vodovoz.MovementDocumentItemsView();
 			this.moveingNomenclaturesView.Events = ((global::Gdk.EventMask)(256));

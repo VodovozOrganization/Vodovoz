@@ -13,6 +13,8 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Gtk;
+using Gdk;
 
 namespace Vodovoz.ViewModel
 {
@@ -154,8 +156,9 @@ namespace Vodovoz.ViewModel
 					.Select (() => movementAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => movementAlias.TimeStamp).WithAlias (() => resultAlias.Date)
 					.Select (() => DocumentType.MovementDocument).WithAlias (() => resultAlias.DocTypeEnum)
-					.Select (() => movementAlias.Category).WithAlias (() => resultAlias.MDCategory)
-					.Select (() => movementAlias.TransportationStatus).WithAlias(() => resultAlias.Status)          
+					.Select (() => movementAlias.Status).WithAlias (() => resultAlias.MovementDocumentStatus)
+					.Select (() => movementAlias.HasDiscrepancy).WithAlias (() => resultAlias.MovementDocumentDiscrepancy)
+					//.Select (() => movementAlias.TransportationStatus).WithAlias(() => resultAlias.Status)          
 					.Select (() => wagonAlias.Name).WithAlias (() => resultAlias.CarNumber)
 					.Select (Projections.Conditional (
 					                  Restrictions.Where (() => warehouseAlias.Name == null),
@@ -456,6 +459,24 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : string.Empty)
 			.AddColumn ("Детали").AddTextRenderer (node => node.Description).SearchHighlight()
 			.AddColumn ("Комментарий").SetDataProperty (node => node.Comment)
+			.RowCells()
+			.AddSetter<CellRenderer>((cell, node) => {
+				Color color = new Color(255, 255, 255);
+				if(node.DocTypeEnum == DocumentType.MovementDocument) {
+					switch(node.MovementDocumentStatus) {
+						case MovementDocumentStatus.Sended:
+							color = new Color(255, 255, 125);
+							break;
+						case MovementDocumentStatus.Discrepancy:
+							color = new Color(255, 125, 125);
+							break;
+						case MovementDocumentStatus.Accepted:
+							color = node.MovementDocumentDiscrepancy ? new Color(125, 125, 255) : color;
+							break;
+					}
+				}
+				cell.CellBackgroundGdk = color;
+			})
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
@@ -522,11 +543,8 @@ namespace Vodovoz.ViewModel
 					case DocumentType.IncomingWater:
 						return string.Format("Количество: {0}; Склад поступления: {1};", Amount, Warehouse);
 					case DocumentType.MovementDocument:
-						if (MDCategory == MovementDocumentCategory.Transportation)
-							return string.Format("{0} -> {1}{2} - {3}", Warehouse, SecondWarehouse,
-							string.IsNullOrEmpty(CarNumber) ? null : string.Format(", Фура: {0}", CarNumber), Status == TransportationStatus.Delivered ? "Доставлено" : "");
-						return string.Format("{0} -> {1}{2}", Warehouse, SecondWarehouse,
-							string.IsNullOrEmpty(CarNumber) ? null : string.Format(", Фура: {0}", CarNumber));
+						string carInfo = string.IsNullOrEmpty(CarNumber) ? null : $", Фура: {CarNumber}";
+						return $"{Warehouse} -> {SecondWarehouse}{carInfo}";
 					case DocumentType.WriteoffDocument:
 						if (Warehouse != string.Empty)
 							return string.Format("Со склада \"{0}\"", Warehouse);
@@ -609,7 +627,9 @@ namespace Vodovoz.ViewModel
 		public string DirverName { get; set; }
 		public string DirverPatronymic { get; set; }
 
-		public MovementDocumentCategory MDCategory { get; set; }
+		public MovementDocumentStatus MovementDocumentStatus { get; set; }
+
+		public bool MovementDocumentDiscrepancy { get; set; }
 	}
 }
 

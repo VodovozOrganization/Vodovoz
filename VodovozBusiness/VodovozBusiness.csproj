@@ -755,6 +755,8 @@
     <Compile Include="Services\IWageParametersProvider.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionPermissionExtended.cs" />
     <Compile Include="PermissionExtensions\EntityExtendedPermissionValidator.cs" />
+    <Compile Include="EntityRepositories\Store\IWarehouseRepository.cs" />
+    <Compile Include="EntityRepositories\Store\WarehouseRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
