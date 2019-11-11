@@ -36,7 +36,7 @@ namespace Vodovoz.JournalViewModels
 		private readonly ICommonServices commonServices;
 		private readonly IUndeliveriesViewOpener undeliveriesViewOpener;
 		private readonly IEmployeeService employeeService;
-		private readonly IEntitySelectorFactory employeeSelectorFactory;
+		private readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 		private readonly IEntityAutocompleteSelectorFactory counterpartySelectorFactory;
 		private readonly IFilePickerService filePickerService;
 		private readonly ISubdivisionRepository subdivisionRepository;
@@ -59,7 +59,7 @@ namespace Vodovoz.JournalViewModels
 			ICommonServices commonServices,
 			IUndeliveriesViewOpener undeliveriesViewOpener,
 			IEmployeeService employeeService,
-			IEntitySelectorFactory employeeSelectorFactory,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IRouteListItemRepository routeListItemRepository,
 			ISubdivisionService subdivisionService,
@@ -99,9 +99,6 @@ namespace Vodovoz.JournalViewModels
 				FilterViewModel.Subdivision = currentEmployeeSubdivision;
 			else
 				FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
-
-
-
 
 			UpdateOnChanges(
 				typeof(Complaint),
@@ -159,8 +156,6 @@ namespace Vodovoz.JournalViewModels
 				Projections.SubQuery(workInSubdivisionsSubQuery),
 				Projections.Constant(", "));
 
-
-
 			var okkProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1)"),
 				NHibernateUtil.String,
@@ -174,7 +169,7 @@ namespace Vodovoz.JournalViewModels
 				)
 			);
 
-			string okkSubdivision = UoW.GetById<Subdivision>(subdivisionService.GetOkkId()).ShortName ?? "?";
+			string okkSubdivision = uow.GetById<Subdivision>(subdivisionService.GetOkkId()).ShortName ?? "?";
 
 			var workInSubdivisionsProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(',', ?1, IF(?2 = 'Checking',?3, ''))"),
@@ -248,30 +243,25 @@ namespace Vodovoz.JournalViewModels
 
 				QueryOver<ComplaintDiscussion, ComplaintDiscussion> dicussionQuery = null;
 
-				if(FilterViewModel.Subdivision != null) 
-				{
+				if(FilterViewModel.Subdivision != null) {
 					dicussionQuery = QueryOver.Of(() => dicussionAlias)
 						.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
 						.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
 						.And(() => dicussionAlias.Complaint.Id == complaintAlias.Id);
 				}
 
-				if(FilterViewModel.FilterDateType == DateFilterType.CreationDate && FilterViewModel.StartDate.HasValue) 
-				{
+				if(FilterViewModel.FilterDateType == DateFilterType.CreationDate && FilterViewModel.StartDate.HasValue) {
 					query = query.Where(() => complaintAlias.CreationDate <= FilterViewModel.EndDate)
 								.And(() => FilterViewModel.StartDate == null || complaintAlias.CreationDate >= FilterViewModel.StartDate.Value);
 
 					if(dicussionQuery != null)
 						query.WithSubquery.WhereExists(dicussionQuery);
 
-				}
-				else if(FilterViewModel.FilterDateType == DateFilterType.PlannedCompletionDate && FilterViewModel.StartDate.HasValue) {
-					if(dicussionQuery == null) 
-					{
+				} else if(FilterViewModel.FilterDateType == DateFilterType.PlannedCompletionDate && FilterViewModel.StartDate.HasValue) {
+					if(dicussionQuery == null) {
 						query = query.Where(() => complaintAlias.PlannedCompletionDate <= FilterViewModel.EndDate)
 									.And(() => FilterViewModel.StartDate == null || complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value);
-					} 
-					else {
+					} else {
 						dicussionQuery = dicussionQuery
 										.And(() => FilterViewModel.StartDate == null || dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
 										.And(() => dicussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
@@ -333,6 +323,7 @@ namespace Vodovoz.JournalViewModels
 						EntityUoWBuilder.ForCreate(),
 						unitOfWorkFactory,
 						employeeService,
+						employeeSelectorFactory,
 						counterpartySelectorFactory,
 						subdivisionRepository,
 						commonServices
@@ -361,9 +352,10 @@ namespace Vodovoz.JournalViewModels
 					() => new CreateInnerComplaintViewModel(
 						EntityUoWBuilder.ForCreate(),
 						unitOfWorkFactory,
-						employeeService, 
-						subdivisionRepository, 
-						commonServices
+						employeeService,
+						subdivisionRepository,
+						commonServices,
+						employeeSelectorFactory
 					),
 					//функция диалога открытия документа
 					(ComplaintJournalNode node) => new ComplaintViewModel(

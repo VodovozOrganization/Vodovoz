@@ -1819,6 +1819,8 @@ namespace Vodovoz.Domain.Orders
 						Order = this
 					};
 					ObservableOrderItems.Add(deliveryPriceItem);
+				} else if(deliveryPriceItem.Price == price) {
+					return false;
 				}
 				deliveryPriceItem.Price = price;
 				deliveryPriceItem.Count = 1;

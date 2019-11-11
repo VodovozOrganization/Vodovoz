@@ -1,24 +1,25 @@
 ﻿using System;
-using QS.DomainModel.Entity;
-using QS.RepresentationModel.GtkUI;
-using Vodovoz.Core.Journal;
-using Vodovoz.Domain.Fuel;
-using Gamma.Utilities;
-using QS.Utilities.Text;
 using System.Collections.Generic;
-using Vodovoz.Domain.Employees;
-using QS.DomainModel.UoW;
-using Gamma.ColumnConfig;
-using NHibernate.Transform;
-using Vodovoz.Dialogs.Fuel;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.EntityRepositories.Subdivisions;
-using NHibernate.Criterion;
-using Vodovoz.EntityRepositories.Fuel;
-using QS.Services;
-using QS.Project.Domain;
-using Vodovoz.Domain.Cash;
 using System.Linq;
+using Gamma.ColumnConfig;
+using Gamma.Utilities;
+using NHibernate.Criterion;
+using NHibernate.Transform;
+using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
+using QS.RepresentationModel.GtkUI;
+using QS.Services;
+using QS.Utilities.Text;
+using Vodovoz.Core.Journal;
+using Vodovoz.Dialogs.Fuel;
+using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Fuel;
+using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.Representations
 {
@@ -30,15 +31,19 @@ namespace Vodovoz.Representations
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IFuelRepository fuelRepository;
 		private readonly IRepresentationEntityPicker representationEntityPicker;
+		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 
 		public FuelDocumentsJournalViewModel(
 			IEmployeeService employeeService,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices services, 
+			ICommonServices services,
 			ISubdivisionRepository subdivisionRepository,
-			IFuelRepository fuelRepository, 
-			IRepresentationEntityPicker representationEntityPicker)
+			IFuelRepository fuelRepository,
+			IRepresentationEntityPicker representationEntityPicker,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+		)
 		{
+			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.services = services ?? throw new ArgumentNullException(nameof(services));
@@ -54,7 +59,7 @@ namespace Vodovoz.Representations
 			RegisterIncomeInvoice();
 			RegisterTransferDocument();
 			RegisterWriteoffDocument();
-			
+
 			UpdateOnChanges(
 				typeof(FuelIncomeInvoice),
 				typeof(FuelIncomeInvoiceItem),
@@ -142,9 +147,25 @@ namespace Vodovoz.Representations
 				//заголовок действия для создания нового документа
 				"Входящая накладная",
 				//функция диалога создания документа
-				() => new FuelIncomeInvoiceViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, employeeService, representationEntityPicker, subdivisionRepository, fuelRepository, services),
+				() => new FuelIncomeInvoiceViewModel(
+					EntityUoWBuilder.ForCreate(),
+					unitOfWorkFactory,
+					employeeService,
+					representationEntityPicker,
+					subdivisionRepository,
+					fuelRepository,
+					services
+				),
 				//функция диалога открытия документа
-				(node) => new FuelIncomeInvoiceViewModel(EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, employeeService, representationEntityPicker, subdivisionRepository, fuelRepository, services)
+				(node) => new FuelIncomeInvoiceViewModel(
+					EntityUoWBuilder.ForOpen(node.DocumentId),
+					unitOfWorkFactory,
+					employeeService,
+					representationEntityPicker,
+					subdivisionRepository,
+					fuelRepository,
+					services
+				)
 			);
 
 			//завершение конфигурации
@@ -198,7 +219,7 @@ namespace Vodovoz.Representations
 				//заголовок действия для создания нового документа
 				"Перемещение",
 				//функция диалога создания документа
-				() =>  new FuelTransferDocumentViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, employeeService, subdivisionRepository, fuelRepository, services),
+				() => new FuelTransferDocumentViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, employeeService, subdivisionRepository, fuelRepository, services),
 				//функция диалога открытия документа
 				(node) => new FuelTransferDocumentViewModel(EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, employeeService, subdivisionRepository, fuelRepository, services)
 			);
@@ -260,9 +281,25 @@ namespace Vodovoz.Representations
 				//заголовок действия для создания нового документа
 				"Акт выдачи топлива",
 				//функция диалога создания документа
-				() => new FuelWriteoffDocumentViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, employeeService, fuelRepository, subdivisionRepository, services),
+				() => new FuelWriteoffDocumentViewModel(
+					EntityUoWBuilder.ForCreate(),
+					unitOfWorkFactory,
+					employeeService,
+					fuelRepository,
+					subdivisionRepository,
+					services,
+					employeeSelectorFactory
+				),
 				//функция диалога открытия документа
-				(node) => new FuelWriteoffDocumentViewModel(EntityUoWBuilder.ForOpen(node.DocumentId), unitOfWorkFactory, employeeService, fuelRepository, subdivisionRepository, services)
+				(node) => new FuelWriteoffDocumentViewModel(
+					EntityUoWBuilder.ForOpen(node.DocumentId),
+					unitOfWorkFactory,
+					employeeService,
+					fuelRepository,
+					subdivisionRepository,
+					services,
+					employeeSelectorFactory
+				)
 			);
 
 			//завершение конфигурации

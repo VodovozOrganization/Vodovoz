@@ -5,6 +5,7 @@ using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
@@ -21,6 +22,7 @@ namespace Vodovoz.ViewModels.Complaints
 		private readonly ITdiTab dialogTab;
 		private readonly IFilePickerService filePickerService;
 		private readonly IEmployeeService employeeService;
+		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 
 		public ComplaintDiscussionsViewModel(
 			Complaint entity, 
@@ -28,9 +30,11 @@ namespace Vodovoz.ViewModels.Complaints
 			IUnitOfWork uow,
 			IFilePickerService filePickerService,
 			IEmployeeService employeeService,
-			ICommonServices commonServices
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory
 		) : base(entity, commonServices)
 		{
+			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.filePickerService = filePickerService ?? throw new ArgumentNullException(nameof(filePickerService));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
@@ -109,8 +113,14 @@ namespace Vodovoz.ViewModels.Complaints
 				() => {
 					var filter = new SubdivisionFilterViewModel(CommonServices.InteractiveService);
 					filter.ExcludedSubdivisions = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
-					var subdivisionSelector = new SubdivisionsJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, CommonServices);
-					subdivisionSelector.SelectionMode = JournalSelectionMode.Single;
+					var subdivisionSelector = new SubdivisionsJournalViewModel(
+						filter,
+						UnitOfWorkFactory.GetDefaultFactory,
+						CommonServices,
+						employeeSelectorFactory
+					) {
+						SelectionMode = JournalSelectionMode.Single
+					};
 					subdivisionSelector.OnEntitySelectedResult += (sender, e) => {
 						var selectedNode = e.SelectedNodes.FirstOrDefault();
 						if(selectedNode == null) {

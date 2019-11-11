@@ -330,6 +330,7 @@ namespace Vodovoz
 						.AddClearDependence<Warehouse>(item => item.OwningSubdivision)
 						.AddClearDependence<RouteList>(item => item.ClosingSubdivision)
 						.AddDeleteDependence<EntitySubdivisionPermission>(item => item.Subdivision)
+						.AddDeleteDependence<EntitySubdivisionPermissionExtended>(item => item.Subdivision)
 						.AddClearDependence<UndeliveredOrder>(item => item.InProcessAtDepartment)
 						.AddClearDependence<GuiltyInUndelivery>(item => item.GuiltyDepartment)
 						.AddDeleteDependence<Income>(item => item.RelatedToSubdivision)
