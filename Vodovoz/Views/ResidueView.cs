@@ -107,9 +107,11 @@ namespace Vodovoz.Views
 
 		protected void OnEntryClientChanged(object sender, EventArgs e)
 		{
-			ySpecCmbDeliveryPoint.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{0}: {1}", d.Id, d.ShortAddress));
-			ySpecCmbDeliveryPoint.Binding.AddBinding(ViewModel.Entity.Customer, r => r.DeliveryPoints, w => w.ItemsList).InitializeFromSource();
-			ySpecCmbDeliveryPoint.Binding.AddBinding(ViewModel.Entity, r => r.DeliveryPoint, w => w.SelectedItem).InitializeFromSource();
+			if(ViewModel.Entity.Customer != null) {
+				ySpecCmbDeliveryPoint.SetRenderTextFunc<DeliveryPoint>(d => string.Format("{0}: {1}", d.Id, d.ShortAddress));
+				ySpecCmbDeliveryPoint.Binding.AddBinding(ViewModel.Entity.Customer, r => r.DeliveryPoints, w => w.ItemsList).InitializeFromSource();
+				ySpecCmbDeliveryPoint.Binding.AddBinding(ViewModel.Entity, r => r.DeliveryPoint, w => w.SelectedItem).InitializeFromSource();
+			}
 		}
 	}
 }

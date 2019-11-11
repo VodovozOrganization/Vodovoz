@@ -125,9 +125,9 @@ namespace Vodovoz.ViewModels
 
 		private void UpdateResidue()
 		{
-			if(Entity.Customer == null && Entity.DeliveryPoint == null) {
+			if(Entity.Customer == null)
 				return;
-			}
+			
 			int bottleDebt;
 			if(Entity.DeliveryPoint == null)
 				bottleDebt = bottlesRepository.GetBottlesAtCounterparty(UoW, Entity.Customer, Entity.Date);
