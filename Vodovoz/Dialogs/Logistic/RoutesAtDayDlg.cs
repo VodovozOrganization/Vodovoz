@@ -696,6 +696,7 @@ namespace Vodovoz
 									 .Where(x => x.DeliverySchedule.From <= ytimeToDeliveryTo.Time)
 									 .Where(x => x.DeliveryPoint != null)
 									 .Where(o => o.Total19LBottlesToDeliver >= minBtls)
+									 .Where(x => !x.IsContractCloser)
 									 .ToList()
 									 ;
 
