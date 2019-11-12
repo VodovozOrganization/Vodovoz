@@ -1047,7 +1047,7 @@
         <CommandText>SELECT
 store_movement_document.id ,
 store_movement_document.time_stamp AS Date ,
-store_movement_document_items.sended_amount AS Count ,
+IFNULL(store_movement_document_items.received_amount, store_movement_document_items.sended_amount) AS Count ,
 WarehouseFrom.Name AS WarehouseFromName,
 WarehouseTo.Name AS WarehouseToName ,
 store_movement_wagon.name AS WagonName ,

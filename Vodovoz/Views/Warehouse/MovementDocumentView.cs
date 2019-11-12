@@ -5,6 +5,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Documents;
 using Gamma.ColumnConfig;
+using Gamma.Utilities;
 
 namespace Vodovoz.Views.Warehouse
 {
@@ -19,6 +20,7 @@ namespace Vodovoz.Views.Warehouse
 
 		private void ConfigureView()
 		{
+			ylabelStatusValue.Binding.AddFuncBinding(ViewModel.Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 			ylabelAuthorValue.Binding.AddBinding(ViewModel, vm => vm.AuthorInfo, w => w.LabelProp).InitializeFromSource();
 			ylabelEditorValue.Binding.AddBinding(ViewModel, vm => vm.LastEditorInfo, w => w.LabelProp).InitializeFromSource();
 			ylabelSenderValue.Binding.AddBinding(ViewModel, vm => vm.SendedInfo, w => w.LabelProp).InitializeFromSource();
