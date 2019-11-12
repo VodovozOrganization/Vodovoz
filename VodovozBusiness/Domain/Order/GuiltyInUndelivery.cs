@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -67,6 +66,8 @@ namespace Vodovoz.Domain.Orders
 
 		public static bool operator ==(GuiltyInUndelivery x, GuiltyInUndelivery y)
 		{
+			if(x is null)
+				return y is null;
 			return x.Equals(y);
 		}
 
