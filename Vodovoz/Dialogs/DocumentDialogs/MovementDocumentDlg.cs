@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using NHibernate.Criterion;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
@@ -14,8 +12,7 @@ using QSOrmProject;
 using QSReport;
 using Vodovoz.Additions.Store;
 using Vodovoz.Core;
-using Vodovoz.Core.Permissions;
-using Vodovoz.Domain.Client;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
@@ -35,7 +32,7 @@ namespace Vodovoz
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument>();
 
-			Entity.Author = Entity.ResponsiblePerson = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			//Entity.Author = Entity.ResponsiblePerson = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
@@ -69,37 +66,25 @@ namespace Vodovoz
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 
-			referenceCounterpartyFrom.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
-			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
-
-			referenceCounterpartyTo.RepresentationModel = new CounterpartyVM(new CounterpartyFilter(UoW));
-			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
-
 			referenceWarehouseTo.ItemsQuery = StoreDocumentHelper.GetWarehouseQuery();
 			referenceWarehouseTo.Binding.AddBinding(Entity, e => e.ToWarehouse, w => w.Subject).InitializeFromSource();
 			referenceWarehouseFrom.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.MovementEdit);
 			referenceWarehouseFrom.Binding.AddBinding(Entity, e => e.FromWarehouse, w => w.Subject).InitializeFromSource();
-			referenceDeliveryPointTo.CanEditReference = false;
-			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPointTo.Binding.AddBinding(Entity, e => e.ToDeliveryPoint, w => w.Subject).InitializeFromSource();
-			referenceDeliveryPointFrom.CanEditReference = false;
-			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPointFrom.Binding.AddBinding(Entity, e => e.FromDeliveryPoint, w => w.Subject).InitializeFromSource();
 			repEntryEmployee.RepresentationModel = new EmployeesVM();
-			repEntryEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
+			//repEntryEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
 			yentryrefWagon.SubjectType = typeof(MovementWagon);
 			yentryrefWagon.Binding.AddBinding(Entity, e => e.MovementWagon, w => w.Subject).InitializeFromSource();
 
-			ylabelTransportationStatus.Binding.AddBinding(Entity, e => e.TransportationDescription, w => w.LabelProp).InitializeFromSource();
+			//ylabelTransportationStatus.Binding.AddBinding(Entity, e => e.TransportationDescription, w => w.LabelProp).InitializeFromSource();
 
-			MovementDocumentCategory[] filteredDoctypeList = { MovementDocumentCategory.counterparty, MovementDocumentCategory.warehouse };
+			MovementDocumentType[] filteredDoctypeList = { MovementDocumentType.InnerTransfer };
 			object[] MovementDocumentList = Array.ConvertAll(filteredDoctypeList, x => (object)x);
-			enumMovementType.ItemsEnum = typeof(MovementDocumentCategory);
+			enumMovementType.ItemsEnum = typeof(MovementDocumentType);
 			enumMovementType.AddEnumToHideList(MovementDocumentList);
-			enumMovementType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
+			enumMovementType.Binding.AddBinding(Entity, e => e.DocumentType, w => w.SelectedItem).InitializeFromSource();
 			if(Entity.Id == 0) {
-				Entity.Category = MovementDocumentCategory.Transportation;
+				Entity.DocumentType = MovementDocumentType.Transportation;
 				OnEnumMovementTypeChanged(null, null);
 			}
 
@@ -114,10 +99,6 @@ namespace Vodovoz
 				yentryrefWagon.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				referenceWarehouseTo.Sensitive = false;
 				referenceWarehouseFrom.Sensitive = false;
-				referenceCounterpartyTo.Sensitive = false;
-				referenceDeliveryPointTo.Sensitive = false;
-				referenceCounterpartyFrom.Sensitive = false;
-				referenceDeliveryPointFrom.Sensitive = false;
 				repEntryEmployee.Sensitive = false;
 				textComment.Sensitive = false;
 				buttonDelivered.Sensitive = false;
@@ -135,14 +116,14 @@ namespace Vodovoz
 				"can_edit_delivered_goods_transfer_documents",
 				ServicesConfig.CommonServices.UserService.CurrentUserId
 			);
-			if(Entity.TransportationStatus == TransportationStatus.Delivered && !canEditOldDocument) {
+			/*if(Entity.TransportationStatus == TransportationStatus.Delivered && !canEditOldDocument) {
 				HasChanges = false;
 				tableCommon.Sensitive = false;
 				hbxSenderAddressee.Sensitive = false;
 				moveingNomenclaturesView.Sensitive = false;
 				buttonSave.Sensitive = false;
 				return;
-			}
+			}*/
 
 			var editing = StoreDocumentHelper.CanEditDocument(WarehousePermissions.MovementEdit, Entity.FromWarehouse, Entity.ToWarehouse);
 			enumMovementType.Sensitive = repEntryEmployee.IsEditable = referenceWarehouseTo.Sensitive
@@ -151,8 +132,8 @@ namespace Vodovoz
 
 			referenceWarehouseFrom.IsEditable = StoreDocumentHelper.CanEditDocument(WarehousePermissions.MovementEdit, Entity.FromWarehouse);
 
-			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged
-				&& CurrentPermissions.Warehouse[WarehousePermissions.MovementEdit, Entity.ToWarehouse];
+			/*buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged
+				&& CurrentPermissions.Warehouse[WarehousePermissions.MovementEdit, Entity.ToWarehouse];*/
 		}
 
 		public override bool Save()
@@ -179,48 +160,20 @@ namespace Vodovoz
 
 		protected void OnEnumMovementTypeChanged(object sender, EventArgs e)
 		{
-			var selected = Entity.Category;
+			var selected = Entity.DocumentType;
 			referenceWarehouseTo.Visible = referenceWarehouseFrom.Visible = labelStockFrom.Visible = labelStockTo.Visible
-				= (selected == MovementDocumentCategory.warehouse || selected == MovementDocumentCategory.Transportation);
-
-			referenceCounterpartyTo.Visible = referenceCounterpartyFrom.Visible = labelClientFrom.Visible = labelClientTo.Visible
-				= referenceDeliveryPointFrom.Visible = referenceDeliveryPointTo.Visible = labelPointFrom.Visible = labelPointTo.Visible
-				= (selected == MovementDocumentCategory.counterparty);
-			referenceDeliveryPointFrom.Sensitive = (referenceCounterpartyFrom.Subject != null && selected == MovementDocumentCategory.counterparty);
-			referenceDeliveryPointTo.Sensitive = (referenceCounterpartyTo.Subject != null && selected == MovementDocumentCategory.counterparty);
+				= (selected == MovementDocumentType.InnerTransfer || selected == MovementDocumentType.Transportation);
 
 			//Траспортировка
 			labelWagon.Visible = hboxTransportation.Visible = yentryrefWagon.Visible = labelTransportationTitle.Visible
-				= selected == MovementDocumentCategory.Transportation;
-		}
-
-		protected void OnReferenceCounterpartyFromChanged(object sender, EventArgs e)
-		{
-			referenceDeliveryPointFrom.Sensitive = referenceCounterpartyFrom.Subject != null;
-			if(referenceCounterpartyFrom.Subject != null) {
-				var points = ((Counterparty)referenceCounterpartyFrom.Subject).DeliveryPoints.Select(o => o.Id).ToList();
-				referenceDeliveryPointFrom.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint>()
-					.Add(Restrictions.In("Id", points));
-			}
-		}
-
-		protected void OnReferenceCounterpartyToChanged(object sender, EventArgs e)
-		{
-			referenceDeliveryPointTo.Sensitive = referenceCounterpartyTo.Subject != null;
-			if(referenceCounterpartyTo.Subject != null) {
-				var points = ((Counterparty)referenceCounterpartyTo.Subject).DeliveryPoints.Select(o => o.Id).ToList();
-				referenceDeliveryPointTo.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint>()
-					.Add(Restrictions.In("Id", points));
-			}
+				= selected == MovementDocumentType.Transportation;
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
 			buttonDelivered.Sensitive = false;
-			Entity.TransportationCompleted();
+			//Entity.TransportationCompleted();
 		}
-
-
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{

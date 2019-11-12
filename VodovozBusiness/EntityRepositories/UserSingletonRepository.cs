@@ -40,8 +40,13 @@ namespace Vodovoz.EntityRepositories
 		/// </summary>
 		public UserSettings GetCurrentUserSettings(IUnitOfWork uow)
 		{
+			return GetUserSettings(uow, QSProjectsLib.QSMain.User.Id);
+		}
+
+		public UserSettings GetUserSettings(IUnitOfWork uow, int userId)
+		{
 			return uow.Session.QueryOver<UserSettings>()
-				.Where(s => s.User.Id == QSProjectsLib.QSMain.User.Id)
+				.Where(s => s.User.Id == userId)
 				.SingleOrDefault();
 		}
 	}

@@ -5,7 +5,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation.GtkUI;
 using Vodovoz.Additions.Store;
-using Vodovoz.Core.Permissions;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Domain.Permissions;

@@ -123,7 +123,6 @@ namespace Vodovoz
 				.AddDeleteDependence<PaidRentEquipment>(item => item.Equipment)
 				.AddDeleteDependence<WarehouseMovementOperation>(item => item.Equipment)
 				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.Equipment)
-				.AddDeleteDependence<MovementDocumentItem>(x => x.Equipment)
 				.AddDeleteDependence<WriteoffDocumentItem>(x => x.Equipment)
 				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.Equipment)
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.Equipment)
@@ -235,7 +234,6 @@ namespace Vodovoz
 				.AddClearDependence<Order>(x => x.Author)
 				.AddClearDependence<ServiceClaim>(x => x.Engineer)
 				.AddClearDependence<ServiceClaimHistory>(x => x.Employee)
-				.AddClearDependence<MovementDocument>(item => item.ResponsiblePerson)
 				.AddClearDependence<WriteoffDocument>(item => item.ResponsibleEmployee)
 				.AddClearDependence<Organization>(item => item.Leader)
 				.AddClearDependence<Organization>(item => item.Buhgalter)
@@ -380,15 +378,11 @@ namespace Vodovoz
 				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.IncomingCounterparty)
 				.AddDeleteDependence<IncomingInvoice>(item => item.Contractor)
 				.AddDeleteDependence<MoneyMovementOperation>(item => item.Counterparty)
-				.AddDeleteDependence<MovementDocument>(item => item.FromClient)
-				.AddDeleteDependence<MovementDocument>(item => item.ToClient)
 				.AddDeleteDependence<Order>(item => item.Client)
 				.AddDeleteDependence<ServiceClaim>(x => x.Counterparty)
 				.AddDeleteDependence<WriteoffDocument>(item => item.Client)
 				.AddDeleteDependence<AccountIncome>(item => item.Counterparty)
 				.AddDeleteDependence<AccountExpense>(item => item.Counterparty)
-				.AddDeleteDependence<MovementDocument>(item => item.FromClient)
-				.AddDeleteDependence<MovementDocument>(item => item.ToClient)
 				.AddDeleteDependence<Income>(x => x.Customer)
 				.AddDeleteDependence<Residue>(x => x.Customer)
 				.AddClearDependence<Counterparty>(item => item.MainCounterparty)
@@ -463,8 +457,6 @@ namespace Vodovoz
 				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.WriteoffDeliveryPoint)
 				.AddDeleteDependence<CounterpartyMovementOperation>(item => item.IncomingDeliveryPoint)
 				.AddClearDependence<Order>(x => x.DeliveryPoint)
-				.AddDeleteDependence<MovementDocument>(x => x.FromDeliveryPoint)
-				.AddDeleteDependence<MovementDocument>(x => x.ToDeliveryPoint)
 				.AddDeleteDependence<WriteoffDocument>(x => x.DeliveryPoint)
 				.AddDeleteDependence<Residue>(x => x.DeliveryPoint)
 				.AddRemoveFromDependence<Proxy>(item => item.DeliveryPoints)
@@ -781,9 +773,8 @@ namespace Vodovoz
 				.AddDeleteDependence<MovementDocumentItem>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<MovementDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.WarehouseMovementOperation)
-				.AddDeleteCascadeDependence(x => x.CounterpartyMovementOperation)
-				.AddDeleteCascadeDependence(x => x.DeliveryMovementOperation);
+				.AddDeleteCascadeDependence(x => x.WarehouseWriteoffOperation)
+				.AddDeleteCascadeDependence(x => x.WarehouseIncomeOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<WriteoffDocument>()
 				.AddDeleteDependence<WriteoffDocumentItem>(x => x.Document);
@@ -871,8 +862,8 @@ namespace Vodovoz
 				.AddDeleteDependence<IncomingInvoiceItem>(x => x.IncomeGoodsOperation)
 				.AddDeleteDependence<IncomingWater>(x => x.ProduceOperation)
 				.AddDeleteDependence<IncomingWaterMaterial>(x => x.ConsumptionMaterialOperation)
-				.AddDeleteDependence<MovementDocumentItem>(x => x.WarehouseMovementOperation)
-				.AddDeleteDependence<MovementDocumentItem>(x => x.DeliveryMovementOperation)
+				.AddDeleteDependence<MovementDocumentItem>(x => x.WarehouseWriteoffOperation)
+				.AddDeleteDependence<MovementDocumentItem>(x => x.WarehouseIncomeOperation)
 				.AddDeleteDependence<WriteoffDocumentItem>(x => x.WarehouseWriteoffOperation)
 				.AddDeleteDependence<InventoryDocumentItem>(x => x.WarehouseChangeOperation)
 				.AddDeleteDependence<RegradingOfGoodsDocumentItem>(x => x.WarehouseIncomeOperation)
@@ -882,7 +873,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyMovementOperation>()
 				.RequiredCascadeDeletion()
-				.AddDeleteDependence<MovementDocumentItem>(x => x.CounterpartyMovementOperation)
 				.AddDeleteDependence<WriteoffDocumentItem>(x => x.CounterpartyWriteoffOperation)
 				.AddDeleteDependence<OrderItem>(x => x.CounterpartyMovementOperation)
 				.AddDeleteDependence<OrderEquipment>(x => x.CounterpartyMovementOperation)

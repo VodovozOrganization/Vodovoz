@@ -21,8 +21,8 @@ namespace Vodovoz.Repository.Store
 
 			var docSubqery = QueryOver.Of<MovementDocument>(() => docAlias)
 				.JoinAlias(d => d.Items, () => itemAlias)
-				.JoinAlias(() => itemAlias.WarehouseMovementOperation, () => shipOpAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(() => itemAlias.DeliveryMovementOperation, () => deliverOpAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(() => itemAlias.WarehouseWriteoffOperation, () => shipOpAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(() => itemAlias.WarehouseIncomeOperation, () => deliverOpAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where(d => d.MovementWagon.Id == wagonAlias.Id)
 				.Where(() => ((shipOpAlias.IncomingWarehouse == warehouse || shipOpAlias.WriteoffWarehouse == warehouse)
 				                 && shipOpAlias.OperationTime >= start && shipOpAlias.OperationTime < end)

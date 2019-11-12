@@ -8,7 +8,7 @@ using QS.EntityRepositories;
 using QS.Project.Repositories;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
-using Vodovoz.Core.Permissions;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Permissions;

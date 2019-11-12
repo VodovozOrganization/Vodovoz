@@ -15,7 +15,6 @@ using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Repositories;
-using QS.Tdi.Gtk;
 using QS.Widgets.GtkUI;
 using QSBusinessCommon;
 using QSContacts;
@@ -25,7 +24,7 @@ using QSOrmProject.DomainMapping;
 using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Core;
-using Vodovoz.Core.Permissions;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Dialogs.Cash.CashTransfer;
@@ -74,6 +73,11 @@ using Vodovoz.Views.Organization;
 using Vodovoz.Views.Suppliers;
 using Vodovoz.Views.WageCalculation;
 using Vodovoz.ViewModels.FuelDocuments;
+using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.Services.Permissions;
+using Vodovoz.Core.Permissions;
+using Vodovoz.ViewModels.Warehouses;
+using Vodovoz.Views.Warehouse;
 
 namespace Vodovoz
 {
@@ -142,6 +146,8 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_edit_delivered_goods_transfer_documents", new PresetUserPermissionSource("can_edit_delivered_goods_transfer_documents", "Редактирование складского документа перемещения в статусе \"Доставлен\"", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_edit_counterparty_details", new PresetUserPermissionSource("can_edit_counterparty_details", "Редактирование реквизитов контрагента", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_edit_order_extra_cash", new PresetUserPermissionSource("can_edit_order_extra_cash", "Редактирование доп. нала в заказе", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_accept_movement_document_dicrepancy", new PresetUserPermissionSource("can_accept_movement_document_dicrepancy", "Подтверждение расхождений в документа перемещения ТМЦ", string.Empty));
+
 			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {
 					new SubdivisionForUserEntityPermissionWidget()
@@ -150,11 +156,15 @@ namespace Vodovoz
 
 			UserDialog.PermissionViewsCreator = () => {
 				return new List<IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
-			};		
+			};
+
+			WarehousePermissionService.WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
 		}
 
 		static void ConfigureViewModelWidgetResolver()
 		{
+			ViewModelWidgetResolver.Instance = new BasedOnNameViewModelWidgetResolver();
+
 			//Регистрация вкладок
 			ViewModelWidgetResolver.Instance
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
@@ -179,7 +189,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CarsWageParametersViewModel, CarsWageParametersView>()
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
-				.RegisterWidgetForTabViewModel <FuelDocumentViewModel, FuelDocumentView>()
+				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
+				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
 				;
 
 			//Регистрация фильтров

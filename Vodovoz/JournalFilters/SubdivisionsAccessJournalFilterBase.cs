@@ -1,11 +1,11 @@
 ﻿using System;
 using NHibernate;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Core.Permissions;
 using Vodovoz.Domain.Permissions;
 using System.Linq;
 using QS.DomainModel.Entity;
 using System.Collections.Generic;
+using Vodovoz.Core.Permissions;
 
 namespace Vodovoz.JournalFilters
 {
