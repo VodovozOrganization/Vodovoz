@@ -406,7 +406,6 @@ FROM
 				delivery_points ON bmo.delivery_point_id = delivery_points.id
 			WHERE
 				bmo.delivery_point_id IS NOT NULL
-                AND delivery_points.have_residue IS NOT FALSE
 			GROUP BY delivery_point_id) as dp
 		GROUP BY counterparty_id
 		HAVING MAX(bottle_debt_point) = 0 AND MIN(bottle_debt_point) = 0
@@ -441,6 +440,16 @@ WHERE
                 orders.delivery_date DESC
             LIMIT 1
         )
+    )
+    AND NOT EXISTS
+    (
+		SELECT
+			have_residue
+		FROM
+			delivery_points
+		WHERE
+			delivery_points.counterparty_id = counterparty.id
+			AND delivery_points.have_residue = FALSE
     )</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -473,7 +482,7 @@ WHERE
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -489,7 +498,7 @@ WHERE
       <Prompt />
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
