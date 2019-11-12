@@ -1458,4 +1458,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			)
 		);
 	}
+
+	protected void OnActionZeroDebtClientReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ZeroDebtClientReport>(),
+			() => new QSReport.ReportViewDlg(new ZeroDebtClientReport())
+		);
+	}
 }
