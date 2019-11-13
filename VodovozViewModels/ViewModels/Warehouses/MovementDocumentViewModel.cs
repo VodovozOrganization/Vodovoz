@@ -227,6 +227,8 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public bool CanChangeWarehouseFrom => CanEditNewDocument && !Entity.Items.Any();
 
+		public bool CanVisibleWagon => Entity.DocumentType == MovementDocumentType.Transportation;
+
 		#region Commands
 
 		public bool CanSend => CanEdit
