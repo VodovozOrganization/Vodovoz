@@ -697,7 +697,7 @@ namespace Vodovoz
 									 .Where(x => x.DeliveryPoint != null)
 									 .Where(o => o.Total19LBottlesToDeliver >= minBtls)
 									 .Where(x => !x.IsContractCloser)
-									 .Where(x => OrderSingletonRepository.GetInstance().IsOrderCloseWithoutDelivery(UoW,x))
+									 .Where(x => !OrderSingletonRepository.GetInstance().IsOrderCloseWithoutDelivery(UoW,x))
 									 .ToList()
 									 ;
 

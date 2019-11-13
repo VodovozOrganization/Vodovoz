@@ -953,7 +953,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future()
 												.Where(x => x.IsContractCloser == false)
-									 			.Where(x => orderRepository.IsOrderCloseWithoutDelivery(UoW, x));
+									 			.Where(x => !orderRepository.IsOrderCloseWithoutDelivery(UoW, x));
 
 			orderRepository.GetOrdersForRLEditingQuery(DateForRouting, ShowCompleted)
 						   .GetExecutableQueryOver(UoW.Session)
