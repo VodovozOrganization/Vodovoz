@@ -43,6 +43,7 @@ namespace Vodovoz
 			ConfigureJournalColumnsConfigs();
 
 			QSMain.SetupFromArgs(args);
+			QS.Project.Search.GtkUI.SearchView.QueryDelay = 1500;
 
 			// Создаем окно входа
 			Login LoginDialog = new Login ();
