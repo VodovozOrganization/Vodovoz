@@ -135,13 +135,16 @@ namespace Vodovoz.ViewModels.Warehouses
 		private void ReloadAllowedWarehousesFrom()
 		{
 			var allowedWarehouses = warehousePermissionValidator.GetAllowedWarehouses(WarehousePermissions.MovementEdit);
-			allowedWarehousesFrom = UoW.GetById<Warehouse>(allowedWarehouses.Select(x => x.Id));
+			allowedWarehousesFrom = UoW.Session.QueryOver<Warehouse>()
+				.Where(x => !x.IsArchive)
+				.WhereRestrictionOn(x => x.Id).Not.IsIn(allowedWarehouses.Select(x => x.Id).ToArray())
+				.List();
 			OnPropertyChanged(nameof(AllowedWarehousesFrom));
 		}
 
 		private void ReloadAllowedWarehousesTo()
 		{
-			var allowedWarehouses = UoW.GetAll<Warehouse>().ToList();
+			var allowedWarehouses = UoW.GetAll<Warehouse>().Where(x => !x.IsArchive).ToList();
 			if(allowedWarehouses.Contains(Entity.FromWarehouse)) {
 				allowedWarehouses.Remove(Entity.FromWarehouse);
 			}
