@@ -951,7 +951,9 @@ namespace Vodovoz.ViewModels.Logistic
 							  .Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
 			}
 
-			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future();
+			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future()
+												.Where(x => x.IsContractCloser == false)
+									 			.Where(x => orderRepository.IsOrderCloseWithoutDelivery(UoW, x));
 
 			orderRepository.GetOrdersForRLEditingQuery(DateForRouting, ShowCompleted)
 						   .GetExecutableQueryOver(UoW.Session)
