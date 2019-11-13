@@ -23,8 +23,8 @@ namespace Vodovoz.ViewModels.Complaints
 			IEntityUoWBuilder uoWBuilder, 
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
-			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices
 			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
