@@ -74,11 +74,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			SetPropertyChangeRelation(e => e.CanAcceptDiscrepancy, () => CanAcceptDiscrepancy);
 			SetPropertyChangeRelation(e => e.Status, () => CanEditNewDocument);
 			SetPropertyChangeRelation(e => e.ToWarehouse, () => CanSend, () => CanReceive, () => CanAcceptDiscrepancy);
-			SetPropertyChangeRelation(e => e.ToWarehouse, () => WarehouseTo);
-			SetPropertyChangeRelation(e => e.ToWarehouse, () => WarehousesTo);
 			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanSend, () => CanReceive, () => CanAcceptDiscrepancy);
-			SetPropertyChangeRelation(e => e.FromWarehouse, () => WarehouseFrom);
-			SetPropertyChangeRelation(e => e.FromWarehouse, () => WarehousesFrom);
 
 			SetPropertyChangeRelation(e => e.CanAddItem, () => CanAddItem);
 			SetPropertyChangeRelation(e => e.CanDeleteItems, () => CanDeleteItems);
@@ -144,6 +140,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				.WhereRestrictionOn(x => x.Id).IsIn(allowedWarehouses.Select(x => x.Id).ToArray())
 				.List();
 			OnPropertyChanged(nameof(AllowedWarehousesFrom));
+			OnPropertyChanged(nameof(WarehousesFrom));
 		}
 
 		private void ReloadAllowedWarehousesTo()
@@ -157,6 +154,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 			allowedWarehousesTo = allowedWarehouses;
 			OnPropertyChanged(nameof(AllowedWarehousesTo));
+			OnPropertyChanged(nameof(WarehousesTo));
 		}
 
 		private IEnumerable<Warehouse> allowedWarehousesFrom;
@@ -178,10 +176,11 @@ namespace Vodovoz.ViewModels.Warehouses
 			Entity.FromWarehouse = CurrentUserSettings.DefaultWarehouse;
 		}
 
+
 		public IEnumerable<Warehouse> WarehousesTo {
 			get {
 				var result = new List<Warehouse>(AllowedWarehousesTo);
-				if(!AllowedWarehousesTo.Contains(Entity.ToWarehouse)) {
+				if(Entity.ToWarehouse != null && !AllowedWarehousesTo.Contains(Entity.ToWarehouse)) {
 					result.Add(Entity.ToWarehouse);
 				}
 				return result;
@@ -191,12 +190,13 @@ namespace Vodovoz.ViewModels.Warehouses
 		public IEnumerable<Warehouse> WarehousesFrom {
 			get {
 				var result = new List<Warehouse>(AllowedWarehousesFrom);
-				if(!AllowedWarehousesFrom.Contains(Entity.FromWarehouse)) {
+				if(Entity.FromWarehouse != null && !AllowedWarehousesFrom.Contains(Entity.FromWarehouse)) {
 					result.Add(Entity.FromWarehouse);
 				}
 				return result;
 			}
 		}
+
 
 		private IEnumerable<Warehouse> allowedWarehousesTo;
 		public IEnumerable<Warehouse> AllowedWarehousesTo {
@@ -207,26 +207,6 @@ namespace Vodovoz.ViewModels.Warehouses
 				return allowedWarehousesTo;
 			}
 		}
-
-		public Warehouse WarehouseFrom {
-			get => Entity.FromWarehouse;
-			set {
-				if(AllowedWarehousesFrom.Contains(value)) {
-					Entity.FromWarehouse = value;
-				}
-			}
-		}
-
-		public Warehouse WarehouseTo {
-			get => Entity.ToWarehouse;
-			set {
-				if(AllowedWarehousesTo.Contains(value)) {
-					Entity.ToWarehouse = value;
-				}
-			}
-		}
-
-
 
 		private Employee currentEmployee;
 		public Employee CurrentEmployee {
