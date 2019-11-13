@@ -306,7 +306,7 @@
         <CommandText>SELECT
     counterparty.id,
     counterparty.name AS counterparty,
-       
+    #Дата последнего заказа
     (
 		SELECT 
             MAX(delivery_date)
@@ -314,38 +314,19 @@
             orders
         WHERE
             orders.client_id = counterparty.id
-			AND order_status = 'Closed') AS lastorder,
-            
+			AND order_status = 'Closed'
+    ) AS lastorder,
+	#Телефон
 	(
-        SELECT
-            IFNULL(phones.number, delivery_points.compiled_address)
-        FROM
-            orders
-            LEFT JOIN order_items ON order_items.order_id = orders.id
-            LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-            LEFT JOIN phones ON phones.counterparty_id = orders.client_id
-            WHERE
-				orders.client_id = counterparty.id
-            AND orders.order_status = 'Closed'
-            AND EXISTS
-            (
-                SELECT
-                    *
-                FROM
-                    order_items
-                    JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-                WHERE
-                    nomenclature.category = 'water'
-                    AND orders.id = order_items.order_id
-                    AND order_items.actual_count &gt; 0
-            )
-		GROUP BY
-			orders.id
-		ORDER BY
-            orders.delivery_date DESC
-        LIMIT 1
+		IFNULL(
+			GROUP_CONCAT(
+				IF(IS_NULL_OR_WHITESPACE(counterparty_phones.number), NULL, counterparty_phones.number) 
+				SEPARATOR ', '
+            ), 
+            GROUP_CONCAT(delivery_points_phones.number SEPARATOR ', ')
+        )
     ) as contact,
-            
+	#Сумма последнего заказа с водой
 	(
         SELECT
             SUM(order_items.price * IFNULL(order_items.actual_count, order_items.count) - order_items.discount_money)
@@ -376,7 +357,11 @@
             
 FROM
     counterparty
-        
+    LEFT JOIN delivery_points ON delivery_points.counterparty_id = counterparty.id
+    LEFT JOIN phones AS counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id 
+    LEFT JOIN phones AS delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id
+    
+    #Долг по контрагенту
         LEFT JOIN
     (
 		SELECT 
@@ -450,7 +435,26 @@ WHERE
 		WHERE
 			delivery_points.counterparty_id = counterparty.id
 			AND delivery_points.have_residue = FALSE
-    )</CommandText>
+    )
+    AND EXISTS
+    (
+		SELECT
+			*
+		FROM
+			orders
+            LEFT JOIN order_items ON order_items.order_id = orders.id
+            LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+            LEFT JOIN order_deposit_items ON order_deposit_items.order_id = orders.id
+		WHERE
+			orders.bottles_return != 0
+            AND 
+            (
+				order_deposit_items.id IS NOT NULL 
+                OR order_items.id IS NULL
+                OR nomenclature.id = 33
+			)
+    )
+GROUP BY counterparty.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!startDate</Value>
