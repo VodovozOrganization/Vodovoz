@@ -38,12 +38,12 @@ namespace Vodovoz.Views.Warehouse
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Editable).InitializeFromSource();
 
-			comboWarehouseFrom.Binding.AddBinding(ViewModel, vm => vm.AllowedWarehousesFrom, w => w.ItemsList).InitializeFromSource();
-			comboWarehouseFrom.Binding.AddBinding(ViewModel.Entity, e => e.FromWarehouse, w => w.SelectedItem).InitializeFromSource();
+			comboWarehouseFrom.Binding.AddBinding(ViewModel, vm => vm.WarehousesFrom, w => w.ItemsList).InitializeFromSource();
+			comboWarehouseFrom.Binding.AddBinding(ViewModel, vm => vm.WarehouseFrom, w => w.SelectedItem).InitializeFromSource();
 			comboWarehouseFrom.Binding.AddBinding(ViewModel, vm => vm.CanChangeWarehouseFrom, w => w.Sensitive).InitializeFromSource();
 
-			comboWarehouseTo.Binding.AddBinding(ViewModel, vm => vm.AllowedWarehousesTo, w => w.ItemsList).InitializeFromSource();
-			comboWarehouseTo.Binding.AddBinding(ViewModel.Entity, e => e.ToWarehouse, w => w.SelectedItem).InitializeFromSource();
+			comboWarehouseTo.Binding.AddBinding(ViewModel, vm => vm.WarehousesTo, w => w.ItemsList).InitializeFromSource();
+			comboWarehouseTo.Binding.AddBinding(ViewModel, vm => vm.WarehouseTo, w => w.SelectedItem).InitializeFromSource();
 			comboWarehouseTo.Binding.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Sensitive).InitializeFromSource();
 
 			ytreeviewItems.ColumnsConfig = FluentColumnsConfig<MovementDocumentItem>.Create()

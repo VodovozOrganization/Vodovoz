@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		private bool canEditRectroactively;
 
-		public bool CanEdit => PermissionResult.CanUpdate && (Entity.TimeStamp.Date == DateTime.Today || canEditRectroactively);
+		public bool CanEdit => PermissionResult.CanUpdate && (UoW.IsNew || (Entity.TimeStamp.Date == DateTime.Today || canEditRectroactively));
 
 		private void ConfigureEntityChangingRelations()
 		{
@@ -74,7 +74,11 @@ namespace Vodovoz.ViewModels.Warehouses
 			SetPropertyChangeRelation(e => e.CanAcceptDiscrepancy, () => CanAcceptDiscrepancy);
 			SetPropertyChangeRelation(e => e.Status, () => CanEditNewDocument);
 			SetPropertyChangeRelation(e => e.ToWarehouse, () => CanSend, () => CanReceive, () => CanAcceptDiscrepancy);
+			SetPropertyChangeRelation(e => e.ToWarehouse, () => WarehouseTo);
+			SetPropertyChangeRelation(e => e.ToWarehouse, () => WarehousesTo);
 			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanSend, () => CanReceive, () => CanAcceptDiscrepancy);
+			SetPropertyChangeRelation(e => e.FromWarehouse, () => WarehouseFrom);
+			SetPropertyChangeRelation(e => e.FromWarehouse, () => WarehousesFrom);
 
 			SetPropertyChangeRelation(e => e.CanAddItem, () => CanAddItem);
 			SetPropertyChangeRelation(e => e.CanDeleteItems, () => CanDeleteItems);
@@ -174,6 +178,26 @@ namespace Vodovoz.ViewModels.Warehouses
 			Entity.FromWarehouse = CurrentUserSettings.DefaultWarehouse;
 		}
 
+		public IEnumerable<Warehouse> WarehousesTo {
+			get {
+				var result = new List<Warehouse>(AllowedWarehousesTo);
+				if(!AllowedWarehousesTo.Contains(Entity.ToWarehouse)) {
+					result.Add(Entity.ToWarehouse);
+				}
+				return result;
+}
+		}
+
+		public IEnumerable<Warehouse> WarehousesFrom {
+			get {
+				var result = new List<Warehouse>(AllowedWarehousesFrom);
+				if(!AllowedWarehousesFrom.Contains(Entity.FromWarehouse)) {
+					result.Add(Entity.FromWarehouse);
+				}
+				return result;
+			}
+		}
+
 		private IEnumerable<Warehouse> allowedWarehousesTo;
 		public IEnumerable<Warehouse> AllowedWarehousesTo {
 			get {
@@ -183,6 +207,26 @@ namespace Vodovoz.ViewModels.Warehouses
 				return allowedWarehousesTo;
 			}
 		}
+
+		public Warehouse WarehouseFrom {
+			get => Entity.FromWarehouse;
+			set {
+				if(AllowedWarehousesFrom.Contains(value)) {
+					Entity.FromWarehouse = value;
+				}
+			}
+		}
+
+		public Warehouse WarehouseTo {
+			get => Entity.ToWarehouse;
+			set {
+				if(AllowedWarehousesTo.Contains(value)) {
+					Entity.ToWarehouse = value;
+				}
+			}
+		}
+
+
 
 		private Employee currentEmployee;
 		public Employee CurrentEmployee {
