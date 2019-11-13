@@ -278,6 +278,7 @@ namespace Vodovoz.Domain.Documents
 			}
 
 			foreach(var item in Items) {
+				item.ReceivedAmount = item.SendedAmount;
 				item.UpdateWriteoffOperation();
 			}
 		}
