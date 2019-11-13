@@ -54,7 +54,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public bool VisibleOnPanel => guilties.Any();
 
-		public void OnCurrentObjectChanged(object changedObject) => Refresh();
+		public void OnCurrentObjectChanged(object changedObject) => Application.Invoke((s, arg) => Refresh());
 
 		public void Refresh()
 		{
