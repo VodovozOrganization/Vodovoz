@@ -403,10 +403,21 @@ WHERE
             SELECT
                 orders.delivery_date
             FROM
-                orders
-            WHERE
-                orders.client_id = counterparty.id
-                AND orders.order_status = 'Closed'
+			orders
+            LEFT JOIN order_items ON order_items.order_id = orders.id
+            LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+            LEFT JOIN order_deposit_items ON order_deposit_items.order_id = orders.id
+		WHERE
+			orders.client_id = counterparty.id
+            AND
+			orders.bottles_return != 0
+            AND 
+            (
+				order_deposit_items.id IS NOT NULL 
+                OR order_items.id IS NULL
+                OR nomenclature.id = 33
+			)
+			AND orders.order_status = 'Closed'
             ORDER BY
                 orders.delivery_date DESC
             LIMIT 1
@@ -417,10 +428,21 @@ WHERE
             SELECT
                 orders.delivery_date
             FROM
-                orders
-            WHERE
-                orders.client_id = counterparty.id
-                AND orders.order_status = 'Closed'
+			orders
+            LEFT JOIN order_items ON order_items.order_id = orders.id
+            LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+            LEFT JOIN order_deposit_items ON order_deposit_items.order_id = orders.id
+		WHERE
+			orders.client_id = counterparty.id
+            AND
+			orders.bottles_return != 0
+            AND 
+            (
+				order_deposit_items.id IS NOT NULL 
+                OR order_items.id IS NULL
+                OR nomenclature.id = 33
+			)
+			AND orders.order_status = 'Closed'
             ORDER BY
                 orders.delivery_date DESC
             LIMIT 1
@@ -435,24 +457,6 @@ WHERE
 		WHERE
 			delivery_points.counterparty_id = counterparty.id
 			AND delivery_points.have_residue = FALSE
-    )
-    AND EXISTS
-    (
-		SELECT
-			*
-		FROM
-			orders
-            LEFT JOIN order_items ON order_items.order_id = orders.id
-            LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-            LEFT JOIN order_deposit_items ON order_deposit_items.order_id = orders.id
-		WHERE
-			orders.bottles_return != 0
-            AND 
-            (
-				order_deposit_items.id IS NOT NULL 
-                OR order_items.id IS NULL
-                OR nomenclature.id = 33
-			)
     )
 GROUP BY counterparty.id</CommandText>
         <QueryParameters>
