@@ -36,7 +36,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public IInfoProvider InfoProvider { get; set; }
 
-		public bool VisibleOnPanel => guilties.Any();
+		public bool VisibleOnPanel => true;
 
 		public void OnCurrentObjectChanged(object changedObject)
 		{

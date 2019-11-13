@@ -269,8 +269,6 @@ namespace Vodovoz
 
 			OldFieldsConfigure();
 
-			txtOnRouteEditReason.Binding.AddBinding(Entity, e => e.OnRouteEditReason, w => w.Buffer.Text).InitializeFromSource();
-
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
@@ -588,7 +586,7 @@ namespace Vodovoz
 		private void OldFieldsConfigure()
 		{
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
-			labelTaraComments.Visible = GtkScrolledWindowTaraComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+			hbxTareComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
 		}
 
 		void WaterSalesAgreement_ObjectUpdatedGeneric(EntityChangeEvent[] changeEvents)
@@ -2207,8 +2205,7 @@ namespace Vodovoz
 		void FixPrice(int id)
 		{
 			OrderItem item = Entity.ObservableOrderItems[id];
-			if((item.Nomenclature.Category == NomenclatureCategory.deposit || item.Nomenclature.Category == NomenclatureCategory.rent)
-				 && item.Price != 0)
+			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0)
 				return;
 			item.RecalculatePrice();
 		}
@@ -2252,8 +2249,7 @@ namespace Vodovoz
 					if(oItem == null || oItem.PaidRentEquipment == null) {
 						return;
 					}
-					if(oItem.Nomenclature.Category == NomenclatureCategory.rent
-					  || oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
+					if(oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
 						ChangeEquipmentsCount(oItem, oItem.Count);
 					}
 				}
@@ -2344,14 +2340,14 @@ namespace Vodovoz
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
-			tblOnRouteEditReason.Sensitive = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
 			yCmbPromoSets.Sensitive = val;
 			buttonAddForSale.Sensitive = referenceContract.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
-			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"] && val;
+			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"] && val && !Entity.SelfDelivery;
+			hbxTareNonReturnReason.Sensitive = val;
 		}
 
 		void ChangeOrderEditable(bool val)
@@ -2361,7 +2357,10 @@ namespace Vodovoz
 			buttonAddExistingDocument.Sensitive = val;
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
-			tableTareControl.Sensitive = !(Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.Accepted);
+			RouteListStatus? rlStatus = null;
+			if(Entity.Id != 0)
+				rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(UoW, Entity).FirstOrDefault()?.Status;
+			tblDriverControl.Sensitive = rlStatus.HasValue && !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
 		}
 
 		void SetPadInfoSensitive(bool value)

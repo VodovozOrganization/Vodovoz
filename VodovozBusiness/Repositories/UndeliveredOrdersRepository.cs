@@ -179,11 +179,11 @@ namespace Vodovoz.Repositories
 										.Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
 										.Where(n => n.Category == NomenclatureCategory.water && n.TareVolume == TareVolume.Vol19L)
 										.SelectList(list => list.SelectSum(i => i.Count))
-										.List<int>()
+										.List<int?>()
 										.FirstOrDefault()
 										;
 
-			return bottles19L;
+			return bottles19L ?? 0;
 		}
 	}
 

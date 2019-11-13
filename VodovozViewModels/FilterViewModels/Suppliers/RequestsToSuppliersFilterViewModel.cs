@@ -3,6 +3,7 @@ using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Suppliers;
 
 namespace Vodovoz.FilterViewModels.Suppliers
 {
@@ -44,5 +45,15 @@ namespace Vodovoz.FilterViewModels.Suppliers
 			}
 		}
 		public bool CanChangeNomenclature { get; private set; } = true;
+
+		RequestStatus? restrictStatus = RequestStatus.InProcess;
+		public virtual RequestStatus? RestrictStatus {
+			get => restrictStatus;
+			set {
+				if(UpdateFilterField(ref restrictStatus, value))
+					CanChangeStatus = false;
+			}
+		}
+		public bool CanChangeStatus { get; private set; } = true;
 	}
 }

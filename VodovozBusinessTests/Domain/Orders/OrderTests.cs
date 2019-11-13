@@ -887,6 +887,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			Nomenclature nomenclatureMock01 = Substitute.For<Nomenclature>();
+			nomenclatureMock01.Category.Returns(NomenclatureCategory.equipment);
 			nomenclatureMock01.Id.Returns(50);
 
 			Nomenclature nomenclatureMock03 = Substitute.For<Nomenclature>();

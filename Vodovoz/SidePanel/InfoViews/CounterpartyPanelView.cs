@@ -125,7 +125,6 @@ namespace Vodovoz.SidePanel.InfoViews
 			TDIMain.MainNotebook.OpenTab(
 				DialogHelper.GenerateDialogHashName<Counterparty>(Counterparty.Id),
 				() => {
-					;
 					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(Counterparty.Id, InfoProvider.UoW), UnitOfWorkFactory.GetDefaultFactory);
 					dlg.ActivateContactsTab();
 					return dlg;

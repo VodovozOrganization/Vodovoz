@@ -126,7 +126,7 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				if(SetField(ref client, value, () => Client)) {
-					if(DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id)) {
+					if(Client == null || (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id))) {
 						//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
 						logger.Warn("Очищаем точку доставки, при установке клиента. Возможно это не нужно.");
 						DeliveryPoint = null;
@@ -222,7 +222,10 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Самовывоз")]
 		public virtual bool SelfDelivery {
 			get => selfDelivery;
-			set => SetField(ref selfDelivery, value, () => SelfDelivery);
+			set {
+				if(SetField(ref selfDelivery, value, () => SelfDelivery) && value)
+					IsContractCloser = false;
+			}
 		}
 
 		bool payAfterShipment;
@@ -546,10 +549,10 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref bottlesByStockActualCount, value, () => BottlesByStockActualCount);
 		}
 
-
 		string onRouteEditReason;
 
 		[Display(Name = "Причина редактирования заказа")]
+		[Obsolete("Кусок выпиленного функционала от I-1060. Даша сказала пока не удалять, но скрыть зачем-то.")]
 		public virtual string OnRouteEditReason {
 			get => onRouteEditReason;
 			set => SetField(ref onRouteEditReason, value, () => OnRouteEditReason);

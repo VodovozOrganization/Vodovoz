@@ -8,6 +8,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
+using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Services;
@@ -88,7 +89,10 @@ namespace Vodovoz.JournalViewModels
 			TabName = "Журнал жалоб";
 
 			RegisterComplaints();
-			SetOrder(c => c.Id, true);
+
+			var threadLoader = DataLoader as ThreadDataLoader<ComplaintJournalNode>;
+			threadLoader.MergeInOrderBy(x => x.Id, true);
+
 			FinishJournalConfiguration();
 
 			FilterViewModel.SubdivisionService = subdivisionService;
@@ -113,6 +117,7 @@ namespace Vodovoz.JournalViewModels
 				typeof(RouteListItem)
 			);
 			this.DataLoader.ItemsListUpdated += (sender, e) => CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(null));
+
 			DataLoader.PostLoadProcessingFunc = BeforeItemsUpdated;
 		}
 
@@ -129,7 +134,7 @@ namespace Vodovoz.JournalViewModels
 			Subdivision guiltySubdivisionAlias = null;
 			Fine fineAlias = null;
 			Order orderAlias = null;
-			ComplaintDiscussion dicussionAlias = null;
+			ComplaintDiscussion discussionAlias = null;
 			Subdivision subdivisionAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
@@ -141,8 +146,8 @@ namespace Vodovoz.JournalViewModels
 			);
 
 			var workInSubdivisionsSubQuery = QueryOver.Of<Subdivision>(() => subdivisionAlias)
-				.Where(() => subdivisionAlias.Id == dicussionAlias.Subdivision.Id)
-				.Where(() => dicussionAlias.Status == ComplaintStatuses.InProcess)
+				.Where(() => subdivisionAlias.Id == discussionAlias.Subdivision.Id)
+				.Where(() => discussionAlias.Status == ComplaintStatuses.InProcess)
 				.Select(Projections.Conditional(
 					Restrictions.IsNotNull(Projections.Property(() => subdivisionAlias.ShortName)),
 					Projections.Property(() => subdivisionAlias.ShortName),
@@ -160,7 +165,7 @@ namespace Vodovoz.JournalViewModels
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1)"),
 				NHibernateUtil.String,
 				Projections.Conditional(
-					Restrictions.Eq(Projections.Property(() => dicussionAlias.Status), ComplaintStatuses.Checking),
+					Restrictions.Eq(Projections.Property(() => discussionAlias.Status), ComplaintStatuses.Checking),
 					Projections.Constant("ОКК"),
 					Projections.SqlFunction(
 						new SQLFunctionTemplate(NHibernateUtil.String, "NULLIF(1,1)"),
@@ -182,11 +187,16 @@ namespace Vodovoz.JournalViewModels
 			var plannedCompletionDateProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT DATE_FORMAT(?1, \"%d.%m.%Y\") SEPARATOR ?2)"),
 				NHibernateUtil.String,
-				Projections.Property(() => dicussionAlias.PlannedCompletionDate),
+				Projections.Property(() => discussionAlias.PlannedCompletionDate),
 				Projections.Constant("\n"));
 
+			var lastPlannedCompletionDateProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.DateTime, "MAX(DISTINCT ?1)"),
+				NHibernateUtil.DateTime,
+				Projections.Property(() => discussionAlias.PlannedCompletionDate));
+
 			var counterpartyWithAddressProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(', ', ?1, COMPILE_ADDRESS(?2))"),
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS('\n', ?1, COMPILE_ADDRESS(?2))"),
 				NHibernateUtil.String,
 				Projections.Property(() => counterpartyAlias.Name),
 				Projections.Property(() => deliveryPointAlias.Id));
@@ -212,7 +222,7 @@ namespace Vodovoz.JournalViewModels
 				NHibernateUtil.String,
 				Projections.Property(() => complaintGuiltyItemAlias.GuiltyType),
 				guiltyEmployeeProjection,
-				Projections.Property(() => guiltySubdivisionAlias.Name),
+				Projections.Property(() => guiltySubdivisionAlias.ShortName),
 				Projections.Constant("\n"));
 
 			var finesProjection = Projections.SqlFunction(
@@ -228,8 +238,8 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => complaintAlias.Guilties, () => complaintGuiltyItemAlias)
 				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
-				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => dicussionAlias)
-				.Left.JoinAlias(() => dicussionAlias.Subdivision, () => subdivisionAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
+				.Left.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Employee, () => guiltyEmployeeAlias)
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Subdivision, () => guiltySubdivisionAlias);
 
@@ -244,10 +254,10 @@ namespace Vodovoz.JournalViewModels
 				QueryOver<ComplaintDiscussion, ComplaintDiscussion> dicussionQuery = null;
 
 				if(FilterViewModel.Subdivision != null) {
-					dicussionQuery = QueryOver.Of(() => dicussionAlias)
+					dicussionQuery = QueryOver.Of(() => discussionAlias)
 						.Select(Projections.Property<ComplaintDiscussion>(p => p.Id))
-						.Where(() => dicussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
-						.And(() => dicussionAlias.Complaint.Id == complaintAlias.Id);
+						.Where(() => discussionAlias.Subdivision.Id == FilterViewModel.Subdivision.Id)
+						.And(() => discussionAlias.Complaint.Id == complaintAlias.Id);
 				}
 
 				if(FilterViewModel.FilterDateType == DateFilterType.CreationDate && FilterViewModel.StartDate.HasValue) {
@@ -263,8 +273,8 @@ namespace Vodovoz.JournalViewModels
 									.And(() => FilterViewModel.StartDate == null || complaintAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value);
 					} else {
 						dicussionQuery = dicussionQuery
-										.And(() => FilterViewModel.StartDate == null || dicussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
-										.And(() => dicussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
+										.And(() => FilterViewModel.StartDate == null || discussionAlias.PlannedCompletionDate >= FilterViewModel.StartDate.Value)
+										.And(() => discussionAlias.PlannedCompletionDate <= FilterViewModel.EndDate);
 					}
 				}
 
@@ -297,6 +307,7 @@ namespace Vodovoz.JournalViewModels
 				.Select(() => complaintAlias.Status).WithAlias(() => resultAlias.Status)
 				.Select(workInSubdivisionsProjection).WithAlias(() => resultAlias.WorkInSubdivision)
 				.Select(plannedCompletionDateProjection).WithAlias(() => resultAlias.PlannedCompletionDate)
+				.Select(lastPlannedCompletionDateProjection).WithAlias(() => resultAlias.LastPlannedCompletionDate)
 				.Select(counterpartyWithAddressProjection).WithAlias(() => resultAlias.ClientNameWithAddress)
 				.Select(guiltiesProjection).WithAlias(() => resultAlias.Guilties)
 				.Select(authorProjection).WithAlias(() => resultAlias.Author)
@@ -384,7 +395,7 @@ namespace Vodovoz.JournalViewModels
 		protected void BeforeItemsUpdated(IList items, uint start)
 		{
 			foreach(var item in items.Cast<ComplaintJournalNode>().Skip((int)start)) {
-				item.SequenceNumber = Items.IndexOf(item) + 1;
+				item.SequenceNumber = items.IndexOf(item) + 1;
 			}
 		}
 

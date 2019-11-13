@@ -206,11 +206,24 @@ namespace Vodovoz.Domain.Orders
 
 		#region Вычисляемые свойства
 
-		public virtual string Title => String.Format("Недовоз №{0} от {1:d}", Id, TimeOfCreation);
+		public virtual string Title => string.Format("Недовоз №{0} от {1:d}", Id, TimeOfCreation);
 
 		#endregion
 
 		#region Методы
+
+		public virtual void AddGuilty(GuiltyInUndelivery guilty)
+		{
+			if(guilty.GuiltySide != GuiltyTypes.None) {
+				var notUndelivery = ObservableGuilty.FirstOrDefault(g => g.GuiltySide == GuiltyTypes.None);
+				if(notUndelivery != null)
+					ObservableGuilty.Remove(notUndelivery);
+			}
+			if(guilty.GuiltySide == GuiltyTypes.None && ObservableGuilty.Any())
+				return;
+
+			ObservableGuilty.Add(guilty);
+		}
 
 		/// <summary>
 		/// Смена статуса недовоза
@@ -241,7 +254,8 @@ namespace Vodovoz.Domain.Orders
 			return sb.ToString();
 		}
 
-		public virtual void Close(){
+		public virtual void Close()
+		{
 			SetUndeliveryStatus(UndeliveryStatus.Closed);
 			LastEditor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			LastEditedTime = DateTime.Now;
@@ -253,11 +267,11 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="field">Комментируемое поле</param>
 		void AddAutoComment(CommentedFields field)
 		{
-			string text = String.Empty;
+			string text = string.Empty;
 			switch(field) {
 				case CommentedFields.Reason:
 					if(InitialStatus != null && InitialStatus != UndeliveryStatus && Id > 0)
-						text = String.Format(
+						text = string.Format(
 							"сменил(а) статус недовоза\nс \"{0}\" на \"{1}\"",
 							InitialStatus.GetEnumTitle(),
 							UndeliveryStatus.GetEnumTitle()
@@ -266,7 +280,7 @@ namespace Vodovoz.Domain.Orders
 				default:
 					break;
 			}
-			if(String.IsNullOrEmpty(text))
+			if(string.IsNullOrEmpty(text))
 				return;
 
 			AddCommentToTheField(UoW, field, text);
@@ -297,49 +311,49 @@ namespace Vodovoz.Domain.Orders
 		/// <returns>Строка</returns>
 		public virtual string GetOldOrderInfo()
 		{
-			StringBuilder info = new StringBuilder("\n").AppendLine(String.Format("<b>Автор недовоза:</b> {0}", Author.ShortName));
+			StringBuilder info = new StringBuilder("\n").AppendLine(string.Format("<b>Автор недовоза:</b> {0}", Author.ShortName));
 			if(oldOrder != null) {
-				info.AppendLine(String.Format("<b>Автор накладной:</b> {0}", oldOrder.Author?.ShortName));
-				info.AppendLine(String.Format("<b>Клиент:</b> {0}", oldOrder.Client.Name));
+				info.AppendLine(string.Format("<b>Автор накладной:</b> {0}", oldOrder.Author?.ShortName));
+				info.AppendLine(string.Format("<b>Клиент:</b> {0}", oldOrder.Client.Name));
 				if(oldOrder.SelfDelivery)
-					info.AppendLine(String.Format("<b>Адрес:</b> {0}", "Самовывоз"));
+					info.AppendLine(string.Format("<b>Адрес:</b> {0}", "Самовывоз"));
 				else
-					info.AppendLine(String.Format("<b>Адрес:</b> {0}", oldOrder.DeliveryPoint?.ShortAddress));
-				info.AppendLine(String.Format("<b>Дата заказа:</b> {0}", oldOrder.DeliveryDate.Value.ToString("dd.MM.yyyy")));
+					info.AppendLine(string.Format("<b>Адрес:</b> {0}", oldOrder.DeliveryPoint?.ShortAddress));
+				info.AppendLine(string.Format("<b>Дата заказа:</b> {0}", oldOrder.DeliveryDate.Value.ToString("dd.MM.yyyy")));
 				if(oldOrder.SelfDelivery || oldOrder.DeliverySchedule == null)
-					info.AppendLine(String.Format("<b>Интервал:</b> {0}", "Самовывоз"));
+					info.AppendLine(string.Format("<b>Интервал:</b> {0}", "Самовывоз"));
 				else
-					info.AppendLine(String.Format("<b>Интервал:</b> {0}", oldOrder.DeliverySchedule.Name));
-				info.AppendLine(String.Format("<b>Сумма отменённого заказа:</b> {0}", CurrencyWorks.GetShortCurrencyString(oldOrder.TotalSum)));
+					info.AppendLine(string.Format("<b>Интервал:</b> {0}", oldOrder.DeliverySchedule.Name));
+				info.AppendLine(string.Format("<b>Сумма отменённого заказа:</b> {0}", CurrencyWorks.GetShortCurrencyString(oldOrder.TotalSum)));
 				int watter19LQty = OrderRepository.Get19LWatterQtyForOrder(UoW, oldOrder);
 				var eqToClient = OrderRepository.GetEquipmentToClientForOrder(UoW, oldOrder);
 				var eqFromClient = OrderRepository.GetEquipmentFromClientForOrder(UoW, oldOrder);
 
 				if(watter19LQty > 0) {
-					info.AppendLine(String.Format("<b>19л вода:</b> {0}", watter19LQty));
+					info.AppendLine(string.Format("<b>19л вода:</b> {0}", watter19LQty));
 				} else if(eqToClient.Any()) {
-					string eq = String.Empty;
+					string eq = string.Empty;
 					foreach(var e in eqToClient)
-						eq += String.Format("{0} - {1}, ", e.ShortName ?? e.Name, e.Count);
-					info.AppendLine(String.Format("<b>К клиенту:</b> {0}", eq.Trim(new Char[] { ' ', ',' })));
+						eq += string.Format("{0} - {1}, ", e.ShortName ?? e.Name, e.Count);
+					info.AppendLine(string.Format("<b>К клиенту:</b> {0}", eq.Trim(new char[] { ' ', ',' })));
 				} else if(eqFromClient.Any()) {
-					string eq = String.Empty;
-					foreach(var e in eqFromClient) 
-						eq += String.Format("{0} - {1}\n", e.ShortName ?? e.Name, e.Count);
-					info.AppendLine(String.Format("<b>От клиента:</b> {0}", eq.Trim()));
+					string eq = string.Empty;
+					foreach(var e in eqFromClient)
+						eq += string.Format("{0} - {1}\n", e.ShortName ?? e.Name, e.Count);
+					info.AppendLine(string.Format("<b>От клиента:</b> {0}", eq.Trim()));
 				}
 				if(GetDrivers().Any()) {
 					StringBuilder drivers = new StringBuilder();
 					foreach(var d in GetDrivers())
 						drivers.AppendFormat("{0} ← ", d.ShortName);
-					info.AppendLine(String.Format("<b>Водитель:</b> {0}", drivers.ToString().Trim(new char[] { ' ', '←' })));
+					info.AppendLine(string.Format("<b>Водитель:</b> {0}", drivers.ToString().Trim(new char[] { ' ', '←' })));
 				}
 				var routeLists = OrderRepository.GetAllRLForOrder(UoW, OldOrder);
 				if(routeLists.Any()) {
 					StringBuilder rls = new StringBuilder();
 					foreach(var l in routeLists)
 						rls.AppendFormat("{0} ← ", l.Id);
-					info.AppendLine(String.Format("<b>Маршрутный лист:</b> {0}", rls.ToString().Trim(new char[] { ' ', '←' })));
+					info.AppendLine(string.Format("<b>Маршрутный лист:</b> {0}", rls.ToString().Trim(new char[] { ' ', '←' })));
 				}
 			}
 
@@ -354,23 +368,23 @@ namespace Vodovoz.Domain.Orders
 		{
 			StringBuilder info = new StringBuilder("\n");
 			if(InProcessAtDepartment != null)
-				info.AppendLine(String.Format("<i>В работе у отдела:</i> {0}", InProcessAtDepartment.Name));
+				info.AppendLine(string.Format("<i>В работе у отдела:</i> {0}", InProcessAtDepartment.Name));
 			if(ObservableGuilty.Any()) {
 				info.AppendLine("<i>Виновные:</i> ");
 				foreach(GuiltyInUndelivery g in ObservableGuilty)
-					info.AppendLine(String.Format("\t{0}", g));
+					info.AppendLine(string.Format("\t{0}", g));
 			}
 			var routeLists = OrderRepository.GetAllRLForOrder(UoW, OldOrder);
 			if(routeLists.Any()) {
-				info.AppendLine(String.Format("<i>Место:</i> {0}", DriverCallType.GetEnumTitle()));
+				info.AppendLine(string.Format("<i>Место:</i> {0}", DriverCallType.GetEnumTitle()));
 				if(DriverCallTime.HasValue)
-					info.AppendLine(String.Format("<i>Время звонка водителя:</i> {0}", DriverCallTime.Value.ToString("HH:mm")));
+					info.AppendLine(string.Format("<i>Время звонка водителя:</i> {0}", DriverCallTime.Value.ToString("HH:mm")));
 			}
 			if(DriverCallTime.HasValue)
-				info.AppendLine(String.Format("<i>Время звонка клиенту:</i> {0}", DispatcherCallTime.Value.ToString("HH:mm")));
+				info.AppendLine(string.Format("<i>Время звонка клиенту:</i> {0}", DispatcherCallTime.Value.ToString("HH:mm")));
 			if(NewOrder != null)
-				info.AppendLine(String.Format("<i>Перенос:</i> {0}, {1}", NewOrder.Title, NewOrder.DeliverySchedule?.DeliveryTime ?? "инт-л не выбран"));
-			info.AppendLine(String.Format("<i>Причина:</i> {0}", Reason));
+				info.AppendLine(string.Format("<i>Перенос:</i> {0}, {1}", NewOrder.Title, NewOrder.DeliverySchedule?.DeliveryTime ?? "инт-л не выбран"));
+			info.AppendLine(string.Format("<i>Причина:</i> {0}", Reason));
 			return info.ToString();
 		}
 
@@ -392,7 +406,7 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(u => u.OldOrder), this.GetPropertyName(u => u.NewOrder) }
 				);
 
-			if(String.IsNullOrWhiteSpace(Reason))
+			if(string.IsNullOrWhiteSpace(Reason))
 				yield return new ValidationResult(
 					"Не заполнено поле \"Причина\"",
 					new[] { this.GetPropertyName(u => u.Reason) }
@@ -408,6 +422,18 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult(
 					"Необходимо заполнить поле \"В работе у отдела\"",
 					new[] { this.GetPropertyName(u => u.InProcessAtDepartment) }
+				);
+
+			if(ObservableGuilty.Count() > 1 && ObservableGuilty.Any(g => g.GuiltySide == GuiltyTypes.None))
+				yield return new ValidationResult(
+					"Определитесь, кто виноват! Либо это не недовоз, либо кто-то виновен!",
+					new[] { this.GetPropertyName(u => u.GuiltyInUndelivery) }
+				);
+
+			if(ObservableGuilty.Any(g => g.GuiltySide == GuiltyTypes.Department && g.GuiltyDepartment == null))
+				yield return new ValidationResult(
+					"Не выбран отдел в одном или нескольких виновных.",
+					new[] { this.GetPropertyName(u => u.GuiltyInUndelivery) }
 				);
 		}
 

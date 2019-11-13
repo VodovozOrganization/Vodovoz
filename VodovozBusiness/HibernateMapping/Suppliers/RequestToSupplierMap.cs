@@ -15,6 +15,8 @@ namespace Vodovoz.HibernateMapping.Suppliers
 			Map(x => x.SuppliersOrdering).Column("ordering").CustomType<SupplierOrderingTypeStringType>();
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.CreatingDate).Column("creating_date").ReadOnly();
+			Map(x => x.Status).Column("status").CustomType<RequestStatusStringType>();
+			Map(x => x.WithDelayOnly).Column("with_delay_only");
 
 			References(x => x.Creator).Column("author_id");
 

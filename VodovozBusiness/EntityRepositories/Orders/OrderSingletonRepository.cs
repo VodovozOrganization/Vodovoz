@@ -7,6 +7,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -354,6 +355,32 @@ namespace Vodovoz.EntityRepositories.Orders
 				OrderStatus.UnloadingOnStock,
 				OrderStatus.Closed
 			};
+		}
+
+		public bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order)
+		{
+			if(uow == null) 
+				throw new ArgumentNullException(nameof(uow));
+			if(order == null)
+				throw new ArgumentNullException(nameof(order));
+
+			if(order.OrderStatus != OrderStatus.Closed)
+				return false;
+
+
+			var routeListItem = uow.Session.QueryOver<RouteListItem>()
+					.Where(x => x.Order.Id == order.Id)
+					.Take(1).List()?.FirstOrDefault();
+			if(routeListItem != null)
+				return false;
+
+			var selfDeliveryDocument = uow.Session.QueryOver<SelfDeliveryDocument>()
+					.Where(x => x.Order.Id == order.Id)
+					.Take(1).List()?.FirstOrDefault();
+			if(selfDeliveryDocument != null)
+				return false;
+
+			return true;
 		}
 
 		public OrderStatus[] GetStatusesForOrderCancelation()

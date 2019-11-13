@@ -88,7 +88,6 @@ namespace Vodovoz.ViewModel
 		public EmployeesVM(EmployeeFilterViewModel filterViewModel)
 		{
 			Filter = filterViewModel;
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 		}
 
 		public EmployeesVM()

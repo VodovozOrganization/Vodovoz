@@ -26,10 +26,15 @@ namespace Vodovoz.Views.Suppliers
 			entName.Binding.AddBinding(ViewModel.Entity, s => s.Name, w => w.Text).InitializeFromSource();
 			entName.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
 
+			enumStatus.ItemsEnum = typeof(RequestStatus);
+			enumStatus.Binding.AddBinding(ViewModel.Entity, vm => vm.Status, w => w.SelectedItem).InitializeFromSource();
+
 			enumCmbSuppliersOrdering.ItemsEnum = typeof(SupplierOrderingType);
 			enumCmbSuppliersOrdering.Binding.AddBinding(ViewModel.Entity, s => s.SuppliersOrdering, w => w.SelectedItem).InitializeFromSource();
 			enumCmbSuppliersOrdering.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
 			enumCmbSuppliersOrdering.EnumItemSelected += (sender, e) => ViewModel.RefreshCommand.Execute();
+
+			chkDelayDays.Binding.AddBinding(ViewModel.Entity, vm => vm.WithDelayOnly, w => w.Active).InitializeFromSource();
 
 			txtComment.Binding.AddBinding(ViewModel.Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource();
 			txtComment.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -63,9 +68,12 @@ namespace Vodovoz.Views.Suppliers
 				.AddColumn("Оплата")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n is SupplierNode ? n.SupplierPriceItem.PaymentType.GetEnumTitle() : string.Empty)
-				.AddColumn("Цена")
+				.AddColumn("Цена закупки")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n is SupplierNode ? n.SupplierPriceItem.Price.ToShortCurrencyString() : string.Empty)
+				.AddColumn("Цена продажи")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(n => n is RequestToSupplierItem ? (n as RequestToSupplierItem).NomenclaturePrice : string.Empty)
 				.AddColumn("НДС")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(n => n is SupplierNode ? n.SupplierPriceItem.VAT.GetEnumTitle() : string.Empty)
@@ -93,24 +101,37 @@ namespace Vodovoz.Views.Suppliers
 				treeItems.ExpandAll();
 			};
 
-			treeItems.Selection.Changed += (sender, e) => ViewModel.CanRemove = GetSelectedTreeItems().All(i => i is RequestToSupplierItem);
+			treeItems.Selection.Changed += UpdateSensitivitiesOnSelectionChanged;
+			treeItems.RowActivated += (o, args) => ViewModel.OpenItemCommand.Execute(GetSelectedTreeItems());
+
+			btnOpenItem.Clicked += (sender, e) => ViewModel.OpenItemCommand.Execute(GetSelectedTreeItems());
+			btnOpenItem.Binding.AddFuncBinding(ViewModel, vm => vm.AreNomenclatureNodesSelected || vm.AreSupplierNodesSelected, w => w.Sensitive).InitializeFromSource();
 
 			lblMinimalTotalSum.Binding.AddBinding(ViewModel, s => s.MinimalTotalSumText, w => w.Text).InitializeFromSource();
 
-			btnRefresh.Clicked += (sender, e) => ViewModel.RefreshCommand.Execute();
+			btnRefresh.Clicked += (sender, e) => {
+				ViewModel.RefreshCommand.Execute();
+				UpdateSensitivitiesOnSelectionChanged(sender, e);
+			};
 			btnRefresh.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			btnAdd.Clicked += (sender, e) => ViewModel.AddRequestingNomenclatureCommand.Execute();
 			btnAdd.Binding.AddBinding(ViewModel, s => s.CanEdit, w => w.Sensitive).InitializeFromSource();
 
 			btnRemove.Clicked += (sender, e) => ViewModel.RemoveRequestingNomenclatureCommand.Execute(GetSelectedTreeItems());
-			btnRemove.Binding.AddBinding(ViewModel, s => s.CanRemove, w => w.Sensitive).InitializeFromSource();
+			btnRemove.Binding.AddBinding(ViewModel, s => s.AreNomenclatureNodesSelected, w => w.Sensitive).InitializeFromSource();
 
 			btnTransfer.Clicked += (sender, e) => ViewModel.TransferRequestingNomenclatureCommand.Execute(GetSelectedTreeItems());
-			btnTransfer.Binding.AddBinding(ViewModel, s => s.CanTransfer, w => w.Sensitive).InitializeFromSource();
+			btnTransfer.Binding.AddBinding(ViewModel, s => s.AreNomenclatureNodesSelected, w => w.Sensitive).InitializeFromSource();
 
 			btnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			btnCancel.Clicked += (sender, e) => ViewModel.Close(false);
+		}
+
+		void UpdateSensitivitiesOnSelectionChanged(object sender, System.EventArgs e)
+		{
+			ViewModel.AreNomenclatureNodesSelected = GetSelectedTreeItems().All(i => i is RequestToSupplierItem);
+			ViewModel.AreSupplierNodesSelected = GetSelectedTreeItems().All(i => i is SupplierNode);
 		}
 
 		ILevelingRequestNode[] GetSelectedTreeItems() => treeItems.GetSelectedObjects<ILevelingRequestNode>();

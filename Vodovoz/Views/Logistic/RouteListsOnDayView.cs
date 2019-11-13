@@ -55,6 +55,7 @@ namespace Vodovoz.Views.Logistic
 																								.AddTextRenderer(x => x.GeographicGroup.Name)
 																							 .Finish();
 			ytreeviewGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroupNodes, w => w.ItemsDataSource).InitializeFromSource();
+			ytreeviewGeographicGroup.HeadersVisible = false;
 
 			if(progressOrders.Adjustment == null)
 				progressOrders.Adjustment = new Adjustment(0, 0, 0, 1, 1, 0);
@@ -176,12 +177,13 @@ namespace Vodovoz.Views.Logistic
 			ySpnMin19Btls.Binding.AddBinding(ViewModel, vm => vm.MinBottles19L, w => w.ValueAsInt).InitializeFromSource();
 			ydateForRoutes.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
 			checkShowCompleted.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
-			ytimeToDeliveryFrom.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
-			ytimeToDeliveryTo.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
+			timeRngPicker.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
 			ySpnMin19Btls.Binding.AddBinding(ViewModel, vm => vm.HasNoChanges, w => w.Sensitive).InitializeFromSource();
 
-			ytimeToDeliveryFrom.Binding.AddBinding(ViewModel, vm => vm.DeliveryFromTime, w => w.Time).InitializeFromSource();
-			ytimeToDeliveryTo.Binding.AddBinding(ViewModel, vm => vm.DeliveryToTime, w => w.Time).InitializeFromSource();
+			timeRngPicker.Binding.AddBinding(ViewModel, vm => vm.DeliveryFromTime, w => w.TimeStart).InitializeFromSource();
+			timeRngPicker.Binding.AddBinding(ViewModel, vm => vm.DeliveryToTime, w => w.TimeEnd).InitializeFromSource();
+			timeRngPicker.TimePeriodChangedByUser += (sender, e) => FillItems();
+
 			checkShowDistricts.Toggled += (sender, e) => districtsOverlay.IsVisibile = checkShowDistricts.Active;
 
 			ViewModel.AutoroutingResultsSaved += (sender, e) => FillDialogAtDay();
@@ -213,6 +215,10 @@ namespace Vodovoz.Views.Logistic
 			};
 			buttonWarnings.Clicked += (sender, e) => ViewModel.ShowWarningsCommand.Execute();
 			ytreeviewOnDayDrivers.RowActivated += OnButtonDriverSelectAutoClicked;
+			buttonFilter.Clicked += (sender, e) => FillItems();
+			enumCmbDeliveryType.ItemsEnum = typeof(DeliveryScheduleFilterType);
+			enumCmbDeliveryType.Binding.AddBinding(ViewModel, vm => vm.DeliveryScheduleType, w => w.SelectedItem).InitializeFromSource();
+			enumCmbDeliveryType.ChangedByUser += (sender, e) => FillItems();
 		}
 
 		void GmapWidget_ButtonReleaseEvent(object o, ButtonReleaseEventArgs args)
@@ -454,7 +460,7 @@ namespace Vodovoz.Views.Logistic
 				}
 
 				if(order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue) {
-					PointMarkerShape shape = ViewModel.GetMarkerShape(order.Total19LBottlesToDeliver);
+					PointMarkerShape shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver);
 
 					PointMarkerType type = PointMarkerType.black;
 					if(route == null) {
@@ -545,7 +551,7 @@ namespace Vodovoz.Views.Logistic
 				return;
 			pixbufMarkers = new Pixbuf[ViewModel.RoutesOnDay.Count];
 			for(int i = 0; i < ViewModel.RoutesOnDay.Count; i++) {
-				PointMarkerShape shape = ViewModel.GetMarkerShape(ViewModel.RoutesOnDay[i].TotalFullBottlesToClient);
+				PointMarkerShape shape = ViewModel.GetMarkerShapeFromBottleQuantity(ViewModel.RoutesOnDay[i].TotalFullBottlesToClient);
 				pixbufMarkers[i] = PointMarker.GetIconPixbuf(ViewModel.GetAddressMarker(i).ToString(), shape);
 			}
 		}

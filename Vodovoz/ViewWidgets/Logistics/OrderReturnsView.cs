@@ -220,7 +220,7 @@ namespace Vodovoz
 					.AddToggleRenderer(node => node.IsDelivered, false)
 						.AddSetter((cell, node) => cell.Visible = node.IsSerialEquipment)
 					.AddNumericRenderer(node => node.ActualCount, false)
-						.AddSetter((cell, node) => cell.Editable = node.Nomenclature.Category != NomenclatureCategory.rent && node.Nomenclature.Category != NomenclatureCategory.deposit)
+						.AddSetter((cell, node) => cell.Editable = node.Nomenclature.Category != NomenclatureCategory.deposit)
 						.Adjustment(new Adjustment(0, 0, 9999, 1, 1, 0))
 						.AddSetter((cell, node) => cell.Adjustment = new Adjustment(0, 0, GetMaxCount(node), 1, 1, 0))
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)

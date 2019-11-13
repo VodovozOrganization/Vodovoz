@@ -10,6 +10,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gamma.GtkWidgets.yTreeView treeMarkers;
 
+		private global::Gtk.Label labelOrdersInfo;
+
 		private global::Gtk.Button btnOk;
 
 		protected virtual void Build()
@@ -43,16 +45,24 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.treeMarkers]));
 			w2.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.labelOrdersInfo = new global::Gtk.Label();
+			this.labelOrdersInfo.Name = "labelOrdersInfo";
+			this.labelOrdersInfo.Xalign = 0F;
+			this.labelOrdersInfo.Selectable = true;
+			this.vbox2.Add(this.labelOrdersInfo);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.labelOrdersInfo]));
+			w3.Position = 2;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.btnOk = new global::Gtk.Button();
 			this.btnOk.CanFocus = true;
 			this.btnOk.Name = "btnOk";
 			this.btnOk.UseUnderline = true;
 			this.btnOk.Label = global::Mono.Unix.Catalog.GetString("Закрыть");
 			this.vbox2.Add(this.btnOk);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnOk]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnOk]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

@@ -42,13 +42,11 @@ namespace Vodovoz
 			referenceDepositService.Binding.AddBinding (Entity, e => e.DepositService, w => w.Subject).InitializeFromSource ();
 
 			referenceRentServiceDaily.SubjectType = typeof(Nomenclature);
-			referenceRentServiceDaily.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature> ()
-				.Add (Restrictions.Eq ("Category", NomenclatureCategory.rent));
+			referenceRentServiceDaily.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature>();
 			referenceRentServiceDaily.Binding.AddBinding (Entity, e => e.RentServiceDaily, w => w.Subject).InitializeFromSource ();
 
 			referenceRentServiceMonthly.SubjectType = typeof(Nomenclature);
-			referenceRentServiceMonthly.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature> ()
-				.Add (Restrictions.Eq ("Category", NomenclatureCategory.rent));
+			referenceRentServiceMonthly.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature>();
 			referenceRentServiceMonthly.Binding.AddBinding (Entity, e => e.RentServiceMonthly, w => w.Subject).InitializeFromSource ();
 
 			referenceEquipmentType.SubjectType = typeof(EquipmentType);

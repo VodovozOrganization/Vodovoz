@@ -14,7 +14,8 @@ namespace Vodovoz.EntityRepositories.Operations
 			MoneyMovementOperation operationAlias = null;
 			CounterpartyDebtQueryResult result = null;
 			var queryResult = UoW.Session.QueryOver<MoneyMovementOperation>(() => operationAlias)
-				.Where(() => operationAlias.Counterparty.Id == counterparty.Id);
+										 .Where(() => operationAlias.Counterparty.Id == counterparty.Id)
+										 ;
 			if(before.HasValue)
 				queryResult.Where(() => operationAlias.OperationTime < before);
 			var debt = queryResult

@@ -675,7 +675,9 @@ namespace Vodovoz.Dialogs
 			this.vboxOldComments.Hide();
 			this.Hide();
 			this.deliveryPointYentryreferencevm.ChangedByUser += new global::System.EventHandler(this.OnDeliveryPointYentryreferencevmChangedByUser);
+			this.deliveryPointYentryreferencevm.Changed += new global::System.EventHandler(this.OnDeliveryPointYentryreferencevmChanged);
 			this.counterpartyYentryreferencevm.ChangedByUser += new global::System.EventHandler(this.OnCounterpartyYentryreferencevmChangedByUser);
+			this.counterpartyYentryreferencevm.Changed += new global::System.EventHandler(this.OnCounterpartyYentryreferencevmChanged);
 			this.buttonAddComment.Clicked += new global::System.EventHandler(this.OnAddCommentButtonClicked);
 			this.buttonRevertComment.Clicked += new global::System.EventHandler(this.OnCancelLastCommentButtonClicked);
 			this.buttonSplit.Clicked += new global::System.EventHandler(this.OnButtonSplitClicked);

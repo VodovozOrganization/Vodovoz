@@ -271,7 +271,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool CanShowReturnedCount => Order.OrderStatus >= OrderStatus.OnTheWay && ReturnedCount > 0
 														&& Nomenclature.GetCategoriesForShipment().Contains(Nomenclature.Category);
 
-		public virtual bool IsRentCategory => !IsRentRenewal() && (Nomenclature.Category == NomenclatureCategory.rent || RentEquipmentCount > 0);
+		public virtual bool IsRentCategory => !IsRentRenewal() && RentEquipmentCount > 0;
 
 		public virtual bool IsDepositCategory => Nomenclature.Category == NomenclatureCategory.deposit;
 
@@ -301,7 +301,7 @@ namespace Vodovoz.Domain.Orders
 				int rentCount = RentTime;
 				int count = RentEquipmentCount;
 
-				if(rentCount != 0 && Nomenclature.Category == NomenclatureCategory.rent)
+				if(rentCount != 0)
 					return string.Format("{0}*{1}", count, rentCount);
 				return string.Empty;
 			}
@@ -417,9 +417,6 @@ namespace Vodovoz.Domain.Orders
 				if(AdditionalAgreement?.Type == AgreementType.EquipmentSales)
 					result = true;
 
-				if(Nomenclature.Category == NomenclatureCategory.rent)
-					result = false;
-
 				if(IsRentRenewal())
 					result = true;
 
@@ -484,7 +481,7 @@ namespace Vodovoz.Domain.Orders
 
 			//Определяет что аренда на продажу не связана с дополнительным соглашением и таким образом является 
 			//продлением существующей аренды, на КОТОРУЮ ПОКА НЕТ ССЫЛКИ
-			return Nomenclature.Category == NomenclatureCategory.rent && AdditionalAgreement == null;
+			return AdditionalAgreement == null;
 		}
 
 		public virtual decimal? GetWaterFixedPrice()
