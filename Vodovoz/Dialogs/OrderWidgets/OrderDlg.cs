@@ -369,9 +369,6 @@ namespace Vodovoz
 			yCmbPromoSets.ItemsList = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 
-			enumNeedOfCheque.ItemsEnum = typeof(ChequeResponse);
-			enumNeedOfCheque.Binding.AddBinding(Entity, c => c.NeedCheque, w => w.SelectedItemOrNull).InitializeFromSource();
-
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
 			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new IntToStringConverter());
 
@@ -2324,8 +2321,6 @@ namespace Vodovoz
 		{
 			bool val = Entity.CanEditOrder;
 			enumPaymentType.Sensitive = Entity.Client != null && val && !chkContractCloser.Active;
-			enumNeedOfCheque.Sensitive = val;
-			enumNeedOfCheque.Visible = lblNeedCheque.Visible = Entity.Client != null && CounterpartyRepository.IsCashPayment(Entity.PaymentType);
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
 				entityVMEntryClient.IsEditable = val;
 			referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
