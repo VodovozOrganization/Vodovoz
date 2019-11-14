@@ -66,7 +66,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>322.1pt</Height>
+    <Height>309.0pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table2">
@@ -1686,31 +1686,6 @@
                   <ReportItems>
                     <Textbox Name="Textbox35">
                       <Value>При возникновении проблем звонить в офис по телефону 8(981)701-57-32 и 8(981)876-89-52</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>2</ColSpan>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>По окончании доставки отзвон в офис 8(981)701-57-32 ОБЯЗАТЕЛЬНО!</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
