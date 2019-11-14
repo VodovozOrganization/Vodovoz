@@ -9,7 +9,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки акта передачи склада",
 		Nominative = "строка акта передачи склада")]
-	//[HistoryTrace]
+	[HistoryTrace]
 	public class ShiftChangeWarehouseDocumentItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -61,7 +61,7 @@ namespace Vodovoz.Domain.Documents
 					"[{2}] {0} - {1}",
 					Nomenclature.Name,
 					Nomenclature.Unit.MakeAmountShortStr(AmountInFact),
-				    Document.Title
+					Document.Title
 				);
 			}
 		}

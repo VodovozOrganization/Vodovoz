@@ -18,8 +18,8 @@ using Vodovoz.EntityRepositories.Logistic;
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "документы разгрузки автомобилей",
-		Nominative = "документ разгрузки автомобиля")]
+		NominativePlural = "талоны разгрузки автомобилей",
+		Nominative = "талон разгрузки автомобиля")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class CarUnloadDocument : Document, IValidatableObject
