@@ -145,6 +145,8 @@ namespace Vodovoz.Reports
 			OrderAuthorExclude,
 			GeoGrpInclude,
 			GeoGrpExclude,
+			PaymentTypeInclude,
+			PaymentTypeExclude
 		}
 
 		Dictionary<FilterTypes, Criterion> criterions = new Dictionary<FilterTypes, Criterion>();
@@ -184,7 +186,9 @@ namespace Vodovoz.Reports
 			//Части города
 			Criterion geoGrpIncludeCrit = CreategeoGrpCriterion();
 			Criterion geoGrpExcludeCrit = CreategeoGrpCriterion();
-
+			//Тип оплаты
+			Criterion paymentTypeIncludeCrit = CreatePaymentTypeCriterion();
+			Criterion paymentTypeExcludeCrit = CreatePaymentTypeCriterion();
 
 			//Задание связей по фильтрации и снятию выделения между критериями
 			//Номенклатура
@@ -227,6 +231,9 @@ namespace Vodovoz.Reports
 			//Части города
 			geoGrpIncludeCrit.UnselectRelation.Add(geoGrpExcludeCrit);
 			geoGrpExcludeCrit.UnselectRelation.Add(geoGrpIncludeCrit);
+			//Типы оплаты
+			paymentTypeIncludeCrit.UnselectRelation.Add(paymentTypeExcludeCrit);
+			paymentTypeExcludeCrit.UnselectRelation.Add(paymentTypeIncludeCrit);
 
 			//Сохранение фильтров для использования
 			criterions.Add(FilterTypes.NomenclatureInclude, nomenclatureIncludeCrit);
@@ -245,6 +252,8 @@ namespace Vodovoz.Reports
 			criterions.Add(FilterTypes.OrderAuthorExclude, orderAuthorExcludeCrit);
 			criterions.Add(FilterTypes.GeoGrpInclude, geoGrpIncludeCrit);
 			criterions.Add(FilterTypes.GeoGrpExclude, geoGrpExcludeCrit);
+			criterions.Add(FilterTypes.PaymentTypeInclude, paymentTypeIncludeCrit);
+			criterions.Add(FilterTypes.PaymentTypeExclude, paymentTypeExcludeCrit);
 		}
 
 		#region Создание фильтров
@@ -377,7 +386,7 @@ namespace Vodovoz.Reports
 		Criterion CreategeoGrpCriterion()
 		{
 			return new Criterion(
-				arg => {
+				(arg) => {
 					SalesReportNode alias = null;
 					var query = UoW.Session.QueryOver<GeographicGroup>();
 					var queryResult = query.SelectList(
@@ -387,6 +396,23 @@ namespace Vodovoz.Reports
 						.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
 						.List<SalesReportNode>();
 					return queryResult.ToList();
+				}
+			);
+		}
+
+		Criterion CreatePaymentTypeCriterion()
+		{
+			return new Criterion(
+				(arg) => {
+					List<SalesReportNode> result = new List<SalesReportNode>();
+					var categories = Enum.GetValues(typeof(PaymentType)).Cast<PaymentType>();
+					foreach(var item in categories) {
+						result.Add(new SalesReportNode {
+							Id = (int)item,
+							Name = item.GetAttribute<DisplayAttribute>().Name
+						});
+					}
+					return result;
 				}
 			);
 		}
@@ -419,6 +445,18 @@ namespace Vodovoz.Reports
 			return result;
 		}
 
+		private string[] GetPayTypes(int[] enumIds)
+		{
+			if(!enumIds.Any()) {
+				return new string[] { "0" };
+			}
+			string[] result = new string[enumIds.Count()];
+			for(int i = 0; i < enumIds.Count(); i++) {
+				result[i] = ((PaymentType)enumIds[i]).ToString();
+			}
+			return result;
+		}
+
 		private int[] GetResultIds(IEnumerable<int> ids)
 		{
 			return ids.Any() ? ids.ToArray() : new int[] { 0 };
@@ -428,6 +466,9 @@ namespace Vodovoz.Reports
 		{
 			string[] includeCategories = GetCategories(criterions[FilterTypes.NomenclatureTypeInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
 			string[] excludeCategories = GetCategories(criterions[FilterTypes.NomenclatureTypeExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
+
+			string[] includePayTypes = GetPayTypes(criterions[FilterTypes.PaymentTypeInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
+			string[] excludePayTypes = GetPayTypes(criterions[FilterTypes.PaymentTypeExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
 
 			return new ReportInfo {
 				Identifier = ycheckbuttonDetail.Active ? "Sales.SalesReportDetail" : "Sales.SalesReport",
@@ -458,7 +499,10 @@ namespace Vodovoz.Reports
 					{ "orderauthor_exclude", GetResultIds(criterions[FilterTypes.OrderAuthorExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 					//Части города
 					{ "geographic_groups_include", GetResultIds(criterions[FilterTypes.GeoGrpInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-					{ "geographic_groups_exclude", GetResultIds(criterions[FilterTypes.GeoGrpExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
+					{ "geographic_groups_exclude", GetResultIds(criterions[FilterTypes.GeoGrpExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					//Типы Оплаты
+					{ "payment_type_include", includePayTypes },
+					{ "payment_type_exclude", excludePayTypes }
 				}
 			};
 		}
@@ -664,7 +708,7 @@ namespace Vodovoz.Reports
 			treeNodes = criterions[FilterTypes.GeoGrpInclude].ObservableList;
 			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.GeoGrpInclude].SubcribeWithClearOld((string obj) => {
-				lblGeoGroups.Text = String.Format("Вкл.: {0} елем.", obj);
+				ylblGeoGroups.Text = String.Format("Вкл.: {0} елем.", obj);
 			});
 			labelTableTitle.Text = "Включаемые части города";
 		}
@@ -674,9 +718,29 @@ namespace Vodovoz.Reports
 			treeNodes = criterions[FilterTypes.GeoGrpExclude].ObservableList;
 			ytreeviewSelectedList.ItemsDataSource = treeNodes;
 			criterions[FilterTypes.GeoGrpExclude].SubcribeWithClearOld((string obj) => {
-				lblGeoGroups.Text = String.Format("Искл.: {0} елем.", obj);
+				ylblGeoGroups.Text = String.Format("Искл.: {0} елем.", obj);
 			});
 			labelTableTitle.Text = "Исключаемые части города";
+		}
+
+		protected void OnBtnPaymentTypeSelectClicked(object sender, EventArgs e)
+		{
+			treeNodes = criterions[FilterTypes.PaymentTypeInclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
+			criterions[FilterTypes.PaymentTypeInclude].SubcribeWithClearOld((string obj) => {
+				ylblPaymentType.Text = String.Format("Вкл.: {0} елем.", obj);
+			});
+			labelTableTitle.Text = "Включаемые типы оплаты";
+		}
+
+		protected void OnBtnPaymentTypeDeselectClicked(object sender, EventArgs e)
+		{
+			treeNodes = criterions[FilterTypes.PaymentTypeExclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
+			criterions[FilterTypes.PaymentTypeInclude].SubcribeWithClearOld((string obj) => {
+				ylblPaymentType.Text = String.Format("Искл.: {0} елем.", obj);
+			});
+			labelTableTitle.Text = "Исключаемые типы оплаты";
 		}
 	}
 }
