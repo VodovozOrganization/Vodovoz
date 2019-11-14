@@ -1,11 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
-using QS.DomainModel.Entity;
-using QSOrmProject;
-using System.Collections.Generic;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Goods
@@ -37,7 +35,7 @@ namespace Vodovoz.Domain.Goods
 			set { SetField(ref onlineStoreGuid, value, () => OnlineStoreGuid); }
 		}
 
-        private bool exportToOnlineStore;
+		private bool exportToOnlineStore;
 
 		[Display(Name = "Выгружать товары в онлайн магазин")]
 		public virtual bool ExportToOnlineStore {
@@ -79,15 +77,12 @@ namespace Vodovoz.Domain.Goods
 		/// </summary>
 		public virtual void CreateGuidIfNotExist(IUnitOfWork uow)
 		{
-			if(OnlineStoreGuid == null && ExportToOnlineStore)
-			{
+			if(OnlineStoreGuid == null && ExportToOnlineStore) {
 				OnlineStoreGuid = Guid.NewGuid();
 				uow.Save(this);
 			}
 		}
 
-		public ProductGroup()
-		{
-		}
+		public ProductGroup() { }
 	}
 }

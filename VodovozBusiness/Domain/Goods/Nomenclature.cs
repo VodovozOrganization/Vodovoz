@@ -654,6 +654,17 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		public bool IsFromOnlineShopGroup(int idOfOnlineShopGroup)
+		{
+			ProductGroup parent = ProductGroup;
+			while(parent != null) {
+				if(parent.Id == idOfOnlineShopGroup)
+					return true;
+				parent = parent.Parent;
+			};
+			return false;
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
