@@ -319,7 +319,6 @@ namespace Vodovoz
 			#region Складские документы
 			OrmMain.AddObjectDescription<IncomingInvoice>().Dialog<IncomingInvoiceDlg>();
 			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
-			OrmMain.AddObjectDescription<MovementDocument>().Dialog<MovementDocumentDlg>();
 			OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
 			OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentDlg>();
 			OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();
