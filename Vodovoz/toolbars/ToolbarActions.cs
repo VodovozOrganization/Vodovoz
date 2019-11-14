@@ -38,6 +38,7 @@ using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.EntityRepositories.Store;
+using QS.Project.Journal;
 
 public partial class MainWindow : Window
 {
@@ -675,6 +676,7 @@ public partial class MainWindow : Window
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices
 		);
+		vm.SelectionMode = JournalSelectionMode.None;
 
 		tdiMain.OpenTab(() => vm);
 	}
