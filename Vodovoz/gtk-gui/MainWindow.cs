@@ -385,6 +385,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action Action64;
 
+	private global::Gtk.Action ActionDeliveryScheduleCopy;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -449,19 +451,19 @@ public partial class MainWindow
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString("Склад");
 		w1.Add(this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction("ActionCash", global::Mono.Unix.Catalog.GetString("Касса"), null, "cash", 0);
-		this.ActionCash.Group = this.ActionLogistics.Group;
+		this.ActionCash.Group = this.ActionStock.Group;
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString("Касса");
 		w1.Add(this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction("ActionAccounting", global::Mono.Unix.Catalog.GetString("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionCash.Group;
+		this.ActionAccounting.Group = this.ActionStock.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString("Бухгалтерия");
 		w1.Add(this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction("ActionReports", global::Mono.Unix.Catalog.GetString("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionCash.Group;
+		this.ActionReports.Group = this.ActionStock.Group;
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчеты");
 		w1.Add(this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction("ActionArchive", global::Mono.Unix.Catalog.GetString("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionCash.Group;
+		this.ActionArchive.Group = this.ActionStock.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString("Архив");
 		w1.Add(this.ActionArchive, null);
 		this.ActionOrg = new global::Gtk.Action("ActionOrg", global::Mono.Unix.Catalog.GetString("Организации"), null, null);
@@ -607,11 +609,11 @@ public partial class MainWindow
 		this.ActionIconsSmall.ShortLabel = global::Mono.Unix.Catalog.GetString("Маленькие иконки");
 		w1.Add(this.ActionIconsSmall, null);
 		this.ActionIconsMiddle = new global::Gtk.RadioAction("ActionIconsMiddle", global::Mono.Unix.Catalog.GetString("Средние иконки"), null, null, 0);
-		this.ActionIconsMiddle.Group = this.ActionIconsSmall.Group;
+		this.ActionIconsMiddle.Group = this.ActionIconsExtraSmall.Group;
 		this.ActionIconsMiddle.ShortLabel = global::Mono.Unix.Catalog.GetString("Средние иконки");
 		w1.Add(this.ActionIconsMiddle, null);
 		this.ActionIconsLarge = new global::Gtk.RadioAction("ActionIconsLarge", global::Mono.Unix.Catalog.GetString("Большие иконки"), null, null, 0);
-		this.ActionIconsLarge.Group = this.ActionIconsSmall.Group;
+		this.ActionIconsLarge.Group = this.ActionIconsExtraSmall.Group;
 		this.ActionIconsLarge.ShortLabel = global::Mono.Unix.Catalog.GetString("Большие иконки");
 		w1.Add(this.ActionIconsLarge, null);
 		this.ActionDeliveryPoints = new global::Gtk.Action("ActionDeliveryPoints", global::Mono.Unix.Catalog.GetString("Точки доставки"), null, null);
@@ -675,7 +677,7 @@ public partial class MainWindow
 		this.ActionForwarderWageReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Зарплаты экспедиторов");
 		w1.Add(this.ActionForwarderWageReport, null);
 		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "employees", 0);
-		this.ActionStaff.Group = this.ActionCash.Group;
+		this.ActionStaff.Group = this.ActionStock.Group;
 		this.ActionStaff.ShortLabel = global::Mono.Unix.Catalog.GetString("Кадры");
 		w1.Add(this.ActionStaff, null);
 		this.ActionDriversWageBalance = new global::Gtk.Action("ActionDriversWageBalance", global::Mono.Unix.Catalog.GetString("Баланс водителей"), null, null);
@@ -898,7 +900,7 @@ public partial class MainWindow
 		this.ActionNotFullyLoadedRouteLists.ShortLabel = global::Mono.Unix.Catalog.GetString("Недопогруженные МЛ");
 		w1.Add(this.ActionNotFullyLoadedRouteLists, null);
 		this.ActionCRM = new global::Gtk.RadioAction("ActionCRM", global::Mono.Unix.Catalog.GetString("Работа с кл."), null, "CRM", 0);
-		this.ActionCRM.Group = this.ActionCash.Group;
+		this.ActionCRM.Group = this.ActionStock.Group;
 		this.ActionCRM.ShortLabel = global::Mono.Unix.Catalog.GetString("Работа с кл.");
 		w1.Add(this.ActionCRM, null);
 		this.ActionForShipment = new global::Gtk.Action("ActionForShipment", global::Mono.Unix.Catalog.GetString("Товары для отгрузки"), null, null);
@@ -977,7 +979,7 @@ public partial class MainWindow
 		this.ActionComplaintResult.ShortLabel = global::Mono.Unix.Catalog.GetString("Результаты рассмотрения жалоб");
 		w1.Add(this.ActionComplaintResult, null);
 		this.ActionSuppliers = new global::Gtk.RadioAction("ActionSuppliers", global::Mono.Unix.Catalog.GetString("Закупки"), null, "suppliers", 0);
-		this.ActionSuppliers.Group = this.ActionCRM.Group;
+		this.ActionSuppliers.Group = this.ActionStock.Group;
 		this.ActionSuppliers.ShortLabel = global::Mono.Unix.Catalog.GetString("Закупки");
 		w1.Add(this.ActionSuppliers, null);
 		this.ActionWarehouses = new global::Gtk.Action("ActionWarehouses", global::Mono.Unix.Catalog.GetString("Склады"), null, null);
@@ -1007,6 +1009,9 @@ public partial class MainWindow
 		this.Action64 = new global::Gtk.Action("Action64", global::Mono.Unix.Catalog.GetString("Отчет по нулевому долгу клиента"), null, null);
 		this.Action64.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по нулевому долгу клиента");
 		w1.Add(this.Action64, null);
+		this.ActionDeliveryScheduleCopy = new global::Gtk.Action("ActionDeliveryScheduleCopy", global::Mono.Unix.Catalog.GetString("Копирование интервалов доставки"), null, null);
+		this.ActionDeliveryScheduleCopy.ShortLabel = global::Mono.Unix.Catalog.GetString("Копирование интервалов доставки");
+		w1.Add(this.ActionDeliveryScheduleCopy, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -1161,11 +1166,12 @@ public partial class MainWindow
 				"s\' action=\'ActionLoad1cCounterpartyAndDeliveryPoints\'/><menuitem name=\'ActionToO" +
 				"nlineStore\' action=\'ActionToOnlineStore\'/><menuitem name=\'ActionSetDistrictsToDe" +
 				"liveryPoints\' action=\'ActionSetDistrictsToDeliveryPoints\'/><menuitem name=\'Actio" +
-				"n62\' action=\'Action62\'/></menu><separator/><menuitem name=\'ActionDocTemplates\' a" +
-				"ction=\'ActionDocTemplates\'/><menuitem name=\'ActionGeographicGroups\' action=\'Acti" +
-				"onGeographicGroups\'/><menuitem name=\'ActionImages\' action=\'ActionImages\'/></menu" +
-				"><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem name=\'aboutAction\' acti" +
-				"on=\'aboutAction\'/></menu></menubar></ui>");
+				"n62\' action=\'Action62\'/><menuitem name=\'ActionDeliveryScheduleCopy\' action=\'Acti" +
+				"onDeliveryScheduleCopy\'/></menu><separator/><menuitem name=\'ActionDocTemplates\' " +
+				"action=\'ActionDocTemplates\'/><menuitem name=\'ActionGeographicGroups\' action=\'Act" +
+				"ionGeographicGroups\'/><menuitem name=\'ActionImages\' action=\'ActionImages\'/></men" +
+				"u><menu name=\'ActionAbout\' action=\'ActionAbout\'><menuitem name=\'aboutAction\' act" +
+				"ion=\'aboutAction\'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1440,6 +1446,7 @@ public partial class MainWindow
 		this.ActionSalesPlans.Activated += new global::System.EventHandler(this.OnActionSalesPlansActivated);
 		this.Action63.Activated += new global::System.EventHandler(this.OnActionZeroDebtClientReportActivated);
 		this.Action64.Activated += new global::System.EventHandler(this.OnActionZeroDebtClientReportActivated);
+		this.ActionDeliveryScheduleCopy.Activated += new global::System.EventHandler(this.OnActionDeliveryScheduleCopyActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);

@@ -7,11 +7,11 @@ using QSProjectsLib;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Employees;
+using Vodovoz.JournalViewModels.Logistic;
 using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.JournalViewModels.WageCalculation;
 using Vodovoz.Representations;
-using Vodovoz.Domain.Suppliers;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -324,6 +324,22 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(n => n.EmpCatEnum.GetEnumTitle())
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
+			//ScheduleRestrictedDistrictsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ScheduleRestrictedDistrictsJournalViewModel>(
+				() => FluentColumnsConfig<ScheduleRestrictedDistrictJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Name)
+					.AddColumn("Зарплатный район")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.WageDistrict)
+					.AddColumn("")
 					.Finish()
 			);
 		}

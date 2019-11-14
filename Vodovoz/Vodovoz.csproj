@@ -1340,6 +1340,8 @@
     <Compile Include="ViewModels\Logistic\DeliveryScheduleFilterType.cs" />
     <Compile Include="ReportsParameters\ZeroDebtClientReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ZeroDebtClientReport.cs" />
+    <Compile Include="Views\ForAdministrators\DeliverySchedulesCopierView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ForAdministrators.DeliverySchedulesCopierView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1583,6 +1585,7 @@
     <Folder Include="icons\buttons\NullableCheckBox\" />
     <Folder Include="Views\Warehouse\" />
     <Folder Include="TempAdapters\" />
+    <Folder Include="Views\ForAdministrators\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
