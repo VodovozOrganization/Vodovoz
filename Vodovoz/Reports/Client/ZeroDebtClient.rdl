@@ -52,25 +52,31 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>39.7pt</Width>
+            <Width>31.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>68.2pt</Width>
+            <Width>55.7pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>66.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>179.6pt</Width>
+            <Width>123.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>218.6pt</Width>
+            <Width>96.8pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>137.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>62.1pt</Width>
+            <Width>55.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>25.6pt</Height>
+              <Height>34.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -91,8 +97,24 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>Дата (дата посл. заказа)</Value>
+                      <Value>Дата</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>Тип контрагента</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -123,7 +145,23 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Телефон/точка доставки</Value>
+                      <Value>Телефон</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>Адрес</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -206,6 +244,28 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>=Fields!person.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
@@ -232,6 +292,28 @@
                   <ReportItems>
                     <Textbox Name="Textbox7">
                       <Value>=Fields!contact.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>=Fields!address.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -308,7 +390,7 @@
     counterparty.name AS counterparty,
     #Дата последнего заказа
     (
-		SELECT 
+		SELECT
             MAX(delivery_date)
         FROM
             orders
@@ -316,7 +398,32 @@
             orders.client_id = counterparty.id
 			AND order_status = 'Closed'
     ) AS lastorder,
-	#Телефон
+    #Тип клиента
+    (
+		SELECT
+		CASE person_type
+			WHEN 'legal' THEN 'Юридическое лицо'
+            WHEN 'natural' THEN 'Физическое лицо'
+            ELSE ''
+		END persontype
+    ) AS person,
+    #Адрес последнего заказа
+    (
+		SELECT
+			lastorder_dp.compiled_address
+		FROM
+			orders
+		JOIN delivery_points AS lastorder_dp ON lastorder_dp.id = orders.delivery_point_id
+		WHERE 
+			orders.client_id = counterparty.id
+            AND orders.order_status = 'Closed'
+		GROUP BY
+			orders.id
+		ORDER BY
+            orders.delivery_date DESC
+        LIMIT 1
+    ) AS address,
+    #Телефон
 	(
 		IFNULL(
 			GROUP_CONCAT(
@@ -484,6 +591,14 @@ GROUP BY counterparty.id</CommandText>
         <Field Name="lastsum">
           <DataField>lastsum</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="address">
+          <DataField>address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="person">
+          <DataField>person</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
