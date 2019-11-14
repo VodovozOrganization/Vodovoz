@@ -6,6 +6,7 @@ using QS.DomainModel.Entity;
 using QSOrmProject;
 using System.Collections.Generic;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -13,6 +14,7 @@ namespace Vodovoz.Domain.Goods
 		NominativePlural = "группы товаров",
 		Nominative = "группа товаров")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class ProductGroup : DomainTreeNodeBase<ProductGroup>
 	{
 		#region Свойства
