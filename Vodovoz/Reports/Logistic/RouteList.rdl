@@ -66,7 +66,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>309.0pt</Height>
+    <Height>322.1pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table2">
@@ -1008,6 +1008,10 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1026,6 +1030,10 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1047,6 +1055,10 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1066,6 +1078,10 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1083,6 +1099,10 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1102,6 +1122,10 @@
                         <Format>0.00</Format>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1123,6 +1147,10 @@
                         <TextAlign>Center</TextAlign>
                         <Format>0.00</Format>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2198,7 +2226,7 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
@@ -2308,7 +2336,7 @@ LEFT JOIN (
 		FROM order_items
 		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 		JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
-		WHERE (nomenclature.category = 'equipment' OR nomenclature.category = 'additional') AND nomenclature.hide = 0
+		WHERE nomenclature.category IN ('equipment', 'additional', 'spare_parts') AND nomenclature.hide = 0
 			AND route_list_addresses.route_list_id = @route_list_id
 		GROUP BY order_id, nomenclature_id 
 
@@ -2380,7 +2408,7 @@ ORDER BY order_in_route
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>
