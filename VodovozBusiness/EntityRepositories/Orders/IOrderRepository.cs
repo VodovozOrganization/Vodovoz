@@ -55,8 +55,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// </summary>
 		/// <returns>Первый заказ</returns>
 		/// <param name="uow">UoW</param>
-		/// <param name="counterparty">Контрагент</param>
-		Domain.Orders.Order GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Counterparty counterparty);
+		/// <param name="client">Контрагент</param>
+		Domain.Orders.Order GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Domain.Orders.Order order, Counterparty client);
 
 		OrderStatus[] GetGrantedStatusesToCreateSeveralOrders();
 
