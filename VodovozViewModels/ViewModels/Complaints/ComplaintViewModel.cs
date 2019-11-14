@@ -234,7 +234,7 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).ToList();
+		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Fine.Date).ToList();
 
 		public bool IsInnerComplaint => Entity.ComplaintType == ComplaintType.Inner;
 

@@ -99,10 +99,12 @@ namespace Vodovoz.JournalViewModels
 			FilterViewModel.EmployeeRepository = employeeRepository;
 
 			var currentEmployeeSubdivision = employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision;
-			if(FilterViewModel.SubdivisionService.GetOkkId() != currentEmployeeSubdivision.Id)
-				FilterViewModel.Subdivision = currentEmployeeSubdivision;
-			else
-				FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
+			if(currentEmployeeSubdivision != null) {
+				if(FilterViewModel.SubdivisionService.GetOkkId() != currentEmployeeSubdivision.Id)
+					FilterViewModel.Subdivision = currentEmployeeSubdivision;
+				else
+					FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
+			}
 
 			UpdateOnChanges(
 				typeof(Complaint),
