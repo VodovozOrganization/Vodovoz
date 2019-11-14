@@ -126,6 +126,8 @@
     <Compile Include="ViewModels\ForAdministrators\DeliverySchedulesCopierViewModel.cs" />
     <Compile Include="JournalViewModels\Logistic\ScheduleRestrictedDistrictsJournalViewModel.cs" />
     <Compile Include="JournalNodes\ScheduleRestrictedDistrictJournalNode.cs" />
+    <Compile Include="FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
+    <Compile Include="JournalNodes\NomenclatureStockJournalNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

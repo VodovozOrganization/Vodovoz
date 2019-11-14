@@ -4,7 +4,6 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
-using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Services;
 using Vodovoz.Domain.Goods;

@@ -1340,6 +1340,9 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ZeroDebtClientReport.cs" />
     <Compile Include="Views\ForAdministrators\DeliverySchedulesCopierView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ForAdministrators.DeliverySchedulesCopierView.cs" />
+    <Compile Include="JournalViewModels\NomenclatureStockBalanceJournalViewModel.cs" />
+    <Compile Include="Filters\GtkViews\NomenclatureStockFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclatureStockFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
