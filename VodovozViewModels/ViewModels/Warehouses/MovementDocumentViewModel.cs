@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.JournalNodes;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.TempAdapters;
 
@@ -340,25 +341,20 @@ namespace Vodovoz.ViewModels.Warehouses
 							var alreadyAddedNomenclatures = Entity.Items.Where(x => x.Nomenclature != null).Select(x => x.Nomenclature.Id);
 							var nomenclatureSelector = nomenclatureSelectorFactory.CreateNomenclatureSelectorForWarehouse(Entity.FromWarehouse, alreadyAddedNomenclatures);
 							nomenclatureSelector.OnEntitySelectedResult += (sender, e) => {
-								if(!e.SelectedNodes.Any()) {
+								IEnumerable<NomenclatureStockJournalNode> selectedNodes = e.SelectedNodes.Cast<NomenclatureStockJournalNode>();
+								if(!selectedNodes.Any()) {
 									return;
 								}
-								var selectedNomenclaturesIds = e.SelectedNodes.Select(x => x.Id);
-								var selectedNomenclatures =  UoW.GetById<Nomenclature>(selectedNomenclaturesIds);
-
-								var nomenclaturesStock = warehouseRepository.GetWarehouseNomenclatureStock(UoW, Entity.FromWarehouse.Id, selectedNomenclaturesIds);
+								var selectedNomenclatures =  UoW.GetById<Nomenclature>(selectedNodes.Select(x => x.Id));
 
 								foreach(var nomenclature in selectedNomenclatures) {
-									var foundStockInfo = nomenclaturesStock.FirstOrDefault(x => x.NomenclatureId == nomenclature.Id);
-									decimal stock = foundStockInfo?.Stock ?? 0;
-									Entity.AddItem(nomenclature, 0, stock);
+									Entity.AddItem(nomenclature, 0, selectedNodes.FirstOrDefault(x => x.Id == nomenclature.Id).StockAmount);
 								}
 								OnPropertyChanged(nameof(CanSend));
 								OnPropertyChanged(nameof(CanReceive));
 								OnPropertyChanged(nameof(CanAcceptDiscrepancy));
 							};
 							TabParent.OpenTab(() => nomenclatureSelector, this);
-
 						},
 						() => CanAddItem
 					);
@@ -396,7 +392,7 @@ namespace Vodovoz.ViewModels.Warehouses
 					printCommand = new DelegateCommand(
 						() => {
 							if(Entity.Status == MovementDocumentStatus.New && SendCommand.CanExecute()) {
-								if(CommonServices.InteractiveService.InteractiveQuestion.Question("Перед печать необходимо отправить перемещение. Отправить?", "Печать документа перемещения")) {
+								if(CommonServices.InteractiveService.InteractiveQuestion.Question("Перед печатью необходимо отправить перемещение. Отправить?", "Печать документа перемещения")) {
 									SendCommand.Execute();
 									var doc = new MovementDocumentRdl(Entity);
 									if(doc is IPrintableRDLDocument) {
