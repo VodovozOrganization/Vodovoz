@@ -218,7 +218,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public virtual bool CanAddItem => Status == MovementDocumentStatus.New;
+		public virtual bool CanAddItem => Status == MovementDocumentStatus.New || Status == MovementDocumentStatus.Sended;
 
 		public virtual void AddItem(Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
@@ -258,8 +258,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual bool CanSend => (Status == MovementDocumentStatus.New || Status == MovementDocumentStatus.Sended)
 			&& FromWarehouse != null
 			&& ToWarehouse != null
-			&& Items.Any()
-			&& Items.All(x => x.ReceivedAmount == 0);
+			&& Items.Any();
 		
 		public virtual void Send(Employee sender)
 		{

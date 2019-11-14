@@ -205,6 +205,7 @@ namespace Vodovoz
 				.RegisterWidgetForFilterViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
 				.RegisterWidgetForFilterViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
 				.RegisterWidgetForFilterViewModel<RequestsToSuppliersFilterViewModel, RequestsToSuppliersFilterView>()
+				.RegisterWidgetForFilterViewModel<NomenclatureStockFilterViewModel, NomenclatureStockFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

@@ -154,6 +154,44 @@ namespace Vodovoz.EntityRepositories.Store
 				.List<NomanclatureStockNode>();
 		}
 
+		public IEnumerable<NomanclatureStockNode> GetWarehouseNomenclatureStock(IUnitOfWork uow, int warehouseId)
+		{
+			NomanclatureStockNode resultAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			WarehouseMovementOperation warehouseOperation = null;
+
+			IProjection incomeAmount = Projections.Sum(
+				Projections.Conditional(
+					Restrictions.Eq(Projections.Property(() => warehouseOperation.IncomingWarehouse.Id), warehouseId),
+					Projections.Property(() => warehouseOperation.Amount),
+					Projections.Constant(0M)
+				)
+			);
+
+			IProjection writeoffAmount = Projections.Sum(
+				Projections.Conditional(
+					Restrictions.Eq(Projections.Property(() => warehouseOperation.WriteoffWarehouse.Id), warehouseId),
+					Projections.Property(() => warehouseOperation.Amount),
+					Projections.Constant(0M)
+				)
+			);
+
+			IProjection stockProjection = Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "( IFNULL(?1, 0) - IFNULL(?2, 0) )"),
+					NHibernateUtil.Int32,
+					incomeAmount,
+					writeoffAmount
+			);
+
+			return uow.Session.QueryOver(() => warehouseOperation)
+				.Left.JoinAlias(() => warehouseOperation.Nomenclature, () => nomenclatureAlias)
+				.SelectList(list => list
+					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(stockProjection).WithAlias(() => resultAlias.Stock)
+				)
+				.TransformUsing(Transformers.AliasToBean<NomanclatureStockNode>())
+				.List<NomanclatureStockNode>();
+		}
+
 		public IEnumerable<Nomenclature> GetDiscrepancyNomenclatures(IUnitOfWork uow, int warehouseId)
 		{
 			if(uow == null) {

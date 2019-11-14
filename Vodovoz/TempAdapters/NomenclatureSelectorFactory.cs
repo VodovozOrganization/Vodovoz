@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using Vodovoz.Domain.Store;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalViewModels;
 
@@ -14,17 +14,19 @@ namespace Vodovoz.TempAdapters
 	{
 		public IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures)
 		{
-			NomenclatureFilterViewModel filter = new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService) { HidenByDefault = true };
-			filter.RestrictedLoadedWarehouse = warehouse;
-			filter.RestrictedExcludedIds = excludedNomenclatures;
+			NomenclatureStockFilterViewModel nomenclatureStockFilter = new NomenclatureStockFilterViewModel(new WarehouseRepository(), ServicesConfig.InteractiveService);
+			nomenclatureStockFilter.ExcludedNomenclatureIds = excludedNomenclatures;
+			nomenclatureStockFilter.RestrictWarehouse = warehouse;
 
-			NomenclaturesJournalViewModel nomenclatureJournal = new NomenclaturesJournalViewModel(
-					filter,
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices
-				);
-			nomenclatureJournal.SelectionMode = JournalSelectionMode.Multiple;
-			return nomenclatureJournal;
+			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+				nomenclatureStockFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			);
+
+			vm.SelectionMode = JournalSelectionMode.Multiple;
+
+			return vm;
 		}
 	}
 }

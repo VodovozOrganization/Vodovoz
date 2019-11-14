@@ -115,6 +115,8 @@
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
     <Compile Include="ViewModels\Warehouses\MovementDocumentRDL.cs" />
     <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />
+    <Compile Include="FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
+    <Compile Include="JournalNodes\NomenclatureStockJournalNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

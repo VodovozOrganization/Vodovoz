@@ -12,6 +12,7 @@ using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.JournalViewModels.WageCalculation;
 using Vodovoz.Representations;
 using Vodovoz.Domain.Suppliers;
+using Gdk;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -226,6 +227,24 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Доступно")
 						.AddTextRenderer(node => node.AvailableText)
 						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
+					.Finish()
+			);
+
+			//NomenclaturesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<NomenclatureStockBalanceJournalViewModel>(
+				() => FluentColumnsConfig<NomenclatureStockJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Номенклатура").AddTextRenderer(node => node.NomenclatureName)
+					.AddColumn("Кол-во").AddTextRenderer(node => node.AmountText)
+					.AddColumn("Мин кол-во\n на складе").AddTextRenderer(node => node.MinCountText)
+					.AddColumn("Разница").AddTextRenderer(node => node.DiffCountText)
+					.RowCells().AddSetter<CellRendererText>((c, n) => {
+						Color color = new Color(0, 0, 0);
+						if(n.StockAmount < 0) {
+							color = new Color(255, 30, 30);
+						}
+						c.ForegroundGdk = color;
+					})
 					.Finish()
 			);
 
