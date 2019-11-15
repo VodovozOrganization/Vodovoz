@@ -75,27 +75,38 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual bool HasDiscrepancy => SendedAmount != ReceivedAmount;
 
-
 		public virtual void UpdateWriteoffOperation()
 		{
 			if(Document == null) {
 				throw new InvalidOperationException("Не правильно создана строка перемещения. Не указан документ в котором содержится текущая строка");
 			}
 
-			if(Document.Status != MovementDocumentStatus.Sended) {
+			if(Document.Status == MovementDocumentStatus.Sended) {
+				if(WarehouseWriteoffOperation == null) {
+					WarehouseWriteoffOperation = new WarehouseMovementOperation();
+				}
+
+				WarehouseWriteoffOperation.WriteoffWarehouse = Document.FromWarehouse;
+				WarehouseWriteoffOperation.IncomingWarehouse = null;
+				//Предполагается что если документ находиться в статусе отправлен, то время доставки обязательно установлено
+				WarehouseWriteoffOperation.OperationTime = Document.SendTime.Value;
+				WarehouseWriteoffOperation.Nomenclature = Nomenclature;
+				WarehouseWriteoffOperation.Amount = SendedAmount;
 				return;
 			}
 
-			if(WarehouseWriteoffOperation == null) {
-				WarehouseWriteoffOperation = new WarehouseMovementOperation();
-			}
+			if(Document.IsDelivered) {
+				if(WarehouseWriteoffOperation == null) {
+					WarehouseWriteoffOperation = new WarehouseMovementOperation();
+				}
 
-			WarehouseWriteoffOperation.WriteoffWarehouse = Document.FromWarehouse;
-			WarehouseWriteoffOperation.IncomingWarehouse = null;
-			//Предполагается что если документ находиться в статусе отправлен, то время доставки обязательно установлено
-			WarehouseWriteoffOperation.OperationTime = Document.SendTime.Value;
-			WarehouseWriteoffOperation.Nomenclature = Nomenclature;
-			WarehouseWriteoffOperation.Amount = SendedAmount;
+				WarehouseWriteoffOperation.WriteoffWarehouse = Document.FromWarehouse;
+				WarehouseWriteoffOperation.IncomingWarehouse = null;
+				//Предполагается что если документ доставлен, то время доставки обязательно установлено
+				WarehouseWriteoffOperation.OperationTime = Document.SendTime.Value;
+				WarehouseWriteoffOperation.Nomenclature = Nomenclature;
+				WarehouseWriteoffOperation.Amount = ReceivedAmount;
+			}
 		}
 
 		public virtual void UpdateIncomeOperation()
@@ -118,7 +129,9 @@ namespace Vodovoz.Domain.Documents
 			//Предполагается что если документ находиться в одном из принятых статусов, то время доставки обязательно установлено
 			WarehouseIncomeOperation.OperationTime = Document.ReceiveTime.Value;
 			WarehouseIncomeOperation.Nomenclature = Nomenclature;
-			WarehouseIncomeOperation.Amount = SendedAmount;
+			WarehouseIncomeOperation.Amount = ReceivedAmount;
+
+			UpdateWriteoffOperation();
 		}
 
 		#endregion

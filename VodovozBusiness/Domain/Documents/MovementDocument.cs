@@ -207,10 +207,12 @@ namespace Vodovoz.Domain.Documents
 						new[] { this.GetPropertyName(o => o.MovementWagon) });
 			}
 
-			foreach(var item in Items) {
-				if(item.SendedAmount <= 0)
-					yield return new ValidationResult(String.Format("Для номенклатуры <{0}> не указано количество.", item.Nomenclature.Name),
-						new[] { this.GetPropertyName(o => o.Items) });
+			if(Status == MovementDocumentStatus.New) {
+				foreach(var item in Items) {
+					if(item.SendedAmount <= 0)
+						yield return new ValidationResult(String.Format("Для номенклатуры <{0}> не указано количество.", item.Nomenclature.Name),
+							new[] { this.GetPropertyName(o => o.Items) });
+				}
 			}
 		}
 
@@ -218,7 +220,8 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public virtual bool CanAddItem => Status == MovementDocumentStatus.New || Status == MovementDocumentStatus.Sended;
+		//Можно добавлять товары во всех статусах, так как принимающая сторона может доабвлять пропущенные при отправке номенклатуры
+		public virtual bool CanAddItem => true;
 
 		public virtual void AddItem(Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
@@ -286,7 +289,7 @@ namespace Vodovoz.Domain.Documents
 			get {
 				//Принятие возможно только в указанных ниже статусах
 				var receiveStatuses = new[] { MovementDocumentStatus.Sended, MovementDocumentStatus.Discrepancy, MovementDocumentStatus.Accepted };
-				return receiveStatuses.Contains(Status) && FromWarehouse != null && ToWarehouse != null && Items.Any() && Items.All(x => x.SendedAmount > 0);
+				return receiveStatuses.Contains(Status) && FromWarehouse != null && ToWarehouse != null && Items.Any();
 			}
 		}
 
