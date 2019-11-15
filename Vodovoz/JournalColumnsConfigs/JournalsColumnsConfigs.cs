@@ -234,11 +234,17 @@ namespace Vodovoz.JournalColumnsConfigs
 			//NomenclaturesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<NomenclatureStockBalanceJournalViewModel>(
 				() => FluentColumnsConfig<NomenclatureStockJournalNode>.Create()
-					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
-					.AddColumn("Номенклатура").AddTextRenderer(node => node.NomenclatureName)
-					.AddColumn("Кол-во").AddTextRenderer(node => node.AmountText)
-					.AddColumn("Мин кол-во\n на складе").AddTextRenderer(node => node.MinCountText)
-					.AddColumn("Разница").AddTextRenderer(node => node.DiffCountText)
+					.AddColumn("Код").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Номенклатура").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.NomenclatureName)
+					.AddColumn("Кол-во").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.AmountText).XAlign(0.5f)
+					.AddColumn("Мин кол-во\n на складе").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.MinCountText).XAlign(0.5f)
+					.AddColumn("Разница").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.DiffCountText).XAlign(0.5f)
+					.AddColumn("")
 					.RowCells().AddSetter<CellRendererText>((c, n) => {
 						Color color = new Color(0, 0, 0);
 						if(n.StockAmount < 0) {
