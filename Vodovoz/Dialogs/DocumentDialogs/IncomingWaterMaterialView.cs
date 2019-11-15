@@ -13,6 +13,12 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using System.Linq;
 using Vodovoz.ViewModel;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.JournalViewModels;
+using QS.Project.Services;
+using Vodovoz.JournalNodes;
+using QS.Project.Journal;
 
 namespace Vodovoz
 {
@@ -96,15 +102,29 @@ namespace Vodovoz
 				return;
 			}
 
-			var filter = new StockBalanceFilter (UnitOfWorkFactory.CreateWithoutRoot ());
-			filter.SetAndRefilterAtOnce(x => x.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse);
-			//FIXME возможно нужно добавить ограничение на типы номенклатур.
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
+				new WarehouseRepository(),
+				 ServicesConfig.InteractiveService
+			);
+			filter.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse;
 
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal (new ViewModel.StockBalanceVM (filter), Buttons.None);
-			SelectDialog.Mode = JournalSelectMode.Single;
-			SelectDialog.ObjectSelected += NomenclatureSelected;
+			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			);
 
-			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
+			vm.SelectionMode = JournalSelectionMode.Single;
+			vm.OnEntitySelectedResult += (s, ea) => {
+				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
+				if(selectedNode == null) {
+					return;
+				}
+				var nomenctature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
+				DocumentUoW.Root.AddMaterial(nomenctature, 1, selectedNode.StockAmount);
+			};
+
+			mytab.TabParent.AddSlaveTab (mytab, vm);
 		}
 
 		void NomenclatureSelected (object sender, JournalObjectSelectedEventArgs e)
