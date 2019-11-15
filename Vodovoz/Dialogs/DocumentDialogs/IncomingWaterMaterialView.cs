@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
+using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
-using System.Linq;
-using Vodovoz.ViewModel;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.EntityRepositories.Store;
-using Vodovoz.JournalViewModels;
-using QS.Project.Services;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalNodes;
-using QS.Project.Journal;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -58,16 +55,6 @@ namespace Vodovoz
 
 				CalculateTotal ();
 			}
-		}
-
-		void OnOneProductColumnEdited (object o, EditedArgs args)
-		{
-//			var node = (((treeMaterialsList.Model as TreeModelAdapter).Implementor as MappingsImplementor).GetNodeAtPath(new TreePath(args.Path)) as IncomingWaterMaterial);
-//			int amount;
-//			if (int.TryParse (args.NewText, out amount)) {
-//				node.OneProductAmount = amount;
-//			} else
-//				node.OneProductAmount = null;
 		}
 
 		void Items_ElementChanged (object aList, int[] aIdx)
@@ -125,17 +112,6 @@ namespace Vodovoz
 			};
 
 			mytab.TabParent.AddSlaveTab (mytab, vm);
-		}
-
-		void NomenclatureSelected (object sender, JournalObjectSelectedEventArgs e)
-		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			var selectedNode = e.GetNodes<StockBalanceVMNode>().FirstOrDefault();
-			if(selectedId == 0 || selectedNode == null) {
-				return;
-			}
-			var nomenctature = DocumentUoW.GetById<Nomenclature> (selectedId);
-			DocumentUoW.Root.AddMaterial (nomenctature, 1 , selectedNode.Amount);
 		}
 
 		void CalculateTotal ()
