@@ -514,7 +514,6 @@
     <Compile Include="ViewWidgets\ContactsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
-    <Compile Include="Representations\StockBalanceVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockBalanceFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
     <Compile Include="Dialogs\ProductSpecificationDlg.cs" />
