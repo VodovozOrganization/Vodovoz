@@ -21,16 +21,16 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			set { 
 				SetField(ref parentParameter, value, () => ParentParameter);
 				if(value != null)
-					wageRateType = null;
+					wageRate = null;
 			}
 		}
 
-		private WageRate wageRateType;
+		private WageRate wageRate;
 		[Display(Name = "Тип ставки для расчета зарплаты")]
 		public virtual WageRate WageRate { //Устанавливается только у корневого элемента в иерархии дополнительных параметров
-			get => wageRateType;
+			get => wageRate;
 			set {
-				SetField(ref wageRateType, value);
+				SetField(ref wageRate, value);
 				if(value != null)
 					parentParameter = null;
 			}
@@ -42,6 +42,14 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			get => wage;
 			set => SetField(ref wage, value);
 		}
+
+		private IList<AdvancedWageParameter> childParameters;
+		[Display(Name = "Вложенные параметры")]
+		public virtual IList<AdvancedWageParameter> ChildParameters {
+			get => childParameters;
+			set => SetField(ref childParameters, value);
+		}
+
 
 		public abstract AdvancedWageParameterType AdvancedWageParameterType { get; set; }
 
