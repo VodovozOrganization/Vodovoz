@@ -134,7 +134,7 @@ namespace Vodovoz.Dialogs.Employees
 			}
 			var employee = UoW.GetById<Employee>(selectedId);
 			if(Entity.Items.Any(x => x.Employee.Id == employee.Id)) {
-				MessageDialogWorks.RunErrorDialog("Сотрудник {0} уже присутствует в списке.", employee.ShortName);
+				MessageDialogHelper.RunErrorDialog($"Сотрудник {employee.ShortName} уже присутствует в списке.");
 				return;
 			}
 			Entity.AddItem(employee);
