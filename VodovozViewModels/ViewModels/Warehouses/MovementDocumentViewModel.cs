@@ -32,7 +32,8 @@ namespace Vodovoz.ViewModels.Warehouses
 		private readonly IWarehouseRepository warehouseRepository;
 		private readonly IUserRepository userRepository;
 		private readonly IRDLPreviewOpener rdlPreviewOpener;
-		private IWarehousePermissionValidator warehousePermissionValidator;
+		private readonly IWarehousePermissionValidator warehousePermissionValidator;
+		private readonly bool canEditRectroactively;
 
 		public MovementDocumentViewModel(
 			IEntityUoWBuilder uowBuilder, 
@@ -64,9 +65,9 @@ namespace Vodovoz.ViewModels.Warehouses
 			}
 		}
 
-		private bool canEditRectroactively;
-
-		public bool CanEdit => PermissionResult.CanUpdate && (UoW.IsNew || (Entity.TimeStamp.Date == DateTime.Today || canEditRectroactively));
+		public bool CanEdit => 
+			(UoW.IsNew && PermissionResult.CanCreate) 
+			|| (PermissionResult.CanUpdate && (Entity.TimeStamp.Date == DateTime.Today || canEditRectroactively));
 
 		private void ConfigureEntityChangingRelations()
 		{
@@ -88,6 +89,8 @@ namespace Vodovoz.ViewModels.Warehouses
 			Entity.ObservableItems.ElementRemoved += (aList, aIdx, aObject) => OnPropertyChanged(nameof(CanChangeWarehouseFrom));
 		}
 
+		#region Header info
+
 		public string AuthorInfo {
 			get {
 				if(Entity.Author == null) {
@@ -108,7 +111,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public string SendedInfo {
 			get {
-				if(Entity.Sender == null || Entity.SendTime == null ) {
+				if(Entity.Sender == null || Entity.SendTime == null) {
 					return null;
 				}
 				return $"{Entity.Sender.GetPersonNameWithInitials()}, {Entity.SendTime.Value.ToString("dd.MM.yyyy HH:mm")}";
@@ -131,6 +134,63 @@ namespace Vodovoz.ViewModels.Warehouses
 				}
 				return $"{Entity.DiscrepancyAccepter.GetPersonNameWithInitials()}, {Entity.DiscrepancyAcceptTime.Value.ToString("dd.MM.yyyy HH:mm")}";
 			}
+		}
+
+		#endregion Header info
+
+		#region Warehouses
+
+		private IEnumerable<Warehouse> allowedWarehousesFrom;
+		public IEnumerable<Warehouse> AllowedWarehousesFrom {
+			get {
+				if(allowedWarehousesFrom == null) {
+					ReloadAllowedWarehousesFrom();
+				}
+				return allowedWarehousesFrom;
+			}
+		}
+
+		private IEnumerable<Warehouse> allowedWarehousesTo;
+		public IEnumerable<Warehouse> AllowedWarehousesTo {
+			get {
+				if(allowedWarehousesTo == null) {
+					ReloadAllowedWarehousesTo();
+				}
+				return allowedWarehousesTo;
+			}
+		}
+
+		public bool CanSelectWarehouseTo => Entity.FromWarehouse != null;
+
+		public IEnumerable<Warehouse> WarehousesTo {
+			get {
+				var result = new List<Warehouse>(AllowedWarehousesTo);
+				if(Entity.ToWarehouse != null && !AllowedWarehousesTo.Contains(Entity.ToWarehouse)) {
+					result.Add(Entity.ToWarehouse);
+				}
+				return result;
+			}
+		}
+
+		public bool CanChangeWarehouseFrom => CanEditNewDocument && !Entity.Items.Any();
+
+		public IEnumerable<Warehouse> WarehousesFrom {
+			get {
+				var result = new List<Warehouse>(AllowedWarehousesFrom);
+				if(Entity.FromWarehouse != null && !AllowedWarehousesFrom.Contains(Entity.FromWarehouse)) {
+					result.Add(Entity.FromWarehouse);
+				}
+				return result;
+			}
+		}
+
+		private void SetDefaultWarehouseFrom()
+		{
+			if(CurrentUserSettings == null || CurrentUserSettings.DefaultWarehouse == null) {
+				return;
+			}
+
+			Entity.FromWarehouse = CurrentUserSettings.DefaultWarehouse;
 		}
 
 		private void ReloadAllowedWarehousesFrom()
@@ -158,56 +218,8 @@ namespace Vodovoz.ViewModels.Warehouses
 			OnPropertyChanged(nameof(WarehousesTo));
 		}
 
-		private IEnumerable<Warehouse> allowedWarehousesFrom;
-		public IEnumerable<Warehouse> AllowedWarehousesFrom {
-			get {
-				if(allowedWarehousesFrom == null) {
-					ReloadAllowedWarehousesFrom();
-				}
-				return allowedWarehousesFrom;
-			}
-		}
+		#endregion Warehouses
 
-		private void SetDefaultWarehouseFrom()
-		{
-			if(CurrentUserSettings == null || CurrentUserSettings.DefaultWarehouse == null) {
-				return;
-			}
-
-			Entity.FromWarehouse = CurrentUserSettings.DefaultWarehouse;
-		}
-
-
-		public IEnumerable<Warehouse> WarehousesTo {
-			get {
-				var result = new List<Warehouse>(AllowedWarehousesTo);
-				if(Entity.ToWarehouse != null && !AllowedWarehousesTo.Contains(Entity.ToWarehouse)) {
-					result.Add(Entity.ToWarehouse);
-				}
-				return result;
-}
-		}
-
-		public IEnumerable<Warehouse> WarehousesFrom {
-			get {
-				var result = new List<Warehouse>(AllowedWarehousesFrom);
-				if(Entity.FromWarehouse != null && !AllowedWarehousesFrom.Contains(Entity.FromWarehouse)) {
-					result.Add(Entity.FromWarehouse);
-				}
-				return result;
-			}
-		}
-
-
-		private IEnumerable<Warehouse> allowedWarehousesTo;
-		public IEnumerable<Warehouse> AllowedWarehousesTo {
-			get {
-				if(allowedWarehousesTo == null) {
-					ReloadAllowedWarehousesTo();
-				}
-				return allowedWarehousesTo;
-			}
-		}
 
 		private Employee currentEmployee;
 		public Employee CurrentEmployee {
@@ -242,15 +254,11 @@ namespace Vodovoz.ViewModels.Warehouses
 			return base.Save(close);
 		}
 
-		public bool CanSelectWarehouseTo => Entity.FromWarehouse != null;
-
 		public bool CanEditSendedAmount => CanSend;
 
 		public bool CanEditReceivedAmount => CanReceive;
 
 		public bool CanEditNewDocument => CanEdit && (Entity.Status == MovementDocumentStatus.New || Entity.Status == MovementDocumentStatus.Sended);
-
-		public bool CanChangeWarehouseFrom => CanEditNewDocument && !Entity.Items.Any();
 
 		public bool CanVisibleWagon => Entity.DocumentType == MovementDocumentType.Transportation;
 
@@ -345,7 +353,7 @@ namespace Vodovoz.ViewModels.Warehouses
 								if(!selectedNodes.Any()) {
 									return;
 								}
-								var selectedNomenclatures =  UoW.GetById<Nomenclature>(selectedNodes.Select(x => x.Id));
+								var selectedNomenclatures = UoW.GetById<Nomenclature>(selectedNodes.Select(x => x.Id));
 
 								foreach(var nomenclature in selectedNomenclatures) {
 									Entity.AddItem(nomenclature, 0, selectedNodes.FirstOrDefault(x => x.Id == nomenclature.Id).StockAmount);
