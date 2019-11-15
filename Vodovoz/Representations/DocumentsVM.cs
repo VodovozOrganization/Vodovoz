@@ -145,6 +145,8 @@ namespace Vodovoz.ViewModel
 					movementQuery.Where (o => o.TimeStamp >= Filter.RestrictStartDate.Value);
 				if(Filter.RestrictEndDate.HasValue)
 					movementQuery.Where (o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
+				if(Filter.RestrictMovementStatus.HasValue && Filter.RestrictDocumentType == DocumentType.MovementDocument)
+					movementQuery.Where(o => o.Status == Filter.RestrictMovementStatus.Value);
 
 				var movementList = movementQuery
 				.JoinQueryOver (() => movementAlias.FromWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -158,7 +160,6 @@ namespace Vodovoz.ViewModel
 					.Select (() => DocumentType.MovementDocument).WithAlias (() => resultAlias.DocTypeEnum)
 					.Select (() => movementAlias.Status).WithAlias (() => resultAlias.MovementDocumentStatus)
 					.Select (() => movementAlias.HasDiscrepancy).WithAlias (() => resultAlias.MovementDocumentDiscrepancy)
-					//.Select (() => movementAlias.TransportationStatus).WithAlias(() => resultAlias.Status)          
 					.Select (() => wagonAlias.Name).WithAlias (() => resultAlias.CarNumber)
 					.Select (Projections.Conditional (
 					                  Restrictions.Where (() => warehouseAlias.Name == null),
