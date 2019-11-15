@@ -10,12 +10,18 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.JournalNodes;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -93,26 +99,30 @@ namespace Vodovoz
 				logger.Warn ("Родительская вкладка не найдена.");
 				return;
 			}
-				
-			var filter = new StockBalanceFilter (UnitOfWorkFactory.CreateWithoutRoot ());
-			filter.SetAndRefilterAtOnce(x => x.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse);
 
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal (new StockBalanceVM (filter), Buttons.None);
-			SelectDialog.Mode = JournalSelectMode.Single;
-			SelectDialog.ObjectSelected += NomenclatureSelected;
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
+				new WarehouseRepository(),
+				 ServicesConfig.InteractiveService
+			);
+			filter.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse;
 
-			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
-		}
+			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			);
 
-		void NomenclatureSelected (object sender, JournalObjectSelectedEventArgs e)
-		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			var selectedNode = e.GetNodes<StockBalanceVMNode>().FirstOrDefault();
-			if(selectedId == 0 || selectedNode == null) {
-				return;
-			}
-			var nomenctature = DocumentUoW.GetById<Nomenclature> (selectedId);
-			DocumentUoW.Root.AddItem(nomenctature, 0, selectedNode.Amount);
+			vm.SelectionMode = JournalSelectionMode.Single;
+			vm.OnEntitySelectedResult += (s, ea) => {
+				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
+				if(selectedNode == null) {
+					return;
+				}
+				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
+				DocumentUoW.Root.AddItem(nomenclature, 0, selectedNode.StockAmount);
+			};
+
+			mytab.TabParent.AddSlaveTab (mytab, vm);
 		}
 
 		protected void OnButtonFineClicked(object sender, EventArgs e)
