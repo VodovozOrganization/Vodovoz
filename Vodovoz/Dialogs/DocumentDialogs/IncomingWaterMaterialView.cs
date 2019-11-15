@@ -120,8 +120,8 @@ namespace Vodovoz
 				if(selectedNode == null) {
 					return;
 				}
-				var nomenctature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
-				DocumentUoW.Root.AddMaterial(nomenctature, 1, selectedNode.StockAmount);
+				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
+				DocumentUoW.Root.AddMaterial(nomenclature, 1, selectedNode.StockAmount);
 			};
 
 			mytab.TabParent.AddSlaveTab (mytab, vm);
