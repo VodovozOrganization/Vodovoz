@@ -1546,7 +1546,10 @@
             <Width>200.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>499.2pt</Width>
+            <Width>90.3pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>419.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -1600,6 +1603,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan >2</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1648,6 +1652,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan >2</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1657,7 +1662,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>При возникновении проблем звонить в офис по телефону 8(981)701-57-32 и 8(981)876-89-52</Value>
+                      <Value>При возникновении проблем звонить в офис по телефону</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1673,6 +1678,27 @@
                     </Textbox>
                   </ReportItems>
                   <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox76">
+                      <Value>8(981)701-57-32</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight >Bold</FontWeight>
+                        <TextDecoration >Underline</TextDecoration>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1697,7 +1723,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>3</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1722,7 +1748,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>3</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
