@@ -56,15 +56,22 @@ namespace Vodovoz.EntityRepositories.Complaints
 			return result;
 		}
 
-		public int GetUnclosedComplaintsCount(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
+		public int GetUnclosedComplaintsCount(IUnitOfWork uow, bool? withOverdue = null, DateTime? start = null, DateTime? end = null)
 		{
 			var query = uow.Session.QueryOver<Complaint>()
 						   .Where(c => c.Status != ComplaintStatuses.Closed)
 						   ;
 
-			if(start != null && end != null)
+			if(start.HasValue && end.HasValue)
 				query.Where(c => c.CreationDate >= start)
 					 .Where(c => c.CreationDate <= end);
+
+			if(withOverdue.HasValue && withOverdue.Value)
+				query.Where(c => c.PlannedCompletionDate < DateTime.Today);
+
+			if(withOverdue.HasValue && !withOverdue.Value)
+				query.Where(c => c.PlannedCompletionDate >= DateTime.Today);
+
 			return query.Select(Projections.Count<Complaint>(c => c.Id)).SingleOrDefault<int>();
 		}
 
