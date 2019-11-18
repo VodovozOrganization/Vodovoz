@@ -12,7 +12,7 @@
   <RightMargin>5mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
   <PageHeader>
-    <Height>33.4pt</Height>
+    <Height>88.8pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -35,6 +35,24 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox15" >
+        <Height>45.83pt</Height>
+        <Width>566.54pt</Width>
+        <Value>В отчете идет выборка клиентов у которых:
+1. 0 долг по контрагенту и по каждому адресу;
+2. По каждому адресу есть или не требуется ввод остатков;
+3. В последнем заказе у которых:
+ТОЛЬКО забор бутылей И (больше ничего ИЛИ в продаже только Неустойка ИЛИ только Возврат залогов)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.75pt</Left>
+        <Top>35.20pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
@@ -52,25 +70,28 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>31.7pt</Width>
+            <Width>19.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.7pt</Width>
+            <Width>49.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>65.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>104.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>90.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>51.2pt</Width>
           </TableColumn>
           <TableColumn >
-            <Width>66.9pt</Width>
+            <Width>139.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>123.9pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>96.8pt</Width>
-          </TableColumn>
-          <TableColumn >
-            <Width>137.1pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>55.8pt</Width>
+            <Width>50.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -161,7 +182,23 @@
                 <TableCell >
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>Адрес</Value>
+                      <Value>Адрес клиента</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>Адрес точки доставки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -280,8 +317,8 @@
                         <BorderWidth />
                         <PaddingLeft>5pt</PaddingLeft>
                         <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                         <FontSize>9pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
@@ -313,6 +350,28 @@
                 <TableCell >
                   <ReportItems>
                     <Textbox Name="Textbox14">
+                      <Value>=Fields!client_address.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
+                        <FontSize>9pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
                       <Value>=Fields!address.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
@@ -388,6 +447,7 @@
         <CommandText>SELECT
     counterparty.id,
     counterparty.name AS counterparty,
+    counterparty.address AS client_address,
     #Дата последнего заказа
     (
 		SELECT
@@ -598,6 +658,10 @@ GROUP BY counterparty.id</CommandText>
         </Field>
         <Field Name="person">
           <DataField>person</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_address">
+          <DataField>client_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
