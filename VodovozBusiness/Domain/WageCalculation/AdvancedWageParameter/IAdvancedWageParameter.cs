@@ -3,11 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
-	public interface IAdvancedWageParameter
+	public interface IAdvancedWageParameter : IWageHierarchyNode
 	{
 		IAdvancedWageParameter ParentParameter { get; }
 		WageRate WageRate { get; set; }
-		decimal Wage { get; set; }
 		bool HasConflicWith(IAdvancedWageParameter advancedWageParameter);
 		AdvancedWageParameterType AdvancedWageParameterType { get; }
 	}

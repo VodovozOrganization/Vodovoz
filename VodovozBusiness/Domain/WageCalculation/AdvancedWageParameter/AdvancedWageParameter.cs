@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 
@@ -36,24 +37,60 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			}
 		}
 
-		private decimal wage;
-		[Display(Name = "Зарплата")]
-		public virtual decimal Wage {
-			get => wage;
-			set => SetField(ref wage, value);
-		}
-
-		private IList<AdvancedWageParameter> childParameters;
+		private IList<IWageHierarchyNode> children;
 		[Display(Name = "Вложенные параметры")]
-		public virtual IList<AdvancedWageParameter> ChildParameters {
-			get => childParameters;
-			set => SetField(ref childParameters, value);
+		public virtual IList<IWageHierarchyNode> Children {
+			get => children;
+			set => SetField(ref children, value);
 		}
 
+		//Поле используется только для загрузки из базы списка дополнительных параметров 
+		public virtual IList<AdvancedWageParameter> ChildrenParameters {
+			get => Children?.OfType<AdvancedWageParameter>()?.ToList();
+			set { Children = value?.OfType<IWageHierarchyNode>()?.ToList(); }
+		}
+
+		private decimal forDriverWithForwarder;
+		[Display(Name = "не задано")]
+		public virtual decimal ForDriverWithForwarder {
+			get => forDriverWithForwarder;
+			set => SetField(ref forDriverWithForwarder, value);
+		}
+
+		private decimal forForwarder;
+		[Display(Name = "не задано")]
+		public virtual decimal ForForwarder {
+			get => forForwarder;
+			set => SetField(ref forForwarder, value);
+		}
+
+		private decimal forDriverWithoutForwarder;
+		[Display(Name = "не задано")]
+		public virtual decimal ForDriverWithoutForwarder {
+			get => forDriverWithoutForwarder;
+			set => SetField(ref forDriverWithoutForwarder, value);
+		}
 
 		public abstract AdvancedWageParameterType AdvancedWageParameterType { get; set; }
 
 		IAdvancedWageParameter IAdvancedWageParameter.ParentParameter => ParentParameter;
+
+		public virtual IWageHierarchyNode Parent {
+			get => WageRate as IWageHierarchyNode ?? ParentParameter as IWageHierarchyNode;
+			set {
+
+				if(value is WageRate wageRate)
+					WageRate = wageRate;
+				if(value is AdvancedWageParameter parameter)
+					ParentParameter = parameter;
+				if(value == null) {
+					ParentParameter = null;
+					wageRate = null;
+				}
+			}
+		}
+
+		public abstract string Name { get; }
 
 		public abstract bool HasConflicWith(IAdvancedWageParameter advancedWageParameter);
 

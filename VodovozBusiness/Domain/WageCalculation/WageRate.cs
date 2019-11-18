@@ -1,9 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Utilities;
 using QS.Utilities.Text;
+using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 
 namespace Vodovoz.Domain.WageCalculation
 {
@@ -18,7 +22,7 @@ namespace Vodovoz.Domain.WageCalculation
 	]
 	[HistoryTrace]
 	[EntityPermission]
-	public class WageRate : PropertyChangedBase, IDomainObject
+	public class WageRate : PropertyChangedBase, IDomainObject, IWageHierarchyNode
 	{
 		#region Свойства
 
@@ -58,6 +62,23 @@ namespace Vodovoz.Domain.WageCalculation
 			get => forForwarder;
 			set => SetField(ref forForwarder, value, () => ForForwarder);
 		}
+
+		public virtual IWageHierarchyNode Parent { get => null; set { } }
+
+		private IList<IWageHierarchyNode> children;
+		[Display(Name = "Дополнительные параметры расчета зп")]
+		public virtual IList<IWageHierarchyNode> Children {
+			get => children;
+			set => SetField(ref children, value);
+		}
+
+		//Поле используется только для загрузки из базы списка дополнительных параметров 
+		public virtual IList<AdvancedWageParameter> ChildrenParameters {
+			get => Children?.OfType<AdvancedWageParameter>()?.ToList();
+			set { Children = value?.OfType<IWageHierarchyNode>()?.ToList();}
+		}
+
+		public virtual string Name => WageRateType.GetEnumTitle();
 
 		#endregion Свойства
 
@@ -164,6 +185,7 @@ namespace Vodovoz.Domain.WageCalculation
 				}
 			}
 		}
+
 		#endregion Вычисляемые
 	}
 }

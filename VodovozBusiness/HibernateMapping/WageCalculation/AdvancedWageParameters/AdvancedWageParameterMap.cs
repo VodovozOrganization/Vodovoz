@@ -13,10 +13,13 @@ namespace Vodovoz.HibernateMapping.WageCalculation.AdvancedWageParameters
 			DiscriminateSubClassesOnColumn("type");
 			Map(x => x.AdvancedWageParameterType).Column("type").CustomType<AdvancedWageParameterStringType>().Update().Not.Insert();
 
-			Map(x => x.Wage).Column("wage");
+			Map(x => x.ForDriverWithForwarder).Column("for_driver_with_forwarder");
+			Map(x => x.ForDriverWithoutForwarder).Column("for_driver_without_forwarder");
+			Map(x => x.ForForwarder).Column("for_forwarder");
+
 			References(x => x.ParentParameter).Column("parent_id");
 			References(x => x.WageRate).Column("wage_rate_id");
-			HasMany(x => x.ChildParameters).Cascade.AllDeleteOrphan().Inverse().KeyColumn("parent_id");
+			HasMany(x => x.ChildrenParameters).Cascade.AllDeleteOrphan().Inverse().KeyColumn("parent_id");
 		}
 	}
 }

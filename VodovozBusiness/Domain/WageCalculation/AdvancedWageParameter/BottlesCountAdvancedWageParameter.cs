@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
 	[Appellative(
 		Gender = GrammaticalGender.Masculine,
-		NominativePlural = "Расчет зарплаты по кол-ву бутылей в заказе"
+		Nominative = "Дополнительный параметр расчета зарплаты по кол-ву бутылей в заказе"
 	)]
 	[HistoryTrace]
 	public class BottlesCountAdvancedWageParameter : AdvancedWageParameter
@@ -43,6 +43,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			set => SetField(ref bottlesTo, value);
 		}
 
+		public override string Name => this.ToString();
 
 		public override bool HasConflicWith(IAdvancedWageParameter advancedWageParameter)
 		{
@@ -58,7 +59,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			//	return true;
 
 			//if(StartTime >= wageParam.StartTime && StartTime <= wageParam.EndTime)
-			//	return true;
+				//return true;
 
 			//if(EndTime >= wageParam.StartTime && EndTime <= wageParam.EndTime)
 				//return true;
@@ -68,7 +69,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 
 		public override string ToString()
 		{
-			throw new NotImplementedException();
+			return "aaaaaaaaaaAAAAAAAAAAAAAAAAAAAAAAAAAA";
 		}
 	}
 

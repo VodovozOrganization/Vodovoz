@@ -8,7 +8,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
 	[Appellative(
 	Gender = GrammaticalGender.Masculine,
-	NominativePlural = "Расчет зарплаты по времени доставки"
+	Nominative = "Дополнительный параметр расчета зарплаты по времени доставки"
 	)]
 	[HistoryTrace]
 	public class DeliveryTimeAdvancedWageParameter : AdvancedWageParameter
@@ -29,6 +29,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			set => SetField(ref endTime, value);
 		}
 
+		public override string Name => this.ToString();
 
 		public override bool HasConflicWith(IAdvancedWageParameter advancedWageParameter)
 		{
