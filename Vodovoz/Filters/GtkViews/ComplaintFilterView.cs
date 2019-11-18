@@ -36,6 +36,8 @@ namespace Vodovoz.Filters.GtkViews
 			yenumcomboboxDateType.Binding.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem).InitializeFromSource();
 
 			ybuttonMyComplaint.Clicked += (sender, e) => ViewModel.SelectMyComplaint();
+
+			guiltyItemView.ViewModel = ViewModel.GuiltyItemVM;
 		}
 	}
 }

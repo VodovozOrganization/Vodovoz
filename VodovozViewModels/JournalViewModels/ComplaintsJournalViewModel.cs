@@ -288,6 +288,27 @@ namespace Vodovoz.JournalViewModels
 					query = query.Where(() => complaintAlias.Status == FilterViewModel.ComplaintStatus);
 				if(FilterViewModel.Employee != null)
 					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
+
+				if(FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null) {
+					var subquery = QueryOver.Of<ComplaintGuiltyItem>()
+											.Where(g => g.GuiltyType == FilterViewModel.GuiltyItemVM.Entity.GuiltyType.Value);
+					switch(FilterViewModel.GuiltyItemVM.Entity.GuiltyType) {
+						case ComplaintGuiltyTypes.None:
+						case ComplaintGuiltyTypes.Client:
+							break;
+						case ComplaintGuiltyTypes.Employee:
+							if(FilterViewModel.GuiltyItemVM.Entity.Employee != null)
+								subquery.Where(g => g.Employee.Id == FilterViewModel.GuiltyItemVM.Entity.Employee.Id);
+							break;
+						case ComplaintGuiltyTypes.Subdivision:
+							if(FilterViewModel.GuiltyItemVM.Entity.Subdivision != null)
+								subquery.Where(g => g.Subdivision.Id == FilterViewModel.GuiltyItemVM.Entity.Subdivision.Id);
+							break;
+						default:
+							break;
+					}
+					query.WithSubquery.WhereProperty(x => x.Id).In(subquery.Select(x => x.Complaint));
+				}
 			}
 
 			#endregion Filter

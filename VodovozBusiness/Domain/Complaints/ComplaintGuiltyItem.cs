@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
@@ -28,7 +29,10 @@ namespace Vodovoz.Domain.Complaints
 		[Display(Name = "Виновник")]
 		public virtual ComplaintGuiltyTypes? GuiltyType {
 			get => guiltyType;
-			set => SetField(ref guiltyType, value, () => GuiltyType);
+			set {
+				if(SetField(ref guiltyType, value, () => GuiltyType))
+					OnGuiltyTypeChange?.Invoke();
+			}
 		}
 
 		private Employee employee;
@@ -64,6 +68,8 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		public ComplaintGuiltyItem() { }
+
+		public virtual Action OnGuiltyTypeChange { get; set; } = null;
 
 		public virtual string GetGuiltySubdivisionOrEmployee => Subdivision?.Name ?? Employee?.ShortName;
 
