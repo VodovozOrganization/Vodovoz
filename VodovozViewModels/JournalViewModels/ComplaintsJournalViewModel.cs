@@ -138,6 +138,7 @@ namespace Vodovoz.JournalViewModels
 			Order orderAlias = null;
 			ComplaintDiscussion discussionAlias = null;
 			Subdivision subdivisionAlias = null;
+			ComplaintKind complaintKindAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -239,6 +240,7 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(() => complaintAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => complaintAlias.Guilties, () => complaintGuiltyItemAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
 				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
 				.Left.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
@@ -309,6 +311,9 @@ namespace Vodovoz.JournalViewModels
 					}
 					query.WithSubquery.WhereProperty(x => x.Id).In(subquery.Select(x => x.Complaint));
 				}
+
+				if(FilterViewModel.ComplaintKind != null)
+					query.Where(() => complaintAlias.ComplaintKind.Id == FilterViewModel.ComplaintKind.Id);
 			}
 
 			#endregion Filter
@@ -336,6 +341,8 @@ namespace Vodovoz.JournalViewModels
 				.Select(authorProjection).WithAlias(() => resultAlias.Author)
 				.Select(finesProjection).WithAlias(() => resultAlias.Fines)
 				.Select(() => complaintAlias.ComplaintText).WithAlias(() => resultAlias.ComplaintText)
+				.Select(() => complaintKindAlias.Name).WithAlias(() => resultAlias.ComplaintKindString)
+				.Select(() => complaintKindAlias.IsArchive).WithAlias(() => resultAlias.ComplaintKindIsArchive)
 				.Select(() => complaintAlias.ResultText).WithAlias(() => resultAlias.ResultText)
 				.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
 			);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.Project.Filter;
 using QS.Project.Journal.EntitySelector;
 using QS.Report;
@@ -29,7 +30,8 @@ namespace Vodovoz.FilterViewModels
 				x => x.StartDate,
 				x => x.EndDate,
 				x => x.Subdivision,
-				x => x.FilterDateType
+				x => x.FilterDateType,
+				x => x.ComplaintKind
 			);
 		}
 
@@ -63,7 +65,8 @@ namespace Vodovoz.FilterViewModels
 				x => x.StartDate,
 				x => x.EndDate,
 				x => x.Subdivision,
-				x => x.FilterDateType
+				x => x.FilterDateType,
+				x => x.ComplaintKind
 			);
 		}
 
@@ -71,6 +74,12 @@ namespace Vodovoz.FilterViewModels
 		public virtual GuiltyItemViewModel GuiltyItemVM {
 			get => guiltyItemVM;
 			set => SetField(ref guiltyItemVM, value);
+		}
+
+		ComplaintKind complaintKind;
+		public virtual ComplaintKind ComplaintKind {
+			get => complaintKind;
+			set => SetField(ref complaintKind, value);
 		}
 
 		private DateFilterType filterDateType = DateFilterType.PlannedCompletionDate;
@@ -133,6 +142,15 @@ namespace Vodovoz.FilterViewModels
 			StartDate = DateTime.Now.AddMonths(-3);
 			EndDate = DateTime.Now.AddMonths(3);
 			Employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+		}
+
+		List<ComplaintKind> complaintKindSorce;
+		public IEnumerable<ComplaintKind> ComplaintKindSource {
+			get {
+				if(complaintKindSorce == null)
+					complaintKindSorce = UoW.GetAll<ComplaintKind>().ToList();
+				return complaintKindSorce;
+			}
 		}
 
 		public ReportInfo GetReportInfo()

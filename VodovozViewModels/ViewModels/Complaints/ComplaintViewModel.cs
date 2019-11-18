@@ -234,6 +234,18 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
+		List<ComplaintKind> complaintKindSorce;
+		public IEnumerable<ComplaintKind> ComplaintKindSource {
+			get {
+				if(complaintKindSorce == null)
+					complaintKindSorce = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
+				if(Entity.ComplaintKind != null && Entity.ComplaintKind.IsArchive)
+					complaintKindSorce.Add(UoW.GetById<ComplaintKind>(Entity.ComplaintKind.Id));
+
+				return complaintKindSorce;
+			}
+		}
+
 		public IList<FineItem> FineItems => Entity.Fines.SelectMany(x => x.Items).OrderByDescending(x => x.Id).ToList();
 
 		public bool IsInnerComplaint => Entity.ComplaintType == ComplaintType.Inner;

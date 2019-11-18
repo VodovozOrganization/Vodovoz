@@ -76,6 +76,12 @@ namespace Vodovoz.Views.Complaints
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewComplaintText;
 
+		private global::Gtk.HBox hbxComplaintKind;
+
+		private global::Gamma.GtkWidgets.yLabel lblComplaintKind;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox cmbComplaintKind;
+
 		private global::Gtk.HSeparator hseparator1;
 
 		private global::Gamma.GtkWidgets.yLabel labelResultText;
@@ -484,23 +490,52 @@ namespace Vodovoz.Views.Complaints
 			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.GtkScrolledWindow2]));
 			w38.Position = 3;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
+			this.hbxComplaintKind = new global::Gtk.HBox();
+			this.hbxComplaintKind.Name = "hbxComplaintKind";
+			this.hbxComplaintKind.Spacing = 6;
+			// Container child hbxComplaintKind.Gtk.Box+BoxChild
+			this.lblComplaintKind = new global::Gamma.GtkWidgets.yLabel();
+			this.lblComplaintKind.Name = "lblComplaintKind";
+			this.lblComplaintKind.Xalign = 0F;
+			this.lblComplaintKind.LabelProp = global::Mono.Unix.Catalog.GetString("Вид жалобы:");
+			this.hbxComplaintKind.Add(this.lblComplaintKind);
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbxComplaintKind[this.lblComplaintKind]));
+			w39.Position = 0;
+			w39.Expand = false;
+			w39.Fill = false;
+			// Container child hbxComplaintKind.Gtk.Box+BoxChild
+			this.cmbComplaintKind = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.cmbComplaintKind.Name = "cmbComplaintKind";
+			this.cmbComplaintKind.AddIfNotExist = false;
+			this.cmbComplaintKind.DefaultFirst = false;
+			this.cmbComplaintKind.ShowSpecialStateAll = false;
+			this.cmbComplaintKind.ShowSpecialStateNot = true;
+			this.hbxComplaintKind.Add(this.cmbComplaintKind);
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbxComplaintKind[this.cmbComplaintKind]));
+			w40.Position = 1;
+			this.vboxComplaint.Add(this.hbxComplaintKind);
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hbxComplaintKind]));
+			w41.Position = 4;
+			w41.Expand = false;
+			w41.Fill = false;
+			// Container child vboxComplaint.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
 			this.vboxComplaint.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hseparator1]));
-			w39.Position = 4;
-			w39.Expand = false;
-			w39.Fill = false;
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hseparator1]));
+			w42.Position = 5;
+			w42.Expand = false;
+			w42.Fill = false;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
 			this.labelResultText = new global::Gamma.GtkWidgets.yLabel();
 			this.labelResultText.Name = "labelResultText";
 			this.labelResultText.Xalign = 0F;
 			this.labelResultText.LabelProp = global::Mono.Unix.Catalog.GetString("Результат:");
 			this.vboxComplaint.Add(this.labelResultText);
-			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.labelResultText]));
-			w40.Position = 5;
-			w40.Expand = false;
-			w40.Fill = false;
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.labelResultText]));
+			w43.Position = 6;
+			w43.Expand = false;
+			w43.Fill = false;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
 			this.hbox7 = new global::Gtk.HBox();
 			this.hbox7.Name = "hbox7";
@@ -517,23 +552,23 @@ namespace Vodovoz.Views.Complaints
 			this.ytextviewResultText.WrapMode = ((global::Gtk.WrapMode)(3));
 			this.GtkScrolledWindow3.Add(this.ytextviewResultText);
 			this.hbox7.Add(this.GtkScrolledWindow3);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.GtkScrolledWindow3]));
-			w42.Position = 0;
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.GtkScrolledWindow3]));
+			w45.Position = 0;
 			// Container child hbox7.Gtk.Box+BoxChild
 			this.complaintfilesview = new global::Vodovoz.Views.Complaints.ComplaintFilesView();
 			this.complaintfilesview.WidthRequest = 300;
 			this.complaintfilesview.Events = ((global::Gdk.EventMask)(256));
 			this.complaintfilesview.Name = "complaintfilesview";
 			this.hbox7.Add(this.complaintfilesview);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.complaintfilesview]));
-			w43.Position = 1;
-			w43.Expand = false;
-			w43.Fill = false;
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.complaintfilesview]));
+			w46.Position = 1;
+			w46.Expand = false;
+			w46.Fill = false;
 			this.vboxComplaint.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hbox7]));
-			w44.Position = 6;
-			w44.Expand = false;
-			w44.Fill = false;
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hbox7]));
+			w47.Position = 7;
+			w47.Expand = false;
+			w47.Fill = false;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
 			this.hbox8 = new global::Gtk.HBox();
 			this.hbox8.Name = "hbox8";
@@ -543,10 +578,10 @@ namespace Vodovoz.Views.Complaints
 			this.labelResult.Name = "labelResult";
 			this.labelResult.LabelProp = global::Mono.Unix.Catalog.GetString("Итог работы:");
 			this.hbox8.Add(this.labelResult);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.labelResult]));
-			w45.Position = 0;
-			w45.Expand = false;
-			w45.Fill = false;
+			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.labelResult]));
+			w48.Position = 0;
+			w48.Expand = false;
+			w48.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.comboboxComplaintResult = new global::Gamma.Widgets.ySpecComboBox();
 			this.comboboxComplaintResult.Name = "comboboxComplaintResult";
@@ -555,13 +590,13 @@ namespace Vodovoz.Views.Complaints
 			this.comboboxComplaintResult.ShowSpecialStateAll = false;
 			this.comboboxComplaintResult.ShowSpecialStateNot = false;
 			this.hbox8.Add(this.comboboxComplaintResult);
-			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.comboboxComplaintResult]));
-			w46.Position = 1;
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.comboboxComplaintResult]));
+			w49.Position = 1;
 			this.vboxComplaint.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hbox8]));
-			w47.Position = 7;
-			w47.Expand = false;
-			w47.Fill = false;
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hbox8]));
+			w50.Position = 8;
+			w50.Expand = false;
+			w50.Fill = false;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
 			this.GtkScrolledWindow5 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow5.Name = "GtkScrolledWindow5";
@@ -572,8 +607,8 @@ namespace Vodovoz.Views.Complaints
 			this.ytreeviewFines.Name = "ytreeviewFines";
 			this.GtkScrolledWindow5.Add(this.ytreeviewFines);
 			this.vboxComplaint.Add(this.GtkScrolledWindow5);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.GtkScrolledWindow5]));
-			w49.Position = 8;
+			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.GtkScrolledWindow5]));
+			w52.Position = 9;
 			// Container child vboxComplaint.Gtk.Box+BoxChild
 			this.hboxFineButtons = new global::Gtk.HBox();
 			this.hboxFineButtons.Name = "hboxFineButtons";
@@ -585,10 +620,10 @@ namespace Vodovoz.Views.Complaints
 			this.buttonAttachFine.UseUnderline = true;
 			this.buttonAttachFine.Label = global::Mono.Unix.Catalog.GetString("Прикрепить штраф");
 			this.hboxFineButtons.Add(this.buttonAttachFine);
-			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAttachFine]));
-			w50.Position = 0;
-			w50.Expand = false;
-			w50.Fill = false;
+			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAttachFine]));
+			w53.Position = 0;
+			w53.Expand = false;
+			w53.Fill = false;
 			// Container child hboxFineButtons.Gtk.Box+BoxChild
 			this.buttonAddFine = new global::Gamma.GtkWidgets.yButton();
 			this.buttonAddFine.CanFocus = true;
@@ -596,15 +631,15 @@ namespace Vodovoz.Views.Complaints
 			this.buttonAddFine.UseUnderline = true;
 			this.buttonAddFine.Label = global::Mono.Unix.Catalog.GetString("Добавить штраф");
 			this.hboxFineButtons.Add(this.buttonAddFine);
-			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAddFine]));
-			w51.Position = 1;
-			w51.Expand = false;
-			w51.Fill = false;
+			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.hboxFineButtons[this.buttonAddFine]));
+			w54.Position = 1;
+			w54.Expand = false;
+			w54.Fill = false;
 			this.vboxComplaint.Add(this.hboxFineButtons);
-			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hboxFineButtons]));
-			w52.Position = 9;
-			w52.Expand = false;
-			w52.Fill = false;
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.vboxComplaint[this.hboxFineButtons]));
+			w55.Position = 10;
+			w55.Expand = false;
+			w55.Fill = false;
 			w5.Add(this.vboxComplaint);
 			this.GtkScrolledWindow.Add(w5);
 			this.hpaned1.Add(this.GtkScrolledWindow);

@@ -1475,4 +1475,24 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			)
 		);
 	}
+
+	protected void OnActionComplaintKindActivated(object sender, EventArgs e)
+	{
+		var complaintKindsViewModel = new SimpleEntityJournalViewModel<ComplaintKind, ComplaintKindViewModel>(
+			x => x.Name,
+			() => new ComplaintKindViewModel(
+				EntityUoWBuilder.ForCreate(),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			),
+			(node) => new ComplaintKindViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			),
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices
+		);
+		tdiMain.AddTab(complaintKindsViewModel);
+	}
 }

@@ -153,6 +153,12 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref actualCompletionDate, value, () => ActualCompletionDate);
 		}
 
+		ComplaintKind complaintKind;
+		[Display(Name = "Вид жалобы")]
+		public virtual ComplaintKind ComplaintKind {
+			get => complaintKind;
+			set => SetField(ref complaintKind, value);
+		}
 
 		IList<Fine> fines = new List<Fine>();
 		[Display(Name = "Штрафы")]

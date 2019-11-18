@@ -1338,6 +1338,8 @@
     <Compile Include="JournalViewModels\NomenclatureStockBalanceJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\NomenclatureStockFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclatureStockFilterView.cs" />
+    <Compile Include="Views\Complaints\ComplaintKindView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintKindView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

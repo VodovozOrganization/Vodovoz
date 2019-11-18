@@ -190,6 +190,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
+				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				;
 
 			//Регистрация фильтров
