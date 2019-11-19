@@ -1335,8 +1335,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.BottlesCountAdvancedWageParameterWidget.cs" />
     <Compile Include="ViewWidgets\AdvancedWageParameterViews\DeliveryTimeAdvancedWagePrameterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.DeliveryTimeAdvancedWagePrameterView.cs" />
-    <Compile Include="Views\WageCalculation\AdvancedWageParameterListView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.AdvancedWageParameterListView.cs" />
+    <Compile Include="ViewWidgets\AdvancedWageParameterViews\AdvancedWageParametersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.AdvancedWageParametersView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
