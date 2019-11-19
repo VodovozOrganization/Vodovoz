@@ -35,7 +35,7 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox15" >
+      <Textbox Name="Textbox15">
         <Height>45.83pt</Height>
         <Width>566.54pt</Width>
         <Value>В отчете идет выборка клиентов у которых:
@@ -87,7 +87,7 @@
           <TableColumn>
             <Width>51.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>139.7pt</Width>
           </TableColumn>
           <TableColumn>
@@ -131,7 +131,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>Тип контрагента</Value>
@@ -179,7 +179,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
                       <Value>Адрес клиента</Value>
@@ -195,7 +195,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
                       <Value>Адрес точки доставки</Value>
@@ -281,7 +281,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
                       <Value>=Fields!person.Value</Value>
@@ -347,7 +347,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
                       <Value>=Fields!client_address.Value</Value>
@@ -369,7 +369,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
                       <Value>=Fields!address.Value</Value>
@@ -447,7 +447,7 @@
         <CommandText>SELECT
     counterparty.id,
     counterparty.name AS counterparty,
-    counterparty.address AS client_address,
+    #counterparty.address AS client_address,
     #Дата последнего заказа
     (
 		SELECT
@@ -467,6 +467,11 @@
             ELSE ''
 		END persontype
     ) AS person,
+    #Адрес клиента
+    (
+		SELECT
+			IFNULL(counterparty.address, counterparty.jur_address)
+    ) AS client_address,
     #Адрес последнего заказа
     (
 		SELECT
@@ -523,7 +528,7 @@
     ) as lastsum
             
 FROM
-    counterparty
+	counterparty
     LEFT JOIN delivery_points ON delivery_points.counterparty_id = counterparty.id
     LEFT JOIN phones AS counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id 
     LEFT JOIN phones AS delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id
@@ -577,12 +582,24 @@ WHERE
 		WHERE
 			orders.client_id = counterparty.id
             AND
-			orders.bottles_return != 0
-            AND 
+			orders.bottles_return &lt;&gt; 0
+            AND
             (
-				order_deposit_items.id IS NOT NULL 
+				(order_deposit_items.id IS NOT NULL AND order_items.id IS NULL)
+                OR
+                (
+					nomenclature.id = GET_PARAMETER('forfeit_nomenclature_id')
+					AND NOT EXISTS
+					(
+						SELECT *
+						FROM 
+							order_items
+						WHERE 
+							order_items.order_id = orders.id
+							AND order_items.nomenclature_id &lt;&gt; GET_PARAMETER('forfeit_nomenclature_id')
+					)
+                )
                 OR order_items.id IS NULL
-                OR nomenclature.id = 33
 			)
 			AND orders.order_status = 'Closed'
             ORDER BY
@@ -602,19 +619,41 @@ WHERE
 		WHERE
 			orders.client_id = counterparty.id
             AND
-			orders.bottles_return != 0
-            AND 
+			orders.bottles_return &lt;&gt; 0
+            AND
             (
-				order_deposit_items.id IS NOT NULL 
+				(order_deposit_items.id IS NOT NULL AND order_items.id IS NULL)
+                OR
+                (
+					nomenclature.id = GET_PARAMETER('forfeit_nomenclature_id')
+					AND NOT EXISTS
+					(
+						SELECT *
+						FROM 
+							order_items
+						WHERE 
+							order_items.order_id = orders.id
+							AND order_items.nomenclature_id &lt;&gt; GET_PARAMETER('forfeit_nomenclature_id')
+					)
+                )
                 OR order_items.id IS NULL
-                OR nomenclature.id = 33
 			)
 			AND orders.order_status = 'Closed'
             ORDER BY
                 orders.delivery_date DESC
             LIMIT 1
         )
+        AND NOT EXISTS (
+			SELECT
+				delivery_date
+			FROM
+				orders
+			WHERE
+				orders.client_id = counterparty.id
+                AND delivery_date &gt; @endDate
+        )
     )
+    # Ввод остатков
     AND NOT EXISTS
     (
 		SELECT
