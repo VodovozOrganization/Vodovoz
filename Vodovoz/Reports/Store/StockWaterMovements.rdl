@@ -11,56 +11,9 @@
   <LeftMargin>.25in</LeftMargin>
   <RightMargin>.25in</RightMargin>
   <BottomMargin>.25in</BottomMargin>
-  <ReportParameters>
-    <ReportParameter Name="endDate">
-      <DataType>String</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-    <ReportParameter Name="warehouse1_id">
-      <DataType>Integer</DataType>
-      <Nullable>False</Nullable>
-      <DefaultValue>
-        <Values>
-          <Value>1</Value>
-        </Values>
-      </DefaultValue>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-    <ReportParameter Name="warehouse2_id">
-      <DataType>Integer</DataType>
-      <Nullable>False</Nullable>
-      <DefaultValue>
-        <Values>
-          <Value>3</Value>
-        </Values>
-      </DefaultValue>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-    <ReportParameter Name="warehouse3_id">
-      <DataType>Integer</DataType>
-      <Nullable>False</Nullable>
-      <DefaultValue>
-        <Values>
-          <Value>6</Value>
-        </Values>
-      </DefaultValue>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-    <ReportParameter Name="warehouse4_id">
-      <DataType>Integer</DataType>
-      <Nullable>False</Nullable>
-      <DefaultValue>
-        <Values>
-          <Value>5</Value>
-        </Values>
-      </DefaultValue>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-  </ReportParameters>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     nomenclature.name AS nomenclature,
@@ -72,7 +25,8 @@
                     warehouse_movement_operations
                 WHERE
                     warehouse_movement_operations.incoming_warehouse_id = @warehouse1_id
-                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                       AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                       AND warehouse_movement_operations.operation_time &gt; @startDate
                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
             0)
             -
@@ -83,7 +37,8 @@
                 WHERE
                     warehouse_movement_operations.writeoff_warehouse_id = @warehouse1_id
                         AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                    AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+                        AND warehouse_movement_operations.operation_time &gt; @startDate
+                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
             0)
             ) AS warehouse_1,
             (IFNULL((SELECT 
@@ -93,7 +48,8 @@
                 WHERE
                     warehouse_movement_operations.incoming_warehouse_id = @warehouse2_id
                         AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+                        AND warehouse_movement_operations.operation_time &gt; @startDate
+                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
             0)
             -
             IFNULL((SELECT 
@@ -103,7 +59,8 @@
                 WHERE
                     warehouse_movement_operations.writeoff_warehouse_id = @warehouse2_id
                         AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                    AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+                        AND warehouse_movement_operations.operation_time &gt; @startDate
+                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
             0)
             ) AS warehouse_2,
             (IFNULL((SELECT 
@@ -113,7 +70,8 @@
                 WHERE
                     warehouse_movement_operations.incoming_warehouse_id = @warehouse3_id
                         AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+                        AND warehouse_movement_operations.operation_time &gt; @startDate
+                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
             0)
             -
             IFNULL((SELECT 
@@ -123,7 +81,8 @@
                 WHERE
                     warehouse_movement_operations.writeoff_warehouse_id = @warehouse3_id
                         AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                    AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+                        AND warehouse_movement_operations.operation_time &gt; @startDate
+                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
             0)
             ) AS warehouse_3,
             (IFNULL((SELECT 
@@ -133,7 +92,8 @@
                 WHERE
                     warehouse_movement_operations.incoming_warehouse_id = @warehouse4_id
                         AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+                        AND warehouse_movement_operations.operation_time &gt; @startDate
+                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
             0)
             -
             IFNULL((SELECT 
@@ -143,7 +103,8 @@
                 WHERE
                     warehouse_movement_operations.writeoff_warehouse_id = @warehouse4_id
                         AND warehouse_movement_operations.nomenclature_id = nomenclature.id
-                    AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+                        AND warehouse_movement_operations.operation_time &gt; @startDate
+                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
             0)
             ) AS warehouse_4,
                         IFNULL((SELECT 
@@ -153,7 +114,8 @@
                                  INNER JOIN store_movement_document_items ON store_movement_document_items.writeoff_movement_operation_id = warehouse_movement_operations.id AND store_movement_document_items.income_movement_operation_id IS NULL
                 WHERE
                         warehouse_movement_operations.nomenclature_id = nomenclature.id
-                       AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+                        AND warehouse_movement_operations.operation_time &gt; @startDate
+                    	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
                        0) AS wagons
 FROM
     nomenclature 
@@ -178,9 +140,12 @@ HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 
           <QueryParameter Name="warehouse4_id">
             <Value>=Parameters!warehouse4_id</Value>
           </QueryParameter>
+          <QueryParameter Name="startDate">
+            <Value>={?startDate}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -282,17 +247,31 @@ HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 
     <Height>.5in</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Top>7.23pt</Top>
-        <Left>7.23pt</Left>
+        <Top>14.3pt</Top>
+        <Left>6.4pt</Left>
         <Width>795.70pt</Width>
         <Height>23.43pt</Height>
-        <Value>= 'Общий по воде на ' + Format(CDate({?endDate}), "d")</Value>
+        <Value>= 'Общие складские движения по воде с ' + Format(CDate({?startDate}), "d") + ' по ' + Format(CDate({?endDate}), "d")</Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox3" >
+        <Height>14.28pt</Height>
+        <Width>249.89pt</Width>
+        <Value>="Сформировано: " + Format( {?creationDate}, "dd-MM-yyyy HH:mm")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>555.68pt</Left>
+        <Top>0.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -661,6 +640,7 @@ HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 
       </Table>
     </ReportItems>
     <Height>46.7pt</Height>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -692,4 +672,84 @@ HAVING warehouse_1 &lt;&gt; 0 OR warehouse_2 &lt;&gt; 0 OR warehouse_3 &lt;&gt; 
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters >
+    <ReportParameter Name="endDate">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="startDate">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="warehouse1_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="warehouse2_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>3</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="warehouse3_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>6</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="warehouse4_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>5</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="creationDate">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
 </Report>
