@@ -1,12 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -20,86 +17,45 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual MovementDocument Document { get; set; }
 
-		Nomenclature nomenclature;
-
-		[Required(ErrorMessage = "Номенклатура должна быть заполнена.")]
+		private Nomenclature nomenclature;
 		[Display(Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
-			set {
-				SetField(ref nomenclature, value, () => Nomenclature);
-				if(WarehouseMovementOperation != null && WarehouseMovementOperation.Nomenclature != nomenclature)
-					WarehouseMovementOperation.Nomenclature = nomenclature;
-
-				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Nomenclature != nomenclature)
-					CounterpartyMovementOperation.Nomenclature = nomenclature;
-			}
+			get => nomenclature;
+			set => SetField(ref nomenclature, value);
 		}
 
-		Equipment equipment;
-
-		[Display(Name = "Оборудование")]
-		public virtual Equipment Equipment {
-			get { return equipment; }
-			set {
-				SetField(ref equipment, value, () => Equipment);
-				if(WarehouseMovementOperation != null && WarehouseMovementOperation.Equipment != equipment)
-					WarehouseMovementOperation.Equipment = equipment;
-
-				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
-					CounterpartyMovementOperation.Equipment = equipment;
-			}
+		private decimal sendedAmount;
+		[Display(Name = "Отправлено")]
+		public virtual decimal SendedAmount {
+			get => sendedAmount;
+			set => SetField(ref sendedAmount, value);
 		}
 
-		decimal amount;
-
-		[Min(1)]
-		[Display(Name = "Количество")]
-		public virtual decimal Amount {
-			get { return amount; }
-			set {
-				SetField(ref amount, value, () => Amount);
-				if(WarehouseMovementOperation != null && WarehouseMovementOperation.Amount != amount)
-					WarehouseMovementOperation.Amount = amount;
-
-				if(DeliveryMovementOperation != null && DeliveryMovementOperation.Amount != amount)
-					DeliveryMovementOperation.Amount = amount;
-
-				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Amount != amount)
-					CounterpartyMovementOperation.Amount = amount;
-			}
+		private decimal receivedAmount;
+		[Display(Name = "Принято")]
+		public virtual decimal ReceivedAmount {
+			get => receivedAmount;
+			set => SetField(ref receivedAmount, value);
 		}
 
-		decimal amountOnSource = 10000000;
-		//FIXME пока не реализуем способ загружать количество на складе на конкретный день
+		decimal amountOnSource = 99999999;
 
 		[Display(Name = "Имеется на складе")]
 		public virtual decimal AmountOnSource {
-			get { return amountOnSource; }
-			set {
-				SetField(ref amountOnSource, value, () => AmountOnSource);
-			}
+			get => amountOnSource;
+			set => SetField(ref amountOnSource, value);
 		}
 
-		WarehouseMovementOperation warehouseMovementOperation;
-
-		public virtual WarehouseMovementOperation WarehouseMovementOperation {
-			get { return warehouseMovementOperation; }
-			set { SetField(ref warehouseMovementOperation, value, () => WarehouseMovementOperation); }
+		WarehouseMovementOperation warehouseWriteoffOperation;
+		public virtual WarehouseMovementOperation WarehouseWriteoffOperation {
+			get => warehouseWriteoffOperation;
+			set => SetField(ref warehouseWriteoffOperation, value);
 		}
 
-		WarehouseMovementOperation deliveryMovementOperation;
-
-		public virtual WarehouseMovementOperation DeliveryMovementOperation {
-			get { return deliveryMovementOperation; }
-			set { SetField(ref deliveryMovementOperation, value, () => DeliveryMovementOperation); }
-		}
-
-		CounterpartyMovementOperation counterpartyMovementOperation;
-
-		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
-			get { return counterpartyMovementOperation; }
-			set { SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
+		WarehouseMovementOperation incomeOperation;
+		public virtual WarehouseMovementOperation WarehouseIncomeOperation {
+			get => incomeOperation;
+			set => SetField(ref incomeOperation, value);
 		}
 
 		#region Функции
@@ -109,52 +65,73 @@ namespace Vodovoz.Domain.Documents
 				return String.Format("[{2}] {0} - {1}",
 					Document.Title,
 					Nomenclature.Name,
-					Nomenclature.Unit.MakeAmountShortStr(Amount));
+					Nomenclature.Unit.MakeAmountShortStr(SendedAmount));
 			}
 		}
 
 		public virtual string Name => Nomenclature != null ? Nomenclature.Name : "";
 
-		public virtual string EquipmentString => Equipment != null && Equipment.Nomenclature.IsSerial ? Equipment.Serial : "-";
-
 		public virtual bool CanEditAmount => Nomenclature != null && !Nomenclature.IsSerial;
 
-		public virtual void UpdateOperation(Warehouse warehouseSrc, Warehouse warehouseDst, DateTime time, TransportationStatus status)
-		{
-			CounterpartyMovementOperation = null;
+		public virtual bool HasDiscrepancy => SendedAmount != ReceivedAmount;
 
-			if(WarehouseMovementOperation == null) {
-				WarehouseMovementOperation = new WarehouseMovementOperation();
+		public virtual void UpdateWriteoffOperation()
+		{
+			if(Document == null) {
+				throw new InvalidOperationException("Не правильно создана строка перемещения. Не указан документ в котором содержится текущая строка");
 			}
 
-			WarehouseMovementOperation.WriteoffWarehouse = warehouseSrc;
-			WarehouseMovementOperation.IncomingWarehouse = status == TransportationStatus.WithoutTransportation ? warehouseDst : null;
-			WarehouseMovementOperation.Amount = Amount;
-			WarehouseMovementOperation.OperationTime = time;
-			WarehouseMovementOperation.Nomenclature = Nomenclature;
-			WarehouseMovementOperation.Equipment = Equipment;
-			
-			if(status == TransportationStatus.Delivered)
-				UpdateDeliveryOperation(warehouseDst, Document.DeliveredTime.Value);
+			if(Document.Status == MovementDocumentStatus.Sended) {
+				if(WarehouseWriteoffOperation == null) {
+					WarehouseWriteoffOperation = new WarehouseMovementOperation();
+				}
+
+				WarehouseWriteoffOperation.WriteoffWarehouse = Document.FromWarehouse;
+				WarehouseWriteoffOperation.IncomingWarehouse = null;
+				//Предполагается что если документ находиться в статусе отправлен, то время доставки обязательно установлено
+				WarehouseWriteoffOperation.OperationTime = Document.SendTime.Value;
+				WarehouseWriteoffOperation.Nomenclature = Nomenclature;
+				WarehouseWriteoffOperation.Amount = SendedAmount;
+				return;
+			}
+
+			if(Document.IsDelivered) {
+				if(WarehouseWriteoffOperation == null) {
+					WarehouseWriteoffOperation = new WarehouseMovementOperation();
+				}
+
+				WarehouseWriteoffOperation.WriteoffWarehouse = Document.FromWarehouse;
+				WarehouseWriteoffOperation.IncomingWarehouse = null;
+				//Предполагается что если документ доставлен, то время доставки обязательно установлено
+				WarehouseWriteoffOperation.OperationTime = Document.SendTime.Value;
+				WarehouseWriteoffOperation.Nomenclature = Nomenclature;
+				WarehouseWriteoffOperation.Amount = ReceivedAmount;
+			}
 		}
 
-		/// <summary>
-		/// Создание операции доставки при транспортировке
-		/// </summary>
-		public virtual void UpdateDeliveryOperation(Warehouse warehouseDst, DateTime deliveredTime)
+		public virtual void UpdateIncomeOperation()
 		{
-
-			if(DeliveryMovementOperation == null) {
-				DeliveryMovementOperation = new WarehouseMovementOperation();
+			if(Document == null) {
+				throw new InvalidOperationException("Не правильно создана строка перемещения. Не указан документ в котором содержится текущая строка");
 			}
 
-			DeliveryMovementOperation.IncomingWarehouse = warehouseDst;
-			DeliveryMovementOperation.Amount = Amount;
-			DeliveryMovementOperation.OperationTime = deliveredTime;
-			DeliveryMovementOperation.Nomenclature = Nomenclature;
-			DeliveryMovementOperation.Equipment = Equipment;
+			if(!Document.IsDelivered) {
+				WarehouseIncomeOperation = null;
+				return;
+			}
 
-			WarehouseMovementOperation.IncomingWarehouse = null;
+			if(WarehouseIncomeOperation == null) {
+				WarehouseIncomeOperation = new WarehouseMovementOperation();
+			}
+
+			WarehouseIncomeOperation.WriteoffWarehouse = null;
+			WarehouseIncomeOperation.IncomingWarehouse = Document.ToWarehouse;
+			//Предполагается что если документ находиться в одном из принятых статусов, то время доставки обязательно установлено
+			WarehouseIncomeOperation.OperationTime = Document.ReceiveTime.Value;
+			WarehouseIncomeOperation.Nomenclature = Nomenclature;
+			WarehouseIncomeOperation.Amount = ReceivedAmount;
+
+			UpdateWriteoffOperation();
 		}
 
 		#endregion

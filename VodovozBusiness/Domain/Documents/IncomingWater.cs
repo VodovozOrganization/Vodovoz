@@ -13,39 +13,40 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Masculine,
+	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы производства",
 		Nominative = "документ производства")]
 	[EntityPermission]
-	public class IncomingWater: Document, IValidatableObject
+	[HistoryTrace]
+	public class IncomingWater : Document, IValidatableObject
 	{
 		Nomenclature product;
 
-		[Required (ErrorMessage = "Продукт должн быть заполнен.")]
-		[Display (Name = "Продукт")]
+		[Required(ErrorMessage = "Продукт должн быть заполнен.")]
+		[Display(Name = "Продукт")]
 		public virtual Nomenclature Product {
 			get { return product; }
 			set {
-				SetField (ref product, value, () => Product);
-				if (ProduceOperation.Nomenclature != product)
+				SetField(ref product, value, () => Product);
+				if(ProduceOperation.Nomenclature != product)
 					ProduceOperation.Nomenclature = product;
 			}
 		}
 
 		int amount;
 
-		[Min (1)]
-		[Display (Name = "Количество")]
+		[Min(1)]
+		[Display(Name = "Количество")]
 		public virtual int Amount {
 			get { return amount; }
 			set {
-				SetField (ref amount, value, () => Amount);
-				if (ProduceOperation.Amount != Amount)
+				SetField(ref amount, value, () => Amount);
+				if(ProduceOperation.Amount != Amount)
 					ProduceOperation.Amount = Amount;
-				if (!NHibernate.NHibernateUtil.IsInitialized(Materials))
+				if(!NHibernate.NHibernateUtil.IsInitialized(Materials))
 					return;
-				foreach (var item in Materials) {
-					if (item.OneProductAmount.HasValue)
+				foreach(var item in Materials) {
+					if(item.OneProductAmount.HasValue)
 						item.Amount = item.OneProductAmount.Value * Amount;
 				}
 			}
@@ -53,27 +54,27 @@ namespace Vodovoz.Domain.Documents
 
 		Warehouse incomingWarehouse;
 
-		[Required (ErrorMessage = "Склад поступления должен быть указан.")]
-		[Display (Name = "Склад поступления")]
+		[Required(ErrorMessage = "Склад поступления должен быть указан.")]
+		[Display(Name = "Склад поступления")]
 		public virtual Warehouse IncomingWarehouse {
 			get { return incomingWarehouse; }
 			set {
-				SetField (ref incomingWarehouse, value, () => IncomingWarehouse);
-				if (ProduceOperation.IncomingWarehouse != IncomingWarehouse)
+				SetField(ref incomingWarehouse, value, () => IncomingWarehouse);
+				if(ProduceOperation.IncomingWarehouse != IncomingWarehouse)
 					ProduceOperation.IncomingWarehouse = IncomingWarehouse;
 			}
 		}
 
 		Warehouse writeOffWarehouse;
 
-		[Required (ErrorMessage = "Склад списания должен быть указан.")]
-		[Display (Name = "Склад списания")]
+		[Required(ErrorMessage = "Склад списания должен быть указан.")]
+		[Display(Name = "Склад списания")]
 		public virtual Warehouse WriteOffWarehouse {
 			get { return writeOffWarehouse; }
 			set {
-				SetField (ref writeOffWarehouse, value, () => WriteOffWarehouse); 
-				foreach (var item in Materials) {
-					if (item.ConsumptionMaterialOperation != null && item.ConsumptionMaterialOperation.WriteoffWarehouse != WriteOffWarehouse)
+				SetField(ref writeOffWarehouse, value, () => WriteOffWarehouse);
+				foreach(var item in Materials) {
+					if(item.ConsumptionMaterialOperation != null && item.ConsumptionMaterialOperation.WriteoffWarehouse != WriteOffWarehouse)
 						item.ConsumptionMaterialOperation.WriteoffWarehouse = WriteOffWarehouse;
 				}
 			}
@@ -87,16 +88,16 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual WarehouseMovementOperation ProduceOperation {
 			get { return produceOperation; }
-			set { SetField (ref produceOperation, value, () => ProduceOperation); }
+			set { SetField(ref produceOperation, value, () => ProduceOperation); }
 		}
 
-		IList<IncomingWaterMaterial> materials = new List<IncomingWaterMaterial> ();
+		IList<IncomingWaterMaterial> materials = new List<IncomingWaterMaterial>();
 
-		[Display (Name = "Строки")]
+		[Display(Name = "Строки")]
 		public virtual IList<IncomingWaterMaterial> Materials {
 			get { return materials; }
 			set {
-				SetField (ref materials, value, () => Materials);
+				SetField(ref materials, value, () => Materials);
 				observableMaterials = null;
 			}
 		}
@@ -105,49 +106,46 @@ namespace Vodovoz.Domain.Documents
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<IncomingWaterMaterial> ObservableMaterials {
 			get {
-				if (observableMaterials == null)
-					observableMaterials = new GenericObservableList<IncomingWaterMaterial> (Materials);
+				if(observableMaterials == null)
+					observableMaterials = new GenericObservableList<IncomingWaterMaterial>(Materials);
 				return observableMaterials;
 			}
 		}
 
-		public virtual void AddMaterial (Nomenclature nomenclature, decimal amount, decimal inStock)
+		public virtual void AddMaterial(Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
-			var item = new IncomingWaterMaterial{
+			var item = new IncomingWaterMaterial {
 				Document = this,
 				Nomenclature = nomenclature,
 				Amount = amount,
 				AmountOnSource = inStock,
 			};
 			item.CreateOperation(WriteOffWarehouse, TimeStamp);
-			ObservableMaterials.Add (item);
+			ObservableMaterials.Add(item);
 		}
 
-		public virtual void AddMaterial (ProductSpecificationMaterial material)
+		public virtual void AddMaterial(ProductSpecificationMaterial material)
 		{
-			var item = new IncomingWaterMaterial{
+			var item = new IncomingWaterMaterial {
 				Document = this,
 				Nomenclature = material.Material,
 				OneProductAmount = material.Amount,
 			};
 			item.CreateOperation(WriteOffWarehouse, TimeStamp);
-			ObservableMaterials.Add (item);
+			ObservableMaterials.Add(item);
 		}
 
-		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Materials.Count == 0)
-				yield return new ValidationResult (String.Format("Табличная часть документа пустая."),
-					new[] { this.GetPropertyName (o => o.Materials) });
+				yield return new ValidationResult(String.Format("Табличная часть документа пустая."),
+					new[] { this.GetPropertyName(o => o.Materials) });
 
-			foreach(var item in Materials)
-			{
+			foreach(var item in Materials) {
 				if(item.Amount <= 0)
-					yield return new ValidationResult (String.Format("Для сырья <{0}> не указано количество.", item.Nomenclature.Name),
-						new[] { this.GetPropertyName (o => o.Materials) });
+					yield return new ValidationResult(String.Format("Для сырья <{0}> не указано количество.", item.Nomenclature.Name),
+						new[] { this.GetPropertyName(o => o.Materials) });
 			}
 		}
-
 	}
 }
-

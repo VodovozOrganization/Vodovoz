@@ -3,6 +3,7 @@ using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Sale;
@@ -14,8 +15,16 @@ namespace Vodovoz.ViewModels.Organization
 
 		public event Action OnSavedEntity;
 
-		public SubdivisionViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory;
+
+		public SubdivisionViewModel(
+			IEntityUoWBuilder uoWBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			ConfigureEntityChangingRelations();
 			CreateCommands();
 		}
@@ -34,10 +43,12 @@ namespace Vodovoz.ViewModels.Organization
 			Entity.ObservableChildSubdivisions.ElementRemoved += (aList, aIdx, aObject) => OnPropertyChanged(() => GeographicGroupVisible);
 		}
 
-		protected override void BeforeSave()
+		public override bool Save(bool close)
 		{
+			bool res = base.Save(close);
 			OnSavedEntity?.Invoke();
-			base.BeforeSave();
+			UoW.Commit();
+			return res;
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;

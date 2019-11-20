@@ -1008,6 +1008,10 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1026,6 +1030,10 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1047,6 +1055,10 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1066,6 +1078,10 @@
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1083,6 +1099,10 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1102,6 +1122,10 @@
                         <Format>0.00</Format>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1123,6 +1147,10 @@
                         <TextAlign>Center</TextAlign>
                         <Format>0.00</Format>
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
+                        <PaddingLeft >5pt</PaddingLeft>
+                        <PaddingRight >5pt</PaddingRight>
+                        <PaddingTop >10pt</PaddingTop>
+                        <PaddingBottom >10pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1681,31 +1709,6 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>По окончании доставки отзвон в офис 8(981)701-57-32 ОБЯЗАТЕЛЬНО!</Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>2</ColSpan>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox93">
                       <Value>По вопросам тары звонить в офис по тел. 8(981)876-89-52</Value>
                       <Style>
@@ -2198,7 +2201,7 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
@@ -2303,12 +2306,12 @@ LEFT JOIN (
 		SELECT 
 			order_items.order_id AS order_id,
 			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), -1, nomenclature_id) AS nomenclature_id,
-			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), 'Заказ ИМ', IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
+			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), CONCAT('Заказ ИМ ', order_items.order_id), IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
 			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), 1, SUM(order_items.count)) AS cnt
 		FROM order_items
 		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 		JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
-		WHERE (nomenclature.category = 'equipment' OR nomenclature.category = 'additional') AND nomenclature.hide = 0
+		WHERE nomenclature.category IN ('equipment', 'additional', 'spare_parts') AND nomenclature.hide = 0
 			AND route_list_addresses.route_list_id = @route_list_id
 		GROUP BY order_id, nomenclature_id 
 
@@ -2380,7 +2383,7 @@ ORDER BY order_in_route
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>

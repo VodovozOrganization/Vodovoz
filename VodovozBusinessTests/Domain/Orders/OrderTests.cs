@@ -451,7 +451,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			Order orderUnderTest = new Order();
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
-			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, null).ReturnsNull();
+			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, orderUnderTest, null).ReturnsNull();
 
 			// act
 			var res = orderUnderTest.CanAddStockBottle(orderRepository);
@@ -471,7 +471,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
-			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, client).ReturnsNull();
+			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, orderUnderTest, client).ReturnsNull();
 
 			// act
 			var res = orderUnderTest.CanAddStockBottle(orderRepository);
@@ -511,9 +511,9 @@ namespace VodovozBusinessTests.Domain.Orders
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
 			if(result) {
-				orderRepository.GetFirstRealOrderForClientForActionBottle(uow, client).ReturnsNull();
+				orderRepository.GetFirstRealOrderForClientForActionBottle(uow, orderUnderTest, client).ReturnsNull();
 			} else {
-				orderRepository.GetFirstRealOrderForClientForActionBottle(uow, client).Returns(firstOrder);
+				orderRepository.GetFirstRealOrderForClientForActionBottle(uow, orderUnderTest, client).Returns(firstOrder);
 			}
 
 			// act
@@ -536,7 +536,7 @@ namespace VodovozBusinessTests.Domain.Orders
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			orderUnderTest.UoW = uow;
 			IOrderRepository orderRepository = Substitute.For<IOrderRepository>();
-			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, client).Returns(Substitute.For<Order>());
+			orderRepository.GetFirstRealOrderForClientForActionBottle(uow, firstOrder, client).Returns(Substitute.For<Order>());
 
 			// act
 			var res = orderUnderTest.CanAddStockBottle(orderRepository);
@@ -887,6 +887,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			Nomenclature nomenclatureMock01 = Substitute.For<Nomenclature>();
+			nomenclatureMock01.Category.Returns(NomenclatureCategory.equipment);
 			nomenclatureMock01.Id.Returns(50);
 
 			Nomenclature nomenclatureMock03 = Substitute.For<Nomenclature>();

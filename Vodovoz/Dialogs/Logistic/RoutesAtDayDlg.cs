@@ -37,6 +37,7 @@ using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz
 {
@@ -629,21 +630,21 @@ namespace Vodovoz
 			return PointMarker.GetIconPixbuf(GetAddressMarker(index).ToString(), shape);
 		}
 
-		private void FillFullOrdersInfo()
+		private void FillFullOrdersInfo(IOrderRepository orderRepository)
 		{
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
-			int totalOrders = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
+			int totalOrders = orderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
 				.GetExecutableQueryOver(UoW.Session)
-				.Select(NHibernate.Criterion.Projections.Count<Order>(x => x.Id)).SingleOrDefault<int>();
+				.Select(Projections.Count<Order>(x => x.Id)).SingleOrDefault<int>();
 
-			int totalBottles = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
+			int totalBottles = orderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
 				.GetExecutableQueryOver(UoW.Session)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
-				.Select(NHibernate.Criterion.Projections.Sum(() => orderItemAlias.Count)).SingleOrDefault<int>();
+				.Select(Projections.Sum(() => orderItemAlias.Count)).SingleOrDefault<int>();
 
 			var text = new List<string> {
 				NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."),
@@ -695,6 +696,8 @@ namespace Vodovoz
 									 .Where(x => x.DeliverySchedule.From <= ytimeToDeliveryTo.Time)
 									 .Where(x => x.DeliveryPoint != null)
 									 .Where(o => o.Total19LBottlesToDeliver >= minBtls)
+									 .Where(x => !x.IsContractCloser)
+									 .Where(x => !OrderSingletonRepository.GetInstance().IsOrderCloseWithoutDelivery(UoW,x))
 									 .ToList()
 									 ;
 
@@ -852,7 +855,7 @@ namespace Vodovoz
 		private void Refresh()
 		{
 			FillDialogAtDay();
-			FillFullOrdersInfo();
+			FillFullOrdersInfo(OrderSingletonRepository.GetInstance());
 			OnTabNameChanged();
 		}
 

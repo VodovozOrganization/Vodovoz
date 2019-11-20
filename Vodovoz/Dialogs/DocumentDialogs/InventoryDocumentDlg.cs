@@ -5,7 +5,7 @@ using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation.GtkUI;
 using Vodovoz.Additions.Store;
-using Vodovoz.Core.Permissions;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Employees;
@@ -13,6 +13,7 @@ using Vodovoz.Domain.Permissions;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz
 {

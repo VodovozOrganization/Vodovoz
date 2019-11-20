@@ -654,6 +654,17 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		public bool IsFromOnlineShopGroup(int idOfOnlineShopGroup)
+		{
+			ProductGroup parent = ProductGroup;
+			while(parent != null) {
+				if(parent.Id == idOfOnlineShopGroup)
+					return true;
+				parent = parent.Parent;
+			};
+			return false;
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
@@ -777,7 +788,6 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.bottle,
 				NomenclatureCategory.deposit,
 				NomenclatureCategory.spare_parts,
-				NomenclatureCategory.rent,
 				NomenclatureCategory.service
 			};
 		}
@@ -788,7 +798,6 @@ namespace Vodovoz.Domain.Goods
 				NomenclatureCategory.additional,
 				NomenclatureCategory.equipment,
 				NomenclatureCategory.water,
-				NomenclatureCategory.rent,
 				NomenclatureCategory.deposit,
 				NomenclatureCategory.service,
 				NomenclatureCategory.spare_parts,
@@ -881,8 +890,6 @@ namespace Vodovoz.Domain.Goods
 
 	public enum NomenclatureCategory
 	{
-		[Display(Name = "Аренда кулеров")]
-		rent,
 		[Display(Name = "Вода")]
 		water,
 		[Display(Name = "Залог")]

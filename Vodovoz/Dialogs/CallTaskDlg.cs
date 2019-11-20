@@ -60,6 +60,9 @@ namespace Vodovoz.Dialogs
 
 		private void ConfigureDlg()
 		{
+			buttonReportByClient.Sensitive = Entity.Counterparty != null;
+			buttonReportByDP.Sensitive = Entity.DeliveryPoint != null;
+
 			comboboxImpotanceType.ItemsEnum = typeof(ImportanceDegreeType);
 			comboboxImpotanceType.Binding.AddBinding(Entity, s => s.ImportanceDegree, w => w.SelectedItemOrNull).InitializeFromSource();
 			TaskStateComboBox.ItemsEnum = typeof(CallTaskStatus);
@@ -219,6 +222,16 @@ namespace Vodovoz.Dialogs
 		protected void OnButtonReportByClientClicked(object sender, EventArgs e)
 		{
 			TabParent.AddTab(new ReportViewDlg(Entity.CreateReportInfoByClient()),this);
+		}
+
+		protected void OnDeliveryPointYentryreferencevmChanged(object sender, EventArgs e)
+		{
+			buttonReportByDP.Sensitive = Entity.DeliveryPoint != null;
+		}
+
+		protected void OnCounterpartyYentryreferencevmChanged(object sender, EventArgs e)
+		{
+			buttonReportByClient.Sensitive = Entity.Counterparty != null;
 		}
 	}
 }

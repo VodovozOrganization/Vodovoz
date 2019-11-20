@@ -1496,11 +1496,11 @@ Sum(Fields!amount_unloaded_empty.Value, "Route_lists") - Sum(Fields!actual_count
 	SUM(IFNULL(fines.total_money, 0)) AS total_fines,
 	route_lists.closing_comment,
 	CASE
-		WHEN route_lists.status IN('Closed' , 'MileageCheck') THEN 'Закрытые маршрутные листы'
+		WHEN route_lists.status = 'Closed' THEN 'Закрытые маршрутные листы'
 		ELSE 'Незакрытые маршрутные листы'
 	END
 	AS status_for_grouping,
-	route_lists.status IN('Closed' , 'MileageCheck') AS is_closed,
+	route_lists.status IN('Closed') AS is_closed,
 	closed_by.last_name AS closed_by
 FROM route_lists
 LEFT JOIN employees ON employees.id = route_lists.driver_id

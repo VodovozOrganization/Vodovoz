@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Documents
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки накладной",
 		Nominative = "строка накладной")]
-	//[HistoryTrace]
+	[HistoryTrace]
 	public class IncomingInvoiceItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -92,7 +92,7 @@ namespace Vodovoz.Domain.Documents
 			get {
 				return String.Format("[{2}] {0} - {1}",
 					Nomenclature.Name,
-				    Nomenclature.Unit.MakeAmountShortStr(Amount),
+					Nomenclature.Unit.MakeAmountShortStr(Amount),
 					Document.Title);
 			}
 		}

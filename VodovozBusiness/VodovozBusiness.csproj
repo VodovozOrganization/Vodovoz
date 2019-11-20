@@ -765,6 +765,10 @@
     <Compile Include="EntityRepositories\WageCalculation\AdvancedWageRepository.cs" />
     <Compile Include="EntityRepositories\WageCalculation\IAdvancedWageRepository.cs" />
     <Compile Include="Domain\WageCalculation\IWageHierarchyNode.cs" />
+    <Compile Include="EntityRepositories\Store\IWarehouseRepository.cs" />
+    <Compile Include="EntityRepositories\Store\WarehouseRepository.cs" />
+    <Compile Include="Domain\Complaints\ComplaintKind.cs" />
+    <Compile Include="HibernateMapping\Complaints\ComplaintKindMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -7,6 +7,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -146,13 +147,21 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <returns>Первый заказ</returns>
 		/// <param name="uow">UoW</param>
 		/// <param name="counterparty">Контрагент</param>
-		public VodovozOrder GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Counterparty counterparty)
+		public VodovozOrder GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, VodovozOrder order,Counterparty counterparty)
 		{
+			if(uow == null) 
+				throw new ArgumentNullException(nameof(uow));
+			if(order == null) 
+				throw new ArgumentNullException(nameof(order));
+			if(counterparty == null) 
+				throw new ArgumentNullException(nameof(counterparty));
+			
+
 			if(counterparty?.FirstOrder != null && GetValidStatusesToUseActionBottle().Contains(counterparty.FirstOrder.OrderStatus))
 				return counterparty.FirstOrder;
 
 			var query = uow.Session.QueryOver<VodovozOrder>()
-						   .Where(o => o.Id > 0)
+						   .Where(o => o.Id != order.Id)
 						   .Where(o => o.Client == counterparty)
 						   .Where(o => o.OrderStatus.IsIn(GetValidStatusesToUseActionBottle()))
 						   .OrderBy(o => o.DeliveryDate).Asc
@@ -354,6 +363,32 @@ namespace Vodovoz.EntityRepositories.Orders
 				OrderStatus.UnloadingOnStock,
 				OrderStatus.Closed
 			};
+		}
+
+		public bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order)
+		{
+			if(uow == null) 
+				throw new ArgumentNullException(nameof(uow));
+			if(order == null)
+				throw new ArgumentNullException(nameof(order));
+
+			if(order.OrderStatus != OrderStatus.Closed)
+				return false;
+
+
+			var routeListItem = uow.Session.QueryOver<RouteListItem>()
+					.Where(x => x.Order.Id == order.Id)
+					.Take(1).List()?.FirstOrDefault();
+			if(routeListItem != null)
+				return false;
+
+			var selfDeliveryDocument = uow.Session.QueryOver<SelfDeliveryDocument>()
+					.Where(x => x.Order.Id == order.Id)
+					.Take(1).List()?.FirstOrDefault();
+			if(selfDeliveryDocument != null)
+				return false;
+
+			return true;
 		}
 
 		public OrderStatus[] GetStatusesForOrderCancelation()

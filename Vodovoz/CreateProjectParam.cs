@@ -15,7 +15,6 @@ using QS.Project.DB;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Repositories;
-using QS.Tdi.Gtk;
 using QS.Widgets.GtkUI;
 using QSBusinessCommon;
 using QSContacts;
@@ -58,14 +57,18 @@ using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.FilterViewModels.Suppliers;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.JournalColumnsConfigs;
+using Vodovoz.Services.Permissions;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Employees;
+using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Organization;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.ViewModels.WageCalculation;
+using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.Views;
 using Vodovoz.Views.Complaints;
 using Vodovoz.Views.Employees;
@@ -76,6 +79,7 @@ using Vodovoz.Views.WageCalculation;
 using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
+using Vodovoz.Views.Warehouse;
 
 namespace Vodovoz
 {
@@ -144,6 +148,8 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_edit_delivered_goods_transfer_documents", new PresetUserPermissionSource("can_edit_delivered_goods_transfer_documents", "Редактирование складского документа перемещения в статусе \"Доставлен\"", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_edit_counterparty_details", new PresetUserPermissionSource("can_edit_counterparty_details", "Редактирование реквизитов контрагента", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_edit_order_extra_cash", new PresetUserPermissionSource("can_edit_order_extra_cash", "Редактирование доп. нала в заказе", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_accept_movement_document_dicrepancy", new PresetUserPermissionSource("can_accept_movement_document_dicrepancy", "Подтверждение расхождений в документа перемещения ТМЦ", string.Empty));
+
 			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {
 					new SubdivisionForUserEntityPermissionWidget()
@@ -152,11 +158,15 @@ namespace Vodovoz
 
 			UserDialog.PermissionViewsCreator = () => {
 				return new List<IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
-			};		
+			};
+
+			WarehousePermissionService.WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
 		}
 
 		static void ConfigureViewModelWidgetResolver()
 		{
+			ViewModelWidgetResolver.Instance = new BasedOnNameViewModelWidgetResolver();
+
 			//Регистрация вкладок
 			ViewModelWidgetResolver.Instance
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
@@ -181,9 +191,10 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<CarsWageParametersViewModel, CarsWageParametersView>()
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
-				.RegisterWidgetForTabViewModel <FuelDocumentViewModel, FuelDocumentView>()
+				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
 				.RegisterWidgetForTabViewModel<BottlesCountAdvancedWageParameterViewModel, BottlesCountAdvancedWageParameterWidget>()
 				.RegisterWidgetForTabViewModel<DeliveryTimeAdvancedWageParameterViewModel, DeliveryTimeAdvancedWagePrameterView>()
+				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				;
 
 			//Регистрация фильтров
@@ -199,6 +210,7 @@ namespace Vodovoz
 				.RegisterWidgetForFilterViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
 				.RegisterWidgetForFilterViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
 				.RegisterWidgetForFilterViewModel<RequestsToSuppliersFilterViewModel, RequestsToSuppliersFilterView>()
+				.RegisterWidgetForFilterViewModel<NomenclatureStockFilterViewModel, NomenclatureStockFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -312,7 +324,6 @@ namespace Vodovoz
 			#region Складские документы
 			OrmMain.AddObjectDescription<IncomingInvoice>().Dialog<IncomingInvoiceDlg>();
 			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
-			OrmMain.AddObjectDescription<MovementDocument>().Dialog<MovementDocumentDlg>();
 			OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
 			OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentDlg>();
 			OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();

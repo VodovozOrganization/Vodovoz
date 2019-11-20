@@ -30,6 +30,8 @@ namespace Vodovoz
 			yentryrefDriver.RepresentationModel = new EmployeesVM(filter);
 			dateperiodDocs.StartDate = DateTime.Today.AddDays(-7);
 			dateperiodDocs.EndDate = DateTime.Today.AddDays(1);
+
+			comboMovementStatus.ItemsEnum = typeof(MovementDocumentStatus);
 		}
 
 		public StockDocumentsFilter(IUnitOfWork uow) : this()
@@ -48,7 +50,14 @@ namespace Vodovoz
 				enumcomboDocumentType.SelectedItem = value;
 				enumcomboDocumentType.Sensitive = false;
 			}
+		}
 
+		public MovementDocumentStatus? RestrictMovementStatus {
+			get { return comboMovementStatus.SelectedItem as MovementDocumentStatus?; }
+			set {
+				comboMovementStatus.SelectedItem = value;
+				comboMovementStatus.Sensitive = false;
+			}
 		}
 
 		public Warehouse RestrictWarehouse {
@@ -99,6 +108,8 @@ namespace Vodovoz
 		protected void OnEnumcomboDocumentTypeChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
+			ylabelMovementStatus.Visible = RestrictDocumentType == DocumentType.MovementDocument;
+			comboMovementStatus.Visible = RestrictDocumentType == DocumentType.MovementDocument;
 		}
 
 		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
@@ -112,6 +123,11 @@ namespace Vodovoz
 		}
 
 		protected void OnDateperiodDocsPeriodChanged(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnComboMovementStatusChanged(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}

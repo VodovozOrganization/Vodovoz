@@ -10,13 +10,19 @@ namespace Vodovoz.EntityRepositories.Suppliers
 {
 	public class SupplierPriceItemsRepository : ISupplierPriceItemsRepository
 	{
-		public IEnumerable<SupplierPriceItem> GetSupplierPriceItemsForNomenclature(IUnitOfWork uow, Nomenclature nomenclature, SupplierOrderingType orderingType, AvailabilityForSale[] availabilityForSale)
+		public IEnumerable<SupplierPriceItem> GetSupplierPriceItemsForNomenclature(IUnitOfWork uow, Nomenclature nomenclature, SupplierOrderingType orderingType, AvailabilityForSale[] availabilityForSale, bool withDelayOnly)
 		{
+			Counterparty counterpartyAlias = null;
+
 			var query = uow.Session.QueryOver<SupplierPriceItem>()
 						   .Where(i => i.NomenclatureToBuy.Id == nomenclature.Id)
 						   .Where(i => i.AvailabilityForSale.IsIn(availabilityForSale))
 						   .OrderBy(i => i.Price).Asc
 						   ;
+
+			if(withDelayOnly)
+				query.JoinAlias(i => i.Supplier, () => counterpartyAlias)
+					 .Where(() => counterpartyAlias.DelayDays > 0);
 
 			switch(orderingType) {
 				case SupplierOrderingType.All:

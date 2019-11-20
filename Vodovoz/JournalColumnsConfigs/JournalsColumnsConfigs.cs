@@ -1,12 +1,14 @@
 ﻿using System;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Employees;
+using Vodovoz.JournalViewModels.Logistic;
 using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.JournalViewModels.WageCalculation;
@@ -18,7 +20,9 @@ namespace Vodovoz.JournalColumnsConfigs
 	{
 		static Gdk.Color colorBlack = new Gdk.Color(0, 0, 0);
 		static Gdk.Color colorRed = new Gdk.Color(0xfe, 0x5c, 0x5c);
+		static Gdk.Color colorPink = new Gdk.Color(0xff, 0xc0, 0xc0);
 		static Gdk.Color colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
+		static Gdk.Color colorDarkGrey = new Gdk.Color(0x80, 0x80, 0x80);
 
 		public static void RegisterColumns()
 		{
@@ -158,6 +162,9 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(node => node.ComplaintText)
 						.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 						.XAlign(0f)
+					.AddColumn("Вид жалобы").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.ComplaintKindString)
+						.XAlign(0.5f)
 					.AddColumn("Автор").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.Author)
 						.XAlign(0f)
@@ -175,16 +182,14 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(node => node.DaysInWork)
 						.XAlign(0.5f)
 					.RowCells()
-					.AddSetter<CellRenderer>((cell, node) => {
-						var color = colorWhite;
-
-						if(node.Status != Domain.Complaints.ComplaintStatuses.Closed) { 
-							if(node.LastPlannedCompletionDate.Date < DateTime.Today) {
-								color = colorRed;
-							} 
+					.AddSetter<CellRenderer>(
+						(cell, node) => {
+							var color = colorWhite;
+							if(node.Status != Domain.Complaints.ComplaintStatuses.Closed && node.LastPlannedCompletionDate.Date < DateTime.Today)
+								color = colorPink;
+							cell.CellBackgroundGdk = color;
 						}
-						cell.CellBackgroundGdk = color;
-					})
+					)
 					.Finish()
 			);
 
@@ -227,12 +232,39 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
+			//NomenclaturesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<NomenclatureStockBalanceJournalViewModel>(
+				() => FluentColumnsConfig<NomenclatureStockJournalNode>.Create()
+					.AddColumn("Код").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Номенклатура").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.NomenclatureName)
+					.AddColumn("Кол-во").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.AmountText).XAlign(0.5f)
+					.AddColumn("Мин кол-во\n на складе").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.MinCountText).XAlign(0.5f)
+					.AddColumn("Разница").HeaderAlignment(0.5f)
+						.AddTextRenderer(node => node.DiffCountText).XAlign(0.5f)
+					.AddColumn("")
+					.RowCells().AddSetter<CellRendererText>((c, n) => {
+						Color color = new Color(0, 0, 0);
+						if(n.StockAmount < 0) {
+							color = new Color(255, 30, 30);
+						}
+						c.ForegroundGdk = color;
+					})
+					.Finish()
+			);
+
 			//RequestsToSuppliersJournalViewModel
 			TreeViewColumnsConfigFactory.Register<RequestsToSuppliersJournalViewModel>(
 				() => FluentColumnsConfig<RequestToSupplierJournalNode>.Create()
 					.AddColumn("Номер")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Статус")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Status.GetEnumTitle())
 					.AddColumn("Название")
 						.HeaderAlignment(0.5f)
 						.SetDataProperty(n => n.Name)
@@ -243,6 +275,8 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Author)
 					.AddColumn("")
+					.RowCells()
+					.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
 
@@ -317,6 +351,22 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(n => n.EmpCatEnum.GetEnumTitle())
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
+			//ScheduleRestrictedDistrictsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ScheduleRestrictedDistrictsJournalViewModel>(
+				() => FluentColumnsConfig<ScheduleRestrictedDistrictJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Name)
+					.AddColumn("Зарплатный район")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.WageDistrict)
+					.AddColumn("")
 					.Finish()
 			);
 		}

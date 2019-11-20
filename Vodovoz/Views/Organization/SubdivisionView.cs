@@ -5,11 +5,8 @@ using QS.Project.Domain;
 using QS.Views.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.Representations;
-using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Organization;
 namespace Vodovoz.Views.Organization
 {
@@ -37,7 +34,7 @@ namespace Vodovoz.Views.Organization
 			yentryrefParentSubdivision.Binding.AddBinding(ViewModel.Entity, e => e.ParentSubdivision, w => w.Subject).InitializeFromSource();
 			yentryrefParentSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryChief.SetEntityAutocompleteSelectorFactory(new EntityRepresentationAdapterFactory(typeof(Employee), () => new EmployeesVM()));
+			entryChief.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 			entryChief.Binding.AddBinding(ViewModel.Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
 			entryChief.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
@@ -73,7 +70,7 @@ namespace Vodovoz.Views.Organization
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
 
-			ViewModel.OnSavedEntity += () => subdivisionentitypermissionwidget.ViewModel.PermissionListViewModel.SaveExtendedPermissions(subdivisionentitypermissionwidget.UoW);
+			ViewModel.OnSavedEntity += () => subdivisionentitypermissionwidget.ViewModel.SavePermissions(subdivisionentitypermissionwidget.UoW);
 
 		}
 

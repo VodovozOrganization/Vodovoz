@@ -18,6 +18,7 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "акт передачи склада",
 		Prepositional = "акте передачи склада")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class ShiftChangeWarehouseDocument : Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
@@ -138,9 +139,6 @@ namespace Vodovoz.Domain.Documents
 					new[] { this.GetPropertyName(o => o.TimeStamp) });
 		}
 
-		public ShiftChangeWarehouseDocument()
-		{
-
-		}
+		public ShiftChangeWarehouseDocument() { }
 	}
 }

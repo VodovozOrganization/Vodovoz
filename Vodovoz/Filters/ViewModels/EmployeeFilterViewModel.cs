@@ -51,5 +51,9 @@ namespace Vodovoz.Filters.ViewModels
 		public EmployeeFilterViewModel(ICommonServices services) : base((services ?? throw new ArgumentNullException(nameof(services))).InteractiveService)
 		{
 		}
+
+		public EmployeeFilterViewModel(IInteractiveService service) : base(service)
+		{
+		}
 	}
 }

@@ -54,7 +54,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		public bool VisibleOnPanel => guilties.Any();
 
-		public void OnCurrentObjectChanged(object changedObject) => Refresh();
+		public void OnCurrentObjectChanged(object changedObject) => Application.Invoke((s, arg) => Refresh());
 
 		public void Refresh()
 		{
@@ -66,11 +66,13 @@ namespace Vodovoz.SidePanel.InfoViews
 				EndDate.HasValue ? string.Format("по {0}", EndDate.Value.ToString("dd.MM.yyyy")) : "\nза всё время"
 			);
 
-			var cnt = complaintsRepository.GetUnclosedComplaintsCount(InfoProvider.UoW);
+			var cntTotal = complaintsRepository.GetUnclosedComplaintsCount(InfoProvider.UoW);
+			var cntOverdued = complaintsRepository.GetUnclosedComplaintsCount(InfoProvider.UoW, true);
 			lblUnclosedCount.Markup = string.Format(
-				"<b>Не закрыто <span foreground='{1}'>{0}</span> шт.:</b>",
-				cnt,
-				cnt >= 0 ? "red" : "black"
+				"<b>Не закрыто <span foreground='{2}'>{0}</span> жалоб,\nиз них просрочено <span foreground='{2}'>{1}</span> шт.</b>",
+				cntTotal,
+				cntOverdued,
+				cntTotal >= 0 ? "red" : "black"
 			);
 
 			guilties = new List<object[]>(complaintsRepository.GetGuiltyAndCountForDates(InfoProvider.UoW, StartDate, EndDate));

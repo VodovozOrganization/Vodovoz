@@ -100,7 +100,7 @@ namespace Vodovoz.JournalViewModels.Employees
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.EmployeesName)
 					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
 					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSumm)
-				).OrderBy(o => o.Date).Desc
+				).OrderBy(o => o.Date).Desc.OrderBy(o => o.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<FineJournalNode>());
 		};
 

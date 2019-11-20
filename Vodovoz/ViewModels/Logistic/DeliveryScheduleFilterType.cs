@@ -1,0 +1,14 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Vodovoz.ViewModels.Logistic
+{
+	public enum DeliveryScheduleFilterType
+	{
+		[Display(Name = "Начало доставки")]
+		DeliveryStart = 0,
+		[Display(Name = "Окончание доставки")]
+		DeliveryEnd = 1,
+		[Display(Name = "Строгое попадание")]
+		DeliveryStartAndEnd = 2
+	}
+}

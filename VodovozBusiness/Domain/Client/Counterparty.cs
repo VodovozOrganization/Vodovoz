@@ -240,14 +240,7 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Вид оплаты")]
 		public virtual PaymentType PaymentMethod {
 			get => paymentMethod;
-			set {
-				if(SetField(ref paymentMethod, value, () => PaymentMethod)) {
-					if(!CounterpartyRepository.IsCashPayment(PaymentMethod))
-						NeedCheque = null;
-					else
-						NeedCheque = ChequeResponse.Unknown;
-				}
-			}
+			set => SetField(ref paymentMethod, value);
 		}
 
 		PersonType personType;
@@ -255,7 +248,12 @@ namespace Vodovoz.Domain.Client
 		[Display(Name = "Форма контрагента")]
 		public virtual PersonType PersonType {
 			get => personType;
-			set => SetField(ref personType, value, () => PersonType);
+			set {
+				SetField(ref personType, value, () => PersonType);
+
+				if(value == PersonType.natural)
+					PaymentMethod = PaymentType.cash;
+			}
 		}
 
 		ExpenseCategory defaultExpenseCategory;
@@ -533,13 +531,6 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion ОсобаяПечать
-
-		ChequeResponse? needCheque;
-		[Display(Name = "Требуется печать чека")]
-		public virtual ChequeResponse? NeedCheque {
-			get => needCheque;
-			set => SetField(ref needCheque, value);
-		}
 
 		#endregion
 
@@ -830,12 +821,6 @@ namespace Vodovoz.Domain.Client
 			if(Id == 0 && CameFrom == null) {
 				yield return new ValidationResult("Для новых клиентов необходимо заполнить поле \"Откуда клиент\"");
 			}
-
-			if(CounterpartyRepository.IsCashPayment(PaymentMethod) && (!NeedCheque.HasValue || NeedCheque.Value == ChequeResponse.Unknown))
-				yield return new ValidationResult(
-					"Укажите, требуется ли печать чека для контрагента",
-					new[] { this.GetPropertyName(o => o.NeedCheque) }
-				);
 		}
 
 		#endregion
@@ -880,21 +865,6 @@ namespace Vodovoz.Domain.Client
 	public class DefaultDocumentTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public DefaultDocumentTypeStringType() : base(typeof(DefaultDocumentType)) { }
-	}
-
-	public enum ChequeResponse
-	{
-		[Display(Name = "Не знаю")]
-		Unknown,
-		[Display(Name = "Да")]
-		Yes,
-		[Display(Name = "Нет")]
-		No
-	}
-
-	public class ChequeResponseStringType : NHibernate.Type.EnumStringType
-	{
-		public ChequeResponseStringType() : base(typeof(ChequeResponse)) { }
 	}
 
 	public enum CargoReceiverSource

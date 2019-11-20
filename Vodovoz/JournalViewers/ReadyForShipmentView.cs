@@ -32,20 +32,9 @@ namespace Vodovoz
 			this.TabName = "Готовые к отправке";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			tableReadyForShipment.Selection.Changed += OnSelectionChanged;
-			/*tableReadyForShipment.ButtonReleaseEvent += TableReadyForShipment_ButtonReleaseEvent;*/
 		}
 
 		RepresentationSelectResult[] lastMenuSelected;
-		void TableReadyForShipment_ButtonReleaseEvent(object o, Gtk.ButtonReleaseEventArgs args)
-		{
-			if(lastMenuSelected.Any() && args.Event.Button == 3) {
-				var menu = viewModel.GetPopupMenu(lastMenuSelected);
-				if(menu != null) {
-					menu.ShowAll();
-					menu.Popup();
-				}
-			}
-		}
 
 		void OnSelectionChanged(object sender, EventArgs e)
 		{

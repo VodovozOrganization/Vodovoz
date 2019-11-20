@@ -131,8 +131,6 @@ namespace Vodovoz.Domain.Orders
 						logger.Warn("Очищаем точку доставки, при установке клиента. Возможно это не нужно.");
 						DeliveryPoint = null;
 					}
-					if(!NeedCheque.HasValue)
-						NeedCheque = Client.NeedCheque ?? ChequeResponse.Unknown;
 				}
 			}
 		}
@@ -325,12 +323,6 @@ namespace Vodovoz.Domain.Orders
 			get => paymentType;
 			set {
 				if(value != paymentType && SetField(ref paymentType, value, () => PaymentType)) {
-					if(!NeedCheque.HasValue) {
-						if(PaymentType != PaymentType.cash || PaymentType != PaymentType.BeveragesWorld)
-							NeedCheque = null;
-						else
-							NeedCheque = Client?.NeedCheque ?? ChequeResponse.Unknown;
-					}
 					if(PaymentType != PaymentType.ByCard) {
 						OnlineOrder = null;
 						PaymentByCardFrom = null;
@@ -549,10 +541,10 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref bottlesByStockActualCount, value, () => BottlesByStockActualCount);
 		}
 
-
 		string onRouteEditReason;
 
 		[Display(Name = "Причина редактирования заказа")]
+		[Obsolete("Кусок выпиленного функционала от I-1060. Даша сказала пока не удалять, но скрыть зачем-то.")]
 		public virtual string OnRouteEditReason {
 			get => onRouteEditReason;
 			set => SetField(ref onRouteEditReason, value, () => OnRouteEditReason);
@@ -636,13 +628,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual OrderSource OrderSource {
 			get => orderSource;
 			set => SetField(ref orderSource, value);
-		}
-
-		ChequeResponse? needCheque;
-		[Display(Name = "Требуется печать чека")]
-		public virtual ChequeResponse? NeedCheque {
-			get => needCheque;
-			set => SetField(ref needCheque, value, () => NeedCheque);
 		}
 
 		bool addCertificates;
@@ -928,13 +913,6 @@ namespace Vodovoz.Domain.Orders
 							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",
 							new[] { this.GetPropertyName(o => o.DeliveryPoint) }
 					);
-
-					if((PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && (!NeedCheque.HasValue || NeedCheque.Value == ChequeResponse.Unknown))
-						yield return new ValidationResult(
-							"Укажите, нужно ли напечатать чек клиенту",
-							new[] { this.GetPropertyName(o => o.NeedCheque) }
-						);
-
 				}
 
 				if(newStatus == OrderStatus.Closed) {
@@ -1822,8 +1800,7 @@ namespace Vodovoz.Domain.Orders
 						Order = this
 					};
 					ObservableOrderItems.Add(deliveryPriceItem);
-				} 
-				if (deliveryPriceItem.Price == price) {
+				} else if(deliveryPriceItem.Price == price) {
 					return false;
 				}
 				deliveryPriceItem.Price = price;
@@ -3619,7 +3596,7 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual bool CanAddStockBottle(IOrderRepository orderRepository)
 		{
-			bool result = Client != null && orderRepository.GetFirstRealOrderForClientForActionBottle(UoW, Client) == null;
+			bool result = Client != null && orderRepository.GetFirstRealOrderForClientForActionBottle(UoW, this,Client) == null;
 			if(result) {
 				BottlesReturn = 0;
 			}

@@ -26,12 +26,6 @@ namespace Vodovoz.JournalViewModels
 			commonServices
 		)
 		{
-
-			var threadLoader = DataLoader as ThreadDataLoader<EmployeeJournalNode>;
-			threadLoader.MergeInOrderBy(x => x.EmpLastName, false);
-			threadLoader.MergeInOrderBy(x => x.EmpFirstName, false);
-			threadLoader.MergeInOrderBy(x => x.EmpMiddleName, false);
-
 			UpdateOnChanges(typeof(Employee));
 		}
 

@@ -15,6 +15,7 @@ using Vodovoz.Core.Journal;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Sale;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
@@ -36,6 +37,8 @@ using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
+using Vodovoz.EntityRepositories.Store;
+using QS.Project.Journal;
 
 public partial class MainWindow : Window
 {
@@ -323,8 +326,8 @@ public partial class MainWindow : Window
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
-		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService);
-		var debtorsJournal = new DebtorsJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, QS.Project.Services.ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
+		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		var debtorsJournal = new DebtorsJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
 
 		tdiMain.AddTab(debtorsJournal);
 
@@ -468,7 +471,15 @@ public partial class MainWindow : Window
 			() => {
 				SubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 				FuelRepository fuelRepository = new FuelRepository();
-				var vm = new FuelDocumentsJournalViewModel(VodovozGtkServicesConfig.EmployeeService, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, subdivisionRepository, fuelRepository, VodovozGtkServicesConfig.RepresentationEntityPicker);
+				var vm = new FuelDocumentsJournalViewModel(
+					VodovozGtkServicesConfig.EmployeeService,
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices,
+					subdivisionRepository,
+					fuelRepository,
+					VodovozGtkServicesConfig.RepresentationEntityPicker,
+					new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices)
+				);
 				return new MultipleEntityJournal("Журнал учета топлива", vm, vm);
 			}
 		);
@@ -655,16 +666,19 @@ public partial class MainWindow : Window
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			RepresentationJournalDialog.GenerateHashName<StockBalanceVM>(),
-			() => {
-				var filter = new StockBalanceFilter();
-				filter.SetAndRefilterAtOnce(x => x.ShowArchive = true);
-				var tab = new PermissionControlledRepresentationJournal(new StockBalanceVM(filter));
-				tab.CustomTabName("Складские остатки");
-				return tab;
-			}
+		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
+			new WarehouseRepository(),
+			 ServicesConfig.InteractiveService
 		);
+
+		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices
+		);
+		vm.SelectionMode = JournalSelectionMode.None;
+
+		tdiMain.OpenTab(() => vm);
 	}
 
 	void ActionWarehouseDocumentsActivated(object sender, System.EventArgs e)
@@ -717,7 +731,8 @@ public partial class MainWindow : Window
 			depositRepository,
 			bottlesRepository,
 			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices
+			ServicesConfig.CommonServices,
+			new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices)
 		);
 		tdiMain.AddTab(residueJournalViewModel);
 	}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Gamma.GtkWidgets;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
@@ -22,12 +23,16 @@ namespace Vodovoz.ViewWidgets
 			this.undeliveredOrder = undeliveredOrder;
 			enumBtnGuiltySide.ItemsEnum = typeof(GuiltyTypes);
 			enumBtnGuiltySide.SetSensitive(GuiltyTypes.Driver, driverCanBeGuilty);
+			enumBtnGuiltySide.SetSensitive(GuiltyTypes.None, !undeliveredOrder.ObservableGuilty.Any());
+			undeliveredOrder.ObservableGuilty.ElementAdded += ObservableGuilty_ElementAdded;
+			undeliveredOrder.ObservableGuilty.ElementRemoved += ObservableGuilty_ElementRemoved;
 			enumBtnGuiltySide.EnumItemClicked += (sender, e) => {
-				var guilty = new GuiltyInUndelivery {
-					GuiltySide = (GuiltyTypes)e.ItemEnum,
-					UndeliveredOrder = undeliveredOrder
-				};
-				undeliveredOrder.ObservableGuilty.Add(guilty);
+				undeliveredOrder.AddGuilty(
+					new GuiltyInUndelivery {
+						GuiltySide = (GuiltyTypes)e.ItemEnum,
+						UndeliveredOrder = undeliveredOrder
+					}
+				);
 				SetWidgetApperance();
 			};
 
@@ -39,7 +44,7 @@ namespace Vodovoz.ViewWidgets
 			treeViewGuilty.ColumnsConfig = ColumnsConfigFactory.Create<GuiltyInUndelivery>()
 				.AddColumn("Сторона")
 					.HeaderAlignment(0.5f)
-					.AddEnumRenderer(n => n.GuiltySide, true, hideEnums).Editing()
+					.AddEnumRenderer(n => n.GuiltySide, true, hideEnums)
 				.AddColumn("Отдел ВВ")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(n => n.GuiltyDepartment)
@@ -66,6 +71,16 @@ namespace Vodovoz.ViewWidgets
 			treeViewGuilty.HeadersVisible = false;
 			treeViewGuilty.ItemsDataSource = undeliveredOrder.ObservableGuilty;
 			SetWidgetApperance();
+		}
+
+		void ObservableGuilty_ElementAdded(object aList, int[] aIdx)
+		{
+			enumBtnGuiltySide.SetSensitive(GuiltyTypes.None, !undeliveredOrder.ObservableGuilty.Any());
+		}
+
+		void ObservableGuilty_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			enumBtnGuiltySide.SetSensitive(GuiltyTypes.None, !undeliveredOrder.ObservableGuilty.Any());
 		}
 
 		protected void OnBtnRemoveClicked(object sender, EventArgs e)

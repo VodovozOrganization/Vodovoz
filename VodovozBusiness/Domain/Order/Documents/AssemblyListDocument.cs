@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using QS.Print;
 using QS.Report;
+using Vodovoz.EntityRepositories.Goods;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class AssemblyListDocument: OrderDocument, IPrintableRDLDocument
+	public class AssemblyListDocument : OrderDocument, IPrintableRDLDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.AssemblyList;
@@ -15,18 +17,25 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Title = String.Format($"Лист сборки от {Order.DeliveryDate:d}"),
-				Identifier = (Order.OrderItems?.Count ?? 0) <= 4 ? "Documents.AssemblyList" : "Documents.SeparateAssemblyList",
+				Title = string.Format($"Лист сборки от {base.Order.DeliveryDate:d}"),
+				Identifier = GetReportName(),
 				Parameters = new Dictionary<string, object>
 				{
-					{ "order_id",  Order.Id}
+					{ "order_id",  base.Order.Id}
 				}
 			};
 		}
+
+		string GetReportName()
+		{
+			var orderItemsQty = Order.OrderItems.Count(i => i.Nomenclature.IsFromOnlineShopGroup(new NomenclatureRepository().GetIdentifierOfOnlineShopGroup()));
+			return orderItemsQty <= 4 ? "Documents.AssemblyList" : "Documents.SeparateAssemblyList";
+		}
+
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => String.Format($"Лист сборки от от {Order.DeliveryDate:d}");
+		public override string Name => string.Format($"Лист сборки от от {Order.DeliveryDate:d}");
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 

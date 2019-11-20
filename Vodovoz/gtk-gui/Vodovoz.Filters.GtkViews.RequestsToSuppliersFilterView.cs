@@ -14,6 +14,10 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.GtkUI.EntityViewModelEntry entVMEntNomenclature;
 
+		private global::Gtk.Label lblStatus;
+
+		private global::Gamma.Widgets.yEnumComboBox enumStatus;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -61,6 +65,26 @@ namespace Vodovoz.Filters.GtkViews
 			this.hbox1.Add(this.entVMEntNomenclature);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entVMEntNomenclature]));
 			w4.Position = 3;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.lblStatus = new global::Gtk.Label();
+			this.lblStatus.Name = "lblStatus";
+			this.lblStatus.Xalign = 1F;
+			this.lblStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус заявки:");
+			this.hbox1.Add(this.lblStatus);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lblStatus]));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.enumStatus = new global::Gamma.Widgets.yEnumComboBox();
+			this.enumStatus.Name = "enumStatus";
+			this.enumStatus.ShowSpecialStateAll = true;
+			this.enumStatus.ShowSpecialStateNot = false;
+			this.enumStatus.UseShortTitle = false;
+			this.enumStatus.DefaultFirst = false;
+			this.hbox1.Add(this.enumStatus);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.enumStatus]));
+			w6.Position = 5;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{

@@ -4,6 +4,7 @@ using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.RepresentationModel.GtkUI;
 using QS.Services;
 using QS.Utilities;
@@ -38,7 +39,9 @@ namespace Vodovoz.ViewModels
 			IBottlesRepository bottlesRepository,
 			IDepositRepository depositRepository,
 			IMoneyRepository moneyRepository,
-			ICommonServices commonServices)
+			ICommonServices commonServices,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+		)
 		: base(uowBuilder, uowFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -59,7 +62,7 @@ namespace Vodovoz.ViewModels
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateResidue();
-			GuiltyItemsVM = new GuiltyItemsViewModel(new Complaint(), UoW, commonServices, new SubdivisionRepository());
+			GuiltyItemsVM = new GuiltyItemsViewModel(new Complaint(), UoW, commonServices, new SubdivisionRepository(), employeeSelectorFactory);
 		}
 
 		public GuiltyItemsViewModel GuiltyItemsVM { get; set; }
@@ -122,9 +125,9 @@ namespace Vodovoz.ViewModels
 
 		private void UpdateResidue()
 		{
-			if(Entity.Customer == null && Entity.DeliveryPoint == null) {
+			if(Entity.Customer == null)
 				return;
-			}
+			
 			int bottleDebt;
 			if(Entity.DeliveryPoint == null)
 				bottleDebt = bottlesRepository.GetBottlesAtCounterparty(UoW, Entity.Customer, Entity.Date);

@@ -269,8 +269,6 @@ namespace Vodovoz
 
 			OldFieldsConfigure();
 
-			txtOnRouteEditReason.Binding.AddBinding(Entity, e => e.OnRouteEditReason, w => w.Buffer.Text).InitializeFromSource();
-
 			entOnlineOrder.ValidationMode = ValidationType.numeric;
 			entOnlineOrder.Binding.AddBinding(Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
@@ -370,9 +368,6 @@ namespace Vodovoz
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
 			yCmbPromoSets.ItemsList = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
-
-			enumNeedOfCheque.ItemsEnum = typeof(ChequeResponse);
-			enumNeedOfCheque.Binding.AddBinding(Entity, c => c.NeedCheque, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
 			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new IntToStringConverter());
@@ -588,7 +583,7 @@ namespace Vodovoz
 		private void OldFieldsConfigure()
 		{
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
-			labelTaraComments.Visible = GtkScrolledWindowTaraComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
+			hbxTareComments.Visible = !string.IsNullOrWhiteSpace(Entity.InformationOnTara);
 		}
 
 		void WaterSalesAgreement_ObjectUpdatedGeneric(EntityChangeEvent[] changeEvents)
@@ -1778,10 +1773,14 @@ namespace Vodovoz
 
 				Enum[] hideEnums = { PaymentType.cashless };
 
-				if(Entity.Client.PersonType == PersonType.natural)
+				if(Entity.Client.PersonType == PersonType.natural) {
+					chkContractCloser.Active = false;
+					chkContractCloser.Visible = false;
 					enumPaymentType.AddEnumToHideList(hideEnums);
-				else
+				} else {
+					chkContractCloser.Visible = true;
 					enumPaymentType.ClearEnumHideList();
+				}
 
 				if(previousPaymentType.HasValue) {
 					if(previousPaymentType.Value == Entity.PaymentType) {
@@ -1893,8 +1892,10 @@ namespace Vodovoz
 			//при изменении типа платежа вкл/откл кнопку "ожидание оплаты"
 			buttonWaitForPayment.Sensitive = IsPaymentTypeBarterOrCashless();
 
-			checkDelivered.Visible = enumDocumentType.Visible = labelDocumentType.Visible =
-				(Entity.PaymentType == PaymentType.cashless);
+			//при изменении типа платежа вкл/откл кнопку "закрывашка по контракту"
+			chkContractCloser.Visible = IsPaymentTypeCashless();
+
+			checkDelivered.Visible = enumDocumentType.Visible = labelDocumentType.Visible = IsPaymentTypeCashless();
 
 			enumSignatureType.Visible = labelSignatureType.Visible =
 				(Entity.Client != null &&
@@ -1932,6 +1933,7 @@ namespace Vodovoz
 
 		protected void OnEntityVMEntryClientChangedByUser(object sender, EventArgs e)
 		{
+			chkContractCloser.Active = false;
 			if(Entity.Client != null && Entity.Client.IsDeliveriesClosed) {
 				string message = "Стоп отгрузки!!!" + Environment.NewLine + "Комментарий от фин.отдела: " + Entity.Client?.CloseDeliveryComment;
 				MessageDialogHelper.RunInfoDialog(message);
@@ -2116,6 +2118,10 @@ namespace Vodovoz
 		/// </summary>
 		private bool IsPaymentTypeBarterOrCashless() => Entity.PaymentType == PaymentType.barter || Entity.PaymentType == PaymentType.cashless;
 
+		/// <summary>
+		/// Is the payment type cashless?
+		/// </summary>
+		private bool IsPaymentTypeCashless() => Entity.PaymentType == PaymentType.cashless;
 		#endregion
 
 		LastChosenAction lastChosenAction = LastChosenAction.None;
@@ -2207,8 +2213,7 @@ namespace Vodovoz
 		void FixPrice(int id)
 		{
 			OrderItem item = Entity.ObservableOrderItems[id];
-			if((item.Nomenclature.Category == NomenclatureCategory.deposit || item.Nomenclature.Category == NomenclatureCategory.rent)
-				 && item.Price != 0)
+			if(item.Nomenclature.Category == NomenclatureCategory.deposit && item.Price != 0)
 				return;
 			item.RecalculatePrice();
 		}
@@ -2252,8 +2257,7 @@ namespace Vodovoz
 					if(oItem == null || oItem.PaidRentEquipment == null) {
 						return;
 					}
-					if(oItem.Nomenclature.Category == NomenclatureCategory.rent
-					  || oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
+					if(oItem.Nomenclature.Category == NomenclatureCategory.equipment) {
 						ChangeEquipmentsCount(oItem, oItem.Count);
 					}
 				}
@@ -2323,13 +2327,10 @@ namespace Vodovoz
 				}
 			}
 		}
-
 		private void UpdateUIState()
 		{
 			bool val = Entity.CanEditOrder;
-			enumPaymentType.Sensitive = Entity.Client != null && val && !chkContractCloser.Active;
-			enumNeedOfCheque.Sensitive = val;
-			enumNeedOfCheque.Visible = lblNeedCheque.Visible = Entity.Client != null && CounterpartyRepository.IsCashPayment(Entity.PaymentType);
+			enumPaymentType.Sensitive = (Entity.Client != null) && val && !chkContractCloser.Active;
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable =
 				entityVMEntryClient.IsEditable = val;
 			referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active && val;
@@ -2344,7 +2345,6 @@ namespace Vodovoz
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
-			tblOnRouteEditReason.Sensitive = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
 			yCmbPromoSets.Sensitive = val;
@@ -2352,6 +2352,7 @@ namespace Vodovoz
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"] && val && !Entity.SelfDelivery;
+			hbxTareNonReturnReason.Sensitive = val;
 		}
 
 		void ChangeOrderEditable(bool val)
@@ -2361,19 +2362,26 @@ namespace Vodovoz
 			buttonAddExistingDocument.Sensitive = val;
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
-			tableTareControl.Sensitive = !(Entity.OrderStatus == OrderStatus.NewOrder || Entity.OrderStatus == OrderStatus.Accepted);
+			RouteListStatus? rlStatus = null;
+			if(Entity.Id != 0)
+				rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(UoW, Entity).FirstOrDefault()?.Status;
+			tblDriverControl.Sensitive = rlStatus.HasValue && !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
 		}
 
 		void SetPadInfoSensitive(bool value)
 		{
 			foreach(var widget in table1.Children)
 				widget.Sensitive = widget.Name == vboxOrderComment.Name || value;
+			if(chkContractCloser.Active)
+				enumPaymentType.Sensitive = false;
 		}
 
 		void SetSensitivityOfPaymentType()
 		{
 			if(chkContractCloser.Active) {
 				Entity.PaymentType = PaymentType.cashless;
+				UpdateUIState();
+			} else {
 				UpdateUIState();
 			}
 		}

@@ -26,6 +26,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -268,8 +269,8 @@ namespace Vodovoz
 			enumSaleCategory.Visible = lblSaleCategory.Visible = Nomenclature.GetCategoriesWithSaleCategory().Contains(selected);
 			enumDepositType.Visible = lblSubType.Visible = selected == NomenclatureCategory.deposit;
 
-			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
-			spinVolume.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
+			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.deposit);
+			spinVolume.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.deposit);
 			lblPercentForMaster.Visible = spinPercentForMaster.Visible = (selected == NomenclatureCategory.master);
 			labelManufacturer.Sensitive = referenceManufacturer.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelColor.Sensitive = referenceColor.Sensitive = (selected == NomenclatureCategory.equipment);
@@ -277,7 +278,7 @@ namespace Vodovoz
 			labelModel.Sensitive = entryModel.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelRentPriority.Sensitive = ycheckRentPriority.Sensitive = (selected == NomenclatureCategory.equipment);
-			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
+			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.deposit);
 			labelCanPrintPrice.Visible = checkcanPrintPrice.Visible = Entity.Category == NomenclatureCategory.water && !Entity.IsDisposableTare;
 
 			labelTypeTare.Visible = hboxTare.Visible = selected == NomenclatureCategory.water;
@@ -346,6 +347,10 @@ namespace Vodovoz
 		private void ReloadImages()
 		{
 			Imageslist.Images.Clear();
+
+			if(Entity.Images == null)
+				Entity.Images = new List<NomenclatureImage>();
+
 			foreach(var imageSource in Entity.Images) {
 				Imageslist.AddImage(new Gdk.Pixbuf(imageSource.Image), imageSource);
 			}

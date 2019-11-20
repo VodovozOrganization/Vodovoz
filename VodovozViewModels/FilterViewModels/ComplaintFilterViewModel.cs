@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.Project.Filter;
+using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Services;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Services;
+using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.FilterViewModels
 {
@@ -26,8 +30,56 @@ namespace Vodovoz.FilterViewModels
 				x => x.StartDate,
 				x => x.EndDate,
 				x => x.Subdivision,
-				x => x.FilterDateType
+				x => x.FilterDateType,
+				x => x.ComplaintKind
 			);
+		}
+
+		public ComplaintFilterViewModel(
+			ICommonServices commonServices,
+			ISubdivisionRepository subdivisionRepository,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+		) : base(commonServices.InteractiveService)
+		{
+			GuiltyItemVM = new GuiltyItemViewModel(
+				new ComplaintGuiltyItem(),
+				commonServices,
+				subdivisionRepository,
+				employeeSelectorFactory
+			) {
+				UoW = UoW
+			};
+
+			GuiltyItemVM.Entity.OnGuiltyTypeChange = () => {
+				if(GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Employee)
+					GuiltyItemVM.Entity.Employee = null;
+				if(GuiltyItemVM.Entity.GuiltyType != ComplaintGuiltyTypes.Subdivision)
+					GuiltyItemVM.Entity.Subdivision = null;
+			};
+			GuiltyItemVM.OnGuiltyItemReady += (sender, e) => Update();
+
+			UpdateWith(
+				x => x.ComplaintType,
+				x => x.ComplaintStatus,
+				x => x.Employee,
+				x => x.StartDate,
+				x => x.EndDate,
+				x => x.Subdivision,
+				x => x.FilterDateType,
+				x => x.ComplaintKind
+			);
+		}
+
+		GuiltyItemViewModel guiltyItemVM;
+		public virtual GuiltyItemViewModel GuiltyItemVM {
+			get => guiltyItemVM;
+			set => SetField(ref guiltyItemVM, value);
+		}
+
+		ComplaintKind complaintKind;
+		public virtual ComplaintKind ComplaintKind {
+			get => complaintKind;
+			set => SetField(ref complaintKind, value);
 		}
 
 		private DateFilterType filterDateType = DateFilterType.PlannedCompletionDate;
@@ -57,8 +109,7 @@ namespace Vodovoz.FilterViewModels
 		private Subdivision subdivision;
 		public virtual Subdivision Subdivision {
 			get => subdivision;
-			set 
-			{
+			set {
 				if(value?.Id == SubdivisionService?.GetOkkId())
 					ComplaintStatus = ComplaintStatuses.Checking;
 				else if(value?.Id != null)
@@ -91,6 +142,15 @@ namespace Vodovoz.FilterViewModels
 			StartDate = DateTime.Now.AddMonths(-3);
 			EndDate = DateTime.Now.AddMonths(3);
 			Employee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+		}
+
+		List<ComplaintKind> complaintKindSorce;
+		public IEnumerable<ComplaintKind> ComplaintKindSource {
+			get {
+				if(complaintKindSorce == null)
+					complaintKindSorce = UoW.GetAll<ComplaintKind>().ToList();
+				return complaintKindSorce;
+			}
 		}
 
 		public ReportInfo GetReportInfo()

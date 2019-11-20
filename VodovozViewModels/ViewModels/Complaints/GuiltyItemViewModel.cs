@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
@@ -11,11 +12,19 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		readonly ISubdivisionRepository subdivisionRepository;
 
-		public GuiltyItemViewModel(ComplaintGuiltyItem entity, ICommonServices commonServices, ISubdivisionRepository subdivisionRepository) : base(entity, commonServices)
+		public GuiltyItemViewModel(
+			ComplaintGuiltyItem entity,
+			ICommonServices commonServices,
+			ISubdivisionRepository subdivisionRepository,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+		) : base(entity, commonServices)
 		{
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			ConfigureEntityPropertyChanges();
 		}
+
+		public event EventHandler OnGuiltyItemReady;
 
 		public IList<Subdivision> AllDepartments => subdivisionRepository.GetAllDepartments(UoW);
 
@@ -28,6 +37,8 @@ namespace Vodovoz.ViewModels.Complaints
 												|| Entity.GuiltyType == ComplaintGuiltyTypes.Subdivision && Entity.Subdivision != null
 												|| Entity.GuiltyType == ComplaintGuiltyTypes.Client && Entity.Employee == null && Entity.Subdivision == null
 												|| Entity.GuiltyType == ComplaintGuiltyTypes.None && Entity.Employee == null && Entity.Subdivision == null);
+
+		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
 
 		void ConfigureEntityPropertyChanges()
 		{
@@ -50,6 +61,13 @@ namespace Vodovoz.ViewModels.Complaints
 			SetPropertyChangeRelation(
 				e => e.Subdivision,
 				() => IsGuiltyCorrect
+			);
+
+			OnEntityPropertyChanged(
+				() => OnGuiltyItemReady?.Invoke(this, EventArgs.Empty),
+				e => e.GuiltyType,
+				e => e.Employee,
+				e => e.Subdivision
 			);
 		}
 	}

@@ -48,6 +48,14 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -109,6 +117,23 @@
     <Compile Include="Infrastructure\AdvancedWageWidgetFactory.cs" />
     <Compile Include="Infrastructure\IAdvancedWageWidgetFactory.cs" />
     <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModel.cs" />
+    <Compile Include="ViewModels\Warehouses\MovementDocumentViewModel.cs" />
+    <Compile Include="Infrastructure\Services\IWarehousePermissionService.cs" />
+    <Compile Include="Infrastructure\Permissions\IWarehousePermissionValidator.cs" />
+    <Compile Include="Infrastructure\Permissions\WarehousePermissions.cs" />
+    <Compile Include="Infrastructure\Permissions\WarehousePermissionValidator.cs" />
+    <Compile Include="Infrastructure\Permissions\IWarehousePermissionValidatorFactory.cs" />
+    <Compile Include="Infrastructure\Services\WarehousePermissionService.cs" />
+    <Compile Include="TempAdapters\INomenclatureSelectorFactory.cs" />
+    <Compile Include="VodovozViewModelAssemblyFinder.cs" />
+    <Compile Include="ViewModels\Warehouses\MovementDocumentRDL.cs" />
+    <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />
+    <Compile Include="ViewModels\ForAdministrators\DeliverySchedulesCopierViewModel.cs" />
+    <Compile Include="JournalViewModels\Logistic\ScheduleRestrictedDistrictsJournalViewModel.cs" />
+    <Compile Include="JournalNodes\ScheduleRestrictedDistrictJournalNode.cs" />
+    <Compile Include="FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
+    <Compile Include="JournalNodes\NomenclatureStockJournalNode.cs" />
+    <Compile Include="ViewModels\Complaints\ComplaintKindViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -131,6 +156,11 @@
     <Folder Include="ViewModels\WageCalculation\" />
     <Folder Include="JournalViewModels\WageCalculation\" />
     <Folder Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\" />
+    <Folder Include="ViewModels\Warehouses\" />
+    <Folder Include="Infrastructure\Permissions\" />
+    <Folder Include="Infrastructure\Print\" />
+    <Folder Include="ViewModels\ForAdministrators\" />
+    <Folder Include="JournalViewModels\Logistic\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

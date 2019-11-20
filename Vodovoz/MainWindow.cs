@@ -8,7 +8,6 @@ using QS.BusinessCommon.Domain;
 using QS.Contacts;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
@@ -64,6 +63,7 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.ForAdministrators;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
@@ -686,7 +686,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
 		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
-		IEntitySelectorFactory employeeSelectorFactory = new EntityRepresentationAdapterFactory(typeof(Employee), () => new EmployeesVM());
+		IEntityAutocompleteSelectorFactory employeeSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
 		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
@@ -704,7 +704,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 					routeListItemRepository,
 					new BaseParametersProvider(),
 					EmployeeSingletonRepository.GetInstance(),
-					new ComplaintFilterViewModel(new GtkInteractiveService()),
+					new ComplaintFilterViewModel(
+						ServicesConfig.CommonServices,
+						subdivisionRepository,
+						employeeSelectorFactory
+					),
 					filePickerService,
 					subdivisionRepository,
 					new GtkReportViewOpener(),
@@ -1200,14 +1204,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab<DistrictFinderForDeliveryPointsDlg>();
 	}
 
-	protected void OnChequesReportActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			QSReport.ReportViewDlg.GenerateHashName<ChequesReport>(),
-			() => new QSReport.ReportViewDlg(new ChequesReport())
-		);
-	}
-
 	protected void OnActionCertificatesActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1458,5 +1454,45 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				ServicesConfig.CommonServices
 			)
 		);
+	}
+
+	protected void OnActionZeroDebtClientReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ZeroDebtClientReport>(),
+			() => new QSReport.ReportViewDlg(new ZeroDebtClientReport())
+		);
+	}
+
+	protected void OnActionDeliveryScheduleCopyActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			typeof(DeliverySchedulesCopierViewModel).FullName,
+			() => new DeliverySchedulesCopierViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				ServicesConfig.CommonServices.InteractiveService
+			)
+		);
+	}
+
+	protected void OnActionComplaintKindActivated(object sender, EventArgs e)
+	{
+		var complaintKindsViewModel = new SimpleEntityJournalViewModel<ComplaintKind, ComplaintKindViewModel>(
+			x => x.Name,
+			() => new ComplaintKindViewModel(
+				EntityUoWBuilder.ForCreate(),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			),
+			(node) => new ComplaintKindViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			),
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices
+		);
+		tdiMain.AddTab(complaintKindsViewModel);
 	}
 }

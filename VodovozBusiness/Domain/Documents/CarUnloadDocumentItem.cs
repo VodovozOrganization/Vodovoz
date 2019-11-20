@@ -8,8 +8,8 @@ using Vodovoz.Domain.Service;
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки документа разгрузки",
-		Nominative = "строка документа разгрузки")]
+		NominativePlural = "строки талона разгрузки",
+		Nominative = "строка талоны разгрузки")]
 	[HistoryTrace]
 	public class CarUnloadDocumentItem: PropertyChangedBase, IDomainObject
 	{

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
-using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -42,10 +41,13 @@ namespace Vodovoz.ViewModels.Suppliers
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
 			CreateCommands();
 			RefreshSuppliers();
+			ConfigureEntityPropertyChanges();
 			Entity.ObservableRequestingNomenclatureItems.ElementAdded += (aList, aIdx) => RefreshSuppliers();
 			Entity.ObservableRequestingNomenclatureItems.ListContentChanged += (aList, aIdx) => RefreshSuppliers();
 			Entity.ObservableRequestingNomenclatureItems.ElementRemoved += (aList, aIdx, aObject) => RefreshSuppliers();
-			NotifyConfiguration.Instance.BatchSubscribeOnEntity<SupplierPriceItem>(NotifyCriteria);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<SupplierPriceItem>(PriceFromSupplierNotifyCriteria);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<NomenclaturePrice>(NomenclaturePriceNotifyCriteria);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<Counterparty>(CounterpartyNotifyCriteria);
 		}
 
 		bool canEdit = true;
@@ -54,11 +56,16 @@ namespace Vodovoz.ViewModels.Suppliers
 			set => SetField(ref canEdit, value);
 		}
 
-		bool canRemove;
-		[PropertyChangedAlso(nameof(CanTransfer))]
-		public bool CanRemove {
-			get => canRemove;
-			set => SetField(ref canRemove, value);
+		bool areNomenclatureNodesSelected;
+		public bool AreNomenclatureNodesSelected {
+			get => areNomenclatureNodesSelected;
+			set => SetField(ref areNomenclatureNodesSelected, value);
+		}
+
+		bool areSupplierNodesSelected;
+		public bool AreSupplierNodesSelected {
+			get => areSupplierNodesSelected;
+			set => SetField(ref areSupplierNodesSelected, value);
 		}
 
 		bool needRefresh;
@@ -66,8 +73,6 @@ namespace Vodovoz.ViewModels.Suppliers
 			get => needRefresh;
 			set => SetField(ref needRefresh, value);
 		}
-
-		public bool CanTransfer => CanRemove;
 
 		Employee currentEmployee;
 		public Employee CurrentEmployee {
@@ -84,7 +89,7 @@ namespace Vodovoz.ViewModels.Suppliers
 			set => SetField(ref minimalTotalSumText, value);
 		}
 
-		void NotifyCriteria(EntityChangeEvent[] e)
+		void PriceFromSupplierNotifyCriteria(EntityChangeEvent[] e)
 		{
 			var updatedPriceItems = e.Select(ev => ev.GetEntity<SupplierPriceItem>());
 			var displayingNomenclatures = Entity.ObservableRequestingNomenclatureItems
@@ -96,6 +101,48 @@ namespace Vodovoz.ViewModels.Suppliers
 					var response = AskQuestion(
 						"Цены на некоторые ТМЦ, выбранные в список цен поставщиков, изменились.\nЖелаете обновить список?",
 						"Обновить список цен поставщиков?"
+					);
+					if(response)
+						RefreshCommand.Execute();
+					return;
+				}
+			}
+		}
+
+		void NomenclaturePriceNotifyCriteria(EntityChangeEvent[] e)
+		{
+			var updatedPrices = e.Select(ev => ev.GetEntity<NomenclaturePrice>());
+			var displayingPrices = Entity.ObservableRequestingNomenclatureItems
+										 .Where(r => !r.Transfered)
+										 .SelectMany(r => r.Nomenclature.NomenclaturePrice)
+										 ;
+			foreach(var n in displayingPrices) {
+				if(updatedPrices.Select(p => p.Id).Contains(n.Id)) {
+					NeedRefresh = true;
+					var response = AskQuestion(
+						"Цены продажи некоторых ТМЦ, выбранных в список номенклатур заявки поставщику, изменились.\nЖелаете обновить список?",
+						"Обновить список цен продажи номенклатур?"
+					);
+					if(response)
+						RefreshCommand.Execute();
+					return;
+				}
+			}
+		}
+
+		void CounterpartyNotifyCriteria(EntityChangeEvent[] e)
+		{
+			var updatedCounterparties = e.Select(ev => ev.GetEntity<Counterparty>());
+			var displayingSuppliers = Entity.ObservableRequestingNomenclatureItems
+											.Where(r => !r.Transfered)
+											.SelectMany(r => r.Children.OfType<SupplierNode>())
+											;
+			foreach(var s in displayingSuppliers) {
+				if(updatedCounterparties.FirstOrDefault(c => c.Id == s.SupplierPriceItem.Supplier.Id)?.DelayDays != s.SupplierPriceItem.Supplier.DelayDays) {
+					NeedRefresh = true;
+					var response = AskQuestion(
+						"Отсрочка у некоторых поставщиков из заявки изменилась.\nЖелаете обновить список?",
+						"Обновить заявку?"
 					);
 					if(response)
 						RefreshCommand.Execute();
@@ -126,6 +173,14 @@ namespace Vodovoz.ViewModels.Suppliers
 			base.BeforeValidation();
 		}
 
+		void ConfigureEntityPropertyChanges()
+		{
+			OnEntityPropertyChanged(
+				RefreshCommand.Execute,
+				e => e.WithDelayOnly
+			);
+		}
+
 		#region Commands
 
 		void CreateCommands()
@@ -134,6 +189,7 @@ namespace Vodovoz.ViewModels.Suppliers
 			CreateAddRequestingNomenclatureCommand();
 			CreateRemoveRequestingNomenclatureCommand();
 			CreateTransferRequestingNomenclatureCommand();
+			CreateOpenItemCommand();
 		}
 
 		#region RefreshCommand
@@ -203,7 +259,7 @@ namespace Vodovoz.ViewModels.Suppliers
 					foreach(var item in array)
 						Entity.RemoveNomenclatureRequest(item.Nomenclature.Id);
 				},
-				array => CanEdit && CanRemove
+				array => CanEdit && AreNomenclatureNodesSelected
 			);
 		}
 
@@ -244,11 +300,47 @@ namespace Vodovoz.ViewModels.Suppliers
 					vm.EntitySaved += (sender, e) => RefreshSuppliers();
 					this.TabParent.AddSlaveTab(this, vm);
 				},
-				array => CanTransfer
+				array => array.Any() && AreNomenclatureNodesSelected
 			);
 		}
 
 		#endregion TransferRequestingNomenclatureCommand
+
+		#region OpenItemCommand
+
+		public DelegateCommand<ILevelingRequestNode[]> OpenItemCommand { get; private set; }
+		void CreateOpenItemCommand()
+		{
+			OpenItemCommand = new DelegateCommand<ILevelingRequestNode[]>(
+				array => {
+					var item = array.FirstOrDefault();
+					if(item is RequestToSupplierItem requestItem) {
+						var nom = requestItem.Nomenclature;
+						this.TabParent.AddSlaveTab(this, new NomenclatureDlg(nom));
+						return;
+					}
+					if(item is SupplierNode supplierItem) {
+						var sup = supplierItem.SupplierPriceItem.Supplier;
+						this.TabParent.AddSlaveTab(this, new CounterpartyDlg(sup));
+						return;
+					}
+				},
+				array => {
+					if(array.Count() != 1)
+						return false;
+
+					if(AreNomenclatureNodesSelected && commonServices.PermissionService.ValidateUserPermission(typeof(Nomenclature), UserService.CurrentUserId).CanRead)
+						return true;
+
+					if(AreSupplierNodesSelected && commonServices.PermissionService.ValidateUserPermission(typeof(Counterparty), UserService.CurrentUserId).CanRead)
+						return true;
+
+					return false;
+				}
+			);
+		}
+
+		#endregion OpenItemCommand
 
 		#endregion Commands
 
