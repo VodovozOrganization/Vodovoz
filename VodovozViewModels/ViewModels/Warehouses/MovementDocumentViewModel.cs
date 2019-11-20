@@ -353,7 +353,8 @@ namespace Vodovoz.ViewModels.Warehouses
 								if(!selectedNodes.Any()) {
 									return;
 								}
-								var selectedNomenclatures = UoW.GetById<Nomenclature>(selectedNodes.Select(x => x.Id));
+								var existedItems = Entity.Items.Select(x => x.Nomenclature.Id);
+								var selectedNomenclatures = UoW.GetById<Nomenclature>(selectedNodes.Select(x => x.Id)).Where(x => existedItems.All(y => y != x.Id));
 
 								foreach(var nomenclature in selectedNomenclatures) {
 									Entity.AddItem(nomenclature, 0, selectedNodes.FirstOrDefault(x => x.Id == nomenclature.Id).StockAmount);
@@ -362,7 +363,7 @@ namespace Vodovoz.ViewModels.Warehouses
 								OnPropertyChanged(nameof(CanReceive));
 								OnPropertyChanged(nameof(CanAcceptDiscrepancy));
 							};
-							TabParent.OpenTab(() => nomenclatureSelector, this);
+							TabParent.AddSlaveTab(this, nomenclatureSelector);
 						},
 						() => CanAddItem
 					);

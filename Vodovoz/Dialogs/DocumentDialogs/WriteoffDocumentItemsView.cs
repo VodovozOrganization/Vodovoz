@@ -119,6 +119,9 @@ namespace Vodovoz
 					return;
 				}
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
+				if(DocumentUoW.Root.Items.Any(x => x.Nomenclature.Id == nomenclature.Id)) {
+					return;
+				}
 				DocumentUoW.Root.AddItem(nomenclature, 0, selectedNode.StockAmount);
 			};
 

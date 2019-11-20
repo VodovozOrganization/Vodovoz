@@ -40,14 +40,18 @@ namespace Vodovoz
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
 					.AddColumn ("На продукт")
 					.AddNumericRenderer (i => i.OneProductAmountEdited).Editing ().WidthChars (10)
-					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
+					.AddSetter ((c, i) => c.Digits = (uint)((i.Nomenclature?.Unit?.Digits) ?? 0))
 					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
-					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
+					.AddTextRenderer()
+					.AddSetter((c, i) => c.Text = i.Nomenclature?.Unit?.Name)
+					.AddSetter((c, i) => c.IsExpanded = false)
 					.AddColumn ("Всего израсходовано")
 					.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
-					.AddSetter((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
+					.AddSetter((c, i) => c.Digits = (uint)((i.Nomenclature?.Unit?.Digits) ?? 0))
 					.AddSetter ((c, i) => c.Adjustment = new Adjustment(0, 0, (double)i.AmountOnSource, 1, 100, 0))
-					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
+					.AddTextRenderer()
+					.AddSetter((c, i) => c.Text = i.Nomenclature?.Unit?.Name)
+					.AddSetter((c, i) => c.IsExpanded = false)
 					.AddColumn("")
 					.Finish ();
 
@@ -108,6 +112,9 @@ namespace Vodovoz
 					return;
 				}
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
+				if(DocumentUoW.Root.Materials.Any(x => x.Nomenclature.Id == nomenclature.Id)) {
+					return;
+				}
 				DocumentUoW.Root.AddMaterial(nomenclature, 1, selectedNode.StockAmount);
 			};
 
