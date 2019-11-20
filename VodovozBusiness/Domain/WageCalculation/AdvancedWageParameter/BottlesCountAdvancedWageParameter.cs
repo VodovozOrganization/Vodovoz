@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 
@@ -12,11 +13,12 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 	[HistoryTrace]
 	public class BottlesCountAdvancedWageParameter : AdvancedWageParameter
 	{
+		[IgnoreHistoryTrace]
 		public override AdvancedWageParameterType AdvancedWageParameterType { get => AdvancedWageParameterType.BottlesCount; set { } }
 
-		private int bottlesFrom;
+		private uint bottlesFrom;
 		[Display(Name = "От")]
-		public virtual int BottlesFrom {
+		public virtual uint BottlesFrom {
 			get => bottlesFrom;
 			set => SetField(ref bottlesFrom, value);
 		}
@@ -28,59 +30,114 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			set => SetField(ref leftSing, value);
 		}
 
-		private ComparisonSings rightSing;
+		private ComparisonSings? rightSing;
 		[Display(Name = "Правый знак сравнения")]
-		public virtual ComparisonSings RightSing {
+		public virtual ComparisonSings? RightSing {
 			get => rightSing;
 			set => SetField(ref rightSing, value);
 		}
 
 
-		private int? bottlesTo;
+		private uint? bottlesTo;
 		[Display(Name = "До")]
-		public virtual int? BottlesTo {
+		public virtual uint? BottlesTo {
 			get => bottlesTo;
 			set => SetField(ref bottlesTo, value);
 		}
 
 		public override string Name => this.ToString();
 
+		public virtual (uint,uint) GetCountRange()
+		{
+			if(LeftSing == ComparisonSings.Equally && RightSing == null)
+				return (BottlesFrom, BottlesFrom);
+
+			uint? from = null;
+			uint? to = null;
+
+
+			switch(LeftSing) {
+				case ComparisonSings.Less:
+					from = BottlesFrom + 1;
+					break;
+				case ComparisonSings.LessOrEqual:
+					from = BottlesFrom;
+					break;
+			}
+
+			if(RightSing == null) 
+			{
+				switch(LeftSing) 
+				{
+					case ComparisonSings.More:
+						to = BottlesFrom - 1;
+						break;
+					case ComparisonSings.MoreOrEqual:
+						to = BottlesFrom;
+						break;
+				}
+			} else {
+				switch(RightSing) {
+					case ComparisonSings.Less:
+						to = BottlesTo - 1;
+						break;
+					case ComparisonSings.LessOrEqual:
+						to = BottlesTo;
+						break;
+					case ComparisonSings.More:
+					case ComparisonSings.MoreOrEqual:
+						throw new ArgumentOutOfRangeException(nameof(RightSing));
+				}
+			}
+
+			return (from ?? 0, to ?? int.MaxValue);
+		}
+
 		public override bool HasConflicWith(IAdvancedWageParameter advancedWageParameter)
 		{
 			if(!(advancedWageParameter is BottlesCountAdvancedWageParameter))
-				throw new ArgumentException();
+				return true;
 
-			var wageParam = advancedWageParameter as BottlesCountAdvancedWageParameter;
+			var bottleParam = advancedWageParameter as BottlesCountAdvancedWageParameter;
 
-			//if(wageParam.BottlesFrom>= BottlesFrom && wageParam.BottlesFrom <= BottlesFrom)
-			//	return true;
+			(uint, uint) range = GetCountRange();
+			(uint, uint) anotherParamRange = bottleParam.GetCountRange();
 
-			//if(wageParam.Bott >= StartTime && wageParam.EndTime <= EndTime)
-			//	return true;
-
-			//if(StartTime >= wageParam.StartTime && StartTime <= wageParam.EndTime)
-				//return true;
-
-			//if(EndTime >= wageParam.StartTime && EndTime <= wageParam.EndTime)
-				//return true;
+			if(anotherParamRange.Item1 >= range.Item1 && anotherParamRange.Item1 <= range.Item2)
+				return true;
+			if(anotherParamRange.Item2 >= range.Item1 && anotherParamRange.Item2 <= range.Item2)
+				return true;
+			if(range.Item1 >= anotherParamRange.Item1 && range.Item1 <= anotherParamRange.Item2)
+				return true;
+			if(range.Item2 >= anotherParamRange.Item1 && range.Item2 <= anotherParamRange.Item2)
+				return true;
 
 			return false;
 		}
 
 		public override string ToString()
 		{
-			return "aaaaaaaaaaAAAAAAAAAAAAAAAAAAAAAAAAAA";
+			string param = $"{BottlesFrom} {LeftSing.GetAttribute<DisplayAttribute>()?.Name} кол-во бутылей";
+			if(BottlesTo != null && RightSing != null)
+				param += $" {RightSing.GetAttribute<DisplayAttribute>()?.Name} {BottlesTo}";
+			return param;
 		}
 	}
 
 	public enum ComparisonSings
 	{
+		[Display(Name ="=")]
 		Equally,
+		[Display(Name = "<")]
 		Less,
+		[Display(Name = "<=")]
 		LessOrEqual,
+		[Display(Name = ">")]
 		More,
+		[Display(Name = ">=)")]
 		MoreOrEqual
 	}
+
 
 	public class ComparisonSingStringType : NHibernate.Type.EnumStringType
 	{

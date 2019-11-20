@@ -2,8 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Linq;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Utilities;
 using QS.Utilities.Text;
@@ -78,7 +80,7 @@ namespace Vodovoz.Domain.WageCalculation
 			set { Children = value?.OfType<IWageHierarchyNode>()?.ToList();}
 		}
 
-		public virtual string Name => WageRateType.GetEnumTitle();
+		public virtual string Name => WageRateType.GetAttribute<DisplayAttribute>()?.Name ?? WageRateType.ToString();
 
 		#endregion Свойства
 

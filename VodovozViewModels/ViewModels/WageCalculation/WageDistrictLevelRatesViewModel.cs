@@ -1,19 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
 	public class WageDistrictLevelRatesViewModel : EntityTabViewModelBase<WageDistrictLevelRates>
 	{
-		public WageDistrictLevelRatesViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IUnitOfWork uow) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+		public ITdiTab ParentTab { get;}
+
+		public WageDistrictLevelRatesViewModel(ITdiTab maserTab, IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IUnitOfWork uow) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			ParentTab = maserTab ?? throw new ArgumentNullException(nameof(maserTab));
 			UoW = uow;
 			Configure();
 		}
@@ -47,7 +54,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 			foreach(WageDistrictLevelRate distr in Entity.ObservableLevelRates) {
 				WageDistrictLevelRateViewModel viewModel = null;
 				if(!viewModelsCache.ContainsKey(distr.WageDistrict.Id)) {
-					viewModel = new WageDistrictLevelRateViewModel(distr, CommonServices, UoW);
+					viewModel = new WageDistrictLevelRateViewModel(distr, CommonServices, UoW, this, new AdvancedWageWidgetFactory());
 					viewModelsCache[distr.WageDistrict.Id] = viewModel;
 				} else {
 					viewModel = viewModelsCache[distr.WageDistrict.Id];

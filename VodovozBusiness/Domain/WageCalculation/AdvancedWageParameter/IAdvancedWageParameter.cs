@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
-	public interface IAdvancedWageParameter : IWageHierarchyNode
+	public interface IAdvancedWageParameter : IWageHierarchyNode, IDomainObject
 	{
 		IAdvancedWageParameter ParentParameter { get; }
 		WageRate WageRate { get; set; }

@@ -104,8 +104,11 @@
     <Compile Include="JournalViewModels\WageCalculation\SalesPlanJournalViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\SalesPlanViewModel.cs" />
     <Compile Include="JournalNodes\SalesPlanJournalNode.cs" />
-    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModel\BottlesCountAdvancedWageParameterViewModel.cs" />
-    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModel\DeliveryTimeAdvancedWageParameterViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\BottlesCountAdvancedWageParameterViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\DeliveryTimeAdvancedWageParameterViewModel.cs" />
+    <Compile Include="Infrastructure\AdvancedWageWidgetFactory.cs" />
+    <Compile Include="Infrastructure\IAdvancedWageWidgetFactory.cs" />
+    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -127,7 +130,7 @@
     <Folder Include="FilterViewModels\Suppliers\" />
     <Folder Include="ViewModels\WageCalculation\" />
     <Folder Include="JournalViewModels\WageCalculation\" />
-    <Folder Include="ViewModels\WageCalculation\AdvancedWageParametersViewModel\" />
+    <Folder Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

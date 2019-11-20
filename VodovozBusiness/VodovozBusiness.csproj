@@ -762,6 +762,9 @@
     <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\DeliveryTimeAdvancedWageParameterMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\AdvancedWageParameterMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\BottlesCountAdvancedWageParameterMap.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\AdvancedWageRepository.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\IAdvancedWageRepository.cs" />
+    <Compile Include="Domain\WageCalculation\IWageHierarchyNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

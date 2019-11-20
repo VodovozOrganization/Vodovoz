@@ -5,16 +5,25 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
 using QS.DomainModel.UoW;
+using QS.Tdi;
+using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
+using Vodovoz.Infrastructure;
+using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
 	public class WageDistrictLevelRateViewModel : EntityWidgetViewModelBase<WageDistrictLevelRate>
 	{
-		public WageDistrictLevelRateViewModel(WageDistrictLevelRate entity, ICommonServices commonServices, IUnitOfWork uow) : base(entity, commonServices)
+		public ITdiTab TdiTab { get; }
+		public IAdvancedWageWidgetFactory AdvancedWageWidgetFactory { get; }
+
+		public WageDistrictLevelRateViewModel(WageDistrictLevelRate entity, ICommonServices commonServices, IUnitOfWork uow, ITdiTab tdiTab, IAdvancedWageWidgetFactory advancedWageWidgetFactory) : base(entity, commonServices)
 		{
+			AdvancedWageWidgetFactory = advancedWageWidgetFactory ?? throw new ArgumentException(nameof(advancedWageWidgetFactory));
 			UoW = uow;
 			ConfigureViewModel();
 			CreateCreateAndFillNewRatesCommand();
+			TdiTab = tdiTab;
 		}
 
 		void ConfigureViewModel()
@@ -23,6 +32,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		}
 
 		bool canFillRates;
+
 		public virtual bool CanFillRates {
 			get => canFillRates;
 			set => SetField(ref canFillRates, value);
@@ -31,6 +41,20 @@ namespace Vodovoz.ViewModels.WageCalculation
 		#region CreateAndFillNewRatesCommand
 
 		public DelegateCommand CreateAndFillNewRatesCommand { get; private set; }
+
+		private DelegateCommand<IWageHierarchyNode> openAdvancedParametersCommand;
+		public DelegateCommand<IWageHierarchyNode> OpenAdvancedParametersCommand { 
+		get{ 	
+				if(openAdvancedParametersCommand == null) {
+					openAdvancedParametersCommand = new DelegateCommand<IWageHierarchyNode>((selectedNode) => {
+						if(selectedNode is AdvancedWageParameter wageParameter)
+							TdiTab.TabParent.AddSlaveTab(TdiTab,AdvancedWageWidgetFactory.GetAdvancedWageWidgetViewModel(wageParameter, CommonServices) as TabViewModelBase);
+					});
+				}
+				return openAdvancedParametersCommand;
+
+			} 
+		set => openAdvancedParametersCommand = value; }
 
 		void CreateCreateAndFillNewRatesCommand()
 		{

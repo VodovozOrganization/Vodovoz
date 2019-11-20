@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Domain.WageCalculation
 {
@@ -13,5 +14,7 @@ namespace Vodovoz.Domain.WageCalculation
 		decimal ForDriverWithoutForwarder { get; set; }
 
 		string Name { get; }
+
+		string GetUnitName { get; }
 	}
 }

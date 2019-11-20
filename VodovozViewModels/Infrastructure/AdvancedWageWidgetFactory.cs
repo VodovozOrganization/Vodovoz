@@ -4,12 +4,12 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
-using Vodovoz.ViewModels.WageCalculation.AdvancedWageParametersViewModel;
+using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 
 namespace Vodovoz.Infrastructure
 {
-	public class AdvancedWageWidgetFactory
+	public class AdvancedWageWidgetFactory : IAdvancedWageWidgetFactory
 	{
 		public ViewModelBase GetAdvancedWageWidgetViewModel(IAdvancedWageParameter wageParameter, ICommonServices commonServices)
 		{
@@ -26,7 +26,7 @@ namespace Vodovoz.Infrastructure
 			return GetAdvancedWageWidgetViewModel(wageParameterType ,EntityUoWBuilder.ForCreate(), commonServices);
 		}
 
-		private ViewModelBase GetAdvancedWageWidgetViewModel(AdvancedWageParameterType wageParameterType, IEntityUoWBuilder entityUoWBuilder, ICommonServices commonServices)
+		public ViewModelBase GetAdvancedWageWidgetViewModel(AdvancedWageParameterType wageParameterType, IEntityUoWBuilder entityUoWBuilder, ICommonServices commonServices)
 		{
 			if(commonServices == null)
 				throw new ArgumentNullException(nameof(commonServices));

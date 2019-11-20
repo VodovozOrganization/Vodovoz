@@ -62,6 +62,7 @@ namespace Vodovoz.Views.WageCalculation
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.treeViewWageRates.RowActivated += new global::Gtk.RowActivatedHandler(this.OnTreeViewWageRatesRowActivated);
 		}
 	}
 }

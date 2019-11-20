@@ -22,7 +22,7 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxRightSing;
 
-		private global::QSWidgetLib.ValidatedEntry validatedentryRightCount;
+		private global::Gamma.Widgets.yValidatedEntry yvalidatedentryRightCount;
 
 		protected virtual void Build()
 		{
@@ -77,7 +77,7 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.yspinbuttonLeftCount = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.yspinbuttonLeftCount = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000000000D, 1D);
 			this.yspinbuttonLeftCount.CanFocus = true;
 			this.yspinbuttonLeftCount.Name = "yspinbuttonLeftCount";
 			this.yspinbuttonLeftCount.Adjustment.PageIncrement = 10D;
@@ -91,7 +91,7 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.yenumcomboboxLeftSing = global::Gtk.ComboBox.NewText();
+			this.yenumcomboboxLeftSing = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxLeftSing.Name = "yenumcomboboxLeftSing";
 			this.yenumcomboboxLeftSing.ShowSpecialStateAll = false;
 			this.yenumcomboboxLeftSing.ShowSpecialStateNot = false;
@@ -112,7 +112,7 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.yenumcomboboxRightSing = global::Gtk.ComboBox.NewText();
+			this.yenumcomboboxRightSing = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxRightSing.Name = "yenumcomboboxRightSing";
 			this.yenumcomboboxRightSing.ShowSpecialStateAll = false;
 			this.yenumcomboboxRightSing.ShowSpecialStateNot = false;
@@ -124,13 +124,13 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.validatedentryRightCount = new global::QSWidgetLib.ValidatedEntry();
-			this.validatedentryRightCount.CanFocus = true;
-			this.validatedentryRightCount.Name = "validatedentryRightCount";
-			this.validatedentryRightCount.IsEditable = true;
-			this.validatedentryRightCount.InvisibleChar = '•';
-			this.hbox1.Add(this.validatedentryRightCount);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.validatedentryRightCount]));
+			this.yvalidatedentryRightCount = new global::Gamma.Widgets.yValidatedEntry();
+			this.yvalidatedentryRightCount.CanFocus = true;
+			this.yvalidatedentryRightCount.Name = "yvalidatedentryRightCount";
+			this.yvalidatedentryRightCount.IsEditable = true;
+			this.yvalidatedentryRightCount.InvisibleChar = '•';
+			this.hbox1.Add(this.yvalidatedentryRightCount);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yvalidatedentryRightCount]));
 			w10.Position = 4;
 			w10.Expand = false;
 			w10.Fill = false;

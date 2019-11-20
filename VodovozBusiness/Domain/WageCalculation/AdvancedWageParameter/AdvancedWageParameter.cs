@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
-using QS.HistoryLog;
 
 namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
@@ -12,7 +10,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 	NominativePlural = "дополнительные параметры расчёта зарплаты",
 	Nominative = "дополнительный параметр расчёта зарплаты"
 	)]
-	public abstract class AdvancedWageParameter : PropertyChangedBase, IAdvancedWageParameter, IDomainObject
+	public abstract class AdvancedWageParameter : PropertyChangedBase, IAdvancedWageParameter
 	{
 		public virtual int Id { get; set; }
 
@@ -51,24 +49,24 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		}
 
 		private decimal forDriverWithForwarder;
-		[Display(Name = "не задано")]
+		[Display(Name = "Величина ставки при наличии экспедитора")]
 		public virtual decimal ForDriverWithForwarder {
 			get => forDriverWithForwarder;
 			set => SetField(ref forDriverWithForwarder, value);
 		}
 
-		private decimal forForwarder;
-		[Display(Name = "не задано")]
-		public virtual decimal ForForwarder {
-			get => forForwarder;
-			set => SetField(ref forForwarder, value);
-		}
-
 		private decimal forDriverWithoutForwarder;
-		[Display(Name = "не задано")]
+		[Display(Name = "Величина ставки при отсутствии экспедитора")]
 		public virtual decimal ForDriverWithoutForwarder {
 			get => forDriverWithoutForwarder;
 			set => SetField(ref forDriverWithoutForwarder, value);
+		}
+
+		private decimal forForwarder;
+		[Display(Name = "Величина ставки для экспедитора")]
+		public virtual decimal ForForwarder {
+			get => forForwarder;
+			set => SetField(ref forForwarder, value);
 		}
 
 		public abstract AdvancedWageParameterType AdvancedWageParameterType { get; set; }
@@ -91,6 +89,21 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		}
 
 		public abstract string Name { get; }
+
+
+		public virtual string GetUnitName
+		{
+			get {
+				if(WageRate != null)
+					return WageRate.GetUnitName;
+
+				var wageParam = this;
+				while(wageParam.ParentParameter != null)
+					wageParam = wageParam.ParentParameter;
+
+				return wageParam?.WageRate?.GetUnitName ?? string.Empty;
+			}
+		}
 
 		public abstract bool HasConflicWith(IAdvancedWageParameter advancedWageParameter);
 
