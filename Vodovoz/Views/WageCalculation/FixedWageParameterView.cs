@@ -6,7 +6,7 @@ using Vodovoz.Domain.WageCalculation;
 namespace Vodovoz.Views.WageCalculation
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class FixedWageParameterView : EntityWidgetViewBase<FixedWageParameterViewModel>
+	public partial class FixedWageParameterView : WidgetViewBase<FixedWageParameterViewModel>
 	{
 		public FixedWageParameterView(FixedWageParameterViewModel viewModel) : base(viewModel)
 		{
