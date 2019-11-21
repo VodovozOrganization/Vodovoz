@@ -12,7 +12,7 @@ using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.Core
 {
-	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver
+	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver
 	{
 		private static ViewModelWidgetResolver instance;
 		public static ViewModelWidgetResolver Instance {
@@ -94,6 +94,21 @@ namespace Vodovoz.Core
 			return widget;
 		}
 
+		public virtual Widget Resolve(WidgetViewModelBase viewModel)
+		{
+			if(viewModel == null)
+				return null;
+
+			Type filterType = viewModel.GetType();
+			if(!viewModelWidgets.ContainsKey(filterType)) {
+				throw new ApplicationException($"Не настроено сопоставление для {filterType.Name}");
+			}
+
+			var widgetCtorInfo = viewModelWidgets[filterType].GetConstructor(new[] { filterType });
+			Widget widget = (Widget)widgetCtorInfo.Invoke(new object[] { viewModel });
+			return widget;
+		}
+
 		public virtual ViewModelWidgetResolver RegisterWidgetForTabViewModel<TViewModel, TWidget>()
 			where TViewModel : TabViewModelBase
 			where TWidget : Widget
@@ -108,8 +123,8 @@ namespace Vodovoz.Core
 			return this;
 		}
 
-		public virtual ViewModelWidgetResolver RegisterWidgetForFilterViewModel<TViewModel, TWidget>()
-			where TViewModel : FilterViewModelBase<TViewModel>
+		public virtual ViewModelWidgetResolver RegisterWidgetForWidgetViewModel<TViewModel, TWidget>()
+			where TViewModel : ViewModelBase
 			where TWidget : Widget
 		{
 			Type viewModelType = typeof(TViewModel);

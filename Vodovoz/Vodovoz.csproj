@@ -1346,6 +1346,9 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclatureStockFilterView.cs" />
     <Compile Include="Views\Complaints\ComplaintKindView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintKindView.cs" />
+    <Compile Include="Core\WidgetContainerView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Core.WidgetContainerView.cs" />
+    <Compile Include="Core\IWidgetResolver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

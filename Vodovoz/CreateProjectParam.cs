@@ -197,20 +197,20 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				;
 
-			//Регистрация фильтров
+			//Регистрация виджетов
 			ViewModelWidgetResolver.Instance
-				.RegisterWidgetForFilterViewModel<ComplaintFilterViewModel, ComplaintFilterView>()
-				.RegisterWidgetForFilterViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
-				.RegisterWidgetForFilterViewModel<DebtorsJournalFilterViewModel, DebtorsFilterView>()
-				.RegisterWidgetForFilterViewModel<EmployeeFilterViewModel, EmployeeFilterView>()
-				.RegisterWidgetForFilterViewModel<OrderJournalFilterViewModel, OrderFilterView>()
-				.RegisterWidgetForFilterViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
-				.RegisterWidgetForFilterViewModel<ResidueFilterViewModel, ResidueFilterView>()
-				.RegisterWidgetForFilterViewModel<FineFilterViewModel, FineFilterView>()
-				.RegisterWidgetForFilterViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
-				.RegisterWidgetForFilterViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
-				.RegisterWidgetForFilterViewModel<RequestsToSuppliersFilterViewModel, RequestsToSuppliersFilterView>()
-				.RegisterWidgetForFilterViewModel<NomenclatureStockFilterViewModel, NomenclatureStockFilterView>()
+				.RegisterWidgetForWidgetViewModel<ComplaintFilterViewModel, ComplaintFilterView>()
+				.RegisterWidgetForWidgetViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
+				.RegisterWidgetForWidgetViewModel<DebtorsJournalFilterViewModel, DebtorsFilterView>()
+				.RegisterWidgetForWidgetViewModel<EmployeeFilterViewModel, EmployeeFilterView>()
+				.RegisterWidgetForWidgetViewModel<OrderJournalFilterViewModel, OrderFilterView>()
+				.RegisterWidgetForWidgetViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
+				.RegisterWidgetForWidgetViewModel<ResidueFilterViewModel, ResidueFilterView>()
+				.RegisterWidgetForWidgetViewModel<FineFilterViewModel, FineFilterView>()
+				.RegisterWidgetForWidgetViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
+				.RegisterWidgetForWidgetViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
+				.RegisterWidgetForWidgetViewModel<RequestsToSuppliersFilterViewModel, RequestsToSuppliersFilterView>()
+				.RegisterWidgetForWidgetViewModel<NomenclatureStockFilterViewModel, NomenclatureStockFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
