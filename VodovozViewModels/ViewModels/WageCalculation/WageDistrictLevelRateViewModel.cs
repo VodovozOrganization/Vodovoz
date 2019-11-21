@@ -56,6 +56,22 @@ namespace Vodovoz.ViewModels.WageCalculation
 			} 
 		set => openAdvancedParametersCommand = value; }
 
+		private DelegateCommand<IWageHierarchyNode> deleteAdvancedParametersCommand;
+		public DelegateCommand<IWageHierarchyNode> DeleteAdvancedParametersCommand {
+			get {
+				if(deleteAdvancedParametersCommand == null) {
+					deleteAdvancedParametersCommand = new DelegateCommand<IWageHierarchyNode>((selectedNode) => {
+						if(selectedNode is AdvancedWageParameter wageParameter)
+							UoW.Delete(wageParameter);
+					});
+				}
+				return deleteAdvancedParametersCommand;
+
+			}
+			set => deleteAdvancedParametersCommand = value;
+		}
+
+
 		void CreateCreateAndFillNewRatesCommand()
 		{
 			CreateAndFillNewRatesCommand = new DelegateCommand(

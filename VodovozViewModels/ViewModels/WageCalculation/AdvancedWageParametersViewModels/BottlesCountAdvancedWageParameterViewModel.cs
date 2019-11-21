@@ -11,7 +11,14 @@ namespace Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels
 	{
 		public BottlesCountAdvancedWageParameterViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-
+			ConfigureEntityPropertyChanges();
 		}
+
+		private void ConfigureEntityPropertyChanges()
+		{
+			SetPropertyChangeRelation(e => e.RightSing, () => CanSetRightCount);
+		}
+
+		public bool CanSetRightCount => Entity.RightSing != null;
 	}
 }

@@ -55,6 +55,9 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 
 		public override string ToString()
 		{
+			if(StartTime == EndTime)
+				return StartTime.ToString();
+
 			return $"С {StartTime.ToString()} до {EndTime.ToString()}";
 		}
 	}

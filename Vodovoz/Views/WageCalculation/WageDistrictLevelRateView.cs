@@ -67,11 +67,14 @@ namespace Vodovoz.Views.WageCalculation
 		}
 
 		protected void OnTreeViewWageRatesRowActivated(object o, RowActivatedArgs args)
+			=> ViewModel.OpenAdvancedParametersCommand.Execute(treeViewWageRates.GetSelectedObject());
+
+		protected void OnYbuttonRemoveParameterClicked(object sender, System.EventArgs e)
+			=> ViewModel.DeleteAdvancedParametersCommand.Execute(treeViewWageRates.GetSelectedObject());
+
+		protected void OnYbuttonAddParameterClicked(object sender, System.EventArgs e)
 		{
-			var selected = treeViewWageRates.GetSelectedObject();
-			ViewModel.OpenAdvancedParametersCommand.Execute(selected as IWageHierarchyNode);
-
-
 		}
+
 	}
 }

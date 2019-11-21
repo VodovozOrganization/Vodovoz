@@ -115,7 +115,7 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			this.yenumcomboboxRightSing = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxRightSing.Name = "yenumcomboboxRightSing";
 			this.yenumcomboboxRightSing.ShowSpecialStateAll = false;
-			this.yenumcomboboxRightSing.ShowSpecialStateNot = false;
+			this.yenumcomboboxRightSing.ShowSpecialStateNot = true;
 			this.yenumcomboboxRightSing.UseShortTitle = false;
 			this.yenumcomboboxRightSing.DefaultFirst = false;
 			this.hbox1.Add(this.yenumcomboboxRightSing);
