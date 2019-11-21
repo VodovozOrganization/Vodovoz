@@ -6,7 +6,7 @@ using Vodovoz.ViewModels.Complaints;
 namespace Vodovoz.Views.Complaints
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class GuiltyItemView : EntityWidgetViewBase<GuiltyItemViewModel>
+	public partial class GuiltyItemView : WidgetViewBase<GuiltyItemViewModel>
 	{
 		public GuiltyItemView()
 		{

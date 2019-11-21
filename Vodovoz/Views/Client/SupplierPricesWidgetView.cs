@@ -13,7 +13,7 @@ using Vodovoz.ViewModels.Client;
 namespace Vodovoz.Views.Client
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class SupplierPricesWidgetView : EntityWidgetViewBase<SupplierPricesWidgetViewModel>
+	public partial class SupplierPricesWidgetView : WidgetViewBase<SupplierPricesWidgetViewModel>
 	{
 		public SupplierPricesWidgetView()
 		{

@@ -5,7 +5,7 @@ using Gamma.ColumnConfig;
 namespace Vodovoz.Views.WageCalculation
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class EmployeeWageParametersView : EntityWidgetViewBase<EmployeeWageParametersViewModel>
+	public partial class EmployeeWageParametersView : WidgetViewBase<EmployeeWageParametersViewModel>
 	{
 		public EmployeeWageParametersView()
 		{

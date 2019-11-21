@@ -21,11 +21,9 @@ namespace Vodovoz.JournalNodes
 
 		//заказ
 		public decimal OrderSum { get; set; }
-		public decimal OrderCashSum => PaymentTypeEnum == PaymentType.cash || PaymentTypeEnum == PaymentType.BeveragesWorld ? OrderSum : 0;
-		public decimal OrderCashlessSum => PaymentTypeEnum == PaymentType.cashless || PaymentTypeEnum == PaymentType.ByCard ? OrderSum : 0;
 		public decimal OrderReturnSum { get; set; }
-		public decimal OrderCashSumTotal => OrderCashSum - OrderReturnSum;
-		public decimal OrderCashlessSumTotal => OrderCashlessSum - OrderReturnSum;
+		public decimal OrderCashSumTotal => PaymentTypeEnum == PaymentType.cash || PaymentTypeEnum == PaymentType.BeveragesWorld ? OrderSum - OrderReturnSum : 0;
+		public decimal OrderCashlessSumTotal => PaymentTypeEnum == PaymentType.cashless || PaymentTypeEnum == PaymentType.ByCard ? OrderReturnSum - OrderReturnSum : 0;
 
 		//наличные по кассе
 		public decimal CashPaid { get; set; }
