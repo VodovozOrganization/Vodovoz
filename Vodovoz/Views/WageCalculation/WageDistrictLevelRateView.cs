@@ -8,7 +8,7 @@ using Vodovoz.ViewModels.WageCalculation;
 namespace Vodovoz.Views.WageCalculation
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class WageDistrictLevelRateView : EntityWidgetViewBase<WageDistrictLevelRateViewModel>
+	public partial class WageDistrictLevelRateView : WidgetViewBase<WageDistrictLevelRateViewModel>
 	{
 		readonly bool editable;
 		public WageDistrictLevelRateView(WageDistrictLevelRateViewModel viewModel, bool editable) : base(viewModel)
