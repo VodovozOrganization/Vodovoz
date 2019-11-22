@@ -17,6 +17,12 @@ namespace Vodovoz.ViewModels.WageCalculation
 		public ITdiTab TdiTab { get; }
 		public IAdvancedWageWidgetFactory AdvancedWageWidgetFactory { get; }
 
+		private ViewModelBase advancedWidgetViewModel;
+		public virtual ViewModelBase AdvancedWidgetViewModel {
+			get => advancedWidgetViewModel;
+			set => SetField(ref advancedWidgetViewModel, value);
+		}
+
 		public WageDistrictLevelRateViewModel(WageDistrictLevelRate entity, ICommonServices commonServices, IUnitOfWork uow, ITdiTab tdiTab, IAdvancedWageWidgetFactory advancedWageWidgetFactory) : base(entity, commonServices)
 		{
 			AdvancedWageWidgetFactory = advancedWageWidgetFactory ?? throw new ArgumentException(nameof(advancedWageWidgetFactory));
@@ -48,7 +54,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 				if(openAdvancedParametersCommand == null) {
 					openAdvancedParametersCommand = new DelegateCommand<IWageHierarchyNode>((selectedNode) => {
 						if(selectedNode is AdvancedWageParameter wageParameter)
-							TdiTab.TabParent.AddSlaveTab(TdiTab,AdvancedWageWidgetFactory.GetAdvancedWageWidgetViewModel(wageParameter, CommonServices) as TabViewModelBase);
+							AdvancedWidgetViewModel = AdvancedWageWidgetFactory.GetAdvancedWageWidgetViewModel(wageParameter, CommonServices);
 					});
 				}
 				return openAdvancedParametersCommand;
@@ -71,6 +77,20 @@ namespace Vodovoz.ViewModels.WageCalculation
 			set => deleteAdvancedParametersCommand = value;
 		}
 
+		private DelegateCommand<IWageHierarchyNode> addNewParameterCommand;
+		public DelegateCommand<IWageHierarchyNode> AddNewParameterCommand {
+			get {
+				if(addNewParameterCommand == null) {
+					addNewParameterCommand = new DelegateCommand<IWageHierarchyNode>((selectedNode) => {
+						if(selectedNode is AdvancedWageParameter wageParameter)
+							AdvancedWidgetViewModel = new AdvancedWageParametersViewModel(selectedNode, new AdvancedWageWidgetFactory(), CommonServices);
+					});
+				}
+				return addNewParameterCommand;
+
+			}
+			set => addNewParameterCommand = value;
+		}
 
 		void CreateCreateAndFillNewRatesCommand()
 		{

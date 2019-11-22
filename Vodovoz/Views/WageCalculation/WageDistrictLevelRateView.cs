@@ -1,20 +1,15 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
-using Gamma.Utilities;
 using Gtk;
-using QS.Tdi;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.Views.WageCalculation
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class WageDistrictLevelRateView : EntityWidgetViewBase<WageDistrictLevelRateViewModel>
+	public partial class WageDistrictLevelRateView : WidgetViewBase<WageDistrictLevelRateViewModel>
 	{
 		readonly bool editable;
 
@@ -29,6 +24,7 @@ namespace Vodovoz.Views.WageCalculation
 		{
 			btnFillRates.Binding.AddBinding(ViewModel, s => s.CanFillRates, w => w.Sensitive).InitializeFromSource();
 			btnFillRates.Clicked += (sender, e) => ViewModel.CreateAndFillNewRatesCommand.Execute();
+			widgetcontainerview.Binding.AddBinding(ViewModel, s => s.AdvancedWidgetViewModel, w => w.WidgetViewModel).InitializeFromSource();
 
 			treeViewWageRates.ColumnsConfig = FluentColumnsConfig<IWageHierarchyNode>.Create()
 				.AddColumn("Название ставки")
@@ -73,8 +69,6 @@ namespace Vodovoz.Views.WageCalculation
 			=> ViewModel.DeleteAdvancedParametersCommand.Execute(treeViewWageRates.GetSelectedObject());
 
 		protected void OnYbuttonAddParameterClicked(object sender, System.EventArgs e)
-		{
-		}
-
+			=> ViewModel.AddNewParameterCommand.Execute(treeViewWageRates.GetSelectedObject());
 	}
 }

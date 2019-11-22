@@ -6,27 +6,9 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 	{
 		private global::Gtk.VBox vbox2;
 
-		private global::Gtk.HBox hbox1;
-
-		private global::Gtk.Button buttonSave;
-
-		private global::Gtk.Button buttonCancel;
-
 		private global::Gtk.HBox hbox2;
 
-		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonFromHour;
-
-		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonFromMinute;
-
-		private global::Gamma.Widgets.yTimeEntry ytimeentryFrom;
-
-		private global::Gtk.HBox hbox3;
-
-		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonToHour;
-
-		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonToMinute;
-
-		private global::Gamma.Widgets.yTimeEntry ytimeentryTo;
+		private global::QS.Widgets.GtkUI.TimeRangePicker timerangepicker;
 
 		protected virtual void Build()
 		{
@@ -40,146 +22,22 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
-			this.buttonSave.CanFocus = true;
-			this.buttonSave.Name = "buttonSave";
-			this.buttonSave.UseUnderline = true;
-			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			global::Gtk.Image w1 = new global::Gtk.Image();
-			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
-			this.buttonSave.Image = w1;
-			this.hbox1.Add(this.buttonSave);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonSave]));
-			w2.Position = 0;
-			w2.Expand = false;
-			w2.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
-			this.buttonCancel.CanFocus = true;
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.UseUnderline = true;
-			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
-			global::Gtk.Image w3 = new global::Gtk.Image();
-			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w3;
-			this.hbox1.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonCancel]));
-			w4.Position = 1;
-			w4.Expand = false;
-			w4.Fill = false;
-			this.vbox2.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox();
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.yspinbuttonFromHour = new global::Gamma.GtkWidgets.ySpinButton(0D, 24D, 1D);
-			this.yspinbuttonFromHour.CanFocus = true;
-			this.yspinbuttonFromHour.Name = "yspinbuttonFromHour";
-			this.yspinbuttonFromHour.Adjustment.PageIncrement = 10D;
-			this.yspinbuttonFromHour.ClimbRate = 1D;
-			this.yspinbuttonFromHour.Numeric = true;
-			this.yspinbuttonFromHour.ValueAsDecimal = 0m;
-			this.yspinbuttonFromHour.ValueAsInt = 0;
-			this.hbox2.Add(this.yspinbuttonFromHour);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.yspinbuttonFromHour]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.yspinbuttonFromMinute = new global::Gamma.GtkWidgets.ySpinButton(0D, 60D, 1D);
-			this.yspinbuttonFromMinute.CanFocus = true;
-			this.yspinbuttonFromMinute.Name = "yspinbuttonFromMinute";
-			this.yspinbuttonFromMinute.Adjustment.PageIncrement = 10D;
-			this.yspinbuttonFromMinute.ClimbRate = 1D;
-			this.yspinbuttonFromMinute.Numeric = true;
-			this.yspinbuttonFromMinute.ValueAsDecimal = 0m;
-			this.yspinbuttonFromMinute.ValueAsInt = 0;
-			this.hbox2.Add(this.yspinbuttonFromMinute);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.yspinbuttonFromMinute]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.ytimeentryFrom = new global::Gamma.Widgets.yTimeEntry();
-			this.ytimeentryFrom.CanFocus = true;
-			this.ytimeentryFrom.Name = "ytimeentryFrom";
-			this.ytimeentryFrom.IsEditable = true;
-			this.ytimeentryFrom.InvisibleChar = '•';
-			this.ytimeentryFrom.ShowSeconds = false;
-			this.ytimeentryFrom.AutocompleteStep = 0;
-			this.ytimeentryFrom.DateTime = new global::System.DateTime(0);
-			this.ytimeentryFrom.Time = new global::System.TimeSpan(0);
-			this.hbox2.Add(this.ytimeentryFrom);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.ytimeentryFrom]));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
+			this.timerangepicker = new global::QS.Widgets.GtkUI.TimeRangePicker();
+			this.timerangepicker.Events = ((global::Gdk.EventMask)(256));
+			this.timerangepicker.Name = "timerangepicker";
+			this.timerangepicker.TimeStart = new global::System.TimeSpan(0);
+			this.hbox2.Add(this.timerangepicker);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.timerangepicker]));
+			w1.Position = 0;
 			this.vbox2.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
-			w9.Position = 1;
-			w9.Expand = false;
-			w9.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox3 = new global::Gtk.HBox();
-			this.hbox3.Name = "hbox3";
-			this.hbox3.Spacing = 6;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.yspinbuttonToHour = new global::Gamma.GtkWidgets.ySpinButton(0D, 24D, 1D);
-			this.yspinbuttonToHour.CanFocus = true;
-			this.yspinbuttonToHour.Name = "yspinbuttonToHour";
-			this.yspinbuttonToHour.Adjustment.PageIncrement = 10D;
-			this.yspinbuttonToHour.ClimbRate = 1D;
-			this.yspinbuttonToHour.Numeric = true;
-			this.yspinbuttonToHour.ValueAsDecimal = 0m;
-			this.yspinbuttonToHour.ValueAsInt = 0;
-			this.hbox3.Add(this.yspinbuttonToHour);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yspinbuttonToHour]));
-			w10.Position = 0;
-			w10.Expand = false;
-			w10.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.yspinbuttonToMinute = new global::Gamma.GtkWidgets.ySpinButton(0D, 60D, 1D);
-			this.yspinbuttonToMinute.CanFocus = true;
-			this.yspinbuttonToMinute.Name = "yspinbuttonToMinute";
-			this.yspinbuttonToMinute.Adjustment.PageIncrement = 10D;
-			this.yspinbuttonToMinute.ClimbRate = 1D;
-			this.yspinbuttonToMinute.Numeric = true;
-			this.yspinbuttonToMinute.ValueAsDecimal = 0m;
-			this.yspinbuttonToMinute.ValueAsInt = 0;
-			this.hbox3.Add(this.yspinbuttonToMinute);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yspinbuttonToMinute]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.ytimeentryTo = new global::Gamma.Widgets.yTimeEntry();
-			this.ytimeentryTo.CanFocus = true;
-			this.ytimeentryTo.Name = "ytimeentryTo";
-			this.ytimeentryTo.IsEditable = true;
-			this.ytimeentryTo.InvisibleChar = '•';
-			this.ytimeentryTo.ShowSeconds = false;
-			this.ytimeentryTo.AutocompleteStep = 0;
-			this.ytimeentryTo.DateTime = new global::System.DateTime(0);
-			this.ytimeentryTo.Time = new global::System.TimeSpan(0);
-			this.hbox3.Add(this.ytimeentryTo);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ytimeentryTo]));
-			w12.Position = 2;
-			w12.Expand = false;
-			w12.Fill = false;
-			this.vbox2.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox3]));
-			w13.Position = 2;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

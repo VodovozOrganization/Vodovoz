@@ -4,7 +4,7 @@ using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class DeliveryTimeAdvancedWagePrameterView : TabViewBase<DeliveryTimeAdvancedWageParameterViewModel>
+	public partial class DeliveryTimeAdvancedWagePrameterView : WidgetViewBase<DeliveryTimeAdvancedWageParameterViewModel>
 	{
 		public DeliveryTimeAdvancedWagePrameterView(DeliveryTimeAdvancedWageParameterViewModel viewModel) : base(viewModel)
 		{
@@ -14,8 +14,8 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 
 		private void ConfigureDlg()
 		{
-			ytimeentryFrom.Binding.AddBinding(ViewModel.Entity, e => e.StartTime , w => w.Time).InitializeFromSource();
-			ytimeentryTo.Binding.AddBinding(ViewModel.Entity, e => e.EndTime, w => w.Time).InitializeFromSource();
+			timerangepicker.Binding.AddBinding(ViewModel.Entity, e => e.StartTime , w => w.TimeStart).InitializeFromSource();
+			timerangepicker.Binding.AddBinding(ViewModel.Entity, e => e.EndTime, w => w.TimeEnd).InitializeFromSource();
 		}
 	}
 }

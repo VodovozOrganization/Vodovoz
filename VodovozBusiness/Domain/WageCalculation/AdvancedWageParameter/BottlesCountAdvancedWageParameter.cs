@@ -50,7 +50,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		public virtual (uint,uint) GetCountRange()
 		{
 			if(LeftSing == ComparisonSings.Equally && RightSing == null)
-				return (BottlesFrom, BottlesFrom);
+				return ((uint)BottlesFrom, (uint)BottlesFrom);
 
 			uint? from = null;
 			uint? to = null;
@@ -58,10 +58,10 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 
 			switch(LeftSing) {
 				case ComparisonSings.Less:
-					from = BottlesFrom + 1;
+					from = (uint)BottlesFrom + 1;
 					break;
 				case ComparisonSings.LessOrEqual:
-					from = BottlesFrom;
+					from = (uint)BottlesFrom;
 					break;
 			}
 
@@ -70,10 +70,10 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 				switch(LeftSing) 
 				{
 					case ComparisonSings.More:
-						to = BottlesFrom - 1;
+						to = (uint)BottlesFrom - 1;
 						break;
 					case ComparisonSings.MoreOrEqual:
-						to = BottlesFrom;
+						to = (uint)BottlesFrom;
 						break;
 				}
 			} else {

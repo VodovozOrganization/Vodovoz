@@ -14,6 +14,16 @@ namespace Vodovoz.Views.WageCalculation
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewWageRates;
 
+		private global::Gtk.HBox hbox1;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonAddParameter;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonRemoveParameter;
+
+		private global::Gtk.HSeparator hseparator1;
+
+		private global::Vodovoz.Core.WidgetContainerView widgetcontainerview;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -56,6 +66,60 @@ namespace Vodovoz.Views.WageCalculation
 			this.vbxMain.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.GtkScrolledWindow]));
 			w4.Position = 1;
+			// Container child vbxMain.Gtk.Box+BoxChild
+			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.ybuttonAddParameter = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonAddParameter.CanFocus = true;
+			this.ybuttonAddParameter.Name = "ybuttonAddParameter";
+			this.ybuttonAddParameter.UseUnderline = true;
+			this.ybuttonAddParameter.Label = global::Mono.Unix.Catalog.GetString("Добавить");
+			global::Gtk.Image w5 = new global::Gtk.Image();
+			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.ybuttonAddParameter.Image = w5;
+			this.hbox1.Add(this.ybuttonAddParameter);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ybuttonAddParameter]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.ybuttonRemoveParameter = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonRemoveParameter.CanFocus = true;
+			this.ybuttonRemoveParameter.Name = "ybuttonRemoveParameter";
+			this.ybuttonRemoveParameter.UseUnderline = true;
+			this.ybuttonRemoveParameter.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			global::Gtk.Image w7 = new global::Gtk.Image();
+			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.ybuttonRemoveParameter.Image = w7;
+			this.hbox1.Add(this.ybuttonRemoveParameter);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ybuttonRemoveParameter]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
+			this.vbxMain.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.hbox1]));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child vbxMain.Gtk.Box+BoxChild
+			this.hseparator1 = new global::Gtk.HSeparator();
+			this.hseparator1.Name = "hseparator1";
+			this.vbxMain.Add(this.hseparator1);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.hseparator1]));
+			w10.Position = 3;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child vbxMain.Gtk.Box+BoxChild
+			this.widgetcontainerview = new global::Vodovoz.Core.WidgetContainerView();
+			this.widgetcontainerview.Events = ((global::Gdk.EventMask)(256));
+			this.widgetcontainerview.Name = "widgetcontainerview";
+			this.vbxMain.Add(this.widgetcontainerview);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.widgetcontainerview]));
+			w11.Position = 4;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vbxMain);
 			if ((this.Child != null))
 			{
@@ -63,6 +127,8 @@ namespace Vodovoz.Views.WageCalculation
 			}
 			this.Hide();
 			this.treeViewWageRates.RowActivated += new global::Gtk.RowActivatedHandler(this.OnTreeViewWageRatesRowActivated);
+			this.ybuttonAddParameter.Clicked += new global::System.EventHandler(this.OnYbuttonAddParameterClicked);
+			this.ybuttonRemoveParameter.Clicked += new global::System.EventHandler(this.OnYbuttonRemoveParameterClicked);
 		}
 	}
 }

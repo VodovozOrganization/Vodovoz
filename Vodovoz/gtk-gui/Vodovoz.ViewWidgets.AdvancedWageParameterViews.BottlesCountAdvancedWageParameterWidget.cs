@@ -6,12 +6,6 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 	{
 		private global::Gtk.VBox vbox1;
 
-		private global::Gtk.HBox hbox2;
-
-		private global::Gtk.Button buttonSave;
-
-		private global::Gtk.Button buttonCancel;
-
 		private global::Gtk.HBox hbox1;
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonLeftCount;
@@ -36,43 +30,6 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button();
-			this.buttonSave.CanFocus = true;
-			this.buttonSave.Name = "buttonSave";
-			this.buttonSave.UseUnderline = true;
-			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			global::Gtk.Image w1 = new global::Gtk.Image();
-			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
-			this.buttonSave.Image = w1;
-			this.hbox2.Add(this.buttonSave);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonSave]));
-			w2.Position = 0;
-			w2.Expand = false;
-			w2.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button();
-			this.buttonCancel.CanFocus = true;
-			this.buttonCancel.Name = "buttonCancel";
-			this.buttonCancel.UseUnderline = true;
-			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
-			global::Gtk.Image w3 = new global::Gtk.Image();
-			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w3;
-			this.hbox2.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonCancel]));
-			w4.Position = 1;
-			w4.Expand = false;
-			w4.Fill = false;
-			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -86,10 +43,10 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			this.yspinbuttonLeftCount.ValueAsDecimal = 0m;
 			this.yspinbuttonLeftCount.ValueAsInt = 0;
 			this.hbox1.Add(this.yspinbuttonLeftCount);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yspinbuttonLeftCount]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yspinbuttonLeftCount]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.yenumcomboboxLeftSing = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxLeftSing.Name = "yenumcomboboxLeftSing";
@@ -98,19 +55,19 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			this.yenumcomboboxLeftSing.UseShortTitle = false;
 			this.yenumcomboboxLeftSing.DefaultFirst = false;
 			this.hbox1.Add(this.yenumcomboboxLeftSing);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yenumcomboboxLeftSing]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yenumcomboboxLeftSing]));
+			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Кол-во бутылей");
 			this.hbox1.Add(this.label1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.label1]));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.label1]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.yenumcomboboxRightSing = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxRightSing.Name = "yenumcomboboxRightSing";
@@ -119,10 +76,10 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			this.yenumcomboboxRightSing.UseShortTitle = false;
 			this.yenumcomboboxRightSing.DefaultFirst = false;
 			this.hbox1.Add(this.yenumcomboboxRightSing);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yenumcomboboxRightSing]));
-			w9.Position = 3;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yenumcomboboxRightSing]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.yvalidatedentryRightCount = new global::Gamma.Widgets.yValidatedEntry();
 			this.yvalidatedentryRightCount.CanFocus = true;
@@ -130,15 +87,15 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			this.yvalidatedentryRightCount.IsEditable = true;
 			this.yvalidatedentryRightCount.InvisibleChar = '•';
 			this.hbox1.Add(this.yvalidatedentryRightCount);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yvalidatedentryRightCount]));
-			w10.Position = 4;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yvalidatedentryRightCount]));
+			w5.Position = 4;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w11.Position = 1;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

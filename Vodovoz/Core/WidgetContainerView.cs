@@ -28,7 +28,7 @@ namespace Vodovoz.Core
 		private Widget widget;
 		public Widget Widget {
 			get { return widget; }
-			set {
+			protected set {
 				if(widget == value)
 					return;
 				widget?.Destroy();

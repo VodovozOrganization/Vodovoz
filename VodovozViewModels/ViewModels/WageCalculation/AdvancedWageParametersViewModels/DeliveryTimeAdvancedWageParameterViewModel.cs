@@ -7,9 +7,9 @@ using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 
 namespace Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels
 {
-	public class DeliveryTimeAdvancedWageParameterViewModel : EntityTabViewModelBase<DeliveryTimeAdvancedWageParameter>
+	public class DeliveryTimeAdvancedWageParameterViewModel : EntityWidgetViewModelBase<DeliveryTimeAdvancedWageParameter>
 	{
-		public DeliveryTimeAdvancedWageParameterViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uowBuilder, unitOfWorkFactory, commonServices)
+		public DeliveryTimeAdvancedWageParameterViewModel(DeliveryTimeAdvancedWageParameter entity, ICommonServices commonServices) : base(entity, commonServices)
 		{
 		}
 	}

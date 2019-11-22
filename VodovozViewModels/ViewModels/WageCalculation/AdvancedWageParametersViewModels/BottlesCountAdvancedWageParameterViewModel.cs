@@ -7,9 +7,9 @@ using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 
 namespace Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels
 {
-	public class BottlesCountAdvancedWageParameterViewModel : EntityTabViewModelBase<BottlesCountAdvancedWageParameter>
+	public class BottlesCountAdvancedWageParameterViewModel : EntityWidgetViewModelBase<BottlesCountAdvancedWageParameter>
 	{
-		public BottlesCountAdvancedWageParameterViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uowBuilder, unitOfWorkFactory, commonServices)
+		public BottlesCountAdvancedWageParameterViewModel(BottlesCountAdvancedWageParameter entity, ICommonServices commonServices) : base(entity, commonServices)
 		{
 			ConfigureEntityPropertyChanges();
 		}
