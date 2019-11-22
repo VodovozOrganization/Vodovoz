@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
@@ -44,6 +46,18 @@ namespace Vodovoz.ViewModels.Complaints
 					currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 				}
 				return currentEmployee;
+			}
+		}
+
+		List<ComplaintKind> complaintKindSource;
+		public IEnumerable<ComplaintKind> ComplaintKindSource {
+			get {
+				if(complaintKindSource == null)
+					complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
+				if(Entity.ComplaintKind != null && Entity.ComplaintKind.IsArchive)
+					complaintKindSource.Add(UoW.GetById<ComplaintKind>(Entity.ComplaintKind.Id));
+
+				return complaintKindSource;
 			}
 		}
 
