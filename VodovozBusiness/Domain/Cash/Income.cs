@@ -279,7 +279,7 @@ namespace Vodovoz.Domain.Cash
 					if(!Order.SelfDelivery) {
 						yield return new ValidationResult("Должен быть выбран заказ с самовывозом");
 					}
-					if(Order.OrderCashSum < Money) {
+					if(Order.OrderSum < Money) {
 						yield return new ValidationResult("Сумма к оплате не может быть больше чем сумма в заказе");
 					}
 				}

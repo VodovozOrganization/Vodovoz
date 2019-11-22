@@ -9,7 +9,7 @@ using Gtk;
 namespace Vodovoz.Views.Complaints
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ComplaintDiscussionView : EntityWidgetViewBase<ComplaintDiscussionViewModel>
+	public partial class ComplaintDiscussionView : WidgetViewBase<ComplaintDiscussionViewModel>
 	{
 		public ComplaintDiscussionView(ComplaintDiscussionViewModel viewModel) : base(viewModel)
 		{

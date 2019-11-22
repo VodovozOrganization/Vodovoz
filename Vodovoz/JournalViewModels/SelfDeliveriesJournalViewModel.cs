@@ -52,6 +52,18 @@ namespace Vodovoz.Representations
 			DeliveryPoint deliveryPointAlias = null;
 			Employee authorAlias = null;
 
+			var depositReturnQuery = QueryOver.Of(() => orderDepositItemAlias)
+				.Select(Projections.Sum(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?2, ?1) * ?3"),
+							NHibernateUtil.Decimal,
+							Projections.Property(() => orderDepositItemAlias.Count),
+							Projections.Property(() => orderDepositItemAlias.ActualCount),
+							Projections.Property(() => orderDepositItemAlias.Deposit)
+						   )
+					))
+				.Where(() => orderDepositItemAlias.Order.Id == orderAlias.Id);
+
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 								   .Where(() => orderAlias.SelfDelivery)
 								   .Where(() => !orderAlias.IsService);
@@ -123,17 +135,9 @@ namespace Vodovoz.Representations
 							Projections.Property(() => orderItemAlias.DiscountMoney)
 						   )
 					)).WithAlias(() => resultAlias.OrderSum)
-					.Select(Projections.Sum(
-						Projections.SqlFunction(
-							new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?2, ?1) * ?3"),
-							NHibernateUtil.Decimal,
-							Projections.Property(() => orderDepositItemAlias.Count),
-							Projections.Property(() => orderItemAlias.ActualCount),
-							Projections.Property(() => orderDepositItemAlias.Deposit)
-						   )
-					)).WithAlias(() => resultAlias.OrderReturnSum)
 					.Select(Projections.Property(() => incomeAlias.Money)).WithAlias(() => resultAlias.CashPaid)
 					.Select(Projections.Property(() => expenseAlias.Money)).WithAlias(() => resultAlias.CashReturn)
+					.SelectSubQuery(depositReturnQuery).WithAlias(() => resultAlias.OrderReturnSum)
 				)
 				.OrderBy(x => x.DeliveryDate).Desc.ThenBy(x => x.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<SelfDeliveryJournalNode>());
