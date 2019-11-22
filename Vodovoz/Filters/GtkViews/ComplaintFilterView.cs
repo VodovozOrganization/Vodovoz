@@ -33,8 +33,8 @@ namespace Vodovoz.Filters.GtkViews
 			yentryreferenceSubdivision.SubjectType = typeof(Subdivision);
 			yentryreferenceSubdivision.Binding.AddBinding(ViewModel, x => x.Subdivision, w => w.Subject).InitializeFromSource();
 
-			daterangepicker.Binding.AddBinding(ViewModel, x => x.StartDate, w => w.StartDate).InitializeFromSource();
-			daterangepicker.Binding.AddBinding(ViewModel, x => x.EndDate, w => w.EndDate).InitializeFromSource();
+			daterangepicker.Binding.AddBinding(ViewModel, x => x.StartDate, w => w.StartDateOrNull).InitializeFromSource();
+			daterangepicker.Binding.AddBinding(ViewModel, x => x.EndDate, w => w.EndDateOrNull).InitializeFromSource();
 
 			yenumcomboboxDateType.ItemsEnum = typeof(DateFilterType);
 			yenumcomboboxDateType.Binding.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem).InitializeFromSource();

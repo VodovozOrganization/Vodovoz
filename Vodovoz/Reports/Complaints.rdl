@@ -642,7 +642,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>6.9pt</Left>
+        <Left>0.5pt</Left>
         <Top>11.0pt</Top>
       </Table>
     </ReportItems>
@@ -712,12 +712,13 @@ FROM
     LEFT JOIN employees ON employees.id = complaints.created_by_id
     LEFT JOIN complaint_fines ON complaint_fines.complaint_id = complaints.id
     LEFT JOIN fines ON complaint_fines.fine_id = fines.id
+    LEFT JOIN complaint_kinds ON complaints.complaint_kind_id = complaint_kinds.id
 WHERE
     (
         (
             @subdivision_id = 0 OR (@subdivision_id = 1
-            AND (@start_date IS NULL OR complaints.planned_completion_date &gt;= @start_date)
-            AND (@end_date IS NULL OR complaints.planned_completion_date &lt;= @end_date))
+            AND (@start_date = '' OR complaints.planned_completion_date &gt;= @start_date)
+            AND (@end_date = '' OR complaints.planned_completion_date &lt;= @end_date))
         )
         OR EXISTS
         (
@@ -728,15 +729,22 @@ WHERE
             WHERE
                 disc.complaint_id = complaints.id
                 AND disc.subdivision_id = @subdivision_id
-                AND (@start_date IS NULL OR disc.planned_completion_date &gt;= @start_date)
-                AND (@end_date IS NULL OR disc.planned_completion_date &lt;= @end_date)
+                AND (@start_date = '' OR disc.planned_completion_date &gt;= @start_date)
+                AND (@end_date = '' OR disc.planned_completion_date &lt;= @end_date)
         )
     )
     AND (@employee_id = 0 OR complaints.created_by_id = @employee_id)
     AND (@status = '' OR complaints.status = @status)
     AND (@type = '' OR complaints.type = @type)
+    AND (@guilty_type = '' OR complaint_guilty_items.guilty_type = @guilty_type)
+    AND (@complaint_kind = '' OR complaint_kinds.name = @complaint_kind)
+    AND 
+		(@start_date = '' 
+		OR (@date_type = 'CreationDate' AND complaints.creation_date &lt; @end_date AND complaints.creation_date &gt; @start_date)
+		OR (@date_type = 'PlannedCompletionDate' AND complaints.planned_completion_date &lt; @end_date AND complaints.planned_completion_date &gt; @start_date))
 GROUP BY
-    complaints.id</CommandText>
+    complaints.id
+    ORDER BY complaints.id DESC</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -755,6 +763,15 @@ GROUP BY
           </QueryParameter>
           <QueryParameter Name="employee_id">
             <Value>={?employee_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="date_type">
+            <Value>={?date_type}</Value>
+          </QueryParameter>
+          <QueryParameter Name="guilty_type">
+            <Value>={?guilty_type}</Value>
+          </QueryParameter>
+          <QueryParameter Name="complaint_kind">
+            <Value>={?complaint_kind}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -827,7 +844,7 @@ GROUP BY
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
@@ -835,7 +852,7 @@ GROUP BY
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
+      <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
@@ -863,6 +880,29 @@ GROUP BY
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="date_type">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="guilty_type">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="complaint_kind">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

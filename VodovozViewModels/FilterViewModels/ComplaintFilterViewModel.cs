@@ -161,11 +161,14 @@ namespace Vodovoz.FilterViewModels
 				Parameters = new Dictionary<string, object>
 				{
 					{ "subdivision_id", Subdivision?.Id ?? 0},
-					{ "start_date", StartDate},
+					{ "start_date", StartDate ?? null},
 					{ "end_date", EndDate},
 					{ "employee_id", Employee?.Id ?? 0},
+					{ "status", ComplaintStatus?.ToString() ?? String.Empty},
+					{ "date_type", filterDateType},
 					{ "type", ComplaintType?.ToString() ?? String.Empty},
-					{ "status", ComplaintStatus?.ToString() ?? String.Empty}
+					{ "guilty_type", guiltyItemVM.Entity.GuiltyType?.ToString() ?? String.Empty},
+					{ "complaint_kind", complaintKind?.Name ?? String.Empty}
 				}
 			};
 		}
