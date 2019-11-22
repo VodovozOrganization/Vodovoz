@@ -262,7 +262,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>=Format(Convert.ToDateTime({lastorder}), "dd/MM/yyyy")</Value>
+                      <Value>=Format(Convert.ToDateTime({del_date}), "dd/MM/yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -447,17 +447,7 @@
         <CommandText>SELECT
     counterparty.id,
     counterparty.name AS counterparty,
-    #counterparty.address AS client_address,
-    #Дата последнего заказа
-    (
-		SELECT
-            MAX(delivery_date)
-        FROM
-            orders
-        WHERE
-            orders.client_id = counterparty.id
-			AND order_status = 'Closed'
-    ) AS lastorder,
+    orderDates.del_date,
     #Тип клиента
     (
 		SELECT
@@ -532,9 +522,8 @@ FROM
     LEFT JOIN delivery_points ON delivery_points.counterparty_id = counterparty.id
     LEFT JOIN phones AS counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id 
     LEFT JOIN phones AS delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id
-    
     #Долг по контрагенту
-        LEFT JOIN
+    LEFT JOIN
     (
 		SELECT 
 			counterparty_id,
@@ -546,8 +535,8 @@ FROM
             
 		GROUP BY counterparty_id
     ) AS debts ON counterparty.id = debts.counterparty_id
-    
-		JOIN
+    #Долг по точке доставки
+	INNER JOIN
     (
 		SELECT
 			counterparty_id,
@@ -567,91 +556,49 @@ FROM
 		GROUP BY counterparty_id
 		HAVING MAX(bottle_debt_point) = 0 AND MIN(bottle_debt_point) = 0
     ) AS debts_point ON counterparty.id = debts_point.counterparty_id
-        
+    #Возврат бутылей и (ничего или возврат залога или неустойка)    
+    INNER JOIN
+    (
+    	SELECT
+            orders.delivery_date as del_date,
+            orders.client_id
+        FROM
+			orders
+        LEFT JOIN order_items ON order_items.order_id = orders.id
+        LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+        LEFT JOIN order_deposit_items ON order_deposit_items.order_id = orders.id
+		WHERE
+			orders.bottles_return &lt;&gt; 0
+        AND
+        (
+			(order_deposit_items.id IS NOT NULL AND order_items.id IS NULL)
+            OR
+            (
+				nomenclature.id = GET_PARAMETER('forfeit_nomenclature_id')
+				AND NOT EXISTS
+				(
+					SELECT *
+					FROM 
+						order_items
+					WHERE 
+						order_items.order_id = orders.id
+						AND order_items.nomenclature_id &lt;&gt; GET_PARAMETER('forfeit_nomenclature_id')
+				)
+            )
+            OR order_items.id IS NULL
+		)
+		AND orders.order_status = 'Closed'
+    ) AS orderDates ON orderDates.client_id = counterparty.id
 WHERE
 	(bottle_debt IS NULL OR bottle_debt = 0)
-    AND (@startDate IS NULL OR
-        @startDate &lt;= (
-            SELECT
-                orders.delivery_date
-            FROM
-			orders
-            LEFT JOIN order_items ON order_items.order_id = orders.id
-            LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-            LEFT JOIN order_deposit_items ON order_deposit_items.order_id = orders.id
-		WHERE
-			orders.client_id = counterparty.id
-            AND
-			orders.bottles_return &lt;&gt; 0
-            AND
-            (
-				(order_deposit_items.id IS NOT NULL AND order_items.id IS NULL)
-                OR
-                (
-					nomenclature.id = GET_PARAMETER('forfeit_nomenclature_id')
-					AND NOT EXISTS
-					(
-						SELECT *
-						FROM 
-							order_items
-						WHERE 
-							order_items.order_id = orders.id
-							AND order_items.nomenclature_id &lt;&gt; GET_PARAMETER('forfeit_nomenclature_id')
-					)
-                )
-                OR order_items.id IS NULL
-			)
-			AND orders.order_status = 'Closed'
-            ORDER BY
-                orders.delivery_date DESC
-            LIMIT 1
-        )
-    )
-    AND (@endDate IS NULL OR
-        @endDate &gt;= (
-            SELECT
-                orders.delivery_date
-            FROM
-			orders
-            LEFT JOIN order_items ON order_items.order_id = orders.id
-            LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-            LEFT JOIN order_deposit_items ON order_deposit_items.order_id = orders.id
-		WHERE
-			orders.client_id = counterparty.id
-            AND
-			orders.bottles_return &lt;&gt; 0
-            AND
-            (
-				(order_deposit_items.id IS NOT NULL AND order_items.id IS NULL)
-                OR
-                (
-					nomenclature.id = GET_PARAMETER('forfeit_nomenclature_id')
-					AND NOT EXISTS
-					(
-						SELECT *
-						FROM 
-							order_items
-						WHERE 
-							order_items.order_id = orders.id
-							AND order_items.nomenclature_id &lt;&gt; GET_PARAMETER('forfeit_nomenclature_id')
-					)
-                )
-                OR order_items.id IS NULL
-			)
-			AND orders.order_status = 'Closed'
-            ORDER BY
-                orders.delivery_date DESC
-            LIMIT 1
-        )
-        AND NOT EXISTS (
-			SELECT
-				delivery_date
-			FROM
-				orders
-			WHERE
-				orders.client_id = counterparty.id
-                AND delivery_date &gt; @endDate
-        )
+    AND	(@startDate IS NULL OR @startDate &lt;= orderDates.del_date)
+	AND	(@endDate IS NULL OR @endDate &gt;= orderDates.del_date)
+    AND NOT EXISTS
+    (
+    	SELECT *
+    	FROM orders
+    	WHERE orders.client_id = counterparty.id
+    	AND delivery_date &gt; DATE(orderDates.del_date)
     )
     # Ввод остатков
     AND NOT EXISTS
@@ -664,7 +611,8 @@ WHERE
 			delivery_points.counterparty_id = counterparty.id
 			AND delivery_points.have_residue = FALSE
     )
-GROUP BY counterparty.id</CommandText>
+GROUP BY counterparty.id
+ORDER BY orderDates.del_date</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!startDate</Value>
@@ -675,8 +623,8 @@ GROUP BY counterparty.id</CommandText>
         </QueryParameters>
       </Query>
       <Fields >
-        <Field Name="lastorder">
-          <DataField>lastorder</DataField>
+        <Field Name="del_date">
+          <DataField>del_date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="counterparty">
