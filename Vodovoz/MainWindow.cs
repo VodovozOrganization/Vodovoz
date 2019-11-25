@@ -1493,6 +1493,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices
 		);
+		complaintKindsViewModel.SetActionsVisible(deleteActionEnabled: false);
 		tdiMain.AddTab(complaintKindsViewModel);
 	}
 }
