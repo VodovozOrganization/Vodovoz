@@ -4,10 +4,11 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
+using Vodovoz.ViewModels.WageCalculation.AdvancedWageParametersViewModels;
 
 namespace Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels
 {
-	public class BottlesCountAdvancedWageParameterViewModel : EntityWidgetViewModelBase<BottlesCountAdvancedWageParameter>
+	public class BottlesCountAdvancedWageParameterViewModel : EntityWidgetViewModelBase<BottlesCountAdvancedWageParameter>, IWageParameterViewModel
 	{
 		public BottlesCountAdvancedWageParameterViewModel(BottlesCountAdvancedWageParameter entity, ICommonServices commonServices) : base(entity, commonServices)
 		{
@@ -18,6 +19,8 @@ namespace Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels
 		{
 			SetPropertyChangeRelation(e => e.RightSing, () => CanSetRightCount);
 		}
+
+		public AdvancedWageParameter GetParameter() => Entity;
 
 		public bool CanSetRightCount => Entity.RightSing != null;
 	}
