@@ -196,7 +196,7 @@ namespace Vodovoz.ViewModels.Complaints
 					.Where(x => x.Status == ComplaintStatuses.InProcess)
 					.Where(x => !string.IsNullOrWhiteSpace(x.Subdivision?.ShortName))
 					.Select(x => x.Subdivision.ShortName));
-				string okk = (Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.Checking) || !Entity.ComplaintDiscussions.Any()) ? "OKK" : null;
+				string okk = (!Entity.ComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.InProcess) && Status != ComplaintStatuses.Closed) ? "OKK" : null;
 				string result;
 				if(!string.IsNullOrWhiteSpace(inWork) && !string.IsNullOrWhiteSpace(okk)) {
 					result = string.Join(", ", inWork, okk);
