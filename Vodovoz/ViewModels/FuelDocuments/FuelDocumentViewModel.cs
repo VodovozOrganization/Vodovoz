@@ -218,15 +218,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void Configure()
 		{
+			if(!CarHasFuelType() || !InitActualCashier()) {
+				AbortOpening();
+				return;
+			}
+
 			TabName = "Выдача топлива";
 			CreateCommands();
 			Track = TrackRepository.GetTrackForRouteList(UoW, RouteList.Id);
-			if(!CarHasFuelType())
-				Close(false);
 			if(FuelDocument.Id == 0)
 				FuelDocument.FillEntity(RouteList);
-			if(!InitActualCashier())
-				Close(false);
 			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
 		}
 
