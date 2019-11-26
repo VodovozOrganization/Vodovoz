@@ -12,30 +12,16 @@ namespace Vodovoz.Filters.ViewModels
 		public CounterpartyJournalFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
 		{
 			UpdateWith(
-				x => x.RestrictIncludeCustomer,
-				x => x.RestrictIncludeSupplier,
-				x => x.RestrictIncludePartner,
+				x => x.CounterpartyType,
 				x => x.RestrictIncludeArchive,
 				x => x.Tag
 			);
 		}
 
-		private bool restrictIncludeCustomer;
-		public virtual bool RestrictIncludeCustomer {
-			get => restrictIncludeCustomer;
-			set => SetField(ref restrictIncludeCustomer, value, () => RestrictIncludeCustomer);
-		}
-
-		private bool restrictIncludeSupplier;
-		public virtual bool RestrictIncludeSupplier {
-			get => restrictIncludeSupplier;
-			set => SetField(ref restrictIncludeSupplier, value, () => RestrictIncludeSupplier);
-		}
-
-		private bool restrictIncludePartner;
-		public virtual bool RestrictIncludePartner {
-			get => restrictIncludePartner;
-			set => SetField(ref restrictIncludePartner, value, () => RestrictIncludePartner);
+		private CounterpartyType counterpartyType;
+		public virtual CounterpartyType CounterpartyType {
+			get => counterpartyType;
+			set => SetField(ref counterpartyType, value, () => CounterpartyType);
 		}
 
 		private bool restrictIncludeArchive;

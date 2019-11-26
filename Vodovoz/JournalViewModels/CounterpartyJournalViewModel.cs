@@ -42,6 +42,10 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
+			if(FilterViewModel != null) {
+				query.Where(t => t.CounterpartyType == FilterViewModel.CounterpartyType);
+			}
+
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
 				.Left.JoinAlias(c => c.Counterparty, () => counterpartyAliasForSubquery)
 				.Where(() => counterpartyAlias.Id == counterpartyAliasForSubquery.Id)

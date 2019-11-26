@@ -19,29 +19,14 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoW = uow;
+			yenumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
+			yenumCounterpartyType.SelectedItem = CounterpartyType.Buyer;
 		}
 
-		public bool RestrictIncludeCustomer {
-			get { return checkCustomer.Active; }
+		public CounterpartyType CounterpartyType {
+			get { return (CounterpartyType)yenumCounterpartyType.SelectedItem; }
 			set {
-				checkCustomer.Active = value;
-				checkCustomer.Sensitive = false;
-			}
-		}
-
-		public bool RestrictIncludeSupplier {
-			get { return checkSupplier.Active; }
-			set {
-				checkSupplier.Active = value;
-				checkSupplier.Sensitive = false;
-			}
-		}
-
-		public bool RestrictIncludePartner {
-			get { return checkPartner.Active; }
-			set {
-				checkPartner.Active = value;
-				checkPartner.Sensitive = false;
+				yenumCounterpartyType.SelectedItem = value;
 			}
 		}
 
@@ -61,11 +46,6 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnComboCounterpartyTypeEnumItemSelected(object sender, EnumItemClickedEventArgs e)
-		{
-			OnRefiltered();
-		}
-
 		protected void OnCheckIncludeArhiveToggled(object sender, EventArgs e)
 		{
 			OnRefiltered();
@@ -76,20 +56,9 @@ namespace Vodovoz
 			OnRefiltered();
 		}
 
-		protected void OnCheckPartnerToggled(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnCheckSupplierToggled(object sender, EventArgs e)
-		{
-			OnRefiltered();
-		}
-
-		protected void OnCheckCustomerToggled(object sender, EventArgs e)
+		protected void OnyenumCounterpartyTypeItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			OnRefiltered();
 		}
 	}
 }
-
