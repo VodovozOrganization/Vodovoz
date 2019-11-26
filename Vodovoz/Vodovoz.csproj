@@ -501,8 +501,6 @@
     <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterDlg.cs" />
-    <Compile Include="Dialogs\DocumentDialogs\MovementDocumentDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.MovementDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentGenerator.cs" />
@@ -516,14 +514,12 @@
     <Compile Include="ViewWidgets\ContactsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
-    <Compile Include="Representations\StockBalanceVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockBalanceFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
     <Compile Include="Dialogs\ProductSpecificationDlg.cs" />
     <Compile Include="ViewWidgets\ProductSpecificationMaterialsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationMaterialsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.MovementDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
     <Compile Include="ViewWidgets\PaidRentPackagesView.cs" />
@@ -713,7 +709,6 @@
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingInvoiceItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterMaterialView.cs" />
-    <Compile Include="Dialogs\DocumentDialogs\MovementDocumentItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentItemsView.cs" />
     <Compile Include="Dialogs\Employees\EmployeeDlg.cs" />
     <Compile Include="Dialogs\Employees\FineDlg.cs" />
@@ -1080,8 +1075,6 @@
     <Compile Include="Representations\CashMultipleDocumentVM.cs" />
     <Compile Include="ServiceDialogs\DistrictFinderForDeliveryPointsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.DistrictFinderForDeliveryPointsDlg.cs" />
-    <Compile Include="ReportsParameters\ChequesReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ChequesReport.cs" />
     <Compile Include="Core\Journal\IMultipleEntityRepresentationModel.cs" />
     <Compile Include="Core\Journal\ActionForCreateEntityConfig.cs" />
     <Compile Include="Core\Journal\MultipleEntityModelDocumentConfig.cs" />
@@ -1340,9 +1333,13 @@
     <Compile Include="ViewModels\Logistic\DeliveryScheduleFilterType.cs" />
     <Compile Include="ReportsParameters\ZeroDebtClientReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ZeroDebtClientReport.cs" />
+    <Compile Include="Views\ForAdministrators\DeliverySchedulesCopierView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ForAdministrators.DeliverySchedulesCopierView.cs" />
     <Compile Include="JournalViewModels\NomenclatureStockBalanceJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\NomenclatureStockFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclatureStockFilterView.cs" />
+    <Compile Include="Views\Complaints\ComplaintKindView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintKindView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1586,6 +1583,7 @@
     <Folder Include="icons\buttons\NullableCheckBox\" />
     <Folder Include="Views\Warehouse\" />
     <Folder Include="TempAdapters\" />
+    <Folder Include="Views\ForAdministrators\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1940,9 +1938,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Bottles\OrdersByCreationDate.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Reports\Orders\ChequesReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\Certificate.rdl">

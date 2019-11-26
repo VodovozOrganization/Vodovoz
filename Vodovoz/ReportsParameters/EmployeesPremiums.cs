@@ -24,7 +24,7 @@ namespace Vodovoz.ReportsParameters
 
 		public string Title {
 			get {
-				return "Штрафы сотрудников";
+				return "Премии сотрудников";
 			}
 		}
 

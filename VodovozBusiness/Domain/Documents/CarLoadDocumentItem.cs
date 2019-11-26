@@ -9,8 +9,8 @@ using Vodovoz.Domain.Store;
 namespace Vodovoz.Domain.Documents
 {
 	[Appellative (Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки документа погрузки",
-		Nominative = "строка документа погрузки")]
+		NominativePlural = "строки талона погрузки",
+		Nominative = "строка талона погрузки")]
 	[HistoryTrace]
 	public class CarLoadDocumentItem: PropertyChangedBase, IDomainObject
 	{

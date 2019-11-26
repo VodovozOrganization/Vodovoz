@@ -147,13 +147,21 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <returns>Первый заказ</returns>
 		/// <param name="uow">UoW</param>
 		/// <param name="counterparty">Контрагент</param>
-		public VodovozOrder GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, Counterparty counterparty)
+		public VodovozOrder GetFirstRealOrderForClientForActionBottle(IUnitOfWork uow, VodovozOrder order,Counterparty counterparty)
 		{
+			if(uow == null) 
+				throw new ArgumentNullException(nameof(uow));
+			if(order == null) 
+				throw new ArgumentNullException(nameof(order));
+			if(counterparty == null) 
+				throw new ArgumentNullException(nameof(counterparty));
+			
+
 			if(counterparty?.FirstOrder != null && GetValidStatusesToUseActionBottle().Contains(counterparty.FirstOrder.OrderStatus))
 				return counterparty.FirstOrder;
 
 			var query = uow.Session.QueryOver<VodovozOrder>()
-						   .Where(o => o.Id > 0)
+						   .Where(o => o.Id != order.Id)
 						   .Where(o => o.Client == counterparty)
 						   .Where(o => o.OrderStatus.IsIn(GetValidStatusesToUseActionBottle()))
 						   .OrderBy(o => o.DeliveryDate).Asc

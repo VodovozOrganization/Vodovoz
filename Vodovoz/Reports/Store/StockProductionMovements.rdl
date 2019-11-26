@@ -1056,17 +1056,31 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
         </Parameters>
       </Subreport>
       <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>11.2pt</Top>
-        <Left>6.5pt</Left>
+        <Top>15.9pt</Top>
+        <Left>5.7pt</Left>
         <Width>791.22pt</Width>
         <Height>18.04pt</Height>
-        <Value>= "Отчет по складу производства '" + First({name}, 'warehouse_name') + "' с " + Format(CDate({?startDate}), "d") + " по " + Format(CDate({?endDate}), "d")</Value>
+        <Value>= "Складские движения производства: '" + First({name}, 'warehouse_name') + "' с " + Format(CDate({?startDate}), "d") + " по " + Format(CDate({?endDate}), "d")</Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox4" >
+        <Height>14.25pt</Height>
+        <Width>205.43pt</Width>
+        <Value>="Сформировано: " + Format( {?creationDate}, "dd-MM-yyyy HH:mm")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>600.74pt</Left>
+        <Top>2.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -1144,6 +1158,13 @@ ORDER BY nomenclature.category , nomenclature.name</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="creationDate">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

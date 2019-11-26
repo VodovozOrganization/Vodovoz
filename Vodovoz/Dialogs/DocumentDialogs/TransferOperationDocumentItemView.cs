@@ -8,9 +8,15 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
+using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.JournalNodes;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
@@ -66,6 +72,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
+			throw new NotSupportedException("На данный момент не поддерживается добавление номенклатур");
+
 			if(DocumentUoW.Root.FromClient == null) {
 				MessageDialogHelper.RunErrorDialog("Не добавлен отправитель.");
 				return;
@@ -81,25 +89,28 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			var filter = new StockBalanceFilter(UnitOfWorkFactory.CreateWithoutRoot());
-			//	filter.RestrictWarehouse = DocumentUoW.Root.FromWarehouse;
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
+				new WarehouseRepository(),
+				 ServicesConfig.InteractiveService
+			);
 
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal(new StockBalanceVM(filter), Buttons.None) {
-				Mode = JournalSelectMode.Single
+			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			);
+
+			vm.SelectionMode = JournalSelectionMode.Single;
+			vm.OnEntitySelectedResult += (s, ea) => {
+				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
+				if(selectedNode == null) {
+					return;
+				}
+				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
+				throw new NotSupportedException("На данный момент не поддерживается добавление номенклатур");
 			};
-			SelectDialog.ObjectSelected += NomenclatureSelected;
 
-			mytab.TabParent.AddSlaveTab(mytab, SelectDialog);
-		}
-
-		void NomenclatureSelected(object sender, JournalObjectSelectedEventArgs e)
-		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			if(selectedId == 0) {
-				return;
-			}
-			var nomenctature = DocumentUoW.GetById<Nomenclature>(selectedId);
-		//	DocumentUoW.Root.AddItem(nomenctature, 0, (e.VMNode as ViewModel.StockBalanceVMNode).Amount);
+			mytab.TabParent.AddSlaveTab(mytab, vm);
 		}
 	}
 }

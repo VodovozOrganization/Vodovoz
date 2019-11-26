@@ -218,13 +218,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void Configure()
 		{
+			if(!CarHasFuelType() || !InitActualCashier()) {
+				AbortOpening();
+				return;
+			}
+
 			TabName = "Выдача топлива";
 			CreateCommands();
 			Track = TrackRepository.GetTrackForRouteList(UoW, RouteList.Id);
 			if(FuelDocument.Id == 0)
 				FuelDocument.FillEntity(RouteList);
-			if(!InitActualCashier())
-				Close(false);
 			FuelDocument.PropertyChanged += FuelDocument_PropertyChanged;
 		}
 
@@ -242,6 +245,16 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			var cashSubdivisions = subdivisionsRepository?.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!cashSubdivisions?.Contains(Cashier.Subdivision) ?? true) {
 				ShowWarningMessage("Выдать топливо может только сотрудник кассы");
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool CarHasFuelType()
+		{
+			if(RouteList.Car.FuelType == null) {
+				ShowWarningMessage($"У машины {RouteList.Car.Model} {RouteList.Car.Title} отсутствует тип топлива");
 				return false;
 			}
 

@@ -37,6 +37,8 @@ using Vodovoz.ServiceDialogs;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
+using Vodovoz.EntityRepositories.Store;
+using QS.Project.Journal;
 
 public partial class MainWindow : Window
 {
@@ -664,16 +666,19 @@ public partial class MainWindow : Window
 
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			RepresentationJournalDialog.GenerateHashName<StockBalanceVM>(),
-			() => {
-				var filter = new StockBalanceFilter();
-				filter.SetAndRefilterAtOnce(x => x.ShowArchive = true);
-				var tab = new PermissionControlledRepresentationJournal(new StockBalanceVM(filter));
-				tab.CustomTabName("Складские остатки");
-				return tab;
-			}
+		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
+			new WarehouseRepository(),
+			 ServicesConfig.InteractiveService
 		);
+
+		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices
+		);
+		vm.SelectionMode = JournalSelectionMode.None;
+
+		tdiMain.OpenTab(() => vm);
 	}
 
 	void ActionWarehouseDocumentsActivated(object sender, System.EventArgs e)

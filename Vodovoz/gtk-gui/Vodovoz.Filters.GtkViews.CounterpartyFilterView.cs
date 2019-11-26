@@ -10,11 +10,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gtk.HBox hbox2;
 
-		private global::Gamma.GtkWidgets.yCheckButton checkCustomer;
-
-		private global::Gamma.GtkWidgets.yCheckButton checkSupplier;
-
-		private global::Gamma.GtkWidgets.yCheckButton checkPartner;
+		private global::Gamma.Widgets.yEnumComboBox yenumCounterpartyType;
 
 		private global::Gtk.Label label1;
 
@@ -53,78 +49,54 @@ namespace Vodovoz.Filters.GtkViews
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.checkCustomer = new global::Gamma.GtkWidgets.yCheckButton();
-			this.checkCustomer.CanFocus = true;
-			this.checkCustomer.Name = "checkCustomer";
-			this.checkCustomer.Label = global::Mono.Unix.Catalog.GetString("Покупатель");
-			this.checkCustomer.DrawIndicator = true;
-			this.checkCustomer.UseUnderline = true;
-			this.hbox2.Add(this.checkCustomer);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.checkCustomer]));
+			this.yenumCounterpartyType = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumCounterpartyType.Name = "yenumCounterpartyType";
+			this.yenumCounterpartyType.ShowSpecialStateAll = false;
+			this.yenumCounterpartyType.ShowSpecialStateNot = false;
+			this.yenumCounterpartyType.UseShortTitle = false;
+			this.yenumCounterpartyType.DefaultFirst = false;
+			this.hbox2.Add(this.yenumCounterpartyType);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.yenumCounterpartyType]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.checkSupplier = new global::Gamma.GtkWidgets.yCheckButton();
-			this.checkSupplier.CanFocus = true;
-			this.checkSupplier.Name = "checkSupplier";
-			this.checkSupplier.Label = global::Mono.Unix.Catalog.GetString("Поставщик");
-			this.checkSupplier.DrawIndicator = true;
-			this.checkSupplier.UseUnderline = true;
-			this.hbox2.Add(this.checkSupplier);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.checkSupplier]));
-			w3.Position = 1;
-			w3.Expand = false;
-			w3.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.checkPartner = new global::Gamma.GtkWidgets.yCheckButton();
-			this.checkPartner.CanFocus = true;
-			this.checkPartner.Name = "checkPartner";
-			this.checkPartner.Label = global::Mono.Unix.Catalog.GetString("Партнер");
-			this.checkPartner.DrawIndicator = true;
-			this.checkPartner.UseUnderline = true;
-			this.hbox2.Add(this.checkPartner);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.checkPartner]));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
 			this.table1.Add(this.hbox2);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox2]));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.hbox2]));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Показывать только:");
 			this.table1.Add(this.label1);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Тег:");
 			this.table1.Add(this.label2);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
-			w7.TopAttach = ((uint)(1));
-			w7.BottomAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
+			w5.TopAttach = ((uint)(1));
+			w5.BottomAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryTag = new global::QS.Widgets.GtkUI.RepresentationEntry();
 			this.yentryTag.Events = ((global::Gdk.EventMask)(256));
 			this.yentryTag.Name = "yentryTag";
 			this.table1.Add(this.yentryTag);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryTag]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
-			w8.LeftAttach = ((uint)(1));
-			w8.RightAttach = ((uint)(2));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryTag]));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
 			if ((this.Child != null))
 			{

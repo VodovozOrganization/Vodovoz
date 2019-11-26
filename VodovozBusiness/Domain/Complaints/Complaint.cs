@@ -153,6 +153,12 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref actualCompletionDate, value, () => ActualCompletionDate);
 		}
 
+		ComplaintKind complaintKind;
+		[Display(Name = "Вид жалобы")]
+		public virtual ComplaintKind ComplaintKind {
+			get => complaintKind;
+			set => SetField(ref complaintKind, value);
+		}
 
 		IList<Fine> fines = new List<Fine>();
 		[Display(Name = "Штрафы")]
@@ -274,14 +280,10 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual void UpdateComplaintStatus()
 		{
-			if(Status == ComplaintStatuses.Closed) {
-				return;
-			}
-			if(ObservableComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.Checking)) {
-				SetStatus(ComplaintStatuses.Checking);
-			} else {
+			if(ObservableComplaintDiscussions.Any(x => x.Status == ComplaintStatuses.InProcess))
 				SetStatus(ComplaintStatuses.InProcess);
-			}
+			else
+				SetStatus(ComplaintStatuses.Checking);
 		}
 
 		public virtual IList<string> SetStatus(ComplaintStatuses newStatus)

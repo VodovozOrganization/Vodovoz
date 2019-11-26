@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
+using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Tdi;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
-using System.Linq;
-using Vodovoz.ViewModel;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.JournalNodes;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -37,14 +40,18 @@ namespace Vodovoz
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
 					.AddColumn ("На продукт")
 					.AddNumericRenderer (i => i.OneProductAmountEdited).Editing ().WidthChars (10)
-					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
+					.AddSetter ((c, i) => c.Digits = (uint)((i.Nomenclature?.Unit?.Digits) ?? 0))
 					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
-					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
+					.AddTextRenderer()
+					.AddSetter((c, i) => c.Text = i.Nomenclature?.Unit?.Name)
+					.AddSetter((c, i) => c.IsExpanded = false)
 					.AddColumn ("Всего израсходовано")
 					.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
-					.AddSetter((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
+					.AddSetter((c, i) => c.Digits = (uint)((i.Nomenclature?.Unit?.Digits) ?? 0))
 					.AddSetter ((c, i) => c.Adjustment = new Adjustment(0, 0, (double)i.AmountOnSource, 1, 100, 0))
-					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
+					.AddTextRenderer()
+					.AddSetter((c, i) => c.Text = i.Nomenclature?.Unit?.Name)
+					.AddSetter((c, i) => c.IsExpanded = false)
 					.AddColumn("")
 					.Finish ();
 
@@ -52,16 +59,6 @@ namespace Vodovoz
 
 				CalculateTotal ();
 			}
-		}
-
-		void OnOneProductColumnEdited (object o, EditedArgs args)
-		{
-//			var node = (((treeMaterialsList.Model as TreeModelAdapter).Implementor as MappingsImplementor).GetNodeAtPath(new TreePath(args.Path)) as IncomingWaterMaterial);
-//			int amount;
-//			if (int.TryParse (args.NewText, out amount)) {
-//				node.OneProductAmount = amount;
-//			} else
-//				node.OneProductAmount = null;
 		}
 
 		void Items_ElementChanged (object aList, int[] aIdx)
@@ -96,26 +93,32 @@ namespace Vodovoz
 				return;
 			}
 
-			var filter = new StockBalanceFilter (UnitOfWorkFactory.CreateWithoutRoot ());
-			filter.SetAndRefilterAtOnce(x => x.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse);
-			//FIXME возможно нужно добавить ограничение на типы номенклатур.
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
+				new WarehouseRepository(),
+				 ServicesConfig.InteractiveService
+			);
+			filter.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse;
 
-			PermissionControlledRepresentationJournal SelectDialog = new PermissionControlledRepresentationJournal (new ViewModel.StockBalanceVM (filter), Buttons.None);
-			SelectDialog.Mode = JournalSelectMode.Single;
-			SelectDialog.ObjectSelected += NomenclatureSelected;
+			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			);
 
-			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
-		}
+			vm.SelectionMode = JournalSelectionMode.Single;
+			vm.OnEntitySelectedResult += (s, ea) => {
+				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
+				if(selectedNode == null) {
+					return;
+				}
+				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
+				if(DocumentUoW.Root.Materials.Any(x => x.Nomenclature.Id == nomenclature.Id)) {
+					return;
+				}
+				DocumentUoW.Root.AddMaterial(nomenclature, 1, selectedNode.StockAmount);
+			};
 
-		void NomenclatureSelected (object sender, JournalObjectSelectedEventArgs e)
-		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			var selectedNode = e.GetNodes<StockBalanceVMNode>().FirstOrDefault();
-			if(selectedId == 0 || selectedNode == null) {
-				return;
-			}
-			var nomenctature = DocumentUoW.GetById<Nomenclature> (selectedId);
-			DocumentUoW.Root.AddMaterial (nomenctature, 1 , selectedNode.Amount);
+			mytab.TabParent.AddSlaveTab (mytab, vm);
 		}
 
 		void CalculateTotal ()

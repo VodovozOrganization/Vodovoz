@@ -278,6 +278,15 @@ namespace Vodovoz.EntityRepositories.Goods
 				throw new InvalidProgramException("В параметрах базы не настроена номенклатура воды С ручками");
 			return uow.GetById<Nomenclature>(int.Parse(MainSupport.BaseParameters.All[bottleDepositParameter]));
 		}
+
 		#endregion
+
+		public int GetIdentifierOfOnlineShopGroup()
+		{
+			string parameterName = "код_группы_товаров_для_интерент-магазина";
+			if(!MainSupport.BaseParameters.All.ContainsKey(parameterName) || !int.TryParse(MainSupport.BaseParameters.All[parameterName], out int res))
+				return 0;
+			return res;
+		}
 	}
 }

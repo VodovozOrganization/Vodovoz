@@ -62,5 +62,13 @@ namespace Vodovoz.JournalNodes
 				return "-";
 			}
 		}
+
+		public bool ComplaintKindIsArchive { get; set; }
+
+		string complaintKindString;
+		public string ComplaintKindString {
+			get => ComplaintKindIsArchive ? string.Format("(Архив) {0}", complaintKindString) : complaintKindString;
+			set => complaintKindString = value;
+		}
 	}
 }

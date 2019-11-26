@@ -16,6 +16,12 @@ using Vodovoz.Domain.Store;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Dialogs;
 using Vodovoz.ViewModel;
+using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.EntityRepositories.Store;
+using QS.Project.Services;
+using Vodovoz.JournalViewModels;
+using QS.Project.Journal;
+using Vodovoz.JournalNodes;
 
 namespace Vodovoz
 {
@@ -149,34 +155,42 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var filter = new StockBalanceFilter();
-			filter.SetAndRefilterAtOnce(x => x.RestrictWarehouse = DocumentUoW.Root.Warehouse);
-			var selectOldNomenclature = new PermissionControlledRepresentationJournal(new StockBalanceVM(filter));
-			selectOldNomenclature.Mode = JournalSelectMode.Single;
-			selectOldNomenclature.CustomTabName("Выберите номенклатуру на замену");
-			selectOldNomenclature.ObjectSelected += SelectOldNomenclature_ObjectSelected;
-			MyTab.TabParent.AddSlaveTab(MyTab, selectOldNomenclature);
-		}
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
+				new WarehouseRepository(),
+				 ServicesConfig.InteractiveService
+			);
+			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
-		void SelectOldNomenclature_ObjectSelected (object sender, JournalObjectSelectedEventArgs e)
-		{
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			var selectedNode = e.GetNodes<StockBalanceVMNode>().FirstOrDefault();
-			if(selectedId == 0 || selectedNode == null) {
-				return;
-			}
-			var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedId);
-			newRow = new RegradingOfGoodsDocumentItem()
-			{
-				NomenclatureOld = nomenclature,
-				AmountInStock = selectedNode.Amount
+			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			);
+
+			vm.SelectionMode = JournalSelectionMode.Single;
+			vm.TabName = "Выберите номенклатуру на замену";
+			vm.OnEntitySelectedResult += (s, ea) => {
+				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
+				if(selectedNode == null) {
+					return;
+				}
+				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
+				if(DocumentUoW.Root.Items.Any(x => x.NomenclatureOld.Id == nomenclature.Id)) {
+					return;
+				}
+
+				newRow = new RegradingOfGoodsDocumentItem() {
+					NomenclatureOld = nomenclature,
+					AmountInStock = selectedNode.StockAmount
+				};
+
+				var selectNewNomenclature = new OrmReference(QueryOver.Of<Nomenclature>().Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForGoods())));
+				selectNewNomenclature.Mode = OrmReferenceMode.Select;
+				selectNewNomenclature.TabName = "Выберите новую номенклатуру";
+				selectNewNomenclature.ObjectSelected += SelectNewNomenclature_ObjectSelected;
+				MyTab.TabParent.AddSlaveTab(MyTab, selectNewNomenclature);
 			};
-
-			var selectNewNomenclature = new OrmReference(QueryOver.Of<Nomenclature>().Where(n => n.Category.IsIn(Nomenclature.GetCategoriesForGoods())));
-			selectNewNomenclature.Mode = OrmReferenceMode.Select;
-			selectNewNomenclature.TabName = "Выберите новую номенклатуру";
-			selectNewNomenclature.ObjectSelected += SelectNewNomenclature_ObjectSelected;
-			MyTab.TabParent.AddSlaveTab(MyTab, selectNewNomenclature);
+			MyTab.TabParent.AddSlaveTab(MyTab, vm);
 		}
 
 		void SelectNewNomenclature_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
@@ -204,26 +218,31 @@ namespace Vodovoz
 
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
 		{
-			var filter = new StockBalanceFilter();
-			filter.SetAndRefilterAtOnce(x => x.RestrictWarehouse = DocumentUoW.Root.Warehouse);
-			var changeOldNomenclature = new PermissionControlledRepresentationJournal(new StockBalanceVM(filter));
-			changeOldNomenclature.Mode = JournalSelectMode.Single;
-			changeOldNomenclature.CustomTabName("Изменить старую номенклатуру");
-			changeOldNomenclature.ObjectSelected += ChangeOldNomenclature_ObjectSelected;
-			MyTab.TabParent.AddSlaveTab(MyTab, changeOldNomenclature);
-		}
+			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
+				new WarehouseRepository(),
+				 ServicesConfig.InteractiveService
+			);
+			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
-		void ChangeOldNomenclature_ObjectSelected (object sender, JournalObjectSelectedEventArgs e)
-		{
-			var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
-			var selectedId = e.GetSelectedIds().FirstOrDefault();
-			var selectedNode = e.GetNodes<StockBalanceVMNode>().FirstOrDefault();
-			if (row == null || selectedId == 0 || selectedNode == null) { 
-				return;
-			}
-			var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedId);
-			row.NomenclatureOld = nomenclature;
-			row.AmountInStock = selectedNode.Amount;
+			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
+				filter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			);
+
+			vm.SelectionMode = JournalSelectionMode.Single;
+			vm.TabName = "Изменить старую номенклатуру";
+			vm.OnEntitySelectedResult += (s, ea) => {
+				var row = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
+				var selectedNode = ea.SelectedNodes.Cast<NomenclatureStockJournalNode>().FirstOrDefault();
+				if(selectedNode == null) {
+					return;
+				}
+				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
+				row.NomenclatureOld = nomenclature;
+				row.AmountInStock = selectedNode.StockAmount;
+			};
+			MyTab.TabParent.AddSlaveTab(MyTab, vm);
 		}
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)

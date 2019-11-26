@@ -27,7 +27,7 @@ namespace Vodovoz.Reports
 		{
 			get
 			{
-				return "Отчет по складу";
+				return "Складские движения";
 			}
 		}
 
@@ -69,6 +69,7 @@ namespace Vodovoz.Reports
 					{ "startDate", dateperiodpicker1.StartDateOrNull.Value },
 					{ "endDate", dateperiodpicker1.EndDateOrNull.Value },
 					{ "warehouse_id", warehouse?.Id ?? -1},
+					{ "creationDate", DateTime.Now}
 				}
 			};
 		}			

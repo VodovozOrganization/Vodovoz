@@ -258,6 +258,10 @@ namespace Vodovoz
 
 				item.TransferedTo = newItem;
 
+				//Пересчёт зарплаты после изменения МЛ
+				routeListFrom.CalculateWages();
+				routeListTo.CalculateWages();
+
 				if(routeListTo.ClosingFilled)
 					newItem.FirstFillClosing(UoW);
 				UoW.Save(item);

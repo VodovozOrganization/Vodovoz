@@ -99,10 +99,12 @@ namespace Vodovoz.JournalViewModels
 			FilterViewModel.EmployeeRepository = employeeRepository;
 
 			var currentEmployeeSubdivision = employeeRepository.GetEmployeeForCurrentUser(UoW).Subdivision;
-			if(FilterViewModel.SubdivisionService.GetOkkId() != currentEmployeeSubdivision.Id)
-				FilterViewModel.Subdivision = currentEmployeeSubdivision;
-			else
-				FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
+			if(currentEmployeeSubdivision != null) {
+				if(FilterViewModel.SubdivisionService.GetOkkId() != currentEmployeeSubdivision.Id)
+					FilterViewModel.Subdivision = currentEmployeeSubdivision;
+				else
+					FilterViewModel.ComplaintStatus = ComplaintStatuses.Checking;
+			}
 
 			UpdateOnChanges(
 				typeof(Complaint),
@@ -136,6 +138,7 @@ namespace Vodovoz.JournalViewModels
 			Order orderAlias = null;
 			ComplaintDiscussion discussionAlias = null;
 			Subdivision subdivisionAlias = null;
+			ComplaintKind complaintKindAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -237,6 +240,7 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(() => complaintAlias.Order, () => orderAlias)
 				.Left.JoinAlias(() => orderAlias.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(() => complaintAlias.Guilties, () => complaintGuiltyItemAlias)
+				.Left.JoinAlias(() => complaintAlias.ComplaintKind, () => complaintKindAlias)
 				.Left.JoinAlias(() => complaintAlias.Fines, () => fineAlias)
 				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
 				.Left.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
@@ -286,6 +290,30 @@ namespace Vodovoz.JournalViewModels
 					query = query.Where(() => complaintAlias.Status == FilterViewModel.ComplaintStatus);
 				if(FilterViewModel.Employee != null)
 					query = query.Where(() => complaintAlias.CreatedBy.Id == FilterViewModel.Employee.Id);
+
+				if(FilterViewModel.GuiltyItemVM?.Entity?.GuiltyType != null) {
+					var subquery = QueryOver.Of<ComplaintGuiltyItem>()
+											.Where(g => g.GuiltyType == FilterViewModel.GuiltyItemVM.Entity.GuiltyType.Value);
+					switch(FilterViewModel.GuiltyItemVM.Entity.GuiltyType) {
+						case ComplaintGuiltyTypes.None:
+						case ComplaintGuiltyTypes.Client:
+							break;
+						case ComplaintGuiltyTypes.Employee:
+							if(FilterViewModel.GuiltyItemVM.Entity.Employee != null)
+								subquery.Where(g => g.Employee.Id == FilterViewModel.GuiltyItemVM.Entity.Employee.Id);
+							break;
+						case ComplaintGuiltyTypes.Subdivision:
+							if(FilterViewModel.GuiltyItemVM.Entity.Subdivision != null)
+								subquery.Where(g => g.Subdivision.Id == FilterViewModel.GuiltyItemVM.Entity.Subdivision.Id);
+							break;
+						default:
+							break;
+					}
+					query.WithSubquery.WhereProperty(x => x.Id).In(subquery.Select(x => x.Complaint));
+				}
+
+				if(FilterViewModel.ComplaintKind != null)
+					query.Where(() => complaintAlias.ComplaintKind.Id == FilterViewModel.ComplaintKind.Id);
 			}
 
 			#endregion Filter
@@ -313,6 +341,8 @@ namespace Vodovoz.JournalViewModels
 				.Select(authorProjection).WithAlias(() => resultAlias.Author)
 				.Select(finesProjection).WithAlias(() => resultAlias.Fines)
 				.Select(() => complaintAlias.ComplaintText).WithAlias(() => resultAlias.ComplaintText)
+				.Select(() => complaintKindAlias.Name).WithAlias(() => resultAlias.ComplaintKindString)
+				.Select(() => complaintKindAlias.IsArchive).WithAlias(() => resultAlias.ComplaintKindIsArchive)
 				.Select(() => complaintAlias.ResultText).WithAlias(() => resultAlias.ResultText)
 				.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
 			);

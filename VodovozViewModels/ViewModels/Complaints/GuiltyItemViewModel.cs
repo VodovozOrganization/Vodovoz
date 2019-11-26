@@ -24,6 +24,8 @@ namespace Vodovoz.ViewModels.Complaints
 			ConfigureEntityPropertyChanges();
 		}
 
+		public event EventHandler OnGuiltyItemReady;
+
 		public IList<Subdivision> AllDepartments => subdivisionRepository.GetAllDepartments(UoW);
 
 		public bool CanChooseEmployee => Entity.GuiltyType == ComplaintGuiltyTypes.Employee;
@@ -59,6 +61,13 @@ namespace Vodovoz.ViewModels.Complaints
 			SetPropertyChangeRelation(
 				e => e.Subdivision,
 				() => IsGuiltyCorrect
+			);
+
+			OnEntityPropertyChanged(
+				() => OnGuiltyItemReady?.Invoke(this, EventArgs.Empty),
+				e => e.GuiltyType,
+				e => e.Employee,
+				e => e.Subdivision
 			);
 		}
 	}

@@ -190,6 +190,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
+				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				;
 
 			//Регистрация фильтров
@@ -319,7 +320,6 @@ namespace Vodovoz
 			#region Складские документы
 			OrmMain.AddObjectDescription<IncomingInvoice>().Dialog<IncomingInvoiceDlg>();
 			OrmMain.AddObjectDescription<IncomingWater>().Dialog<IncomingWaterDlg>();
-			OrmMain.AddObjectDescription<MovementDocument>().Dialog<MovementDocumentDlg>();
 			OrmMain.AddObjectDescription<WriteoffDocument>().Dialog<WriteoffDocumentDlg>();
 			OrmMain.AddObjectDescription<InventoryDocument>().Dialog<InventoryDocumentDlg>();
 			OrmMain.AddObjectDescription<ShiftChangeWarehouseDocument>().Dialog<ShiftChangeWarehouseDocumentDlg>();

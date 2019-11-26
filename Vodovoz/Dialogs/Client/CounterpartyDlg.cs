@@ -191,9 +191,6 @@ namespace Vodovoz
 
 			ytreeviewTags.ItemsDataSource = Entity.ObservableTags;
 
-			enumNeedOfCheque.ItemsEnum = typeof(ChequeResponse);
-			enumNeedOfCheque.Binding.AddBinding(Entity, c => c.NeedCheque, w => w.SelectedItemOrNull).InitializeFromSource();
-
 			yEnumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			yEnumCounterpartyType.Binding.AddBinding(Entity, c => c.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
 			yEnumCounterpartyType.Changed += YEnumCounterpartyType_Changed;
@@ -211,7 +208,6 @@ namespace Vodovoz
 			menuActions.Sensitive = !UoWGeneric.IsNew;
 			contactsview1.Visible = false;
 			hboxCameFrom.Visible = (Entity.Id != 0 && Entity.CameFrom != null) || Entity.Id == 0;
-			enumNeedOfCheque.Visible = lblNeedCheque.Visible = CounterpartyRepository.IsCashPayment(Entity.PaymentMethod);
 			rbnPrices.Toggled += OnRbnPricesToggled;
 			SetVisibilityForCloseDeliveryComments();
 
@@ -419,7 +415,6 @@ namespace Vodovoz
 		protected void OnEnumPaymentEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			enumDefaultDocumentType.Visible = labelDefaultDocumentType.Visible = (PaymentType)e.SelectedItem == PaymentType.cashless;
-			enumNeedOfCheque.Visible = lblNeedCheque.Visible = CounterpartyRepository.IsCashPayment(Entity.PaymentMethod);
 		}
 
 		protected void OnEnumPaymentChangedByUser(object sender, EventArgs e)

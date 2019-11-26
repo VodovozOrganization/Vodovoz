@@ -62,5 +62,9 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetWaterKislorodnayaDeluxe(IUnitOfWork uow);
 		Nomenclature GetWaterStroika(IUnitOfWork uow);
 		Nomenclature GetWaterRuchki(IUnitOfWork uow);
+		/// <summary>
+		/// Идентификатор для группы товаров, принадлежащей интернет-магазину
+		/// </summary>
+		int GetIdentifierOfOnlineShopGroup();
 	}
 }

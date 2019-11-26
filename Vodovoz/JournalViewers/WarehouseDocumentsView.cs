@@ -59,16 +59,24 @@ namespace Vodovoz
 
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
-			bool isSensitive = tableDocuments.Selection.CountSelectedRows() > 0;
-			buttonEdit.Sensitive = isSensitive;
-			if(isSensitive) {
+			buttonEdit.Sensitive = false;
+			buttonDelete.Sensitive = false;
+
+			bool isSelected = tableDocuments.Selection.CountSelectedRows() > 0;
+
+			if(isSelected) {
 				var node = tableDocuments.GetSelectedObject<DocumentVMNode>();
 				if(node.DocTypeEnum == DocumentType.ShiftChangeDocument) {
 					var doc = uow.GetById<ShiftChangeWarehouseDocument>(node.Id);
-					isSensitive = isSensitive && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, doc.Warehouse);
+					isSelected = isSelected && StoreDocumentHelper.CanEditDocument(WarehousePermissions.ShiftChangeEdit, doc.Warehouse);
 				}
+
+				var item = tableDocuments.GetSelectedObject<DocumentVMNode>();
+				var permissionResult = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(Document.GetDocClass(item.DocTypeEnum), ServicesConfig.UserService.CurrentUserId);
+
+				buttonDelete.Sensitive = permissionResult.CanDelete;
+				buttonEdit.Sensitive = permissionResult.CanUpdate;
 			}
-			buttonDelete.Sensitive = isSensitive;
 		}
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
@@ -209,7 +217,13 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			var item = tableDocuments.GetSelectedObject<ViewModel.DocumentVMNode>();
+			var item = tableDocuments.GetSelectedObject<DocumentVMNode>();
+			var permissionResult = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(Document.GetDocClass(item.DocTypeEnum), ServicesConfig.UserService.CurrentUserId);
+
+			if(!permissionResult.CanDelete) {
+				return;
+			}
+
 			if(OrmMain.DeleteObject (Document.GetDocClass(item.DocTypeEnum), item.Id))
 				tableDocuments.RepresentationModel.UpdateNodes ();
 		}

@@ -65,8 +65,12 @@ namespace Vodovoz.JournalViewModels
 					)
 				);
 			} else {
-				//так как не выбран склад считать баланс не имеет смысла
-				incomeSubQuery.Where(Restrictions.Eq(Projections.Constant(false), true));
+				//если не выбрано склада считаем общий баланс по всем складам
+				incomeSubQuery.Where(
+					Restrictions.IsNotNull(
+						Projections.Property(() => incomeWarehouseOPerationAlias.IncomingWarehouse)
+					)
+				);
 			}
 
 			incomeSubQuery.Select(Projections.Sum(Projections.Property(() => incomeWarehouseOPerationAlias.Amount)));
@@ -86,8 +90,12 @@ namespace Vodovoz.JournalViewModels
 					)
 				);
 			} else {
-				//так как не выбран склад считать баланс не имеет смысла
-				writeoffSubQuery.Where(Restrictions.Eq(Projections.Constant(false), true));
+				//если не выбрано склада считаем общий баланс по всем складам
+				writeoffSubQuery.Where(
+					Restrictions.IsNotNull(
+						Projections.Property(() => writeoffWarehouseOperationAlias.WriteoffWarehouse)
+					)
+				);
 			}
 
 			writeoffSubQuery.Select(Projections.Sum(Projections.Property(() => writeoffWarehouseOperationAlias.Amount)));
@@ -105,7 +113,9 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(() => nomenclatureAlias.Unit, () => measurementUnitsAlias);
 
 			if(FilterViewModel != null) {
-				queryStock.Where(() => nomenclatureAlias.IsArchive == FilterViewModel.ShowArchive);
+				if(!FilterViewModel.ShowArchive) {
+					queryStock.Where(() => nomenclatureAlias.IsArchive == false);
+				}
 
 				if(FilterViewModel.ExcludedNomenclatureIds != null && FilterViewModel.ExcludedNomenclatureIds.Any()) {
 					queryStock.Where(
@@ -117,9 +127,10 @@ namespace Vodovoz.JournalViewModels
 						)
 					);
 				}
+				if(FilterViewModel.Warehouse != null) {
+					queryStock.Where(Restrictions.Gt(projection, 0));
+				}
 			}
-
-			queryStock.Where(Restrictions.Gt(projection, 0));
 
 			queryStock.Where(
 				GetSearchCriterion(
