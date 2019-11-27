@@ -1049,7 +1049,7 @@ namespace Vodovoz.Domain.Logistic
 
 				var operations = item.Order.UpdateDepositOperations(UoW, equipmentRefundDeposit, bottleRefundDeposit);
 
-				operations.ForEach(x => result.Add(x));
+				operations?.ForEach(x => result.Add(x));
 			}
 			return result;
 		}
