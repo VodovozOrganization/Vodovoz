@@ -175,9 +175,6 @@ namespace Vodovoz
 					return;
 				}
 				var nomenclature = DocumentUoW.GetById<Nomenclature>(selectedNode.Id);
-				if(DocumentUoW.Root.Items.Any(x => x.NomenclatureOld.Id == nomenclature.Id)) {
-					return;
-				}
 
 				newRow = new RegradingOfGoodsDocumentItem() {
 					NomenclatureOld = nomenclature,
