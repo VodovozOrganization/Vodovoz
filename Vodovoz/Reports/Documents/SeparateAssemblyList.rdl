@@ -13,14 +13,14 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Nomenclature">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	nomenclature.official_name AS name,
 	nomenclature.id AS nomenclature_id,
 	IFNULL(order_items.actual_count, order_items.count) AS items_count,
 	nomenclature.storage_cell,
-	ROUND(order_items.price - (order_items.discount_money / IFNULL(order_items.actual_count,order_items.count)),2) AS price,
+	order_items.price - (order_items.discount_money / IFNULL(order_items.actual_count,order_items.count)) AS price,
 	GET_TOTAL_SUM_FOR_ORDER_ITEM(order_items.id) AS total_item_price
 FROM order_items
 LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
@@ -33,7 +33,7 @@ WHERE order_items.order_id = @order_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
         </Field>
@@ -55,7 +55,7 @@ WHERE order_items.order_id = @order_id
       </Fields>
     </DataSet>
     <DataSet Name="order_info">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	counterparty.name AS client,
@@ -83,7 +83,7 @@ LIMIT 1
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="client">
           <DataField>client</DataField>
         </Field>
@@ -142,6 +142,30 @@ WHERE
       <Fields>
         <Field Name="name">
           <DataField>name</DataField>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="PaymentTotal">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    IF(orders.payment_type = 'cash', GET_TOTAL_SUM_FOR_ORDER_ITEM(order_items.id), 0) AS total_payment
+FROM order_items
+LEFT JOIN orders ON orders.id = order_items.order_id
+LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+WHERE orders.id = @order_id
+    AND IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id)
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="total_payment">
+          <DataField>total_payment</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -902,7 +926,7 @@ WHERE
           <TableColumn>
             <Width>196.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>58.7pt</Width>
           </TableColumn>
           <TableColumn>
@@ -993,7 +1017,7 @@ WHERE
                       <CanGrow>false</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1132,7 +1156,7 @@ WHERE
                       <CanGrow>false</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1245,7 +1269,7 @@ WHERE
                       <CanGrow>false</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1359,7 +1383,7 @@ WHERE
                       <CanGrow>false</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1491,12 +1515,12 @@ WHERE
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1593,9 +1617,9 @@ WHERE
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
                       <Value>Количество</Value>
@@ -1710,9 +1734,9 @@ WHERE
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
                       <Value>={items_count}</Value>
@@ -1749,7 +1773,7 @@ WHERE
                         <PaddingBottom>2pt</PaddingBottom>
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1771,7 +1795,7 @@ WHERE
                         <PaddingBottom>2pt</PaddingBottom>
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1858,8 +1882,9 @@ WHERE
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Bottom</VerticalAlign>
+                        <Format >0.00</Format>
                       </Style>
-                      <Value>=Sum({total_item_price})</Value>
+                      <Value>=Sum({total_payment}, "PaymentTotal")</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>

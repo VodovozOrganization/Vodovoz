@@ -322,14 +322,23 @@ namespace VodovozBusinessTests.Domain.Orders
 			OrderItem orderItemMock0 = Substitute.For<OrderItem>();
 			orderItemMock0.Discount.Returns(0);
 			orderItemMock0.PromoSet.ReturnsNull();
+			Nomenclature nomenclature0 = Substitute.For<Nomenclature>();
+			nomenclature0.Category.Returns(NomenclatureCategory.additional);
+			orderItemMock0.Nomenclature = nomenclature0;
 
 			OrderItem orderItemMock2 = Substitute.For<OrderItem>();
 			orderItemMock2.Discount.Returns(100);
 			orderItemMock2.PromoSet.Returns(promotionalSetMockExisting);
+			Nomenclature nomenclature2 = Substitute.For<Nomenclature>();
+			nomenclature2.Category.Returns(NomenclatureCategory.additional);
+			orderItemMock2.Nomenclature = nomenclature2;
 
 			OrderItem orderItemMock3 = Substitute.For<OrderItem>();
 			orderItemMock3.Discount.Returns(0);
 			orderItemMock3.PromoSet.Returns(promotionalSetMockExisting);
+			Nomenclature nomenclature3 = Substitute.For<Nomenclature>();
+			nomenclature3.Category.Returns(NomenclatureCategory.additional);
+			orderItemMock3.Nomenclature = nomenclature3;
 
 			Order orderUnderTest = new Order {
 				OrderItems = new List<OrderItem> {
@@ -356,14 +365,23 @@ namespace VodovozBusinessTests.Domain.Orders
 			OrderItem orderItemMock0 = Substitute.For<OrderItem>();
 			orderItemMock0.Discount.Returns(0);
 			orderItemMock0.PromoSet.ReturnsNull();
+			Nomenclature nomenclature0 = Substitute.For<Nomenclature>();
+			nomenclature0.Category.Returns(NomenclatureCategory.additional);
+			orderItemMock0.Nomenclature = nomenclature0;
 
 			OrderItem orderItemMock2 = Substitute.For<OrderItem>();
 			orderItemMock2.Discount.Returns(100);
 			orderItemMock2.PromoSet.Returns(promotionalSetMockExisting);
+			Nomenclature nomenclature2 = Substitute.For<Nomenclature>();
+			nomenclature2.Category.Returns(NomenclatureCategory.additional);
+			orderItemMock2.Nomenclature = nomenclature2;
 
 			OrderItem orderItemMock3 = Substitute.For<OrderItem>();
 			orderItemMock3.Discount.Returns(0);
 			orderItemMock3.PromoSet.Returns(promotionalSetMockExisting);
+			Nomenclature nomenclature3 = Substitute.For<Nomenclature>();
+			nomenclature3.Category.Returns(NomenclatureCategory.additional);
+			orderItemMock3.Nomenclature = nomenclature3;
 
 			Order orderUnderTest = new Order {
 				OrderItems = new List<OrderItem> { orderItemMock0, orderItemMock3 },
