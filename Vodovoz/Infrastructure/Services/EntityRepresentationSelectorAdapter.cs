@@ -98,6 +98,7 @@ namespace Vodovoz.Infrastructure.Services
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 		public event EventHandler TabClosed;
+		public event EventHandler ListUpdated;
 
 		public bool CompareHashName(string hashName)
 		{
