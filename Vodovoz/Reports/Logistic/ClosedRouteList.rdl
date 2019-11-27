@@ -1804,7 +1804,7 @@ LEFT JOIN (
 		SELECT 
 			order_items.order_id AS order_id,
 			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), -1, nomenclature_id) AS nomenclature_id,
-			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), 'Заказ ИМ', IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
+			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), CONCAT('Заказ ИМ ', order_items.order_id), IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
 			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), 1, SUM(IFNULL(order_items.actual_count, 0))) AS cnt
 		FROM order_items
 		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
