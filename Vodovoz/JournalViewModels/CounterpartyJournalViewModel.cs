@@ -42,7 +42,7 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
-			if(FilterViewModel != null) {
+			if(FilterViewModel?.CounterpartyType != null) {
 				query.Where(t => t.CounterpartyType == FilterViewModel.CounterpartyType);
 			}
 

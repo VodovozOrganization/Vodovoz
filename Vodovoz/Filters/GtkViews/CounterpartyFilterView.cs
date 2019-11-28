@@ -19,7 +19,7 @@ namespace Vodovoz.Filters.GtkViews
 			yentryTag.RepresentationModel = ViewModel.TagVM;
 			yentryTag.Binding.AddBinding(ViewModel, vm => vm.Tag, w => w.Subject).InitializeFromSource();
 			yenumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
-			yenumCounterpartyType.Binding.AddBinding(ViewModel, vm => vm.CounterpartyType, w => w.SelectedItem).InitializeFromSource();
+			yenumCounterpartyType.Binding.AddBinding(ViewModel, vm => vm.CounterpartyType, w => w.SelectedItemOrNull).InitializeFromSource();
 			checkIncludeArhive.Binding.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active).InitializeFromSource();
 		}
 	}
