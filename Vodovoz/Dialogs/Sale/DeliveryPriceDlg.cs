@@ -7,6 +7,7 @@ using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
 using QSOsm.DTO;
 using Vodovoz.Tools.Logistic;
+using Vodovoz.Additions.Logistic;
 
 namespace Vodovoz.Dialogs.Sale
 {
@@ -40,7 +41,7 @@ namespace Vodovoz.Dialogs.Sale
 			entryBuilding.Changed += EntryBuilding_Changed;
 
 			//Configure map
-			MapWidget.MapProvider = GMapProviders.OpenStreetMap;
+			MapWidget.MapProvider = GMapProviders.YandexMap;
 			MapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			MapWidget.MinZoom = 0;
 			MapWidget.MaxZoom = 24;
@@ -48,6 +49,9 @@ namespace Vodovoz.Dialogs.Sale
 			MapWidget.WidthRequest = 450;
 			MapWidget.HasFrame = true;
 			MapWidget.Overlays.Add(addressOverlay);
+
+			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
+			yenumcomboMapType.ChangedByUser += (sender, e) => MapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)yenumcomboMapType.SelectedItem);
 
 			deliverypriceview.OnError += (sender, e) => {
 				MessageDialogHelper.RunErrorDialog(e);
