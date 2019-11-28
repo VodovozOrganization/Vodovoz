@@ -51,7 +51,7 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.yenumCounterpartyType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumCounterpartyType.Name = "yenumCounterpartyType";
-			this.yenumCounterpartyType.ShowSpecialStateAll = false;
+			this.yenumCounterpartyType.ShowSpecialStateAll = true;
 			this.yenumCounterpartyType.ShowSpecialStateNot = false;
 			this.yenumCounterpartyType.UseShortTitle = false;
 			this.yenumCounterpartyType.DefaultFirst = false;

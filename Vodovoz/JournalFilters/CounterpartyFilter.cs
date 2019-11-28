@@ -20,13 +20,12 @@ namespace Vodovoz
 			this.Build();
 			UoW = uow;
 			yenumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
-			yenumCounterpartyType.SelectedItem = CounterpartyType.Buyer;
 		}
 
-		public CounterpartyType CounterpartyType {
-			get { return (CounterpartyType)yenumCounterpartyType.SelectedItem; }
+		public CounterpartyType? CounterpartyType {
+			get { return (CounterpartyType?)yenumCounterpartyType.SelectedItemOrNull; }
 			set {
-				yenumCounterpartyType.SelectedItem = value;
+				yenumCounterpartyType.SelectedItemOrNull = value;
 			}
 		}
 
