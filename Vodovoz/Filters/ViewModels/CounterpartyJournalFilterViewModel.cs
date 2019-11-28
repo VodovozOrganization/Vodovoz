@@ -18,8 +18,8 @@ namespace Vodovoz.Filters.ViewModels
 			);
 		}
 
-		private CounterpartyType counterpartyType;
-		public virtual CounterpartyType CounterpartyType {
+		private CounterpartyType? counterpartyType;
+		public virtual CounterpartyType? CounterpartyType {
 			get => counterpartyType;
 			set => SetField(ref counterpartyType, value, () => CounterpartyType);
 		}
