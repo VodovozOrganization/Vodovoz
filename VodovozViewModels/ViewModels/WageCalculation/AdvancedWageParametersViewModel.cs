@@ -6,6 +6,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.WageCalculation.AdvancedWageParametersViewModels;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
@@ -53,7 +54,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		public DelegateCommand CancelCreationCommand {
 			get {
 				if(cancelCreationCommand == null)
-					cancelCreationCommand = new DelegateCommand(() => { CancelCreation?.Invoke();});
+					cancelCreationCommand = new DelegateCommand(() => { CancelCreation?.Invoke();},() => true);
 				return cancelCreationCommand;
 
 			}
@@ -65,8 +66,11 @@ namespace Vodovoz.ViewModels.WageCalculation
 			get {
 				if(addCommand == null) {
 					AddCommand = new DelegateCommand(() => {
-						//AcceptCreation.Invoke()
-					});
+						var parameter = (ParameterViewModel as IWageParameterViewModel).GetParameter();
+						if(!CommonServices.ValidationService.GetValidator().Validate(parameter))
+							return;
+						AcceptCreation.Invoke((ParameterViewModel as IWageParameterViewModel).GetParameter());
+					}, () => true);
 				}
 				return addCommand;
 

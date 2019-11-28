@@ -37,7 +37,6 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			set => SetField(ref rightSing, value);
 		}
 
-
 		private uint? bottlesTo;
 		[Display(Name = "До")]
 		public virtual uint? BottlesTo {

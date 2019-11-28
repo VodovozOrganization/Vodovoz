@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
 
@@ -10,7 +11,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 	NominativePlural = "дополнительные параметры расчёта зарплаты",
 	Nominative = "дополнительный параметр расчёта зарплаты"
 	)]
-	public abstract class AdvancedWageParameter : PropertyChangedBase, IAdvancedWageParameter
+	public abstract class AdvancedWageParameter : PropertyChangedBase, IAdvancedWageParameter , IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
@@ -35,17 +36,20 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			}
 		}
 
-		private IList<IWageHierarchyNode> children;
-		[Display(Name = "Вложенные параметры")]
+		//Для отображение в иерархическом списке
 		public virtual IList<IWageHierarchyNode> Children {
-			get => children;
-			set => SetField(ref children, value);
+			get => ChildrenParameters.OfType<IWageHierarchyNode>().ToList() ?? new List<IWageHierarchyNode>();
 		}
 
-		//Поле используется только для загрузки из базы списка дополнительных параметров 
+		private IList<AdvancedWageParameter> childrenParameters;
+		[Display(Name = "Дополнительные параметры расчета зп")]
 		public virtual IList<AdvancedWageParameter> ChildrenParameters {
-			get => Children?.OfType<AdvancedWageParameter>()?.ToList();
-			set { Children = value?.OfType<IWageHierarchyNode>()?.ToList(); }
+			get {
+				if(childrenParameters == null)
+					childrenParameters = new List<AdvancedWageParameter>(); 
+				return childrenParameters; 
+				}
+			set { SetField(ref childrenParameters, value); }
 		}
 
 		private decimal forDriverWithForwarder;
@@ -76,7 +80,6 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		public virtual IWageHierarchyNode Parent {
 			get => WageRate as IWageHierarchyNode ?? ParentParameter as IWageHierarchyNode;
 			set {
-
 				if(value is WageRate wageRate)
 					WageRate = wageRate;
 				if(value is AdvancedWageParameter parameter)
@@ -89,7 +92,6 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		}
 
 		public abstract string Name { get; }
-
 
 		public virtual string GetUnitName
 		{
@@ -108,5 +110,18 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		public abstract bool HasConflicWith(IAdvancedWageParameter advancedWageParameter);
 
 		public abstract override string ToString();
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			var parameters = Parent.Children?.Where(x => x != this).OfType<AdvancedWageParameter>();
+
+			if(parameters == null)
+				yield break;
+
+			foreach(var param in parameters) {
+				if(HasConflicWith(param))
+					yield return new ValidationResult($"Конфликт {this.ToString()} с {param.ToString()}");
+			}
+		}
 	}
 }

@@ -33,6 +33,7 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 			this.hbox2.Add(this.timerangepicker);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.timerangepicker]));
 			w1.Position = 0;
+			w1.Expand = false;
 			this.vbox2.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox2]));
 			w2.Position = 0;

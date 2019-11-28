@@ -134,6 +134,7 @@
     <Compile Include="FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
     <Compile Include="JournalNodes\NomenclatureStockJournalNode.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintKindViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\IWageParameterViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

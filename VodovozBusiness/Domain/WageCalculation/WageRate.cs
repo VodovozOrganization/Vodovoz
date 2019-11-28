@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
+using System.Data.Bindings.Collections;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Utilities;
 using QS.Utilities.Text;
@@ -67,17 +67,20 @@ namespace Vodovoz.Domain.WageCalculation
 
 		public virtual IWageHierarchyNode Parent { get => null; set { } }
 
-		private IList<IWageHierarchyNode> children;
-		[Display(Name = "Дополнительные параметры расчета зп")]
+		//Для отображение в иерархическом списке
 		public virtual IList<IWageHierarchyNode> Children {
-			get => children;
-			set => SetField(ref children, value);
+			get => ChildrenParameters.OfType<IWageHierarchyNode>().ToList() ?? new List<IWageHierarchyNode>();
 		}
 
-		//Поле используется только для загрузки из базы списка дополнительных параметров 
+		private IList<AdvancedWageParameter> childrenParameters;
+		[Display(Name = "Дополнительные параметры расчета зп")]
 		public virtual IList<AdvancedWageParameter> ChildrenParameters {
-			get => Children?.OfType<AdvancedWageParameter>()?.ToList();
-			set { Children = value?.OfType<IWageHierarchyNode>()?.ToList();}
+			get {
+				if(childrenParameters == null)
+					childrenParameters = new List<AdvancedWageParameter>();
+				return childrenParameters;
+			}
+			set { SetField(ref childrenParameters, value);}
 		}
 
 		public virtual string Name => WageRateType.GetAttribute<DisplayAttribute>()?.Name ?? WageRateType.ToString();

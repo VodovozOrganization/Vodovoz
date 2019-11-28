@@ -1,6 +1,7 @@
 ﻿using QS.Views.GtkUI;
 using QSOrmProject;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
+using Vodovoz.ViewModels.WageCalculation.AdvancedWageParametersViewModels;
 using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 
 namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews

@@ -34,7 +34,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		public override bool HasConflicWith(IAdvancedWageParameter advancedWageParameter)
 		{
 			if(!(advancedWageParameter is DeliveryTimeAdvancedWageParameter))
-				throw new ArgumentException();
+				return true;
 
 			var wageParam = advancedWageParameter as DeliveryTimeAdvancedWageParameter;
 

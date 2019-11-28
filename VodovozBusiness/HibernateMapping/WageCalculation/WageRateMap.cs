@@ -18,7 +18,7 @@ namespace Vodovoz.HibernateMapping.WageCalculation
 
 			References(x => x.WageDistrictLevelRate).Column("wage_district_level_rate_id");
 
-			HasMany(x => x.ChildrenParameters).KeyColumn("wage_rate_id");
+			HasMany(x => x.ChildrenParameters).Cascade.AllDeleteOrphan().KeyColumn("wage_rate_id");
 		}
 	}
 }

@@ -16,6 +16,8 @@ namespace Vodovoz.ViewModels.WageCalculation
 	{
 		public ITdiTab TdiTab { get; }
 		public IAdvancedWageWidgetFactory AdvancedWageWidgetFactory { get; }
+		public event Action WageRatesUpdate;
+
 
 		private ViewModelBase advancedWidgetViewModel;
 		public virtual ViewModelBase AdvancedWidgetViewModel {
@@ -53,12 +55,13 @@ namespace Vodovoz.ViewModels.WageCalculation
 		get{ 	
 				if(openAdvancedParametersCommand == null) {
 					openAdvancedParametersCommand = new DelegateCommand<IWageHierarchyNode>((selectedNode) => {
-						if(selectedNode is AdvancedWageParameter wageParameter)
-							AdvancedWidgetViewModel = AdvancedWageWidgetFactory.GetAdvancedWageWidgetViewModel(wageParameter, CommonServices);
+						if(!(selectedNode is AdvancedWageParameter wageParameter))
+							return;
+						var widgetVM = AdvancedWageWidgetFactory.GetAdvancedWageWidgetViewModel(wageParameter, CommonServices);
+						AdvancedWidgetViewModel = widgetVM;
 					});
 				}
 				return openAdvancedParametersCommand;
-
 			} 
 		set => openAdvancedParametersCommand = value; }
 
@@ -67,8 +70,11 @@ namespace Vodovoz.ViewModels.WageCalculation
 			get {
 				if(deleteAdvancedParametersCommand == null) {
 					deleteAdvancedParametersCommand = new DelegateCommand<IWageHierarchyNode>((selectedNode) => {
-						if(selectedNode is AdvancedWageParameter wageParameter)
-							UoW.Delete(wageParameter);
+						if(!(selectedNode is AdvancedWageParameter wageParameter))
+							return;
+						(wageParameter.Parent as WageRate)?.ChildrenParameters.Remove(wageParameter);
+						(wageParameter.Parent as AdvancedWageParameter)?.ChildrenParameters.Remove(wageParameter);
+						WageRatesUpdate?.Invoke();
 					});
 				}
 				return deleteAdvancedParametersCommand;
@@ -82,9 +88,19 @@ namespace Vodovoz.ViewModels.WageCalculation
 			get {
 				if(addNewParameterCommand == null) {
 					addNewParameterCommand = new DelegateCommand<IWageHierarchyNode>((selectedNode) => {
-						if(selectedNode is AdvancedWageParameter wageParameter)
-							AdvancedWidgetViewModel = new AdvancedWageParametersViewModel(selectedNode, new AdvancedWageWidgetFactory(), CommonServices);
-					});
+						if(selectedNode == null)
+							return;
+						var widgetVM = new AdvancedWageParametersViewModel(selectedNode, new AdvancedWageWidgetFactory(), CommonServices);
+						widgetVM.AcceptCreation += (obj) => {
+							(selectedNode as WageRate)?.ChildrenParameters.Add(obj as AdvancedWageParameter);
+							(selectedNode as AdvancedWageParameter)?.ChildrenParameters.Add(obj as AdvancedWageParameter);
+							AdvancedWidgetViewModel = null;
+							WageRatesUpdate?.Invoke();
+						};
+						widgetVM.CancelCreation += () => AdvancedWidgetViewModel = null;
+						AdvancedWidgetViewModel = widgetVM;
+						},
+					(obj) => obj != null);
 				}
 				return addNewParameterCommand;
 

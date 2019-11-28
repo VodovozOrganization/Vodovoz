@@ -19,7 +19,7 @@ namespace Vodovoz.HibernateMapping.WageCalculation.AdvancedWageParameters
 
 			References(x => x.ParentParameter).Column("parent_id");
 			References(x => x.WageRate).Column("wage_rate_id");
-			HasMany(x => x.ChildrenParameters).KeyColumn("parent_id");
+			HasMany(x => x.ChildrenParameters).Cascade.AllDeleteOrphan().KeyColumn("parent_id");
 		}
 	}
 }
