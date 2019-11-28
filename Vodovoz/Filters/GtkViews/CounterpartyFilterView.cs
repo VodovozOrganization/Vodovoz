@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.Views.GtkUI;
+using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.Filters.GtkViews
@@ -17,9 +18,8 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			yentryTag.RepresentationModel = ViewModel.TagVM;
 			yentryTag.Binding.AddBinding(ViewModel, vm => vm.Tag, w => w.Subject).InitializeFromSource();
-			checkCustomer.Binding.AddBinding(ViewModel, vm => vm.RestrictIncludeCustomer, w => w.Active).InitializeFromSource();
-			checkPartner.Binding.AddBinding(ViewModel, vm => vm.RestrictIncludePartner, w => w.Active).InitializeFromSource();
-			checkSupplier.Binding.AddBinding(ViewModel, vm => vm.RestrictIncludeSupplier, w => w.Active).InitializeFromSource();
+			yenumCounterpartyType.ItemsEnum = typeof(CounterpartyType);
+			yenumCounterpartyType.Binding.AddBinding(ViewModel, vm => vm.CounterpartyType, w => w.SelectedItem).InitializeFromSource();
 			checkIncludeArhive.Binding.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active).InitializeFromSource();
 		}
 	}

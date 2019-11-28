@@ -67,6 +67,18 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
+		List<ComplaintKind> complaintKindSource;
+		public IEnumerable<ComplaintKind> ComplaintKindSource {
+			get {
+				if(complaintKindSource == null)
+					complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
+				if(Entity.ComplaintKind != null && Entity.ComplaintKind.IsArchive)
+					complaintKindSource.Add(UoW.GetById<ComplaintKind>(Entity.ComplaintKind.Id));
+
+				return complaintKindSource;
+			}
+		}
+
 		private GuiltyItemsViewModel guiltyItemsViewModel;
 		public GuiltyItemsViewModel GuiltyItemsViewModel {
 			get {

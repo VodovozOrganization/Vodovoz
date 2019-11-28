@@ -33,6 +33,10 @@ namespace Vodovoz.Views.Complaints
 			EntryCounterparty_ChangedByUser(this, new EventArgs());
 			entryCounterparty.ChangedByUser += EntryCounterparty_ChangedByUser;
 
+			spLstComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
+			spLstComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
+			spLstComplaintKind.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem).InitializeFromSource();
+
 			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
 
 			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
