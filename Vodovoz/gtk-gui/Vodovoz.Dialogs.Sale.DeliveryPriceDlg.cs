@@ -34,6 +34,10 @@ namespace Vodovoz.Dialogs.Sale
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinBottles;
 
+		private global::Gtk.VBox vbox3;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboMapType;
+
 		private global::GMap.NET.GtkSharp.GMapControl MapWidget;
 
 		protected virtual void Build()
@@ -216,6 +220,22 @@ namespace Vodovoz.Dialogs.Sale
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
+			this.vbox3 = new global::Gtk.VBox();
+			this.vbox3.Name = "vbox3";
+			this.vbox3.Spacing = 6;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.yenumcomboMapType = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboMapType.Name = "yenumcomboMapType";
+			this.yenumcomboMapType.ShowSpecialStateAll = false;
+			this.yenumcomboMapType.ShowSpecialStateNot = false;
+			this.yenumcomboMapType.UseShortTitle = false;
+			this.yenumcomboMapType.DefaultFirst = true;
+			this.vbox3.Add(this.yenumcomboMapType);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.yenumcomboMapType]));
+			w15.Position = 0;
+			w15.Expand = false;
+			w15.Fill = false;
+			// Container child vbox3.Gtk.Box+BoxChild
 			this.MapWidget = new global::GMap.NET.GtkSharp.GMapControl();
 			this.MapWidget.Name = "MapWidget";
 			this.MapWidget.MaxZoom = 24;
@@ -231,9 +251,12 @@ namespace Vodovoz.Dialogs.Sale
 			this.MapWidget.PolygonsEnabled = false;
 			this.MapWidget.MarkersEnabled = true;
 			this.MapWidget.CanDragMap = true;
-			this.hbox1.Add(this.MapWidget);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.MapWidget]));
-			w15.Position = 1;
+			this.vbox3.Add(this.MapWidget);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.MapWidget]));
+			w16.Position = 1;
+			this.hbox1.Add(this.vbox3);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox3]));
+			w17.Position = 1;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
