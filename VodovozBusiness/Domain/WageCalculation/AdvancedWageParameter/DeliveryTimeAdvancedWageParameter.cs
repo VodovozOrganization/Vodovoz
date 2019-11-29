@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
 namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
@@ -60,5 +61,13 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 
 			return $"С {StartTime.ToString()} до {EndTime.ToString()}";
 		}
+
+		public override bool IsValidСonditions(IRouteListItemWageCalculationSource scr)
+		{
+			return scr.DeliverySchedule.Item1 >= StartTime 
+				   && scr.DeliverySchedule.Item1<= EndTime;
+		}
+
+
 	}
 }

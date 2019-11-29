@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
 namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
@@ -49,7 +50,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		public virtual (uint,uint) GetCountRange()
 		{
 			if(LeftSing == ComparisonSings.Equally && RightSing == null)
-				return ((uint)BottlesFrom, (uint)BottlesFrom);
+				return (BottlesFrom, BottlesFrom);
 
 			uint? from = null;
 			uint? to = null;
@@ -57,10 +58,10 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 
 			switch(LeftSing) {
 				case ComparisonSings.Less:
-					from = (uint)BottlesFrom + 1;
+					from = BottlesFrom + 1;
 					break;
 				case ComparisonSings.LessOrEqual:
-					from = (uint)BottlesFrom;
+					from = BottlesFrom;
 					break;
 			}
 
@@ -69,10 +70,10 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 				switch(LeftSing) 
 				{
 					case ComparisonSings.More:
-						to = (uint)BottlesFrom - 1;
+						to = BottlesFrom - 1;
 						break;
 					case ComparisonSings.MoreOrEqual:
-						to = (uint)BottlesFrom;
+						to = BottlesFrom;
 						break;
 				}
 			} else {
@@ -121,6 +122,13 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 				param += $" {RightSing.GetAttribute<DisplayAttribute>()?.Name} {BottlesTo}";
 			return param;
 		}
+
+		public override bool IsValidСonditions(IRouteListItemWageCalculationSource scr)
+		{
+			var range = GetCountRange();
+			return scr.FullBottle19LCount >= range.Item1 
+				   && scr.FullBottle19LCount <= range.Item2;
+		}
 	}
 
 	public enum ComparisonSings
@@ -133,7 +141,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		LessOrEqual,
 		[Display(Name = ">")]
 		More,
-		[Display(Name = ">=)")]
+		[Display(Name = ">=")]
 		MoreOrEqual
 	}
 

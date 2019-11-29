@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
 namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 {
@@ -111,6 +112,25 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 
 		public abstract override string ToString();
 
+		public abstract bool IsValidСonditions(IRouteListItemWageCalculationSource scr);
+
+		public virtual RouteListWageNode CalculateWage(IRouteListItemWageCalculationSource src)
+		{
+			if(!IsValidСonditions(src))
+				return null;
+
+			if(ChildrenParameters?.FirstOrDefault() == null)
+				return new RouteListWageNode(forDriverWithForwarder, forDriverWithoutForwarder, forForwarder);
+
+			foreach(var param in ChildrenParameters) {
+				var wageNode = param.CalculateWage(src);
+				if(wageNode != null)
+					return wageNode;
+			}
+
+			return null;
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var parameters = Parent.Children?.Where(x => x != this).OfType<AdvancedWageParameter>();
@@ -122,6 +142,23 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 				if(HasConflicWith(param))
 					yield return new ValidationResult($"Конфликт {this.ToString()} с {param.ToString()}");
 			}
+		}
+	}
+
+	public class RouteListWageNode
+	{
+
+		public decimal ForDriverWithForwarder;
+
+		public decimal ForDriverWithoutForwarder;
+
+		public decimal ForForwarder;
+
+		public RouteListWageNode(decimal forDriverWithForwarder, decimal forDriverWithoutForwarder, decimal forForwarder)
+		{
+			ForDriverWithForwarder = forDriverWithForwarder;
+			ForDriverWithoutForwarder = forDriverWithoutForwarder;
+			ForForwarder = forForwarder;
 		}
 	}
 }

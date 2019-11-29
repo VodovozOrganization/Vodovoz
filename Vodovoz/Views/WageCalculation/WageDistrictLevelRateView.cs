@@ -27,8 +27,14 @@ namespace Vodovoz.Views.WageCalculation
 		{
 			btnFillRates.Binding.AddBinding(ViewModel, s => s.CanFillRates, w => w.Sensitive).InitializeFromSource();
 			btnFillRates.Clicked += (sender, e) => ViewModel.CreateAndFillNewRatesCommand.Execute();
+			ybuttonRemoveParameter.Binding.AddBinding(ViewModel, e => e.IsAdvancedParameterSelected, w => w.Sensitive).InitializeFromSource();
+			ybuttonAddParameter.Binding.AddBinding(ViewModel, e => e.IsNodeSelected, w => w.Sensitive).InitializeFromSource();
+
 			widgetcontainerview.Binding.AddBinding(ViewModel, s => s.AdvancedWidgetViewModel, w => w.WidgetViewModel).InitializeFromSource();
-			ViewModel.WageRatesUpdate += () => treeViewWageRates?.YTreeModel?.EmitModelChanged();
+			ViewModel.WageRatesUpdate += () => { 
+				treeViewWageRates?.YTreeModel?.EmitModelChanged();
+				treeViewWageRates.ExpandAll();
+			};
 
 			treeViewWageRates.ColumnsConfig = FluentColumnsConfig<IWageHierarchyNode>.Create()
 				.AddColumn("Название ставки")
@@ -64,6 +70,8 @@ namespace Vodovoz.Views.WageCalculation
 			treeViewWageRates.YTreeModel = new RecursiveTreeConfig<IWageHierarchyNode>
 					(x => x.Parent, x => x.Children)
 					.CreateModel(ViewModel.Entity.ObservableWageRates);
+			treeViewWageRates.ExpandAll();
+			treeViewWageRates.Selection.Changed += (sender, e) => ViewModel.SelectionChangedCommand.Execute(treeViewWageRates.GetSelectedObject<IWageHierarchyNode>());
 		}
 
 		protected void OnTreeViewWageRatesRowActivated(object o, RowActivatedArgs args)

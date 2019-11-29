@@ -55,9 +55,9 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		{
 			switch(wageCalculationSource.EmployeeCategory) {
 				case EmployeeCategory.driver:
-					return src.WasVisitedByForwarder ? rate.ForDriverWithForwarder : rate.ForDriverWithoutForwarder;
+					return src.WasVisitedByForwarder ? rate.WageForDriverWithForwarder(src): rate.WageForDriverWithoutForwarder(src);
 				case EmployeeCategory.forwarder:
-					return rate.ForForwarder;
+					return rate.WageForForwarder(src);
 				case EmployeeCategory.office:
 				default:
 					throw new InvalidOperationException($"Для указанного типа сотрудника \"{wageCalculationSource.EmployeeCategory.GetEnumTitle()}\" не предусмотрен расчет зарплаты по уровням");

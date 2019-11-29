@@ -9,6 +9,7 @@ using QS.Tdi;
 using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
+using System.Collections.Generic;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
@@ -25,6 +26,19 @@ namespace Vodovoz.ViewModels.WageCalculation
 			set => SetField(ref advancedWidgetViewModel, value);
 		}
 
+		private IWageHierarchyNode selectedNode;
+		public virtual IWageHierarchyNode SelectedNode {
+			get => selectedNode;
+			set {
+				SetField(ref selectedNode, value);
+				OnPropertyChanged(nameof(IsAdvancedParameterSelected));
+				OnPropertyChanged(nameof(IsNodeSelected));
+			}
+		}
+
+		public bool IsNodeSelected => selectedNode != null;
+		public bool IsAdvancedParameterSelected  => selectedNode is AdvancedWageParameter;
+
 		public WageDistrictLevelRateViewModel(WageDistrictLevelRate entity, ICommonServices commonServices, IUnitOfWork uow, ITdiTab tdiTab, IAdvancedWageWidgetFactory advancedWageWidgetFactory) : base(entity, commonServices)
 		{
 			AdvancedWageWidgetFactory = advancedWageWidgetFactory ?? throw new ArgumentException(nameof(advancedWageWidgetFactory));
@@ -37,6 +51,12 @@ namespace Vodovoz.ViewModels.WageCalculation
 		void ConfigureViewModel()
 		{
 			CanFillRates = Entity.Id <= 0 && !Entity.WageRates.Any();
+			ConfigureEntityPropertyChanges();
+		}
+
+		private void ConfigureEntityPropertyChanges()
+		{
+			SetPropertyChangeRelation(e => this.SelectedNode, () => IsAdvancedParameterSelected);
 		}
 
 		bool canFillRates;
@@ -123,11 +143,27 @@ namespace Vodovoz.ViewModels.WageCalculation
 									WageDistrictLevelRate = Entity
 								}
 							);
+						WageRatesUpdate?.Invoke();
 					}
 					CanFillRates = false;
 				},
 				() => CanFillRates
 			);
+		}
+
+		private DelegateCommand<IWageHierarchyNode> selectionChangedCommand;
+		public DelegateCommand<IWageHierarchyNode> SelectionChangedCommand {
+			get {
+				if(selectionChangedCommand == null) {
+					selectionChangedCommand = new DelegateCommand<IWageHierarchyNode>(
+						(node) => {
+							SelectedNode = node;
+						},
+						(node) => true
+					);
+				}
+				return selectionChangedCommand;
+			}
 		}
 
 		#endregion CreateAndFillNewRatesCommand
