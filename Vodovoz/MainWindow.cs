@@ -117,6 +117,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ActionDocTemplates.Visible = QSMain.User.Admin;
 		ActionService.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["database_maintenance"];
 		ActionEmployeeWorkChart.Sensitive = false;
+
+		ActionAddOrder.Sensitive = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
+
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle) {
 			case ToolbarStyle.Both:
