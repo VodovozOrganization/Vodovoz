@@ -2564,7 +2564,7 @@ FROM
         FROM
             cash_expense
         WHERE
-            type_operation NOT IN ('EmployeeAdvance' , 'Advance')
+            type_operation NOT IN ('EmployeeAdvance' , 'Advance','Salary')
         GROUP BY route_list_id
     ) AS CashExpenceDocument ON CashExpenceDocument.route_list_id = route_lists.id
     
