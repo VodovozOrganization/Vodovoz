@@ -153,11 +153,5 @@ namespace Vodovoz.ViewModels.WageCalculation
 			OnWageParameterCreated?.Invoke(this, WageParameter);
 			Close(false);
 		}
-
-		public override void Dispose()
-		{
-			UoW?.Dispose();
-			base.Dispose();
-		}
 	}
 }
