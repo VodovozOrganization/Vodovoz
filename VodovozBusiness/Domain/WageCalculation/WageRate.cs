@@ -1,9 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Utilities;
 using QS.Utilities.Text;
+using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
 namespace Vodovoz.Domain.WageCalculation
 {
@@ -18,7 +25,7 @@ namespace Vodovoz.Domain.WageCalculation
 	]
 	[HistoryTrace]
 	[EntityPermission]
-	public class WageRate : PropertyChangedBase, IDomainObject
+	public class WageRate : PropertyChangedBase, IDomainObject, IWageHierarchyNode
 	{
 		#region Свойства
 
@@ -39,25 +46,54 @@ namespace Vodovoz.Domain.WageCalculation
 		}
 
 		decimal forDriverWithForwarder;
-		[Display(Name = "Величина ставки при наличии экспедитора")]
+		[Display(Name = "Базовая величина ставки при наличии экспедитора")]
 		public virtual decimal ForDriverWithForwarder {
 			get => forDriverWithForwarder;
 			set => SetField(ref forDriverWithForwarder, value);
 		}
 
 		decimal forDriverWithoutForwarder;
-		[Display(Name = "Величина ставки при отсутствии экспедитора")]
+		[Display(Name = "Базовая величина ставки при отсутствии экспедитора")]
 		public virtual decimal ForDriverWithoutForwarder {
 			get => forDriverWithoutForwarder;
 			set => SetField(ref forDriverWithoutForwarder, value);
 		}
 
 		private decimal forForwarder;
-		[Display(Name = "Величина ставки для экспедитора")]
+		[Display(Name = "Базовая величина ставки для экспедитора")]
 		public virtual decimal ForForwarder {
 			get => forForwarder;
 			set => SetField(ref forForwarder, value, () => ForForwarder);
 		}
+
+		[Display(Name = "Величина ставки при наличии экспедитора(с учетом дополнительных параметров)")]
+		public virtual decimal WageForDriverWithForwarder(IRouteListItemWageCalculationSource src) => GetWage(src).ForDriverWithForwarder;
+
+		[Display(Name = "Величина ставки при отсутствии экспедитора(с учетом дополнительных параметров)")]
+		public virtual decimal WageForDriverWithoutForwarder(IRouteListItemWageCalculationSource src) => GetWage(src).ForDriverWithoutForwarder;
+
+		[Display(Name = "Величина ставки для экспедитора(с учетом дополнительных параметров)")]
+		public virtual decimal WageForForwarder(IRouteListItemWageCalculationSource src) => GetWage(src).ForForwarder;
+
+		public virtual IWageHierarchyNode Parent { get => null; set { } }
+
+		//Для отображение в иерархическом списке
+		public virtual IList<IWageHierarchyNode> Children {
+			get => ChildrenParameters.OfType<IWageHierarchyNode>().ToList() ?? new List<IWageHierarchyNode>();
+		}
+
+		private IList<AdvancedWageParameter> childrenParameters;
+		[Display(Name = "Дополнительные параметры расчета зп")]
+		public virtual IList<AdvancedWageParameter> ChildrenParameters {
+			get {
+				if(childrenParameters == null)
+					childrenParameters = new List<AdvancedWageParameter>();
+				return childrenParameters;
+			}
+			set { SetField(ref childrenParameters, value);}
+		}
+
+		public virtual string Name => WageRateType.GetAttribute<DisplayAttribute>()?.Name ?? WageRateType.ToString();
 
 		#endregion Свойства
 
@@ -74,6 +110,18 @@ namespace Vodovoz.Domain.WageCalculation
 		}
 
 		#region Вычисляемые
+
+		private RouteListWageNode GetWage(IRouteListItemWageCalculationSource src)
+		{
+			if(ChildrenParameters?.FirstOrDefault() == null)
+				return new RouteListWageNode(ForDriverWithForwarder, forDriverWithoutForwarder, forForwarder);
+			foreach(var item in ChildrenParameters) {
+				var result = item.CalculateWage(src);
+				if(result != null)
+					return result;
+			}
+			return new RouteListWageNode(ForDriverWithForwarder, forDriverWithoutForwarder, forForwarder);
+		}
 
 		public virtual string Title => $"{GetType().GetSubjectName().StringToTitleCase()} №{Id}";
 
@@ -164,6 +212,7 @@ namespace Vodovoz.Domain.WageCalculation
 				}
 			}
 		}
+
 		#endregion Вычисляемые
 	}
 }

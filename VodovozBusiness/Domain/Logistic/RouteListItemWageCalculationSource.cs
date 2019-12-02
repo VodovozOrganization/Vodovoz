@@ -82,6 +82,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public bool IsDelivered => item.IsDelivered() && item.Status != RouteListItemStatus.Transfered;
 
+		public (TimeSpan, TimeSpan) DeliverySchedule => (item.Order.DeliverySchedule.From, item.Order.DeliverySchedule.To);
+
 		#endregion IRouteListItemWageCalculationSource implementation
 	}
 }

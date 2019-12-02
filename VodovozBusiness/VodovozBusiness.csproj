@@ -755,6 +755,16 @@
     <Compile Include="Services\IWageParametersProvider.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionPermissionExtended.cs" />
     <Compile Include="PermissionExtensions\EntityExtendedPermissionValidator.cs" />
+    <Compile Include="Domain\WageCalculation\AdvancedWageParameter\AdvancedWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\AdvancedWageParameter\DeliveryTimeAdvancedWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\AdvancedWageParameter\IAdvancedWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\AdvancedWageParameter\BottlesCountAdvancedWageParameter.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\DeliveryTimeAdvancedWageParameterMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\AdvancedWageParameterMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\BottlesCountAdvancedWageParameterMap.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\AdvancedWageRepository.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\IAdvancedWageRepository.cs" />
+    <Compile Include="Domain\WageCalculation\IWageHierarchyNode.cs" />
     <Compile Include="EntityRepositories\Store\IWarehouseRepository.cs" />
     <Compile Include="EntityRepositories\Store\WarehouseRepository.cs" />
     <Compile Include="Domain\Complaints\ComplaintKind.cs" />
@@ -828,6 +838,8 @@
     <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
     <Folder Include="Domain\Sms\" />
     <Folder Include="HibernateMapping\Sms\" />
+    <Folder Include="Domain\WageCalculation\AdvancedWageParameter\" />
+    <Folder Include="HibernateMapping\WageCalculation\AdvancedWageParameters\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

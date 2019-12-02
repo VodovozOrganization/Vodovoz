@@ -53,6 +53,7 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 		};
 
 		protected override Func<WageDistrictLevelRatesViewModel> CreateDialogFunction => () => new WageDistrictLevelRatesViewModel(
+			this,
 			EntityUoWBuilder.ForCreate(),
 			unitOfWorkFactory,
 			commonServices,
@@ -60,6 +61,7 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 	   );
 
 		protected override Func<WageDistrictLevelRatesJournalNode, WageDistrictLevelRatesViewModel> OpenDialogFunction => n => new WageDistrictLevelRatesViewModel(
+			this,
 			EntityUoWBuilder.ForOpen(n.Id),
 			unitOfWorkFactory,
 			commonServices,

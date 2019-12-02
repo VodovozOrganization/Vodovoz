@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Utilities.Text;
+using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 
 namespace Vodovoz.Domain.WageCalculation
 {
@@ -69,6 +71,20 @@ namespace Vodovoz.Domain.WageCalculation
 					string.Format("Не заполнены ставки для зарплатной группы \"{0}\"", WageDistrict.Name),
 					new[] { this.GetPropertyName(o => o.WageRates) }
 				);
+			foreach(var wageRate in WageRates) {
+				if(wageRate.ChildrenParameters.FirstOrDefault() != null)
+					foreach(var item in ValidateParameters(wageRate.ChildrenParameters))
+						yield return item;
+			}
+		}
+
+		private IEnumerable<ValidationResult> ValidateParameters(IList<AdvancedWageParameter> wageParameters) //Переместить в WageRate
+		{
+			foreach(var item in wageParameters) {
+				if(item.ChildrenParameters.FirstOrDefault() != null)
+					foreach(var newItem in ValidateParameters(item.ChildrenParameters))
+						yield return newItem;
+			}
 		}
 
 		#endregion Вычисляемые
