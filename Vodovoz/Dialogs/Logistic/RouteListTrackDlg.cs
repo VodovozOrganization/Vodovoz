@@ -105,7 +105,7 @@ namespace Vodovoz
 
 			foreach(var driverId in selectedDriverIds)
 			{
-				if(!lastSelectedDrivers.ContainsKey(driverId) && carMarkers.ContainsKey (driverId))
+				if(!lastSelectedDrivers.ContainsKey(driverId) && carMarkers != null && carMarkers.ContainsKey (driverId))
 				{
 					lastSelectedDrivers.Add(driverId, carMarkers[driverId].Type);
 					carMarkers[driverId].Type = CarMarkerType.BlackCar;
@@ -114,7 +114,7 @@ namespace Vodovoz
 
 			foreach(var pair in lastSelectedDrivers.ToList())
 			{
-				if(!selectedDriverIds.Contains(pair.Key))
+				if(!selectedDriverIds.Contains(pair.Key) && carMarkers != null)
 				{
 					carMarkers[pair.Key].Type = pair.Value;
 					lastSelectedDrivers.Remove (pair.Key);
@@ -153,59 +153,59 @@ namespace Vodovoz
 
 		private bool UpdateCarPosition()
 		{
-			var routesIds = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
+			try {
+				var routesIds = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
 				.SelectMany(x => x.RouteListsIds.Keys).ToArray();
-			var start = DateTime.Now;
-			var lastPoints = Repository.Logistics.TrackRepository.GetLastPointForRouteLists(uow, routesIds);
+				var start = DateTime.Now;
+				var lastPoints = Repository.Logistics.TrackRepository.GetLastPointForRouteLists(uow, routesIds);
 
-			var movedDrivers = lastPoints.Where(x => x.Time > DateTime.Now.AddMinutes(-20)).Select(x => x.RouteListId).ToArray();
-			var ere20Minuts = Repository.Logistics.TrackRepository.GetLastPointForRouteLists(uow, movedDrivers, DateTime.Now.AddMinutes(-20));
-			logger.Debug("Время запроса точек: {0}", DateTime.Now - start);
-			carsOverlay.Clear();
-			carMarkers = new Dictionary<int, CarMarker>();
-			foreach(var pointsForDriver in lastPoints.GroupBy(x => x.DriverId))
-			{
-				var lastPoint = pointsForDriver.OrderBy(x => x.Time).Last();
-				var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<WorkingDriverVMNode>)
-							.First(x => x.Id == lastPoint.DriverId);
+				var movedDrivers = lastPoints.Where(x => x.Time > DateTime.Now.AddMinutes(-20)).Select(x => x.RouteListId).ToArray();
+				var ere20Minuts = Repository.Logistics.TrackRepository.GetLastPointForRouteLists(uow, movedDrivers, DateTime.Now.AddMinutes(-20));
+				logger.Debug("Время запроса точек: {0}", DateTime.Now - start);
+				carsOverlay.Clear();
+				carMarkers = new Dictionary<int, CarMarker>();
+				foreach(var pointsForDriver in lastPoints.GroupBy(x => x.DriverId)) {
+					var lastPoint = pointsForDriver.OrderBy(x => x.Time).Last();
+					var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<WorkingDriverVMNode>)
+								.First(x => x.Id == lastPoint.DriverId);
 
-				CarMarkerType iconType;
-				var ere20 = ere20Minuts.Where(x => x.DriverId == pointsForDriver.Key).OrderBy(x => x.Time).LastOrDefault();
-				if (lastPoint.Time < DateTime.Now.AddMinutes(-20))
-				{
-					iconType = driverRow.IsVodovozAuto ? CarMarkerType.BlueCarVodovoz : CarMarkerType.BlueCar;
-				}
-				else if (ere20 != null)
-				{
-					var point1 = new PointLatLng(lastPoint.Latitude, lastPoint.Longitude);
-					var point2 = new PointLatLng(ere20.Latitude, ere20.Longitude);
-					var diff = gmapWidget.MapProvider.Projection.GetDistance(point1, point2);
-					if (diff <= 0.1)
-						iconType = driverRow.IsVodovozAuto ? CarMarkerType.RedCarVodovoz : CarMarkerType.RedCar;
-					else
+					CarMarkerType iconType;
+					var ere20 = ere20Minuts.Where(x => x.DriverId == pointsForDriver.Key).OrderBy(x => x.Time).LastOrDefault();
+					if(lastPoint.Time < DateTime.Now.AddMinutes(-20)) {
+						iconType = driverRow.IsVodovozAuto ? CarMarkerType.BlueCarVodovoz : CarMarkerType.BlueCar;
+					} else if(ere20 != null) {
+						var point1 = new PointLatLng(lastPoint.Latitude, lastPoint.Longitude);
+						var point2 = new PointLatLng(ere20.Latitude, ere20.Longitude);
+						var diff = gmapWidget.MapProvider.Projection.GetDistance(point1, point2);
+						if(diff <= 0.1)
+							iconType = driverRow.IsVodovozAuto ? CarMarkerType.RedCarVodovoz : CarMarkerType.RedCar;
+						else
+							iconType = driverRow.IsVodovozAuto ? CarMarkerType.GreenCarVodovoz : CarMarkerType.GreenCar;
+					} else
 						iconType = driverRow.IsVodovozAuto ? CarMarkerType.GreenCarVodovoz : CarMarkerType.GreenCar;
-				}
-				else
-					iconType = driverRow.IsVodovozAuto ? CarMarkerType.GreenCarVodovoz : CarMarkerType.GreenCar;
 
-				if(lastSelectedDrivers.ContainsKey(lastPoint.DriverId))
-				{
-					lastSelectedDrivers[lastPoint.DriverId] = iconType;
-					iconType = driverRow.IsVodovozAuto ? CarMarkerType.BlackCarVodovoz : CarMarkerType.BlackCar;
+					if(lastSelectedDrivers.ContainsKey(lastPoint.DriverId)) {
+						lastSelectedDrivers[lastPoint.DriverId] = iconType;
+						iconType = driverRow.IsVodovozAuto ? CarMarkerType.BlackCarVodovoz : CarMarkerType.BlackCar;
+					}
+
+					string text = String.Format("{0}({1})", driverRow.ShortName, driverRow.CarNumber);
+					var marker = new CarMarker(new PointLatLng(lastPoint.Latitude, lastPoint.Longitude),
+						iconType);
+					if(lastPoint.Time < DateTime.Now.AddSeconds(-30))
+						text += lastPoint.Time.Date == DateTime.Today
+							? String.Format("\nБыл виден: {0:t} ", lastPoint.Time)
+							: String.Format("\nБыл виден: {0:g} ", lastPoint.Time);
+					marker.ToolTipText = text;
+					carsOverlay.Markers.Add(marker);
+					carMarkers.Add(lastPoint.DriverId, marker);
 				}
-				
-				string text = String.Format("{0}({1})", driverRow.ShortName, driverRow.CarNumber);
-				var marker = new CarMarker(new PointLatLng(lastPoint.Latitude, lastPoint.Longitude),
-					iconType);
-				if (lastPoint.Time < DateTime.Now.AddSeconds(-30))
-					text += lastPoint.Time.Date == DateTime.Today 
-						? String.Format("\nБыл виден: {0:t} ", lastPoint.Time)
-						: String.Format("\nБыл виден: {0:g} ", lastPoint.Time);
-				marker.ToolTipText = text;
-				carsOverlay.Markers.Add(marker);
-				carMarkers.Add(lastPoint.DriverId, marker);
+			} catch(Exception ex) {
+				logger.Error("Ошибка при обновлении позиции автомобиля", ex);
+				return false;
 			}
 			return true;
+
 		}
 
 		private void LoadTracksForDriver(int driverId)
