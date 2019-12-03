@@ -774,6 +774,7 @@ namespace Vodovoz.ViewModels.Logistic
 			int totalOrders = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
 											 .GetExecutableQueryOver(UoW.Session)
 											 .Select(Projections.Count<Order>(x => x.Id))
+											 .Where(o => !o.IsContractCloser)
 											 .SingleOrDefault<int>();
 
 			int totalBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
@@ -782,7 +783,9 @@ namespace Vodovoz.ViewModels.Logistic
 											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
+											  .Where(o => !o.IsContractCloser)
 											  .SingleOrDefault<int>();
+												
 
 			var text = new List<string> {
 				NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."),
