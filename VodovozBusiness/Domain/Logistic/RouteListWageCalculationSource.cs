@@ -34,7 +34,7 @@ namespace Vodovoz.Domain.Logistic
 						return rl.Addresses.Select(a => a.ForwarderWageCalculationSrc);
 					case EmployeeCategory.office:
 					default:
-						throw new NotImplementedException();
+						throw new NotSupportedException();
 				}
 			}
 		}
@@ -49,6 +49,20 @@ namespace Vodovoz.Domain.Logistic
 		public bool IsTruck => rl.Car.TypeOfUse.HasValue && rl.Car.TypeOfUse.Value == CarTypeOfUse.CompanyTruck;
 
 		public int RouteListId => rl.Id;
+
+		public decimal FixedWage {
+			get {
+				switch(EmployeeCategory) {
+					case EmployeeCategory.driver:
+						return rl.FixedDriverWage;
+					case EmployeeCategory.forwarder:
+						return rl.FixedForwarderWage;
+					case EmployeeCategory.office:
+					default:
+						throw new NotSupportedException();
+				}
+			}
+		}
 
 		#endregion IRouteListWageCalculationSource implementation
 	}

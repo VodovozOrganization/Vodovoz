@@ -769,6 +769,7 @@
     <Compile Include="EntityRepositories\Store\WarehouseRepository.cs" />
     <Compile Include="Domain\Complaints\ComplaintKind.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintKindMap.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\WageCalculationServiceForOldRouteLists.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

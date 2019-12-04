@@ -85,6 +85,11 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// </summary>
 		(TimeSpan,TimeSpan) DeliverySchedule { get; }
 
+		/// <summary>
+		/// Текущая зарплата за адрес
+		/// </summary>
+		decimal CurrentWage { get; }
+
 		IEnumerable<IOrderItemWageCalculationSource> OrderItemsSource { get; }
 		IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource { get; }
 	}
