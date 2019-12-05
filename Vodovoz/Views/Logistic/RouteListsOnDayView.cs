@@ -498,6 +498,8 @@ namespace Vodovoz.Views.Logistic
 					if(order.Total600mlBottlesToDeliver > 0)
 						ttText += string.Format("\nБутылей 0,6л: {0}", order.Total600mlBottlesToDeliver);
 
+					ttText += string.Format($"\nЗабор бутылей: {order.BottlesReturn}");
+
 					ttText += string.Format("\nВремя доставки: {0}\nРайон: {1}",
 						order.DeliverySchedule?.Name ?? "Не назначено",
 						ViewModel.LogisticanDistricts?.FirstOrDefault(x => x.DistrictBorder.Contains(order.DeliveryPoint.NetTopologyPoint))?.DistrictName);
