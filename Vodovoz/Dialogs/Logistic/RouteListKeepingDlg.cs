@@ -40,7 +40,7 @@ namespace Vodovoz
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = string.Format("Ведение МЛ №{0}", Entity.Id);
-			allEditing = Entity.Status != RouteListStatus.Closed && Entity.Status != RouteListStatus.OnClosing;
+			allEditing = Entity.Status == RouteListStatus.EnRoute;
 			isUserLogist = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
 			logisticanEditing = isUserLogist && allEditing;
 
@@ -114,10 +114,15 @@ namespace Vodovoz
 			datePickerDate.Sensitive = logisticanEditing;
 
 			ylabelLastTimeCall.Binding.AddFuncBinding(Entity, e => GetLastCallTime(e.LastCallTime), w => w.LabelProp).InitializeFromSource();
+			yspinActualDistance.Sensitive = allEditing;
 
 			buttonMadeCall.Sensitive = allEditing;
 
 			buttonRetriveEnRoute.Sensitive = Entity.Status == RouteListStatus.OnClosing && isUserLogist;
+
+			buttonNewFine.Sensitive = allEditing;
+
+			buttonRefresh.Sensitive = allEditing;
 
 			//Заполняем иконки
 			var ass = Assembly.GetAssembly(typeof(MainClass));
@@ -280,8 +285,10 @@ namespace Vodovoz
 
 		public void OnSelectionChanged(object sender, EventArgs args)
 		{
-			buttonSetStatusComplete.Sensitive = ytreeviewAddresses.GetSelectedObjects().Any();
-			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1 && UserPermissionRepository.CurrentUserPresetPermissions["logistic_changedeliverytime"];
+			buttonSetStatusComplete.Sensitive = ytreeviewAddresses.GetSelectedObjects().Any() && allEditing;
+			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1 
+													&& UserPermissionRepository.CurrentUserPresetPermissions["logistic_changedeliverytime"]
+													&& allEditing;								
 		}
 
 		void ReferenceForwarder_Changed(object sender, EventArgs e)
