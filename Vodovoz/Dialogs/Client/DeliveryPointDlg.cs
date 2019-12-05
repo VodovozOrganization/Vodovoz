@@ -164,6 +164,9 @@ namespace Vodovoz
 			};
 
 			entryStreet.StreetSelected += (sender, e) => {
+				if(string.IsNullOrWhiteSpace(entryStreet.Street)) {
+					return;
+				}
 				entryBuilding.Street = new OsmStreet(-1, entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
 			};
 
