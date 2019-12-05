@@ -1462,13 +1462,6 @@ namespace Vodovoz.Domain.Orders
 			IsService = OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master);
 		}
 
-		public virtual void SetOrderCreationDate()
-		{
-			if(Id == 0 && !CreateDate.HasValue) {
-				CreateDate = DateTime.Now;
-			}
-		}
-
 		public virtual void SetFirstOrder()
 		{
 			if(Id == 0 && Client.FirstOrder == null) {
@@ -3545,7 +3538,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void SaveEntity(IUnitOfWork uow)
 		{
-			SetOrderCreationDate();
 			SetFirstOrder();
 			LastEditor = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			LastEditedTime = DateTime.Now;
