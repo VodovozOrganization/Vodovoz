@@ -49,7 +49,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 
 		public virtual (uint,uint) GetCountRange()
 		{
-			if(LeftSing == ComparisonSings.Equally && RightSing == null)
+			if(LeftSing == ComparisonSings.Equally)
 				return (BottlesFrom, BottlesFrom);
 
 			uint? from = null;
@@ -88,7 +88,21 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 					case ComparisonSings.MoreOrEqual:
 						throw new ArgumentOutOfRangeException(nameof(RightSing));
 				}
+
+				if(LeftSing == ComparisonSings.More && to > (BottlesFrom - 1)) {
+					to = BottlesFrom - 1;
+					from = 0;
+				}
+				if(LeftSing == ComparisonSings.MoreOrEqual && to > BottlesFrom) {
+					to = BottlesFrom;
+					from = 0;
+				}
 			}
+
+			var res = (from ?? 0, to ?? int.MaxValue);
+
+			if(res.Item1 > res.Item2)
+				throw new ArgumentOutOfRangeException($" Параметр расчета зп: {this} не может быть расчитан");
 
 			return (from ?? 0, to ?? int.MaxValue);
 		}
