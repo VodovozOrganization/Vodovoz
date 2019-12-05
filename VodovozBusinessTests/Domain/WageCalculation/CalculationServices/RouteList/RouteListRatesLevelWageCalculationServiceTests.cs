@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
 namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteList
@@ -168,6 +170,8 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 
 		#endregion Подготовка ставок
 
+		#region Уровневые ставки без доп параметров расчета зп
+
 		[Test(Description = "Работа с несколькими строками МЛ. Расчёт ЗП для водителя без экспедитора.")]
 		public void WageCalculationForDriverWithoutForwarderBySeveralAddresses()
 		{
@@ -197,6 +201,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(false);
 			routeListItemWageCalculationSource1.NeedTakeOrDeliverEquipment.Returns(false);
 			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource1.ContractCancelation.Returns(true);
 			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
 
 			var routeListItemWageCalculationSource2 = Substitute.For<IRouteListItemWageCalculationSource>();
@@ -476,5 +481,449 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			Assert.That(result.FixedWage, Is.EqualTo(0));
 			Assert.That(result.WageDistrictLevelRate, Is.Null);
 		}
+
+		#endregion Уровневые ставки без доп параметров расчета зп
+
+		#region Уровневые ставки c учетом доп параметров расчета зп
+
+		[Test(Description = "Расчёт ЗП для водителя без экспедитора.ДопПараметры(кол-во бутылей в заказе)")]
+		public void WageCalculationForDriverWithoutForwarderWithBottlesCountAdvancedWageParameter()
+		{
+			// arrange
+			WageDistrict district = Substitute.For<WageDistrict>();
+			//district.Id.Returns(1);
+			WageDistrictLevelRate rate = Substitute.For<WageDistrictLevelRate>();
+			rate.WageDistrict.Returns(district);
+			rate.WageRates.Returns(
+				new List<WageRate> {
+					new WageRate {
+						WageRateType = WageRateTypes.Address,
+						ForDriverWithoutForwarder = 1,
+						ForDriverWithForwarder = 2,
+						ForForwarder = 3,
+						ChildrenParameters = new List<AdvancedWageParameter>
+							{
+									new BottlesCountAdvancedWageParameter
+										{
+											BottlesFrom = 2,
+											LeftSing = ComparisonSings.LessOrEqual,
+											RightSing = ComparisonSings.Less,
+											BottlesTo = 1000,
+											ForDriverWithForwarder = 10,
+											ForDriverWithoutForwarder = 20,
+											ForForwarder = 30
+										},
+									new BottlesCountAdvancedWageParameter
+										{
+											BottlesFrom = 1,
+											LeftSing = ComparisonSings.MoreOrEqual,
+											ForDriverWithForwarder = 100,
+											ForDriverWithoutForwarder = 200,
+											ForForwarder = 300
+										}
+							}
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle19L,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle19LInBigOrder,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle6L,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.ContractCancelation,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.EmptyBottle19L,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.EmptyBottle19LInBigOrder,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Equipment,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.MinBottlesQtyInBigOrder,
+						ForDriverWithoutForwarder = int.MaxValue,
+						ForDriverWithForwarder = int.MaxValue,
+						ForForwarder = int.MaxValue
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.PackOfBottles600ml,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.PhoneCompensation,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					}
+				}
+			);
+			RatesLevelWageParameter wage = new RatesLevelWageParameter {
+				WageDistrictLevelRates = new WageDistrictLevelRates {
+					IsArchive = false,
+					LevelRates = new List<WageDistrictLevelRate> { rate }
+				}
+			};
+
+			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
+			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district);
+			routeListItemWageCalculationSource1.FullBottle19LCount.Returns(50);
+			routeListItemWageCalculationSource1.HasFirstOrderForDeliveryPoint.Returns(true);
+			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(false);
+			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
+
+			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
+			src.EmployeeCategory.Returns(Vodovoz.Domain.Employees.EmployeeCategory.driver);
+			src.ItemSources.Returns(
+				new List<IRouteListItemWageCalculationSource> {routeListItemWageCalculationSource1}
+			);
+
+			IRouteListWageCalculationService percentWageCalculationService = new RouteListRatesLevelWageCalculationService(
+				wage,
+				src
+			);
+
+			// act
+			var result = percentWageCalculationService.CalculateWage();
+
+			// assert
+			Assert.That(result.Wage, Is.EqualTo(20));
+			Assert.That(result.FixedWage, Is.EqualTo(0));
+			Assert.That(result.WageDistrictLevelRate, Is.Null);
+		}
+
+		[Test(Description = "Расчёт ЗП для водителя с экспедитором.ДопПараметры(время доставки)")]
+		public void WageCalculationForDriverForwarderWithDeliveryTimeAdvancedWageParameter()
+		{
+			// arrange
+			WageDistrict district = Substitute.For<WageDistrict>();
+			district.Id.Returns(1);
+			WageDistrictLevelRate rate = Substitute.For<WageDistrictLevelRate>();
+			rate.WageDistrict.Returns(district);
+			rate.WageRates.Returns(
+				new List<WageRate> {
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle19L,
+						ForDriverWithoutForwarder = 1,
+						ForDriverWithForwarder = 2,
+						ForForwarder = 3,
+						ChildrenParameters = new List<AdvancedWageParameter>
+							{
+									new DeliveryTimeAdvancedWageParameter
+										{
+											StartTime = new TimeSpan(0, 0, 0),
+											EndTime = new TimeSpan(13, 0, 0),
+											ForDriverWithForwarder = 10,
+											ForDriverWithoutForwarder = 20,
+											ForForwarder = 30
+										},
+									new DeliveryTimeAdvancedWageParameter
+										{
+											StartTime = new TimeSpan(13,1,1),
+											EndTime = new TimeSpan(23,59,59),
+											ForDriverWithForwarder = 100,
+											ForDriverWithoutForwarder = 200,
+											ForForwarder = 300
+										}
+							}
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Address,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle19LInBigOrder,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle6L,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.ContractCancelation,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.EmptyBottle19L,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.EmptyBottle19LInBigOrder,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Equipment,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.MinBottlesQtyInBigOrder,
+						ForDriverWithoutForwarder = int.MaxValue,
+						ForDriverWithForwarder = int.MaxValue,
+						ForForwarder = int.MaxValue
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.PackOfBottles600ml,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.PhoneCompensation,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					}
+				}
+			);
+			RatesLevelWageParameter wage = new RatesLevelWageParameter {
+				WageDistrictLevelRates = new WageDistrictLevelRates {
+					IsArchive = false,
+					LevelRates = new List<WageDistrictLevelRate> { rate }
+				}
+			};
+
+			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
+			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district);
+			routeListItemWageCalculationSource1.FullBottle19LCount.Returns(50);
+			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(true);
+			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
+			routeListItemWageCalculationSource1.DeliverySchedule.Returns((new TimeSpan(0, 0, 0), new TimeSpan(12, 0, 0)));
+
+			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
+			src.EmployeeCategory.Returns(Vodovoz.Domain.Employees.EmployeeCategory.driver);
+			src.ItemSources.Returns(
+				new List<IRouteListItemWageCalculationSource> { routeListItemWageCalculationSource1 }
+			);
+
+			IRouteListWageCalculationService percentWageCalculationService = new RouteListRatesLevelWageCalculationService(
+				wage,
+				src
+			);
+
+			// act
+			var result = percentWageCalculationService.CalculateWage();
+
+			// assert
+			Assert.That(result.Wage, Is.EqualTo(500));
+			Assert.That(result.FixedWage, Is.EqualTo(0));
+			Assert.That(result.WageDistrictLevelRate, Is.Null);
+		}
+
+		[Test(Description = "Расчёт ЗП для водителя в качестве экспедитора.ВложенныеДопПараметры(ко-во бутылей -> время доставки)")]
+		public void WageCalculationForDriverAsForwarderWithNestedAdvancedWageParameters()
+		{
+			// arrange
+			WageDistrict district = Substitute.For<WageDistrict>();
+			district.Id.Returns(1);
+			WageDistrictLevelRate rate = Substitute.For<WageDistrictLevelRate>();
+			rate.WageDistrict.Returns(district);
+			rate.WageRates.Returns(
+				new List<WageRate> {
+					new WageRate {
+						WageRateType = WageRateTypes.EmptyBottle19L,
+						ForDriverWithoutForwarder = 1,
+						ForDriverWithForwarder = 2,
+						ForForwarder = 3,
+						ChildrenParameters = new List<AdvancedWageParameter>
+							{
+									new BottlesCountAdvancedWageParameter
+										{
+											BottlesFrom = 0,
+											LeftSing = ComparisonSings.Less,
+											RightSing = ComparisonSings.Less,
+											BottlesTo = 4,
+											ForDriverWithForwarder = 10,
+											ForDriverWithoutForwarder = 20,
+											ForForwarder = 30,
+											ChildrenParameters = new List<AdvancedWageParameter>
+											{
+													new DeliveryTimeAdvancedWageParameter
+														{
+															StartTime = new TimeSpan(0, 0, 0),
+															EndTime = new TimeSpan(6, 0, 0),
+															ForDriverWithForwarder = 100,
+															ForDriverWithoutForwarder = 200,
+															ForForwarder = 300
+														},
+													new DeliveryTimeAdvancedWageParameter
+														{
+															StartTime = new TimeSpan(6,1,0),
+															EndTime = new TimeSpan(23,59,59),
+															ForDriverWithForwarder = 1000,
+															ForDriverWithoutForwarder = 2000,
+															ForForwarder = 3000
+														}
+											}
+										},
+									new BottlesCountAdvancedWageParameter
+										{
+											BottlesFrom = 5,
+											LeftSing = ComparisonSings.MoreOrEqual,
+											ForDriverWithForwarder = 40,
+											ForDriverWithoutForwarder = 50,
+											ForForwarder = 60,
+											ChildrenParameters = new List<AdvancedWageParameter>
+											{
+													new DeliveryTimeAdvancedWageParameter
+														{
+															StartTime = new TimeSpan(0, 0, 0),
+															EndTime = new TimeSpan(6, 0, 0),
+															ForDriverWithForwarder = 400,
+															ForDriverWithoutForwarder = 500,
+															ForForwarder = 600
+														},
+													new DeliveryTimeAdvancedWageParameter
+														{
+															StartTime = new TimeSpan(6,1,0),
+															EndTime = new TimeSpan(23,59,59),
+															ForDriverWithForwarder = 4000,
+															ForDriverWithoutForwarder = 5000,
+															ForForwarder = 6000
+														}
+											}
+										}
+							}
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Address,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle19L,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle19LInBigOrder,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Bottle6L,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.ContractCancelation,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0,
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.EmptyBottle19LInBigOrder,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.Equipment,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.MinBottlesQtyInBigOrder,
+						ForDriverWithoutForwarder = int.MaxValue,
+						ForDriverWithForwarder = int.MaxValue,
+						ForForwarder = int.MaxValue
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.PackOfBottles600ml,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					},
+					new WageRate {
+						WageRateType = WageRateTypes.PhoneCompensation,
+						ForDriverWithoutForwarder = 0,
+						ForDriverWithForwarder = 0,
+						ForForwarder = 0
+					}
+				}
+			);
+			RatesLevelWageParameter wage = new RatesLevelWageParameter {
+				WageDistrictLevelRates = new WageDistrictLevelRates {
+					IsArchive = false,
+					LevelRates = new List<WageDistrictLevelRate> { rate }
+				}
+			};
+
+			var routeListItemWageCalculationSource1 = Substitute.For<IRouteListItemWageCalculationSource>();
+			routeListItemWageCalculationSource1.WageDistrictOfAddress.Returns(district);
+			routeListItemWageCalculationSource1.EmptyBottle19LCount.Returns(50);
+			routeListItemWageCalculationSource1.WasVisitedByForwarder.Returns(true);
+			routeListItemWageCalculationSource1.WageCalculationMethodic.ReturnsNull();
+			routeListItemWageCalculationSource1.IsDelivered.Returns(true);
+			routeListItemWageCalculationSource1.DeliverySchedule.Returns((new TimeSpan(3, 0, 0), new TimeSpan(4, 0, 0)));
+
+			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
+			src.EmployeeCategory.Returns(Vodovoz.Domain.Employees.EmployeeCategory.forwarder);
+			src.ItemSources.Returns(
+				new List<IRouteListItemWageCalculationSource> { routeListItemWageCalculationSource1 }
+			);
+
+			IRouteListWageCalculationService percentWageCalculationService = new RouteListRatesLevelWageCalculationService(
+				wage,
+				src
+			);
+
+			// act
+			var result = percentWageCalculationService.CalculateWage();
+
+			// assert
+			Assert.That(result.Wage, Is.EqualTo(30000));
+			Assert.That(result.FixedWage, Is.EqualTo(0));
+			Assert.That(result.WageDistrictLevelRate, Is.Null);
+		}
+
+		#endregion Уровневые ставки c учетом доп параметров расчета зп
 	}
 }

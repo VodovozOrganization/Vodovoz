@@ -121,6 +121,7 @@
     <Folder Include="Domain\WageCalculation\" />
     <Folder Include="Domain\WageCalculation\CalculationServices\" />
     <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
+    <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\AdvancedWageParameters\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Counterparties\CounterpartyTests.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListRatesLevelWageCalculationServiceTests.cs" />
     <Compile Include="Employees\EmployeeTests.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListOldRatesWageCalculationServiceTests.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\AdvancedWageParameters\BottlesCountAdvancedWageParameterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
