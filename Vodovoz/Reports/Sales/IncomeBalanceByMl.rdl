@@ -776,10 +776,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
-                      <Value>=Iif( Fields!FactIncome.IsMissing, 0, {FactIncome}) - 
-Iif( Fields!PlanedIncome.IsMissing, 0,  {PlanedIncome}) + 
-Iif( Fields!NedovozSum.IsMissing, 0,  {NedovozSum}) - 
-Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
+                      <Value>={unspecified_balance}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2514,7 +2511,12 @@ Iif( Fields!TransferedSum.IsMissing, 0,  {TransferedSum} )</Value>
     IFNULL(nedovoz.order_sum, 0) AS NedovozSum,
     IFNULL(internal_transfer.TotalOrdersSum, 0) AS TransferedSum,
     transferML.TransferedFromML,
-    transferML.TransferedToML
+    transferML.TransferedToML,
+    
+    (IFNULL(CashIncomeDocument.MoneyIncome,0) - IFNULL(CashExpenceDocument.MoneyExpence, 0))/*Факт*/ 
+		- IFNULL(Orders.TotalOrdersSum, 0)/*План*/ 
+			+ IFNULL(nedovoz.order_sum, 0) 
+				-IFNULL(internal_transfer.TotalOrdersSum, 0) as unspecified_balance
 FROM
     route_lists
     LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
@@ -2703,6 +2705,9 @@ GROUP BY route_lists.id
         </Field>
         <Field Name="employee_name">
           <DataField>employee_name</DataField>
+        </Field>
+        <Field Name="unspecified_balance">
+          <DataField>unspecified_balance</DataField>
         </Field>
       </Fields>
     </DataSet>
