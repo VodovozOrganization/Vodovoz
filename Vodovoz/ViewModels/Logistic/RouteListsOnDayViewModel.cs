@@ -786,10 +786,29 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Where(o => !o.IsContractCloser)
 											  .SingleOrDefault<int>();
 												
+			int total6LBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+											  .GetExecutableQueryOver(UoW.Session)
+											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
+											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol6L)
+											  .Select(Projections.Sum(() => orderItemAlias.Count))
+											  .Where(o => !o.IsContractCloser)
+											  .SingleOrDefault<int>();
+
+			int total600mlBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
+											  .GetExecutableQueryOver(UoW.Session)
+											  .JoinAlias(o => o.OrderItems, () => orderItemAlias)
+											  .JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol600ml)
+											  .Select(Projections.Sum(() => orderItemAlias.Count))
+											  .Where(o => !o.IsContractCloser)
+											  .SingleOrDefault<int>();
 
 			var text = new List<string> {
 				NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."),
-				NumberToTextRus.FormatCase(totalBottles, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей")
+				NumberToTextRus.FormatCase(totalBottles, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей"),
+				$"6л - {total6LBottles}",
+				$"0,6л - {total600mlBottles}"
 			};
 
 			return string.Join("\n", text);
