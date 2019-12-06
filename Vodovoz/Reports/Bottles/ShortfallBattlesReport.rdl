@@ -38,7 +38,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>145.1pt</Height>
+    <Height>200.3pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Orders</DataSetName>
@@ -427,7 +427,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>29.5pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -443,7 +443,10 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -461,6 +464,8 @@
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -480,6 +485,8 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -499,6 +506,8 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -518,6 +527,8 @@
                         <Format>0</Format>
                         <FontSize>9pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -538,6 +549,8 @@
                         <Format>0</Format>
                         <FontSize>9pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -558,6 +571,8 @@
                         <Format>0</Format>
                         <FontSize>9pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -578,6 +593,8 @@
                         <Format>0</Format>
                         <FontSize>9pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -597,6 +614,8 @@
                         <BorderWidth />
                         <FontSize>9pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -616,7 +635,10 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -633,7 +655,10 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -651,6 +676,8 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -669,6 +696,8 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -688,6 +717,8 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -707,6 +738,8 @@
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -726,6 +759,8 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -736,8 +771,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>3.3pt</Left>
-        <Top>24.5pt</Top>
+        <Left>1.8pt</Left>
+        <Top>51.3pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1084,7 +1119,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>20.6pt</Height>
+              <Height>24.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1222,8 +1257,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>4.7pt</Left>
-        <Top>96.1pt</Top>
+        <Left>1.5pt</Left>
+        <Top>140.9pt</Top>
       </Table>
       <Table Name="Table3">
         <DataSetName>Orders</DataSetName>
@@ -1301,7 +1336,7 @@
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>0.0pt</Left>
-        <Top>2.1pt</Top>
+        <Top>31.5pt</Top>
         <Filters>
           <Filter>
             <FilterExpression>={?reason_id}</FilterExpression>
@@ -1312,6 +1347,20 @@
           </Filter>
         </Filters>
       </Table>
+      <Textbox Name="Textbox9" >
+        <Height>17.25pt</Height>
+        <Width>803.27pt</Width>
+        <Value>В отчет должны попадать реализации, в которых фактически возвращенная тара меньше ожидаемой, с возможностью различной фильтрации (по дате, водителю, причине и т.д.) и МЛ которых в статусе: "закрыт" или "проверка километража".</Value>
+        <ZIndex>1</ZIndex>
+        <Left>9.10pt</Left>
+        <Top>5.30pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -1343,6 +1392,7 @@
         <CommandText>SELECT 
 	bottles_movement_operations.delivery_point_id AS pointid,
 	orders.id AS ordersIdAlias,
+    #Автор заказа
 	CONCAT_WS(
 		'.',
 		NULLIF(SUBSTR(employees_author.name,1,1),''),
@@ -1350,7 +1400,9 @@
 		CONCAT(' ', employees_author.last_name)
 	) AS author,
 	TRIM(counterparty.full_name) AS counterparty,
+    #Адрес
 	delivery_points.compiled_address_short AS address,
+    #Водитель
 	CONCAT_WS(
 		'.',
 		NULLIF(SUBSTR(employees.name,1,1),''),
@@ -1358,7 +1410,8 @@
 		CONCAT(' ', employees.last_name)
 	) AS driver_name,
 	orders.comment AS comment,
-	(
+    #Количество 19л бутылей
+	IFNULL((
 		SELECT 
 			SUM(IFNULL(order_items.actual_count, 0))
 		FROM
@@ -1369,12 +1422,15 @@
 			nomenclature ON nomenclature.id = order_items.nomenclature_id
 		WHERE
 			orders.id = ordersIdAlias AND nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
-	)  AS actual_count,
+	),0)  AS actual_count,
+    #Доставлено
 	delivered,
+    #Возвращено
 	returned,
+    #Разница между ожидаемым и фактическим возвратом тары
 	TRUNCATE(
-		IFNULL(CAST(bottles_return AS SIGNED),0) - IFNULL(CAST(returned AS SIGNED),0),
-		0) AS bottles,
+		IFNULL(CAST(bottles_return AS SIGNED),0) - IFNULL(CAST(returned AS SIGNED),0),0) AS bottles,
+        #Залоги/неустойка
 	IFNULL(
 		(
 			SELECT 
@@ -1418,7 +1474,9 @@
 	) AS driver_call_full,
 	comment_manager,
 	bottle_reserv,
+    #Ввод остатков
 IF(delivery_points.have_residue = 0, "Нет", "Да") AS enteredresidue,
+	#Долг по точке доставки
 	(
 		SELECT 
 			SUM(delivered) - SUM(returned)
@@ -1455,40 +1513,31 @@ LEFT JOIN
 	employees AS employees_author ON employees_author.id = orders.author_employee_id
 WHERE
 	orders.delivery_date = DATE(@date)
-	AND(route_lists.status = 'Closed'
-		OR route_lists.status = 'MileageCheck')
-	AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
+	AND((route_lists.status = 'Closed') OR (route_lists.status = 'MileageCheck'))
 	AND (@reason_id = -1 OR @reason_id = tare_non_return_reason_id)
 	AND (@driver_id = -1 OR @driver_id = employees.id)
+    AND (bottles_return &gt; returned)
 	AND (	
 		(	
 			@driver_call = 1 
 			AND type_of_use = 'CompanyLargus' 
 			AND driver_call_type = 'NoCall' 
-			AND returned &lt; delivered 
-			AND (CAST(bottles_return AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
 		)
 		OR 
 		(
 			@driver_call = 2 
 			AND driver_call_type = 'NoCall'  
-			AND returned &lt; delivered 
-			AND (CAST(bottles_return AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
 		)
 		OR 
 		(
 			@driver_call = 3 
 			AND driver_call_type = 'CallFromAnywhere'  
-			AND returned &lt; delivered 
-			AND (CAST(bottles_return AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
 		)
 		OR 
 		(
 			@driver_call = 0 
 			AND type_of_use IS NULL 
 			AND driver_call_type = 'NoCall' 
-			AND returned &lt; delivered 
-			AND (CAST(bottles_return AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
 		)
 		OR (@driver_call = -1)
 	)
@@ -1684,7 +1733,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
