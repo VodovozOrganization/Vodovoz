@@ -26,6 +26,7 @@
 	route_lists.driver_id,
 	CASE route_lists.status
 		WHEN 'New' THEN 'Новый'
+        WHEN 'Confirmed' THEN 'Подтверждён'
 		WHEN 'InLoading' THEN 'На погрузке'
 		WHEN 'EnRoute' THEN 'В пути'
 		WHEN 'OnClosing' THEN 'Сдаётся'
@@ -42,15 +43,27 @@
 			IF(employees.patronymic = '',
 				NULL,
 				employees.patronymic)) AS driver_name,
+                
+	(SELECT 
+		SUM(IF(ods.order_status NOT IN ('NotDelivered','DeliveryCanceled'), items.price
+		* IFNULL(items.actual_count, items.count) - items.discount_money, 0))
+		FROM
+			order_items as items
+		LEFT JOIN
+			orders as ods ON items.order_id = ods.id
+		WHERE EXISTS
+			(SELECT * FROM route_lists rl
+			LEFT JOIN route_list_addresses as rla ON rla.route_list_id = rl.id
+			LEFT JOIN cars as crs ON rl.car_id = crs.id
+			WHERE
+				(rl.id = route_lists.id)
+                AND
+				(rl.date BETWEEN @start_date AND @end_date)
+				AND rla.order_id = ods.id
+				AND ((crs.type_of_use = 'CompanyLargus' OR crs.type_of_use = 'CompanyGAZelle') OR crs.is_raskat = 1)
+		)) AS route_list_sum,
+				
 	COUNT(route_list_addresses.id) AS address_count,
-    
-    (SELECT 
-		SUM(IF(orders.order_status NOT IN ('NotDelivered','DeliveryCanceled'), order_items.price
-		* IFNULL(order_items.actual_count, order_items.count) - order_items.discount_money, 0))
-		FROM 
-		order_items
-	) as route_list_sum,
-    
 	(SELECT 
 			COUNT(route_list_addresses.id)
 		FROM
