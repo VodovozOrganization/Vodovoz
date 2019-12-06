@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
 using QSSupportLib;
 using System.Runtime.CompilerServices;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Repository.Cash
 {
@@ -69,7 +70,7 @@ namespace Vodovoz.Repository.Cash
 
 		public static IncomeCategory RouteListClosingIncomeCategory(IUnitOfWork uow)
 		{
-			if (MainSupport.BaseParameters.All.ContainsKey(routeListClosingIncomeCategory))
+			if (ParametersProvider.Instance.ContainsParameter(routeListClosingIncomeCategory))
 			{
 				int id = -1;
 				id = int.Parse (MainSupport.BaseParameters.All [routeListClosingIncomeCategory]);
@@ -85,7 +86,7 @@ namespace Vodovoz.Repository.Cash
 
 		public static ExpenseCategory RouteListClosingExpenseCategory(IUnitOfWork uow)
 		{
-			if (MainSupport.BaseParameters.All.ContainsKey(routeListClosingExpenseCategory))
+			if (ParametersProvider.Instance.ContainsParameter(routeListClosingExpenseCategory))
 			{
 				int id = -1;
 				id = int.Parse (MainSupport.BaseParameters.All [routeListClosingExpenseCategory]);
@@ -106,7 +107,7 @@ namespace Vodovoz.Repository.Cash
 				return FuelDocumentExpenseCategoryTestGap(uow);
 			}
 
-			if(MainSupport.BaseParameters.All.ContainsKey(fuelDocumentExpenseCategory))
+			if(ParametersProvider.Instance.ContainsParameter(fuelDocumentExpenseCategory))
 			{
 				int id = -1;
 				id = int.Parse (MainSupport.BaseParameters.All [fuelDocumentExpenseCategory]);
@@ -122,9 +123,9 @@ namespace Vodovoz.Repository.Cash
 
 		public static ExpenseCategory EmployeeSalaryExpenseCategory(IUnitOfWork uow)
 		{
-			if(MainSupport.BaseParameters.All.ContainsKey(employeeSalaryExpenseCategory)) {
+			if(ParametersProvider.Instance.ContainsParameter(employeeSalaryExpenseCategory)) {
 				int id = -1;
-				id = int.Parse(MainSupport.BaseParameters.All[employeeSalaryExpenseCategory]);
+				id = int.Parse(ParametersProvider.Instance.GetParameterValue(employeeSalaryExpenseCategory));
 				if(id == -1)
 					return null;
 				return uow.Session.QueryOver<ExpenseCategory>()

@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using QSSupportLib;
 using RestSharp;
 using RestSharp.Authenticators;
+using Vodovoz.Parameters;
 using Vodovoz.Repository;
 using Vodovoz.Tools.CommerceML.Nodes;
 
@@ -120,11 +121,11 @@ namespace Vodovoz.Tools.CommerceML
 
 			OnProgressPlusOneTask("Соединяемся с сайтом");
 			//Проверяем связь с сервером
-			var baseUrl = MainSupport.BaseParameters.All[OnlineStoreUrlParameterName].TrimEnd('/');
+			var baseUrl = ParametersProvider.Instance.GetParameterValue(OnlineStoreUrlParameterName).TrimEnd('/');
 			var client = new RestClient(baseUrl);
 			client.CookieContainer = new System.Net.CookieContainer();
-			client.Authenticator = new HttpBasicAuthenticator(MainSupport.BaseParameters.All[OnlineStoreLoginParameterName],
-			                                                  MainSupport.BaseParameters.All[OnlineStorePasswordParameterName]);
+			client.Authenticator = new HttpBasicAuthenticator(ParametersProvider.Instance.GetParameterValue(OnlineStoreLoginParameterName),
+			                                                  ParametersProvider.Instance.GetParameterValue(OnlineStorePasswordParameterName));
 			var request = new RestRequest("1c_exchange.php?type=catalog&mode=checkauth", Method.GET);
 			IRestResponse response = client.Execute(request);
 			DebugResponse(response);

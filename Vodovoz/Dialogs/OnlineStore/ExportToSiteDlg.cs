@@ -7,6 +7,7 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Tools.CommerceML;
 using QS.Project.Repositories;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Dialogs.OnlineStore
 {
@@ -22,12 +23,12 @@ namespace Vodovoz.Dialogs.OnlineStore
 
 			this.Build();
 			TabName = "Экспорт интернет магазин";
-			if(MainSupport.BaseParameters.All.ContainsKey(Export.OnlineStoreUrlParameterName))
-				entrySitePath.Text = MainSupport.BaseParameters.All[Export.OnlineStoreUrlParameterName];
-			if(MainSupport.BaseParameters.All.ContainsKey(Export.OnlineStoreLoginParameterName))
-				entryUser.Text = MainSupport.BaseParameters.All[Export.OnlineStoreLoginParameterName];
-			if(MainSupport.BaseParameters.All.ContainsKey(Export.OnlineStorePasswordParameterName))
-				entryPassword.Text = MainSupport.BaseParameters.All[Export.OnlineStorePasswordParameterName];
+			if(ParametersProvider.Instance.ContainsParameter(Export.OnlineStoreUrlParameterName))
+				entrySitePath.Text = ParametersProvider.Instance.GetParameterValue(Export.OnlineStoreUrlParameterName);
+			if(ParametersProvider.Instance.ContainsParameter(Export.OnlineStoreLoginParameterName))
+				entryUser.Text = ParametersProvider.Instance.GetParameterValue(Export.OnlineStoreLoginParameterName);
+			if(ParametersProvider.Instance.ContainsParameter(Export.OnlineStorePasswordParameterName))
+				entryPassword.Text = ParametersProvider.Instance.GetParameterValue(Export.OnlineStorePasswordParameterName);
 		}
 
 		protected void OnButtonRunToFileClicked(object sender, EventArgs e)

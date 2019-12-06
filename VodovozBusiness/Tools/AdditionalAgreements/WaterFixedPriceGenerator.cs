@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Parameters;
 using Vodovoz.Repository;
 
 namespace Vodovoz.Tools.AdditionalAgreements
@@ -115,9 +116,9 @@ namespace Vodovoz.Tools.AdditionalAgreements
 		private decimal GetWaterPriceIncrement()
 		{
 			var waterPriceParam = "water_price_increment";
-			if(!MainSupport.BaseParameters.All.ContainsKey(waterPriceParam))
+			if(!ParametersProvider.Instance.ContainsParameter(waterPriceParam))
 				throw new InvalidProgramException("В параметрах базы не настроено значение инкремента для цен на воду");
-			return decimal.Parse(MainSupport.BaseParameters.All[waterPriceParam]);
+			return decimal.Parse(ParametersProvider.Instance.GetParameterValue(waterPriceParam));
 		}
 	}
 }
