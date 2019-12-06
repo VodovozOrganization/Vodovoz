@@ -8,7 +8,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using QS.DomainModel.UoW;
 using QS.Report;
-using QSSupportLib;
+using Vodovoz.Parameters;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using System.Collections.Generic;
@@ -73,7 +73,7 @@ namespace Vodovoz.Additions
 						Text = billTemplate.Text,
 						HtmlText = billTemplate.TextHtml,
 						Recipient = new EmailContact("", sendedEmail.RecipientAddress),
-						Sender = new EmailContact("vodovoz-spb.ru", MainSupport.BaseParameters.All["email_for_email_delivery"]),
+						Sender = new EmailContact("vodovoz-spb.ru", ParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
 						Order = billDocument.Order.Id,
 						OrderDocumentType = OrderDocumentType.Bill
 					};

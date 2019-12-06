@@ -32,6 +32,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository.Client;
 using Vodovoz.Services;
@@ -1763,7 +1764,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CalculateDeliveryPrice()
 		{
-			int paidDeliveryNomenclatureId = int.Parse(MainSupport.BaseParameters.All["paid_delivery_nomenclature_id"]);
+			int paidDeliveryNomenclatureId = int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"));
 			OrderItem deliveryPriceItem = OrderItems.FirstOrDefault(x => x.Nomenclature.Id == paidDeliveryNomenclatureId);
 
 			#region перенести всё это в OrderStateKey

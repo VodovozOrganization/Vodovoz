@@ -6,6 +6,7 @@ using System.Text;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QSSupportLib;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories.Sale;
 
 namespace Vodovoz.Domain.Sale
@@ -41,11 +42,11 @@ namespace Vodovoz.Domain.Sale
 		}
 
 		[Display(Name = "Количество 6л бутылей на одну 19л бутыль")]
-		public virtual int EqualsCount6LFor19L => int.Parse(MainSupport.BaseParameters.All["эквивалент_6л_на_1бутыль_19л"]);
+		public virtual int EqualsCount6LFor19L => int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_6л_на_1бутыль_19л"));
 
 		int water600mlCount;
 		[Display(Name = "Количество 0,6л бутылей на одну 19л бутыль")]
-		public virtual int EqualsCount600mlFor19L => int.Parse(MainSupport.BaseParameters.All["эквивалент_0,6л_на_1бутыль_19л"]);
+		public virtual int EqualsCount600mlFor19L => int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_0,6л_на_1бутыль_19л"));
 
 		[Display(Name = "Количество 6л бутылей в заказе")]
 		public virtual string Water6LCount => (water19LCount * EqualsCount6LFor19L).ToString();

@@ -24,6 +24,7 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository.Cash;
@@ -755,7 +756,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool IsConsistentWithUnloadDocument()
 		{
-			var returnedBottlesNom = int.Parse(MainSupport.BaseParameters.All["returned_bottle_nomenclature_id"]);
+			var returnedBottlesNom = int.Parse(ParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id"));
 			var bottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
 				UoW,
 				Id,
