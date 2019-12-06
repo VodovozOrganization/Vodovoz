@@ -31,6 +31,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			}
 
 			this.Build();
+			TabName = "Расчет расстояний до точек";
 			uow.Session.SetBatchSize(SaveBy);
 		}
 
