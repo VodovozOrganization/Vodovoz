@@ -770,6 +770,9 @@
     <Compile Include="HibernateMapping\Complaints\ComplaintKindMap.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\WageCalculationServiceForOldRouteLists.cs" />
     <Compile Include="Parameters\ParametersProvider.cs" />
+    <Compile Include="EntityRepositories\SmsNotifications\ISmsNotificationRepository.cs" />
+    <Compile Include="EntityRepositories\SmsNotifications\SmsNotificationRepository.cs" />
+    <Compile Include="Services\ISmsNotificationServiceSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -842,6 +845,7 @@
     <Folder Include="Domain\WageCalculation\AdvancedWageParameter\" />
     <Folder Include="HibernateMapping\WageCalculation\AdvancedWageParameters\" />
     <Folder Include="Parameters\" />
+    <Folder Include="EntityRepositories\SmsNotifications\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

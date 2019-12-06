@@ -3,6 +3,8 @@ using QSSupportLib;
 using Vodovoz.Services;
 using System.Globalization;
 using Vodovoz.Parameters;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain;
 
 namespace Vodovoz.Core.DataService
 {
@@ -14,7 +16,8 @@ namespace Vodovoz.Core.DataService
 		ISubdivisionService,
 		ICommonParametersProvider, 
 		ISmsNotifierParametersProvider,
-		IWageParametersProvider
+		IWageParametersProvider,
+		ISmsNotificationServiceSettings
 	{
 		public int GetForfeitId()
 		{
@@ -154,5 +157,26 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IWageParametersProvider implementation
+
+
+		#region MyRegionISmsNotificationServiceSettings implementation
+
+		public int MaxUnsendedSmsNotificationsForWorkingService {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("MaxUnsendedSmsNotificationsForWorkingService")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено максимальное количество неотправленных смс уведолмений для рабочей службы (MaxUnsendedSmsNotificationsForWorkingService).");
+				}
+				string value = ParametersProvider.Instance.GetParameterValue("MaxUnsendedSmsNotificationsForWorkingService");
+
+				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено максимальное количество неотправленных смс уведолмений для рабочей службы (MaxUnsendedSmsNotificationsForWorkingService)");
+				}
+
+				return result;
+			}
+		}
+
+		#endregion MyRegionISmsNotificationServiceSettings implementation
+
 	}
 }
