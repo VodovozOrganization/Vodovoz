@@ -71,6 +71,7 @@ namespace Vodovoz
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
 
 			MainSupport.LoadBaseParameters();
+			ParametersProvider.Instance.RefreshParameters();
 
 			//Настройка карты
 			GMap.NET.MapProviders.GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",

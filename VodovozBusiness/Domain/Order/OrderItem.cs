@@ -8,6 +8,7 @@ using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -420,7 +421,7 @@ namespace Vodovoz.Domain.Orders
 				if(IsRentRenewal())
 					result = true;
 
-				if(Nomenclature.Id == int.Parse(MainSupport.BaseParameters.All["paid_delivery_nomenclature_id"]))
+				if(Nomenclature.Id == int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id")))
 					result = false;
 
 				if(PromoSet != null)

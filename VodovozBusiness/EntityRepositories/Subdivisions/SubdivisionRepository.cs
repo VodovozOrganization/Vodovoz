@@ -8,6 +8,7 @@ using QSSupportLib;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.EntityRepositories.Subdivisions
 {
@@ -51,9 +52,9 @@ namespace Vodovoz.EntityRepositories.Subdivisions
 		public Subdivision GetQCDepartment(IUnitOfWork uow)
 		{
 			var qcDep = "номер_отдела_ОКК";
-			if(!MainSupport.BaseParameters.All.ContainsKey(qcDep))
+			if(!ParametersProvider.Instance.ContainsParameter(qcDep))
 				throw new InvalidProgramException("В параметрах базы не указан номер отдела контроля качества [номер_отдела_ОКК]");
-			return uow.GetById<Subdivision>(int.Parse(MainSupport.BaseParameters.All[qcDep]));
+			return uow.GetById<Subdivision>(int.Parse(ParametersProvider.Instance.GetParameterValue(qcDep)));
 		}
 
 		/// <summary>

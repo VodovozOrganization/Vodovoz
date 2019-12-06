@@ -6,6 +6,7 @@ using QSBanks;
 using QSSupportLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Parameters;
 using Vodovoz.Repository.Client;
 
 namespace Vodovoz.Repository
@@ -68,8 +69,8 @@ namespace Vodovoz.Repository
 
 		public static Organization GetCashlessOrganization(IUnitOfWork uow)
 		{
-			if(MainSupport.BaseParameters.All.ContainsKey(CashlessOrganization)){
-				return uow.GetById<Organization>(int.Parse(MainSupport.BaseParameters.All[CashlessOrganization]));
+			if(ParametersProvider.Instance.ContainsParameter(CashlessOrganization)){
+				return uow.GetById<Organization>(int.Parse(ParametersProvider.Instance.GetParameterValue(CashlessOrganization)));
 			}
 			return null;
 		}
