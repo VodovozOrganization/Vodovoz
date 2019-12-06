@@ -18,7 +18,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		public ITdiTab TdiTab { get; }
 		public IAdvancedWageWidgetFactory AdvancedWageWidgetFactory { get; }
 		public event Action WageRatesUpdate;
-
+		public event Action WageRatesFill;
 
 		private ViewModelBase advancedWidgetViewModel;
 		public virtual ViewModelBase AdvancedWidgetViewModel {
@@ -143,8 +143,8 @@ namespace Vodovoz.ViewModels.WageCalculation
 									WageDistrictLevelRate = Entity
 								}
 							);
-						WageRatesUpdate?.Invoke();
 					}
+					WageRatesFill?.Invoke();
 					CanFillRates = false;
 				},
 				() => CanFillRates

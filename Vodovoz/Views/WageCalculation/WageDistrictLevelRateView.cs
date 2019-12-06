@@ -36,6 +36,11 @@ namespace Vodovoz.Views.WageCalculation
 				treeViewWageRates.ExpandAll();
 			};
 
+			ViewModel.WageRatesFill += () => {
+				treeViewWageRates.YTreeModel = new RecursiveTreeConfig<IWageHierarchyNode>
+				(x => x.Parent, x => x.Children)
+				.CreateModel(ViewModel.Entity.ObservableWageRates);
+			};
 			treeViewWageRates.ColumnsConfig = FluentColumnsConfig<IWageHierarchyNode>.Create()
 				.AddColumn("Название ставки")
 					.HeaderAlignment(0.5f)
