@@ -73,17 +73,19 @@ namespace Vodovoz.Domain.WageCalculation
 				);
 			foreach(var wageRate in WageRates) {
 				if(wageRate.ChildrenParameters.FirstOrDefault() != null)
-					foreach(var item in ValidateParameters(wageRate.ChildrenParameters))
+					foreach(var item in ValidateParameters(wageRate.ChildrenParameters,validationContext))
 						yield return item;
 			}
 		}
 
-		private IEnumerable<ValidationResult> ValidateParameters(IList<AdvancedWageParameter> wageParameters) //Переместить в WageRate
+		private IEnumerable<ValidationResult> ValidateParameters(IList<AdvancedWageParameter> wageParameters, ValidationContext validationContext)
 		{
 			foreach(var item in wageParameters) {
 				if(item.ChildrenParameters.FirstOrDefault() != null)
-					foreach(var newItem in ValidateParameters(item.ChildrenParameters))
+					foreach(var newItem in ValidateParameters(item.ChildrenParameters, validationContext))
 						yield return newItem;
+				foreach(var validResult in item.Validate(validationContext))
+					yield return validResult;
 			}
 		}
 

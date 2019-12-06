@@ -23,8 +23,8 @@ namespace Vodovoz.ViewWidgets.AdvancedWageParameterViews
 		    yvalidatedentryRightCount.Binding.AddBinding(ViewModel.Entity, e => e.BottlesTo, w => w.Text, new UintToStringConverter()).InitializeFromSource();
 			yvalidatedentryRightCount.Binding.AddBinding(ViewModel, vm => vm.CanSetRightCount, w => w.Sensitive).InitializeFromSource();
 			yenumcomboboxLeftSing.Binding.AddBinding(ViewModel.Entity, e => e.LeftSing, w => w.SelectedItemOrNull).InitializeFromSource();
-			yenumcomboboxRightSing.Binding.AddBinding(ViewModel.Entity, e => e.RightSing, w => w.SelectedItemOrNull).InitializeFromSource();
 			yenumcomboboxRightSing.AddEnumToHideList(ViewModel.RightSingHideType.OfType<object>().ToArray());
+			yenumcomboboxRightSing.Binding.AddBinding(ViewModel.Entity, e => e.RightSing, w => w.SelectedItemOrNull).InitializeFromSource();
 		}
 	}
 }

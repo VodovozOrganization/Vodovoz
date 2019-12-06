@@ -150,6 +150,7 @@
     <Compile Include="Employees\EmployeeTests.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListOldRatesWageCalculationServiceTests.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\AdvancedWageParameters\BottlesCountAdvancedWageParameterTest.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\AdvancedWageParameters\DeliveryTimeAdvancedWageParameterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">

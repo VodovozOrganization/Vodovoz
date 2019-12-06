@@ -91,6 +91,36 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			return param.GetCountRange();
 		}
 
+
+		[Test(Description = "Проверка расчета диапазона бутылей в параметре(при некорректных параметрах)")]
+		public void CheckParameterRangeCalculationWithInvalidParams()
+		{
+			// arrange
+			var param1 = new BottlesCountAdvancedWageParameter {
+				BottlesTo = 10,
+				LeftSing = ComparisonSings.Less,
+				RightSing = ComparisonSings.Less,
+				BottlesFrom = 10
+			};
+			var param2 = new BottlesCountAdvancedWageParameter {
+				BottlesTo = 1,
+				LeftSing = ComparisonSings.Less,
+				RightSing = ComparisonSings.MoreOrEqual,
+				BottlesFrom = 5
+			};
+			var param3 = new BottlesCountAdvancedWageParameter {
+				BottlesTo = 1,
+				LeftSing = ComparisonSings.Less,
+				RightSing = ComparisonSings.More,
+				BottlesFrom = 5
+			};
+
+			// assert //act
+			Assert.Throws(typeof(ArgumentException), () => param1.GetCountRange());
+			Assert.Throws(typeof(ArgumentException), () => param2.GetCountRange());
+			Assert.Throws(typeof(ArgumentException), () => param3.GetCountRange());
+		}
+
 		[Test(Description = "Проверка конфликта между параметров разных типов")]
 		public void CheckingСonflictBetweenParametersOfDifferentTypes()
 		{

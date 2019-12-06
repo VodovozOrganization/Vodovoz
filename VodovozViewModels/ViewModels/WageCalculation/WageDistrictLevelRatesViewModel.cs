@@ -65,15 +65,16 @@ namespace Vodovoz.ViewModels.WageCalculation
 			}
 		}
 
-		protected override void BeforeSave()
+		public override bool Save(bool close)
 		{
 			var defaultLevels = UoW.Session.QueryOver<WageDistrictLevelRates>()
-								   .Where(r => r.IsDefaultLevel)
-								   .List();
+					   .Where(r => r.IsDefaultLevel)
+					   .List();
 			foreach(var level in defaultLevels) {
 				level.IsDefaultLevel = false;
 				UoW.Save(level);
 			}
+			return base.Save(close);
 		}
 	}
 }

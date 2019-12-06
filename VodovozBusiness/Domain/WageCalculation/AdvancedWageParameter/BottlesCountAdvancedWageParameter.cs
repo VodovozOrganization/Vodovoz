@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
@@ -35,7 +36,12 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		[Display(Name = "Правый знак сравнения")]
 		public virtual ComparisonSings? RightSing {
 			get => rightSing;
-			set => SetField(ref rightSing, value);
+			set 
+			{
+				if(value == null)
+					bottlesTo = null;
+				SetField(ref rightSing, value);
+			}
 		}
 
 		private uint? bottlesTo;
@@ -86,7 +92,8 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 						break;
 					case ComparisonSings.More:
 					case ComparisonSings.MoreOrEqual:
-						throw new ArgumentOutOfRangeException(nameof(RightSing));
+					case ComparisonSings.Equally:
+						throw new ArgumentException(nameof(RightSing));
 				}
 
 				if(LeftSing == ComparisonSings.More && to > (BottlesFrom - 1)) {
@@ -102,7 +109,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			var res = (from ?? 0, to ?? int.MaxValue);
 
 			if(res.Item1 > res.Item2)
-				throw new ArgumentOutOfRangeException($" Параметр расчета зп: {this} не может быть расчитан");
+				throw new ArgumentException($" Параметр расчета зп: {this} не может быть расчитан");
 
 			return (from ?? 0, to ?? int.MaxValue);
 		}
@@ -114,8 +121,14 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 
 			var bottleParam = advancedWageParameter as BottlesCountAdvancedWageParameter;
 
-			(uint, uint) range = GetCountRange();
-			(uint, uint) anotherParamRange = bottleParam.GetCountRange();
+			(uint, uint) range;
+			(uint, uint) anotherParamRange;
+			try {
+				range = GetCountRange();
+				anotherParamRange = bottleParam.GetCountRange();
+			}catch(ArgumentException) {
+				return true;
+			}
 
 			if(anotherParamRange.Item1 >= range.Item1 && anotherParamRange.Item1 <= range.Item2)
 				return true;
@@ -137,9 +150,38 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			return param;
 		}
 
+		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			bool isValid = true;
+
+			if(LeftSing == ComparisonSings.Equally && RightSing != null)
+				isValid = false;
+
+			try {
+				GetCountRange();
+			} catch(ArgumentException) {
+				isValid = false;
+			}
+
+			if(!isValid)
+				yield return new ValidationResult($"Неравенство содержит конфликтующие условия : {this}");
+
+			var result = base.Validate(validationContext);
+
+			foreach(var item in result)
+				yield return item;
+		}
+
 		public override bool IsValidСonditions(IRouteListItemWageCalculationSource scr)
 		{
-			var range = GetCountRange();
+			(uint, uint) range;
+
+			try {
+				range = GetCountRange();
+			}
+			catch(ArgumentException) {
+				return false;
+			}
 			return scr.FullBottle19LCount >= range.Item1 
 				   && scr.FullBottle19LCount <= range.Item2;
 		}

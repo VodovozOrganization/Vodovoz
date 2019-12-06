@@ -83,6 +83,11 @@ namespace Vodovoz.Domain.WageCalculation
 			foreach(var result in allValidationResultsOfItems)
 				yield return result;
 
+			foreach(var item in LevelRates) {
+				foreach(var result in item.Validate(validationContext))
+					yield return result;
+			}
+
 			#endregion валидация ставок
 		}
 
