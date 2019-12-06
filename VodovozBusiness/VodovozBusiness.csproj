@@ -759,6 +759,7 @@
     <Compile Include="EntityRepositories\Store\WarehouseRepository.cs" />
     <Compile Include="Domain\Complaints\ComplaintKind.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintKindMap.cs" />
+    <Compile Include="Parameters\ParametersProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -828,6 +829,7 @@
     <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
     <Folder Include="Domain\Sms\" />
     <Folder Include="HibernateMapping\Sms\" />
+    <Folder Include="Parameters\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
