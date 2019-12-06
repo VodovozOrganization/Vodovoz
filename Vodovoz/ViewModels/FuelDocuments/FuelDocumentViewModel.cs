@@ -56,7 +56,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private bool canEdit = true;
 		public virtual bool CanEdit {
 			get => canEdit;
-			set => SetField(ref canEdit, value);
+			set { SetField(ref canEdit, value);
+				OnPropertyChanged(nameof(CanChangeDate));
+			}
 		}
 
 		private bool autoCommit;
@@ -84,6 +86,10 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		public virtual string BalanceState { get { return $"Доступно к выдаче: {Balance} л."; } }
 
 		public virtual bool IsNewEditable { get { return FuelDocument.Id <= 0 && CanEdit; } }
+
+		public virtual bool CanChangeDate { get => CanEdit &&
+		commonServices.PermissionService.ValidateUserPresetPermission("can_change_fuel_card_number", commonServices.UserService.CurrentUserId);
+		} 
 
 		public virtual decimal Balance {
 			get {
