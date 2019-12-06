@@ -55,6 +55,11 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 
 		public virtual (uint,uint) GetCountRange()
 		{
+			if(BottlesTo == null || RightSing == null) {
+				BottlesTo = null;
+				RightSing = null;
+			}
+
 			if(LeftSing == ComparisonSings.Equally)
 				return (BottlesFrom, BottlesFrom);
 
@@ -154,7 +159,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 		{
 			bool isValid = true;
 
-			if(LeftSing == ComparisonSings.Equally && RightSing != null)
+			if(LeftSing == ComparisonSings.Equally && RightSing != null && BottlesTo != null)
 				isValid = false;
 
 			try {

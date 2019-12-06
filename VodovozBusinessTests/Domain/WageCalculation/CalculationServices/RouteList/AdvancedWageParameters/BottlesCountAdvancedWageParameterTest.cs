@@ -76,13 +76,24 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 				RightSing = ComparisonSings.Less,
 				BottlesTo = 6
 			}; // 5 = x < 6
-
+			var param6 = new BottlesCountAdvancedWageParameter {
+				BottlesFrom = 2,
+				LeftSing = ComparisonSings.Equally,
+				RightSing = ComparisonSings.Less,
+			}; // 2 = x < null 
+			var param7 = new BottlesCountAdvancedWageParameter {
+				BottlesFrom = 4,
+				LeftSing = ComparisonSings.More,
+				BottlesTo = 6
+			}; // 4 > x null 6
 
 			yield return new TestCaseData(param1).Returns((1,1)).SetName($"{param1}");
 			yield return new TestCaseData(param2).Returns((0,1)).SetName($"{param2}");
 			yield return new TestCaseData(param3).Returns((5,5)).SetName($"{param3}");
 			yield return new TestCaseData(param4).Returns((0,4)).SetName($"{param4}");
 			yield return new TestCaseData(param5).Returns((5, 5)).SetName($"{param5}");
+			yield return new TestCaseData(param6).Returns((2, 2)).SetName($"{param6}");
+			yield return new TestCaseData(param7).Returns((0,3)).SetName($"{param7}");
 		}
 		[TestCaseSource(nameof(CheckParameterRangeCalculationParams))]
 		[Test(Description = "Проверка расчета диапазона бутылей в параметре")]
