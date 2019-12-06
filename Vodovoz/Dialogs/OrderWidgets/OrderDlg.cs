@@ -391,6 +391,8 @@ namespace Vodovoz
 				Entity.RecalculateStockBottles(standartDiscountsService);
 				ControlsActionBottleAccessibility();
 			};
+
+			Entity.InteractiveService = ServicesConfig.InteractiveService;
 		}
 
 		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)

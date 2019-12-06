@@ -76,6 +76,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual int Id { get; set; }
 
+		public virtual IInteractiveService InteractiveService { get; set; }
+
 		DateTime version;
 		[Display(Name = "Версия")]
 		public virtual DateTime Version {
@@ -132,7 +134,12 @@ namespace Vodovoz.Domain.Orders
 				if(orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
-					throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
+					OnPropertyChanged(nameof(Client));
+					if(InteractiveService == null)
+						throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
+
+					InteractiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
+					return;
 				}
 
 				if(SetField(ref client, value, () => Client)) {
