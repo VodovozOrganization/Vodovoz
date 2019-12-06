@@ -9,7 +9,7 @@ using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
-using QSSupportLib;
+using Vodovoz.Parameters;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Repositories;
@@ -100,7 +100,7 @@ namespace Vodovoz.ViewWidgets
 				return;
 			}
 
-			if(!MainSupport.BaseParameters.All.ContainsKey("email_for_email_delivery")) {
+			if(!ParametersProvider.Instance.ContainsParameter("email_for_email_delivery")) {
 				MessageDialogHelper.RunErrorDialog("В параметрах базы не определена почта для рассылки");
 				return;
 			}
@@ -157,7 +157,7 @@ namespace Vodovoz.ViewWidgets
 				}
 
 				email.Recipient = new EmailContact(clientName, yvalidatedentryEmail.Text);
-				email.Sender = new EmailContact(organizationName, MainSupport.BaseParameters.All["email_for_email_delivery"]);
+				email.Sender = new EmailContact(organizationName, ParametersProvider.Instance.GetParameterValue("email_for_email_delivery"));
 				email.Order = document.Order.Id;
 				email.OrderDocumentType = document.Type;
 				using(MemoryStream stream = ReportExporter.ExportToMemoryStream(ri.GetReportUri(), ri.GetParametersString(), ri.ConnectionString, OutputPresentationType.PDF, true)) {

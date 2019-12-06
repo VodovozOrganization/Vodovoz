@@ -3,7 +3,7 @@ using Gtk;
 using NLog;
 using QSProjectsLib;
 using Gdk;
-using QSSupportLib;
+using Vodovoz.Parameters;
 using Vodovoz.Additions;
 using Vodovoz.DriverTerminal;
 using QS.Project.Repositories;
@@ -12,6 +12,7 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Tools;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Utilities.Text;
+using QSSupportLib;
 
 namespace Vodovoz
 {
@@ -116,9 +117,9 @@ namespace Vodovoz
 				Configure.ConfigureDeletion();
 				PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
 
-				if(MainSupport.BaseParameters.All.ContainsKey("email_send_enabled_database") && MainSupport.BaseParameters.All.ContainsKey("email_service_address")) {
-					if(MainSupport.BaseParameters.All["email_send_enabled_database"] == LoginDialog.BaseName) {
-						EmailServiceSetting.Init(MainSupport.BaseParameters.All["email_service_address"]);
+				if(ParametersProvider.Instance.ContainsParameter("email_send_enabled_database") && ParametersProvider.Instance.ContainsParameter("email_service_address")) {
+					if(ParametersProvider.Instance.GetParameterValue("email_send_enabled_database") == LoginDialog.BaseName) {
+						EmailServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("email_service_address"));
 					}
 				}
 

@@ -11,7 +11,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Repositories;
 using QSOrmProject;
 using QSProjectsLib;
-using QSSupportLib;
+using Vodovoz.Parameters;
 using QS.Validation.GtkUI;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
@@ -921,7 +921,7 @@ namespace Vodovoz
 		private void ReloadReturnedToWarehouse()
 		{
 			allReturnsToWarehouse = new RouteListRepository().GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
-			var returnedBottlesNom = int.Parse(MainSupport.BaseParameters.All["returned_bottle_nomenclature_id"]);
+			var returnedBottlesNom = int.Parse(ParametersProvider.Instance.GetParameterValue("returned_bottle_nomenclature_id"));
 			bottlesReturnedToWarehouse = (int)new RouteListRepository().GetReturnsToWarehouse(
 				UoW,
 				Entity.Id,

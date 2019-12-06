@@ -37,7 +37,7 @@ using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
-using QSSupportLib;
+using Vodovoz.Parameters;
 using QSWidgetLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -2534,7 +2534,7 @@ namespace Vodovoz
 				Text = billTemplate.Text,
 				HtmlText = billTemplate.TextHtml,
 				Recipient = new EmailContact("", emailAddressForBill.Address),
-				Sender = new EmailContact("vodovoz-spb.ru", MainSupport.BaseParameters.All["email_for_email_delivery"]),
+				Sender = new EmailContact("vodovoz-spb.ru", ParametersProvider.Instance.GetParameterValue("email_for_email_delivery")),
 				Order = Entity.Id,
 				OrderDocumentType = OrderDocumentType.Bill
 			};

@@ -59,6 +59,7 @@ using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.JournalColumnsConfigs;
+using Vodovoz.Parameters;
 using Vodovoz.Services.Permissions;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Complaints;
@@ -506,8 +507,8 @@ namespace Vodovoz
 		public static void SetupAppFromBase()
 		{
 			//Устанавливаем код города по умолчанию.
-			if(MainSupport.BaseParameters.All.ContainsKey("default_city_code"))
-				QSContactsMain.DefaultCityCode = MainSupport.BaseParameters.All["default_city_code"];
+			if(ParametersProvider.Instance.ContainsParameter("default_city_code"))
+				QSContactsMain.DefaultCityCode = ParametersProvider.Instance.GetParameterValue("default_city_code");
 		}
 	}
 }

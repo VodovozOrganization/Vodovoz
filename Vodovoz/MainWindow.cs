@@ -21,7 +21,7 @@ using QS.Tdi.Gtk;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
-using QSSupportLib;
+using Vodovoz.Parameters;
 using Vodovoz;
 using Vodovoz.Core;
 using Vodovoz.Core.DataService;
@@ -67,6 +67,7 @@ using Vodovoz.ViewModels.ForAdministrators;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
+using QSSupportLib;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
