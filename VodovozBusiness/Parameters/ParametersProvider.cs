@@ -21,6 +21,7 @@ namespace Vodovoz.Parameters
 
 		public bool ContainsParameter(string parameterName)
 		{
+			RefreshParameter(parameterName);
 			return parameters.ContainsKey(parameterName);
 		}
 
@@ -44,6 +45,27 @@ namespace Vodovoz.Parameters
 					return freshParameterValue;
 				}
 				throw new InvalidProgramException($"В параметрах базы не найден параметр ({parameterName})");
+			}
+		}
+
+		private void RefreshParameter(string parameterName)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				BaseParameter parameter = uow.Session.QueryOver<BaseParameter>()
+					.Where(x => x.Name == parameterName)
+					.SingleOrDefault<BaseParameter>();
+				if(parameter == null) {
+					return;
+				}
+
+				if(parameters.ContainsKey(parameterName)) {
+					parameters[parameterName] = parameter.StrValue;
+					return;
+				}
+				if(!parameters.ContainsKey(parameterName)) {
+					parameters.Add(parameter.Name, parameter.StrValue);
+					return;
+				}
 			}
 		}
 
