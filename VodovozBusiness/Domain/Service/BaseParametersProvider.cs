@@ -18,7 +18,8 @@ namespace Vodovoz.Core.DataService
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
 		ISmsNotificationServiceSettings,
-		ISalesReceiptsServiceSettings
+		ISalesReceiptsServiceSettings,
+		IEmailServiceSettings
 	{
 		public int GetForfeitId()
 		{
@@ -186,7 +187,7 @@ namespace Vodovoz.Core.DataService
 				if(!ParametersProvider.Instance.ContainsParameter("MaxUnsendedCashReceiptsForWorkingService")) {
 					throw new InvalidProgramException("В параметрах базы не заполнено максимальное количество неотправленных кассовых чеков для рабочей службы (MaxUnsendedCashReceiptsForWorkingService).");
 				}
-				string value = ParametersProvider.Instance.GetParameterValue("MaxUnsendedSmsNotificationsForWorkingService");
+				string value = ParametersProvider.Instance.GetParameterValue("MaxUnsendedCashReceiptsForWorkingService");
 
 				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
 					throw new InvalidProgramException("В параметрах базы неверно заполнено максимальное количество неотправленных кассовых чеков для рабочей службы (MaxUnsendedCashReceiptsForWorkingService)");
@@ -197,6 +198,25 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion ISalesReceiptsServiceSettings implementation
+
+		#region IEmailServiceSettings implementation
+
+		public int MaxEmailsInQueueForWorkingService {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("MaxEmailsInQueueForWorkingService")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено максимальное количество писем в очереди на отправку для рабочей службы (MaxEmailsInQueueForWorkingService).");
+				}
+				string value = ParametersProvider.Instance.GetParameterValue("MaxEmailsInQueueForWorkingService");
+
+				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено максимальное количество писем в очереди на отправку для рабочей службы (MaxEmailsInQueueForWorkingService)");
+				}
+
+				return result;
+			}
+		}
+
+		#endregion IEmailServiceSettings implementation
 
 	}
 }
