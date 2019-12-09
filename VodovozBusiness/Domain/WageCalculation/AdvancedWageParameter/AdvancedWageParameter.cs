@@ -128,7 +128,7 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 					return wageNode;
 			}
 
-			return null;
+			return new RouteListWageNode(forDriverWithForwarder, forDriverWithoutForwarder, forForwarder);
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
