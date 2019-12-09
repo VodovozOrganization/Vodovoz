@@ -68,6 +68,7 @@ using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using QSSupportLib;
+using Vodovoz.ReportsParameters.Sales;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -727,6 +728,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.SalesReport>(),
 			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.SalesReport())
+		);
+	}
+
+	protected void OnActionSalesByDicountReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<SalesByDiscountReport>(),
+			() => new QSReport.ReportViewDlg(new SalesByDiscountReport())
 		);
 	}
 

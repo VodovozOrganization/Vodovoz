@@ -1349,6 +1349,8 @@
     <Compile Include="Core\WidgetContainerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.WidgetContainerView.cs" />
     <Compile Include="Core\IWidgetResolver.cs" />
+    <Compile Include="ReportsParameters\Sales\SalesByDiscountReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalesByDiscountReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2047,6 +2049,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Client\ZeroDebtClient.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\SalesByDiscountReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
