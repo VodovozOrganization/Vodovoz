@@ -17,7 +17,8 @@ namespace Vodovoz.Core.DataService
 		ICommonParametersProvider, 
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
-		ISmsNotificationServiceSettings
+		ISmsNotificationServiceSettings,
+		ISalesReceiptsServiceSettings
 	{
 		public int GetForfeitId()
 		{
@@ -159,24 +160,43 @@ namespace Vodovoz.Core.DataService
 		#endregion IWageParametersProvider implementation
 
 
-		#region MyRegionISmsNotificationServiceSettings implementation
+		#region ISmsNotificationServiceSettings implementation
 
 		public int MaxUnsendedSmsNotificationsForWorkingService {
 			get {
 				if(!ParametersProvider.Instance.ContainsParameter("MaxUnsendedSmsNotificationsForWorkingService")) {
-					throw new InvalidProgramException("В параметрах базы не заполнено максимальное количество неотправленных смс уведолмений для рабочей службы (MaxUnsendedSmsNotificationsForWorkingService).");
+					throw new InvalidProgramException("В параметрах базы не заполнено максимальное количество неотправленных смс уведомлений для рабочей службы (MaxUnsendedSmsNotificationsForWorkingService).");
 				}
 				string value = ParametersProvider.Instance.GetParameterValue("MaxUnsendedSmsNotificationsForWorkingService");
 
 				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
-					throw new InvalidProgramException("В параметрах базы неверно заполнено максимальное количество неотправленных смс уведолмений для рабочей службы (MaxUnsendedSmsNotificationsForWorkingService)");
+					throw new InvalidProgramException("В параметрах базы неверно заполнено максимальное количество неотправленных смс уведомлений для рабочей службы (MaxUnsendedSmsNotificationsForWorkingService)");
 				}
 
 				return result;
 			}
 		}
 
-		#endregion MyRegionISmsNotificationServiceSettings implementation
+		#endregion ISmsNotificationServiceSettings implementation
+
+		#region ISalesReceiptsServiceSettings implementation
+
+		public int MaxUnsendedCashReceiptsForWorkingService {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("MaxUnsendedCashReceiptsForWorkingService")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено максимальное количество неотправленных кассовых чеков для рабочей службы (MaxUnsendedCashReceiptsForWorkingService).");
+				}
+				string value = ParametersProvider.Instance.GetParameterValue("MaxUnsendedSmsNotificationsForWorkingService");
+
+				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено максимальное количество неотправленных кассовых чеков для рабочей службы (MaxUnsendedCashReceiptsForWorkingService)");
+				}
+
+				return result;
+			}
+		}
+
+		#endregion ISalesReceiptsServiceSettings implementation
 
 	}
 }
