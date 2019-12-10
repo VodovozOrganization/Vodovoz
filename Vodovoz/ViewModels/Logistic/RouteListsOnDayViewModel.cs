@@ -806,7 +806,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			var text = new List<string> {
 				NumberToTextRus.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."),
-				NumberToTextRus.FormatCase(totalBottles, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей"),
+				$"19л - {totalBottles}",
 				$"6л - {total6LBottles}",
 				$"0,6л - {total600mlBottles}"
 			};
