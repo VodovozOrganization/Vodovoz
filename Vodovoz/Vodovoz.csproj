@@ -1125,8 +1125,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.StockMovementsAdvancedReport.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Representations\CallTasksVM.cs" />
-    <Compile Include="JournalFilters\QueryFilterViews\CallTaskFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalFilters.QueryFilterViews.CallTaskFilterView.cs" />
     <Compile Include="Core\ViewModelWidgetResolver.cs" />
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
     <Compile Include="Dialogs\OrderWidgets\PromotionalSetDlg.cs" />
@@ -1351,6 +1349,9 @@
     <Compile Include="Core\IWidgetResolver.cs" />
     <Compile Include="ReportsParameters\Sales\SalesByDiscountReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalesByDiscountReport.cs" />
+    <Compile Include="Filters\ViewModels\CallTaskFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\CallTaskFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CallTaskFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

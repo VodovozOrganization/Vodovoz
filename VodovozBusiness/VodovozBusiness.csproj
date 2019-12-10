@@ -587,7 +587,6 @@
     <Compile Include="HibernateMapping\Order\PromotionalSetMap.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetItemMap.cs" />
     <Compile Include="Tools\IntToStringConverter.cs" />
-    <Compile Include="Filters\CallTaskFilter.cs" />
     <Compile Include="Services\IStandartNomenclatures.cs" />
     <Compile Include="Services\IImageProvider.cs" />
     <Compile Include="Domain\Service\BaseParametersProvider.cs" />

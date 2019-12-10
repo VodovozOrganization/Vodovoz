@@ -38,13 +38,13 @@ namespace Vodovoz.JournalViewers
 
 		private global::QS.Widgets.GtkUI.RepresentationEntry representationentryEmployee;
 
-		private global::Vodovoz.JournalFilters.QueryFilterViews.CallTaskFilterView calltaskfilterview;
+		private global::Gtk.HBox hboxTasksFilter;
 
 		private global::Gtk.HSeparator hseparator2;
 
 		private global::Gtk.VBox vbox2;
 
-		private global::Gtk.HBox hbox8;
+		private global::Gtk.HBox hbox10;
 
 		private global::QSWidgetLib.SearchEntity searchentity;
 
@@ -252,14 +252,13 @@ namespace Vodovoz.JournalViewers
 			w21.Expand = false;
 			w21.Fill = false;
 			// Container child vboxJournal.Gtk.Box+BoxChild
-			this.calltaskfilterview = new global::Vodovoz.JournalFilters.QueryFilterViews.CallTaskFilterView();
-			this.calltaskfilterview.Events = ((global::Gdk.EventMask)(256));
-			this.calltaskfilterview.Name = "calltaskfilterview";
-			this.vboxJournal.Add(this.calltaskfilterview);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.calltaskfilterview]));
+			this.hboxTasksFilter = new global::Gtk.HBox();
+			this.hboxTasksFilter.Name = "hboxTasksFilter";
+			this.hboxTasksFilter.Spacing = 6;
+			this.vboxJournal.Add(this.hboxTasksFilter);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxJournal[this.hboxTasksFilter]));
 			w22.Position = 3;
 			w22.Expand = false;
-			w22.Fill = false;
 			// Container child vboxJournal.Gtk.Box+BoxChild
 			this.hseparator2 = new global::Gtk.HSeparator();
 			this.hseparator2.Name = "hseparator2";
@@ -273,18 +272,18 @@ namespace Vodovoz.JournalViewers
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox8 = new global::Gtk.HBox();
-			this.hbox8.Name = "hbox8";
-			this.hbox8.Spacing = 6;
-			// Container child hbox8.Gtk.Box+BoxChild
+			this.hbox10 = new global::Gtk.HBox();
+			this.hbox10.Name = "hbox10";
+			this.hbox10.Spacing = 6;
+			// Container child hbox10.Gtk.Box+BoxChild
 			this.searchentity = new global::QSWidgetLib.SearchEntity();
 			this.searchentity.Events = ((global::Gdk.EventMask)(256));
 			this.searchentity.Name = "searchentity";
-			this.hbox8.Add(this.searchentity);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.searchentity]));
+			this.hbox10.Add(this.searchentity);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox10[this.searchentity]));
 			w24.Position = 0;
-			this.vbox2.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox8]));
+			this.vbox2.Add(this.hbox10);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox10]));
 			w25.Position = 0;
 			w25.Expand = false;
 			w25.Fill = false;
@@ -318,7 +317,6 @@ namespace Vodovoz.JournalViewers
 			}
 			this.representationentryEmployee.Hide();
 			this.hboxEditSelected.Hide();
-			this.calltaskfilterview.Hide();
 			this.Hide();
 			this.buttonAdd.Clicked += new global::System.EventHandler(this.OnAddTaskButtonClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler(this.OnButtonEditClicked);
