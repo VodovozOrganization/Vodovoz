@@ -20,7 +20,6 @@ namespace Vodovoz.EntityRepositories.Goods
 		QueryOver<Nomenclature> NomenclatureOfGoodsWithoutEmptyBottlesQuery();
 		QueryOver<Nomenclature> NomenclatureWaterOnlyQuery();
 		QueryOver<Nomenclature> NomenclatureEquipOnlyQuery();
-		Nomenclature GetBottleDeposit(IUnitOfWork uow);
 		Nomenclature GetDefaultBottle(IUnitOfWork uow);
 
 		/// <summary>

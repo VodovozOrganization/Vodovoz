@@ -71,14 +71,6 @@ namespace Vodovoz.EntityRepositories.Goods
 							.Where(n => !n.IsArchive);
 		}
 
-		public Nomenclature GetBottleDeposit(IUnitOfWork uow)
-		{
-			var bottleDepositParameter = "bottleDeposit_id";
-			if(!ParametersProvider.Instance.ContainsParameter(bottleDepositParameter))
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура залога за бутыли.");
-			return uow.GetById<Nomenclature>(int.Parse(ParametersProvider.Instance.GetParameterValue(bottleDepositParameter)));
-		}
-
 		public Nomenclature GetDefaultBottle(IUnitOfWork uow)
 		{
 			var defaultBottleParameter = "default_bottle_nomenclature";
