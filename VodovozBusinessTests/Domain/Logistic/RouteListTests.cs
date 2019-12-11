@@ -4,9 +4,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Domain.Employees;
-using System;
-using Vodovoz.Domain.WageCalculation;
+using System.Collections;
 
 namespace VodovozBusinessTests.Domain.Logistic
 {
@@ -71,92 +69,26 @@ namespace VodovozBusinessTests.Domain.Logistic
 			Assert.That(string.IsNullOrEmpty(msg), Is.True);
 		}
 
-		[Test(Description = "Если автомобиль в собственности компании, не фура и водитель не выездной мастер, то его необходимо " +
-			"отправлять на проверку километража")]
-		public void OurCarNotTruckNotVisitingMaster_MustBeSentToMileageCheck()
+		static IEnumerable NeedMileageCheckParams()
 		{
-			//arrange
-			RouteList routeList = new RouteList();
-			routeList.Car = Substitute.For<Car>();
-			routeList.Car.IsCompanyCar.Returns(true);
-			routeList.Car.TypeOfUse.Returns(CarTypeOfUse.CompanyLargus);
-			routeList.Driver = Substitute.For<Employee>();
-			routeList.Driver.VisitingMaster.Returns(false);
+			var car1 = new Car { TypeOfUse = CarTypeOfUse.CompanyGAZelle };
+			var car2 = new Car { TypeOfUse = CarTypeOfUse.CompanyLargus };
+			var car3 = new Car { TypeOfUse = CarTypeOfUse.CompanyTruck };
+			var car4 = new Car { TypeOfUse = CarTypeOfUse.DriverCar};
 
-			//act
-			//assert
-			Assert.That(routeList.NeedMileageCheck, Is.EqualTo(true));
-
+			yield return new TestCaseData(car1).Returns(true).SetName(car1.TypeOfUse.ToString());
+			yield return new TestCaseData(car2).Returns(true).SetName(car2.TypeOfUse.ToString());
+			yield return new TestCaseData(car3).Returns(false).SetName(car3.TypeOfUse.ToString());
+			yield return new TestCaseData(car4).Returns(false).SetName(car4.TypeOfUse.ToString());
 		}
 
-		[Test(Description = "Если автомобиль не в собственности компании, не фура и водитель не выездной мастер и с уровневым расчетом зарплаты, " +
-			"то его не нужно отправлять на проверку километража")]
-		public void MercenariesCarNotTruckDriverNotVisitingMasterDriverHaveLevelRatesWage_DontSentToMileageCheck()
+		[TestCaseSource(nameof(NeedMileageCheckParams))]
+		[Test(Description = "Если машина - собственность компании, но не фура, то её нужно отправлять на проверку километража. Остальные машины - не нужно")]
+		public bool NeedMileageCheck_Test(Car car)
 		{
-			//arrange
 			RouteList routeList = new RouteList();
-			routeList.Date = new DateTime(2019, 09, 25);
-			routeList.Car = Substitute.For<Car>();
-			routeList.Car.IsCompanyCar.Returns(false);
-			routeList.Car.TypeOfUse.Returns(CarTypeOfUse.CompanyGAZelle);
-			routeList.Driver = Substitute.For<Employee>();
-			routeList.Driver.VisitingMaster.Returns(false);
-			WageParameter wageParameter = Substitute.For<WageParameter>();
-			wageParameter.WageParameterType.Returns(WageParameterTypes.RatesLevel);
-			routeList.Driver.GetActualWageParameter(routeList.Date).Returns(wageParameter);
-
-			//act
-			//assert
-			Assert.That(routeList.NeedMileageCheck, Is.EqualTo(false));
-		}
-
-		[Test(Description = "Если автомобиль не в собственности компании, не фура и водитель не выездной мастер без уровневого расчета зарплаты, " +
-			"то его необходимо отправлять на проверку километража")]
-		public void MercenariesCarNotTruckDriverNotVisitingMasterDriverWithoutLevelRatesWage_MustBeSentToMileageCheck()
-		{
-			//arrange
-			RouteList routeList = new RouteList();
-			routeList.Date = new DateTime(2019, 09, 25);
-			routeList.Car = Substitute.For<Car>();
-			routeList.Car.IsCompanyCar.Returns(false);
-			routeList.Car.TypeOfUse.Returns(CarTypeOfUse.CompanyGAZelle);
-			routeList.Driver = Substitute.For<Employee>();
-			routeList.Driver.VisitingMaster.Returns(false);
-			WageParameter wageParameter = Substitute.For<WageParameter>();
-			wageParameter.WageParameterType.Returns(WageParameterTypes.OldRates);
-			routeList.Driver.GetActualWageParameter(routeList.Date).Returns(wageParameter);
-
-			//act
-			//assert
-			Assert.That(routeList.NeedMileageCheck, Is.EqualTo(true));
-		}
-
-		[Test(Description = "Если автомобиль фура то его не нужно отправлять на проверку километража")]
-		public void CarIsTruck_DontSentToMileageCheck()
-		{
-			//arrange
-			RouteList routeList = new RouteList();
-			routeList.Car = Substitute.For<Car>();
-			routeList.Car.TypeOfUse.Returns(CarTypeOfUse.CompanyTruck);
-
-			//act
-			//assert
-			Assert.That(routeList.NeedMileageCheck, Is.EqualTo(false));
-		}
-
-		[Test(Description = "Если водитель выездной мастер то его не нужно отправлять на проверку километража")]
-		public void DriverIsVisitingMaster_DontSentToMileageCheck()
-		{
-			//arrange
-			RouteList routeList = new RouteList();
-			routeList.Car = Substitute.For<Car>();
-			routeList.Car.TypeOfUse.Returns(CarTypeOfUse.CompanyGAZelle);
-			routeList.Driver = Substitute.For<Employee>();
-			routeList.Driver.VisitingMaster.Returns(true);
-
-			//act
-			//assert
-			Assert.That(routeList.NeedMileageCheck, Is.EqualTo(false));
+			routeList.Car = car;
+			return routeList.NeedMileageCheck;
 		}
 	}
 }

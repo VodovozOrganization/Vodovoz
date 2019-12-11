@@ -10,13 +10,12 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Contacts;
 using QS.RepresentationModel.GtkUI;
-using QS.Tools;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.StoredResources;
-using Vodovoz.Filters;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 
 namespace Vodovoz.Representations
@@ -28,11 +27,25 @@ namespace Vodovoz.Representations
 
 		private int taskCount = 0;
 
-		public IQueryFilter Filter { get; set; }
+		private CallTaskFilterViewModel filter;
+		public CallTaskFilterViewModel Filter 
+		{
+			get => filter;
+			set 
+			{
+				if(filter != value) {
+					filter = value;
+					filter.OnFiltered += (sender, e) => UpdateNodes();
+					PropertyChanged?.Invoke(this, EventArgs.Empty);
+				}
+			}
+		}
 
 		public bool NeedUpdate { get; set; }
 
 		protected override bool NeedUpdateFunc(CallTask updatedSubject) => NeedUpdate;
+
+		public event EventHandler PropertyChanged;
 
 		public override IColumnsConfig ColumnsConfig => FluentColumnsConfig<CallTaskVMNode>.Create()
 			.AddColumn("№").AddTextRenderer(node => node.Id.ToString())
@@ -66,11 +79,35 @@ namespace Vodovoz.Representations
 			Phone deliveryPointPhonesAlias = null;
 			Phone counterpartyPhonesAlias = null;
 			Domain.Orders.Order orderAlias = null;
-			var filterCriterion = Filter?.GetFilter();
-			var tasksQuery = UoW.Session.QueryOver(() => callTaskAlias);
 
-			if(filterCriterion != null)
-				tasksQuery = tasksQuery.And(filterCriterion);
+			var tasksQuery = UoW.Session.QueryOver(() => callTaskAlias)
+						.Left.JoinAlias(() => callTaskAlias.DeliveryPoint, () => deliveryPointAlias);
+
+			switch(Filter.DateType) {
+				case TaskFilterDateType.CreationTime:
+					tasksQuery.Where(x => x.CreationDate >= Filter.StartDate)
+							  .And(x => x.CreationDate <= Filter.EndDate.Date);
+					break;
+				case TaskFilterDateType.CompleteTaskDate:
+					tasksQuery.Where(x => x.CompleteDate >= Filter.StartDate)
+							  .And(x => x.CompleteDate <= Filter.EndDate.Date);
+					break;
+				default:
+					tasksQuery.Where(x => x.EndActivePeriod >= Filter.StartDate)
+							  .And(x => x.EndActivePeriod <= Filter.EndDate.Date);
+					break;
+			}
+
+			if(Filter.Employee != null)
+				tasksQuery.Where(x => x.AssignedEmployee == Filter.Employee);
+			else if(Filter.ShowOnlyWithoutEmployee)
+				tasksQuery.Where(x => x.AssignedEmployee == null);
+
+			if(Filter.HideCompleted)
+				tasksQuery.Where(x => !x.IsTaskComplete);
+
+			if(Filter.DeliveryPointCategory != null)
+				tasksQuery.Where(() => deliveryPointAlias.Category == Filter.DeliveryPointCategory);
 
 			var bottleDebtByAddressQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
 			.JoinAlias(() => bottlesMovementAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -93,11 +130,10 @@ namespace Vodovoz.Representations
 				));
 
 			var tasks = tasksQuery
-			.JoinAlias(() => callTaskAlias.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhonesAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhonesAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.JoinAlias(() => callTaskAlias.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.JoinAlias(() => callTaskAlias.AssignedEmployee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhonesAlias)
+			.Left.JoinAlias(() => counterpartyAlias.Phones, () => counterpartyPhonesAlias)
+			.Left.JoinAlias(() => callTaskAlias.Counterparty, () => counterpartyAlias)
+			.Left.JoinAlias(() => callTaskAlias.AssignedEmployee, () => employeeAlias)
 			.SelectList(list => list
 				   .SelectGroup(() => callTaskAlias.Id)
 				   .Select(() => deliveryPointAlias.ShortAddress).WithAlias(() => resultAlias.AddressName)
@@ -139,7 +175,7 @@ namespace Vodovoz.Representations
 		private IEnumerable<CallTaskVMNode> SortResult(IEnumerable<CallTaskVMNode> tasks)
 		{
 			IEnumerable<CallTaskVMNode> result; 
-			switch((Filter as CallTaskFilter).SortingParam) 
+			switch(Filter.SortingParam) 
 			{
 				case SortingParamType.DebtByAddress:
 					result = tasks.OrderBy(x => x.DebtByAddress);
@@ -171,7 +207,7 @@ namespace Vodovoz.Representations
 				default:
 					throw new NotImplementedException();
 			}
-			if((Filter as CallTaskFilter).SortingDirection == SortingDirectionType.FromBiggerToSmaller)
+			if(Filter.SortingDirection == SortingDirectionType.FromBiggerToSmaller)
 				result = result.Reverse();
 			return result;
 		}
@@ -180,18 +216,24 @@ namespace Vodovoz.Representations
 		{
 			var statisticsParam = new Dictionary<string, int>();
 
-			if(!(Filter is CallTaskFilter taskFilter)) 
+			if(!(Filter is CallTaskFilterViewModel taskFilter)) 
 				return statisticsParam;
 
 			DateTime start = taskFilter.StartDate.Date;
 			DateTime end = taskFilter.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
 			CallTask tasksAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
 
 			var baseQuery = UoW.Session.QueryOver(() => tasksAlias)
 				.Where(() => tasksAlias.CompleteDate >= start)
 				.And(() => tasksAlias.CompleteDate <= end);
+
 			if(employee != null)
 				baseQuery.And(() => tasksAlias.AssignedEmployee.Id == employee.Id);
+
+			if(Filter.DeliveryPointCategory != null)
+				baseQuery.Left.JoinAlias(() => tasksAlias.DeliveryPoint, () => deliveryPointAlias)
+						 .And(() => deliveryPointAlias.Category.Id == Filter.DeliveryPointCategory.Id);
 
 			var callTaskQuery = baseQuery.And(() => tasksAlias.TaskState == CallTaskStatus.Call);
 			statisticsParam.Add("Звонков : ", callTaskQuery.RowCount() );

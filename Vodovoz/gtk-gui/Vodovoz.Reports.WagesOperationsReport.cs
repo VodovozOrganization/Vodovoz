@@ -66,7 +66,7 @@ namespace Vodovoz.Reports
 			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel2.Name = "ylabel2";
 			this.ylabel2.Xalign = 1F;
-			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Струдник");
+			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Сотрудник");
 			this.hbox2.Add(this.ylabel2);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.ylabel2]));
 			w4.Position = 0;

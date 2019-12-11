@@ -1,3 +1,4 @@
+using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
@@ -42,23 +43,35 @@ namespace Vodovoz.Views.WageCalculation
 				yTreeView yTreeRatesInfo = new yTreeView {
 					CanFocus = true,
 					Name = nameof(yTreeRatesInfo),
-					ItemsDataSource = levelRate.ObservableWageRates,
-					ColumnsConfig = FluentColumnsConfig<WageRate>.Create()
+					ColumnsConfig = FluentColumnsConfig<IWageHierarchyNode>.Create()
 						.AddColumn("Название ставки")
 							.HeaderAlignment(0.5f)
-							.AddTextRenderer(x => x.WageRateType.GetEnumTitle())
+							.AddTextRenderer(x => x.Name)
 						.AddColumn("Водитель с\nэкспедитором")
-							.HeaderAlignment(0.5f)
-							.AddTextRenderer(r => r.GetForDriverWithForwarderString, false)
+							.AddNumericRenderer(r => r.ForDriverWithForwarder)
+							.Digits(2)
+							.XAlign(1f)
+							.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+							.AddTextRenderer(r => r.GetUnitName, false)
 						.AddColumn("Водитель без\nэкспедитора")
-							.HeaderAlignment(0.5f)
-							.AddTextRenderer(r => r.GetForDriverWithoutForwarderString, false)
+							.AddNumericRenderer(r => r.ForDriverWithoutForwarder)
+							.Digits(2)
+							.XAlign(1f)
+							.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+							.AddTextRenderer(r => r.GetUnitName, false)
 						.AddColumn("Экспедитор")
-							.HeaderAlignment(0.5f)
-							.AddTextRenderer(r => r.GetForForwarderString, false)
+							.AddNumericRenderer(r => r.ForForwarder)
+							.Digits(2)
+							.XAlign(1f)
+							.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
+							.AddTextRenderer(r => r.GetUnitName, false)
 						.AddColumn("")
 						.Finish()
 				};
+				yTreeRatesInfo.YTreeModel = new RecursiveTreeConfig<IWageHierarchyNode>
+					(x => x.Parent, x => x.Children)
+					.CreateModel(levelRate.ObservableWageRates);
+				yTreeRatesInfo.ExpandAll();
 				VBox vbx = new VBox {
 					yTreeRatesInfo
 				};

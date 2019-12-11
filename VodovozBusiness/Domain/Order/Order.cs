@@ -15,6 +15,7 @@ using QS.DomainModel.UoW;
 using QS.EntityRepositories;
 using QS.HistoryLog;
 using QS.Project.Repositories;
+using QS.Services;
 using QSSupportLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -54,12 +55,12 @@ namespace Vodovoz.Domain.Orders
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance(); //FIXME: До перехода на MVVM
-		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance(); //FIXME: До перехода на MVVM
+		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
+		private IOrderRepository orderRepository { get; set; } = OrderSingletonRepository.GetInstance();
 
-		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; } //FIXME: До перехода на MVVM
+		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; }
 
-		private IAutoCallTaskFactory callTaskFactory; //FIXME: До перехода на MVVM
+		private IAutoCallTaskFactory callTaskFactory;
 		public virtual IAutoCallTaskFactory CallTaskAutoFactory {
 			get { return callTaskFactory; }
 			set {
@@ -74,6 +75,8 @@ namespace Vodovoz.Domain.Orders
 		#region Cвойства
 
 		public virtual int Id { get; set; }
+
+		public virtual IInteractiveService InteractiveService { get; set; }
 
 		DateTime version;
 		[Display(Name = "Версия")]
@@ -113,6 +116,14 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref author, value, () => Author);
 		}
 
+		private Employee acceptedOrderEmployee;
+		[Display(Name = "Заказ подтвердил")]
+		public virtual Employee AcceptedOrderEmployee {
+			get => acceptedOrderEmployee;
+			set => SetField(ref acceptedOrderEmployee, value);
+		}
+
+
 		Counterparty client;
 		[Display(Name = "Клиент")]
 		public virtual Counterparty Client {
@@ -123,7 +134,12 @@ namespace Vodovoz.Domain.Orders
 				if(orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus)) {
 					OnChangeCounterparty(value);
 				} else if(client != null && !CanChangeContractor()) {
-					throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
+					OnPropertyChanged(nameof(Client));
+					if(InteractiveService == null)
+						throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
+
+					InteractiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
+					return;
 				}
 
 				if(SetField(ref client, value, () => Client)) {
@@ -1461,13 +1477,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual void CheckAndSetOrderIsService()
 		{
 			IsService = OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master);
-		}
-
-		public virtual void SetOrderCreationDate()
-		{
-			if(Id == 0 && !CreateDate.HasValue) {
-				CreateDate = DateTime.Now;
-			}
 		}
 
 		public virtual void SetFirstOrder()
@@ -2989,15 +2998,14 @@ namespace Vodovoz.Domain.Orders
 					oi.ActualCount = oi.Count > 0 ? oi.Count : (oi.ActualCount ?? 0);
 		}
 
-		public virtual void AcceptOrder()
+		public virtual void AcceptOrder(Employee currentEmployee)
 		{
-			if(SelfDelivery) {
+			if(SelfDelivery)
 				AcceptSelfDeliveryOrder();
-				return;
-			}
-
-			if(CanSetOrderAsAccepted)
+			else if(CanSetOrderAsAccepted)
 				ChangeStatus(OrderStatus.Accepted);
+
+			AcceptedOrderEmployee = currentEmployee;
 		}
 
 		/// <summary>
@@ -3139,6 +3147,24 @@ namespace Vodovoz.Domain.Orders
 						loadedDictionary.Remove(item.Nomenclature.Id);
 				}
 			}
+		}
+
+
+		/// <summary>
+		/// Проверка на наличие воды по умолчанию в заказе для выбранной точки доставки и выдача сообщения о возможном штрафе
+		/// </summary>
+		/// <returns><c>true</c>, если пользователь подтвердил замену воды по умолчанию 
+		/// или если для точки доставки не указана вода по умолчанию 
+		/// или если среди товаров в заказе имеется вода по умолчанию,
+		/// <c>false</c> если в заказе среди воды нет воды по умолчанию и 
+		/// пользователь не хочет её добавлять в заказ,
+		/// <c>null</c> если данных для проверки не достаточно</returns>
+		public virtual bool? DefaultWaterCheck(IInteractiveService interactiveService)
+		{
+			var res = IsWrongWater(out string title, out string message);
+			if(res == true)
+				return interactiveService.InteractiveQuestion.Question(message);
+			return !res;
 		}
 
 		/// <summary>
@@ -3546,7 +3572,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual void SaveEntity(IUnitOfWork uow)
 		{
-			SetOrderCreationDate();
 			SetFirstOrder();
 			LastEditor = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			LastEditedTime = DateTime.Now;

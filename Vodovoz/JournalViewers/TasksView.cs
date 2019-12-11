@@ -4,14 +4,15 @@ using Gtk;
 using QS.Deletion;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Representations;
-using Vodovoz.Services;
 using Vodovoz.ViewModel;
+using Vodovoz.Filters.ViewModels;
+using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
+using QS.Project.Services;
 
 namespace Vodovoz.JournalViewers
 {
@@ -19,6 +20,8 @@ namespace Vodovoz.JournalViewers
 	public partial class TasksView : SingleUowTabBase
 	{
 		CallTasksVM callTasksVM;
+		CallTaskFilterView callTaskFilterView;
+
 		public TasksView()
 		{
 			this.Build();
@@ -30,21 +33,30 @@ namespace Vodovoz.JournalViewers
 		public void ConfigureDlg()
 		{ 
 			representationentryEmployee.RepresentationModel = new EmployeesVM(UoW);
-			calltaskfilterview.Refiltered += (sender, e) => UpdateStatistics();
 			taskStatusComboBox.ItemsEnum = typeof(CallTaskStatus);
 			representationtreeviewTask.Selection.Mode = SelectionMode.Multiple;
 			callTasksVM = new CallTasksVM(new BaseParametersProvider());
 			callTasksVM.NeedUpdate = ycheckbuttonAutoUpdate.Active;
-			calltaskfilterview.Refiltered += (sender, e) => callTasksVM.UpdateNodes();
 			callTasksVM.ItemsListUpdated += (sender, e) => UpdateStatistics();
-			callTasksVM.Filter = calltaskfilterview.GetQueryFilter();
+			callTasksVM.Filter = new CallTaskFilterViewModel(ServicesConfig.InteractiveService);
+			callTasksVM.PropertyChanged += CreateCallTaskFilterView;
 			representationtreeviewTask.RepresentationModel = callTasksVM;
+			CreateCallTaskFilterView(callTasksVM.Filter, EventArgs.Empty);
 			UpdateStatistics();
+		}
+
+		void CreateCallTaskFilterView(object sender, EventArgs e)
+		{
+			if(callTaskFilterView != null)
+				callTaskFilterView.Destroy();
+
+			callTaskFilterView = new CallTaskFilterView(callTasksVM.Filter);
+			hboxTasksFilter.Add(callTaskFilterView);
 		}
 
 		public void UpdateStatistics()
 		{
-			var statistics = callTasksVM.GetStatistics(calltaskfilterview.Filter.Employee);
+			var statistics = callTasksVM.GetStatistics(callTasksVM.Filter.Employee);
 
 			hboxStatistics.Children.OfType<Widget>().ToList().ForEach(x => x.Destroy());
 
@@ -95,12 +107,12 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnRadiobuttonEditSelectedToggled(object sender, EventArgs e)
 		{
-			calltaskfilterview.Visible = false;
+			callTaskFilterView.Visible = false;
 		}
 
 		protected void OnRadiobuttonShowFilterClicked(object sender, EventArgs e)
 		{
-			calltaskfilterview.Visible = !calltaskfilterview.Visible;
+			callTaskFilterView.Visible = !callTaskFilterView.Visible;
 		}
 
 		protected void OnRadiobuttonEditSelectedClicked(object sender, EventArgs e)

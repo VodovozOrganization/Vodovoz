@@ -136,14 +136,14 @@
     <Reference Include="NHibernate">
       <HintPath>..\packages\NHibernate.5.2.5\lib\net461\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp">
-      <HintPath>..\packages\RestSharp.106.6.9\lib\net452\RestSharp.dll</HintPath>
-    </Reference>
     <Reference Include="BouncyCastle.Crypto">
       <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="CommonServiceLocator">
       <HintPath>..\packages\CommonServiceLocator.2.0.4\lib\net46\CommonServiceLocator.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\..\VodovozService\packages\RestSharp.106.6.10\lib\net452\RestSharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -587,7 +587,6 @@
     <Compile Include="HibernateMapping\Order\PromotionalSetMap.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetItemMap.cs" />
     <Compile Include="Tools\IntToStringConverter.cs" />
-    <Compile Include="Filters\CallTaskFilter.cs" />
     <Compile Include="Services\IStandartNomenclatures.cs" />
     <Compile Include="Services\IImageProvider.cs" />
     <Compile Include="Domain\Service\BaseParametersProvider.cs" />
@@ -755,11 +754,27 @@
     <Compile Include="Services\IWageParametersProvider.cs" />
     <Compile Include="Domain\Permissions\EntitySubdivisionPermissionExtended.cs" />
     <Compile Include="PermissionExtensions\EntityExtendedPermissionValidator.cs" />
+    <Compile Include="Domain\WageCalculation\AdvancedWageParameter\AdvancedWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\AdvancedWageParameter\DeliveryTimeAdvancedWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\AdvancedWageParameter\IAdvancedWageParameter.cs" />
+    <Compile Include="Domain\WageCalculation\AdvancedWageParameter\BottlesCountAdvancedWageParameter.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\DeliveryTimeAdvancedWageParameterMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\AdvancedWageParameterMap.cs" />
+    <Compile Include="HibernateMapping\WageCalculation\AdvancedWageParameters\BottlesCountAdvancedWageParameterMap.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\AdvancedWageRepository.cs" />
+    <Compile Include="EntityRepositories\WageCalculation\IAdvancedWageRepository.cs" />
+    <Compile Include="Domain\WageCalculation\IWageHierarchyNode.cs" />
     <Compile Include="EntityRepositories\Store\IWarehouseRepository.cs" />
     <Compile Include="EntityRepositories\Store\WarehouseRepository.cs" />
     <Compile Include="Domain\Complaints\ComplaintKind.cs" />
     <Compile Include="HibernateMapping\Complaints\ComplaintKindMap.cs" />
+    <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\WageCalculationServiceForOldRouteLists.cs" />
     <Compile Include="Parameters\ParametersProvider.cs" />
+    <Compile Include="EntityRepositories\SmsNotifications\ISmsNotificationRepository.cs" />
+    <Compile Include="EntityRepositories\SmsNotifications\SmsNotificationRepository.cs" />
+    <Compile Include="Services\ISmsNotificationServiceSettings.cs" />
+    <Compile Include="Services\ISalesReceiptsServiceSettings.cs" />
+    <Compile Include="Services\IEmailServiceSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -829,7 +844,10 @@
     <Folder Include="Domain\WageCalculation\CalculationServices\RouteList\" />
     <Folder Include="Domain\Sms\" />
     <Folder Include="HibernateMapping\Sms\" />
+    <Folder Include="Domain\WageCalculation\AdvancedWageParameter\" />
+    <Folder Include="HibernateMapping\WageCalculation\AdvancedWageParameters\" />
     <Folder Include="Parameters\" />
+    <Folder Include="EntityRepositories\SmsNotifications\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

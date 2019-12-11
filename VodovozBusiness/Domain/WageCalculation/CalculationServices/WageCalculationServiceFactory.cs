@@ -23,6 +23,12 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		public IRouteListWageCalculationService GetRouteListWageCalculationService(IUnitOfWork uow, IRouteListWageCalculationSource source)
 		{
+			//Нет необходимости пересчитывать зарплату для МЛ до этой даты
+			//FIXME Возможно стоит эту дату вынести как параметр
+			if(source.RouteListDate <= new DateTime(2019, 09, 30)) {
+				return new WageCalculationServiceForOldRouteLists(source);
+			}
+
 			ChangeWageParameter(uow, source.RouteListId);
 
 			WageParameter actualWageParameter = employee.GetActualWageParameter(source.RouteListDate);

@@ -1125,8 +1125,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.StockMovementsAdvancedReport.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Representations\CallTasksVM.cs" />
-    <Compile Include="JournalFilters\QueryFilterViews\CallTaskFilterView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.JournalFilters.QueryFilterViews.CallTaskFilterView.cs" />
     <Compile Include="Core\ViewModelWidgetResolver.cs" />
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
     <Compile Include="Dialogs\OrderWidgets\PromotionalSetDlg.cs" />
@@ -1323,6 +1321,12 @@
     <Compile Include="JournalNodes\EmployeeJournalNode.cs" />
     <Compile Include="JournalViewModels\IAdditionalJournalRestriction.cs" />
     <Compile Include="JournalViewModels\NomenclaturesForOrderJournalRestriction.cs" />
+    <Compile Include="ViewWidgets\AdvancedWageParameterViews\BottlesCountAdvancedWageParameterWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.BottlesCountAdvancedWageParameterWidget.cs" />
+    <Compile Include="ViewWidgets\AdvancedWageParameterViews\DeliveryTimeAdvancedWagePrameterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.DeliveryTimeAdvancedWagePrameterView.cs" />
+    <Compile Include="ViewWidgets\AdvancedWageParameterViews\AdvancedWageParametersView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.AdvancedWageParameterViews.AdvancedWageParametersView.cs" />
     <Compile Include="Views\Warehouse\MovementDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Warehouse.MovementDocumentView.cs" />
     <Compile Include="Core\WarehousePermissionValidator.cs" />
@@ -1340,6 +1344,14 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclatureStockFilterView.cs" />
     <Compile Include="Views\Complaints\ComplaintKindView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintKindView.cs" />
+    <Compile Include="Core\WidgetContainerView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Core.WidgetContainerView.cs" />
+    <Compile Include="Core\IWidgetResolver.cs" />
+    <Compile Include="ReportsParameters\Sales\SalesByDiscountReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalesByDiscountReport.cs" />
+    <Compile Include="Filters\ViewModels\CallTaskFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\CallTaskFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CallTaskFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1581,6 +1593,7 @@
     <Folder Include="Views\Logistic\" />
     <Folder Include="ViewModels\FuelDocuments\" />
     <Folder Include="icons\buttons\NullableCheckBox\" />
+    <Folder Include="ViewWidgets\AdvancedWageParameterViews\" />
     <Folder Include="Views\Warehouse\" />
     <Folder Include="TempAdapters\" />
     <Folder Include="Views\ForAdministrators\" />
@@ -2037,6 +2050,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Client\ZeroDebtClient.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\SalesByDiscountReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

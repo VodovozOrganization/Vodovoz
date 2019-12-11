@@ -77,6 +77,9 @@ using Vodovoz.Views.Logistic;
 using Vodovoz.Views.Organization;
 using Vodovoz.Views.Suppliers;
 using Vodovoz.Views.WageCalculation;
+using Vodovoz.ViewModels.FuelDocuments;
+using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
+using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.Views.Warehouse;
 
 namespace Vodovoz
@@ -190,24 +193,27 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<SalesPlanViewModel, SalesPlanView>()
 				.RegisterWidgetForTabViewModel<RouteListsOnDayViewModel, RouteListsOnDayView>()
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
-				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
 				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
+				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
 				;
 
-			//Регистрация фильтров
+			//Регистрация виджетов
 			ViewModelWidgetResolver.Instance
-				.RegisterWidgetForFilterViewModel<ComplaintFilterViewModel, ComplaintFilterView>()
-				.RegisterWidgetForFilterViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
-				.RegisterWidgetForFilterViewModel<DebtorsJournalFilterViewModel, DebtorsFilterView>()
-				.RegisterWidgetForFilterViewModel<EmployeeFilterViewModel, EmployeeFilterView>()
-				.RegisterWidgetForFilterViewModel<OrderJournalFilterViewModel, OrderFilterView>()
-				.RegisterWidgetForFilterViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
-				.RegisterWidgetForFilterViewModel<ResidueFilterViewModel, ResidueFilterView>()
-				.RegisterWidgetForFilterViewModel<FineFilterViewModel, FineFilterView>()
-				.RegisterWidgetForFilterViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
-				.RegisterWidgetForFilterViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
-				.RegisterWidgetForFilterViewModel<RequestsToSuppliersFilterViewModel, RequestsToSuppliersFilterView>()
-				.RegisterWidgetForFilterViewModel<NomenclatureStockFilterViewModel, NomenclatureStockFilterView>()
+				.RegisterWidgetForWidgetViewModel<ComplaintFilterViewModel, ComplaintFilterView>()
+				.RegisterWidgetForWidgetViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
+				.RegisterWidgetForWidgetViewModel<DebtorsJournalFilterViewModel, DebtorsFilterView>()
+				.RegisterWidgetForWidgetViewModel<EmployeeFilterViewModel, EmployeeFilterView>()
+				.RegisterWidgetForWidgetViewModel<OrderJournalFilterViewModel, OrderFilterView>()
+				.RegisterWidgetForWidgetViewModel<ClientCameFromFilterViewModel, ClientCameFromFilterView>()
+				.RegisterWidgetForWidgetViewModel<ResidueFilterViewModel, ResidueFilterView>()
+				.RegisterWidgetForWidgetViewModel<FineFilterViewModel, FineFilterView>()
+				.RegisterWidgetForWidgetViewModel<SubdivisionFilterViewModel, SubdivisionFilterView>()
+				.RegisterWidgetForWidgetViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
+				.RegisterWidgetForWidgetViewModel<RequestsToSuppliersFilterViewModel, RequestsToSuppliersFilterView>()
+				.RegisterWidgetForWidgetViewModel<NomenclatureStockFilterViewModel, NomenclatureStockFilterView>()
+				.RegisterWidgetForWidgetViewModel<BottlesCountAdvancedWageParameterViewModel, BottlesCountAdvancedWageParameterWidget>()
+				.RegisterWidgetForWidgetViewModel<DeliveryTimeAdvancedWageParameterViewModel, DeliveryTimeAdvancedWagePrameterView>()
+				.RegisterWidgetForWidgetViewModel<AdvancedWageParametersViewModel, AdvancedWageParametersView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

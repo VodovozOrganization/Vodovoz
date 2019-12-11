@@ -875,6 +875,12 @@ FROM
                 (orders.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include)))
                 OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
 			)
+		AND (
+				((IFNULL(order_items.promotional_set_id, 0) IN (@promo_sets_include) AND 0 IN (@promo_sets_exclude))
+				OR
+	            (IFNULL(order_items.promotional_set_id, 0) NOT IN (@promo_sets_exclude) AND 0 IN (@promo_sets_include)))
+	            OR (0 IN (@promo_sets_include) AND 0 IN (@promo_sets_exclude))
+			)
 		GROUP BY order_items.id
 		) AS T
 GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id, T.orders_author_employee_id
@@ -939,6 +945,12 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           </QueryParameter>
           <QueryParameter Name="payment_type_exclude">
             <Value>={?payment_type_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promo_sets_include">
+            <Value>={?promo_sets_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promo_sets_exclude">
+            <Value>={?promo_sets_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1044,6 +1056,12 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
 		'')),
 		(IF(excluded_payment_types!=0,
 		CONCAT('Искл.типов оплаты: ',excluded_payment_types,'\n'),
+		'')),
+		(IF(included_promo_sets!=0,
+		CONCAT('Вкл.промо-наборов: ',included_promo_sets,'\n'),
+		'')),
+		(IF(excluded_promo_sets!=0,
+		CONCAT('Искл.промо-наборов: ',excluded_promo_sets,'\n'),
 		''))
 	) AS criterions
 FROM
@@ -1145,7 +1163,18 @@ FROM
 			'0' NOT IN (@payment_type_exclude),
 			(SELECT COUNT(q.pay) FROM (SELECT COUNT(orders.payment_type) AS pay FROM orders WHERE orders.payment_type IN(@payment_type_exclude) GROUP BY orders.payment_type) AS q),
 			0
-		) AS excluded_payment_types
+		) AS excluded_payment_types,
+		
+		IF(
+			0 NOT IN (@promo_sets_include),
+			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@promo_sets_include)),
+			0
+		) AS included_promo_sets,
+		IF(
+			0 NOT IN (@promo_sets_exclude),
+			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@promo_sets_exclude)),
+			0
+		) AS excluded_promo_sets
 	) AS tbl
 ;</CommandText>
         <QueryParameters>
@@ -1209,6 +1238,12 @@ FROM
           <QueryParameter Name="payment_type_exclude">
             <Value>={?payment_type_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="promo_sets_include">
+            <Value>={?promo_sets_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promo_sets_exclude">
+            <Value>={?promo_sets_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
@@ -1239,6 +1274,7 @@ FROM
 		LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = counterparty.id
 		LEFT JOIN employees ON employees.id = orders.author_employee_id
 		LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id
+		LEFT JOIN order_items ON order_items.order_id = orders.id
 		LEFT JOIN
 		(
 			SELECT
@@ -1312,6 +1348,12 @@ FROM
                 (orders.payment_type NOT IN (@payment_type_exclude) AND '0' IN (@payment_type_include)))
                 OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
 			)
+		AND (
+				((IF(order_items.promotional_set_id IS NULL, 0, order_items.promotional_set_id) IN (@promo_sets_include) AND 0 IN (@promo_sets_exclude) )
+				OR
+				(IF(order_items.promotional_set_id IS NULL, 0, order_items.promotional_set_id) NOT IN (@promo_sets_exclude) AND 0 IN (@promo_sets_include)))
+				OR (0 IN (@promo_sets_include) AND 0 IN (@promo_sets_exclude))
+			)
 	GROUP BY orders.id
 ) AS t</CommandText>
         <QueryParameters>
@@ -1362,6 +1404,12 @@ FROM
           </QueryParameter>
           <QueryParameter Name="payment_type_exclude">
             <Value>={?payment_type_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promo_sets_include">
+            <Value>={?promo_sets_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="promo_sets_exclude">
+            <Value>={?promo_sets_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1537,10 +1585,26 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="payment_type_exclude">
       <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="promo_sets_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="promo_sets_exclude">
+      <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>

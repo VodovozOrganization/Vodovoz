@@ -146,7 +146,9 @@ namespace Vodovoz.Reports
 			GeoGrpInclude,
 			GeoGrpExclude,
 			PaymentTypeInclude,
-			PaymentTypeExclude
+			PaymentTypeExclude,
+			PromoSetInclude,
+			PromoSetExclude
 		}
 
 		Dictionary<FilterTypes, Criterion> criterions = new Dictionary<FilterTypes, Criterion>();
@@ -189,6 +191,9 @@ namespace Vodovoz.Reports
 			//Тип оплаты
 			Criterion paymentTypeIncludeCrit = CreatePaymentTypeCriterion();
 			Criterion paymentTypeExcludeCrit = CreatePaymentTypeCriterion();
+			//Промо-набор
+			Criterion promoSetIncludeCrit = CreatePromoSetCriterion();
+			Criterion promoSetExcludeCrit = CreatePromoSetCriterion();
 
 			//Задание связей по фильтрации и снятию выделения между критериями
 			//Номенклатура
@@ -234,6 +239,9 @@ namespace Vodovoz.Reports
 			//Типы оплаты
 			paymentTypeIncludeCrit.UnselectRelation.Add(paymentTypeExcludeCrit);
 			paymentTypeExcludeCrit.UnselectRelation.Add(paymentTypeIncludeCrit);
+			//Промо-наборы
+			promoSetIncludeCrit.UnselectRelation.Add(promoSetExcludeCrit);
+			promoSetExcludeCrit.UnselectRelation.Add(promoSetIncludeCrit);
 
 			//Сохранение фильтров для использования
 			criterions.Add(FilterTypes.NomenclatureInclude, nomenclatureIncludeCrit);
@@ -254,6 +262,8 @@ namespace Vodovoz.Reports
 			criterions.Add(FilterTypes.GeoGrpExclude, geoGrpExcludeCrit);
 			criterions.Add(FilterTypes.PaymentTypeInclude, paymentTypeIncludeCrit);
 			criterions.Add(FilterTypes.PaymentTypeExclude, paymentTypeExcludeCrit);
+			criterions.Add(FilterTypes.PromoSetInclude, promoSetIncludeCrit);
+			criterions.Add(FilterTypes.PromoSetExclude, promoSetExcludeCrit);
 		}
 
 		#region Создание фильтров
@@ -417,6 +427,25 @@ namespace Vodovoz.Reports
 			);
 		}
 
+		Criterion CreatePromoSetCriterion()
+		{
+			return new Criterion(
+				(arg) => {
+					SalesReportNode alias = null;
+					PromotionalSet promoAlias = null;
+					DiscountReason discountAlias = null;
+					var query = UoW.Session.QueryOver(() => promoAlias).Left.JoinAlias(w => w.PromoSetName, () => discountAlias);
+					var queryResult = query.SelectList(
+						list => list.Select(x => x.Id).WithAlias(() => alias.Id)
+									.Select(() => discountAlias.Name).WithAlias(() => alias.Name)
+						)
+						.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
+						.List<SalesReportNode>();
+					return queryResult.ToList();
+				}
+			);
+		}
+
 		#endregion
 
 		private IColumnsConfig columnsConfig = ColumnsConfigFactory
@@ -502,7 +531,10 @@ namespace Vodovoz.Reports
 					{ "geographic_groups_exclude", GetResultIds(criterions[FilterTypes.GeoGrpExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 					//Типы Оплаты
 					{ "payment_type_include", includePayTypes },
-					{ "payment_type_exclude", excludePayTypes }
+					{ "payment_type_exclude", excludePayTypes },
+					//Промо-наборы
+					{ "promo_sets_include", GetResultIds(criterions[FilterTypes.PromoSetInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+					{ "promo_sets_exclude", GetResultIds(criterions[FilterTypes.PromoSetExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
 				}
 			};
 		}
@@ -639,50 +671,6 @@ namespace Vodovoz.Reports
 			labelTableTitle.Text = "Исключаемые авторы заказа";
 		}
 
-		protected void OnButtonSelectAllClicked(object sender, EventArgs e)
-		{
-			object source = ytreeviewSelectedList.ItemsDataSource;
-			if(source is GenericObservableList<SalesReportNode>) {
-				foreach(SalesReportNode item in (source as GenericObservableList<SalesReportNode>)) {
-					item.Selected = true;
-				}
-			}
-		}
-
-		protected void OnButtonUnselectAllClicked(object sender, EventArgs e)
-		{
-			object source = ytreeviewSelectedList.ItemsDataSource;
-			if(source is GenericObservableList<SalesReportNode>) {
-				foreach(SalesReportNode item in (source as GenericObservableList<SalesReportNode>)) {
-					item.Selected = false;
-				}
-			}
-		}
-
-		protected void OnSearchEntityInSelectedListTextChanged(object sender, EventArgs e)
-		{
-			if(treeNodes != null) {
-				if(searchEntityInSelectedList.Text.Length > 0)
-					ytreeviewSelectedList.ItemsDataSource = new GenericObservableList<SalesReportNode>(
-						treeNodes
-						.Where(
-							n => n.Name
-							.ToLower()
-							.Contains(
-								searchEntityInSelectedList
-								.Text
-								.ToLower()
-							)
-						)
-						.ToList()
-					);
-				else
-					ytreeviewSelectedList.ItemsDataSource = treeNodes;
-			} else {
-				searchEntityInSelectedList.Text = String.Empty;
-			}
-		}
-
 		protected void OnBtnSubdivisionSelectClicked(object sender, EventArgs e)
 		{
 			treeNodes = criterions[FilterTypes.SubdivisionInclude].ObservableList;
@@ -742,5 +730,71 @@ namespace Vodovoz.Reports
 			});
 			labelTableTitle.Text = "Исключаемые типы оплаты";
 		}
+
+		protected void OnBtnPromoSetsSelectClicked(object sender, EventArgs e)
+		{
+			treeNodes = criterions[FilterTypes.PromoSetInclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
+			criterions[FilterTypes.PromoSetInclude].SubcribeWithClearOld((string obj) => {
+				ylblPromoSet.Text = String.Format("Вкл.: {0} елем.", obj);
+			});
+			labelTableTitle.Text = "Включаемые промо-наборы";
+		}
+
+		protected void OnBtnPromoSetsDeselectClicked(object sender, EventArgs e)
+		{
+			treeNodes = criterions[FilterTypes.PromoSetExclude].ObservableList;
+			ytreeviewSelectedList.ItemsDataSource = treeNodes;
+			criterions[FilterTypes.PromoSetExclude].SubcribeWithClearOld((string obj) => {
+				ylblPromoSet.Text = String.Format("Искл.: {0} елем.", obj);
+			});
+			labelTableTitle.Text = "Исключаемые промо-наборы";
+		}
+
+
+		protected void OnButtonSelectAllClicked(object sender, EventArgs e)
+		{
+			object source = ytreeviewSelectedList.ItemsDataSource;
+			if(source is GenericObservableList<SalesReportNode>) {
+				foreach(SalesReportNode item in (source as GenericObservableList<SalesReportNode>)) {
+					item.Selected = true;
+				}
+			}
+		}
+
+		protected void OnButtonUnselectAllClicked(object sender, EventArgs e)
+		{
+			object source = ytreeviewSelectedList.ItemsDataSource;
+			if(source is GenericObservableList<SalesReportNode>) {
+				foreach(SalesReportNode item in (source as GenericObservableList<SalesReportNode>)) {
+					item.Selected = false;
+				}
+			}
+		}
+
+		protected void OnSearchEntityInSelectedListTextChanged(object sender, EventArgs e)
+		{
+			if(treeNodes != null) {
+				if(searchEntityInSelectedList.Text.Length > 0)
+					ytreeviewSelectedList.ItemsDataSource = new GenericObservableList<SalesReportNode>(
+						treeNodes
+						.Where(
+							n => n.Name
+							.ToLower()
+							.Contains(
+								searchEntityInSelectedList
+								.Text
+								.ToLower()
+							)
+						)
+						.ToList()
+					);
+				else
+					ytreeviewSelectedList.ItemsDataSource = treeNodes;
+			} else {
+				searchEntityInSelectedList.Text = String.Empty;
+			}
+		}
+
 	}
 }

@@ -236,6 +236,7 @@ namespace Vodovoz
 				return;
 
 			List<RouteListItemNode> needReloadNotSet = new List<RouteListItemNode>();
+			List<RouteListItemNode> needReloadSetAndRlEnRoute = new List<RouteListItemNode>();
 
 			foreach(var row in ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>()) {
 				RouteListItem item = row?.RouteListItem;
@@ -246,6 +247,11 @@ namespace Vodovoz
 
 				if(!row.LeftNeedToReload && !row.LeftNotNeedToReload) {
 					needReloadNotSet.Add(row);
+					continue;
+				}
+
+				if(row.LeftNeedToReload && routeListTo.Status >= RouteListStatus.EnRoute) {
+					needReloadSetAndRlEnRoute.Add(row);
 					continue;
 				}
 
@@ -285,6 +291,12 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Для следующих адресов не была указана необходимость загрузки, поэтому они не были перенесены:\n * " +
 													String.Join("\n * ", needReloadNotSet.Select(x => x.Address))
 												   );
+
+			if(needReloadSetAndRlEnRoute.Count > 0)
+				MessageDialogHelper.RunWarningDialog("Для следующих адресов была указана необходимость загрузки при переносе в МЛ со статусом \"В пути\" и выше , поэтому они не были перенесены:\n * " +
+													String.Join("\n * ", needReloadSetAndRlEnRoute.Select(x => x.Address))
+												   );
+
 			if(messages.Count > 0)
 				MessageDialogHelper.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
 

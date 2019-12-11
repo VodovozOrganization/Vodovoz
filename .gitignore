@@ -8,6 +8,7 @@ bin/
 obj/
 packages/*
 .vs/
+mono_crash.*.json
 
 #Workbench Backup Files
 Base/Factory.mwb.bak

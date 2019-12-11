@@ -391,6 +391,8 @@ namespace Vodovoz
 				Entity.RecalculateStockBottles(standartDiscountsService);
 				ControlsActionBottleAccessibility();
 			};
+
+			Entity.InteractiveService = ServicesConfig.InteractiveService;
 		}
 
 		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)
@@ -690,7 +692,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var canContinue = DefaultWaterCheck();
+			var canContinue = Entity.DefaultWaterCheck(ServicesConfig.InteractiveService);
 			if(canContinue.HasValue && !canContinue.Value) {
 				toggleGoods.Activate();
 				return;
@@ -706,7 +708,7 @@ namespace Vodovoz
 					Entity.CreateDefaultContract();
 			}
 
-			Entity.AcceptOrder();
+			Entity.AcceptOrder(employeeRepository.GetEmployeeForCurrentUser(UoW));
 
 			treeItems.Selection.UnselectAll();
 			Save();
@@ -2094,23 +2096,6 @@ namespace Vodovoz
 				return false;
 			}
 			return true;
-		}
-
-		/// <summary>
-		/// Проверка на наличие воды по умолчанию в заказе для выбранной точки доставки и выдача сообщения о возможном штрафе
-		/// </summary>
-		/// <returns><c>true</c>, если пользователь подтвердил замену воды по умолчанию 
-		/// или если для точки доставки не указана вода по умолчанию 
-		/// или если среди товаров в заказе имеется вода по умолчанию,
-		/// <c>false</c> если в заказе среди воды нет воды по умолчанию и 
-		/// пользователь не хочет её добавлять в заказ,
-		/// <c>null</c> если данных для проверки не достаточно</returns>
-		bool? DefaultWaterCheck()
-		{
-			var res = Entity.IsWrongWater(out string title, out string message);
-			if(res == true)
-				return MessageDialogHelper.RunWarningDialog(title, message, ButtonsType.YesNo);
-			return !res;
 		}
 
 		/// <summary>

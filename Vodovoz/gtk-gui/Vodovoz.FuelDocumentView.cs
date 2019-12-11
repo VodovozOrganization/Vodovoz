@@ -386,7 +386,7 @@ namespace Vodovoz
 			this.ydatepicker.Name = "ydatepicker";
 			this.ydatepicker.WithTime = false;
 			this.ydatepicker.Date = new global::System.DateTime(0);
-			this.ydatepicker.IsEditable = false;
+			this.ydatepicker.IsEditable = true;
 			this.ydatepicker.AutoSeparation = false;
 			this.table3.Add(this.ydatepicker);
 			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table3[this.ydatepicker]));

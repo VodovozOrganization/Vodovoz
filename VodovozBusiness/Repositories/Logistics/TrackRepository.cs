@@ -35,15 +35,6 @@ namespace Vodovoz.Repository.Logistics
 				.List();
 		}
 
-/*		public static IList<TrackPoint> GetPointsForDrivers(IUnitOfWork uow, int[] driversIds, DateTime startTime)
-		{
-			Track trackAlias = null;
-			return uow.Session.QueryOver<TrackPoint>()
-				.JoinAlias(p => p.Track, () => trackAlias)
-				.Where(() => trackAlias.Driver.Id.IsIn(driversIds))
-				.Where()
-		}
-*/
 		public static IList<DriverPosition> GetLastPointForRouteLists(IUnitOfWork uow, int[] routeListsIds, DateTime? beforeTime = null)
 		{
 			Track trackAlias = null;

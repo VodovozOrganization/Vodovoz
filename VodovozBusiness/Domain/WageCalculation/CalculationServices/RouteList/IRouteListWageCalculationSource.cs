@@ -37,6 +37,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// </summary>
 		bool IsTruck { get; }
 
+		decimal FixedWage { get; }
+
 		/// <summary>
 		/// Список данных для расчета зарплаты по каждому адресу
 		/// </summary>

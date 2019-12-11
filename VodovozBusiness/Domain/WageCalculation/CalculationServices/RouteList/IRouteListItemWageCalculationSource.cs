@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -78,6 +79,16 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// </summary>
 		/// <value><c>true</c> if is delivered; otherwise, <c>false</c>.</value>
 		bool IsDelivered { get; }
+
+		/// <summary>
+		/// Время доставки
+		/// </summary>
+		(TimeSpan,TimeSpan) DeliverySchedule { get; }
+
+		/// <summary>
+		/// Текущая зарплата за адрес
+		/// </summary>
+		decimal CurrentWage { get; }
 
 		IEnumerable<IOrderItemWageCalculationSource> OrderItemsSource { get; }
 		IEnumerable<IOrderDepositItemWageCalculationSource> OrderDepositItemsSource { get; }

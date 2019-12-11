@@ -82,7 +82,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Меняем сущьности:");
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Меняем сущности:");
 			this.table1.Add(this.label1);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -90,7 +90,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			// Container child table1.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Номенклатра");
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Номенклатура");
 			this.table1.Add(this.label2);
 			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
 			w5.LeftAttach = ((uint)(1));

@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	nomenclature.name AS nomenclature,
@@ -41,6 +41,7 @@ WHERE
 	route_list_addresses.route_list_id = @id
 		AND nomenclatures_to_warehouses.warehouse_id = 1 #Отгрузка только с софийской
 		AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
+		AND IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id) = false
 GROUP BY nomenclature.id
 ORDER BY clmn_for_sorting;</CommandText>
         <QueryParameters>
@@ -49,7 +50,7 @@ ORDER BY clmn_for_sorting;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -917,55 +918,8 @@ GROUP BY eq.nomenclature_id
           </TableRows>
         </Details>
         <Left>311.0pt</Left>
-        <Top>62.7pt</Top>
+        <Top>60.3pt</Top>
         <ZIndex>2</ZIndex>
-        <Footer>
-          <TableRows>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox28">
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>
-                      </Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>
-                      </Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Footer>
         <NoRows>Нет отгрузки со склада воды</NoRows>
       </Table>
       <Line Name="Line2">
@@ -2844,6 +2798,98 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             <Operator>Equal</Operator>
             <FilterValues>
               <FilterValue>false</FilterValue>
+            </FilterValues>
+          </Filter>
+        </Filters>
+      </Table>
+      <Table Name="Table15" >
+        <DataSetName>Equipment</DataSetName>
+        <NoRows>Нет отгрузки товаров ИМ</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>251.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox97">
+                      <Value>Заказы Интернет-магазина</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>310.9pt</Left>
+        <Top>98.6pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="online_grp2">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression>={order_id}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox101">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                          <Value>={order_id}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+          </TableGroup>
+        </TableGroups>
+        <Filters>
+          <Filter>
+            <FilterExpression>={online_nomenclature}</FilterExpression>
+            <Operator>Equal</Operator>
+            <FilterValues>
+              <FilterValue>true</FilterValue>
             </FilterValues>
           </Filter>
         </Filters>

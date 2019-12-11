@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
@@ -64,6 +65,28 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		#region Для старого расчета оплаты за оборудование
+
+		/// <summary>
+		/// Текущая зарплата которая записана в МЛ
+		/// </summary>
+		public decimal CurrentWage {
+			get {
+				switch(employeeCategory) {
+					case EmployeeCategory.driver:
+						return item.DriverWage;
+					case EmployeeCategory.forwarder:
+						return item.ForwarderWage;
+					case EmployeeCategory.office:
+					default:
+						throw new NotSupportedException();
+				}
+			}
+		}
+
+		#endregion Для старого расчета оплаты за оборудование
+
+
 		public WageDistrictLevelRate WageCalculationMethodic {
 			get {
 				switch(employeeCategory) {
@@ -73,7 +96,7 @@ namespace Vodovoz.Domain.Logistic
 						return item.ForwarderWageCalculationMethodic;
 					case EmployeeCategory.office:
 					default:
-						throw new NotImplementedException();
+						throw new NotSupportedException();
 				}
 			}
 		}
@@ -81,6 +104,8 @@ namespace Vodovoz.Domain.Logistic
 		public decimal DriverWageSurcharge => item.DriverWageSurcharge;
 
 		public bool IsDelivered => item.IsDelivered() && item.Status != RouteListItemStatus.Transfered;
+
+		public (TimeSpan, TimeSpan) DeliverySchedule => (item.Order.DeliverySchedule.From, item.Order.DeliverySchedule.To);
 
 		#endregion IRouteListItemWageCalculationSource implementation
 	}

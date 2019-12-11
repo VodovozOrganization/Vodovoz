@@ -59,7 +59,7 @@ namespace Vodovoz
 			this.buttonReturn.CanFocus = true;
 			this.buttonReturn.Name = "buttonReturn";
 			this.buttonReturn.UseUnderline = true;
-			this.buttonReturn.Label = global::Mono.Unix.Catalog.GetString("Возват в кассу");
+			this.buttonReturn.Label = global::Mono.Unix.Catalog.GetString("Возврат в кассу");
 			this.hbox3.Add(this.buttonReturn);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonReturn]));
 			w4.Position = 0;
@@ -83,7 +83,8 @@ namespace Vodovoz
 			w6.Expand = false;
 			w6.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
