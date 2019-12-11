@@ -589,7 +589,6 @@
     <Compile Include="Tools\IntToStringConverter.cs" />
     <Compile Include="Services\IStandartNomenclatures.cs" />
     <Compile Include="Services\IImageProvider.cs" />
-    <Compile Include="Domain\Service\BaseParametersProvider.cs" />
     <Compile Include="Services\IStandartDiscountsService.cs" />
     <Compile Include="Repositories\FuelRepository.cs" />
     <Compile Include="HibernateMapping\Operations\FuelIncomeOperationMap.cs" />
@@ -775,6 +774,8 @@
     <Compile Include="Services\ISmsNotificationServiceSettings.cs" />
     <Compile Include="Services\ISalesReceiptsServiceSettings.cs" />
     <Compile Include="Services\IEmailServiceSettings.cs" />
+    <Compile Include="Domain\Service\BaseParametersServices\BaseParametersProvider.cs" />
+    <Compile Include="Domain\Service\BaseParametersServices\SubdivisionParametersProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -848,6 +849,7 @@
     <Folder Include="HibernateMapping\WageCalculation\AdvancedWageParameters\" />
     <Folder Include="Parameters\" />
     <Folder Include="EntityRepositories\SmsNotifications\" />
+    <Folder Include="Domain\Service\BaseParametersServices\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

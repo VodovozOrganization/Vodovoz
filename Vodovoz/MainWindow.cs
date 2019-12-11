@@ -69,6 +69,7 @@ using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using QSSupportLib;
 using Vodovoz.ReportsParameters.Sales;
+using Vodovoz.Domain.Service.BaseParametersServices;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -707,7 +708,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 					employeeSelectorFactory,
 					counterpartySelectorFactory,
 					routeListItemRepository,
-					new BaseParametersProvider(),
+					SubdivisionParametersProvider.Instance,
 					EmployeeSingletonRepository.GetInstance(),
 					new ComplaintFilterViewModel(
 						ServicesConfig.CommonServices,
