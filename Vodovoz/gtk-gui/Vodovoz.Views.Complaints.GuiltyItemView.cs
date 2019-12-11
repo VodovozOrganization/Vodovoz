@@ -25,7 +25,7 @@ namespace Vodovoz.Views.Complaints
 			// Container child vbxCreateGuilty.Gtk.Box+BoxChild
 			this.yEnumGuiltyType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yEnumGuiltyType.Name = "yEnumGuiltyType";
-			this.yEnumGuiltyType.ShowSpecialStateAll = false;
+			this.yEnumGuiltyType.ShowSpecialStateAll = true;
 			this.yEnumGuiltyType.ShowSpecialStateNot = false;
 			this.yEnumGuiltyType.UseShortTitle = false;
 			this.yEnumGuiltyType.DefaultFirst = false;
