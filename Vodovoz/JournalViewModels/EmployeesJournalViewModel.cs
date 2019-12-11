@@ -50,6 +50,12 @@ namespace Vodovoz.JournalViewModels
 				query.WithSubquery.WhereProperty(e => e.Id).In(subquery);
 			}
 
+			query.Where(GetSearchCriterion(
+				() => employeeAlias.Name,
+				() => employeeAlias.LastName,
+				() => employeeAlias.Patronymic
+			));
+
 			var result = query
 				.SelectList(list => list
 				   .Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)

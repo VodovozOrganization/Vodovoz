@@ -1,10 +1,12 @@
 ﻿using QS.Project.Journal;
 using Vodovoz.Domain.Employees;
+using QS.Utilities.Text;
 
 namespace Vodovoz.JournalNodes
 {
 	public class EmployeeJournalNode : JournalEntityNodeBase<Employee>
 	{
+		public override string Title => $"{EmpLastName} {EmpFirstName} {EmpMiddleName}";
 		public string EmpLastName { get; set; }
 		public string EmpFirstName { get; set; }
 		public string EmpMiddleName { get; set; }
