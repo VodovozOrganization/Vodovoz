@@ -85,16 +85,16 @@ namespace Vodovoz.Representations
 
 			switch(Filter.DateType) {
 				case TaskFilterDateType.CreationTime:
-					tasksQuery.Where(x => x.CreationDate >= Filter.StartDate)
-							  .And(x => x.CreationDate <= Filter.EndDate.Date);
+					tasksQuery.Where(x => x.CreationDate >= Filter.StartDate.Date)
+							  .And(x => x.CreationDate <= Filter.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59));
 					break;
 				case TaskFilterDateType.CompleteTaskDate:
-					tasksQuery.Where(x => x.CompleteDate >= Filter.StartDate)
-							  .And(x => x.CompleteDate <= Filter.EndDate.Date);
+					tasksQuery.Where(x => x.CompleteDate >= Filter.StartDate.Date)
+							  .And(x => x.CompleteDate <= Filter.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59));
 					break;
 				default:
-					tasksQuery.Where(x => x.EndActivePeriod >= Filter.StartDate)
-							  .And(x => x.EndActivePeriod <= Filter.EndDate.Date);
+					tasksQuery.Where(x => x.EndActivePeriod >= Filter.StartDate.Date)
+							  .And(x => x.EndActivePeriod <= Filter.EndDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59));
 					break;
 			}
 
