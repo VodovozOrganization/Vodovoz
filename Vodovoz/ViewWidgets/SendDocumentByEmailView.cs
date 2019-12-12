@@ -59,7 +59,7 @@ namespace Vodovoz.ViewWidgets
 				                  .List().ToList();
 			}
 			ytreeviewStoredEmails.ItemsDataSource = storedEmails;
-			buttonSendEmail.Sensitive = document.Type == OrderDocumentType.Bill && EmailRepository.CanSendByTimeout(yvalidatedentryEmail.Text, document.Order.Id);
+			buttonSendEmail.Sensitive = document.Type == OrderDocumentType.Bill && EmailRepository.CanSendByTimeout(yvalidatedentryEmail.Text, document.Order.Id) && document.Order.Id > 0;
 		}
 
 		protected void OnYtreeviewStoredEmailsCursorChanged(object sender, EventArgs e)
