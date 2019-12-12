@@ -230,11 +230,7 @@ namespace Vodovoz.Representations
 
 			if(employee != null)
 				baseQuery.And(() => tasksAlias.AssignedEmployee.Id == employee.Id);
-
-			if(Filter.DeliveryPointCategory != null)
-				baseQuery.Left.JoinAlias(() => tasksAlias.DeliveryPoint, () => deliveryPointAlias)
-						 .And(() => deliveryPointAlias.Category.Id == Filter.DeliveryPointCategory.Id);
-
+				
 			var callTaskQuery = baseQuery.And(() => tasksAlias.TaskState == CallTaskStatus.Call);
 			statisticsParam.Add("Звонков : ", callTaskQuery.RowCount() );
 
