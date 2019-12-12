@@ -100,6 +100,7 @@ WHERE
 	# скрыть МЛ наёмников (наёмник = не мастер, не фура, не собственность компании)
 	AND ((@RemMercRLs = 1 AND (employees.visiting_master = 1 OR cars.type_of_use = 'CompanyTruck')) OR @RemMercRLs = 0)
 GROUP BY routeListId
+ORDER BY routeListDate, routeListId  
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@todayRloff">
