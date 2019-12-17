@@ -18,22 +18,30 @@ namespace Vodovoz.Views.Orders
 		{
 			yCmbDiscountReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			yCmbDiscountReason.Binding.AddBinding(ViewModel, vm => vm.DiscountReasonSource, cmb => cmb.ItemsList).InitializeFromSource();
-			yCmbDiscountReason.Binding.AddBinding(ViewModel.Entity, e => e.PromoSetName, w => w.SelectedItem).InitializeFromSource();
+			yCmbDiscountReason.Binding.AddBinding(ViewModel, vm => vm.DiscountReason, w => w.SelectedItem).InitializeFromSource();
+			yCmbDiscountReason.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
+
+			yentryPromotionalSetName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			yentryPromotionalSetName.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 
 			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			yChkIsArchive.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 
 			widgetcontainerview.Binding.AddBinding(ViewModel, vm => vm.SelectedActionViewModel, w => w.WidgetViewModel);
 
 			ybtnAddNomenclature.Clicked += (sender, e) => { ViewModel.AddNomenclatureCommand.Execute(); };
+			ybtnAddNomenclature.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, b => b.Sensitive).InitializeFromSource();
 
 			ybtnRemoveNomenclature.Clicked += (sender, e) => { ViewModel.RemoveNomenclatureCommand.Execute(); };
 			ybtnRemoveNomenclature.Binding.AddBinding(ViewModel, vm => vm.CanRemoveNomenclature, b => b.Sensitive).InitializeFromSource();
 
-			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
+			ybuttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
+			ybuttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive).InitializeFromSource();
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
 
-			buttonAddAction.ItemsEnum = typeof(PromotionalSetActionType);
-			buttonAddAction.EnumItemClicked += (sender, e) => { ViewModel.AddActionCommand.Execute((PromotionalSetActionType)e.ItemEnum); };
+			yEnumButtonAddAction.ItemsEnum = typeof(PromotionalSetActionType);
+			yEnumButtonAddAction.EnumItemClicked += (sender, e) => { ViewModel.AddActionCommand.Execute((PromotionalSetActionType)e.ItemEnum); };
+			yEnumButtonAddAction.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 
 			ybtnRemoveAction.Clicked += (sender, e) => { ViewModel.RemoveActionCommand.Execute(); };
 			ybtnRemoveAction.Binding.AddBinding(ViewModel, vm => vm.CanRemoveAction, w => w.Sensitive).InitializeFromSource();
@@ -45,6 +53,7 @@ namespace Vodovoz.Views.Orders
 			};
 			yTreeActionsItems.ColumnsConfig = new FluentColumnsConfig<PromotionalSetActionBase>()
 				.AddColumn("Действие").AddTextRenderer(x => x.Title).Finish();
+			yTreeActionsItems.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 
 			#region yTreePromoSetItems
 
@@ -74,7 +83,7 @@ namespace Vodovoz.Views.Orders
 				.Finish();
 
 			yTreePromoSetItems.ItemsDataSource = ViewModel.Entity.ObservablePromotionalSetItems;
-
+			yTreePromoSetItems.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 			yTreePromoSetItems.Selection.Changed += (sender, e) => {
 				var selectedItem = yTreePromoSetItems.GetSelectedObject<PromotionalSetItem>();
 				ViewModel.SelectedPromoItem = selectedItem;

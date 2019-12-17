@@ -7,6 +7,7 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using QS.Project.Services;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -24,11 +25,19 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual int Id { get; set; }
 
-		DiscountReason promoSetName;
+		string name;
 		[Display(Name = "Название набора")]
-		public virtual DiscountReason PromoSetName {
-			get => promoSetName;
-			set => SetField(ref promoSetName, value, () => PromoSetName);
+		public virtual string Name {
+			get => name;
+			set => SetField(ref name, value, () => Name);
+		}
+
+
+		DiscountReason promoSetDiscountReason;
+		[Display(Name = "Основание скидки набора")]
+		public virtual DiscountReason PromoSetDiscountReason {
+			get => promoSetDiscountReason;
+			set => SetField(ref promoSetDiscountReason, value, () => PromoSetDiscountReason);
 		}
 
 		DateTime createDate;
@@ -82,28 +91,42 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		public virtual string Title => string.Format("Рекламный набор №{0} \"{1}\"", Id, PromoSetName.Name);
-		public virtual string ShortTitle => string.Format("Промо-набор \"{0}\"", PromoSetName.Name);
+		public virtual string Title => string.Format("Рекламный набор №{0} \"{1}\"", Id, Name);
+		public virtual string ShortTitle => string.Format("Промо-набор \"{0}\"", Name);
 
 		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(PromoSetName == null)
+			if(String.IsNullOrEmpty(Name))
 				yield return new ValidationResult(
-					"Необходимо выбрать скидку",
-					new[] { this.GetPropertyName(o => o.PromoSetName) }
+					"Необходимо выбрать название набора",
+					new[] { this.GetPropertyName(o => o.Name) }
 				);
-
-			if(!PromotionalSetItems.Any() || PromotionalSetItems.Any(i => i.Count <= 0))
+			if((!PromotionalSetItems.Any() || PromotionalSetItems.Any(i => i.Count <= 0)) && !PromotionalSetActions.Any())
 				yield return new ValidationResult(
-					"Выберите номенклатуры и укажите их количества",
+					"Необходимо выбрать номенклатуру или указать Доп. действие",
 					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
 				);
-
+			if(PromotionalSetItems.Any(i => i.Count == 0))
+				yield return new ValidationResult(
+					"Необходимо выбрать количество номенклатур, отличное от нуля",
+					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
+				);
 			if(PromotionalSetItems.Any(i => i.Discount < 0 || i.Discount > 100))
 				yield return new ValidationResult(
 					"Скидка не может быть меньше 0 или больше 100%",
+					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
+				);
+			if(PromotionalSetItems.Any(i => i.Discount != 0) && PromoSetDiscountReason == null)
+				yield return new ValidationResult(
+					"При ненулевой скидке хотя бы на одну номенклатуру необходимо выбрать основание скидки",
+					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
+				);
+			if(PromotionalSetItems.Any(i => i.Discount != 0 &&
+				PromotionalSetActions.OfType<PromotionalSetActionFixPrice>().Select(a => a.Nomenclature.Id).Contains(i.Nomenclature.Id)))
+				yield return new ValidationResult(
+					"Нельзя выбрать скидку на номенклатуру, для которой уже была создана фиксированная цена",
 					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
 				);
 		}
@@ -124,6 +147,11 @@ namespace Vodovoz.Domain.Orders
 					observablePromotionalSetActions = new GenericObservableList<PromotionalSetActionBase>(promotionalSetActions);
 				return observablePromotionalSetActions;
 			}
+		}
+
+		public virtual bool IsValidForOrder(Order order)
+		{
+			return !PromotionalSetActions.Any(a => !a.IsValidForOrder(order));
 		}
 	}
 

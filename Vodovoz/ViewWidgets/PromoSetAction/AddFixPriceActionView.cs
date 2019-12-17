@@ -5,6 +5,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.JournalSelector;
 
 namespace Vodovoz.ViewWidgets.PromoSetAction
 {
@@ -20,8 +21,11 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 
 		private void ConfigureDlg()
 		{
+			var filter = new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+			filter.RestrictCategory = NomenclatureCategory.water;
+
 			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices)
+				new NomenclatureAutoCompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel>(ServicesConfig.CommonServices, filter)
 			);
 			entityviewmodelentryNomenclature.Binding.AddBinding(ViewModel, vm => vm.Nomenclature, w => w.Subject);
 			entityviewmodelentryNomenclature.CanEditReference = true;

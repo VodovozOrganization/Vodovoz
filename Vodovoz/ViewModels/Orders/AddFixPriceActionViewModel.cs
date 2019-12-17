@@ -1,25 +1,27 @@
 ﻿using System;
 using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Tools.AdditionalAgreements;
 
 namespace Vodovoz.ViewModels.Orders
 {
 	public class AddFixPriceActionViewModel : UoWWidgetViewModelBase, ICreationControl
 	{
-		public AddFixPriceActionViewModel(PromotionalSet promotionalSet, ICommonServices commonServices) : base(commonServices.InteractiveService)
+		public AddFixPriceActionViewModel(IUnitOfWork UoW, PromotionalSet promotionalSet, ICommonServices commonServices) : base(commonServices.InteractiveService)
 		{
 			CreateCommands();
 			PromotionalSet = promotionalSet;
 			CommonServices = commonServices;
+			base.UoW = UoW;
 		}
 
 		public PromotionalSet PromotionalSet { get; set; }
 		public ICommonServices CommonServices { get; set; }
 
-		public event Action<PromotionalSetActionBase> AcceptCreation;
 		public event Action CancelCreation;
 
 		private Nomenclature nomenclature;
@@ -48,17 +50,20 @@ namespace Vodovoz.ViewModels.Orders
 		{
 			AcceptCommand = new DelegateCommand(
 				() => {
-					var newAction = new PromotionalSetActionFixPrice {
-						Nomenclature = Nomenclature,
-						Price = Price,
-						PromotionalSet = PromotionalSet
-					};
-					if(!CommonServices.ValidationService.GetValidator().Validate(newAction))
-						return;
-					AcceptCreation?.Invoke(newAction);
+					WaterFixedPriceGenerator waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW);
+					var fixedPrices = waterFixedPriceGenerator.GenerateFixedPrices(Nomenclature.Id, Price);
+					foreach(var fixedPrice in fixedPrices) {
+						var newAction = new PromotionalSetActionFixPrice() {
+							Nomenclature = fixedPrice.Nomenclature,
+							Price = fixedPrice.Price,
+							PromotionalSet = PromotionalSet
+						};
+						if(!CommonServices.ValidationService.GetValidator().Validate(newAction))
+							return;
+						PromotionalSet.ObservablePromotionalSetActions.Add(newAction);
+					}
 				},
 				() => true);
-
 		}
 
 		public DelegateCommand CancelCommand;

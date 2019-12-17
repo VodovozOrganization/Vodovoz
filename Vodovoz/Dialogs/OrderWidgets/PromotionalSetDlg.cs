@@ -37,7 +37,7 @@ namespace Vodovoz.Dialogs.OrderWidgets
 		{
 			yCmbDiscountReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			yCmbDiscountReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
-			yCmbDiscountReason.Binding.AddBinding(Entity, e => e.PromoSetName, w => w.SelectedItem).InitializeFromSource();
+			yCmbDiscountReason.Binding.AddBinding(Entity, e => e.PromoSetDiscountReason, w => w.SelectedItem).InitializeFromSource();
 
 			yChkIsArchive.Binding.AddBinding(Entity, s => s.IsArchive, w => w.Active).InitializeFromSource();
 			yTreePromoSetItems.Selection.Changed += (sender, e) => {

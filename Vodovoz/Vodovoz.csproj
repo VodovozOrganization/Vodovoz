@@ -1362,6 +1362,8 @@
     <Compile Include="ViewModels\Orders\AddFixPriceActionViewModel.cs" />
     <Compile Include="ViewModels\Orders\ICreationControl.cs" />
     <Compile Include="ViewModels\Orders\PromotionalSetActionWidgetResolver.cs" />
+    <Compile Include="JournalSelector\NomenclatureAutoCompleteSelectorFactory.cs" />
+    <Compile Include="JournalSelector\NomenclatureSelectorFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1610,6 +1612,7 @@
     <Folder Include="Views\Orders\" />
     <Folder Include="ViewModels\Orders\" />
     <Folder Include="ViewWidgets\PromoSetAction\" />
+    <Folder Include="JournalSelector\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

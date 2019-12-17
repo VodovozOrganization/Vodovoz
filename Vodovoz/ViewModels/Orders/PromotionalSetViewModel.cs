@@ -14,10 +14,13 @@ using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewModels.Orders
 {
-	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>
+	public class PromotionalSetViewModel : EntityTabViewModelBase<PromotionalSet>, IPermissionResult
 	{
 		public PromotionalSetViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
+			if(!FailInitialize && !CanRead)
+				AbortOpening("У вас недостаточно прав для просмотра");
+
 			TabName = "Рекламные наборы";
 			UoW = uowBuilder.CreateUoW<PromotionalSet>(unitOfWorkFactory);
 			CreateCommands();
@@ -26,6 +29,21 @@ namespace Vodovoz.ViewModels.Orders
 		private IEnumerable<DiscountReason> discountReasonSource;
 		public IEnumerable<DiscountReason> DiscountReasonSource {
 			get => discountReasonSource ?? (discountReasonSource = UoW.GetAll<DiscountReason>());
+		}
+
+		private DiscountReason discountReason;
+		public DiscountReason DiscountReason {
+			get {
+				discountReason = Entity.PromoSetDiscountReason;
+				return discountReason;
+			}
+			set {
+				if(SetField(ref discountReason, value)) {
+					Entity.PromoSetDiscountReason = value;
+					if(value != null)
+						Entity.Name = value.Name;
+				}
+			}
 		}
 
 		private PromotionalSetItem selectedPromoItem;
@@ -54,8 +72,18 @@ namespace Vodovoz.ViewModels.Orders
 			}
 		}
 
-		public bool CanRemoveNomenclature => SelectedPromoItem != null;
-		public bool CanRemoveAction => selectedAction != null && !UoW.GetAll<Order>().Any(o => o.PromotionalSets.Any(ps => ps.PromoSetName == Entity.PromoSetName));
+		#region Permissions
+
+		public bool CanCreate => PermissionResult.CanCreate;
+		public bool CanRead => PermissionResult.CanRead;
+		public bool CanUpdate => PermissionResult.CanUpdate;
+		public bool CanDelete => PermissionResult.CanDelete;
+
+		public bool CanCreateOrUpdate => Entity.Id == 0 ? CanCreate : CanUpdate;
+		public bool CanRemoveNomenclature => SelectedPromoItem != null && CanUpdate;
+		public bool CanRemoveAction => selectedAction != null && CanDelete && Entity.Id == 0;
+
+		#endregion
 
 		#region Commands
 
@@ -121,13 +149,10 @@ namespace Vodovoz.ViewModels.Orders
 		{
 			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
 			(actionType) => {
-				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver();
+				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver(UoW);
 				SelectedActionViewModel = resolver.Resolve(Entity, actionType);
 
 				if(SelectedActionViewModel is ICreationControl) {
-					(SelectedActionViewModel as ICreationControl).AcceptCreation += (newAction) => {
-						Entity.ObservablePromotionalSetActions.Add(newAction);
-					};
 					(SelectedActionViewModel as ICreationControl).CancelCreation += () => {
 						SelectedActionViewModel = null;
 					};

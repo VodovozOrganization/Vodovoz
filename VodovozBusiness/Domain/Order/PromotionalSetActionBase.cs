@@ -1,7 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -15,6 +14,10 @@ namespace Vodovoz.Domain.Orders
 			get { return promotionalSet; }
 			set { SetField(ref promotionalSet, value, () => PromotionalSet); }
 		}
+
+		public abstract void Activate(Order order);
+		public abstract void Deactivate(Order order);
+		public abstract bool IsValidForOrder(Order order);
 
 		public abstract string Title { get; }
 	}

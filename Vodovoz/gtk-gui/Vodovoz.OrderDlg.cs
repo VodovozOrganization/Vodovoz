@@ -204,7 +204,7 @@ namespace Vodovoz
 
 		private global::QSOrmProject.EnumMenuButton enumAddRentButton;
 
-		private global::Gamma.Widgets.ySpecComboBox yCmbPromoSets;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox yCmbPromoSets;
 
 		private global::Gtk.VSeparator vseparator2;
 
@@ -486,7 +486,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 3;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vboxInfo = new global::Gtk.VBox();
 			this.vboxInfo.Name = "vboxInfo";
@@ -1423,16 +1423,18 @@ namespace Vodovoz
 			w99.Expand = false;
 			w99.Fill = false;
 			// Container child hbox12.Gtk.Box+BoxChild
-			this.yCmbPromoSets = new global::Gamma.Widgets.ySpecComboBox();
+			this.yCmbPromoSets = new global::QS.Widgets.GtkUI.SpecialListComboBox();
 			this.yCmbPromoSets.Name = "yCmbPromoSets";
 			this.yCmbPromoSets.AddIfNotExist = false;
 			this.yCmbPromoSets.DefaultFirst = false;
 			this.yCmbPromoSets.ShowSpecialStateAll = false;
 			this.yCmbPromoSets.ShowSpecialStateNot = true;
+			this.yCmbPromoSets.NameForSpecialStateNot = "Нет";
 			this.hbox12.Add(this.yCmbPromoSets);
 			global::Gtk.Box.BoxChild w100 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.yCmbPromoSets]));
 			w100.Position = 3;
 			w100.Expand = false;
+			w100.Fill = false;
 			// Container child hbox12.Gtk.Box+BoxChild
 			this.vseparator2 = new global::Gtk.VSeparator();
 			this.vseparator2.Name = "vseparator2";
@@ -2161,8 +2163,7 @@ namespace Vodovoz
 			w184.Expand = false;
 			w184.Fill = false;
 			this.Add(this.vbox2);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.toggleEquipment.Hide();

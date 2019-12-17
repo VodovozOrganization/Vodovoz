@@ -432,12 +432,10 @@ namespace Vodovoz.Reports
 			return new Criterion(
 				(arg) => {
 					SalesReportNode alias = null;
-					PromotionalSet promoAlias = null;
-					DiscountReason discountAlias = null;
-					var query = UoW.Session.QueryOver(() => promoAlias).Left.JoinAlias(w => w.PromoSetName, () => discountAlias);
+					var query = UoW.Session.QueryOver<PromotionalSet>();
 					var queryResult = query.SelectList(
 						list => list.Select(x => x.Id).WithAlias(() => alias.Id)
-									.Select(() => discountAlias.Name).WithAlias(() => alias.Name)
+									.Select((x) => x.Name).WithAlias(() => alias.Name)
 						)
 						.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
 						.List<SalesReportNode>();

@@ -1691,6 +1691,13 @@ namespace Vodovoz.Domain.Orders
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return null;
 
+			//Если номенклатура промо-набора добавляется по фиксе (без скидки), то у нового OrderItem убирается поле discountReason
+			if(proSet != null && discount == 0) {
+				var fixPricedNomenclaturesId = GetNomenclaturesWithFixPrices.Select(n => n.Id);
+				if(fixPricedNomenclaturesId.Contains(nomenclature.Id))
+					reason = null;
+			}
+
 			if(discount > 0 && reason == null)
 				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
 
@@ -1720,6 +1727,10 @@ namespace Vodovoz.Domain.Orders
 			ObservableOrderItems.Add(oi);
 			return oi;
 		}
+
+		public virtual IEnumerable<Nomenclature> GetNomenclaturesWithFixPrices => Client.CounterpartyContracts.
+		SelectMany(c => c.AdditionalAgreements).OfType<WaterSalesAgreement>()
+				.SelectMany(a => a.FixedPrices).Select(p => p.Nomenclature);
 
 		public virtual void UpdateClientDefaultParam()
 		{
@@ -1871,6 +1882,12 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case NomenclatureCategory.water:
 					var ag = CreateWaterSalesAgreement(nomenclature);
+					//Если промо-набор с фиксой был применён к новому доп.соглашению
+					if(proSet != null && !ag.HasFixedPrice) {
+						foreach(var action in proSet.PromotionalSetActions.OfType<PromotionalSetActionFixPrice>())
+							action.Activate(this);
+						UoW.Session.Refresh(ag);
+					}
 					AddWaterForSale(nomenclature, ag, count, discount, discountReason, proSet);
 					break;
 				case NomenclatureCategory.master:
@@ -1893,7 +1910,7 @@ namespace Vodovoz.Domain.Orders
 
 		/// <summary>
 		/// Попытка найти и удалить промо-набор, если нет больше позиций
-		/// заказа со скидкой как в промо-наборе
+		/// заказа с промо-набором
 		/// </summary>
 		/// <param name="orderItem">Позиция заказа</param>
 		public virtual void TryToRemovePromotionalSet(OrderItem orderItem)
@@ -1901,8 +1918,12 @@ namespace Vodovoz.Domain.Orders
 			var proSetFromOrderItem = orderItem.PromoSet;
 			if(proSetFromOrderItem != null) {
 				var proSetToRemove = ObservablePromotionalSets.FirstOrDefault(s => s == proSetFromOrderItem);
-				if(proSetToRemove != null && !OrderItems.Any(i => i.PromoSet == proSetToRemove && i.Discount > 0))
+				if(proSetToRemove != null && !OrderItems.Any(i => i.PromoSet == proSetToRemove)) {
+					foreach(PromotionalSetActionBase action in proSetToRemove.ObservablePromotionalSetActions) {
+						action.Deactivate(this);
+					}
 					ObservablePromotionalSets.Remove(proSetToRemove);
+				}
 			}
 		}
 

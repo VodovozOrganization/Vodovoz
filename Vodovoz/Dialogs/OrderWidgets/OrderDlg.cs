@@ -218,6 +218,11 @@ namespace Vodovoz
 
 			Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
 
+			//Подписывемся на изменения листа для сокрытия колонки промо-наборов
+			Entity.ObservablePromotionalSets.ListChanged += ObservablePromotionalSets_ListChanged;
+			Entity.ObservablePromotionalSets.ElementAdded += ObservablePromotionalSets_ElementAdded;
+			Entity.ObservablePromotionalSets.ElementRemoved += ObservablePromotionalSets_ElementRemoved;
+
 			//Подписываемся на изменение товара, для обновления количества оборудования в доп. соглашении
 			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
 			Entity.ObservableOrderEquipments.ElementChanged += ObservableOrderEquipments_ElementChanged_ChangeCount;
@@ -366,7 +371,6 @@ namespace Vodovoz
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
 
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
-			yCmbPromoSets.ItemsList = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
@@ -491,7 +495,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(orderRepository  .GetDiscountReasons(UoW))
+					.FillItems(orderRepository.GetDiscountReasons(UoW))
 					.AddSetter((c, n) => c.Editable = n.Discount > 0 && n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
@@ -501,11 +505,15 @@ namespace Vodovoz
 				.AddColumn("Доп. соглашение")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.AgreementString)
+				.AddColumn("Промо-наборы").SetTag(nameof(Entity.PromotionalSets))
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.PromoSet == null ? "" : node.PromoSet.Name)
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
 			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
+			treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault().Visible = Entity.PromotionalSets.Count > 0;
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
 				.AddColumn("Документ").SetDataProperty(node => node.Name)
@@ -1200,9 +1208,13 @@ namespace Vodovoz
 			if(!Entity.ObservablePromotionalSets.Contains(proSet)) {
 				if(!Entity.CanAddPromotionalSet(proSet, out string msg) && !MessageDialogHelper.RunQuestionWithTitleDialog("Повтор промо-набора", msg))
 					return;
+				foreach(var action in proSet.PromotionalSetActions) {
+					action.Activate(Entity);
+				}
 				TryAddNomenclature(proSet);
 				Entity.ObservablePromotionalSets.Add(proSet);
-			}
+			} else
+				MessageDialogHelper.RunWarningDialog("Повтор промо-набора");
 		}
 
 		#endregion
@@ -1256,7 +1268,7 @@ namespace Vodovoz
 						proSetItem.Nomenclature,
 						proSetItem.Count,
 						proSetItem.Discount,
-						proSetItem.PromoSet.PromoSetName,
+						proSetItem.PromoSet.PromoSetDiscountReason,
 						proSetItem.PromoSet
 					);
 				}
@@ -1783,6 +1795,9 @@ namespace Vodovoz
 					chkContractCloser.Visible = true;
 					enumPaymentType.ClearEnumHideList();
 				}
+
+				var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
+				yCmbPromoSets.ItemsList = promoSets.Where(s => s.IsValidForOrder(Entity));
 
 				if(previousPaymentType.HasValue) {
 					if(previousPaymentType.Value == Entity.PaymentType) {
@@ -2332,12 +2347,14 @@ namespace Vodovoz
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
-			yCmbPromoSets.Sensitive = val;
 			buttonAddForSale.Sensitive = referenceContract.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"] && val && !Entity.SelfDelivery;
 			hbxTareNonReturnReason.Sensitive = val;
+
+			if(Entity != null)
+				yCmbPromoSets.Sensitive = val;
 		}
 
 		void ChangeOrderEditable(bool val)
@@ -2579,5 +2596,25 @@ namespace Vodovoz
 			}
 		}
 
+		void ObservablePromotionalSets_ListChanged(object aList)
+		{
+			ShowPromoSetsColumn();
+		}
+
+		void ObservablePromotionalSets_ElementAdded(object aList, int[] aIdx)
+		{
+			ShowPromoSetsColumn();
+		}
+
+		void ObservablePromotionalSets_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			ShowPromoSetsColumn();
+		}
+
+		private void ShowPromoSetsColumn()
+		{
+			var promoSetColumn = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault();
+			promoSetColumn.Visible = Entity.PromotionalSets.Count > 0;
+		}
 	}
 }
