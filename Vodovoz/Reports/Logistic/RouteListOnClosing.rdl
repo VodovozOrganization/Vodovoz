@@ -35,19 +35,6 @@
 					route_list_addresses.status = 'Completed'
 						AND route_list_addresses.route_list_id = routeListId),
 			0) AS nal,
-	IFNULL((SELECT 
-					COUNT(*) * 2
-				FROM
-					route_list_addresses
-						LEFT JOIN
-					route_lists ON route_list_addresses.route_list_id = route_lists.id
-						LEFT JOIN
-					cars ON cars.id = route_lists.car_id
-				WHERE
-					(cars.type_of_use = 'DriverCar' OR cars.type_of_use IS NULL OR cars.type_of_use &lt;&gt; 'CompanyTruck')
-						AND route_list_addresses.status = 'Completed'
-						AND route_list_addresses.route_list_id = routeListId),
-			0) AS paytelephone,
 	(SELECT 
 			SUM(order_items.count)
 		FROM
@@ -137,10 +124,6 @@ ORDER BY routeListDate, routeListId
         <Field Name="nal">
           <DataField>nal</DataField>
           <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="paytelephone">
-          <DataField>paytelephone</DataField>
-          <TypeName>System.Int64</TypeName>
         </Field>
         <Field Name="bottles">
           <DataField>bottles</DataField>
@@ -489,7 +472,7 @@ ORDER BY routeListDate, routeListId
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>={nal} -{paytelephone}</Value>
+                      <Value>={nal}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -629,7 +612,7 @@ ORDER BY routeListDate, routeListId
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>=Sum({nal} - {paytelephone})</Value>
+                      <Value>=Sum({nal})</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
