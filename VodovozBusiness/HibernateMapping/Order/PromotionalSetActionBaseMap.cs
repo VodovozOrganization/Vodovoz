@@ -24,7 +24,7 @@ namespace Vodovoz.HibernateMapping.Orders
 			DiscriminatorValue(PromotionalSetActionType.FixedPrice.ToString());
 
 			Map(x => x.Price).Column("price");
-			Map(x => x.IsForZeroDebt).Column("is_fore_zero_debt");
+			Map(x => x.IsForZeroDebt).Column("is_for_zero_debt");
 			References(x => x.Nomenclature).Column("nomenclature_id");
 		}
 	}
