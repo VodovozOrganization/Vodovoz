@@ -414,14 +414,6 @@ namespace Vodovoz
 				   .SearchColumn("Номер", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
-			OrmMain.AddObjectDescription<PromotionalSet>().Dialog<PromotionalSetDlg>().DefaultTableView()
-				   .SearchColumn("Номер", x => x.Id.ToString())
-				   .SearchColumn("Имя", x => x.PromoSetDiscountReason.Name)
-				   .Column("Дата создания", x => x.CreateDate.ToString("dd.MM.yyyy"))
-				   .Column("Архивный?", x => x.IsArchive ? "Да" : string.Empty)
-				   .OrderAsc(x => x.IsArchive)
-				   .OrderAsc(x => x.Id)
-				   .End();
 			OrmMain.AddObjectDescription<TariffZone>().DefaultTableView()
 				   .SearchColumn("Номер", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)

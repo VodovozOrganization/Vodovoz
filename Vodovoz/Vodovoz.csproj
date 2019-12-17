@@ -1127,8 +1127,6 @@
     <Compile Include="Representations\CallTasksVM.cs" />
     <Compile Include="Core\ViewModelWidgetResolver.cs" />
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
-    <Compile Include="Dialogs\OrderWidgets\PromotionalSetDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderWidgets.PromotionalSetDlg.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTransferDocumentView.cs" />
     <Compile Include="Filters\ViewModels\EmployeeFilterViewModel.cs" />
