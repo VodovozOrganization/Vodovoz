@@ -72,6 +72,8 @@ namespace Vodovoz.Views.Complaints
 			yentryPhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 			labelNamePhone.Binding.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible).InitializeFromSource();
 
+			yentryArrangement.Binding.AddBinding(ViewModel.Entity, e => e.Arrangement, w => w.Text).InitializeFromSource();
+
 			cmbComplaintKind.SetRenderTextFunc<ComplaintKind>(k => k.GetFullName);
 			cmbComplaintKind.Binding.AddBinding(ViewModel, vm => vm.ComplaintKindSource, w => w.ItemsList).InitializeFromSource();
 			cmbComplaintKind.Binding.AddBinding(ViewModel.Entity, e => e.ComplaintKind, w => w.SelectedItem).InitializeFromSource();

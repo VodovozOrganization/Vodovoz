@@ -160,6 +160,13 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref complaintKind, value);
 		}
 
+		string arrangement;
+		[Display(Name = "Мероприятия")]
+		public virtual string Arrangement {
+			get => arrangement;
+			set => SetField(ref arrangement, value);
+		}
+
 		IList<Fine> fines = new List<Fine>();
 		[Display(Name = "Штрафы")]
 		public virtual IList<Fine> Fines {
