@@ -112,4 +112,9 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 	}
+
+	public enum PromosetActionType
+	{
+		FixPrice
+	}
 }

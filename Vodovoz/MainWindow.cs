@@ -1300,9 +1300,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<PromotionalSet>(),
-			() => new OrmReference(typeof(PromotionalSet))
+		tdiMain.AddTab(
+			new PromotionalSetsJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
 		);
 	}
 

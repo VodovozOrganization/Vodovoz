@@ -1352,6 +1352,12 @@
     <Compile Include="Filters\ViewModels\CallTaskFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\CallTaskFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CallTaskFilterView.cs" />
+    <Compile Include="JournalNodes\PromotionalSetJournalNode.cs" />
+    <Compile Include="JournalViewModels\PromotionalSetsJournalViewModel.cs" />
+    <Compile Include="Views\Orders\PromotionalSetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.PromotionalSetView.cs" />
+    <Compile Include="ViewModels\Orders\PromotionalSetViewModel.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PromoSetAction.AddFixPriceActionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1597,6 +1603,8 @@
     <Folder Include="Views\Warehouse\" />
     <Folder Include="TempAdapters\" />
     <Folder Include="Views\ForAdministrators\" />
+    <Folder Include="Views\Orders\" />
+    <Folder Include="ViewModels\Orders\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
