@@ -32,6 +32,8 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 
 			yspinbuttonPrice.Binding.AddBinding(ViewModel, vm => vm.Price, w => w.ValueAsDecimal);
 
+			ycheckIsForZeroDebt.Binding.AddBinding(ViewModel, vm => vm.IsForZeroDebt, w => w.Active);
+
 			buttonCancel.Clicked += (sender, e) => { ViewModel.CancelCommand.Execute(); };
 			ybuttonAccept.Clicked += (sender, e) => { ViewModel.AcceptCommand.Execute(); };
 		}

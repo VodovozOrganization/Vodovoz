@@ -36,6 +36,12 @@ namespace Vodovoz.ViewModels.Orders
 			set => SetField(ref price, value);
 		}
 
+		private bool isForZeroDebt;
+		public bool IsForZeroDebt {
+			get => isForZeroDebt;
+			set => SetField(ref isForZeroDebt, value);
+		}
+
 		#region Commands
 
 		private void CreateCommands()
@@ -50,13 +56,23 @@ namespace Vodovoz.ViewModels.Orders
 		{
 			AcceptCommand = new DelegateCommand(
 				() => {
+					var validatableAction = new PromotionalSetActionFixPrice {
+						Nomenclature = Nomenclature,
+						Price = Price,
+						PromotionalSet = PromotionalSet,
+						IsForZeroDebt = IsForZeroDebt
+					};
+					if(!CommonServices.ValidationService.GetValidator().Validate(validatableAction))
+						return;
+
 					WaterFixedPriceGenerator waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW);
 					var fixedPrices = waterFixedPriceGenerator.GenerateFixedPrices(Nomenclature.Id, Price);
 					foreach(var fixedPrice in fixedPrices) {
-						var newAction = new PromotionalSetActionFixPrice() {
+						var newAction = new PromotionalSetActionFixPrice {
 							Nomenclature = fixedPrice.Nomenclature,
 							Price = fixedPrice.Price,
-							PromotionalSet = PromotionalSet
+							PromotionalSet = PromotionalSet,
+							IsForZeroDebt = IsForZeroDebt
 						};
 						if(!CommonServices.ValidationService.GetValidator().Validate(newAction))
 							return;

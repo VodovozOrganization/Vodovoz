@@ -20,6 +20,8 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinbuttonPrice;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckIsForZeroDebt;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonAccept;
 
 		private global::Gtk.Button buttonCancel;
@@ -95,40 +97,53 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.yspinbuttonPrice]));
 			w5.Position = 0;
 			// Container child hbox5.Gtk.Box+BoxChild
+			this.ycheckIsForZeroDebt = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckIsForZeroDebt.CanFocus = true;
+			this.ycheckIsForZeroDebt.Name = "ycheckIsForZeroDebt";
+			this.ycheckIsForZeroDebt.Label = global::Mono.Unix.Catalog.GetString("Набор только для клиентов без долгов");
+			this.ycheckIsForZeroDebt.DrawIndicator = true;
+			this.ycheckIsForZeroDebt.UseUnderline = true;
+			this.hbox5.Add(this.ycheckIsForZeroDebt);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ycheckIsForZeroDebt]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child hbox5.Gtk.Box+BoxChild
 			this.ybuttonAccept = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonAccept.CanFocus = true;
 			this.ybuttonAccept.Name = "ybuttonAccept";
 			this.ybuttonAccept.UseUnderline = true;
 			this.ybuttonAccept.Label = global::Mono.Unix.Catalog.GetString("Принять");
 			this.hbox5.Add(this.ybuttonAccept);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ybuttonAccept]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ybuttonAccept]));
+			w7.Position = 2;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
 			this.buttonCancel = new global::Gtk.Button();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
-			global::Gtk.Image w7 = new global::Gtk.Image();
-			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Button);
-			this.buttonCancel.Image = w7;
+			global::Gtk.Image w8 = new global::Gtk.Image();
+			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Button);
+			this.buttonCancel.Image = w8;
 			this.hbox5.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonCancel]));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
-			this.vbox5.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox5]));
-			w9.Position = 1;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonCancel]));
+			w9.Position = 3;
+			w9.Expand = false;
 			w9.Fill = false;
-			this.hbox4.Add(this.vbox5);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox5]));
+			this.vbox5.Add(this.hbox5);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox5]));
 			w10.Position = 1;
-			w10.Expand = false;
 			w10.Fill = false;
+			this.hbox4.Add(this.vbox5);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox5]));
+			w11.Position = 1;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.hbox4);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

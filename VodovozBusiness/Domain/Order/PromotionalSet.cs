@@ -103,9 +103,9 @@ namespace Vodovoz.Domain.Orders
 					"Необходимо выбрать название набора",
 					new[] { this.GetPropertyName(o => o.Name) }
 				);
-			if((!PromotionalSetItems.Any() || PromotionalSetItems.Any(i => i.Count <= 0)) && !PromotionalSetActions.Any())
+			if((!PromotionalSetItems.Any() || PromotionalSetItems.Any(i => i.Count <= 0)))
 				yield return new ValidationResult(
-					"Необходимо выбрать номенклатуру или указать Доп. действие",
+					"Необходимо выбрать номенклатуру",
 					new[] { this.GetPropertyName(o => o.PromotionalSetItems) }
 				);
 			if(PromotionalSetItems.Any(i => i.Count == 0))

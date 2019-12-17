@@ -12,7 +12,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.Tools.AdditionalAgreements;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -33,7 +32,19 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref price, value, () => Price); }
 		}
 
-		public override string Title => $"Фиксированная цена {Price}р. на {Nomenclature.ShortOrFullName}";
+		bool isForZeroDebt;
+		[Display(Name = "Только для клиентов без долгов")]
+		public virtual bool IsForZeroDebt {
+			get { return isForZeroDebt; }
+			set { SetField(ref isForZeroDebt, value, () => IsForZeroDebt); }
+		}
+
+		public override string Title {
+			get {
+				var addiotionalTitle = isForZeroDebt ? "(Только для клиентов без долгов)" : "(Для всех клиентов)";
+				return $"Фиксированная цена {Price}р. на {Nomenclature.ShortOrFullName} {addiotionalTitle}";
+			}
+		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
@@ -71,6 +82,9 @@ namespace Vodovoz.Domain.Orders
 
 		public override bool IsValidForOrder(Order order)
 		{
+			if(!IsForZeroDebt)
+				return true;
+
 			var forfeitId = new BaseParametersProvider().GetForfeitId();
 
 			BottlesRepository bottlesRepository = new BottlesRepository();
@@ -115,6 +129,10 @@ namespace Vodovoz.Domain.Orders
 				if(o.OrderItems == null)
 					orders2.Add(o);
 			}
+
+			if(orders2.Count == 0)
+				return false;
+
 			//Ввод остатков
 			foreach(var o in orders2) {
 				if(o.DeliveryPoint.HaveResidue.HasValue)
