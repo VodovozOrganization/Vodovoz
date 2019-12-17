@@ -22,7 +22,6 @@ using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
-using QSSupportLib;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs;
@@ -77,10 +76,11 @@ using Vodovoz.Views.Logistic;
 using Vodovoz.Views.Organization;
 using Vodovoz.Views.Suppliers;
 using Vodovoz.Views.WageCalculation;
-using Vodovoz.ViewModels.FuelDocuments;
 using Vodovoz.ViewModels.WageCalculation.AdvancedWageParameterViewModels;
 using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.Views.Warehouse;
+using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewWidgets.PromoSetAction;
 
 namespace Vodovoz
 {
@@ -214,6 +214,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<BottlesCountAdvancedWageParameterViewModel, BottlesCountAdvancedWageParameterWidget>()
 				.RegisterWidgetForWidgetViewModel<DeliveryTimeAdvancedWageParameterViewModel, DeliveryTimeAdvancedWagePrameterView>()
 				.RegisterWidgetForWidgetViewModel<AdvancedWageParametersViewModel, AdvancedWageParametersView>()
+				.RegisterWidgetForWidgetViewModel<AddFixPriceActionViewModel, AddFixPriceActionView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

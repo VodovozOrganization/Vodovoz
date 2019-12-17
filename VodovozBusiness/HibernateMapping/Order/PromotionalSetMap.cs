@@ -18,6 +18,7 @@ namespace Vodovoz.HibernateMapping.Orders
 								.ParentKeyColumn("promotional_set_id")
 								.ChildKeyColumn("order_id")
 								.LazyLoad();
+			HasMany(x => x.PromotionalSetActions).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("promotional_set_id");
 		}
 	}
 }

@@ -62,5 +62,13 @@ namespace Vodovoz.JournalViewModels
 			unitOfWorkFactory,
 			commonServices
 	   	);
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateDefaultEditAction();
+		}
 	}
 }

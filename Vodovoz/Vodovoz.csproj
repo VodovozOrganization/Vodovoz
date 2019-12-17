@@ -1358,6 +1358,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.PromotionalSetView.cs" />
     <Compile Include="ViewModels\Orders\PromotionalSetViewModel.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PromoSetAction.AddFixPriceActionView.cs" />
+    <Compile Include="ViewWidgets\PromoSetAction\AddFixPriceActionView.cs" />
+    <Compile Include="ViewModels\Orders\AddFixPriceActionViewModel.cs" />
+    <Compile Include="ViewModels\Orders\ICreationControl.cs" />
+    <Compile Include="ViewModels\Orders\PromotionalSetActionWidgetResolver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1605,6 +1609,7 @@
     <Folder Include="Views\ForAdministrators\" />
     <Folder Include="Views\Orders\" />
     <Folder Include="ViewModels\Orders\" />
+    <Folder Include="ViewWidgets\PromoSetAction\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

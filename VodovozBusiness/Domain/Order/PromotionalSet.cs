@@ -20,8 +20,6 @@ namespace Vodovoz.Domain.Orders
 	[EntityPermission]
 	public class PromotionalSet : BusinessObjectBase<PromotionalSet>, IDomainObject, IValidatableObject
 	{
-		public PromotionalSet() { }
-
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -111,10 +109,27 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+
+		IList<PromotionalSetActionBase> promotionalSetActions = new List<PromotionalSetActionBase>();
+		public virtual IList<PromotionalSetActionBase> PromotionalSetActions {
+			get => promotionalSetActions;
+			set => SetField(ref promotionalSetActions, value, () => PromotionalSetActions);
+		}
+
+		GenericObservableList<PromotionalSetActionBase> observablePromotionalSetActions;
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<PromotionalSetActionBase> ObservablePromotionalSetActions {
+			get {
+				if(observablePromotionalSetActions == null)
+					observablePromotionalSetActions = new GenericObservableList<PromotionalSetActionBase>(promotionalSetActions);
+				return observablePromotionalSetActions;
+			}
+		}
 	}
 
-	public enum PromosetActionType
+	public enum PromotionalSetActionType
 	{
-		FixPrice
+		[Display(Name = "Фиксированная цена")]
+		FixedPrice
 	}
 }

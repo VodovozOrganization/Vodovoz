@@ -776,6 +776,9 @@
     <Compile Include="Services\IEmailServiceSettings.cs" />
     <Compile Include="Domain\Service\BaseParametersServices\BaseParametersProvider.cs" />
     <Compile Include="Domain\Service\BaseParametersServices\SubdivisionParametersProvider.cs" />
+    <Compile Include="Domain\Order\PromotionalSetActionBase.cs" />
+    <Compile Include="HibernateMapping\Order\PromotionalSetActionBaseMap.cs" />
+    <Compile Include="Domain\Order\PromotionalSetActionFixPrice.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

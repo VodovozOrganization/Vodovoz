@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using QS.Commands;
-using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
-using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -36,24 +33,45 @@ namespace Vodovoz.ViewModels.Orders
 			get => selectedPromoItem;
 			set {
 				SetField(ref selectedPromoItem, value);
-				OnPropertyChanged(nameof(CanRemove));
+				OnPropertyChanged(nameof(CanRemoveNomenclature));
 			}
 		}
 
+		private PromotionalSetActionBase selectedAction;
+		public PromotionalSetActionBase SelectedAction {
+			get => selectedAction;
+			set {
+				SetField(ref selectedAction, value);
+				OnPropertyChanged(nameof(CanRemoveAction));
+			}
+		}
+
+		private WidgetViewModelBase selectedActionViewModel;
+		public WidgetViewModelBase SelectedActionViewModel {
+			get => selectedActionViewModel;
+			set {
+				SetField(ref selectedActionViewModel, value);
+			}
+		}
+
+		public bool CanRemoveNomenclature => SelectedPromoItem != null;
+		public bool CanRemoveAction => selectedAction != null && !UoW.GetAll<Order>().Any(o => o.PromotionalSets.Any(ps => ps.PromoSetName == Entity.PromoSetName));
+
 		#region Commands
-		public bool CanRemove => SelectedPromoItem != null;
 
 		private void CreateCommands()
 		{
-			CreateAddNomenculatureCommand();
-			CreateRemoveNomenculatureCommand();
+			CreateAddNomenclatureCommand();
+			CreateRemoveNomenclatureCommand();
+			CreateAddActionCommand();
+			CreateRemoveActionCommand();
 		}
 
-		public DelegateCommand AddNomenculatureCommand;
+		public DelegateCommand AddNomenclatureCommand;
 
-		private void CreateAddNomenculatureCommand()
+		private void CreateAddNomenclatureCommand()
 		{
-			AddNomenculatureCommand = new DelegateCommand(
+			AddNomenclatureCommand = new DelegateCommand(
 			() => {
 				var nomenFilter = new NomenclatureFilterViewModel(CommonServices.InteractiveService);
 				nomenFilter.SetAndRefilterAtOnce(
@@ -74,7 +92,6 @@ namespace Vodovoz.ViewModels.Orders
 					if(Entity.ObservablePromotionalSetItems.Any(i => i.Nomenclature.Id == nomenclature.Id))
 						return;
 					Entity.ObservablePromotionalSetItems.Add(new PromotionalSetItem {
-						Id = nomenclature.Id,
 						Nomenclature = nomenclature,
 						Count = 0,
 						Discount = 0,
@@ -87,38 +104,48 @@ namespace Vodovoz.ViewModels.Orders
 		  );
 		}
 
-		public DelegateCommand RemoveNomenculatureCommand;
+		public DelegateCommand RemoveNomenclatureCommand;
 
-		private void CreateRemoveNomenculatureCommand()
+		private void CreateRemoveNomenclatureCommand()
 		{
-			RemoveNomenculatureCommand = new DelegateCommand(
-			() => {
-				Entity.ObservablePromotionalSetItems.Remove(SelectedPromoItem);
-			},
-			() => CanRemove
+			RemoveNomenclatureCommand = new DelegateCommand(
+			() => Entity.ObservablePromotionalSetItems.Remove(SelectedPromoItem),
+			() => CanRemoveNomenclature
 			);
-			RemoveNomenculatureCommand.CanExecuteChangedWith(this, x => CanRemove);
+			RemoveNomenclatureCommand.CanExecuteChangedWith(this, x => CanRemoveNomenclature);
 		}
 
-		public DelegateCommand<PromosetActionType> AddActionCommand;
+		public DelegateCommand<PromotionalSetActionType> AddActionCommand;
 
 		private void CreateAddActionCommand()
 		{
-			AddActionCommand = new DelegateCommand<PromosetActionType>(
+			AddActionCommand = new DelegateCommand<PromotionalSetActionType>(
 			(actionType) => {
-				switch(actionType) {
-					case PromosetActionType.FixPrice: AddFixPriceAction(); break;
-					default: throw new ArgumentException();
+				PromotionalSetActionWidgetResolver resolver = new PromotionalSetActionWidgetResolver();
+				SelectedActionViewModel = resolver.Resolve(Entity, actionType);
+
+				if(SelectedActionViewModel is ICreationControl) {
+					(SelectedActionViewModel as ICreationControl).AcceptCreation += (newAction) => {
+						Entity.ObservablePromotionalSetActions.Add(newAction);
+					};
+					(SelectedActionViewModel as ICreationControl).CancelCreation += () => {
+						SelectedActionViewModel = null;
+					};
 				}
 			}
 			);
 		}
 
-		#endregion
-		private void AddFixPriceAction()
-		{
+		public DelegateCommand RemoveActionCommand;
 
+		private void CreateRemoveActionCommand()
+		{
+			RemoveActionCommand = new DelegateCommand(
+			() => Entity.ObservablePromotionalSetActions.Remove(SelectedAction),
+			() => CanRemoveAction
+				);
 		}
 
+		#endregion
 	}
 }
