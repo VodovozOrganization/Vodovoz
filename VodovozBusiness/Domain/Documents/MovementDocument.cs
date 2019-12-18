@@ -10,6 +10,8 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Employees;
+using QS.DomainModel.UoW;
+using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -166,6 +168,25 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		public virtual void SetNomenclaturesOnStock(IUnitOfWork uow, IWarehouseRepository warehouseRepository)
+		{
+			if(uow == null)
+				throw new ArgumentNullException(nameof(uow));
+			if(warehouseRepository == null)
+				throw new ArgumentNullException(nameof(warehouseRepository));
+
+			if(FromWarehouse == null) 
+			{
+				foreach(var item in items)
+					item.AmountOnSource = 99999999;
+				return;
+			}
+
+			var amountOnStock = warehouseRepository.GetWarehouseNomenclatureStock(uow, FromWarehouse.Id ,Items.Select(x => x.Nomenclature.Id));
+			foreach(var item in Items)
+				item.AmountOnSource = amountOnStock.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id).Stock; 
+		}
+
 		#region Вычисляемые
 
 		public virtual bool IsDelivered => DeliveredStatuses.Contains(Status);
@@ -178,11 +199,32 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(Id == 0 && DocumentType == MovementDocumentType.InnerTransfer) {
-				yield return new ValidationResult(
-					"Внутреннее перемещение на данный момент запрещено.",
-					new[] { this.GetPropertyName(o => o.DocumentType) }
-				);
+			if(Id == 0) {
+
+				if(DocumentType == MovementDocumentType.InnerTransfer) {
+					yield return new ValidationResult(
+						"Внутреннее перемещение на данный момент запрещено.",
+						new[] { this.GetPropertyName(o => o.DocumentType) }
+					);
+				}
+
+
+				if(!(validationContext.GetService(typeof(IWarehouseRepository)) is IWarehouseRepository warehouseRepository))
+					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IWarehouseRepository)}");
+
+				using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+					var amountOnStock = warehouseRepository.GetWarehouseNomenclatureStock(uow, FromWarehouse.Id, Items.Select(x => x.Nomenclature.Id));
+					foreach(var item in Items) {
+						var stock = amountOnStock.First(x => x.NomenclatureId == item.Nomenclature.Id).Stock;
+						if(item.SendedAmount > stock) {
+							yield return new ValidationResult
+									(   
+										$"Нельзя отгружать больше чем есть на складе {Environment.NewLine} " +
+										$"На складе: {item.Nomenclature.Name} {stock} {item.Nomenclature?.Unit?.Name}"
+									);
+						}
+					}
+				}
 			}
 
 			if(!Items.Any())
