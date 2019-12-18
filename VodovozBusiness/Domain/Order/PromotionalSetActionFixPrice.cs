@@ -135,6 +135,8 @@ namespace Vodovoz.Domain.Orders
 
 			//Ввод остатков
 			foreach(var o in orders2) {
+				if(o.DeliveryPoint == null)
+					continue;
 				if(o.DeliveryPoint.HaveResidue.HasValue)
 					if(o.DeliveryPoint.HaveResidue.Value)
 						continue;
