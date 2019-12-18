@@ -63,7 +63,7 @@
           <TableColumn>
             <Width>65.5pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>65.5pt</Width>
           </TableColumn>
           <TableColumn>
@@ -183,7 +183,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
                       <Value>Залоги первого заказа</Value>
@@ -276,9 +276,10 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -297,8 +298,8 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -319,9 +320,10 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -341,8 +343,8 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -362,8 +364,8 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -384,13 +386,13 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
                       <Value>={deposit}</Value>
@@ -405,9 +407,10 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -426,9 +429,10 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -446,8 +450,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -467,9 +471,10 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -477,7 +482,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>24.0pt</Left>
+        <Left>8.0pt</Left>
         <Top>29.7pt</Top>
         <PageBreakAtStart>false</PageBreakAtStart>
         <Footer>
@@ -598,7 +603,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>
@@ -803,7 +808,18 @@ WHERE
     orders.delivery_date BETWEEN @start_date AND @end_date AND
     orders.order_status = 'Closed' AND
     (@discount_id = 0 OR discount_reasons.id = @discount_id) AND
-    (@show_only_client_wiht_one_order = 0 OR SecondOrder.Id IS NULL)
+    (@show_only_client_wiht_one_order = 0 OR SecondOrder.Id IS NULL) AND
+    NOT EXISTS
+    (
+		SELECT
+			*
+		FROM
+			orders as o
+		WHERE
+			o.client_id = orders.client_id AND 
+            o.delivery_date &lt; orders.delivery_date AND
+            o.order_status = 'Closed'
+    )
 GROUP BY 
     orders.id DESC;</CommandText>
         <QueryParameters>
