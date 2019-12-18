@@ -237,7 +237,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>Дата последнего заказа</Value>
+                      <Value>Дата второго заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
