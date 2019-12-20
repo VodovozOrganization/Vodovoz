@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using System.Linq;
 using System.Collections.Generic;
 using Vodovoz.Services;
+using QS.Services;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -13,12 +14,14 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		private readonly Employee employee;
 		private readonly IWageCalculationRepository wageCalculationRepository;
 		private readonly IWageParametersProvider wageParametersProvider;
+		private readonly IInteractiveService interactiveService;
 
-		public WageCalculationServiceFactory(Employee employee, IWageCalculationRepository wageCalculationRepository, IWageParametersProvider wageParametersProvider)
+		public WageCalculationServiceFactory(Employee employee, IWageCalculationRepository wageCalculationRepository, IWageParametersProvider wageParametersProvider, IInteractiveService interactiveService)
 		{
 			this.employee = employee;
 			this.wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			this.wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));
+			this.interactiveService = interactiveService;
 		}
 
 		public IRouteListWageCalculationService GetRouteListWageCalculationService(IUnitOfWork uow, IRouteListWageCalculationSource source)
@@ -80,7 +83,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployees(uow),
 					WageParameterTarget = WageParameterTargets.ForMercenariesCars
 				},
-				wageChangeDate
+				wageChangeDate,
+				interactiveService
 			);
 		}
 	}
