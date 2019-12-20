@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.Binding;
 using Gamma.GtkWidgets;
 using Gtk;
+using Pango;
 using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.SidePanel.InfoProviders;
 
@@ -20,20 +22,25 @@ namespace Vodovoz.SidePanel.InfoViews
 			ConfigureWidget();
 		}
 
+		Gdk.Color wh = new Gdk.Color(255, 255, 255);
+		Gdk.Color gr = new Gdk.Color(230, 230, 230);
+		Gdk.Color red = new Gdk.Color(255, 0, 0);
+
+
 		void ConfigureWidget()
 		{
-			Gdk.Color wh = new Gdk.Color(255, 255, 255);
-			Gdk.Color gr = new Gdk.Color(223, 223, 223);
-			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
+			yTreeView.ColumnsConfig = ColumnsConfigFactory.Create<object>()
 				.AddColumn("Виновный")
-					.AddTextRenderer(n => n[0].ToString())
+					.AddTextRenderer(n => GetNodeText(n))
+					.AddSetter((c ,n) => c.Alignment = GetAlignment(n))
 					.WrapWidth(150).WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Кол-во")
-					.AddTextRenderer(n => n[1].ToString())
+					.AddTextRenderer(n => GetCount(n))
 					.WrapWidth(50).WrapMode(Pango.WrapMode.WordChar)
 				.RowCells()
-					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? wh : gr)
+					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = GetColor(n))
 				.Finish();
+
 			yTVComplainsResults.ColumnsConfig = ColumnsConfigFactory.Create<object[]>()
 				.AddColumn("Итог")
 					.AddTextRenderer(n => n[0] != null ? n[0].ToString() : "(результат не выставлен)")
@@ -44,9 +51,47 @@ namespace Vodovoz.SidePanel.InfoViews
 				.Finish();
 		}
 
+		private Pango.Alignment GetAlignment(object node)
+		{
+			return node is ComplaintGuiltyNode ? Pango.Alignment.Left : Pango.Alignment.Right;
+		}
+
+		private string GetNodeText(object node)
+		{
+			if(node is ComplaintGuiltyNode) {
+				return (node as ComplaintGuiltyNode).GuiltyName;
+			}
+			if(node is ComplaintResultNode) {
+				return (node as ComplaintResultNode).Text ?? "Не указано";
+			}
+			return "";
+		}
+
+		private string GetCount(object node)
+		{
+			if(node is ComplaintGuiltyNode) {
+				return (node as ComplaintGuiltyNode).Count.ToString();
+			}
+			if(node is ComplaintResultNode) {
+				return (node as ComplaintResultNode).Count.ToString();
+			}
+			return "";
+		}
+
+		private Gdk.Color GetColor(object node)
+		{
+			if(node is ComplaintGuiltyNode) {
+				return gr;
+			}
+			if(node is ComplaintResultNode) {
+				return wh;
+			}
+			return red;
+		}
+
 		DateTime? StartDate { get; set; }
 		DateTime? EndDate { get; set; }
-		IList<object[]> guilties = new List<object[]>();
+		IList<ComplaintGuiltyNode> guilties = new List<ComplaintGuiltyNode>();
 
 		#region IPanelView implementation
 
@@ -61,7 +106,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			StartDate = (InfoProvider as IComplaintsInfoProvider)?.StartDate;
 			EndDate = (InfoProvider as IComplaintsInfoProvider)?.EndDate;
 			lblCaption.Markup = string.Format(
-				"<u><b>Сводка по жалобам{0}{1}.\nВиновны в закрытых жалобах:</b></u>",
+				"<u><b>Сводка по жалобам{0}{1}.\nСписок виновных:</b></u>",
 				StartDate.HasValue ? string.Format("\nс {0} ", StartDate.Value.ToString("dd.MM.yyyy")) : string.Empty,
 				EndDate.HasValue ? string.Format("по {0}", EndDate.Value.ToString("dd.MM.yyyy")) : "\nза всё время"
 			);
@@ -75,8 +120,11 @@ namespace Vodovoz.SidePanel.InfoViews
 				cntTotal >= 0 ? "red" : "black"
 			);
 
-			guilties = new List<object[]>(complaintsRepository.GetGuiltyAndCountForDates(InfoProvider.UoW, StartDate, EndDate));
-			yTreeView.ItemsDataSource = guilties;
+			var levels = LevelConfigFactory
+						.FirstLevel<ComplaintGuiltyNode, ComplaintResultNode>(x => x.ComplaintResultNodes)
+						.LastLevel(c => c.ComplaintGuiltyNode).EndConfig();
+			guilties = new List<ComplaintGuiltyNode>(complaintsRepository.GetGuiltyAndCountForDates(InfoProvider.UoW, StartDate, EndDate));
+			yTreeView.YTreeModel = new LevelTreeModel<ComplaintGuiltyNode>(guilties, levels);
 
 			var results = complaintsRepository.GetComplaintsResults(InfoProvider.UoW, StartDate, EndDate);
 			yTVComplainsResults.SetItemsSource(results);

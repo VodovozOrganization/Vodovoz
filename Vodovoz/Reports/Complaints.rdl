@@ -67,7 +67,7 @@
           <TableColumn>
             <Width>58.5pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>54.5pt</Width>
           </TableColumn>
           <TableColumn>
@@ -85,7 +85,7 @@
           <TableColumn>
             <Width>21.6pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>89.6pt</Width>
           </TableColumn>
         </TableColumns>
@@ -213,7 +213,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
                       <Value>Вид</Value>
@@ -316,7 +316,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
                       <Value>Мероприятия</Value>
@@ -469,10 +469,10 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>={?complaint_kind}</Value>
+                      <Value>={complaint_kind_text}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -501,8 +501,8 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop >10pt</PaddingTop>
-                        <PaddingBottom >10pt</PaddingBottom>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -540,8 +540,8 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingTop >10pt</PaddingTop>
-                        <PaddingBottom >10pt</PaddingBottom>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                       </Style>
                       <CanShrink>true</CanShrink>
                     </Textbox>
@@ -583,7 +583,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
                       <Value>={arrangement_text}</Value>
@@ -658,7 +658,7 @@
     complaints.result_text,
     complaints.actual_completion_date,
     DATEDIFF(complaints.actual_completion_date, complaints.creation_date) AS days_at_work,
-    complaint_kinds.name as complaint_kind
+    complaint_kinds.name as complaint_kind_text
 FROM
     complaints
     LEFT JOIN complaint_discussions ON complaint_discussions.complaint_id = complaints.id
@@ -772,8 +772,8 @@ GROUP BY
           <DataField>arrangement_text</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="complaint_kind">
-          <DataField>complaint_kind</DataField>
+        <Field Name="complaint_kind_text">
+          <DataField>complaint_kind_text</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
