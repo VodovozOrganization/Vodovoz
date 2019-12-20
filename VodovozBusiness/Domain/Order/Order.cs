@@ -1820,7 +1820,10 @@ namespace Vodovoz.Domain.Orders
 						Nomenclature = UoW.GetById<Nomenclature>(paidDeliveryNomenclatureId),
 						Order = this
 					};
+					deliveryPriceItem.Price = price;
+					deliveryPriceItem.Count = 1;
 					ObservableOrderItems.Add(deliveryPriceItem);
+					return true;
 				} else if(deliveryPriceItem.Price == price) {
 					return false;
 				}

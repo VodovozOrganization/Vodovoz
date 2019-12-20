@@ -437,6 +437,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
 				.AddColumn(!orderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
+				.SetTag("Count")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Count)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
@@ -1740,18 +1741,27 @@ namespace Vodovoz
 		/// </summary>
 		private void EditGoodsCountCellOnAdd(yTreeView treeView)
 		{
-			int index = treeView.Model.IterNChildren() - 1;
-			TreePath path;
+			try {
+				int index = treeView.Model.IterNChildren() - 1;
+				TreePath path;
 
-			treeView.Model.IterNthChild(out TreeIter iter, index);
-			path = treeView.Model.GetPath(iter);
+				treeView.Model.IterNthChild(out TreeIter iter, index);
+				path = treeView.Model.GetPath(iter);
 
-			var column = treeView.Columns.First(x => x.Title == "Кол-во");
-			var renderer = column.CellRenderers.First();
-			Application.Invoke(delegate {
-				treeView.SetCursorOnCell(path, column, renderer, true);
-			});
-			treeView.GrabFocus();
+				var column = treeView.ColumnsConfig.ConfiguredColumns.FirstOrDefault(x => (x.tag as string) == "Count")?.TreeViewColumn;
+				if(column == null) {
+					return;
+				}
+				var renderer = column.CellRenderers.First();
+				Application.Invoke(delegate {
+					treeView.SetCursorOnCell(path, column, renderer, true);
+				});
+				treeView.GrabFocus();
+			} catch(Exception ex) {
+				logger.Error(ex, "Ошибка при попытке установки состояния редактирования на ячейку");
+				return;
+			}
+
 		}
 
 		void TreeAnyGoods_ExposeEvent(object o, ExposeEventArgs args)
