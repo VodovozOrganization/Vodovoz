@@ -3588,6 +3588,7 @@ namespace Vodovoz.Domain.Orders
 				uow.Save();
 				uow.Commit();
 			}
+			UoW.Session.Refresh(this);
 		}
 
 		public virtual void SaveEntity(IUnitOfWork uow)

@@ -2433,6 +2433,8 @@ namespace Vodovoz
 				buttonEditOrder.Visible = false;
 			}
 
+			btnSaveComment.Sensitive = Entity.OrderStatus != OrderStatus.NewOrder;
+
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
 			buttonWaitForPayment.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder && IsPaymentTypeBarterOrCashless() && !Entity.SelfDelivery;
 
