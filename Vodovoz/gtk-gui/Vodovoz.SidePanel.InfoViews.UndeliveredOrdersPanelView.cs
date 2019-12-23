@@ -37,7 +37,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.lblCaption = new global::Gtk.Label();
 			this.lblCaption.Name = "lblCaption";
-			this.lblCaption.LabelProp = global::Mono.Unix.Catalog.GetString("<u><b>За выбранный интервал\nдат в недовозах виновны:</b></u>");
+			this.lblCaption.LabelProp = global::Mono.Unix.Catalog.GetString("<u><b>Виновные:</b></u>");
 			this.lblCaption.UseMarkup = true;
 			this.lblCaption.Justify = ((global::Gtk.Justification)(2));
 			this.vbox1.Add(this.lblCaption);

@@ -14,30 +14,27 @@ namespace Vodovoz.EntityRepositories.Complaints
 {
 	public class ComplaintsRepository : IComplaintsRepository
 	{
-		public IList<ComplaintGuiltyNode> GetGuiltyAndCountForDates(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
+		public IList<object[]> GetGuiltyAndCountForDates(IUnitOfWork uow, DateTime? start = null, DateTime? end = null)
 		{
 			Complaint complaintAlias = null;
 			Subdivision subdivisionAlias = null;
 			Employee employeeAlias = null;
 			ComplaintGuiltyItem guiltyItemAlias = null;
-			ComplaintResult complaintResultAlias = null;
-			QueryNode queryNodeAlias = null;
 
 			var query = uow.Session.QueryOver(() => guiltyItemAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Complaint, () => complaintAlias)
-						   .Left.JoinAlias(() => complaintAlias.ComplaintResult, () => complaintResultAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Subdivision, () => subdivisionAlias)
 						   .Left.JoinAlias(() => guiltyItemAlias.Employee, () => employeeAlias)
+						   .Where(() => complaintAlias.Status == ComplaintStatuses.Closed)
 						   ;
 
 			if(start != null && end != null)
 				query.Where(() => complaintAlias.CreationDate >= start)
 					 .Where(() => complaintAlias.CreationDate <= end);
-					
+
+			int i = 0;
 			var result = query.SelectList(list => list
 										  .SelectGroup(c => c.Id)
-										  .Select(() => complaintAlias.Status).WithAlias(() => queryNodeAlias.Status)
-										  .Select(() => complaintResultAlias.Name).WithAlias(() => queryNodeAlias.ResultText)
 										  .Select(
 											  Projections.SqlFunction(
 												  new SQLFunctionTemplate(
@@ -51,18 +48,14 @@ namespace Vodovoz.EntityRepositories.Complaints
 												  Projections.Property(() => employeeAlias.Name),
 												  Projections.Property(() => employeeAlias.Patronymic)
 												 )
-											 ).WithAlias(() => queryNodeAlias.GuiltyName)
+											 )
 										 )
-							  .TransformUsing(Transformers.AliasToBean<QueryNode>()).List<QueryNode>();
-			var groupedResult = result.GroupBy(p => p.GuiltyName, (guiltyName, guilties) => new ComplaintGuiltyNode {
-				GuiltyName = guiltyName,
-				Count = guilties.Count(),
-				Guilties = guilties.ToList()
-			}).ToList();
-			foreach(var item in groupedResult) {
-				item.CreateComplaintResultNodes();
-			}
-			return groupedResult;
+							  .List<object[]>()
+							  .GroupBy(x => x[1])
+							  .Select(r => new[] { r.Key, r.Count(), i++ })
+							  .ToList();
+
+			return result;
 		}
 
 		public int GetUnclosedComplaintsCount(IUnitOfWork uow, bool? withOverdue = null, DateTime? start = null, DateTime? end = null)
@@ -112,57 +105,4 @@ namespace Vodovoz.EntityRepositories.Complaints
 			return result;
 		}
 	}
-
-	#region Nodes for GetGuiltyAndCountForDates()
-
-	public class QueryNode
-	{
-		public ComplaintStatuses Status { get; set; }
-		public string ResultText { get; set; }
-		public string GuiltyName { get; set; }
-	}
-
-	public class ComplaintGuiltyNode
-	{
-		public int Count { get; set; }
-		public string GuiltyName { get; set; }
-		public IList<ComplaintResultNode> ComplaintResultNodes { get; set; }
-
-		public IList<QueryNode> Guilties { get; set; }
-
-		public void CreateComplaintResultNodes()
-		{
-			ComplaintResultNodes = new List<ComplaintResultNode>();
-
-			var resultNodes = Guilties.GroupBy(p => new { p.Status, p.ResultText }, (grp, innerGuilties) => new ComplaintResultNode {
-				Count = innerGuilties.Count(),
-				Status = grp.Status,
-				Text = grp.Status == ComplaintStatuses.Closed ? grp.ResultText : ComplaintStatuses.InProcess.GetEnumTitle(),
-				ComplaintGuiltyNode = this,
-			}).ToList();
-
-			//Объединяю ноды со статусами "В работе" и "На проверке"
-			if(resultNodes.Count(n => n.Status == ComplaintStatuses.InProcess || n.Status == ComplaintStatuses.Checking) > 1) {
-				var nodesToUnion = resultNodes.Where(n => n.Status == ComplaintStatuses.InProcess || n.Status == ComplaintStatuses.Checking).ToList();
-				nodesToUnion[0].Count = nodesToUnion.Sum(n => n.Count);
-				foreach(var node in nodesToUnion.Skip(1)) {
-					resultNodes.Remove(node);
-				}
-			}
-			foreach(var node in resultNodes) {
-
-				ComplaintResultNodes.Add(node);
-			}
-		}
-	}
-
-	public class ComplaintResultNode
-	{
-		public ComplaintGuiltyNode ComplaintGuiltyNode { get; set; }
-		public string Text { get; set; }
-		public int Count { get; set; }
-		public ComplaintStatuses Status { get; set; }
-	}
-
-	#endregion
 }

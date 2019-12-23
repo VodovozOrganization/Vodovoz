@@ -248,7 +248,7 @@ namespace Vodovoz.ViewModel
 						var order = UoW.GetById<Domain.Orders.Order>(selectedNodes.FirstOrDefault().Id);
 						UndeliveriesView dlg = new UndeliveriesView();
 						dlg.HideFilterAndControls();
-						dlg.GetUndeliveryFilter.SetAndRefilterAtOnce(
+						dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
 							x => x.ResetFilter(),
 							x => x.RestrictOldOrder = order,
 							x => x.RestrictOldOrderStartDate = order.DeliveryDate,
