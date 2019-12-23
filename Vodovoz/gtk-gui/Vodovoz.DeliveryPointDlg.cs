@@ -548,6 +548,7 @@ namespace Vodovoz
 			this.entryCity.CanFocus = true;
 			this.entryCity.Name = "entryCity";
 			this.entryCity.IsEditable = true;
+			this.entryCity.MaxLength = 45;
 			this.entryCity.InvisibleChar = '●';
 			this.hbox7.Add(this.entryCity);
 			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.entryCity]));
@@ -599,6 +600,7 @@ namespace Vodovoz
 			this.entryStreet.CanFocus = true;
 			this.entryStreet.Name = "entryStreet";
 			this.entryStreet.IsEditable = true;
+			this.entryStreet.MaxLength = 50;
 			this.entryStreet.InvisibleChar = '●';
 			this.entryStreet.CityId = 0;
 			this.hbox8.Add(this.entryStreet);
@@ -714,6 +716,7 @@ namespace Vodovoz
 			this.entryFloor.CanFocus = true;
 			this.entryFloor.Name = "entryFloor";
 			this.entryFloor.IsEditable = true;
+			this.entryFloor.MaxLength = 20;
 			this.entryFloor.InvisibleChar = '•';
 			this.hbox9.Add(this.entryFloor);
 			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.entryFloor]));
@@ -961,6 +964,7 @@ namespace Vodovoz
 			this.yentryKPP.CanFocus = true;
 			this.yentryKPP.Name = "yentryKPP";
 			this.yentryKPP.IsEditable = true;
+			this.yentryKPP.MaxLength = 45;
 			this.yentryKPP.InvisibleChar = '•';
 			this.datatable1.Add(this.yentryKPP);
 			global::Gtk.Table.TableChild w72 = ((global::Gtk.Table.TableChild)(this.datatable1[this.yentryKPP]));
