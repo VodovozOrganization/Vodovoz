@@ -17,10 +17,12 @@ namespace Vodovoz.HibernateMapping.Order
 			Map(x => x.Reason).Column("reason");
 			Map(x => x.TimeOfCreation).Column("creation_date");
 			Map(x => x.LastEditedTime).Column("last_edited_time");
+			Map(x => x.ProblemSource).Column("problem_source");
 
 			Map(x => x.DriverCallType).Column("driver_call_type").CustomType<DriverCallTypeStringType>();
 			Map(x => x.UndeliveryStatus).Column("status").CustomType<UndeliveredOrderUndeliveryStatusStringType>();
 			Map(x => x.OldOrderStatus).Column("undelivered_order_status").CustomType<OrderStatusStringType>();
+			Map(x => x.OrderTransferType).Column("transfer_type").CustomType<UndeliveredOrderTransferTypeStringType>();
 
 			References(x => x.OldOrder).Column("old_order_id");
 			References(x => x.NewOrder).Column("new_order_id");
