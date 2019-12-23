@@ -1116,10 +1116,23 @@ namespace Vodovoz
 
 		void YCmbPromoSets_ItemSelected(object sender, ItemSelectedEventArgs e)
 		{
-			if(e.SelectedItem is PromotionalSet proSet && CanAddNomenclaturesToOrder())
-				AddNomenclaturesFromPromotionalSet(proSet);
+			PromotionalSet proSet = e.SelectedItem as PromotionalSet;
+
+			if(CanAddPromotionalSet(proSet))
+				ActivatePromotionalSet(proSet);
 			if(!yCmbPromoSets.IsSelectedNot)
 				yCmbPromoSets.SelectedItem = SpecialComboState.Not;
+		}
+
+		bool CanAddPromotionalSet(PromotionalSet proSet)
+		{
+			if(proSet != null && CanAddNomenclaturesToOrder())
+					if(!Entity.PromotionalSets.Any()) {
+						if(!Entity.CanAddPromotionalSet(proSet, out string msg) && MessageDialogHelper.RunQuestionWithTitleDialog("Повтор промо-набора", msg))
+							return true;
+					} else MessageDialogHelper.RunWarningDialog("В заказ нельзя добавить больше 1 промо-набора");
+
+			return false;
 		}
 
 		bool CanAddNomenclaturesToOrder()
@@ -1204,18 +1217,16 @@ namespace Vodovoz
 
 		#region Рекламные наборы
 
-		void AddNomenclaturesFromPromotionalSet(PromotionalSet proSet)
+		void ActivatePromotionalSet(PromotionalSet proSet)
 		{
-			if(!Entity.ObservablePromotionalSets.Contains(proSet)) {
-				if(!Entity.CanAddPromotionalSet(proSet, out string msg) && !MessageDialogHelper.RunQuestionWithTitleDialog("Повтор промо-набора", msg))
-					return;
-				foreach(var action in proSet.PromotionalSetActions) {
-					action.Activate(Entity);
-				}
-				TryAddNomenclature(proSet);
-				Entity.ObservablePromotionalSets.Add(proSet);
-			} else
-				MessageDialogHelper.RunWarningDialog("Повтор промо-набора");
+			//Добавление спец. действий промо-набора
+			foreach(var action in proSet.PromotionalSetActions) {
+				action.Activate(Entity);
+			}
+			//Добавление номенклатур из промо-набора
+			TryAddNomenclatureFromPromoSet(proSet);
+
+			Entity.ObservablePromotionalSets.Add(proSet);
 		}
 
 		#endregion
@@ -1245,7 +1256,7 @@ namespace Vodovoz
 			Entity.AddNomenclature(nomenclature, count, discount, discountReason);
 		}
 
-		void TryAddNomenclature(PromotionalSet proSet)
+		void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
 		{
 			if(Entity.IsLoadedFrom1C)
 				return;

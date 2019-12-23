@@ -376,6 +376,24 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(res, Is.False);
 			Assert.That(mess, Is.Not.Empty);
 		}
+
+		[Test(Description = "При добавлении второго промо-набора в заказ возвращается false и сообщение")]
+		public void CanAddPromotionalSet_WhenAddSecondPromotionalSetToTheOrder_ReturnsFalseAndMessage()
+		{
+			// arrange
+			var promotionalSetMock = Substitute.For<PromotionalSet>();
+
+			Order orderUnderTest = new Order();
+			orderUnderTest.PromotionalSets.Add(promotionalSetMock);
+
+			// act
+			var result = orderUnderTest.CanAddPromotionalSet(promotionalSetMock, out string msg);
+
+			// assert
+			Assert.That(result, Is.False);
+			Assert.That(msg, Is.Not.Empty);
+		}
+
 		#endregion Рекламные наборы
 
 		#region Акции
