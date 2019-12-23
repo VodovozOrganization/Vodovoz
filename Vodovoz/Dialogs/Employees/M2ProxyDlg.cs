@@ -175,7 +175,6 @@ namespace Vodovoz.Dialogs.Employees
 			var valid = new QSValidator<M2ProxyDocument>(Entity);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
-			UoWGeneric.Save();
 
 			if(Entity.Order != null) {
 				List<OrderDocument> list = new List<OrderDocument> {

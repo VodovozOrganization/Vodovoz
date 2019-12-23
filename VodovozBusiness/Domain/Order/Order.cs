@@ -2221,11 +2221,7 @@ namespace Vodovoz.Domain.Orders
 						   .FirstOrDefault(x => x.M2Proxy == m2.M2Proxy
 										   && x.Order == m2.Order)
 						   == null) {
-							ObservableOrderDocuments.Add(new OrderM2Proxy {
-								Order = item.Order,
-								AttachedToOrder = this,
-								M2Proxy = m2.M2Proxy
-							});
+							ObservableOrderDocuments.Add(m2);
 						}
 						break;
 					case OrderDocumentType.CoolerWarranty:
