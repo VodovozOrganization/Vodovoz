@@ -15,6 +15,8 @@ using QSOsm.Spuntik;
 using Vodovoz;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
+using QS.Project.Services;
+using QS.Dialog;
 
 namespace Dialogs.Logistic
 {
@@ -521,8 +523,12 @@ namespace Dialogs.Logistic
 
 			tracksOverlay.Clear();
 			trackToBaseOverlay.Clear();
-
-			if(routeList.Addresses.Count(x => x.Status == RouteListItemStatus.Completed) > 1)
+			IEnumerable<RouteListItem> completedAddresses = routeList.Addresses.Where(x => x.Status == RouteListItemStatus.Completed);
+			if(!completedAddresses.Any()) {
+				ServicesConfig.InteractiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Warning, "Для МЛ нет завершенных адресов, невозможно расчитать трек", "");
+				return;
+			}
+			if(completedAddresses.Count() > 1)
 			{
 				foreach(RouteListItem address in routeList.Addresses.OrderBy(x => x.StatusLastUpdate)) {
 					if(address.Status == RouteListItemStatus.Completed) {
