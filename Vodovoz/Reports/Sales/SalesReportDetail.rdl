@@ -17,15 +17,15 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>182.1pt</Height>
+    <Height>190.6pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>20.29pt</Height>
         <Width>816.07pt</Width>
         <Value>='Отчет по продажам ' + Iif(Parameters!start_date = Parameters!end_date, 'за ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy"), 'с ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy") + ' по ' + Format(CDate(Parameters!end_date), "dd/MM/yyyy"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>0.00pt</Top>
+        <Left>0.0pt</Left>
+        <Top>22.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -295,8 +295,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>11.3pt</Left>
-        <Top>37.8pt</Top>
+        <Left>5.7pt</Left>
+        <Top>49.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -610,8 +610,8 @@
         <Width>223.58pt</Width>
         <Value>=First({criterions}, "Criterions")</Value>
         <ZIndex>1</ZIndex>
-        <Left>589.1pt</Left>
-        <Top>126.1pt</Top>
+        <Left>586.2pt</Left>
+        <Top>135.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -676,8 +676,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>512.5pt</Left>
-        <Top>143.9pt</Top>
+        <Left>507.6pt</Left>
+        <Top>156.6pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -717,6 +717,20 @@
           </TableRows>
         </Footer>
       </fyi:Grid>
+      <Textbox Name="Textbox33" >
+        <Height>12.00pt</Height>
+        <Width>270pt</Width>
+        <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>540pt</Left>
+        <Top>0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -746,7 +760,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	T.counterparty,
@@ -954,7 +968,7 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -998,7 +1012,7 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -1246,7 +1260,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -1254,7 +1268,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="bottles">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	SUM(t.plan) AS plan,
@@ -1413,7 +1427,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="plan">
           <DataField>plan</DataField>
         </Field>
@@ -1601,13 +1615,22 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="promo_sets_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="creation_date">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
   </ReportParameters>

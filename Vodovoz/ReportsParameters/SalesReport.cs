@@ -532,7 +532,9 @@ namespace Vodovoz.Reports
 					{ "payment_type_exclude", excludePayTypes },
 					//Промо-наборы
 					{ "promo_sets_include", GetResultIds(criterions[FilterTypes.PromoSetInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-					{ "promo_sets_exclude", GetResultIds(criterions[FilterTypes.PromoSetExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
+					{ "promo_sets_exclude", GetResultIds(criterions[FilterTypes.PromoSetExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+
+					{"creation_date", DateTime.Now}
 				}
 			};
 		}
