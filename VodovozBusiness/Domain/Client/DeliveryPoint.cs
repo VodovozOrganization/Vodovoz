@@ -28,7 +28,7 @@ namespace Vodovoz.Domain.Client
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class DeliveryPoint : PropertyChangedBase, IDomainObject
+	public class DeliveryPoint : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -172,8 +172,6 @@ namespace Vodovoz.Domain.Client
 		string city;
 
 		[Display(Name = "Город")]
-		[Required(ErrorMessage = "Город должен быть заполнен.")]
-		[StringLength(45)]
 		public virtual string City {
 			get => city;
 			set {
@@ -204,8 +202,6 @@ namespace Vodovoz.Domain.Client
 		string street;
 
 		[Display(Name = "Улица")]
-		[Required(ErrorMessage = "Улица должна быть заполнена.")]
-		[StringLength(50)]
 		public virtual string Street {
 			get => street;
 			set => SetField(ref street, value, () => Street);
@@ -223,7 +219,6 @@ namespace Vodovoz.Domain.Client
 		string building;
 
 		[Display(Name = "Номер дома")]
-		[Required(ErrorMessage = "Номер дома должен быть заполнен.")]
 		public virtual string Building {
 			get => building;
 			set => SetField(ref building, value, () => Building);
@@ -344,7 +339,6 @@ namespace Vodovoz.Domain.Client
 
 		Counterparty counterparty;
 
-		[Required]
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty {
 			get => counterparty;
@@ -501,7 +495,6 @@ namespace Vodovoz.Domain.Client
 		}
 
 		DeliveryPointCategory category;
-		[Required(ErrorMessage = "Укажите тип объекта")]
 		[Display(Name = "Тип объекта")]
 		public virtual DeliveryPointCategory Category {
 			get => category;
@@ -695,6 +688,83 @@ namespace Vodovoz.Domain.Client
 			counterparty.DeliveryPoints.Add(point);
 			return point;
 		}
+
+		#region IValidatableObject Implementation
+
+		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Category == null)
+				yield return new ValidationResult(
+					string.Format("Необходимо выбрать тип точки доставки"),
+					new[] { this.GetPropertyName(o => o.Category) });
+
+			if(Counterparty == null)
+				yield return new ValidationResult(
+					string.Format("Необходимо выбрать клиента"),
+					new[] { this.GetPropertyName(o => o.Counterparty) });
+
+			if(Building?.Length == 0)
+				yield return new ValidationResult(
+					string.Format("Заполните поле \"Дом\""),
+					new[] { this.GetPropertyName(o => o.Building) });
+
+			if(Building?.Length > 20)
+				yield return new ValidationResult(
+					string.Format("Длина строки \"Дом\" не должна превышать 20 символов"),
+					new[] { this.GetPropertyName(o => o.Building) });
+
+			if(City?.Length == 0)
+				yield return new ValidationResult(
+					string.Format("Заполните поле \"Город\""),
+					new[] { this.GetPropertyName(o => o.City) });
+
+			if(City?.Length > 45)
+				yield return new ValidationResult(
+					string.Format("Длина строки \"Город\" не должна превышать 45 символов"),
+					new[] { this.GetPropertyName(o => o.City) });
+
+			if(Street?.Length == 0)
+				yield return new ValidationResult(
+					string.Format("Заполните поле \"Улица\""),
+					new[] { this.GetPropertyName(o => o.Street) });
+
+			if(Street?.Length > 50)
+				yield return new ValidationResult(
+					string.Format("Длина строки \"Улица\" не должна превышать 50 символов"),
+					new[] { this.GetPropertyName(o => o.Street) });
+
+			if(Room?.Length > 20)
+				yield return new ValidationResult(
+					string.Format("Длина строки \"Офис/Квартира\" не должна превышать 20 символов"),
+					new[] { this.GetPropertyName(o => o.Room) });
+
+			if(Entrance?.Length > 50)
+				yield return new ValidationResult(
+					string.Format("Длина строки \"Парадная\" не должна превышать 50 символов"),
+					new[] { this.GetPropertyName(o => o.Entrance) });
+
+			if(Floor?.Length > 20)
+				yield return new ValidationResult(
+					string.Format("Длина строки \"Этаж\" не должна превышать 20 символов"),
+					new[] { this.GetPropertyName(o => o.Floor) });
+
+			if(Comment?.Length > 200)
+				yield return new ValidationResult(
+					string.Format("Длина строки \"Комментарий\" не должна превышать 200 символов"),
+					new[] { this.GetPropertyName(o => o.Comment) });
+
+			if(Code1c?.Length > 10)
+				yield return new ValidationResult(
+					string.Format("Длина строки \"Код 1С\" не должна превышать 10 символов"),
+					new[] { this.GetPropertyName(o => o.Code1c) });
+
+			if(KPP?.Length > 45)
+				yield return new ValidationResult(
+					string.Format("Длина строки \"КПП\" не должна превышать 45 символов"),
+					new[] { this.GetPropertyName(o => o.KPP) });
+		}
+
+		#endregion
 	}
 
 	public enum EntranceType

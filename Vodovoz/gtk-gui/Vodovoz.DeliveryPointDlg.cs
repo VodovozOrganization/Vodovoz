@@ -664,6 +664,7 @@ namespace Vodovoz
 			this.entryEntrance.CanFocus = true;
 			this.entryEntrance.Name = "entryEntrance";
 			this.entryEntrance.IsEditable = true;
+			this.entryEntrance.MaxLength = 50;
 			this.entryEntrance.InvisibleChar = '•';
 			this.hbox9.Add(this.entryEntrance);
 			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.entryEntrance]));
@@ -734,6 +735,7 @@ namespace Vodovoz
 			this.yentryCode1c.CanFocus = true;
 			this.yentryCode1c.Name = "yentryCode1c";
 			this.yentryCode1c.IsEditable = true;
+			this.yentryCode1c.MaxLength = 10;
 			this.yentryCode1c.InvisibleChar = '●';
 			this.hboxCode.Add(this.yentryCode1c);
 			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.hboxCode[this.yentryCode1c]));
