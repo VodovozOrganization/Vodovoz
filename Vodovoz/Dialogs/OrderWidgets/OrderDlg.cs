@@ -2386,9 +2386,11 @@ namespace Vodovoz
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
 			RouteListStatus? rlStatus = null;
-			if(Entity.Id != 0)
-				rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(UoW, Entity).FirstOrDefault()?.Status;
-			tblDriverControl.Sensitive = rlStatus.HasValue && !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				if(Entity.Id != 0)
+					rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
+				tblDriverControl.Sensitive = rlStatus.HasValue && !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
+			}
 		}
 
 		void SetPadInfoSensitive(bool value)
