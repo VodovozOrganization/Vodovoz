@@ -14,7 +14,7 @@ namespace Vodovoz.Dialogs.Client
 
 		private global::Gtk.Table datatable1;
 
-		private global::Gamma.Widgets.yDatePicker dateIssue;
+		private global::QS.Widgets.GtkUI.DatePicker dateIssue;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -22,7 +22,7 @@ namespace Vodovoz.Dialogs.Client
 
 		private global::Gtk.HBox hbox6;
 
-		private global::Gamma.Widgets.yDatePicker dateStart;
+		private global::QS.Widgets.GtkUI.DatePicker dateStart;
 
 		private global::Gtk.HBox hbox7;
 
@@ -98,7 +98,7 @@ namespace Vodovoz.Dialogs.Client
 			this.datatable1.ColumnSpacing = ((uint)(6));
 			this.datatable1.BorderWidth = ((uint)(6));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.dateIssue = new global::Gamma.Widgets.yDatePicker();
+			this.dateIssue = new global::QS.Widgets.GtkUI.DatePicker();
 			this.dateIssue.Events = ((global::Gdk.EventMask)(256));
 			this.dateIssue.Name = "dateIssue";
 			this.dateIssue.WithTime = false;
@@ -132,7 +132,7 @@ namespace Vodovoz.Dialogs.Client
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.dateStart = new global::Gamma.Widgets.yDatePicker();
+			this.dateStart = new global::QS.Widgets.GtkUI.DatePicker();
 			this.dateStart.Events = ((global::Gdk.EventMask)(256));
 			this.dateStart.Name = "dateStart";
 			this.dateStart.WithTime = false;

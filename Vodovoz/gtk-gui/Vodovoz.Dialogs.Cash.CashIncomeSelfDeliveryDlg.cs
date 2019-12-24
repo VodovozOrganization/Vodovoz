@@ -44,7 +44,7 @@ namespace Vodovoz.Dialogs.Cash
 
 		private global::Vodovoz.ViewWidgets.PermissionCommentView permissioncommentview;
 
-		private global::Gamma.Widgets.yDatePicker ydateDocument;
+		private global::QS.Widgets.GtkUI.DatePicker ydateDocument;
 
 		private global::QS.Widgets.GtkUI.RepresentationEntry yentryCasher;
 
@@ -282,7 +282,7 @@ namespace Vodovoz.Dialogs.Cash
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ydateDocument = new global::Gamma.Widgets.yDatePicker();
+			this.ydateDocument = new global::QS.Widgets.GtkUI.DatePicker();
 			this.ydateDocument.Events = ((global::Gdk.EventMask)(256));
 			this.ydateDocument.Name = "ydateDocument";
 			this.ydateDocument.WithTime = false;

@@ -68,9 +68,9 @@ namespace Vodovoz.ViewWidgets
 
 		private global::QS.Widgets.GtkUI.RepresentationEntry refRegisteredBy;
 
-		private global::Gamma.Widgets.yDatePicker yDateDispatcherCallTime;
+		private global::QS.Widgets.GtkUI.DatePicker yDateDispatcherCallTime;
 
-		private global::Gamma.Widgets.yDatePicker yDateDriverCallTime;
+		private global::QS.Widgets.GtkUI.DatePicker yDateDriverCallTime;
 
 		private global::Gamma.Widgets.yEnumComboBox yEnumCMBDriverCallPlace;
 
@@ -384,7 +384,7 @@ namespace Vodovoz.ViewWidgets
 			w30.XOptions = ((global::Gtk.AttachOptions)(4));
 			w30.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
-			this.yDateDispatcherCallTime = new global::Gamma.Widgets.yDatePicker();
+			this.yDateDispatcherCallTime = new global::QS.Widgets.GtkUI.DatePicker();
 			this.yDateDispatcherCallTime.Events = ((global::Gdk.EventMask)(256));
 			this.yDateDispatcherCallTime.Name = "yDateDispatcherCallTime";
 			this.yDateDispatcherCallTime.WithTime = true;
@@ -400,7 +400,7 @@ namespace Vodovoz.ViewWidgets
 			w31.XOptions = ((global::Gtk.AttachOptions)(4));
 			w31.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tblUndeliveryFields.Gtk.Table+TableChild
-			this.yDateDriverCallTime = new global::Gamma.Widgets.yDatePicker();
+			this.yDateDriverCallTime = new global::QS.Widgets.GtkUI.DatePicker();
 			this.yDateDriverCallTime.Events = ((global::Gdk.EventMask)(256));
 			this.yDateDriverCallTime.Name = "yDateDriverCallTime";
 			this.yDateDriverCallTime.WithTime = true;

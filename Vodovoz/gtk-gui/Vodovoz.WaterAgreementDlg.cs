@@ -14,9 +14,9 @@ namespace Vodovoz
 
 		private global::Gtk.Table datatable1;
 
-		private global::Gamma.Widgets.yDatePicker dateIssue;
+		private global::QS.Widgets.GtkUI.DatePicker dateIssue;
 
-		private global::Gamma.Widgets.yDatePicker dateStart;
+		private global::QS.Widgets.GtkUI.DatePicker dateStart;
 
 		private global::Gtk.Label label1;
 
@@ -104,7 +104,7 @@ namespace Vodovoz
 			this.datatable1.ColumnSpacing = ((uint)(6));
 			this.datatable1.BorderWidth = ((uint)(6));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.dateIssue = new global::Gamma.Widgets.yDatePicker();
+			this.dateIssue = new global::QS.Widgets.GtkUI.DatePicker();
 			this.dateIssue.Events = ((global::Gdk.EventMask)(256));
 			this.dateIssue.Name = "dateIssue";
 			this.dateIssue.WithTime = false;
@@ -120,7 +120,7 @@ namespace Vodovoz
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.dateStart = new global::Gamma.Widgets.yDatePicker();
+			this.dateStart = new global::QS.Widgets.GtkUI.DatePicker();
 			this.dateStart.Events = ((global::Gdk.EventMask)(256));
 			this.dateStart.Name = "dateStart";
 			this.dateStart.WithTime = false;

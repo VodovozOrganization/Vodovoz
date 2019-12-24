@@ -16,13 +16,13 @@ namespace Vodovoz
 
 		private global::Vodovoz.DailyRentPackagesView dailyrentpackagesview1;
 
-		private global::Gamma.Widgets.yDatePicker dateEnd;
+		private global::QS.Widgets.GtkUI.DatePicker dateEnd;
 
-		private global::Gamma.Widgets.yDatePicker dateStart;
+		private global::QS.Widgets.GtkUI.DatePicker dateStart;
 
 		private global::Gtk.HBox hbox7;
 
-		private global::Gamma.Widgets.yDatePicker dateIssue;
+		private global::QS.Widgets.GtkUI.DatePicker dateIssue;
 
 		private global::Gtk.Label label7;
 
@@ -111,7 +111,7 @@ namespace Vodovoz
 			w6.RightAttach = ((uint)(5));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.dateEnd = new global::Gamma.Widgets.yDatePicker();
+			this.dateEnd = new global::QS.Widgets.GtkUI.DatePicker();
 			this.dateEnd.Events = ((global::Gdk.EventMask)(256));
 			this.dateEnd.Name = "dateEnd";
 			this.dateEnd.WithTime = false;
@@ -126,7 +126,7 @@ namespace Vodovoz
 			w7.RightAttach = ((uint)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.dateStart = new global::Gamma.Widgets.yDatePicker();
+			this.dateStart = new global::QS.Widgets.GtkUI.DatePicker();
 			this.dateStart.Events = ((global::Gdk.EventMask)(256));
 			this.dateStart.Name = "dateStart";
 			this.dateStart.WithTime = false;
@@ -145,7 +145,7 @@ namespace Vodovoz
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.dateIssue = new global::Gamma.Widgets.yDatePicker();
+			this.dateIssue = new global::QS.Widgets.GtkUI.DatePicker();
 			this.dateIssue.Events = ((global::Gdk.EventMask)(256));
 			this.dateIssue.Name = "dateIssue";
 			this.dateIssue.WithTime = false;

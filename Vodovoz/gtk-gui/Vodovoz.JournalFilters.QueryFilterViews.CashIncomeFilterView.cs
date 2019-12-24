@@ -20,7 +20,7 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 
 		private global::Gtk.Label label5;
 
-		private global::Gamma.Widgets.yDatePeriodPicker ydateperiodPicker;
+		private global::QS.Widgets.GtkUI.DateRangePicker ydateperiodPicker;
 
 		protected virtual void Build()
 		{
@@ -109,7 +109,7 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ydateperiodPicker = new global::Gamma.Widgets.yDatePeriodPicker();
+			this.ydateperiodPicker = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.ydateperiodPicker.Events = ((global::Gdk.EventMask)(256));
 			this.ydateperiodPicker.Name = "ydateperiodPicker";
 			this.ydateperiodPicker.StartDate = new global::System.DateTime(0);
