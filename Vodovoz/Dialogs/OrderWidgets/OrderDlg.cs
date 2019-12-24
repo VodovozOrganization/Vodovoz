@@ -1126,13 +1126,18 @@ namespace Vodovoz
 
 		bool CanAddPromotionalSet(PromotionalSet proSet)
 		{
-			if(proSet != null && CanAddNomenclaturesToOrder())
-					if(!Entity.PromotionalSets.Any()) {
-						if(!Entity.CanAddPromotionalSet(proSet, out string msg) && MessageDialogHelper.RunQuestionWithTitleDialog("Повтор промо-набора", msg))
-							return true;
-					} else MessageDialogHelper.RunWarningDialog("В заказ нельзя добавить больше 1 промо-набора");
+			if(proSet == null || !CanAddNomenclaturesToOrder())
+				return false;
 
-			return false;
+			if(Entity.PromotionalSets.Any()) {
+				MessageDialogHelper.RunWarningDialog("В заказ нельзя добавить больше 1 промо-набора");
+				return false;
+			}
+
+			if(!Entity.CanAddPromotionalSet(proSet, out string msg) && !MessageDialogHelper.RunQuestionWithTitleDialog("Повтор промо-набора", msg))
+				return false;
+
+			return true;
 		}
 
 		bool CanAddNomenclaturesToOrder()
