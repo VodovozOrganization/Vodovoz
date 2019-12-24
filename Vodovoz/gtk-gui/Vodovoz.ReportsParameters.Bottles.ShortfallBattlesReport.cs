@@ -10,7 +10,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::Gtk.Label label2;
 
-		private global::Gamma.Widgets.yDatePicker ydatepicker;
+		private global::QS.Widgets.GtkUI.DatePicker ydatepicker;
 
 		private global::Gtk.Table table1;
 
@@ -52,7 +52,7 @@ namespace Vodovoz.ReportsParameters.Bottles
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.ydatepicker = new global::Gamma.Widgets.yDatePicker();
+			this.ydatepicker = new global::QS.Widgets.GtkUI.DatePicker();
 			this.ydatepicker.Events = ((global::Gdk.EventMask)(256));
 			this.ydatepicker.Name = "ydatepicker";
 			this.ydatepicker.WithTime = false;

@@ -50,7 +50,7 @@ namespace Vodovoz.JournalViewers
 			buttonEdit.Sensitive = buttonDelete.Sensitive = tableDocuments.Selection.CountSelectedRows() > 0;
 		}
 
-		protected void OnButtonAddEnumItemClicked(object sender, EnumItemClickedEventArgs e)
+		protected void OnButtonAddEnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
 			ProxyDocumentType type = (ProxyDocumentType)e.ItemEnum;
 			var dlg = OrmMain.CreateObjectDialog(ProxyDocument.GetProxyDocumentClass(type));

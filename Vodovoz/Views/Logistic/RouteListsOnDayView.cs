@@ -20,6 +20,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModels.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -452,9 +453,10 @@ namespace Vodovoz.Views.Logistic
 			//добавляем маркеры адресов заказов
 			foreach(var order in ViewModel.OrdersOnDay.Select(x => x).Where(x => !x.IsService)) {
 				totalBottlesCountAtDay += order.Total19LBottlesToDeliver;
+				var orderRls = OrderSingletonRepository.GetInstance().GetAllRLForOrder(UoW, order);
 				var route = ViewModel.RoutesOnDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
 
-				if(route == null) {
+				if(!orderRls.Any()) {
 					addressesWithoutRoutes++;
 					bottlesWithoutRL += order.Total19LBottlesToDeliver;
 				}
@@ -463,7 +465,7 @@ namespace Vodovoz.Views.Logistic
 					PointMarkerShape shape = ViewModel.GetMarkerShapeFromBottleQuantity(order.Total19LBottlesToDeliver);
 
 					PointMarkerType type = PointMarkerType.black;
-					if(route == null) {
+					if(!orderRls.Any()) {
 						if((order.DeliverySchedule.To - order.DeliverySchedule.From).TotalHours <= 1)
 							type = PointMarkerType.black_and_red;
 						else {
@@ -480,7 +482,7 @@ namespace Vodovoz.Views.Logistic
 									type = PointMarkerType.green_stripes;
 							}
 						}
-					} else
+					} else if(route != null)
 						type = ViewModel.GetAddressMarker(ViewModel.RoutesOnDay.IndexOf(route));
 
 					if(selectedMarkers.FirstOrDefault(m => ((Order)m.Tag).Id == order.Id) != null)

@@ -194,7 +194,7 @@ namespace Vodovoz
 			carloaddocumentview1.UpdateAmounts();
 		}
 
-		protected void OnEnumPrintEnumItemClicked(object sender, EnumItemClickedEventArgs e)
+		protected void OnEnumPrintEnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
 			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(CarLoadDocument), "талона"))
 				Save();

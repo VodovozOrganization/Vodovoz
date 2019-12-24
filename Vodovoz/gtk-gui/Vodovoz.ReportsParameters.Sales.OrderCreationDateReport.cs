@@ -10,7 +10,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 		private global::Gtk.Label labelPeriod;
 
-		private global::QSWidgetLib.DatePeriodPicker datePeriodPicker;
+		private global::QS.Widgets.GtkUI.DateRangePicker datePeriodPicker;
 
 		private global::Gtk.HBox hboxDriver;
 
@@ -45,7 +45,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hboxPeriod.Gtk.Box+BoxChild
-			this.datePeriodPicker = new global::QSWidgetLib.DatePeriodPicker();
+			this.datePeriodPicker = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.datePeriodPicker.Events = ((global::Gdk.EventMask)(256));
 			this.datePeriodPicker.Name = "datePeriodPicker";
 			this.datePeriodPicker.StartDate = new global::System.DateTime(0);

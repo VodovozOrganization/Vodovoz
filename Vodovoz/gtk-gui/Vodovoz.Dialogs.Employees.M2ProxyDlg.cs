@@ -30,9 +30,9 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::Gtk.Label lblTicketNr;
 
-		private global::Gamma.Widgets.yDatePeriodPicker yDPDatesRange;
+		private global::QS.Widgets.GtkUI.DateRangePicker yDPDatesRange;
 
-		private global::Gamma.Widgets.yDatePicker yDTicketDate;
+		private global::QS.Widgets.GtkUI.DatePicker yDTicketDate;
 
 		private global::QS.Widgets.GtkUI.RepresentationEntry yEEmployee;
 
@@ -195,7 +195,7 @@ namespace Vodovoz.Dialogs.Employees
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yDPDatesRange = new global::Gamma.Widgets.yDatePeriodPicker();
+			this.yDPDatesRange = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.yDPDatesRange.Events = ((global::Gdk.EventMask)(256));
 			this.yDPDatesRange.Name = "yDPDatesRange";
 			this.yDPDatesRange.StartDate = new global::System.DateTime(0);
@@ -208,7 +208,7 @@ namespace Vodovoz.Dialogs.Employees
 			w13.RightAttach = ((uint)(3));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yDTicketDate = new global::Gamma.Widgets.yDatePicker();
+			this.yDTicketDate = new global::QS.Widgets.GtkUI.DatePicker();
 			this.yDTicketDate.Events = ((global::Gdk.EventMask)(256));
 			this.yDTicketDate.Name = "yDTicketDate";
 			this.yDTicketDate.WithTime = false;

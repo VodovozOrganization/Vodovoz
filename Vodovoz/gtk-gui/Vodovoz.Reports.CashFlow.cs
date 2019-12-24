@@ -18,11 +18,11 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gamma.Widgets.yDatePicker dateStart;
+		private global::QS.Widgets.GtkUI.DatePicker dateStart;
 
 		private global::Gtk.Label lblMinus;
 
-		private global::Gamma.Widgets.yDatePicker dateEnd;
+		private global::QS.Widgets.GtkUI.DatePicker dateEnd;
 
 		private global::Gtk.Label label1;
 
@@ -128,7 +128,7 @@ namespace Vodovoz.Reports
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.dateStart = new global::Gamma.Widgets.yDatePicker();
+			this.dateStart = new global::QS.Widgets.GtkUI.DatePicker();
 			this.dateStart.Events = ((global::Gdk.EventMask)(256));
 			this.dateStart.Name = "dateStart";
 			this.dateStart.WithTime = true;
@@ -146,7 +146,7 @@ namespace Vodovoz.Reports
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.lblMinus]));
 			w7.Position = 1;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.dateEnd = new global::Gamma.Widgets.yDatePicker();
+			this.dateEnd = new global::QS.Widgets.GtkUI.DatePicker();
 			this.dateEnd.Events = ((global::Gdk.EventMask)(256));
 			this.dateEnd.Name = "dateEnd";
 			this.dateEnd.WithTime = true;

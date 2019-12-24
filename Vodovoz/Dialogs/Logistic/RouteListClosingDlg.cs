@@ -365,7 +365,7 @@ namespace Vodovoz
 			previousForwarder = Entity.Forwarder;
 		}
 
-		void EnummenuRLActions_EnumItemClicked(object sender, EnumItemClickedEventArgs e)
+		void EnummenuRLActions_EnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
 			switch((RouteListActions)e.ItemEnum) {
 				case RouteListActions.CreateNewFine:

@@ -13,6 +13,7 @@ using QS.Tools;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Utilities.Text;
 using QSSupportLib;
+using QS.Widgets.GtkUI;
 
 namespace Vodovoz
 {
@@ -82,7 +83,10 @@ namespace Vodovoz
 			);
 			GMap.NET.MapProviders.GMapProvider.Language = GMap.NET.LanguageType.Russian;
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
-			
+
+			DatePicker.DefaultWidthRequest = 400;
+			DateRangePicker.DefaultWidthRequest = 800;
+
 			QSOsm.OsmWorker.ServiceHost = "osm.vod.qsolution.ru";
 			QSOsm.OsmWorker.ServicePort = 7073;
 			QSOsm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
