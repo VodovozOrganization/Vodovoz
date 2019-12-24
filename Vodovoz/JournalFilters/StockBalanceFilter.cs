@@ -37,7 +37,7 @@ namespace Vodovoz
 		{
 		}
 
-		protected void OnEnumcomboTypeEnumItemSelected(object sender, EnumItemClickedEventArgs e)
+		protected void OnEnumcomboTypeEnumItemSelected(object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
 			OnRefiltered();
 		}

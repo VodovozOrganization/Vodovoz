@@ -202,7 +202,7 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonAddMaster;
 
-		private global::QSOrmProject.EnumMenuButton enumAddRentButton;
+		private global::QS.Widgets.EnumMenuButton enumAddRentButton;
 
 		private global::QS.Widgets.GtkUI.SpecialListComboBox yCmbPromoSets;
 
@@ -1407,7 +1407,7 @@ namespace Vodovoz
 			w97.Expand = false;
 			w97.Fill = false;
 			// Container child hbox12.Gtk.Box+BoxChild
-			this.enumAddRentButton = new global::QSOrmProject.EnumMenuButton();
+			this.enumAddRentButton = new global::QS.Widgets.EnumMenuButton();
 			this.enumAddRentButton.CanFocus = true;
 			this.enumAddRentButton.Name = "enumAddRentButton";
 			this.enumAddRentButton.UseUnderline = true;

@@ -14,9 +14,9 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hboxRouteListActions;
 
-		private global::QSOrmProject.EnumMenuButton enummenuRLActions;
+		private global::QS.Widgets.EnumMenuButton enummenuRLActions;
 
-		private global::QSOrmProject.EnumMenuButton enumPrint;
+		private global::QS.Widgets.EnumMenuButton enumPrint;
 
 		private global::Gtk.VBox vboxRouteList;
 
@@ -215,7 +215,7 @@ namespace Vodovoz
 			this.hboxRouteListActions.Name = "hboxRouteListActions";
 			this.hboxRouteListActions.Spacing = 6;
 			// Container child hboxRouteListActions.Gtk.Box+BoxChild
-			this.enummenuRLActions = new global::QSOrmProject.EnumMenuButton();
+			this.enummenuRLActions = new global::QS.Widgets.EnumMenuButton();
 			this.enummenuRLActions.CanFocus = true;
 			this.enummenuRLActions.Name = "enummenuRLActions";
 			this.enummenuRLActions.UseUnderline = true;
@@ -230,7 +230,7 @@ namespace Vodovoz
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hboxRouteListActions.Gtk.Box+BoxChild
-			this.enumPrint = new global::QSOrmProject.EnumMenuButton();
+			this.enumPrint = new global::QS.Widgets.EnumMenuButton();
 			this.enumPrint.CanFocus = true;
 			this.enumPrint.Name = "enumPrint";
 			this.enumPrint.UseUnderline = true;
@@ -276,6 +276,7 @@ namespace Vodovoz
 			this.datePickerDate.Events = ((global::Gdk.EventMask)(256));
 			this.datePickerDate.Name = "datePickerDate";
 			this.datePickerDate.WithTime = false;
+			this.datePickerDate.HideCalendarButton = false;
 			this.datePickerDate.Date = new global::System.DateTime(0);
 			this.datePickerDate.IsEditable = false;
 			this.datePickerDate.AutoSeparation = false;

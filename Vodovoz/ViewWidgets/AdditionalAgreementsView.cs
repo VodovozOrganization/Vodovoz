@@ -127,7 +127,7 @@ namespace Vodovoz
 			treeAdditionalAgreements.RepresentationModel.ItemsList.Remove (treeAdditionalAgreements.GetSelectedObjects () [0]);
 		}
 
-		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
+		protected void OnButtonAddEnumItemClicked (object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
 			OnButtonAddClicked ((AgreementType)e.ItemEnum);
 		}

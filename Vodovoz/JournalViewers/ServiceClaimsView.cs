@@ -47,7 +47,7 @@ namespace Vodovoz
 
 		#region Buttons
 
-		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
+		protected void OnButtonAddEnumItemClicked (object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
 			var type = (ServiceClaimType)e.ItemEnum;
 

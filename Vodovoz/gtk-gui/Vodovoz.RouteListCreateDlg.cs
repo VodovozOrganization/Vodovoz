@@ -58,7 +58,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox8;
 
-		private global::QSOrmProject.EnumMenuButton enumPrint;
+		private global::QS.Widgets.EnumMenuButton enumPrint;
 
 		private global::Gtk.Button buttonAccept;
 
@@ -83,6 +83,7 @@ namespace Vodovoz
 			this.datepickerDate.Events = ((global::Gdk.EventMask)(256));
 			this.datepickerDate.Name = "datepickerDate";
 			this.datepickerDate.WithTime = false;
+			this.datepickerDate.HideCalendarButton = false;
 			this.datepickerDate.Date = new global::System.DateTime(0);
 			this.datepickerDate.IsEditable = true;
 			this.datepickerDate.AutoSeparation = true;
@@ -363,7 +364,7 @@ namespace Vodovoz
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.enumPrint = new global::QSOrmProject.EnumMenuButton();
+			this.enumPrint = new global::QS.Widgets.EnumMenuButton();
 			this.enumPrint.CanFocus = true;
 			this.enumPrint.Name = "enumPrint";
 			this.enumPrint.UseUnderline = true;
