@@ -13,7 +13,7 @@ namespace Vodovoz.JournalViewers
 		{
 			UndeliveriesView dlg = new UndeliveriesView();
 			dlg.HideFilterAndControls();
-			dlg.GetUndeliveryFilter.SetAndRefilterAtOnce(
+			dlg.UndeliveredOrdersFilter.SetAndRefilterAtOnce(
 				x => x.RestrictOldOrder = oldOrder,
 				x => x.RestrictOldOrderStartDate = deliveryDate,
 				x => x.RestrictOldOrderEndDate = deliveryDate,

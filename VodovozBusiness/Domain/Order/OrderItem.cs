@@ -424,7 +424,7 @@ namespace Vodovoz.Domain.Orders
 				if(Nomenclature.Id == int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id")))
 					result = false;
 
-				if(PromoSet != null)
+				if(PromoSet != null && !PromoSet.CanEditNomenclatureCount)
 					result = false;
 
 				return result;

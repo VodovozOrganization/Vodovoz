@@ -432,12 +432,10 @@ namespace Vodovoz.Reports
 			return new Criterion(
 				(arg) => {
 					SalesReportNode alias = null;
-					PromotionalSet promoAlias = null;
-					DiscountReason discountAlias = null;
-					var query = UoW.Session.QueryOver(() => promoAlias).Left.JoinAlias(w => w.PromoSetName, () => discountAlias);
+					var query = UoW.Session.QueryOver<PromotionalSet>();
 					var queryResult = query.SelectList(
 						list => list.Select(x => x.Id).WithAlias(() => alias.Id)
-									.Select(() => discountAlias.Name).WithAlias(() => alias.Name)
+									.Select((x) => x.Name).WithAlias(() => alias.Name)
 						)
 						.TransformUsing(Transformers.AliasToBean<SalesReportNode>())
 						.List<SalesReportNode>();
@@ -534,7 +532,9 @@ namespace Vodovoz.Reports
 					{ "payment_type_exclude", excludePayTypes },
 					//Промо-наборы
 					{ "promo_sets_include", GetResultIds(criterions[FilterTypes.PromoSetInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
-					{ "promo_sets_exclude", GetResultIds(criterions[FilterTypes.PromoSetExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) }
+					{ "promo_sets_exclude", GetResultIds(criterions[FilterTypes.PromoSetExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
+
+					{"creation_date", DateTime.Now}
 				}
 			};
 		}

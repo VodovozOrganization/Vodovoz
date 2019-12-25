@@ -90,7 +90,7 @@ namespace Vodovoz.Representations
 												 )
 											 );
 			
-			var subquery19LWatterQty = QueryOver.Of<OrderItem>(() => orderItemAlias)
+			var subquery19LWaterQty = QueryOver.Of<OrderItem>(() => orderItemAlias)
 												.Where(() => orderItemAlias.Order.Id == oldOrderAlias.Id)
 												.Left.JoinQueryOver(i => i.Nomenclature, () => nomenclatureAlias)
 												.Where(n => n.Category == NomenclatureCategory.water && n.TareVolume == TareVolume.Vol19L)
@@ -254,7 +254,7 @@ namespace Vodovoz.Representations
 			                          .Select(() => oldOrderAlias.OrderStatus).WithAlias(() => resultAlias.OldOrderCurStatus)
 			                          .Select(() => inProcessAtSubdivisionAlias.Name).WithAlias(() => resultAlias.InProcessAt)
 			                          .SelectSubQuery(subqueryDrivers).WithAlias(() => resultAlias.OldRouteListDriverName)
-			                          .SelectSubQuery(subquery19LWatterQty).WithAlias(() => resultAlias.OldOrder19LBottleQty)
+			                          .SelectSubQuery(subquery19LWaterQty).WithAlias(() => resultAlias.OldOrder19LBottleQty)
 			                          .SelectSubQuery(subqueryGoodsToClient).WithAlias(() => resultAlias.OldOrderGoodsToClient)
 			                          .SelectSubQuery(subqueryGoodsFromClient).WithAlias(() => resultAlias.OldOrderGoodsFromClient)
 			                          .SelectSubQuery(subqueryFined).WithAlias(() => resultAlias.Fined)

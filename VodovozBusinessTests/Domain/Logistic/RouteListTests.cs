@@ -71,15 +71,15 @@ namespace VodovozBusinessTests.Domain.Logistic
 
 		static IEnumerable NeedMileageCheckParams()
 		{
-			var car1 = new Car { TypeOfUse = CarTypeOfUse.CompanyGAZelle };
-			var car2 = new Car { TypeOfUse = CarTypeOfUse.CompanyLargus };
-			var car3 = new Car { TypeOfUse = CarTypeOfUse.CompanyTruck };
-			var car4 = new Car { TypeOfUse = CarTypeOfUse.DriverCar};
+			var carMock1 = Substitute.For<Car>(); carMock1.TypeOfUse = CarTypeOfUse.CompanyGAZelle; carMock1.IsCompanyCar.Returns(true);
+			var carMock2 = Substitute.For<Car>(); carMock2.TypeOfUse = CarTypeOfUse.CompanyLargus; carMock2.IsCompanyCar.Returns(true);
+			var carMock3 = Substitute.For<Car>(); carMock3.TypeOfUse = CarTypeOfUse.CompanyTruck; carMock3.IsCompanyCar.Returns(true);
+			var carMock4 = Substitute.For<Car>(); carMock4.TypeOfUse = CarTypeOfUse.DriverCar; carMock4.IsCompanyCar.Returns(false);
 
-			yield return new TestCaseData(car1).Returns(true).SetName(car1.TypeOfUse.ToString());
-			yield return new TestCaseData(car2).Returns(true).SetName(car2.TypeOfUse.ToString());
-			yield return new TestCaseData(car3).Returns(false).SetName(car3.TypeOfUse.ToString());
-			yield return new TestCaseData(car4).Returns(false).SetName(car4.TypeOfUse.ToString());
+			yield return new TestCaseData(carMock1).Returns(true).SetName(carMock1.TypeOfUse.ToString());
+			yield return new TestCaseData(carMock2).Returns(true).SetName(carMock2.TypeOfUse.ToString());
+			yield return new TestCaseData(carMock3).Returns(false).SetName(carMock3.TypeOfUse.ToString());
+			yield return new TestCaseData(carMock4).Returns(false).SetName(carMock4.TypeOfUse.ToString());
 		}
 
 		[TestCaseSource(nameof(NeedMileageCheckParams))]

@@ -127,7 +127,7 @@ namespace Vodovoz.JournalViewModels
 						)
 					);
 				}
-				if(FilterViewModel.Warehouse != null) {
+				if(FilterViewModel.Warehouse != null && SelectionMode != JournalSelectionMode.None) {
 					queryStock.Where(Restrictions.Gt(projection, 0));
 				}
 			}

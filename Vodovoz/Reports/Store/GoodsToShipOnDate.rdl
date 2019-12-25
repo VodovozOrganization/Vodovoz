@@ -17,15 +17,15 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>179.4pt</Height>
+    <Height>186.5pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>24.05pt</Height>
         <Width>568.40pt</Width>
         <Value>="Отчет по необходимым товарам для отгрузки на " + Format({?date}, "dd.MM.yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>0.00pt</Top>
+        <Left>0.0pt</Left>
+        <Top>24.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -139,8 +139,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>11.3pt</Left>
-        <Top>37.8pt</Top>
+        <Left>5.5pt</Left>
+        <Top>54.5pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="GGGroup">
@@ -505,8 +505,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingTop >3pt</PaddingTop>
-                        <PaddingBottom >3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -515,9 +515,23 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>11.4pt</Left>
-        <Top>119.0pt</Top>
+        <Left>4.5pt</Left>
+        <Top>125.5pt</Top>
       </Table>
+      <Textbox Name="Textbox22" >
+        <Height>12pt</Height>
+        <Width>210pt</Width>
+        <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>350pt</Left>
+        <Top>0.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -761,7 +775,16 @@ GROUP BY o.id
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
     <ReportParameter Name="date">
       <DataType>DateTime</DataType>
       <DefaultValue>
@@ -788,14 +811,13 @@ GROUP BY o.id
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="creation_date">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
   </ReportParameters>
-  <DataSources >
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=sql.vod.qsolution.ru;SslMode=none;</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

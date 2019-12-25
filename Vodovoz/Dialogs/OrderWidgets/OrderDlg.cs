@@ -218,6 +218,11 @@ namespace Vodovoz
 
 			Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
 
+			//Подписывемся на изменения листа для сокрытия колонки промо-наборов
+			Entity.ObservablePromotionalSets.ListChanged += ObservablePromotionalSets_ListChanged;
+			Entity.ObservablePromotionalSets.ElementAdded += ObservablePromotionalSets_ElementAdded;
+			Entity.ObservablePromotionalSets.ElementRemoved += ObservablePromotionalSets_ElementRemoved;
+
 			//Подписываемся на изменение товара, для обновления количества оборудования в доп. соглашении
 			Entity.ObservableOrderItems.ElementChanged += ObservableOrderItems_ElementChanged_ChangeCount;
 			Entity.ObservableOrderEquipments.ElementChanged += ObservableOrderEquipments_ElementChanged_ChangeCount;
@@ -366,7 +371,6 @@ namespace Vodovoz
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
 
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
-			yCmbPromoSets.ItemsList = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
@@ -433,6 +437,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.NomenclatureString)
 				.AddColumn(!orderRepository.GetStatusesForActualCount(Entity).Contains(Entity.OrderStatus) ? "Кол-во" : "Кол-во [Факт]")
+				.SetTag("Count")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.Count)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
@@ -491,7 +496,7 @@ namespace Vodovoz
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(node => node.DiscountReason)
 					.SetDisplayFunc(x => x.Name)
-					.FillItems(orderRepository  .GetDiscountReasons(UoW))
+					.FillItems(orderRepository.GetDiscountReasons(UoW))
 					.AddSetter((c, n) => c.Editable = n.Discount > 0 && n.PromoSet == null)
 					.AddSetter(
 						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
@@ -501,11 +506,15 @@ namespace Vodovoz
 				.AddColumn("Доп. соглашение")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.AgreementString)
+				.AddColumn("Промо-наборы").SetTag(nameof(Entity.PromotionalSets))
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.PromoSet == null ? "" : node.PromoSet.Name)
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
 			treeItems.ItemsDataSource = Entity.ObservableOrderItems;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
+			treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault().Visible = Entity.PromotionalSets.Count > 0;
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
 				.AddColumn("Документ").SetDataProperty(node => node.Name)
@@ -1107,10 +1116,28 @@ namespace Vodovoz
 
 		void YCmbPromoSets_ItemSelected(object sender, ItemSelectedEventArgs e)
 		{
-			if(e.SelectedItem is PromotionalSet proSet && CanAddNomenclaturesToOrder())
-				AddNomenclaturesFromPromotionalSet(proSet);
+			PromotionalSet proSet = e.SelectedItem as PromotionalSet;
+
+			if(CanAddPromotionalSet(proSet))
+				ActivatePromotionalSet(proSet);
 			if(!yCmbPromoSets.IsSelectedNot)
 				yCmbPromoSets.SelectedItem = SpecialComboState.Not;
+		}
+
+		bool CanAddPromotionalSet(PromotionalSet proSet)
+		{
+			if(proSet == null || !CanAddNomenclaturesToOrder())
+				return false;
+
+			if(Entity.PromotionalSets.Any()) {
+				MessageDialogHelper.RunWarningDialog("В заказ нельзя добавить больше 1 промо-набора");
+				return false;
+			}
+
+			if(!Entity.CanAddPromotionalSet(proSet, out string msg) && !MessageDialogHelper.RunQuestionWithTitleDialog("Повтор промо-набора", msg))
+				return false;
+
+			return true;
 		}
 
 		bool CanAddNomenclaturesToOrder()
@@ -1195,14 +1222,16 @@ namespace Vodovoz
 
 		#region Рекламные наборы
 
-		void AddNomenclaturesFromPromotionalSet(PromotionalSet proSet)
+		void ActivatePromotionalSet(PromotionalSet proSet)
 		{
-			if(!Entity.ObservablePromotionalSets.Contains(proSet)) {
-				if(!Entity.CanAddPromotionalSet(proSet, out string msg) && !MessageDialogHelper.RunQuestionWithTitleDialog("Повтор промо-набора", msg))
-					return;
-				TryAddNomenclature(proSet);
-				Entity.ObservablePromotionalSets.Add(proSet);
+			//Добавление спец. действий промо-набора
+			foreach(var action in proSet.PromotionalSetActions) {
+				action.Activate(Entity);
 			}
+			//Добавление номенклатур из промо-набора
+			TryAddNomenclatureFromPromoSet(proSet);
+
+			Entity.ObservablePromotionalSets.Add(proSet);
 		}
 
 		#endregion
@@ -1232,7 +1261,7 @@ namespace Vodovoz
 			Entity.AddNomenclature(nomenclature, count, discount, discountReason);
 		}
 
-		void TryAddNomenclature(PromotionalSet proSet)
+		void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
 		{
 			if(Entity.IsLoadedFrom1C)
 				return;
@@ -1256,7 +1285,7 @@ namespace Vodovoz
 						proSetItem.Nomenclature,
 						proSetItem.Count,
 						proSetItem.Discount,
-						proSetItem.PromoSet.PromoSetName,
+						proSetItem.PromoSet.PromoSetDiscountReason,
 						proSetItem.PromoSet
 					);
 				}
@@ -1728,18 +1757,27 @@ namespace Vodovoz
 		/// </summary>
 		private void EditGoodsCountCellOnAdd(yTreeView treeView)
 		{
-			int index = treeView.Model.IterNChildren() - 1;
-			TreePath path;
+			try {
+				int index = treeView.Model.IterNChildren() - 1;
+				TreePath path;
 
-			treeView.Model.IterNthChild(out TreeIter iter, index);
-			path = treeView.Model.GetPath(iter);
+				treeView.Model.IterNthChild(out TreeIter iter, index);
+				path = treeView.Model.GetPath(iter);
 
-			var column = treeView.Columns.First(x => x.Title == "Кол-во");
-			var renderer = column.CellRenderers.First();
-			Application.Invoke(delegate {
-				treeView.SetCursorOnCell(path, column, renderer, true);
-			});
-			treeView.GrabFocus();
+				var column = treeView.ColumnsConfig.ConfiguredColumns.FirstOrDefault(x => (x.tag as string) == "Count")?.TreeViewColumn;
+				if(column == null) {
+					return;
+				}
+				var renderer = column.CellRenderers.First();
+				Application.Invoke(delegate {
+					treeView.SetCursorOnCell(path, column, renderer, true);
+				});
+				treeView.GrabFocus();
+			} catch(Exception ex) {
+				logger.Error(ex, "Ошибка при попытке установки состояния редактирования на ячейку");
+				return;
+			}
+
 		}
 
 		void TreeAnyGoods_ExposeEvent(object o, ExposeEventArgs args)
@@ -1783,6 +1821,9 @@ namespace Vodovoz
 					chkContractCloser.Visible = true;
 					enumPaymentType.ClearEnumHideList();
 				}
+
+				var promoSets = UoW.Session.QueryOver<PromotionalSet>().Where(s => !s.IsArchive).List();
+				yCmbPromoSets.ItemsList = promoSets.Where(s => s.IsValidForOrder(Entity));
 
 				if(previousPaymentType.HasValue) {
 					if(previousPaymentType.Value == Entity.PaymentType) {
@@ -2332,12 +2373,14 @@ namespace Vodovoz
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
-			yCmbPromoSets.Sensitive = val;
 			buttonAddForSale.Sensitive = referenceContract.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"] && val && !Entity.SelfDelivery;
 			hbxTareNonReturnReason.Sensitive = val;
+
+			if(Entity != null)
+				yCmbPromoSets.Sensitive = val;
 		}
 
 		void ChangeOrderEditable(bool val)
@@ -2348,9 +2391,11 @@ namespace Vodovoz
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
 			RouteListStatus? rlStatus = null;
-			if(Entity.Id != 0)
-				rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(UoW, Entity).FirstOrDefault()?.Status;
-			tblDriverControl.Sensitive = rlStatus.HasValue && !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				if(Entity.Id != 0)
+					rlStatus = OrderSingletonRepository.GetInstance().GetAllRLForOrder(uow, Entity).FirstOrDefault()?.Status;
+				tblDriverControl.Sensitive = rlStatus.HasValue && !new[] { RouteListStatus.MileageCheck, RouteListStatus.OnClosing, RouteListStatus.Closed }.Contains(rlStatus.Value);
+			}
 		}
 
 		void SetPadInfoSensitive(bool value)
@@ -2394,6 +2439,8 @@ namespace Vodovoz
 				buttonAcceptOrder.Visible = false;
 				buttonEditOrder.Visible = false;
 			}
+
+			btnSaveComment.Sensitive = Entity.OrderStatus != OrderStatus.NewOrder;
 
 			//если новый заказ и тип платежа бартер или безнал, то вкл кнопку
 			buttonWaitForPayment.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder && IsPaymentTypeBarterOrCashless() && !Entity.SelfDelivery;
@@ -2579,5 +2626,25 @@ namespace Vodovoz
 			}
 		}
 
+		void ObservablePromotionalSets_ListChanged(object aList)
+		{
+			ShowPromoSetsColumn();
+		}
+
+		void ObservablePromotionalSets_ElementAdded(object aList, int[] aIdx)
+		{
+			ShowPromoSetsColumn();
+		}
+
+		void ObservablePromotionalSets_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			ShowPromoSetsColumn();
+		}
+
+		private void ShowPromoSetsColumn()
+		{
+			var promoSetColumn = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault();
+			promoSetColumn.Visible = Entity.PromotionalSets.Count > 0;
+		}
 	}
 }

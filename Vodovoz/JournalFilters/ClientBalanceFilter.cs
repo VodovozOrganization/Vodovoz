@@ -62,7 +62,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnSpeccomboStockItemSelected(object sender, EnumItemClickedEventArgs e)
+		protected void OnSpeccomboStockItemSelected(object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
 			OnRefiltered();
 		}

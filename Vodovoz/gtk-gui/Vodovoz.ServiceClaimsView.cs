@@ -8,7 +8,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox1;
 
-		private global::QSOrmProject.EnumMenuButton buttonAdd;
+		private global::QS.Widgets.EnumMenuButton buttonAdd;
 
 		private global::Gtk.Button buttonEdit;
 
@@ -38,7 +38,7 @@ namespace Vodovoz
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonAdd = new global::QSOrmProject.EnumMenuButton();
+			this.buttonAdd = new global::QS.Widgets.EnumMenuButton();
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
@@ -123,7 +123,7 @@ namespace Vodovoz
 			}
 			this.hboxFilter.Hide();
 			this.Hide();
-			this.buttonAdd.EnumItemClicked += new global::System.EventHandler< QSOrmProject.EnumItemClickedEventArgs > (this.OnButtonAddEnumItemClicked);
+			this.buttonAdd.EnumItemClicked += new global::System.EventHandler<QS.Widgets.EnumItemClickedEventArgs>(this.OnButtonAddEnumItemClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler(this.OnButtonEditClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
 			this.buttonFilter.Toggled += new global::System.EventHandler(this.OnButtonFilterToggled);

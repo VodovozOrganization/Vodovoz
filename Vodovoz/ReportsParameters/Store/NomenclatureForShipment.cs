@@ -42,7 +42,8 @@ namespace Vodovoz.ReportsParameters.Store
 				Parameters = new Dictionary<string, object>
 				{
 					{ "date", ydatepicker.Date.ToString("yyyy-MM-dd") },
-					{ "geo_group_id", (lstGeoGrp.SelectedItem as GeographicGroup)?.Id ?? 0 }
+					{ "geo_group_id", (lstGeoGrp.SelectedItem as GeographicGroup)?.Id ?? 0 },
+					{ "creation_date", DateTime.Now}
 				}
 			};
 			return repInfo;

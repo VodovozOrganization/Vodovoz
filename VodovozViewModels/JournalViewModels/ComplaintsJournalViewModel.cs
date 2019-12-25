@@ -49,11 +49,9 @@ namespace Vodovoz.JournalViewModels
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
-		public DateTime? StartDate => null;
-
-		public DateTime? EndDate => null;
-
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.ComplaintPanelView };
+
+		public ComplaintFilterViewModel ComplaintsFilterViewModel => FilterViewModel;
 
 		public ComplaintsJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -139,6 +137,7 @@ namespace Vodovoz.JournalViewModels
 			ComplaintDiscussion discussionAlias = null;
 			Subdivision subdivisionAlias = null;
 			ComplaintKind complaintKindAlias = null;
+			Subdivision superspecialAlias = null;
 
 			var authorProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),
@@ -217,7 +216,7 @@ namespace Vodovoz.JournalViewModels
 					"CASE ?1 " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Client)}' THEN 'Клиент' " +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.None)}' THEN 'Нет' " +
-						$"WHEN '{nameof(ComplaintGuiltyTypes.Employee)}' THEN ?2 " +
+						$"WHEN '{nameof(ComplaintGuiltyTypes.Employee)}' THEN CONCAT('(',?5,')', ?2)" +
 						$"WHEN '{nameof(ComplaintGuiltyTypes.Subdivision)}' THEN ?3 " +
 						"ELSE '' " +
 					"END" +
@@ -226,7 +225,8 @@ namespace Vodovoz.JournalViewModels
 				Projections.Property(() => complaintGuiltyItemAlias.GuiltyType),
 				guiltyEmployeeProjection,
 				Projections.Property(() => guiltySubdivisionAlias.ShortName),
-				Projections.Constant("\n"));
+				Projections.Constant("\n"),
+				Projections.Property(() => superspecialAlias.ShortName));
 
 			var finesProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT CONCAT(ROUND(?1, 2), ' р.')  SEPARATOR ?2)"),
@@ -245,6 +245,7 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(() => complaintAlias.ComplaintDiscussions, () => discussionAlias)
 				.Left.JoinAlias(() => discussionAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Employee, () => guiltyEmployeeAlias)
+				.Left.JoinAlias(() => guiltyEmployeeAlias.Subdivision, () => superspecialAlias)
 				.Left.JoinAlias(() => complaintGuiltyItemAlias.Subdivision, () => guiltySubdivisionAlias);
 
 			#region Filter
@@ -347,9 +348,9 @@ namespace Vodovoz.JournalViewModels
 				.Select(() => complaintAlias.ActualCompletionDate).WithAlias(() => resultAlias.ActualCompletionDate)
 			);
 
-			query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>())
+			var result = query.TransformUsing(Transformers.AliasToBean<ComplaintJournalNode>())
 				 .OrderBy(n => n.Id)
-				 .Desc()
+				 .Desc().List<ComplaintJournalNode>()
 				 ;
 
 			return query;

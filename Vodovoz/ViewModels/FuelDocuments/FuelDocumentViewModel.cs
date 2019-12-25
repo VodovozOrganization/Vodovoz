@@ -459,7 +459,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		private void CreateSetRemainCommand()
 		{
-			SetRemainCommand = new DelegateCommand(() => { SetRemain(); },() => true);
+			SetRemainCommand = new DelegateCommand(SetRemain, () => true);
 		}
 
 		private void CreateCancelCommand()
@@ -482,5 +482,12 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		}
 
 		#endregion Commands
+
+		public override void Dispose()
+		{
+			if(UoW.RootObject is FuelDocument)
+				UoW.Dispose();
+			base.Dispose();
+		}
 	}
 }

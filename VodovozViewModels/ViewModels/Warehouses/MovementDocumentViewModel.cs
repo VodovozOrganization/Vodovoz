@@ -63,6 +63,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				Entity.DocumentType = MovementDocumentType.Transportation;
 				SetDefaultWarehouseFrom();
 			}
+			ValidationContext.ServiceContainer.AddService(typeof(IWarehouseRepository), warehouseRepository);
 		}
 
 		public bool CanEdit => 

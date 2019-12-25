@@ -1523,7 +1523,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Проверка на перегруз автомобиля
 		/// </summary>
 		/// <returns><c>true</c>, если автомобиль "Ларгус" или "раскат" и имеется его перегруз, <c>false</c> в остальных случаях.</returns>
-		public virtual bool HasOverweight() => Car != null && (Car.IsRaskat || Car.TypeOfUse == CarTypeOfUse.CompanyLargus) && Car.MaxWeight < GetTotalWeight();
+		public virtual bool HasOverweight() => Car != null && (Car.IsRaskat || Car.TypeOfUse == CarTypeOfUse.CompanyLargus || Car.TypeOfUse == CarTypeOfUse.CompanyGAZelle) && Car.MaxWeight < GetTotalWeight();
 
 		/// <summary>
 		/// Перегруз в килограммах

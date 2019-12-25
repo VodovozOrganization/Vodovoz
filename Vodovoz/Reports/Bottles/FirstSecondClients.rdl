@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>101.9pt</Height>
+    <Height>115.9pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>24.04pt</Height>
@@ -55,10 +55,13 @@
             <Width>63.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>199.4pt</Width>
+            <Width>162.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>90.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>65.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65.5pt</Width>
@@ -182,6 +185,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Залоги первого заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox35">
                       <Value>Долг по клиенту, бут. ( при первом заказе )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -217,7 +237,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>Дата последнего заказа</Value>
+                      <Value>Дата второго заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -239,7 +259,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>14.5pt</Height>
+              <Height>20.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -256,7 +276,10 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -275,6 +298,8 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -295,7 +320,10 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -315,6 +343,8 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -334,6 +364,8 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -354,7 +386,31 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>={deposit}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                      </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -373,7 +429,10 @@
                         <TextAlign>Center</TextAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -391,6 +450,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -410,7 +471,10 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -418,7 +482,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>24.0pt</Left>
+        <Left>8.0pt</Left>
         <Top>29.7pt</Top>
         <PageBreakAtStart>false</PageBreakAtStart>
         <Footer>
@@ -541,6 +605,25 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox53">
                       <Style>
                         <BorderStyle>
@@ -635,6 +718,7 @@
     orders.delivery_date AS delivery_date,
     counterparty.name AS client_name,
     orders.sum_to_receive ,
+	OrderDeposit.Balance AS deposit,
     (
         SELECT GROUP_CONCAT(DISTINCT discount_reasons.name SEPARATOR ', ')
         FROM order_items
@@ -707,11 +791,35 @@ FROM
 		GROUP BY
 			bottles_movement_operations.order_id
     ) AS OrderBottles ON OrderBottles.order_id = orders.id
+    
+    LEFT JOIN
+	(
+		SELECT
+			deposit_operations.order_id,
+			SUM(IFNULL((CAST(deposit_operations.received_deposit AS SIGNED) - CAST(deposit_operations.refund_deposit AS SIGNED)),0)) as Balance
+		FROM
+			deposit_operations
+		WHERE
+			deposit_operations.deposit_type = 'Bottles'
+        GROUP BY
+			deposit_operations.order_id
+    ) AS OrderDeposit ON OrderDeposit.order_id = orders.id
 WHERE 
     orders.delivery_date BETWEEN @start_date AND @end_date AND
     orders.order_status = 'Closed' AND
     (@discount_id = 0 OR discount_reasons.id = @discount_id) AND
-    (@show_only_client_wiht_one_order = 0 OR SecondOrder.Id IS NULL)
+    (@show_only_client_wiht_one_order = 0 OR SecondOrder.Id IS NULL) AND
+    NOT EXISTS
+    (
+		SELECT
+			*
+		FROM
+			orders as o
+		WHERE
+			o.client_id = orders.client_id AND 
+            o.delivery_date &lt; orders.delivery_date AND
+            o.order_status = 'Closed'
+    )
 GROUP BY 
     orders.id DESC;</CommandText>
         <QueryParameters>
@@ -765,6 +873,9 @@ GROUP BY
         <Field Name="phones">
           <DataField>phones</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="deposit">
+          <DataField>deposit</DataField>
         </Field>
       </Fields>
     </DataSet>

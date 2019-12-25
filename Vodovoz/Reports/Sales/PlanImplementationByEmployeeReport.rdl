@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>161.9pt</Height>
+    <Height>177.7pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Data</DataSetName>
@@ -34,7 +34,7 @@
             <Width>25.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>385.0pt</Width>
+            <Width>272.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>140.0pt</Width>
@@ -50,6 +50,9 @@
           </TableColumn>
           <TableColumn>
             <Width>64.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>104.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -85,7 +88,7 @@
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>7</ColSpan>
+                  <ColSpan>8</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -119,7 +122,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>7</ColSpan>
+                  <ColSpan>8</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -152,7 +155,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>7</ColSpan>
+                  <ColSpan>8</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -281,6 +284,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>Комментарий вод. тел.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -289,7 +309,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>18.0pt</Height>
+              <Height>17.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -306,7 +326,12 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingTop >7pt</PaddingTop>
+                        <PaddingBottom >7pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -325,6 +350,10 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Left</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingTop >7pt</PaddingTop>
+                        <PaddingBottom >7pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -345,8 +374,10 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Left</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -366,7 +397,12 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingTop >7pt</PaddingTop>
+                        <PaddingBottom >7pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -385,7 +421,12 @@
                         <TextAlign>Center</TextAlign>
                         <Format># ##0.00</Format>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingTop >7pt</PaddingTop>
+                        <PaddingBottom >7pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -403,7 +444,12 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingTop >7pt</PaddingTop>
+                        <PaddingBottom >7pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -421,7 +467,35 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingTop >7pt</PaddingTop>
+                        <PaddingBottom >7pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>={comment_manager}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontWeight>Normal</FontWeight>
+                        <TextAlign>Center</TextAlign>
+                        <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingTop >7pt</PaddingTop>
+                        <PaddingBottom >7pt</PaddingBottom>
+                      </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -430,7 +504,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>0.0pt</Top>
+        <Top>2.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -535,6 +609,27 @@
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=Sum({bottles_returned})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -692,6 +787,27 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -777,7 +893,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>131.7pt</Top>
+        <Top>134.1pt</Top>
         <Filters>
           <Filter>
             <FilterExpression>={unclosed_rl}</FilterExpression>
@@ -817,7 +933,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT 
@@ -853,7 +969,8 @@
 	) AS btls_returned_pct,
 	o.order_status != 'Closed' AND a.route_list_id IS NOT NULL AS unclosed_rl,
 	o.order_status != 'Closed' AND a.route_list_id IS NULL AS unclosed_not_in_rl,
-	CONCAT('МЛ№', rl.id, ', водитель - ',GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic)) AS rl_details
+	CONCAT('МЛ№', rl.id, ', водитель - ',GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic)) AS rl_details,
+    o.comment_manager
 FROM orders o
 LEFT JOIN (
 	SELECT
@@ -906,7 +1023,7 @@ GROUP BY o.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -955,10 +1072,13 @@ GROUP BY o.id
           <DataField>btls_returned_pct</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="comment_manager">
+          <DataField>comment_manager</DataField>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Employee">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -984,7 +1104,7 @@ WHERE e.id = @employee_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>

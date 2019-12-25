@@ -18,11 +18,13 @@ namespace Vodovoz.ViewModels.WageCalculation
 	public class EmployeeWageParametersViewModel : EntityWidgetViewModelBase<Employee>
 	{
 		private readonly ITdiTab tab;
+		private readonly ICommonServices commonServices;
 		private readonly bool canChangeWageCalculation;
 
 		public EmployeeWageParametersViewModel(Employee entity, ITdiTab tab, IUnitOfWork uow, IPresetPermissionValidator permissionValidator, IUserRepository userRepository, ICommonServices commonServices) : base(entity, commonServices)
 		{
 			this.tab = tab ?? throw new ArgumentNullException(nameof(tab));
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			Entity.ObservableWageParameters.ElementAdded += (aList, aIdx) => WageParametersUpdated();
 			Entity.ObservableWageParameters.ElementRemoved += (aList, aIdx, aObject) => WageParametersUpdated();
@@ -68,7 +70,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 				() => {
 					WageParameterViewModel newWageParameterViewModel = new WageParameterViewModel(UoW, WageParameterTargets.ForMercenariesCars, CommonServices);
 					newWageParameterViewModel.OnWageParameterCreated += (sender, wageParameter) => {
-						Entity.ChangeWageParameter(wageParameter, StartDate.Value);
+						Entity.ChangeWageParameter(wageParameter, StartDate.Value, commonServices.InteractiveService);
 					};
 					tab.TabParent.AddSlaveTab(tab, newWageParameterViewModel);
 				},

@@ -24,8 +24,8 @@
         <Width>568.40pt</Width>
         <Value>='Отчет по продажам ' + Iif(Parameters!start_date = Parameters!end_date, 'за ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy"), 'с ' + Format(CDate(Parameters!start_date), "dd/MM/yyyy") + ' по ' + Format(CDate(Parameters!end_date), "dd/MM/yyyy"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>0.00pt</Top>
+        <Left>0.0pt</Left>
+        <Top>21.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -163,8 +163,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>11.3pt</Left>
-        <Top>37.8pt</Top>
+        <Left>10.5pt</Left>
+        <Top>47.4pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -342,8 +342,8 @@
         <Width>223.58pt</Width>
         <Value>=First({criterions}, "Criterions")</Value>
         <ZIndex>1</ZIndex>
-        <Left>335.6pt</Left>
-        <Top>107.0pt</Top>
+        <Left>334.8pt</Left>
+        <Top>114.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -408,8 +408,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>9.5pt</Left>
-        <Top>128.4pt</Top>
+        <Left>7.9pt</Left>
+        <Top>140.9pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -449,6 +449,20 @@
           </TableRows>
         </Footer>
       </fyi:Grid>
+      <Textbox Name="Textbox17" >
+        <Height>12pt</Height>
+        <Width>265pt</Width>
+        <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>300pt</Left>
+        <Top>0.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -478,7 +492,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	T.counterparty,
@@ -668,7 +682,7 @@ GROUP BY nomenclature_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -704,7 +718,7 @@ GROUP BY nomenclature_id
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -951,7 +965,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -959,7 +973,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="bottles">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	SUM(t.plan) AS plan,
@@ -1118,7 +1132,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="plan">
           <DataField>plan</DataField>
         </Field>
@@ -1306,13 +1320,22 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="promo_sets_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="creation_date">
+      <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
   </ReportParameters>

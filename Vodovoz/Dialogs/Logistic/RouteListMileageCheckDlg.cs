@@ -11,6 +11,8 @@ using QS.Validation.GtkUI;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
+using QS.Project.Services;
+using QS.Dialog;
 
 namespace Vodovoz
 {
@@ -153,6 +155,10 @@ namespace Vodovoz
 		protected void OnButtonFromTrackClicked(object sender, EventArgs e)
 		{
 			var track = TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
+			if(track == null) {
+				ServicesConfig.InteractiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Warning, "Невозможно расчитать растояние, так как в маршрутном листе нет трека", "");
+				return;
+			}
 			Entity.ConfirmedDistance = (decimal)track.TotalDistance.Value;
 		}
 

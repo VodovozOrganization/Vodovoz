@@ -9,6 +9,8 @@ using QS.Project.Domain;
 using QSSupportLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.Domain.Service.BaseParametersServices;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Parameters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.HumanResources;
@@ -115,14 +117,9 @@ namespace Vodovoz.Repositories.Permissions
 
 		public static bool HasAccessToClosingRoutelist()
 		{
-			//FIXME исправить на нормальную проверку права этого подразделения
-			//необходимо правильно хранить подразделения которым запрещен доступ к опредленным функциям системы
-			if(!ParametersProvider.Instance.ContainsParameter("accept_route_list_subdivision_restrict")) {
-				throw new InvalidOperationException(String.Format("В базе не настроен параметр: accept_route_list_subdivision_restrict"));
-			}
-			int restrictSubdivision = int.Parse(ParametersProvider.Instance.GetParameterValue("accept_route_list_subdivision_restrict"));
+			int restrictSubdivision = SubdivisionParametersProvider.Instance.GetSubdivisionIdForRLAccept();
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var userSubdivision = EmployeeRepository.GetEmployeeForCurrentUser(uow).Subdivision;
+				var userSubdivision = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(uow).Subdivision;
 				if(userSubdivision == null) {
 					return false;
 				}

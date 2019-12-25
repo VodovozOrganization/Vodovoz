@@ -1127,8 +1127,6 @@
     <Compile Include="Representations\CallTasksVM.cs" />
     <Compile Include="Core\ViewModelWidgetResolver.cs" />
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
-    <Compile Include="Dialogs\OrderWidgets\PromotionalSetDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.OrderWidgets.PromotionalSetDlg.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTransferDocumentView.cs" />
     <Compile Include="Filters\ViewModels\EmployeeFilterViewModel.cs" />
@@ -1352,6 +1350,18 @@
     <Compile Include="Filters\ViewModels\CallTaskFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\CallTaskFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CallTaskFilterView.cs" />
+    <Compile Include="JournalNodes\PromotionalSetJournalNode.cs" />
+    <Compile Include="JournalViewModels\PromotionalSetsJournalViewModel.cs" />
+    <Compile Include="Views\Orders\PromotionalSetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.PromotionalSetView.cs" />
+    <Compile Include="ViewModels\Orders\PromotionalSetViewModel.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.PromoSetAction.AddFixPriceActionView.cs" />
+    <Compile Include="ViewWidgets\PromoSetAction\AddFixPriceActionView.cs" />
+    <Compile Include="ViewModels\Orders\AddFixPriceActionViewModel.cs" />
+    <Compile Include="ViewModels\Orders\ICreationControl.cs" />
+    <Compile Include="ViewModels\Orders\PromotionalSetActionWidgetResolver.cs" />
+    <Compile Include="JournalSelector\NomenclatureAutoCompleteSelectorFactory.cs" />
+    <Compile Include="JournalSelector\NomenclatureSelectorFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1597,6 +1607,10 @@
     <Folder Include="Views\Warehouse\" />
     <Folder Include="TempAdapters\" />
     <Folder Include="Views\ForAdministrators\" />
+    <Folder Include="Views\Orders\" />
+    <Folder Include="ViewModels\Orders\" />
+    <Folder Include="ViewWidgets\PromoSetAction\" />
+    <Folder Include="JournalSelector\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

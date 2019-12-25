@@ -22,7 +22,7 @@ namespace Vodovoz.HibernateMapping
 		public OrderM2ProxyMap()
 		{
 			DiscriminatorValue("M2Proxy");
-			References(x => x.M2Proxy).Column("m2proxy_id");
+			References(x => x.M2Proxy).Column("m2proxy_id").Cascade.SaveUpdate();
 		}
 	}
 

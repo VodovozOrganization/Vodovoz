@@ -15,6 +15,9 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services;
 using Vodovoz.Core.DataService;
+using QS.Services;
+using QS.Dialog;
+using QS.Project.Services;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -295,10 +298,14 @@ namespace Vodovoz.Domain.Employees
 			return oldWageParameter.StartDate < newStartDate;
 		}
 
-		public virtual void ChangeWageParameter(WageParameter wageParameter, DateTime startDate)
+		public virtual bool ChangeWageParameter(WageParameter wageParameter, DateTime startDate, IInteractiveService interactiveService)
 		{
 			if(wageParameter == null) {
 				throw new ArgumentNullException(nameof(wageParameter));
+			}
+
+			if(interactiveService == null) {
+				throw new ArgumentNullException(nameof(interactiveService));
 			}
 
 			wageParameter.Employee = this;
@@ -306,11 +313,13 @@ namespace Vodovoz.Domain.Employees
 			WageParameter oldWageParameter = ObservableWageParameters.FirstOrDefault(x => x.EndDate == null);
 			if(oldWageParameter != null) {
 				if(oldWageParameter.StartDate > startDate) {
-					throw new InvalidOperationException("Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата");
+					interactiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Warning, "Нельзя создать новую запись с датой более ранней уже существующей записи. Неверно выбрана дата", "Невозможно создать расчет зарплаты");
+					return false;
 				}
 				oldWageParameter.EndDate = startDate;
 			}
 			ObservableWageParameters.Add(wageParameter);
+			return true;
 		}
 
 		public virtual WageParameter GetActualWageParameter(DateTime date)
@@ -325,27 +334,35 @@ namespace Vodovoz.Domain.Employees
 		public virtual WageCalculationServiceFactory GetWageCalculationServiceFactory()
 		{
 			if(wageCalculationServiceFactory == null) {
-				wageCalculationServiceFactory = new WageCalculationServiceFactory(this, WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+				wageCalculationServiceFactory = new WageCalculationServiceFactory(this, WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 			}
 			return wageCalculationServiceFactory;
 		}
 
-		public virtual void CreateDefaultWageParameter(IWageCalculationRepository wageRepository, IWageParametersProvider wageParametersProvider)
+		public virtual bool CreateDefaultWageParameter(IWageCalculationRepository wageRepository, IWageParametersProvider wageParametersProvider, IInteractiveService interactiveService)
 		{
-			if(wageRepository == null)
+			if(wageRepository == null) {
 				throw new ArgumentNullException(nameof(wageRepository));
+			}
 			if(wageParametersProvider == null) {
 				throw new ArgumentNullException(nameof(wageParametersProvider));
 			}
+			if(interactiveService == null) {
+				throw new ArgumentNullException(nameof(interactiveService));
+			}
+
 			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
-			if(defaultLevel == null)
-				throw new InvalidOperationException("В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников\"!");
+			if(defaultLevel == null) {
+				interactiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников\"!\"", "Невозможно создать расчет зарплаты");
+				return false;
+			}
 
 			if(Id != 0) {
-				return;
+				return true;
 			}
 
 			ObservableWageParameters.Clear();
+			bool result = true;
 			switch(Category) {
 				case EmployeeCategory.driver:
 					WageParameter parameterForDriver = new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars };
@@ -366,21 +383,22 @@ namespace Vodovoz.Domain.Employees
 							WageDistrictLevelRates = defaultLevel,
 							WageParameterTarget = WageParameterTargets.ForMercenariesCars
 						};
-					ChangeWageParameter(parameterForDriver, DateTime.Today);
+					result = ChangeWageParameter(parameterForDriver, DateTime.Today, interactiveService);
 					break;
 				case EmployeeCategory.forwarder:
 					var parameterForForwarder = new RatesLevelWageParameter {
 						WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
 						WageParameterTarget = WageParameterTargets.ForMercenariesCars
 					};
-					ChangeWageParameter(parameterForForwarder, DateTime.Today);
+					result = ChangeWageParameter(parameterForForwarder, DateTime.Today, interactiveService);
 					break;
 				case EmployeeCategory.office:
 				default:
-					ChangeWageParameter(new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars }, DateTime.Today);
+					result = ChangeWageParameter(new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars }, DateTime.Today, interactiveService);
 					break;
 
 			}
+			return result;
 		}
 
 		#endregion

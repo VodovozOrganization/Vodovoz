@@ -20,7 +20,7 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonOpenMap;
 
-		private global::Gamma.Widgets.yDatePicker datePickerDate;
+		private global::QS.Widgets.GtkUI.DatePicker datePickerDate;
 
 		private global::Gamma.GtkWidgets.yEntry entryMileageComment;
 
@@ -148,7 +148,7 @@ namespace Vodovoz
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.datePickerDate = new global::Gamma.Widgets.yDatePicker();
+			this.datePickerDate = new global::QS.Widgets.GtkUI.DatePicker();
 			this.datePickerDate.Events = ((global::Gdk.EventMask)(256));
 			this.datePickerDate.Name = "datePickerDate";
 			this.datePickerDate.WithTime = false;

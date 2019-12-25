@@ -79,7 +79,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
+		protected void OnButtonAddEnumItemClicked (object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
 			DocumentType type = (DocumentType)e.ItemEnum;
 			switch(type) {

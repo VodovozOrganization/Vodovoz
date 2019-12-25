@@ -6,6 +6,7 @@ namespace Vodovoz.JournalNodes
 {
 	public class NomenclatureJournalNode : JournalEntityNodeBase<Nomenclature>
 	{
+		public override string Title => Name;
 		public string Name { get; set; }
 		public NomenclatureCategory Category { get; set; }
 		public decimal InStock => Added - Removed;

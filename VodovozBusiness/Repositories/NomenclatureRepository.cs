@@ -36,9 +36,6 @@ namespace Vodovoz.Repository
 		public static QueryOver<Nomenclature> NomenclatureEquipOnlyQuery() => new NewNomenclatureRepository().NomenclatureEquipOnlyQuery();
 
 		[Obsolete]
-		public static Nomenclature GetBottleDeposit(IUnitOfWork uow) => new NewNomenclatureRepository().GetBottleDeposit(uow);
-
-		[Obsolete]
 		public static Nomenclature GetDefaultBottle(IUnitOfWork uow) => new NewNomenclatureRepository().GetDefaultBottle(uow);
 
 		[Obsolete]

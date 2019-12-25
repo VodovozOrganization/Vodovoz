@@ -26,6 +26,7 @@ using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.Core.DataService;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -224,7 +225,9 @@ namespace Vodovoz
 				}
 			}
 
-			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+			if(!Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService)) {
+				return false;
+			}
 
 			phonesView.RemoveEmpty();
 			logger.Info("Сохраняем сотрудника...");

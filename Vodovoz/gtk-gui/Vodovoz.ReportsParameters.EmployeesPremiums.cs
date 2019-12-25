@@ -8,7 +8,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gtk.Button buttonRun;
 
-		private global::QSWidgetLib.DatePeriodPicker dateperiodpicker1;
+		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodpicker1;
 
 		private global::Gtk.Label label1;
 
@@ -53,7 +53,7 @@ namespace Vodovoz.ReportsParameters
 			w1.XOptions = ((global::Gtk.AttachOptions)(0));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.dateperiodpicker1 = new global::QSWidgetLib.DatePeriodPicker();
+			this.dateperiodpicker1 = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.dateperiodpicker1.Events = ((global::Gdk.EventMask)(256));
 			this.dateperiodpicker1.Name = "dateperiodpicker1";
 			this.dateperiodpicker1.StartDate = new global::System.DateTime(0);

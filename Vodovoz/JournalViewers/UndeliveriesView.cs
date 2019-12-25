@@ -29,9 +29,7 @@ namespace Vodovoz.JournalViewers
 
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.UndeliveredOrdersPanelView };
 
-		public DateTime StartDate => undeliveredOrdersFilter.RestrictOldOrderStartDate.Value;
-
-		public DateTime EndDate => undeliveredOrdersFilter.RestrictOldOrderEndDate.Value;
+		public UndeliveredOrdersFilter UndeliveredOrdersFilter => undeliveredOrdersFilter;
 
 		#endregion
 
@@ -71,8 +69,6 @@ namespace Vodovoz.JournalViewers
 		public virtual void HideFilterAndControls(){
 			undeliveredOrdersFilter.Visible = hbxDlgControls.Visible = false;
 		}
-
-		public UndeliveredOrdersFilter GetUndeliveryFilter => undeliveredOrdersFilter;
 
 		protected void OnSearchEntityTextChanged(object sender, System.EventArgs e)
 		{

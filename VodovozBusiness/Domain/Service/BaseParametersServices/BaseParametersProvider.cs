@@ -12,8 +12,7 @@ namespace Vodovoz.Core.DataService
 		IStandartNomenclatures , 
 		IImageProvider, 
 		IStandartDiscountsService , 
-		IPersonProvider , 
-		ISubdivisionService,
+		IPersonProvider ,
 		ICommonParametersProvider, 
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
@@ -51,14 +50,6 @@ namespace Vodovoz.Core.DataService
 				throw new InvalidProgramException("В параметрах базы не настроен параметр сотрудник по умолчанию для crm (сотрудник_по_умолчанию_для_задач_по_залогам).");
 			}
 			return int.Parse(ParametersProvider.Instance.GetParameterValue("сотрудник_по_умолчанию_для_задач_по_залогам"));
-		}
-
-		public int GetOkkId()
-		{
-			if(!ParametersProvider.Instance.ContainsParameter("номер_отдела_ОКК")) {
-				throw new InvalidProgramException("В параметрах базы не настроен параметр : номер_отдела_ОКК");
-			}
-			return int.Parse(ParametersProvider.Instance.GetParameterValue("номер_отдела_ОКК"));
 		}
 
 		public int GetCrmIndicatorId()

@@ -10,7 +10,7 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gtk.Label labelPeriod;
 
-		private global::QSWidgetLib.DatePeriodPicker dateperiodpicker;
+		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodpicker;
 
 		private global::Gtk.HBox hboxDriver;
 
@@ -45,7 +45,7 @@ namespace Vodovoz.ReportsParameters
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hboxPeriod.Gtk.Box+BoxChild
-			this.dateperiodpicker = new global::QSWidgetLib.DatePeriodPicker();
+			this.dateperiodpicker = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.dateperiodpicker.Events = ((global::Gdk.EventMask)(256));
 			this.dateperiodpicker.Name = "dateperiodpicker";
 			this.dateperiodpicker.StartDate = new global::System.DateTime(0);

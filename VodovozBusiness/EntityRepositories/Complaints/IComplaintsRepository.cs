@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using static Vodovoz.EntityRepositories.Complaints.ComplaintsRepository;
 
 namespace Vodovoz.EntityRepositories.Complaints
 {

@@ -369,6 +369,27 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.Finish()
 			);
+
+			//PromotionalSetJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PromotionalSetsJournalViewModel>(
+				() => FluentColumnsConfig<PromotionalSetJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Name)
+					.AddColumn("Основание скидки")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.PromoSetDiscountReasonName)
+					.AddColumn("В архиве?")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.IsArchiveString)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
 		}
 	}
 }

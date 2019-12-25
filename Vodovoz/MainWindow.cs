@@ -69,6 +69,7 @@ using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using QSSupportLib;
 using Vodovoz.ReportsParameters.Sales;
+using Vodovoz.Domain.Service.BaseParametersServices;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -82,7 +83,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		Build();
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
 		this.BuildToolbarActions();
-		this.KeyReleaseEvent += ClipboardWorkaround.HandleKeyReleaseEvent;
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
 		this.KeyReleaseEvent += TDIMain.TDIHandleKeyReleaseEvent;
@@ -707,7 +707,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 					employeeSelectorFactory,
 					counterpartySelectorFactory,
 					routeListItemRepository,
-					new BaseParametersProvider(),
+					SubdivisionParametersProvider.Instance,
 					EmployeeSingletonRepository.GetInstance(),
 					new ComplaintFilterViewModel(
 						ServicesConfig.CommonServices,
@@ -1299,9 +1299,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionPromotionalSetsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<PromotionalSet>(),
-			() => new OrmReference(typeof(PromotionalSet))
+		tdiMain.AddTab(
+			new PromotionalSetsJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
 		);
 	}
 

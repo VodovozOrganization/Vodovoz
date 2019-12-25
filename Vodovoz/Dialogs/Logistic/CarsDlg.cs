@@ -47,6 +47,9 @@ namespace Vodovoz
 			dataentryModel.Binding.AddBinding(Entity, e => e.Model, w => w.Text).InitializeFromSource();
 			dataentryRegNumber.Binding.AddBinding(Entity, e => e.RegistrationNumber, w => w.Text).InitializeFromSource();
 
+			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
+
 			yentryVIN.Binding.AddBinding(Entity, e => e.VIN, w => w.Text).InitializeFromSource();
 			yentryManufactureYear.Binding.AddBinding(Entity, e => e.ManufactureYear, w => w.Text).InitializeFromSource();
 			yentryMotorNumber.Binding.AddBinding(Entity, e => e.MotorNumber, w => w.Text).InitializeFromSource();
@@ -86,8 +89,6 @@ namespace Vodovoz
 
 			checkIsRaskat.Binding.AddBinding(Entity, e => e.IsRaskat, w => w.Active).InitializeFromSource();
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
-			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			attachmentFiles.AttachToTable = OrmConfig.GetDBTableName(typeof(Car));
 			if(!UoWGeneric.IsNew) {
@@ -205,14 +206,14 @@ namespace Vodovoz
 
 			if(Entity.IsCompanyCar) {
 				Entity.Driver = null;
-				Entity.IsRaskat = false;
 			}
+			if(CarTypeIsEditable())
+				Entity.IsRaskat = false;
 		}
 
 		private void UpdateSensitivity()
 		{
 			dataentryreferenceDriver.Sensitive = !Entity.IsCompanyCar;
-			checkIsRaskat.Visible = !Entity.IsCompanyCar && CarTypeIsEditable();
 		}
 	}
 }

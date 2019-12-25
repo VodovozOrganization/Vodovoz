@@ -184,7 +184,7 @@ namespace Vodovoz
 			CalculateTotal();
 		}
 
-		protected void OnEnumbuttonAddOrderEnumItemClicked(object sender, EnumItemClickedEventArgs e)
+		protected void OnEnumbuttonAddOrderEnumItemClicked(object sender, QS.Widgets.EnumItemClickedEventArgs e)
 		{
 			AddOrderEnum choice = (AddOrderEnum)e.ItemEnum;
 			switch(choice) {
