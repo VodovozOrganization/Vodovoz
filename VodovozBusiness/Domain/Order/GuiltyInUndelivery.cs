@@ -105,6 +105,8 @@ namespace Vodovoz.Domain.Orders
 		Department,
 		[Display(Name = "Мастер СЦ")]
 		ServiceMan,
+		[Display(Name = "Форс-мажор")]
+		ForceMajor,
 		[Display(Name = "Нет (не недовоз)")]
 		None
 	}

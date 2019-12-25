@@ -55,31 +55,31 @@
             <Width>20.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.5pt</Width>
+            <Width>42.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>341.5pt</Width>
+            <Width>44.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.3pt</Width>
+            <Width>77.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>100.3pt</Width>
+            <Width>57.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>36.2pt</Width>
+            <Width>247.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>63.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>60.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>37.6pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>49.3pt</Width>
+            <Width>72.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -91,6 +91,24 @@
                   <ReportItems>
                     <Textbox Name="Textbox2">
                       <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Статус недовоза</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -125,62 +143,44 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>Клиент</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>Виновный</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox4">
                       <Value>Причина</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>6pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>Перенос</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>6pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value>Адрес</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>6pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox9">
-                      <Value>Инт-л доставки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -215,8 +215,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox32">
-                      <Value>Звонок в офис</Value>
+                    <Textbox Name="Textbox25">
+                      <Value>Вид переноса</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -233,8 +233,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox51">
-                      <Value>Звонок клиенту</Value>
+                    <Textbox Name="Textbox27">
+                      <Value>Штрафы</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -251,8 +251,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox73">
-                      <Value>Виновный</Value>
+                    <Textbox Name="Textbox7">
+                      <Value>В работе у</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -297,6 +297,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>={status}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>6pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox11">
                       <Value>=Fields!old_order_date.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -315,6 +332,40 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>={client}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>6pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>={guilty}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>6pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>=Fields!reason.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -326,65 +377,13 @@
                         <FontSize>6pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox19">
-                      <Value>=Fields!transfer_date_time.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>6pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox15">
-                      <Value>=Fields!address.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontSize>6pt</FontSize>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox17">
-                      <Value>=Fields!old_delivery_schedule.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>6pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -408,8 +407,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox35">
-                      <Value>=Fields!drivers_call.Value</Value>
+                    <Textbox Name="Textbox26">
+                      <Value>={transfer_type}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -420,14 +419,13 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox53">
-                      <Value>=Fields!dispatcher_call.Value</Value>
+                    <Textbox Name="Textbox28">
+                      <Value>={fines}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -438,14 +436,13 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox76">
-                      <Value>=Fields!guilty.Value</Value>
+                    <Textbox Name="Textbox9">
+                      <Value>={at_work_sub}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -456,7 +453,6 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
-                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -464,7 +460,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
+        <Left>1.6pt</Left>
         <Top>0.0pt</Top>
       </Table>
       <Table Name="Table2">
@@ -618,29 +614,13 @@
 			''
 		)
 	) AS reason,
-	un_ord_subqry.new_order_id AS action_with_invoice,
-	un_ord_subqry.transfered AS transfer_date_time,
 	un_ord_subqry.client AS client,
-	un_ord_subqry.address AS address,
-	IFNULL(
-		un_ord_subqry.bottles,
-		IFNULL(
-			un_ord_subqry.goo_to_client,
-			IFNULL(
-				un_ord_subqry.goo_from_client,
-				'Другие товары'
-			)
-		)
-	) AS undelivered_order_items,
-	un_ord_subqry.old_interval AS old_delivery_schedule,
-	un_ord_subqry.old_order_author AS old_order_author,
 	un_ord_subqry.driver AS driver_name,
-	un_ord_subqry.driver_call_time AS drivers_call,
-	un_ord_subqry.dispatcher_call_time AS dispatcher_call,
-	un_ord_subqry.registered_by AS registrator,
-	un_ord_subqry.undelivery_author AS undelivery_author,
-	un_ord_subqry.guilty AS guilty,
-	un_ord_subqry.status AS status
+    un_ord_subqry.status,
+    un_ord_subqry.fines,
+    un_ord_subqry.guilty,
+    un_ord_subqry.at_work_sub,
+    un_ord_subqry.transfer_type
 FROM
 #поля недовоза
 (
@@ -649,77 +629,7 @@ FROM
 		oldo.delivery_date AS old_order_date,
 		un.reason AS reason,
 		un.new_order_id AS new_order_id,
-		IF(
-			newo.id IS NULL,
-			'--',
-			CONCAT_WS(
-				'\n',
-				DATE_FORMAT(newo.delivery_date, '%e.%m'),
-				new_schedule.name
-			)
-		) AS transfered,
 		coun.name AS client,
-		IF(
-			oldo.self_delivery,
-			'Самовывоз',
-			CASE
-				WHEN compiled_address_short LIKE '%, пар%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', пар', compiled_address_short)-1)
-				WHEN compiled_address_short LIKE '%, ТЦ%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', ТЦ', compiled_address_short)-1)
-				WHEN compiled_address_short LIKE '%, ТК%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', ТК', compiled_address_short)-1)
-				WHEN compiled_address_short LIKE '%, БЦ%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', БЦ', compiled_address_short)-1)
-				WHEN compiled_address_short LIKE '%, шк%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', шк', compiled_address_short)-1)
-				WHEN compiled_address_short LIKE '%, общ%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', общ', compiled_address_short)-1)
-				WHEN compiled_address_short LIKE '%, эт%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', эт', compiled_address_short)-1)
-				WHEN compiled_address_short LIKE '%, кв%' THEN SUBSTRING(compiled_address_short, 1, LOCATE(', кв', compiled_address_short)-1)
-			END
-		) AS address,
-		#кол-во воды к клиенту
-		(
-			SELECT SUM(order_items.count)
-			FROM order_items
-			LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-			WHERE order_items.order_id = oldo.id AND nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
-		) AS bottles,
-		#товары к клиенту
-		(
-			SELECT CONCAT(
-				'К клиенту:\n',
-				TRIM(
-					GROUP_CONCAT(
-						CONCAT(
-							IF(nomenclature.short_name IS NULL, nomenclature.name, nomenclature.short_name),
-							':',
-							order_equipment.count
-							)
-						SEPARATOR '\n'
-						)
-					)
-				)
-			FROM order_equipment
-			LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
-			WHERE order_equipment.order_id = oldo.id AND order_equipment.direction = 'Deliver'
-		) AS goo_to_client,
-		#товары от клиента
-		(
-			SELECT CONCAT(
-				'От клиента:\n',
-				TRIM(
-					GROUP_CONCAT(
-						CONCAT(
-							IF(nomenclature.short_name IS NULL, nomenclature.name, nomenclature.short_name),
-							':',
-							order_equipment.count
-							)
-						SEPARATOR '\n'
-						)
-					)
-				)
-			FROM order_equipment
-			LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
-			WHERE order_equipment.order_id = oldo.id AND order_equipment.direction = 'PickUp'
-		) AS goo_from_client,
-		old_schedule.name AS old_interval,
-		TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(oaut.name, 1), LEFT(oaut.patronymic, 1), oaut.last_name)) AS old_order_author,
 		#водители
 		IFNULL(
 			(SELECT GROUP_CONCAT(
@@ -742,28 +652,14 @@ FROM
 			WHERE route_list_addresses.order_id = oldo.id),
 			'Не в МЛ'
 		) AS driver,
-		#время звонка водителя, если статус старого заказа подходит для существования МЛ
-		(
-			IF(
-				un.undelivered_order_status IN('NewOrder','WaitForPayment','Accepted'),
-				'Не в МЛ',
-				(
-					CASE un.driver_call_type
-						WHEN 'NoCall' THEN 'Не звонил'
-						WHEN 'CallFromAddress' THEN  CONCAT_WS('\n', 'С адреса', DATE_FORMAT(un.driver_call_time, '%H:%i'))
-						WHEN 'CallFromAnywhere' THEN CONCAT_WS('\n', 'Не с адреса', DATE_FORMAT(un.driver_call_time, '%H:%i'))
-					END)
-				)
-		) AS driver_call_time,
-		DATE_FORMAT(un.dispatcher_call_time, '%H:%i') AS dispatcher_call_time,
-		TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(ureg.name, 1), LEFT(ureg.patronymic, 1), ureg.last_name)) AS registered_by,
-		TRIM(BOTH '.' FROM CONCAT_WS('.', LEFT(uaut.name, 1), LEFT(uaut.patronymic, 1), uaut.last_name)) AS undelivery_author,
+		
 		GROUP_CONCAT(
 			CASE g.guilty_side
 				WHEN 'Client' THEN 'Клиент'
 				WHEN 'Driver' THEN 'Водитель'
 				WHEN 'Department' THEN IF(dep.name IS NULL, 'Отдел ВВ', dep.name)
 				WHEN 'ServiceMan' THEN 'Мастер СЦ'
+                WHEN 'ForceMajor' THEN 'Форс-мажор'
 				WHEN 'None' THEN 'Нет (не недовоз)'
 				ELSE g.guilty_side
 			END
@@ -773,8 +669,20 @@ FROM
 			WHEN 'InProcess' THEN 'В работе'
 			WHEN 'Checking' THEN 'На проверке'
 			WHEN 'Closed' THEN 'Закрыт'
-		END AS status
+		END AS status,
+        CASE un.transfer_type
+			WHEN 'Auto' THEN 'Автоперенос'
+			WHEN 'Confirmed' THEN 'Согласован'
+		END AS transfer_type,
+        
+	GROUP_CONCAT(CONCAT_WS(': ',fine_employee.last_name, fines_items.money) SEPARATOR '\n') AS fines,
+    IF(in_work_sub.short_name IS NULL OR in_work_sub.short_name = '', in_work_sub.name, in_work_sub.short_name) as at_work_sub
+    
 	FROM undelivered_orders un
+    LEFT JOIN fines ON fines.undelivery_id = un.id
+    LEFT JOIN fines_items ON fines_items.fine_id = fines.id
+    LEFT JOIN employees AS fine_employee ON fine_employee.id = fines_items.employee_id
+    LEFT JOIN subdivisions AS in_work_sub ON in_work_sub.id = un.in_process_at
 	LEFT JOIN orders oldo ON un.old_order_id = oldo.id
 	LEFT JOIN delivery_schedule old_schedule ON old_schedule.id = oldo.delivery_schedule_id
 	LEFT JOIN orders newo ON un.new_order_id = newo.id
@@ -901,61 +809,29 @@ ORDER BY order_by_column ASC
           <DataField>reason</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="action_with_invoice">
-          <DataField>action_with_invoice</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="transfer_date_time">
-          <DataField>transfer_date_time</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="client">
           <DataField>client</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="address">
-          <DataField>address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="undelivered_order_items">
-          <DataField>undelivered_order_items</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="old_delivery_schedule">
-          <DataField>old_delivery_schedule</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="old_order_author">
-          <DataField>old_order_author</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="driver_name">
           <DataField>driver_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="drivers_call">
-          <DataField>drivers_call</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="dispatcher_call">
-          <DataField>dispatcher_call</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="registrator">
-          <DataField>registrator</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="undelivery_author">
-          <DataField>undelivery_author</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="guilty">
-          <DataField>guilty</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="status">
           <DataField>status</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="fines">
+          <DataField>fines</DataField>
+        </Field>
+        <Field Name="at_work_sub">
+          <DataField>at_work_sub</DataField>
+        </Field>
+        <Field Name="guilty">
+          <DataField>guilty</DataField>
+        </Field>
+        <Field Name="transfer_type">
+          <DataField>transfer_type</DataField>
         </Field>
       </Fields>
     </DataSet>

@@ -105,6 +105,13 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref reason, value, () => Reason); }
 		}
 
+		string problemSource;
+		[Display(Name = "Источник проблемы")]
+		public virtual string ProblemSource {
+			get { return problemSource; }
+			set { SetField(ref problemSource, value, () => ProblemSource); }
+		}
+
 		Employee author;
 
 		[Display(Name = "Создатель недовоза")]
@@ -146,6 +153,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual DeliverySchedule NewDeliverySchedule {
 			get { return newDeliverySchedule; }
 			set { SetField(ref newDeliverySchedule, value, () => NewDeliverySchedule); }
+		}
+
+		TransferType? orderTransferType;
+		[Display(Name = "Вид переноса")]
+		public virtual TransferType? OrderTransferType {
+			get { return orderTransferType; }
+			set { SetField(ref orderTransferType, value, () => OrderTransferType); }
 		}
 
 		OrderStatus oldOrderStatus;
@@ -448,6 +462,21 @@ namespace Vodovoz.Domain.Orders
 		Checking,
 		[Display(Name = "Закрыт")]
 		Closed
+	}
+
+	public enum TransferType
+	{
+		[Display(Name = "Автоперенос")]
+		Auto,
+		[Display(Name = "Согласован")]
+		Confirmed
+	}
+
+	public class UndeliveredOrderTransferTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public UndeliveredOrderTransferTypeStringType() : base(typeof(TransferType))
+		{
+		}
 	}
 
 	public class UndeliveredOrderUndeliveryStatusStringType : NHibernate.Type.EnumStringType
