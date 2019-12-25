@@ -101,7 +101,7 @@ namespace Vodovoz.Domain.Orders
 					NHibernateUtil.Int32, new IProjection[] {
 								Projections.Sum(() => bottlesMovementAlias.Returned),
 								Projections.Sum(() => bottlesMovementAlias.Delivered)}
-				)).List<int>().FirstOrDefault();
+				)).SingleOrDefault<int>();
 			if(counterpartyDebtQuery != 0)
 				return false;
 
