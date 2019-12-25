@@ -155,9 +155,9 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref newDeliverySchedule, value, () => NewDeliverySchedule); }
 		}
 
-		TransferType orderTransferType;
+		TransferType? orderTransferType;
 		[Display(Name = "Вид переноса")]
-		public virtual TransferType OrderTransferType {
+		public virtual TransferType? OrderTransferType {
 			get { return orderTransferType; }
 			set { SetField(ref orderTransferType, value, () => OrderTransferType); }
 		}

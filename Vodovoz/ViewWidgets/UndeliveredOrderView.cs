@@ -142,11 +142,30 @@ namespace Vodovoz.ViewWidgets
 
 			lblInfo.Markup = undelivery.GetOldOrderInfo();
 
+			yenumcomboboxTransferType.ItemsEnum = typeof(TransferType);
+			yenumcomboboxTransferType.Binding.AddBinding(undelivery, u => u.OrderTransferType, w => w.SelectedItemOrNull).InitializeFromSource();
+			ytextviewProblemSource.Binding.AddBinding(undelivery, u => u.ProblemSource, w => w.Buffer.Text).InitializeFromSource();
+
 			yTreeFines.ColumnsConfig = ColumnsConfigFactory.Create<FineItem>()
 				.AddColumn("Номер").AddTextRenderer(node => node.Fine.Id.ToString())
 				.AddColumn("Сотудники").AddTextRenderer(node => node.Employee.ShortName)
 				.AddColumn("Сумма штрафа").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Money))
 				.Finish();
+
+			yenumcomboboxTransferType.Visible = undelivery?.OrderTransferType != null;
+
+			undelivery.PropertyChanged += (sender, e) => {
+				if(e.PropertyName != "NewOrder")
+					return;
+
+				if(undelivery.NewOrder == null) {
+					yenumcomboboxTransferType.Visible = false;
+					undelivery.OrderTransferType = null;
+					return;
+				}
+
+				yenumcomboboxTransferType.Visible = true;
+			};
 
 			GetFines();
 			SetVisibilities();
