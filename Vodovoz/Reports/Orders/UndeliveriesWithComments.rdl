@@ -367,7 +367,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>=Fields!reason.Value</Value>
+                      <Value>={problem_source}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -601,33 +601,20 @@
 	un_ord_subqry.N,
 	un_ord_subqry.old_order_date AS order_by_column,
 	DATE_FORMAT(un_ord_subqry.old_order_date, '%e.%m') AS old_order_date,
-	CONCAT_WS(
-		'\n',
-		un_ord_subqry.reason,
-		REPLACE(
-			REPLACE(
-				cmnt.reason,
-				'&lt;i&gt;',
-				''
-			),
-			'&lt;/i&gt;',
-			''
-		)
-	) AS reason,
 	un_ord_subqry.client AS client,
 	un_ord_subqry.driver AS driver_name,
     un_ord_subqry.status,
     un_ord_subqry.fines,
     un_ord_subqry.guilty,
     un_ord_subqry.at_work_sub,
-    un_ord_subqry.transfer_type
+    un_ord_subqry.transfer_type,
+    un_ord_subqry.problem_source
 FROM
 #поля недовоза
 (
 	SELECT 
 		un.id AS N,
 		oldo.delivery_date AS old_order_date,
-		un.reason AS reason,
 		un.new_order_id AS new_order_id,
 		coun.name AS client,
 		#водители
@@ -676,7 +663,8 @@ FROM
 		END AS transfer_type,
         
 	GROUP_CONCAT(CONCAT_WS(': ',fine_employee.last_name, fines_items.money) SEPARATOR '\n') AS fines,
-    IF(in_work_sub.short_name IS NULL OR in_work_sub.short_name = '', in_work_sub.name, in_work_sub.short_name) as at_work_sub
+    IF(in_work_sub.short_name IS NULL OR in_work_sub.short_name = '', in_work_sub.name, in_work_sub.short_name) as at_work_sub,
+    un.problem_source
     
 	FROM undelivered_orders un
     LEFT JOIN fines ON fines.undelivery_id = un.id
@@ -723,32 +711,6 @@ FROM
 	GROUP BY un.id
 	ORDER BY oldo.delivery_date
 ) AS un_ord_subqry
-#комментарии к полям
-LEFT JOIN (
-	SELECT 
-		undelivery_id AS uid,
-		CONCAT(
-			'--комментарии--\n',
-			GROUP_CONCAT(
-				IF(
-					field_name = 'Reason',
-					CONCAT(
-						DATE_FORMAT(cm.date_and_time, '%e.%m.%y, %k:%i:%s'),
-						', ',
-						CONCAT_WS(' ', e.name, e.last_name),
-						':\n',
-						cm.comment
-					),
-					NULL
-				)
-				ORDER BY cm.date_and_time ASC
-				SEPARATOR '\n'
-			)
-		) as reason
-	FROM undelivered_orders_comments cm
-	LEFT JOIN employees e ON e.id = cm.employee_id
-	GROUP BY undelivery_id
-) AS cmnt ON cmnt.uid = un_ord_subqry.N
 ORDER BY order_by_column ASC
 ;</CommandText>
         <QueryParameters>
@@ -805,10 +767,6 @@ ORDER BY order_by_column ASC
           <DataField>old_order_date</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="reason">
-          <DataField>reason</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="client">
           <DataField>client</DataField>
           <TypeName>System.String</TypeName>
@@ -832,6 +790,9 @@ ORDER BY order_by_column ASC
         </Field>
         <Field Name="transfer_type">
           <DataField>transfer_type</DataField>
+        </Field>
+        <Field Name="problem_source">
+          <DataField>problem_source</DataField>
         </Field>
       </Fields>
     </DataSet>
