@@ -55,6 +55,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref isArchive, value, () => IsArchive);
 		}
 
+		bool canEditNomenclatureCount;
+		[Display(Name = "Можно менять количество номенклатур?")]
+		public virtual bool CanEditNomenclatureCount {
+			get => canEditNomenclatureCount;
+			set => SetField(ref canEditNomenclatureCount, value, () => CanEditNomenclatureCount);
+		}
+
 		IList<PromotionalSetItem> promotionalSetItems = new List<PromotionalSetItem>();
 		[Display(Name = "Строки рекламного набора")]
 		public virtual IList<PromotionalSetItem> PromotionalSetItems {
