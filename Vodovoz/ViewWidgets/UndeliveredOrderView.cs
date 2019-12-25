@@ -152,7 +152,7 @@ namespace Vodovoz.ViewWidgets
 				.AddColumn("Сумма штрафа").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Money))
 				.Finish();
 
-			yenumcomboboxTransferType.Visible = undelivery?.OrderTransferType != null;
+			yenumcomboboxTransferType.Visible = undelivery?.NewOrder != null;
 
 			undelivery.PropertyChanged += (sender, e) => {
 				if(e.PropertyName != "NewOrder")
