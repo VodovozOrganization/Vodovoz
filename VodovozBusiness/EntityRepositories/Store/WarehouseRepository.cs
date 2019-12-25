@@ -185,7 +185,7 @@ namespace Vodovoz.EntityRepositories.Store
 			return uow.Session.QueryOver(() => warehouseOperation)
 				.Left.JoinAlias(() => warehouseOperation.Nomenclature, () => nomenclatureAlias)
 				.SelectList(list => list
-					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.Select(stockProjection).WithAlias(() => resultAlias.Stock)
 				)
 				.TransformUsing(Transformers.AliasToBean<NomanclatureStockNode>())
