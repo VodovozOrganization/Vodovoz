@@ -101,8 +101,8 @@ namespace Vodovoz.Domain.Orders
 					NHibernateUtil.Int32, new IProjection[] {
 								Projections.Sum(() => bottlesMovementAlias.Returned),
 								Projections.Sum(() => bottlesMovementAlias.Delivered)}
-				)).TransformUsing(Transformers.AliasToBean<int>()).List<int>().FirstOrDefault();
-			if(counterpartyDebtQuery > 0)
+				)).List<int>().FirstOrDefault();
+			if(counterpartyDebtQuery != 0)
 				return false;
 
 			//Долг по точкам доставки
@@ -110,6 +110,7 @@ namespace Vodovoz.Domain.Orders
 				if(bottlesRepository.GetBottlesAtDeliveryPoint(order.UoW, deliveryPoint) != 0)
 					return false;
 			}
+
 			//Возврат бутылей и(ничего или возврат залога или неустойка)
 			var orders1 = order.UoW.Session.QueryOver(() => orderAlias)
 				.Where(() => orderAlias.Client.Id == order.Client.Id)
