@@ -420,6 +420,9 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(u => u.OldOrder), this.GetPropertyName(u => u.NewOrder) }
 				);
 
+			if(NewOrder != null && OrderTransferType == null)
+				yield return new ValidationResult("Необходимо указать тип переноса");
+
 			if(string.IsNullOrWhiteSpace(Reason))
 				yield return new ValidationResult(
 					"Не заполнено поле \"Причина\"",
