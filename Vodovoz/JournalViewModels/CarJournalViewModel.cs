@@ -18,7 +18,8 @@ namespace Vodovoz.JournalViewModels
 		{
 			TabName = "Журнал контрагентов";
 			UpdateOnChanges(
-				typeof(Car)
+				typeof(Car),
+				typeof(Employee)
 			);
 		}
 
