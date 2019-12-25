@@ -147,7 +147,7 @@ namespace Vodovoz.EntityRepositories.Store
 				.Left.JoinAlias(() => warehouseOperation.Nomenclature, () => nomenclatureAlias)
 				.Where(Restrictions.In(Projections.Property(() => warehouseOperation.Nomenclature.Id), nomenclatureIds.ToArray()))
 				.SelectList(list => list
-					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 					.Select(stockProjection).WithAlias(() => resultAlias.Stock)
 				)
 				.TransformUsing(Transformers.AliasToBean<NomanclatureStockNode>())
