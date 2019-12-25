@@ -3317,10 +3317,10 @@ namespace Vodovoz.Domain.Orders
 				if(BottlesMovementOperation == null) {
 					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
-						Counterparty = Client,
-						DeliveryPoint = DeliveryPoint
 					};
 				}
+				BottlesMovementOperation.Counterparty = Client;
+				BottlesMovementOperation.DeliveryPoint = DeliveryPoint;
 				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 				BottlesMovementOperation.Delivered = amountDelivered;
 				BottlesMovementOperation.Returned = returnByStock + forfeitQuantity.Value;

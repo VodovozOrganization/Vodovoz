@@ -400,6 +400,7 @@ namespace Vodovoz
 				//доставки будет пустая
 				routeListItem.Order.DeliveryPoint = orderNode.DeliveryPoint;
 				routeListItem.Order.Client = orderNode.Client;
+				routeListItem.Order.UpdateBottleMovementOperation(UoW, new BaseParametersProvider(),routeListItem.BottlesReturned);
 			}
 		}
 
