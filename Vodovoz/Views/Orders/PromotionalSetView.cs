@@ -27,6 +27,9 @@ namespace Vodovoz.Views.Orders
 			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 			yChkIsArchive.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 
+			ycheckbCanEditNomCount.Binding.AddBinding(ViewModel.Entity, e => e.CanEditNomenclatureCount, w => w.Active).InitializeFromSource();
+			ycheckbCanEditNomCount.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
+
 			widgetcontainerview.Binding.AddBinding(ViewModel, vm => vm.SelectedActionViewModel, w => w.WidgetViewModel);
 
 			ybtnAddNomenclature.Clicked += (sender, e) => { ViewModel.AddNomenclatureCommand.Execute(); };
