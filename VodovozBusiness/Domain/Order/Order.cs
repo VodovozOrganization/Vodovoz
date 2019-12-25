@@ -1958,21 +1958,25 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Проверка на возможность добавления промо-набора в заказ и, если
-		/// не возможно, то генерирование сообщения.
+		/// Проверка на возможность добавления промо-набора в заказ
 		/// </summary>
 		/// <returns><c>true</c>, если можно добавить промо-набор,
 		/// <c>false</c> если нельзя.</returns>
 		/// <param name="proSet">Рекламный набор (промо-набор)</param>
-		/// <param name="msg">Сообщение (в случае повторения адреса)</param>
-		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, out string msg)
+		public virtual bool CanAddPromotionalSet(PromotionalSet proSet)
 		{
-			msg = string.Empty;
+			if(PromotionalSets.Any()) {
+				InteractiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промо-набора");
+				return false;
+			}
+
 			if(SelfDelivery)
 				return true;
+
 			var proSetDict = Repositories.Orders.PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
 			if(!proSetDict.Any())
 				return true;
+
 			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
 			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n", address));
 			foreach(var d in proSetDict) {
@@ -1983,8 +1987,10 @@ namespace Vodovoz.Domain.Orders
 				);
 				sb.AppendLine(string.Format("– {0}: {1}", proSetTitle, orders));
 			}
-			sb.AppendLine(string.Format("Вы уверены, что хотите добавить \"{0}\"", proSet.Title));
-			msg = sb.ToString();
+			sb.AppendLine($"Вы уверены, что хотите добавить \"{proSet.Title}\"");
+			if(InteractiveService.InteractiveQuestion.Question(sb.ToString()))
+				return true;
+
 			return false;
 		}
 

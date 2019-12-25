@@ -1116,28 +1116,13 @@ namespace Vodovoz
 
 		void YCmbPromoSets_ItemSelected(object sender, ItemSelectedEventArgs e)
 		{
-			PromotionalSet proSet = e.SelectedItem as PromotionalSet;
+			if(!(e.SelectedItem is PromotionalSet proSet))
+				return;
 
-			if(CanAddPromotionalSet(proSet))
+			if(CanAddNomenclaturesToOrder() && Entity.CanAddPromotionalSet(proSet))
 				ActivatePromotionalSet(proSet);
 			if(!yCmbPromoSets.IsSelectedNot)
 				yCmbPromoSets.SelectedItem = SpecialComboState.Not;
-		}
-
-		bool CanAddPromotionalSet(PromotionalSet proSet)
-		{
-			if(proSet == null || !CanAddNomenclaturesToOrder())
-				return false;
-
-			if(Entity.PromotionalSets.Any()) {
-				MessageDialogHelper.RunWarningDialog("В заказ нельзя добавить больше 1 промо-набора");
-				return false;
-			}
-
-			if(!Entity.CanAddPromotionalSet(proSet, out string msg) && !MessageDialogHelper.RunQuestionWithTitleDialog("Повтор промо-набора", msg))
-				return false;
-
-			return true;
 		}
 
 		bool CanAddNomenclaturesToOrder()

@@ -384,10 +384,11 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(n => n.PromoSetDiscountReasonName)
 					.AddColumn("В архиве?")
 						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.IsArchiveString)
+						.AddTextRenderer()
+						.AddSetter((c, n) => c.Text = n.IsArchive? "Да" : String.Empty)
 					.AddColumn("")
 					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
 		}

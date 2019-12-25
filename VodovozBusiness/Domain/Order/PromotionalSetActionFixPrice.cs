@@ -4,7 +4,7 @@ using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.Transform;
+using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Core.DataService;
@@ -15,6 +15,9 @@ using Vodovoz.EntityRepositories.Operations;
 
 namespace Vodovoz.Domain.Orders
 {
+	[Appellative(Gender = GrammaticalGender.Masculine,
+	NominativePlural = "Спец. действия фиксированные цены",
+	Nominative = "Спец. действие фиксированныа цена")]
 	[HistoryTrace]
 	public class PromotionalSetActionFixPrice : PromotionalSetActionBase, IValidatableObject
 	{
@@ -139,9 +142,7 @@ namespace Vodovoz.Domain.Orders
 				if(o.DeliveryPoint == null)
 					continue;
 				if(o.DeliveryPoint.HaveResidue.HasValue)
-					if(o.DeliveryPoint.HaveResidue.Value)
-						continue;
-					else
+					if(!o.DeliveryPoint.HaveResidue.Value)
 						return false;
 			}
 

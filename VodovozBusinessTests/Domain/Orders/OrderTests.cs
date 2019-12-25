@@ -7,6 +7,8 @@ using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
 using QS.Contacts;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
+using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -343,55 +345,55 @@ namespace VodovozBusinessTests.Domain.Orders
 			Assert.That(orderUnderTest.OrderItems.LastOrDefault().PromoSet, Is.Not.Null);
 		}
 
-		[Test(Description = "При добавлении промо-набора в заказ, адрес доставки которого не найден среди других заказов с промонаборами, возвращается true и нет сообщения")]
-		public void CanAddPromotionalSet_WhenAddPromotionalSetToTheOrderAndNoSameAddressFoundInAnotherOrdersWithPromoSets_ReturnsTrueAndNoMessage()
+		[Test(Description = "При добавлении промо-набора в заказ, адрес доставки которого не найден среди других заказов с промонаборами, возвращается true")]
+		public void CanAddPromotionalSet_WhenAddPromotionalSetToTheOrderAndNoSameAddressFoundInAnotherOrdersWithPromoSets_ReturnsTrue()
 		{
 			// arrange
-			Order orderUnderTest = new Order();
-			PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = (uow, o, ignore) => new Dictionary<int, int[]>();
+			Order orderUnderTest = new Order();	PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = (uow, o, ignore) => new Dictionary<int, int[]>();
 
 			// act
-			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>(), out string mess);
+			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>());
 
 			// assert
 			Assert.That(res, Is.True);
-			Assert.That(mess, Is.Empty);
 		}
 
-		[Test(Description = "При добавлении промо-набора в заказ, адрес доставки которого найден среди других заказов с промонаборами, возвращается false и сообщение")]
-		public void CanAddPromotionalSet_WhenAddPromotionalSetToTheOrderAndSameAddressFoundInAnotherOrdersWithPromoSets_ReturnsFalseAndMessage()
+		[Test(Description = "При добавлении промо-набора в заказ, адрес доставки которого найден среди других заказов с промонаборами, возвращается false")]
+		public void CanAddPromotionalSet_WhenAddPromotionalSetToTheOrderAndSameAddressFoundInAnotherOrdersWithPromoSets_ReturnsFalse()
 		{
 			// arrange
+			var intercativeServiceMock = Substitute.For<IInteractiveService>();
 			Order orderUnderTest = new Order {
 				UoW = Substitute.For<IUnitOfWork>(),
 				Client = Substitute.For<Counterparty>(),
-				DeliveryPoint = Substitute.For<DeliveryPoint>()
+				DeliveryPoint = Substitute.For<DeliveryPoint>(),
+				InteractiveService = intercativeServiceMock
 			};
 			PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPointTestGap = (uow, o, ignore) => new Dictionary<int, int[]> { { 1, new[] { 1, 2 } } };
 
 			// act
-			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>(), out string mess);
+			var res = orderUnderTest.CanAddPromotionalSet(Substitute.For<PromotionalSet>());
 
 			// assert
 			Assert.That(res, Is.False);
-			Assert.That(mess, Is.Not.Empty);
 		}
 
-		[Test(Description = "При добавлении второго промо-набора в заказ возвращается false и сообщение")]
-		public void CanAddPromotionalSet_WhenAddSecondPromotionalSetToTheOrder_ReturnsFalseAndMessage()
+		[Test(Description = "При добавлении второго промо-набора в заказ возвращается false")]
+		public void CanAddPromotionalSet_WhenAddSecondPromotionalSetToTheOrder_ReturnsFalse()
 		{
 			// arrange
 			var promotionalSetMock = Substitute.For<PromotionalSet>();
+			var intercativeServiceMock = Substitute.For<IInteractiveService>();
 
 			Order orderUnderTest = new Order();
 			orderUnderTest.PromotionalSets.Add(promotionalSetMock);
+			orderUnderTest.InteractiveService = intercativeServiceMock;
 
 			// act
-			var result = orderUnderTest.CanAddPromotionalSet(promotionalSetMock, out string msg);
+			var result = orderUnderTest.CanAddPromotionalSet(promotionalSetMock);
 
 			// assert
 			Assert.That(result, Is.False);
-			Assert.That(msg, Is.Not.Empty);
 		}
 
 		#endregion Рекламные наборы

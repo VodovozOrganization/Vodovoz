@@ -94,8 +94,7 @@ namespace Vodovoz.Views.Orders
 
 			#endregion
 
-			if(ViewModel.Entity.Id > 0)
-				ylblCreationDate.Text = ViewModel.Entity.CreateDate.ToString();
+			ylblCreationDate.Text = ViewModel.CreationDate;
 		}
 	};
 }
