@@ -21,10 +21,8 @@ using QS.Tdi.Gtk;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
-using Vodovoz.Parameters;
 using Vodovoz;
 using Vodovoz.Core;
-using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.OnlineStore;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
@@ -45,7 +43,6 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewers;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.WageCalculation;
@@ -342,8 +339,10 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionCarsActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(Car));
-		tdiMain.AddTab(refWin);
+		CarJournalFilterViewModel filter = new CarJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		var counterpartyJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+
+		tdiMain.AddTab(counterpartyJournal);
 	}
 
 	protected void OnActionUnitsActivated(object sender, EventArgs e)

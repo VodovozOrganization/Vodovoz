@@ -1362,6 +1362,11 @@
     <Compile Include="ViewModels\Orders\PromotionalSetActionWidgetResolver.cs" />
     <Compile Include="JournalSelector\NomenclatureAutoCompleteSelectorFactory.cs" />
     <Compile Include="JournalSelector\NomenclatureSelectorFactory.cs" />
+    <Compile Include="JournalViewModels\CarJournalViewModel.cs" />
+    <Compile Include="JournalNodes\CarJournalNode.cs" />
+    <Compile Include="Filters\ViewModels\CarJournalFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\CarFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
