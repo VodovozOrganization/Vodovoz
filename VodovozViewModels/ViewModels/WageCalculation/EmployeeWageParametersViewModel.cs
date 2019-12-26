@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 				() => {
 					WageParameterViewModel newWageParameterViewModel = new WageParameterViewModel(UoW, WageParameterTargets.ForMercenariesCars, CommonServices);
 					newWageParameterViewModel.OnWageParameterCreated += (sender, wageParameter) => {
-						Entity.ChangeWageParameter(wageParameter, StartDate.Value, commonServices.InteractiveService);
+						Entity.ChangeWageParameter(wageParameter, StartDate.Value);
 					};
 					tab.TabParent.AddSlaveTab(tab, newWageParameterViewModel);
 				},
