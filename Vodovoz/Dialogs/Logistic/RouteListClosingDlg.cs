@@ -533,11 +533,6 @@ namespace Vodovoz
 				Entity.MoneyToReturn - GetCashOrder() - (decimal)advanceSpinbutton.Value,
 				CurrencyWorks.CurrencyShortName
 			);
-			labelTerminalSum.Markup = string.Format(
-				"По терминалу: <b>{0:F2}</b> {1}",
-				Entity.ByTerminalTotal,
-				CurrencyWorks.CurrencyShortName
-			);
 			labelWage1.Markup = string.Format(
 				"ЗП вод.: <b>{0}</b> {2}" + "  " + "ЗП эксп.: <b>{1}</b> {2}",
 				driverWage,

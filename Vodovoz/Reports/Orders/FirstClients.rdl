@@ -674,7 +674,6 @@
         WHEN 'cash' THEN 'НАЛ'
         WHEN 'cashless' THEN 'БЕЗНАЛ'
         WHEN 'ByCard' THEN 'ПО КАРТЕ'
-        WHEN 'CourierByCard' THEN 'ПО КАРТЕ КУРЬЕРУ'
         ELSE o.payment_type
     END AS payment_type,
     gg.name as geographic_group,

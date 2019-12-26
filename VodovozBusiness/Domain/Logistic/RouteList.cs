@@ -476,15 +476,6 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual decimal ByTerminalTotal {
-			get {
-				decimal terminalSum = 0;
-				foreach(var item in Addresses.Where((arg) => arg.Order.PaymentType == PaymentType.CourierByCard))
-					terminalSum += item.Order.ActualTotalSum;
-				return terminalSum;
-			}
-		}
-
 		/// <summary>
 		/// Количество полных 19л бутылей в МЛ для клиентов
 		/// </summary>

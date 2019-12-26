@@ -1968,9 +1968,7 @@ namespace Vodovoz
 				Enum[] hideEnums = {
 					PaymentType.barter,
 					PaymentType.BeveragesWorld,
-					PaymentType.CourierByCard,
 					PaymentType.ContractDoc,
-					PaymentType.CourierByCard,
 					PaymentType.cashless
 				};
 				enumPaymentType.AddEnumToHideList(hideEnums);
