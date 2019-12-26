@@ -41,11 +41,25 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref count, value, () => Count);
 		}
 
+		private decimal depositCount;
+		[Display(Name = "Количество залогов")]
+		public virtual decimal DepositCount {
+			get => depositCount;
+			set => SetField(ref depositCount, value, () => DepositCount);
+		}
+
 		private decimal equipmentDeposit;
 		[Display(Name = "Залог за оборудование")]
 		public virtual decimal EquipmentDeposit {
 			get { return equipmentDeposit; }
 			set { SetField(ref equipmentDeposit, value, () => EquipmentDeposit); }
+		}
+
+		private PaymentType paymentType;
+		[Display(Name = "Форма оплаты")]
+		public virtual PaymentType PaymentType {
+			get { return paymentType; }
+			set { SetField(ref paymentType, value, () => PaymentType); }
 		}
 
 		private CounterpartyMovementOperation movementOperation;
