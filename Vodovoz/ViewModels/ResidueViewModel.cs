@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -58,11 +59,21 @@ namespace Vodovoz.ViewModels
 				Entity.Author = CurrentEmployee;
 				Entity.Date = new DateTime(2017, 4, 23);
 			}
-
 			CreateCommands();
 			ConfigureEntityPropertyChanges();
 			UpdateResidue();
 			GuiltyItemsVM = new GuiltyItemsViewModel(new Complaint(), UoW, commonServices, new SubdivisionRepository(), employeeSelectorFactory);
+
+			Entity.ObservableEquipmentDepositItems.PropertyOfElementChanged += OnObservableEquipmentItemsPropertyOfElementChanged;
+		}
+
+		public void OnObservableEquipmentItemsPropertyOfElementChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(!(sender is ResidueEquipmentDepositItem item))
+				return;
+			if(nameof(ResidueEquipmentDepositItem.EquipmentCount) == e.PropertyName) {
+				item.DepositCount = item.EquipmentCount;
+			}
 		}
 
 		public GuiltyItemsViewModel GuiltyItemsVM { get; set; }

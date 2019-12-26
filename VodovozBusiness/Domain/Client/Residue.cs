@@ -178,7 +178,9 @@ namespace Vodovoz.Domain.Client
 			var newItem = new ResidueEquipmentDepositItem();
 			newItem.Residue = this;
 			newItem.Nomenclature = nomenclature;
-			newItem.Count = 1;
+			newItem.EquipmentCount = 1;
+			newItem.DepositCount = 1;
+			newItem.PaymentType = PaymentType.cash;
 			ObservableEquipmentDepositItems.Add(newItem);
 		}
 

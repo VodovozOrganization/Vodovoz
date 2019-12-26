@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Goods;
 
@@ -34,16 +32,16 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref equipmentDirection, value, () => EquipmentDirection);
 		}
 
-		private int count;
-		[Display(Name = "Количество")]
-		public virtual int Count {
-			get => count;
-			set => SetField(ref count, value, () => Count);
+		private int equipmentCount;
+		[Display(Name = "Количество оборудования")]
+		public virtual int EquipmentCount {
+			get => equipmentCount;
+			set => SetField(ref equipmentCount, value, () => EquipmentCount);
 		}
 
-		private decimal depositCount;
+		private int depositCount;
 		[Display(Name = "Количество залогов")]
-		public virtual decimal DepositCount {
+		public virtual int DepositCount {
 			get => depositCount;
 			set => SetField(ref depositCount, value, () => DepositCount);
 		}
@@ -75,7 +73,7 @@ namespace Vodovoz.Domain.Client
 				MovementOperation = new CounterpartyMovementOperation();
 			}
 			movementOperation.Nomenclature = Nomenclature;
-			movementOperation.Amount = Count;
+			movementOperation.Amount = EquipmentCount;
 			if(Residue.DeliveryPoint == null) {
 				if(EquipmentDirection == ResidueEquipmentDirection.ToClient) {
 					movementOperation.IncomingCounterparty = Residue.Customer;

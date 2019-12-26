@@ -12,7 +12,7 @@ namespace Vodovoz.HibernateMapping.Counterparty
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			Map(x => x.Count).Column("equipment_count");
+			Map(x => x.EquipmentCount).Column("equipment_count");
 			Map(x => x.DepositCount).Column("deposit_count");
 			Map(x => x.EquipmentDeposit).Column("deposit");
 			Map(x => x.EquipmentDirection).Column("direction").CustomType<ResidueEquipmentDirectionStringType>();

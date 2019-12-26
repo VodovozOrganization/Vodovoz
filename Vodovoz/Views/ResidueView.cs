@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using QS.Project.Journal.EntitySelector;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
@@ -47,17 +49,37 @@ namespace Vodovoz.Views
 			labelCurrentEquipmentDeposit.Binding.AddFuncBinding(ViewModel, vm => vm.CurrentEquipmentDeposit, w => w.LabelProp).InitializeFromSource();
 
 			ytreeviewEquipment.ColumnsConfig = FluentColumnsConfig<ResidueEquipmentDepositItem>.Create()
-				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.OfficialName)
-				.AddColumn("Направление").AddEnumRenderer<ResidueEquipmentDirection>(x => x.EquipmentDirection).Editing()
-				.AddColumn("Количество").AddNumericRenderer(x => x.Count)
-					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 0)).Editing()
-				.AddColumn("Залог").AddNumericRenderer(x => x.EquipmentDeposit)
+				.AddColumn("Номенклатура")
+					.AddTextRenderer(x => x.Nomenclature.OfficialName)
+				.AddColumn("Количество")
+					.AddNumericRenderer(x => x.EquipmentCount)
 					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 0))
+					.XAlign(0.5f)
+					.AddSetter((c, n) => c.Editable = ViewModel.CanEdit)
+				.AddColumn("Направление")
+					.AddEnumRenderer<ResidueEquipmentDirection>(x => x.EquipmentDirection).Editing()
+				.AddColumn("Количество залогов")
+					.AddNumericRenderer(x => x.DepositCount)
+					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 0))
+					.XAlign(0.5f)
+					.AddSetter((c, n) => c.Editable = ViewModel.CanEdit)
+				.AddColumn("Залог")
+					.AddNumericRenderer(x => x.EquipmentDeposit)
+					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 0))
+					.XAlign(0.5f)
+					.AddSetter((c, n) => c.Editable = ViewModel.CanEdit)
+				.AddColumn("Сумма залогов")
+					.AddNumericRenderer(x => x.DepositCount * x.EquipmentDeposit)
+					.XAlign(0.5f)
+				.AddColumn("Форма оплаты")
+					.AddComboRenderer(x => x.PaymentType)
+					.SetDisplayFunc(x => x.GetEnumTitle())
+					.FillItems(((PaymentType[])Enum.GetValues(typeof(PaymentType))).ToList())
 					.AddSetter((c, n) => c.Editable = ViewModel.CanEdit)
 				.Finish();
 			ytreeviewEquipment.ItemsDataSource = ViewModel.Entity.ObservableEquipmentDepositItems;
-
 			ytreeviewEquipment.Selection.Changed += Selection_Changed;
+
 			buttonAddEquipment.Clicked += ButtonAddEquipment_Clicked;
 			buttonDeleteEquipment.Clicked += ButtonDeleteEquipment_Clicked;
 
