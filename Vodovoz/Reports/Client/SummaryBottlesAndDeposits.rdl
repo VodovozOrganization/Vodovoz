@@ -25,7 +25,7 @@
 	docs.doc_status,
 	IF(docs.doc_name = 'Ввод остатков',
 		(SELECT
-			GROUP_CONCAT(DISTINCT GET_TRANSLATED_PAYMENT_TYPE(doc_residue_equipment_deposit_items.payment_type) SEPARATOR '\n')
+			GROUP_CONCAT(DISTINCT GET_TRANSLATED_PAYMENT_TYPE(doc_residue_equipment_deposit_items.payment_type) SEPARATOR ',\n')
 		FROM
 			doc_residue
 			LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
