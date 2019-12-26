@@ -68,7 +68,7 @@ namespace VodovozBusinessTests.Employees
 			var employee = new Employee();
 			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
 			//act
-			employee.ChangeWageParameter(new ManualWageParameter(), newDate, interactiveService);
+			employee.ChangeWageParameter(new ManualWageParameter(), newDate);
 			//assert
 			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(1));
 			Assert.That(employee.ObservableWageParameters.FirstOrDefault().Employee, Is.EqualTo(employee));
@@ -87,7 +87,7 @@ namespace VodovozBusinessTests.Employees
 			employee.WageParameters.Add(existingWage);
 			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
 			//act
-			employee.ChangeWageParameter(new ManualWageParameter(), newDate, interactiveService);
+			employee.ChangeWageParameter(new ManualWageParameter(), newDate);
 			//assert
 			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(2));
 			Assert.That(

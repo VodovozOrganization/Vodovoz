@@ -10,9 +10,13 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
+using QS.Project.Services;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -20,6 +24,8 @@ namespace Vodovoz
 	public partial class RouteListAddressesTransferringDlg : QS.Dialog.Gtk.TdiTabBase, ISingleUoWDialog
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
 		#region IOrmDialog implementation
 
@@ -265,11 +271,11 @@ namespace Vodovoz
 				item.TransferedTo = newItem;
 
 				//Пересчёт зарплаты после изменения МЛ
-				routeListFrom.CalculateWages();
-				routeListTo.CalculateWages();
+				routeListFrom.CalculateWages(wageCalculationServiceFactory);
+				routeListTo.CalculateWages(wageCalculationServiceFactory);
 
 				if(routeListTo.ClosingFilled)
-					newItem.FirstFillClosing(UoW);
+					newItem.FirstFillClosing(UoW, wageCalculationServiceFactory);
 				UoW.Save(item);
 				UoW.Save(newItem);
 			}
@@ -336,7 +342,7 @@ namespace Vodovoz
 					pastPlace.DriverBottlesReturned = address.DriverBottlesReturned;
 					pastPlace.TransferedTo = null;
 					if(pastPlace.RouteList.ClosingFilled)
-						pastPlace.FirstFillClosing(UoW);
+						pastPlace.FirstFillClosing(UoW, wageCalculationServiceFactory);
 					UoW.Save(pastPlace);
 				}
 				address.RouteList.ObservableAddresses.Remove(address);

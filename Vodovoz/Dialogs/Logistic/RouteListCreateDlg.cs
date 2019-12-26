@@ -14,11 +14,14 @@ using QS.Project.Services;
 using QS.Validation.GtkUI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Tools.Logistic;
@@ -29,6 +32,8 @@ namespace Vodovoz
 	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+
+		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
 		bool isEditable;
 
@@ -314,7 +319,7 @@ namespace Vodovoz
 
 				if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck) {
 					if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
-						Entity.CompleteRoute();
+						Entity.CompleteRoute(wageCalculationServiceFactory);
 					}
 				} else {
 					//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.

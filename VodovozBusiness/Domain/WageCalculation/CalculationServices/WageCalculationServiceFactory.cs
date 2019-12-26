@@ -11,28 +11,30 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
 	public class WageCalculationServiceFactory
 	{
-		private readonly Employee employee;
 		private readonly IWageCalculationRepository wageCalculationRepository;
 		private readonly IWageParametersProvider wageParametersProvider;
 		private readonly IInteractiveService interactiveService;
 
-		public WageCalculationServiceFactory(Employee employee, IWageCalculationRepository wageCalculationRepository, IWageParametersProvider wageParametersProvider, IInteractiveService interactiveService)
+		public WageCalculationServiceFactory(IWageCalculationRepository wageCalculationRepository, IWageParametersProvider wageParametersProvider, IInteractiveService interactiveService)
 		{
-			this.employee = employee;
 			this.wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			this.wageParametersProvider = wageParametersProvider ?? throw new ArgumentNullException(nameof(wageParametersProvider));
 			this.interactiveService = interactiveService;
 		}
 
-		public IRouteListWageCalculationService GetRouteListWageCalculationService(IUnitOfWork uow, IRouteListWageCalculationSource source)
+		public IRouteListWageCalculationService GetRouteListWageCalculationService(IUnitOfWork uow, Employee employee, IRouteListWageCalculationSource source)
 		{
+			if(employee == null) {
+				throw new ArgumentNullException(nameof(employee));
+			}
+
 			//Нет необходимости пересчитывать зарплату для МЛ до этой даты
 			//FIXME Возможно стоит эту дату вынести как параметр
 			if(source.RouteListDate <= new DateTime(2019, 09, 30)) {
 				return new WageCalculationServiceForOldRouteLists(source);
 			}
 
-			ChangeWageParameter(uow, source.RouteListId);
+			ChangeWageParameter(uow, source.RouteListId, employee);
 
 			WageParameter actualWageParameter = employee.GetActualWageParameter(source.RouteListDate);
 			if(source.IsLargusOrGazelle && actualWageParameter is RatesLevelWageParameter) {
@@ -60,7 +62,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			}
 		}
 
-		private void ChangeWageParameter(IUnitOfWork uow, int currentRouteListId)
+		private void ChangeWageParameter(IUnitOfWork uow, int currentRouteListId, Employee employee)
 		{
 			//Проверка на то, что сотрудник имеет только один стартовый расчет зарплаты
 			if(employee.WageParameters.Count != 1) {
@@ -83,8 +85,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployees(uow),
 					WageParameterTarget = WageParameterTargets.ForMercenariesCars
 				},
-				wageChangeDate,
-				interactiveService
+				wageChangeDate
 			);
 		}
 	}

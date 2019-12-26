@@ -24,6 +24,9 @@ using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 using QS.Dialog;
 using QS.Project.Repositories;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -88,6 +91,7 @@ namespace Vodovoz
 		}
 		OrderNode orderNode;
 		RouteListItem routeListItem;
+		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -363,7 +367,7 @@ namespace Vodovoz
 		{
 			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed);
 			routeListItem.RestoreOrder();
-			routeListItem.FirstFillClosing(UoW);
+			routeListItem.FirstFillClosing(UoW, wageCalculationServiceFactory);
 			UpdateListsSentivity();
 			UpdateButtonsState();
 		}

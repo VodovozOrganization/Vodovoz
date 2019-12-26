@@ -12,12 +12,16 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
+using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
@@ -32,6 +36,7 @@ namespace Vodovoz
 		private bool logisticanEditing = true;
 		private bool isUserLogist = true;
 		private Employee previousForwarder = null;
+		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
@@ -298,7 +303,7 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.OnClosing
 				&& ((previousForwarder == null && newForwarder != null)
 					|| (previousForwarder != null && newForwarder == null)))
-				Entity.RecalculateAllWages();
+				Entity.RecalculateAllWages(wageCalculationServiceFactory);
 
 			previousForwarder = Entity.Forwarder;
 		}
@@ -309,7 +314,7 @@ namespace Vodovoz
 		{
 			if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute)) {
 				if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?")) {
-					Entity.CompleteRoute();
+					Entity.CompleteRoute(wageCalculationServiceFactory);
 				}
 			}
 
