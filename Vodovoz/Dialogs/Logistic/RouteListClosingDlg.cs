@@ -30,6 +30,9 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Employees;
 using QS.Project.Services;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.WageCalculation;
 
 namespace Vodovoz
 {
@@ -45,6 +48,7 @@ namespace Vodovoz
 		private bool canCloseRoutelist = false;
 		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
+		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
 		List<ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
@@ -203,7 +207,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Получили возврат на склад");
 			//FIXME Убрать из этого места первоначальное заполнение. Сейчас оно вызывается при переводе статуса на сдачу. После того как не нормально не переведенных в закрытие маршрутников, тут заполение можно убрать.
 			if(!Entity.ClosingFilled)
-				Entity.FirstFillClosing();
+				Entity.FirstFillClosing(wageCalculationServiceFactory);
 
 			PerformanceHelper.AddTimePoint("Закончено первоначальное заполнение");
 
@@ -288,8 +292,8 @@ namespace Vodovoz
 		{
 			decimal driverCurrentWage = Entity.GetDriversTotalWage();
 			decimal forwarderCurrentWage = Entity.GetForwardersTotalWage();
-			decimal driverRecalcWage = Entity.GetRecalculatedDriverWage();
-			decimal forwarderRecalcWage = Entity.GetRecalculatedForwarderWage();
+			decimal driverRecalcWage = Entity.GetRecalculatedDriverWage(wageCalculationServiceFactory);
+			decimal forwarderRecalcWage = Entity.GetRecalculatedForwarderWage(wageCalculationServiceFactory);
 
 			string recalcWageMessage = "Найдены расхождения после пересчета зарплаты:";
 			bool hasDiscrepancy = false;
@@ -305,7 +309,7 @@ namespace Vodovoz
 
 			if(hasDiscrepancy && Entity.Status == RouteListStatus.Closed) {
 				MessageDialogHelper.RunInfoDialog(recalcWageMessage);
-				Entity.RecalculateAllWages();
+				Entity.RecalculateAllWages(wageCalculationServiceFactory);
 			}
 		}
 
@@ -317,7 +321,7 @@ namespace Vodovoz
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(Entity.NormalWage))
-				Entity.RecalculateAllWages();
+				Entity.RecalculateAllWages(wageCalculationServiceFactory);
 		}
 
 		private void UpdateFuelDocumentsColumns()
@@ -360,7 +364,7 @@ namespace Vodovoz
 
 			if((previousForwarder == null && newForwarder != null)
 			 || (previousForwarder != null && newForwarder == null))
-				Entity.RecalculateAllWages();
+				Entity.RecalculateAllWages(wageCalculationServiceFactory);
 
 			previousForwarder = Entity.Forwarder;
 		}
@@ -427,7 +431,7 @@ namespace Vodovoz
 		{
 			var item = routeListAddressesView.Items[aIdx[0]];
 
-			Entity.RecalculateWagesForRouteListItem(item);
+			Entity.RecalculateWagesForRouteListItem(item, wageCalculationServiceFactory);
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered() && item.Status != RouteListItemStatus.Transfered)
 				foreach(var itm in item.Order.OrderItems)
@@ -456,7 +460,7 @@ namespace Vodovoz
 		{
 			foreach(var item in routeListAddressesView.Items) {
 				var rli = item as RouteListItem;
-				Entity.RecalculateWagesForRouteListItem(rli);
+				Entity.RecalculateWagesForRouteListItem(rli, wageCalculationServiceFactory);
 				rli.RecalculateTotalCash();
 			}
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
@@ -502,7 +506,7 @@ namespace Vodovoz
 			decimal depositsCollectedTotal = items.Sum(item => item.BottleDepositsCollected);
 			decimal equipmentDepositsCollectedTotal = items.Sum(item => item.EquipmentDepositsCollected);
 			decimal totalCollected = items.Sum(item => item.TotalCash);
-			Entity.CalculateWages();
+			Entity.CalculateWages(wageCalculationServiceFactory);
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);

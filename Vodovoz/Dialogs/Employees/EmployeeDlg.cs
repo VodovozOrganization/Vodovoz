@@ -225,9 +225,7 @@ namespace Vodovoz
 				}
 			}
 
-			if(!Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService)) {
-				return false;
-			}
+			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
 			phonesView.RemoveEmpty();
 			logger.Info("Сохраняем сотрудника...");
