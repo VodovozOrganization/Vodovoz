@@ -757,7 +757,6 @@
     <Compile Include="Additions\Logistic\PrintRouteListHelper.cs" />
     <Compile Include="ReportsParameters\RevisionBottlesAndDeposits.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.RevisionBottlesAndDeposits.cs" />
-    <Compile Include="Representations\ResidueVM.cs" />
     <Compile Include="Dialogs\Logistic\FuelTypeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelTypeDlg.cs" />
     <Compile Include="Dialogs\Logistic\CarsDlg.cs" />
