@@ -21,7 +21,7 @@ namespace Vodovoz.FilterViewModels
 
 		public IEmployeeRepository EmployeeRepository { get; set; }
 
-		public ComplaintFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
+		public ComplaintFilterViewModel()
 		{
 			UpdateWith(
 				x => x.ComplaintType,
@@ -39,7 +39,7 @@ namespace Vodovoz.FilterViewModels
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionRepository,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory
-		) : base(commonServices.InteractiveService)
+		)
 		{
 			GuiltyItemVM = new GuiltyItemViewModel(
 				new ComplaintGuiltyItem(),

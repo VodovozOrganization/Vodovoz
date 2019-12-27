@@ -68,13 +68,13 @@ namespace Vodovoz.Infrastructure.Services
 			};
 			JournalTab = journal;
 			JournalTab.TabNameChanged += (sender, e) => TabNameChanged?.Invoke(sender, e);
-			JournalTab.CloseTab += (sender, e) => {
-				CloseTab?.Invoke(this, e);
+			JournalTab.TabClosed += (sender, e) => {
+				TabParent?.ForceCloseTab(this);
 				journal.Destroy();
 				Dispose();
 			};
 			journal.Destroyed += (sender, e) => {
-				CloseTab?.Invoke(this, new TdiTabCloseEventArgs(false));
+				TabParent?.ForceCloseTab(this);
 				journal.Destroy();
 				Dispose();
 			};
@@ -96,7 +96,6 @@ namespace Vodovoz.Infrastructure.Services
 
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
-		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 		public event EventHandler TabClosed;
 		public event EventHandler ListUpdated;
 

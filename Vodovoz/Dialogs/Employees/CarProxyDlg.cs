@@ -53,7 +53,7 @@ namespace Vodovoz.Dialogs.Employees
 				UpdateStates();
 			};
 
-			var filterDefaultForwarder = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
+			var filterDefaultForwarder = new EmployeeFilterViewModel();
 			filterDefaultForwarder.ShowFired = false;
 			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryDriver.RepresentationModel = new EmployeesVM(filterDefaultForwarder);

@@ -184,7 +184,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			AddDriverCommand = new DelegateCommand(
 				() => {
-					var drvFilter = new EmployeeFilterViewModel(commonServices);
+					var drvFilter = new EmployeeFilterViewModel();
 					drvFilter.SetAndRefilterAtOnce(
 						x => x.RestrictCategory = EmployeeCategory.driver,
 						x => x.ShowFired = false
@@ -250,7 +250,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			AddForwarderCommand = new DelegateCommand(
 				() => {
-					var fwdFilter = new EmployeeFilterViewModel(commonServices);
+					var fwdFilter = new EmployeeFilterViewModel();
 					fwdFilter.SetAndRefilterAtOnce(
 						x => x.RestrictCategory = EmployeeCategory.forwarder,
 						x => x.ShowFired = false

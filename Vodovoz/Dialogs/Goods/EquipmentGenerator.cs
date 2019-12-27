@@ -28,7 +28,6 @@ namespace Vodovoz
 		public List<Equipment> RegisteredEquipment { private set; get; }
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
-		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 		public event EventHandler TabClosed;
 
 		public HandleSwitchIn HandleSwitchIn { get; private set; }
@@ -196,8 +195,8 @@ namespace Vodovoz
 
 		protected void OnCloseTab ()
 		{
-			if (CloseTab != null)
-				CloseTab (this, new TdiTabCloseEventArgs (false));
+			//TODO закрывать через навигатор
+			TabParent?.AskToCloseTab(this);
 		}
 
 		public void OnTabClosed()

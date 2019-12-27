@@ -17,7 +17,7 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class DebtorsJournalFilterViewModel : FilterViewModelBase<DebtorsJournalFilterViewModel>, IJournalFilter
 	{
-		public DebtorsJournalFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
+		public DebtorsJournalFilterViewModel()
 		{
 			UpdateWith(
 				x => x.Client,

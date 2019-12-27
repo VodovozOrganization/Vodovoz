@@ -7,7 +7,7 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class CarJournalFilterViewModel : FilterViewModelBase<CarJournalFilterViewModel>, IJournalFilter
 	{
-		public CarJournalFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
+		public CarJournalFilterViewModel()
 		{
 			UpdateWith(
 				x => x.IncludeArchive

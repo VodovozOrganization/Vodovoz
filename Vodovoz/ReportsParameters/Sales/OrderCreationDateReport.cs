@@ -17,7 +17,7 @@ namespace Vodovoz.ReportsParameters.Sales
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			var filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
+			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.ShowFired = false

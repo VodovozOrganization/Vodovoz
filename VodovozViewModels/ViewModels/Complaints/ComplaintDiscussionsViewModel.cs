@@ -111,7 +111,7 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			AttachSubdivisionCommand = new DelegateCommand(
 				() => {
-					var filter = new SubdivisionFilterViewModel(CommonServices.InteractiveService);
+					var filter = new SubdivisionFilterViewModel();
 					filter.ExcludedSubdivisions = Entity.ObservableComplaintDiscussions.Select(x => x.Subdivision.Id).ToArray();
 					var subdivisionSelector = new SubdivisionsJournalViewModel(
 						filter,

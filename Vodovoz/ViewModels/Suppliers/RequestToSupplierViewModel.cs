@@ -218,7 +218,7 @@ namespace Vodovoz.ViewModels.Suppliers
 													  .Where(i => !i.Transfered)
 													  .Select(i => i.Nomenclature.Id)
 													  .Distinct();
-					var filter = new NomenclatureFilterViewModel(CommonServices.InteractiveService) {
+					var filter = new NomenclatureFilterViewModel() {
 						HidenByDefault = true
 					};
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(

@@ -293,7 +293,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			var filterAuthor = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices) {
+			var filterAuthor = new EmployeeFilterViewModel() {
 				ShowFired = false
 			};
 			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
@@ -1149,7 +1149,7 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
-			var nomenclatureFilter = new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+			var nomenclatureFilter = new NomenclatureFilterViewModel();
 			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = new [] { NomenclatureCategory.master },
 				x => x.RestrictCategory = NomenclatureCategory.master,
@@ -1179,7 +1179,7 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
-			var nomenclatureFilter = new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+			var nomenclatureFilter = new NomenclatureFilterViewModel();
 			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
 				x => x.SelectCategory = NomenclatureCategory.water,
@@ -1680,7 +1680,7 @@ namespace Vodovoz
 							  OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric, Entity.Client.PersonType, Entity.PaymentType),
 							  Entity.DeliveryDate);
 			(dlg as IContractSaved).ContractSaved += OnContractSaved;
-			dlg.CloseTab += (sender, e) => {
+			dlg.TabClosed += (sender, e) => {
 				CounterpartyContract contract =
 					CounterpartyContractRepository.GetCounterpartyContractByPaymentType(
 						UoWGeneric,

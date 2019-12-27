@@ -35,7 +35,7 @@ namespace Vodovoz.Core.Permissions
 			UoW = uow;
 			this.subdivision = subdivision;
 			var permissionExtensionStore = PermissionExtensionSingletonStore.GetInstance();
-			permissionlistview.ViewModel = new PermissionListViewModel(new GtkInteractiveService(), permissionExtensionStore);
+			permissionlistview.ViewModel = new PermissionListViewModel(permissionExtensionStore);
 			ViewModel = new EntitySubdivisionPermissionModel(UoW, subdivision, permissionlistview.ViewModel);
 
 			var extensions = ViewModel.ExtensionStore.PermissionExtensions;

@@ -19,8 +19,7 @@ namespace Vodovoz.Dialogs.Fuel
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IFuelRepository fuelRepository;
 
-		public FuelBalanceViewModel(ISubdivisionRepository subdivisionRepository, IFuelRepository fuelRepository, ICommonServices services) 
-			: base((services ?? throw new ArgumentNullException(nameof(services))).InteractiveService)
+		public FuelBalanceViewModel(ISubdivisionRepository subdivisionRepository, IFuelRepository fuelRepository)
 		{
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));

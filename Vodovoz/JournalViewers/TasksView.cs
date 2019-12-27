@@ -38,7 +38,7 @@ namespace Vodovoz.JournalViewers
 			callTasksVM = new CallTasksVM(new BaseParametersProvider());
 			callTasksVM.NeedUpdate = ycheckbuttonAutoUpdate.Active;
 			callTasksVM.ItemsListUpdated += (sender, e) => UpdateStatistics();
-			callTasksVM.Filter = new CallTaskFilterViewModel(ServicesConfig.InteractiveService);
+			callTasksVM.Filter = new CallTaskFilterViewModel();
 			callTasksVM.PropertyChanged += CreateCallTaskFilterView;
 			representationtreeviewTask.RepresentationModel = callTasksVM;
 			CreateCallTaskFilterView(callTasksVM.Filter, EventArgs.Empty);

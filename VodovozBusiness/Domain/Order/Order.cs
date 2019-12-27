@@ -138,7 +138,7 @@ namespace Vodovoz.Domain.Orders
 					if(InteractiveService == null)
 						throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
 
-					InteractiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
+					InteractiveService.ShowMessage(ImportanceLevel.Warning,"Нельзя изменить клиента для заполненного заказа.");
 					return;
 				}
 
@@ -1966,7 +1966,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool CanAddPromotionalSet(PromotionalSet proSet)
 		{
 			if(PromotionalSets.Any()) {
-				InteractiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промо-набора");
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промо-набора");
 				return false;
 			}
 
@@ -1988,7 +1988,7 @@ namespace Vodovoz.Domain.Orders
 				sb.AppendLine(string.Format("– {0}: {1}", proSetTitle, orders));
 			}
 			sb.AppendLine($"Вы уверены, что хотите добавить \"{proSet.Title}\"");
-			if(InteractiveService.InteractiveQuestion.Question(sb.ToString()))
+			if(InteractiveService.Question(sb.ToString()))
 				return true;
 
 			return false;
@@ -3189,7 +3189,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			var res = IsWrongWater(out string title, out string message);
 			if(res == true)
-				return interactiveService.InteractiveQuestion.Question(message);
+				return interactiveService.Question(message);
 			return !res;
 		}
 

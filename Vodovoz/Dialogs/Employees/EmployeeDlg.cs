@@ -106,7 +106,7 @@ namespace Vodovoz
 			yentryDeliveryDaySchedule.SubjectType = typeof(DeliveryDaySchedule);
 			yentryDeliveryDaySchedule.Binding.AddBinding(Entity, e => e.DefaultDaySheldule, w => w.Subject).InitializeFromSource();
 
-			var filterDefaultForwarder = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
+			var filterDefaultForwarder = new EmployeeFilterViewModel();
 			filterDefaultForwarder.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
 				x => x.ShowFired = false

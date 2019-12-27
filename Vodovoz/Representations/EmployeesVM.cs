@@ -92,12 +92,12 @@ namespace Vodovoz.ViewModel
 
 		public EmployeesVM()
 		{
-			CreateRepresentationFilter = () => new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices) { ShowFired = false };
+			CreateRepresentationFilter = () => new EmployeeFilterViewModel() { ShowFired = false };
 		}
 
 		public EmployeesVM(IUnitOfWork uow)
 		{
-			CreateRepresentationFilter = () => new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices) { ShowFired = false };
+			CreateRepresentationFilter = () => new EmployeeFilterViewModel() { ShowFired = false };
 			this.UoW = uow;
 		}
 	}

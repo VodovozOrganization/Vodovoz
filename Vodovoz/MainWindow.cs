@@ -330,7 +330,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionEmployeeActivated(object sender, EventArgs e)
 	{
-		EmployeeFilterViewModel employeeFilter = new EmployeeFilterViewModel(ServicesConfig.CommonServices);
+		EmployeeFilterViewModel employeeFilter = new EmployeeFilterViewModel();
 		tdiMain.OpenTab(
 			PermissionControlledRepresentationJournal.GenerateHashName<EmployeesVM>(),
 			() => new PermissionControlledRepresentationJournal(new EmployeesVM(employeeFilter))
@@ -339,7 +339,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionCarsActivated(object sender, EventArgs e)
 	{
-		CarJournalFilterViewModel filter = new CarJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		CarJournalFilterViewModel filter = new CarJournalFilterViewModel();
 		var counterpartyJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 
 		tdiMain.AddTab(counterpartyJournal);
@@ -380,7 +380,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			() => {
 				return new NomenclaturesJournalViewModel(
-					new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService) { HidenByDefault = true },
+					new NomenclatureFilterViewModel() { HidenByDefault = true },
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices
 				);
@@ -396,7 +396,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
-		CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel();
 		var counterpartyJournal = new CounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 
 		tdiMain.AddTab(counterpartyJournal);
@@ -1101,7 +1101,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionCameFromActivated(object sender, EventArgs e)
 	{
-		ClientCameFromFilterViewModel filter = new ClientCameFromFilterViewModel(ServicesConfig.CommonServices.InteractiveService) {
+		ClientCameFromFilterViewModel filter = new ClientCameFromFilterViewModel() {
 			HidenByDefault = true
 		};
 		var journal = new ClientCameFromJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);

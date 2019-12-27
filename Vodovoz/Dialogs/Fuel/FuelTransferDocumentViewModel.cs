@@ -46,7 +46,7 @@ namespace Vodovoz.Dialogs.Fuel
 			ConfigureEntityPropertyChanges();
 			CreateCommands();
 
-			FuelBalanceViewModel = new FuelBalanceViewModel(subdivisionRepository, fuelRepository, commonServices);
+			FuelBalanceViewModel = new FuelBalanceViewModel(subdivisionRepository, fuelRepository);
 
 			UpdateCashSubdivisions();
 			UpdateFuelTypes();
@@ -129,7 +129,7 @@ namespace Vodovoz.Dialogs.Fuel
 		public IRepresentationModel DriversVM {
 			get {
 				if(driversVM == null) {
-					var filterDriver = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
+					var filterDriver = new EmployeeFilterViewModel();
 					filterDriver.SetAndRefilterAtOnce(
 						x => x.ShowFired = false
 					);

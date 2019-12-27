@@ -12,7 +12,7 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class CallTaskFilterViewModel : FilterViewModelBase<CallTaskFilterViewModel>, IJournalFilter
 	{
-		public CallTaskFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
+		public CallTaskFilterViewModel()
 		{
 			StartDate = DateTime.Today.AddDays(-14);
 			EndDate = DateTime.Today.AddDays(14);

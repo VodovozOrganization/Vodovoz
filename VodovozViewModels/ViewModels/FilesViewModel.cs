@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels
 		public DelegateCommand<ComplaintFile> DeleteItemCommand { get; private set; }
 		public DelegateCommand<ComplaintFile> LoadItemCommand { get; private set; }
 
-		public FilesViewModel(IInteractiveService interactiveService, IFilePickerService filePicker, IUnitOfWork uow) : base(interactiveService)
+		public FilesViewModel(IFilePickerService filePicker, IUnitOfWork uow)
 		{
 			UoW = uow;
 			this.filePicker = filePicker;

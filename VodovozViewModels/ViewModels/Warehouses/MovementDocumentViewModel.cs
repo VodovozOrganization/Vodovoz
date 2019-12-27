@@ -402,7 +402,7 @@ namespace Vodovoz.ViewModels.Warehouses
 					printCommand = new DelegateCommand(
 						() => {
 							if(Entity.Status == MovementDocumentStatus.New && SendCommand.CanExecute()) {
-								if(CommonServices.InteractiveService.InteractiveQuestion.Question("Перед печатью необходимо отправить перемещение. Отправить?", "Печать документа перемещения")) {
+								if(CommonServices.InteractiveService.Question("Перед печатью необходимо отправить перемещение. Отправить?", "Печать документа перемещения")) {
 									SendCommand.Execute();
 									var doc = new MovementDocumentRdl(Entity);
 									if(doc is IPrintableRDLDocument) {

@@ -6,10 +6,6 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class ResidueFilterViewModel : FilterViewModelBase<ResidueFilterViewModel>
 	{
-		public ResidueFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
-		{
-		}
-
 		private DateTime? startDate;
 		public virtual DateTime? StartDate {
 			get => startDate;

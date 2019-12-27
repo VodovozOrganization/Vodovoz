@@ -6,10 +6,6 @@ namespace Vodovoz.FilterViewModels.Employees
 {
 	public class FineFilterViewModel : FilterViewModelBase<FineFilterViewModel>
 	{
-		public FineFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
-		{
-		}
-
 		private bool canEditSubdivision;
 		public virtual bool CanEditSubdivision {
 			get => canEditSubdivision;

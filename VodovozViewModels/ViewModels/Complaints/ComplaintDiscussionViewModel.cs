@@ -12,6 +12,7 @@ using QS.Project.Services;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Services;
+using QS.Dialog;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -59,7 +60,7 @@ namespace Vodovoz.ViewModels.Complaints
 		public FilesViewModel FilesViewModel {
 			get {
 				if(filesViewModel == null) {
-					filesViewModel = new FilesViewModel(CommonServices.InteractiveService, filePickerService, UoW);
+					filesViewModel = new FilesViewModel(filePickerService, UoW);
 					filesViewModel.FilesList = NewCommentFiles;
 				}
 
@@ -119,7 +120,7 @@ namespace Vodovoz.ViewModels.Complaints
 				() => {
 					var newComment = new ComplaintDiscussionComment();
 					if(CurrentEmployee == null) {
-						ShowWarningMessage("Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
+						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить комментарий так как к вашему пользователю не привязан сотрудник");
 						return;
 					}
 					newComment.Author = CurrentEmployee;

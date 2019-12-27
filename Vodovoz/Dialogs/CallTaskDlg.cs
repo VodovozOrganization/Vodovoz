@@ -75,7 +75,7 @@ namespace Vodovoz.Dialogs
 			yentryTareReturn.Binding.AddBinding(Entity, s => s.TareReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 
-			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
+			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel();
 			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
 			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
 			EmployeeyEntryreferencevm.RepresentationModel = employeeVM;
@@ -90,10 +90,10 @@ namespace Vodovoz.Dialogs
 
 			employee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
-			ClientPhonesView.ViewModel = new PhonesViewModel(new GtkInteractiveService(), UoW);
+			ClientPhonesView.ViewModel = new PhonesViewModel(UoW);
 			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(new GtkInteractiveService(), UoW);
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(UoW);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			if(Entity.Counterparty != null)

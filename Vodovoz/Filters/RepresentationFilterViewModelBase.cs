@@ -10,9 +10,6 @@ namespace Vodovoz.Filters
 	public abstract class RepresentationFilterViewModelBase<TFilter> : FilterViewModelBase<TFilter>, IRepresentationFilter, IJournalFilter
 		where TFilter : FilterViewModelBase<TFilter>
 	{
-		protected RepresentationFilterViewModelBase(IInteractiveService interactiveService) : base(interactiveService)
-		{ }
-
 		#region QSOrmProject.RepresentationModel.IRepresentationFilter implementation
 		IUnitOfWork IRepresentationFilter.UoW => UoW;
 		event EventHandler IRepresentationFilter.Refiltered {

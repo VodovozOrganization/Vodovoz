@@ -10,7 +10,7 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class OrderJournalFilterViewModel : FilterViewModelBase<OrderJournalFilterViewModel>
 	{
-		public OrderJournalFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
+		public OrderJournalFilterViewModel()
 		{
 			DaysToBack = -CurrentUserSettings.Settings.JournalDaysToAft;
 			DaysToForward = CurrentUserSettings.Settings.JournalDaysToFwd;

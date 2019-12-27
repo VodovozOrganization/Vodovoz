@@ -300,7 +300,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Info("Закрываем модель...");
 
 			if(
-				WarningMessages.Any() && !interactiveService.InteractiveQuestion.Question(
+				WarningMessages.Any() && !interactiveService.Question(
 					string.Join("\n", WarningMessages.Select(x => "⚠ " + x)),
 					"При построении транспортной модели обнаружены следующие проблемы:\n{0}\nПродолжить?"
 				)

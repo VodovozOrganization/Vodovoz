@@ -21,7 +21,7 @@ namespace Vodovoz.ViewWidgets.PromoSetAction
 
 		private void ConfigureDlg()
 		{
-			var filter = new NomenclatureFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+			var filter = new NomenclatureFilterViewModel();
 			filter.RestrictCategory = NomenclatureCategory.water;
 
 			entityviewmodelentryNomenclature.SetEntityAutocompleteSelectorFactory(

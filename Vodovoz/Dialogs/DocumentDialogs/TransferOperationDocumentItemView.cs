@@ -90,8 +90,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			}
 
 			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-				new WarehouseRepository(),
-				 ServicesConfig.InteractiveService
+				new WarehouseRepository()
 			);
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(

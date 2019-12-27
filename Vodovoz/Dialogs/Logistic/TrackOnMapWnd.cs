@@ -525,7 +525,7 @@ namespace Dialogs.Logistic
 			trackToBaseOverlay.Clear();
 			IEnumerable<RouteListItem> completedAddresses = routeList.Addresses.Where(x => x.Status == RouteListItemStatus.Completed);
 			if(!completedAddresses.Any()) {
-				ServicesConfig.InteractiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Warning, "Для МЛ нет завершенных адресов, невозможно расчитать трек", "");
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Для МЛ нет завершенных адресов, невозможно расчитать трек", "");
 				return;
 			}
 			if(completedAddresses.Count() > 1)

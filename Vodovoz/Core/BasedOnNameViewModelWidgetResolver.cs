@@ -29,11 +29,11 @@ namespace Vodovoz.Core
 		{
 			try {
 				return base.Resolve(tab);
-			} catch(Exception) {
+			} catch(Exception ex) {
 				try {
 					var baseOnNameResolver = new BasedOnNameTDIResolver(usedAssemblies);
 					return baseOnNameResolver.Resolve(tab);
-				} catch(Exception) {
+				} catch(Exception e) {
 					throw new InvalidProgramException("Невозможно найти View для ViewModel вкладки. Имя класса ViewModel не соответствует шаблону именования или не настроено правильное сопоставление");
 				}
 			}

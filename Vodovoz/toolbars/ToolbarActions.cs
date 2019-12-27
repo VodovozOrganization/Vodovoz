@@ -297,7 +297,7 @@ public partial class MainWindow : Window
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
 	{
 		IEntitySelectorFactory nomenclatureSelectorFactory = new DefaultEntitySelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices);
-		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService, nomenclatureSelectorFactory);
+		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(nomenclatureSelectorFactory);
 		var requestsJournal = new RequestsToSuppliersJournalViewModel(
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
@@ -326,7 +326,7 @@ public partial class MainWindow : Window
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
-		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel(ServicesConfig.CommonServices.InteractiveService);
+		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel();
 		var debtorsJournal = new DebtorsJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
 
 		tdiMain.AddTab(debtorsJournal);
@@ -438,7 +438,7 @@ public partial class MainWindow : Window
 
 	void ActionSelfdeliveryOrders_Activated(object sender, System.EventArgs e)
 	{
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService);
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel();
 		filter.SetAndRefilterAtOnce(
 			x => x.AllowStatuses = new OrderStatus[] { OrderStatus.WaitForPayment, OrderStatus.OnLoading, OrderStatus.Accepted, OrderStatus.Closed },
 			x => x.RestrictOnlySelfDelivery = true,
@@ -667,8 +667,7 @@ public partial class MainWindow : Window
 	void ActionWarehouseStock_Activated(object sender, System.EventArgs e)
 	{
 		NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-			new WarehouseRepository(),
-			 ServicesConfig.InteractiveService
+			new WarehouseRepository()
 		);
 
 		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
@@ -699,7 +698,7 @@ public partial class MainWindow : Window
 
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
-		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices.InteractiveService);
+		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel();
 		var ordersJournal = new OrderJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, QS.Project.Services.ServicesConfig.CommonServices);
 		tdiMain.AddTab(ordersJournal);
 	}
@@ -722,7 +721,7 @@ public partial class MainWindow : Window
 		IMoneyRepository moneyRepository = new MoneyRepository();
 		IDepositRepository depositRepository = new DepositRepository();
 		IBottlesRepository bottlesRepository = new BottlesRepository();
-		ResidueFilterViewModel filter = new ResidueFilterViewModel(ServicesConfig.InteractiveService);
+		ResidueFilterViewModel filter = new ResidueFilterViewModel();
 		var residueJournalViewModel = new ResidueJournalViewModel(
 			filter,
 			VodovozGtkServicesConfig.EmployeeService,

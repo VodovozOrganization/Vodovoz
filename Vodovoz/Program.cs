@@ -32,7 +32,6 @@ namespace Vodovoz
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			MainSupport.SendErrorRequestEmail = false;
 
-			StaticTools.NotificationViewAgent = new UserNotificationViewAgent();
 			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
 

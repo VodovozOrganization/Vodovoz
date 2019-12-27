@@ -1160,7 +1160,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.FuelConsumptionReport.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCloseDeliveryReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bookkeeping.CounterpartyCloseDeliveryReport.cs" />
-    <Compile Include="Infrastructure\Services\InteractiveService.cs" />
     <Compile Include="JournalViewModels\OrderJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\OrderFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderFilterView.cs" />

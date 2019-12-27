@@ -156,7 +156,7 @@ namespace Vodovoz
 		{
 			var track = TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
 			if(track == null) {
-				ServicesConfig.InteractiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Warning, "Невозможно расчитать растояние, так как в маршрутном листе нет трека", "");
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно расчитать растояние, так как в маршрутном листе нет трека", "");
 				return;
 			}
 			Entity.ConfirmedDistance = (decimal)track.TotalDistance.Value;
