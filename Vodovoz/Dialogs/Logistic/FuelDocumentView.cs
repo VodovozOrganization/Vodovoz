@@ -4,6 +4,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.ViewModels.FuelDocuments;
 using QS.Views.GtkUI;
+using QS.Permissions;
 
 namespace Vodovoz
 {
@@ -82,7 +83,7 @@ namespace Vodovoz
 		protected void OnButtonOpenExpenseClicked(object sender, EventArgs e)
 		{
 			if(ViewModel.FuelDocument.FuelCashExpense?.Id > 0) 
-				Tab.TabParent.AddSlaveTab(Tab, new CashExpenseDlg(ViewModel.FuelDocument.FuelCashExpense.Id));
+				Tab.TabParent.AddSlaveTab(Tab, new CashExpenseDlg(ViewModel.FuelDocument.FuelCashExpense.Id, PermissionsSettings.PermissionService));
 		}
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e) => ViewModel.SaveCommand.Execute();

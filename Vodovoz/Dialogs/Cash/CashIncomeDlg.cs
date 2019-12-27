@@ -13,6 +13,10 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.EntityRepositories.Employees;
+using QS.EntityRepositories;
+using QS.Services;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz
 {
@@ -20,13 +24,15 @@ namespace Vodovoz
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
+		private bool canEdit = true;
+
 		List<Selectable<Expense>> selectableAdvances;
 
-		public CashIncomeDlg ()
+		public CashIncomeDlg (IPermissionService permissionService)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
-			Entity.Casher = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Casher = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser (UoW);
 			if(Entity.Casher == null)
 			{
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
@@ -34,6 +40,13 @@ namespace Vodovoz
 				return;
 			}
 
+			var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			if(!userPermission.CanCreate) 
+			{
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
+				FailInitialize = true;
+				return;
+			}
 			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Income))) {
 
 				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
@@ -45,7 +58,7 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public CashIncomeDlg (int id)
+		public CashIncomeDlg (int id, IPermissionService permissionService)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Income> (id);
@@ -57,10 +70,18 @@ namespace Vodovoz
 				return;
 			}
 
+			var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			if(!userPermission.CanRead) {
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
+				FailInitialize = true;
+				return;
+			}
+			canEdit = userPermission.CanUpdate;
+
 			ConfigureDlg ();
 		}
 
-		public CashIncomeDlg (Expense advance) : this () 
+		public CashIncomeDlg (Expense advance, IPermissionService permissionService) : this (permissionService) 
 		{
 			if(advance.Employee == null)
 			{
@@ -75,7 +96,7 @@ namespace Vodovoz
 			selectableAdvances.Find(x => x.Value.Id == advance.Id).Selected = true;
 		}
 
-		public CashIncomeDlg (Income sub) : this (sub.Id) {}
+		public CashIncomeDlg (Income sub, IPermissionService permissionService) : this (sub.Id, permissionService) {}
 
 		void ConfigureDlg()
 		{
@@ -101,7 +122,7 @@ namespace Vodovoz
 			filterRL.OnlyStatuses = new RouteListStatus[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing };
 			yEntryRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRL);
 			yEntryRouteList.Binding.AddBinding(Entity, s => s.RouteListClosing, w => w.Subject).InitializeFromSource();
-			yEntryRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
+			yEntryRouteList.CanEditReference = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_delete"];
 
 			yEntryRouteList.Hidden += YEntryRouteList_ValueOrVisibilityChanged;
 			yEntryRouteList.Shown += YEntryRouteList_ValueOrVisibilityChanged;
@@ -135,11 +156,17 @@ namespace Vodovoz
 				.AddColumn ("Основание").AddTextRenderer (a => a.Value.Description)
 				.Finish ();
 			UpdateSubdivision();
+
+			table1.Sensitive = canEdit;
+			ytreeviewDebts.Sensitive = canEdit;
+			ytextviewDescription.Sensitive = canEdit;
+			buttonSave.Sensitive = canEdit;
+			accessfilteredsubdivisionselectorwidget.Sensitive &= canEdit;
 		}
 
 		public void FillForRoutelist(int routelistId)
 		{
-			var cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			var cashier = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
 			if(cashier == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
 				return;
@@ -282,7 +309,7 @@ namespace Vodovoz
 				return;
 			if(checkNoClose.Active && selectableAdvances.Count(x => x.Selected) > 1)
 			{
-				MessageDialogWorks.RunWarningDialog("Частично вернуть можно только один аванс.");
+				MessageDialogHelper.RunWarningDialog("Частично вернуть можно только один аванс.");
 				checkNoClose.Active = false;
 				return;
 			}
