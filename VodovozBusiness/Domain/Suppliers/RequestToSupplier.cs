@@ -245,7 +245,7 @@ namespace Vodovoz.Domain.Suppliers
 	{
 		public int Id { get; set; }
 		public Nomenclature Nomenclature { get; set; }
-		public int Quantity { get; set; }
+		public decimal Quantity { get; set; }
 		public RequestToSupplier RequestToSupplier { get; set; }
 
 		public SupplierPriceItem SupplierPriceItem { get; set; }
