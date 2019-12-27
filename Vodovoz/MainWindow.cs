@@ -233,7 +233,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		if(tdiMain.CloseAllTabs()) {
 			a.RetVal = false;
-			MainClass.TrayIcon.Dispose();
 			Application.Quit();
 		} else {
 			a.RetVal = true;
