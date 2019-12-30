@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModels.Client
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
 			RefreshPrices();
-			Search = new SearchViewModel(commonServices.InteractiveService);
+			Search = new SearchViewModel();
 			Search.OnSearch += (sender, e) => RefreshPrices();
 			Entity.ObservableSuplierPriceItems.ElementAdded += (aList, aIdx) => RefreshPrices();
 			Entity.ObservableSuplierPriceItems.ElementRemoved += (aList, aIdx, aObject) => RefreshPrices();
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.Client
 			AddItemCommand = new DelegateCommand(
 				() => {
 					var existingNomenclatures = Entity.ObservableSuplierPriceItems.Select(i => i.NomenclatureToBuy.Id).Distinct();
-					var filter = new NomenclatureFilterViewModel(CommonServices.InteractiveService) {
+					var filter = new NomenclatureFilterViewModel() {
 						HidenByDefault = true
 					};
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(

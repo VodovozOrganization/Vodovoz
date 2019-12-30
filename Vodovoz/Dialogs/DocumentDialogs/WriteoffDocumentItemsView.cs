@@ -101,8 +101,7 @@ namespace Vodovoz
 			}
 
 			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-				new WarehouseRepository(),
-				 ServicesConfig.InteractiveService
+				new WarehouseRepository()
 			);
 			filter.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse;
 

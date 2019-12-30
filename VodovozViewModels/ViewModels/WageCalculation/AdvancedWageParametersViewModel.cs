@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 			}
 		}
 
-		public AdvancedWageParametersViewModel(IWageHierarchyNode rootNode, IAdvancedWageWidgetFactory advancedWageWidgetFactory, ICommonServices commonServices) : base(commonServices.InteractiveService)
+		public AdvancedWageParametersViewModel(IWageHierarchyNode rootNode, IAdvancedWageWidgetFactory advancedWageWidgetFactory, ICommonServices commonServices)
 		{
 			RootNode = rootNode;
 			AdvancedWageWidgetFactory = advancedWageWidgetFactory ?? throw new ArgumentNullException(nameof(advancedWageWidgetFactory));

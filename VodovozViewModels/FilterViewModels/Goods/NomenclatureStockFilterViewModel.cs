@@ -9,7 +9,7 @@ namespace Vodovoz.FilterViewModels.Goods
 {
 	public class NomenclatureStockFilterViewModel : FilterViewModelBase<NomenclatureStockFilterViewModel>
 	{
-		public NomenclatureStockFilterViewModel(IWarehouseRepository warehouseRepository, IInteractiveService interactiveService) : base(interactiveService)
+		public NomenclatureStockFilterViewModel(IWarehouseRepository warehouseRepository)
 		{
 			if(warehouseRepository == null) {
 				throw new ArgumentNullException(nameof(warehouseRepository));

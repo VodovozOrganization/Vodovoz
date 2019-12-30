@@ -276,7 +276,7 @@ namespace Vodovoz.ViewModels.Complaints
 		{
 			AttachFineCommand = new DelegateCommand(
 				() => {
-					var fineFilter = new FineFilterViewModel(commonServices.InteractiveService);
+					var fineFilter = new FineFilterViewModel();
 					fineFilter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
 					var fineJournalViewModel = new FinesJournalViewModel(
 						fineFilter,

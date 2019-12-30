@@ -55,7 +55,7 @@ namespace Vodovoz.Dialogs.Fuel
 				Entity.Author = CurrentEmployee;
 			}
 
-			FuelBalanceViewModel = new FuelBalanceViewModel(subdivisionRepository, fuelRepository, commonServices);
+			FuelBalanceViewModel = new FuelBalanceViewModel(subdivisionRepository, fuelRepository);
 
 			CreateCommands();
 			ConfigEntityUpdateSubscribes();

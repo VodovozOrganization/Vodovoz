@@ -11,9 +11,6 @@ namespace Vodovoz.FilterViewModels.Goods
 {
 	public class NomenclatureFilterViewModel : FilterViewModelBase<NomenclatureFilterViewModel>
 	{
-		public NomenclatureFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
-		{ }
-
 		NomenclatureCategory[] availableCategories;
 		public virtual NomenclatureCategory[] AvailableCategories {
 			get {

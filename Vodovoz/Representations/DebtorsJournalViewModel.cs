@@ -295,7 +295,7 @@ namespace Vodovoz.Representations
 				newTaskCount++;
 				UoW.Save(task);
 			}
-			commonServices.InteractiveService.InteractiveMessage.ShowMessage(ImportanceLevel.Info, $"Создано задач: {newTaskCount.ToString()}");
+			commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Создано задач: {newTaskCount.ToString()}");
 			UoW.Commit();
 			return newTaskCount;
 		}

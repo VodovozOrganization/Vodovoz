@@ -94,7 +94,7 @@ namespace Vodovoz
 			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
 			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
 
-			phonesview1.ViewModel = new PhonesViewModel(new GtkInteractiveService(), UoW);
+			phonesview1.ViewModel = new PhonesViewModel(UoW);
 			phonesview1.ViewModel.PhonesList = Entity.ObservablePhones;
 
 			ShowResidue();

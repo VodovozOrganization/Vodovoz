@@ -9,7 +9,7 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class CounterpartyJournalFilterViewModel : FilterViewModelBase<CounterpartyJournalFilterViewModel>, IJournalFilter
 	{
-		public CounterpartyJournalFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
+		public CounterpartyJournalFilterViewModel()
 		{
 			UpdateWith(
 				x => x.CounterpartyType,

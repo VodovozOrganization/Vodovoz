@@ -359,7 +359,7 @@ namespace Vodovoz.ViewWidgets
 				() => dlg
 			);
 
-			dlg.CloseTab += (sender, e) => {
+			dlg.TabClosed += (sender, e) => {
 				if(sender is OrderDlg) {
 					Order o = (sender as OrderDlg).Entity;
 					if(o.Id > 0) {

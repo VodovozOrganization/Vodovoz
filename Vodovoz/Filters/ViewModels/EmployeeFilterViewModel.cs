@@ -47,13 +47,5 @@ namespace Vodovoz.Filters.ViewModels
 			get => restrictWageType;
 			set => UpdateFilterField(ref restrictWageType, value);
 		}
-
-		public EmployeeFilterViewModel(ICommonServices services) : base((services ?? throw new ArgumentNullException(nameof(services))).InteractiveService)
-		{
-		}
-
-		public EmployeeFilterViewModel(IInteractiveService service) : base(service)
-		{
-		}
 	}
 }

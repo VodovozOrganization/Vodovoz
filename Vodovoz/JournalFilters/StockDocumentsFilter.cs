@@ -22,7 +22,7 @@ namespace Vodovoz
 			yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery();
 			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
 				yentryrefWarehouse.Subject = UoW.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
-			var filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
+			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false

@@ -11,7 +11,7 @@ namespace Vodovoz.ViewModels.Orders
 {
 	public class AddFixPriceActionViewModel : UoWWidgetViewModelBase, ICreationControl
 	{
-		public AddFixPriceActionViewModel(IUnitOfWork UoW, PromotionalSet promotionalSet, ICommonServices commonServices) : base(commonServices.InteractiveService)
+		public AddFixPriceActionViewModel(IUnitOfWork UoW, PromotionalSet promotionalSet, ICommonServices commonServices)
 		{
 			CreateCommands();
 			PromotionalSet = promotionalSet;

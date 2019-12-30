@@ -156,8 +156,7 @@ namespace Vodovoz
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
 			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-				new WarehouseRepository(),
-				 ServicesConfig.InteractiveService
+				new WarehouseRepository()
 			);
 			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 
@@ -216,8 +215,7 @@ namespace Vodovoz
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
 		{
 			NomenclatureStockFilterViewModel filter = new NomenclatureStockFilterViewModel(
-				new WarehouseRepository(),
-				 ServicesConfig.InteractiveService
+				new WarehouseRepository()
 			);
 			filter.RestrictWarehouse = DocumentUoW.Root.Warehouse;
 

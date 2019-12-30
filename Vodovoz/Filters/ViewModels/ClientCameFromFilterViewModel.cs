@@ -5,9 +5,6 @@ namespace Vodovoz.Filters.ViewModels
 {
 	public class ClientCameFromFilterViewModel : FilterViewModelBase<ClientCameFromFilterViewModel>
 	{
-		public ClientCameFromFilterViewModel(IInteractiveService interactiveService) : base(interactiveService)
-		{ }
-
 		bool restrictArchive;
 		public virtual bool RestrictArchive {
 			get => restrictArchive;

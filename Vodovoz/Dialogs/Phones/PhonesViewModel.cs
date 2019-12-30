@@ -34,7 +34,7 @@ namespace Vodovoz.Dialogs.Phones
 			set => SetField(ref readOnly, value, () => ReadOnly);
 		}
 
-		public PhonesViewModel(IInteractiveService interactiveService,IUnitOfWork uow):base(interactiveService)
+		public PhonesViewModel(IUnitOfWork uow)
 		{
 			PhoneTypes = PhoneTypeRepository.GetPhoneTypes(uow);
 			CreateCommands();

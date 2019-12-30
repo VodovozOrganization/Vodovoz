@@ -40,7 +40,7 @@ namespace Vodovoz.Views.Complaints
 			spLstAddress.Binding.AddBinding(ViewModel, s => s.CanSelectDeliveryPoint, w => w.Sensitive).InitializeFromSource();
 
 			var orderSelectorFactory = new EntityAutocompleteSelectorFactory<OrderJournalViewModel>(typeof(Order), () => {
-				var filter = new OrderJournalFilterViewModel(ServicesConfig.InteractiveService);
+				var filter = new OrderJournalFilterViewModel();
 				if(ViewModel.Entity.Counterparty != null) {
 					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
 				}

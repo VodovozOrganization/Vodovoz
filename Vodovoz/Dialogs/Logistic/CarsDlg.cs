@@ -64,7 +64,7 @@ namespace Vodovoz
 			yentryFuelCardNumber.Binding.AddBinding(Entity, e => e.FuelCardNumber, w => w.Text).InitializeFromSource();
 			yentryFuelCardNumber.Binding.AddFuncBinding(Entity, e => e.CanEditFuelCardNumber, w => w.Sensitive).InitializeFromSource();
 
-			var filter = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
+			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
 				x => x.ShowFired = false

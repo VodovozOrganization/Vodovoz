@@ -34,7 +34,7 @@ namespace Vodovoz.Reports
 			dateStart.Date = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
 			dateEnd.Date = new DateTime(now.Year, now.Month, now.Day, 23, 59, 59);
 
-			var filterCasher = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
+			var filterCasher = new EmployeeFilterViewModel();
 			filterCasher.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			filterCasher.ShowFired = false;
 			yentryrefCasher.RepresentationModel = new EmployeesVM(filterCasher);

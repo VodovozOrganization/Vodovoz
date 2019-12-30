@@ -89,7 +89,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		{
 			ChangeWageStartDateCommand = new DelegateCommand<WageParameterNode>(
 				(node) => {
-					if(!AskQuestion(
+					if(!commonServices.InteractiveService.Question(
 						"Внимание! Будет произведено изменение даты в уже имеющемся расчете зарплаты, " +
 						"документы попадающие в этот интервал будут пересчитываться по другому расчету! " +
 						"Продолжить?", "Внимание!")) {

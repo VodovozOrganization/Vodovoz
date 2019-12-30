@@ -77,7 +77,7 @@ namespace Vodovoz.Dialogs.Fuel
 		public FuelBalanceViewModel FuelBalanceViewModel {
 			get {
 				if(fuelBalanceViewModel == null) {
-					fuelBalanceViewModel = new FuelBalanceViewModel(subdivisionRepository, fuelRepository, commonServices);
+					fuelBalanceViewModel = new FuelBalanceViewModel(subdivisionRepository, fuelRepository);
 				}
 				return fuelBalanceViewModel;
 			}

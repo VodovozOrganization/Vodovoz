@@ -101,7 +101,7 @@ namespace Vodovoz.ViewModels.Orders
 		{
 			AddNomenclatureCommand = new DelegateCommand(
 			() => {
-				var nomenFilter = new NomenclatureFilterViewModel(CommonServices.InteractiveService);
+				var nomenFilter = new NomenclatureFilterViewModel();
 				nomenFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
 					x => x.SelectCategory = NomenclatureCategory.water,

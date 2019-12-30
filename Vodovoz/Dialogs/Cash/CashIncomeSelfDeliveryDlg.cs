@@ -83,7 +83,7 @@ namespace Vodovoz.Dialogs.Cash
 			enumcomboOperation.Sensitive = false;
 			Entity.TypeOperation = IncomeType.Payment;
 
-			var filterCasher = new EmployeeFilterViewModel(QS.Project.Services.ServicesConfig.CommonServices);
+			var filterCasher = new EmployeeFilterViewModel();
 			filterCasher.ShowFired = false;
 			yentryCasher.RepresentationModel = new EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();

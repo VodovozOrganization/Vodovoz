@@ -11,7 +11,7 @@ namespace Vodovoz.FilterViewModels.Suppliers
 	{
 		public IEntitySelectorFactory NomenclatureSelectorFactory { get; set; }
 
-		public RequestsToSuppliersFilterViewModel(IInteractiveService interactiveService, IEntitySelectorFactory nomenclatureSelectorFactory) : base(interactiveService)
+		public RequestsToSuppliersFilterViewModel(IEntitySelectorFactory nomenclatureSelectorFactory)
 		{
 			NomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 		}
