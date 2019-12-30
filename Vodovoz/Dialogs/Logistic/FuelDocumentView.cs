@@ -5,6 +5,10 @@ using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.ViewModels.FuelDocuments;
 using QS.Views.GtkUI;
 using QS.Permissions;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Filters.ViewModels;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -33,8 +37,9 @@ namespace Vodovoz
 			yentrydriver.RepresentationModel = ViewModel.EmployeeJournal;
 			yentrydriver.Binding.AddBinding(ViewModel.FuelDocument, e => e.Driver, w => w.Subject).InitializeFromSource();
 
-			yentryCar.SubjectType = typeof(Car);
-			yentryCar.Binding.AddBinding(ViewModel.FuelDocument, e => e.Car, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.Binding.AddBinding(ViewModel.FuelDocument, x => x.Car, x => x.Subject).InitializeFromSource();
 
 			yentryfuel.SubjectType = typeof(FuelType);
 			yentryfuel.Binding.AddBinding(ViewModel.FuelDocument, e => e.Fuel, w => w.Subject).InitializeFromSource();

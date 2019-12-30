@@ -33,6 +33,8 @@ using QS.Project.Services;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.WageCalculation;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -115,9 +117,10 @@ namespace Vodovoz
 			canCloseRoutelist = PermissionRepository.HasAccessToClosingRoutelist();
 			Entity.ObservableFuelDocuments.ElementAdded += ObservableFuelDocuments_ElementAdded;
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
-			referenceCar.SubjectType = typeof(Car);
-			referenceCar.ItemsQuery = Repository.Logistics.CarRepository.ActiveCarsQuery();
-			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
+
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 
 			var filterDriver = new EmployeeFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
@@ -266,7 +269,7 @@ namespace Vodovoz
 
 			speccomboShift.Sensitive = false;
 			vbxFuelTickets.Sensitive = CheckIfCashier();
-			referenceCar.Sensitive = editing;
+			entityviewmodelentryCar.Sensitive = editing;
 			referenceDriver.Sensitive = editing;
 			referenceForwarder.Sensitive = editing;
 			referenceLogistican.Sensitive = editing;

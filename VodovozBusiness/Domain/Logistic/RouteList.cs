@@ -106,8 +106,9 @@ namespace Vodovoz.Domain.Logistic
 					if(Id == 0) {
 						while(ObservableGeographicGroups.Any())
 							ObservableGeographicGroups.Remove(ObservableGeographicGroups.FirstOrDefault());
-						foreach(var group in value.GeographicGroups)
-							ObservableGeographicGroups.Add(group);
+						if(value != null)
+							foreach(var group in value.GeographicGroups)
+								ObservableGeographicGroups.Add(group);
 					}
 				}
 			}
