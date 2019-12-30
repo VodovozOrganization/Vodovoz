@@ -1585,23 +1585,7 @@
 	route_lists.id AS route_list_number,
 	IFNULL(SUM(bottles_movement_operations.returned),
 			0) AS empty_bottles,
-	IFNULL(CASE
-				WHEN
-					fixed_driver_wage &gt; 0
-				THEN
-					(SELECT 
-							SUM(count)
-						FROM
-							route_list_addresses
-								LEFT JOIN
-							route_lists rl ON rl.id = route_list_id
-								LEFT JOIN
-							order_items oi ON oi.order_id = route_list_addresses.order_id
-						WHERE
-							rl.id = route_lists.id)
-				ELSE SUM(bottles_movement_operations.delivered)
-			END,
-			0) AS full_bottles,
+	IFNULL(SUM(bottles_movement_operations.delivered), 0) AS full_bottles,
 	IFNULL(CASE
 				WHEN 
 					IFNULL(
