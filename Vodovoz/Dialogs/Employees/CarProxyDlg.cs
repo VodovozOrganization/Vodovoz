@@ -65,6 +65,7 @@ namespace Vodovoz.Dialogs.Employees
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
 			entityviewmodelentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
+			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			RefreshParserRootObject();
 

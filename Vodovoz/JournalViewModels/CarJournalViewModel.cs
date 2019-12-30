@@ -16,7 +16,7 @@ namespace Vodovoz.JournalViewModels
 	{
 		public CarJournalViewModel(CarJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
-			TabName = "Журнал контрагентов";
+			TabName = "Журнал автомобилей";
 			UpdateOnChanges(
 				typeof(Car),
 				typeof(Employee)
@@ -34,6 +34,15 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel != null && !FilterViewModel.IncludeArchive) {
 				query.Where(c => !c.IsArchive);
 			}
+
+			query.Where(GetSearchCriterion(
+				() => carAlias.Id,
+				() => carAlias.Model,
+				() => carAlias.RegistrationNumber,
+				() => driverAlias.Name,
+				() => driverAlias.LastName,
+				() => driverAlias.Patronymic
+			));
 
 			var result = query.SelectList(list => list
 			.Select(c => c.Id).WithAlias(() => carJournalNodeAlias.Id)

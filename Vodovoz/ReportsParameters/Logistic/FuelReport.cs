@@ -30,6 +30,8 @@ namespace Vodovoz.Reports
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.CompletionPopupSetWidth(false);
+
 			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
