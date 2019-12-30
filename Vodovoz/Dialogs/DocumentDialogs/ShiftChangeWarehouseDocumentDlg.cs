@@ -8,11 +8,17 @@ using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Gamma.ColumnConfig;
+using Gamma.Binding;
+using Vodovoz.ReportsParameters.Store;
+using System.Data.Bindings.Collections.Generic;
+using Vodovoz.Domain.Goods;
+using System.Linq;
+using Gamma.Utilities;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -20,6 +26,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	public partial class ShiftChangeWarehouseDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<ShiftChangeWarehouseDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private GenericObservableList<SelectableNomenclatureTypeNode> observableCategoryNodes { get; set; }
 
 		public ShiftChangeWarehouseDocumentDlg()
 		{
@@ -37,6 +44,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(!UoW.IsNew)
 				Entity.Warehouse = StoreDocumentHelper.GetDefaultWarehouse(UoW, WarehousePermissions.ShiftChangeEdit);
 
+			ConfigureCategoryTreeView();
 			ConfigureDlg();
 		}
 
@@ -44,6 +52,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<ShiftChangeWarehouseDocument>(id);
+			ConfigureCategoryTreeView();
 			ConfigureDlg();
 		}
 
@@ -76,7 +85,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				MessageDialogHelper.RunWarningDialog("У вас нет прав на изменение этого документа.");
 
 			ydatepickerDocDate.Sensitive = yentryrefWarehouse.IsEditable = ytextviewCommnet.Editable = canEdit || canCreate;
-			shiftchangewarehousedocumentitemsview1.Sensitive = canEdit || canCreate;
+			shiftChangeWarehouseDocItemsView.Sensitive = canEdit || canCreate;
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			if(UoW.IsNew)
 				yentryrefWarehouse.ItemsQuery = StoreDocumentHelper.GetRestrictedWarehouseQuery(WarehousePermissions.ShiftChangeCreate);
@@ -101,8 +110,51 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				return;
 			}
 
-			shiftchangewarehousedocumentitemsview1.DocumentUoW = UoWGeneric;
+			shiftChangeWarehouseDocItemsView.DocumentUoW = UoWGeneric;
 		}
+
+		#region CategoryTreeView
+
+		void ConfigureCategoryTreeView()
+		{
+			var categoryList = Enum.GetValues(typeof(NomenclatureCategory)).Cast<NomenclatureCategory>().ToList();
+
+			observableCategoryNodes = new GenericObservableList<SelectableNomenclatureTypeNode>();
+
+			foreach(var cat in categoryList) {
+				var node = new SelectableNomenclatureTypeNode();
+				node.Category = cat;
+				node.Title = cat.GetEnumTitle() ?? cat.ToString();
+
+				observableCategoryNodes.Add(node);
+			}
+
+			observableCategoryNodes.ListContentChanged += ObservableItemsField_ListContentChanged;
+
+			ytreeviewCategories.ColumnsConfig = FluentColumnsConfig<SelectableNomenclatureTypeNode>
+				.Create()
+				.AddColumn("Выбрать").AddToggleRenderer(node => node.Selected).Editing()
+				.AddColumn("Название").AddTextRenderer(node => node.Title)
+				.Finish();
+
+			ytreeviewCategories.YTreeModel = new RecursiveTreeModel<SelectableNomenclatureTypeNode>(observableCategoryNodes, x => x.Parent, x => x.Children);
+			SelectCategoriesOnStart();
+		}
+
+		void ObservableItemsField_ListContentChanged(object sender, EventArgs e)
+		{
+			ytreeviewCategories.QueueDraw();
+			shiftChangeWarehouseDocItemsView.Categories = observableCategoryNodes.Where(i => i.Selected).Select(i => i.Category).ToList();
+		}
+
+		void SelectCategoriesOnStart()
+		{
+			foreach(var category in Entity.ObservableItems.Select(i => i.Nomenclature.Category).Distinct()) {
+				observableCategoryNodes.FirstOrDefault(n => n.Category == category).Selected = true;
+			}
+		}
+
+		#endregion
 
 		public override bool Save()
 		{
@@ -131,11 +183,16 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(ShiftChangeWarehouseDocument), "акта передачи склада"))
 				Save();
 
+			string[] categories = observableCategoryNodes.Where(i => i.Selected).Select(i => i.CategoryName).ToArray();
+			if(categories.Length == 0)
+				categories = new string[] { "0" };
+
 			var reportInfo = new QS.Report.ReportInfo {
 				Title = String.Format("Акт передачи склада №{0} от {1:d}", Entity.Id, Entity.TimeStamp),
 				Identifier = "Store.ShiftChangeWarehouse",
 				Parameters = new Dictionary<string, object> {
-					{ "document_id",  Entity.Id }
+					{ "document_id",  Entity.Id },
+					{ "categories", categories}
 				}
 			};
 

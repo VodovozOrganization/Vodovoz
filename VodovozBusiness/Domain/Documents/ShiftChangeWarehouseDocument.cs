@@ -81,9 +81,18 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add(item);
 		}
 
-		public virtual void FillItemsFromStock(IUnitOfWork uow)
+		public virtual void FillItemsFromStock(IUnitOfWork uow, IList<NomenclatureCategory> categories = null)
 		{
-			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id);
+			Dictionary<int, decimal> inStock = new Dictionary<int, decimal>();
+
+			if(categories != null && categories.Count > 0)
+				foreach(var category in categories) {
+					foreach(var item in Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, null, category)) {
+						inStock.Add(item.Key, item.Value);
+					}
+				} else
+				inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id);
+
 			if(inStock.Count == 0)
 				return;
 
@@ -102,9 +111,17 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual void UpdateItemsFromStock(IUnitOfWork uow)
+		public virtual void UpdateItemsFromStock(IUnitOfWork uow, IList<NomenclatureCategory> categories = null)
 		{
-			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp);
+			Dictionary<int, decimal> inStock = new Dictionary<int, decimal>();
+
+			if(categories != null && categories.Count > 0)
+				foreach(var category in categories) {
+					foreach(var item in Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp, category)) {
+						inStock.Add(item.Key, item.Value);
+					}
+				} else
+					inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp);
 
 			foreach(var itemInStock in inStock) {
 				var item = Items.FirstOrDefault(x => x.Nomenclature.Id == itemInStock.Key);
@@ -120,9 +137,15 @@ namespace Vodovoz.Domain.Documents
 						});
 				}
 			}
+			var itemsToRemove = new List<ShiftChangeWarehouseDocumentItem>();
+
 			foreach(var item in Items) {
 				if(!inStock.ContainsKey(item.Nomenclature.Id))
-					item.AmountInDB = 0;
+					itemsToRemove.Add(item);
+			}
+
+			foreach(var item in itemsToRemove) {
+				ObservableItems.Remove(item);
 			}
 		}
 

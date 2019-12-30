@@ -14,6 +14,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ShiftChangeWarehouseDocumentItemsView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
+		public IList<NomenclatureCategory> Categories { get; set; }
 
 		public ShiftChangeWarehouseDocumentItemsView()
 		{
@@ -23,10 +24,10 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
 				.AddColumn("Кол-во в учёте").AddTextRenderer(x => x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInDB) : x.AmountInDB.ToString())
 				.AddColumn("Кол-во по факту").AddNumericRenderer(x => x.AmountInFact).Editing()
-				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
-				.AddSetter((w, x) => w.Digits = (x.Nomenclature.Unit != null ? (uint)x.Nomenclature.Unit.Digits : 1))
+					.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
+					.AddSetter((w, x) => w.Digits = (x.Nomenclature.Unit != null ? (uint)x.Nomenclature.Unit.Digits : 1))
 				.AddColumn("Разница").AddTextRenderer(x => x.Difference != 0 && x.Nomenclature.Unit != null ? x.Nomenclature.Unit.MakeAmountShortStr(x.Difference) : String.Empty)
-				.AddSetter((w, x) => w.Foreground = x.Difference < 0 ? "red" : "blue")
+					.AddSetter((w, x) => w.Foreground = x.Difference < 0 ? "red" : "blue")
 				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
 				.Finish();
@@ -64,9 +65,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 		protected void OnButtonFillItemsClicked(object sender, EventArgs e)
 		{
 			if(DocumentUoW.Root.Items.Count == 0)
-				DocumentUoW.Root.FillItemsFromStock(DocumentUoW);
+				DocumentUoW.Root.FillItemsFromStock(DocumentUoW, Categories ?? null);
 			else
-				DocumentUoW.Root.UpdateItemsFromStock(DocumentUoW);
+				DocumentUoW.Root.UpdateItemsFromStock(DocumentUoW, Categories ?? null);
 			UpdateButtonState();
 		}
 
