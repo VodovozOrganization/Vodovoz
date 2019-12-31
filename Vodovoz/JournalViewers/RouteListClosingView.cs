@@ -60,8 +60,6 @@ namespace Vodovoz
 					TabParent.OpenTab(RouteListKeepingDlg.GenerateHashName(node.Id), () => new RouteListKeepingDlg(node.Id));
 					break;
 				case RouteListStatus.MileageCheck:
-					TabParent.OpenTab(RouteListMileageCheckDlg.GenerateHashName(node.Id), () => new RouteListMileageCheckDlg(node.Id));
-					break;
 				case RouteListStatus.OnClosing:
 				case RouteListStatus.Closed:
 					if(PermissionRepository.HasAccessToClosingRoutelist()) {
