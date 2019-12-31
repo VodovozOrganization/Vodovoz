@@ -78,12 +78,6 @@ namespace Vodovoz.JournalViewers
 				tableWarehouses.RepresentationModel.UpdateNodes();
 		}
 
-		protected void OnSearchentity1TextChanged(object sender, EventArgs e)
-		{
-			tableWarehouses.SearchHighlightText = searchentity1.Text;
-			tableWarehouses.RepresentationModel.SearchString = searchentity1.Text;
-		}
-
 		protected void OnButtonRefreshClicked(object sender, EventArgs e) => ConfigureWidget();
 	}
 }
