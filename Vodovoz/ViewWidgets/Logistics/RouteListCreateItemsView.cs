@@ -257,7 +257,8 @@ namespace Vodovoz
 			SelectDialog.ObjectSelected += (s, ea) => {
 				if(ea.Subject != null) {
 					foreach(var order in OrderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, ea.Subject as ScheduleRestrictedDistrict))
-						RouteListUoW.Root.AddAddressFromOrder(order);
+						if(!RouteListUoW.Root.ObservableAddresses.Any(a => a.Order.Id == order.Id))
+							RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};
 			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
