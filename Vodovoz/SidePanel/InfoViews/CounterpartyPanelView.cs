@@ -127,6 +127,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				() => {
 					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(Counterparty.Id, InfoProvider.UoW), UnitOfWorkFactory.GetDefaultFactory);
 					dlg.ActivateContactsTab();
+					dlg.TabClosed += (senderObject, eventArgs) => { this.Refresh(); };
 					return dlg;
 				}
 			);
