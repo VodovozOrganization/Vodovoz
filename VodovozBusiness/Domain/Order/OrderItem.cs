@@ -516,7 +516,7 @@ namespace Vodovoz.Domain.Orders
 			Price = GetPriceByTotalCount();
 		}
 
-		private decimal GetPriceByTotalCount()
+		public virtual decimal GetPriceByTotalCount()
 		{
 			if(Nomenclature != null) {
 				if(Nomenclature.DependsOnNomenclature == null)

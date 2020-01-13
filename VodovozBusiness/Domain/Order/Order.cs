@@ -1339,10 +1339,45 @@ namespace Vodovoz.Domain.Orders
 
 			if(actualContract != oldContract) {
 				Contract = actualContract;
-				ChangeWaterAgreement(actualContract, oldContract);
+				ChangeWaterAgreementContractChanged(actualContract, oldContract);
 				ChangeOrderBasedAgreements(actualContract);
 			}
+
 			UpdateDocuments();
+		}
+
+		/// <summary>
+		/// При смене точки доставки переделывает связанные с доп соглашением на воду
+		/// элементы в заказе на актуальное доп соглашение точки доставки.
+		/// </summary>
+		public virtual void ChangeWaterAgreementDeliveryPointChanged()
+		{
+			if(!this.HasWater() || Contract == null)
+				return;
+
+			var wsa = Contract.GetWaterSalesAgreement(DeliveryPoint);
+			if(wsa == null)
+				return;
+
+			var waterCategories = Nomenclature.GetCategoriesRequirementForWaterAgreement();
+			var waterItems = OrderItems.Where(x => waterCategories.Contains(x.Nomenclature.Category)).ToList();
+
+			//Необходимо для автоматического пересчёта бывших фиксированных цен
+			foreach(var item in waterItems.Where(i => i.GetWaterFixedPrice() != null)) {
+				item.IsUserPrice = false;
+			}
+			//Привязываем товары на новое доп соглашение
+			waterItems.ForEach(x => x.AdditionalAgreement = wsa);
+
+			//Пересчёт цен промо-наборов
+			if(promotionalSets.Count > 0) {
+				foreach(OrderItem item in ObservableOrderItems.Where(i => i.PromoSet != null))
+					item.Price = item.Nomenclature.GetPrice(item.Count);
+			}
+			//Пересчёт цен фиксы по новому допсоглашению
+			UpdatePrices(wsa);
+			//Остальной пересчёт цен
+			RecalculateItemsPrice();
 		}
 
 		/// <summary>
@@ -1350,7 +1385,7 @@ namespace Vodovoz.Domain.Orders
 		/// все елементы в заказе на актуальное доп соглашение измененного договора.
 		/// ВНИМАНИЕ! Использовать только при смене договора
 		/// </summary>
-		private void ChangeWaterAgreement(CounterpartyContract actualContract, CounterpartyContract oldContract)
+		private void ChangeWaterAgreementContractChanged(CounterpartyContract actualContract, CounterpartyContract oldContract)
 		{
 			if(oldContract == null) {
 				return;
@@ -1538,10 +1573,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool HasActualWaterSaleAgreementByDeliveryPoint()
 		{
-			if(Contract == null) {
+			if(Contract == null)
 				return false;
-			}
-			Contract.AdditionalAgreements.Where(x => !x.IsCancelled).OfType<WaterSalesAgreement>();
+
 			var waterSalesAgreementList = Contract.AdditionalAgreements
 												   .Where(x => !x.IsCancelled)
 												   .Select(x => x.Self)
