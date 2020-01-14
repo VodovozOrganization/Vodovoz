@@ -477,10 +477,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -500,12 +500,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -524,12 +524,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -548,12 +548,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -572,12 +572,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -596,12 +596,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -620,12 +620,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -644,12 +644,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -668,12 +668,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -692,12 +692,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -716,12 +716,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -740,12 +740,12 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -764,10 +764,10 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -788,10 +788,10 @@
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -812,12 +812,12 @@
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -836,12 +836,12 @@
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -860,12 +860,12 @@
                         </BackgroundColor>
                         <VerticalAlign>Middle</VerticalAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1657,12 +1657,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1681,12 +1681,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1705,12 +1705,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1729,10 +1729,10 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1754,10 +1754,10 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1777,12 +1777,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1801,12 +1801,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1825,12 +1825,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1849,12 +1849,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1873,12 +1873,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1897,12 +1897,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1921,12 +1921,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1945,12 +1945,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1969,12 +1969,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1993,12 +1993,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2017,12 +2017,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2041,12 +2041,12 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
-                        <PaddingLeft >5pt</PaddingLeft>
-                        <PaddingRight >5pt</PaddingRight>
-                        <PaddingTop >5pt</PaddingTop>
-                        <PaddingBottom >5pt</PaddingBottom>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2491,7 +2491,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id AS number,
@@ -2500,31 +2500,31 @@
     route_lists.cashier_review_comment,
     route_lists.closing_comment,
     GET_PERSON_NAME_WITH_INITIALS(driver.last_name, driver.name, driver.patronymic) AS driver,
-    
+
     IFNULL(Orders.TotalOrdersSum, 0) AS plan,
-    
+
     IFNULL(CashIncomeDocument.MoneyIncome,0) - IFNULL(CashExpenceDocument.MoneyExpence, 0) AS fact,
     IFNULL(CashIncomeDocument.cash_income_id, "-") AS cash_income_id,
     CashIncomeDocument.CashIncomeDates,
     CashIncomeDocument.employee_name,
-    
+
     IFNULL(nedovoz.order_sum, 0) AS NedovozSum,
     IFNULL(internal_transfer.TotalOrdersSum, 0) AS TransferedSum,
     transferML.TransferedFromML,
     transferML.TransferedToML,
-    
-    (IFNULL(CashIncomeDocument.MoneyIncome,0) - IFNULL(CashExpenceDocument.MoneyExpence, 0))/*Факт*/ 
-		- IFNULL(Orders.TotalOrdersSum, 0)/*План*/ 
-			+ IFNULL(nedovoz.order_sum, 0) 
+
+    (IFNULL(CashIncomeDocument.MoneyIncome,0) - IFNULL(CashExpenceDocument.MoneyExpence, 0))/*Факт*/
+		- IFNULL(Orders.TotalOrdersSum, 0)/*План*/
+			+ IFNULL(nedovoz.order_sum, 0)
 				-IFNULL(internal_transfer.TotalOrdersSum, 0) as unspecified_balance
 FROM
     route_lists
     LEFT JOIN route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
     LEFT JOIN employees AS driver ON driver.id = route_lists.driver_id
-    
+
     LEFT JOIN # ПланПриход
     (
-        SELECT 
+        SELECT
             orders.id AS order_id,
             route_list_addresses.route_list_id as rl_id,
             ROUND(
@@ -2541,7 +2541,7 @@ FROM
             AND route_list_addresses.was_transfered = 0
         GROUP BY route_list_addresses.route_list_id
     ) AS Orders ON Orders.rl_id = route_lists.id
-    
+
     LEFT JOIN # ПКО
     (
         SELECT
@@ -2554,13 +2554,13 @@ FROM
         FROM
             cash_income
             LEFT JOIN employees ON employees.id = cash_income.casher_employee_id
-        GROUP BY 
+        GROUP BY
             route_list_id
     ) AS CashIncomeDocument ON CashIncomeDocument.route_list_id = route_lists.id
-    
+
     LEFT JOIN # РКО
     (
-        SELECT 
+        SELECT
             route_list_id,
             SUM(IFNULL(cash_expense.money, 0)) AS MoneyExpence
         FROM
@@ -2569,7 +2569,7 @@ FROM
             type_operation NOT IN ('EmployeeAdvance' , 'Advance','Salary')
         GROUP BY route_list_id
     ) AS CashExpenceDocument ON CashExpenceDocument.route_list_id = route_lists.id
-    
+
     LEFT JOIN #недовозы
     (
         SELECT
@@ -2577,47 +2577,44 @@ FROM
             SUM(IFNULL(order_items.price * order_items.count - order_items.discount_money, 0)) as order_sum
         FROM
             route_list_addresses
-            JOIN orders ON orders.id = route_list_addresses.order_id
-            LEFT JOIN order_items ON order_items.order_id = orders.id
+            JOIN orders AS ord ON ord.id = route_list_addresses.order_id
+            LEFT JOIN order_items ON order_items.order_id = ord.id
         WHERE
-            orders.order_status IN ('Canceled' , 'NotDelivered', 'DeliveryCanceled')
+            ord.order_status IN ('Canceled' , 'NotDelivered', 'DeliveryCanceled')
             AND route_list_addresses.transfered_to_id IS NULL
-            AND orders.payment_type IN ('cash','BeveragesWorld')
-        GROUP BY 
+            AND ord.payment_type IN ('cash','BeveragesWorld')
+        GROUP BY
             route_list_addresses.route_list_id
     ) AS nedovoz ON nedovoz.route_list_id = route_lists.id
-    
+
     LEFT JOIN #переносы
     (
-        SELECT 
+        SELECT
             internal_trans.route_list_id,
             SUM(internal_trans.TotalOrdersSum) AS TotalOrdersSum
         FROM
         (
-            SELECT 
-                route_list_addresses.id,
+            SELECT
                 route_list_addresses.route_list_id,
-                ROUND(IFNULL(IF(status = 'transfered', 0 - order_items.price * order_items.count * (1 - (order_items.discount / 100)), order_items.price * order_items.count * (1 - (order_items.discount / 100))), 0), 2) AS TotalOrdersSum
+                ROUND(IFNULL(IF(status = 'Transfered', 0 - order_items.price * order_items.count * (1 - (order_items.discount / 100)), order_items.price * order_items.count * (1 - (order_items.discount / 100))), 0), 2) AS TotalOrdersSum
             FROM
                 route_list_addresses
-                LEFT JOIN orders ON orders.id = route_list_addresses.order_id
-                LEFT JOIN order_items ON order_items.order_id = orders.id
-            WHERE
-            (
-                status = 'transfered'
-                OR was_transfered = TRUE
-            )
-            AND orders.payment_type IN ('cash','BeveragesWorld')
+                LEFT JOIN orders AS ord ON ord.id = route_list_addresses.order_id
+                LEFT JOIN order_items ON order_items.order_id = ord.id
+            WHERE (
+                    (status = 'Transfered' AND was_transfered = false)
+                    OR
+                    (was_transfered = TRUE AND status != 'Transfered')
+                )
+                AND ord.payment_type IN ('cash','BeveragesWorld')
         ) AS internal_trans
-        GROUP BY 
+        GROUP BY
             internal_trans.route_list_id
-        HAVING 
-            TotalOrdersSum != 0
     ) AS internal_transfer ON internal_transfer.route_list_id = route_lists.id
-    
+
     LEFT JOIN #номера переносов
     (
-        SELECT 
+        SELECT
             route_list_addresses.route_list_id,
             GROUP_CONCAT(CONCAT('+', tranfer_from_route_list.route_list_id)
                 SEPARATOR ' ') AS TransferedFromML,
@@ -2625,15 +2622,14 @@ FROM
                 SEPARATOR ' ') AS TransferedToML
         FROM
             route_list_addresses
-            LEFT JOIN orders ON route_list_addresses.order_id = orders.id
+            LEFT JOIN orders AS ord ON route_list_addresses.order_id = ord.id
             LEFT JOIN route_list_addresses AS tranfer_to_route_list ON tranfer_to_route_list.id = route_list_addresses.transfered_to_id
             LEFT JOIN route_list_addresses AS tranfer_from_route_list ON tranfer_from_route_list.transfered_to_id = route_list_addresses.id
         WHERE
-            orders.payment_type IN ('cash','BeveragesWorld')
-        GROUP BY 
+            ord.payment_type IN ('cash','BeveragesWorld')
+        GROUP BY
             route_list_addresses.route_list_id
    ) AS transferML ON transferML.route_list_id = route_lists.id
-    
 WHERE
     route_lists.status IN ('Closed' , 'MileageCheck')
     AND route_lists.date &gt;= @StartDate
@@ -2650,7 +2646,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.UInt32</TypeName>

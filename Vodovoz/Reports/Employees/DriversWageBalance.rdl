@@ -12,7 +12,7 @@
   <RightMargin>5mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
   <PageHeader>
-    <Height>27.7pt</Height>
+    <Height>28.4pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -35,11 +35,11 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>282.3pt</Height>
+    <Height>497.6pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>DriverBalance</DataSetName>
-        <NoRows>Нет записей</NoRows>
+        <NoRows>Водители на наёмных автомобилей: Нет записей</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -82,7 +82,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>Водитель</Value>
+                      <Value>Водители на наёмных автомобилях</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -91,7 +91,9 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>12pt</FontSize>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -150,6 +152,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
+                        <Color >Black</Color>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -157,7 +160,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>=Fields!balance.Value</Value>
+                      <Value>={balance}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -165,8 +168,9 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
+                        <PaddingLeft>5pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -175,68 +179,97 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>3.9pt</Left>
-        <Top>14.1pt</Top>
-        <Footer>
-          <TableRows>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox42">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox8">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                      <Value>Итого:</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox10">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                      <Value>=sum({balance})</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Footer>
+        <Left>4pt</Left>
+        <Top>8.6pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="parent_subdivision">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression >={parent_subdivision}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>true</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox21">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>11pt</FontSize>
+                            <PaddingLeft>10pt</PaddingLeft>
+                            <TextAlign>General</TextAlign>
+                          </Style>
+                          <Value>='Подразделение: ' + {parent_subdivision}</Value>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>3</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox56">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <PaddingRight>0pt</PaddingRight>
+                          </Style>
+                          <Value>Итого:</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>2</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox58">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Left</TextAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                          <Value>=sum({balance})</Value>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
       </Table>
       <Table Name="Table2">
         <DataSetName>LargusDriverBalance</DataSetName>
-        <NoRows>Нет записей</NoRows>
+        <NoRows>Водители ларгусов: Нет записей</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -252,7 +285,7 @@
             <Width>462.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.1pt</Width>
+            <Width>73.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -279,7 +312,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>Водитель</Value>
+                      <Value>Водители ларгусов</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -288,7 +321,9 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>12pt</FontSize>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -352,12 +387,16 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>=Fields!balance.Value</Value>
+                      <Value>={balance}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Left</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -366,66 +405,96 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>4.5pt</Left>
-        <Top>118.2pt</Top>
-        <Footer>
-          <TableRows>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox49">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox13">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                      <Value>Итого:</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox14">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>=sum({balance})</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Footer>
+        <Left>2.4pt</Left>
+        <Top>213.3pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="parent_subdivision_largus">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression >={parent_subdivision}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>true</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox22">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <FontSize>11pt</FontSize>
+                            <PaddingLeft>10pt</PaddingLeft>
+                          </Style>
+                          <Value>='Подразделение: ' + {parent_subdivision}</Value>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>3</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox60">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <PaddingRight>0pt</PaddingRight>
+                          </Style>
+                          <Value>Итого:</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>2</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox62">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Left</TextAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                          <Value>=sum({balance})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
       </Table>
       <Table Name="Table3">
         <DataSetName>ForwarderBalance</DataSetName>
-        <NoRows>Нет записей</NoRows>
+        <NoRows>Экспедиторы: Нет записей</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -441,7 +510,7 @@
             <Width>462.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.5pt</Width>
+            <Width>74.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -468,7 +537,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>Экспедитор</Value>
+                      <Value>Экспедиторы</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -477,7 +546,11 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontFamily>Arial</FontFamily>
+                        <FontStyle>Normal</FontStyle>
+                        <FontSize>12pt</FontSize>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -541,12 +614,16 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value>=Fields!balance.Value</Value>
+                      <Value>={balance}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Left</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -555,55 +632,213 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>4.6pt</Left>
-        <Top>169.4pt</Top>
-        <Footer>
+        <Left>2.4pt</Left>
+        <Top>280.8pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="parent_subdivision_forwarder">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression >={parent_subdivision}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>true</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox23">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>11pt</FontSize>
+                            <PaddingLeft>10pt</PaddingLeft>
+                          </Style>
+                          <Value>='Подразделение: ' + {parent_subdivision}</Value>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>3</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox65">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <PaddingRight>0pt</PaddingRight>
+                          </Style>
+                          <Value>Итого:</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>2</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox67">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Left</TextAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                          <Value>=sum({balance})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
+      </Table>
+      <Table Name="Table4">
+        <DataSetName>TotalBalance</DataSetName>
+        <NoRows>Нет данных</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+            <Left >Solid</Left>
+            <Right >Solid</Right>
+            <Top >Solid</Top>
+            <Bottom >Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>131.2pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>110.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Left>2.9pt</Left>
+        <Top>422.0pt</Top>
+        <TableGroups >
+          <TableGroup>
+            <Grouping Name="total">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression>={parent_subdivision}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox38">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>General</TextAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                          <Value>={parent_subdivision}</Value>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox57">
+                          <Value>={balance}</Value>
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <PaddingLeft>5pt</PaddingLeft>
+                            <TextAlign>Left</TextAlign>
+                          </Style>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+          </TableGroup>
+        </TableGroups>
+        <Footer >
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox52">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                    <Textbox Name="Textbox46">
+                      <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Left>Solid</Left>
+                          <Right>Solid</Right>
+                          <Top>Solid</Top>
+                          <Bottom>Solid</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                       </Style>
+                      <Value>='Итого: '</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox19">
+                    <Textbox Name="Textbox55">
+                      <Value>=Sum({balance})</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Left>Solid</Left>
+                          <Right>Solid</Right>
+                          <Top>Solid</Top>
+                          <Bottom>Solid</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Right</TextAlign>
+                        <PaddingLeft>5pt</PaddingLeft>
+                        <TextAlign>Left</TextAlign>
                       </Style>
-                      <Value>Итого:</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox20">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>=sum({balance})</Value>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -611,81 +846,37 @@
             </TableRow>
           </TableRows>
         </Footer>
-      </Table>
-      <Textbox Name="Textbox21">
-        <Height>12pt</Height>
-        <Width>1in</Width>
-        <Value>Водители:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>3.5pt</Left>
-        <Top>2.1pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox22">
-        <Height>12.75pt</Height>
-        <Width>103.13pt</Width>
-        <Value>Водители Ларгусов:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>4.2pt</Left>
-        <Top>105.2pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox23">
-        <Height>12pt</Height>
-        <Width>1in</Width>
-        <Value>Экспедиторы:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>5.4pt</Left>
-        <Top>157.2pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Table Name="Table4">
-        <DataSetName>TotalBalance</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>99.9pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Details>
+        <Header >
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>.2in</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox25">
-                      <Value>="Итого" + Fields!balance.Value</Value>
-                      <CanGrow>true</CanGrow>
+                    <Textbox Name="Textbox49">
                       <Style>
                         <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
+                          <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <Value>Подразделение</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Value>К выдаче</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -693,13 +884,11 @@
               </TableCells>
             </TableRow>
           </TableRows>
-        </Details>
-        <Left>243.7pt</Left>
-        <Top>267.9pt</Top>
+        </Header>
       </Table>
       <Table Name="Table5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>RaskatBalance</DataSetName>
-        <NoRows>Нет записей</NoRows>
+        <NoRows>Водители раскатных автомобилей: Нет записей</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -715,7 +904,7 @@
             <Width>462.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.5pt</Width>
+            <Width>75.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -742,7 +931,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>Водитель</Value>
+                      <Value>Водители раскатных автомобилей</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -751,7 +940,9 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>12pt</FontSize>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -815,12 +1006,16 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value>=Fields!balance.Value</Value>
+                      <Value>={balance}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Left</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>5pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -829,79 +1024,96 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>4.7pt</Left>
-        <Top>223.7pt</Top>
-        <Footer>
-          <TableRows>
-            <TableRow>
-              <Height>.2in</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox55">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                      <Value>Итого:</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox30">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>=sum({balance})</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Footer>
+        <Left>2.4pt</Left>
+        <Top>349.0pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="parent_subdivision_raskat">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression >={parent_subdivision}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>true</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox31">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>11pt</FontSize>
+                            <PaddingLeft>10pt</PaddingLeft>
+                          </Style>
+                          <Value>='Подразделение: ' + {parent_subdivision}</Value>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>3</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox70">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <PaddingRight>0pt</PaddingRight>
+                          </Style>
+                          <Value>Итого:</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>2</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox72">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Normal</FontWeight>
+                            <TextAlign>Left</TextAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                          <Value>=sum({balance})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
       </Table>
-      <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>181.40pt</Width>
-        <Value>Водители раскатных автомобилей:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>4.6pt</Left>
-        <Top>209.9pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
       <Table Name="Table6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>GAZelleDriverBalance</DataSetName>
-        <NoRows>Нет записей</NoRows>
+        <NoRows>Водители ГАЗелей: Нет записей</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -917,37 +1129,11 @@
             <Width>463.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.5pt</Width>
+            <Width>73.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox43">
-                      <Value>Водители ГАЗелей:</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Left</TextAlign>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <FontWeight>Normal</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>3</ColSpan>
-                </TableCell>
-              </TableCells>
-            </TableRow>
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
@@ -970,7 +1156,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>Водитель</Value>
+                      <Value>Водители ГАЗелей</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -979,7 +1165,9 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>12pt</FontSize>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1043,12 +1231,16 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>=Fields!balance.Value</Value>
+                      <Value>={balance}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>5pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1057,62 +1249,320 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>4.9pt</Left>
-        <Top>54.4pt</Top>
-        <Footer>
+        <Left>2.4pt</Left>
+        <Top>144.5pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="parent_subdivision_gazelle">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression >={parent_subdivision}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>true</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox8">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>11pt</FontSize>
+                            <PaddingLeft>10pt</PaddingLeft>
+                          </Style>
+                          <Value>='Подразделение: ' + {parent_subdivision}</Value>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>3</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox39">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <PaddingRight>0pt</PaddingRight>
+                          </Style>
+                          <Value>Итого:</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>2</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox43">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Left</TextAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                          <Value>=sum({balance})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
+      </Table>
+      <Table Name="Table7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>TruckBalance</DataSetName>
+        <NoRows>Водители фур: Нет записей</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>28.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>462.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>71.4pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
           <TableRows>
             <TableRow>
-              <Height>.2in</Height>
+              <Height>12 pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox46">
-                      <Value>
-                      </Value>
+                    <Textbox Name="Textbox10">
+                      <Value>№</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox36">
+                    <Textbox Name="Textbox13">
+                      <Value>Водители фур</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Right</TextAlign>
+                        <FontSize>12pt</FontSize>
                       </Style>
-                      <Value>Итого:</Value>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox37">
+                    <Textbox Name="Textbox14">
+                      <Value>Баланс</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>=sum({balance})</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
-        </Footer>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>=Fields!driver.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>10pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>={balance}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
+                        <PaddingLeft>5pt</PaddingLeft>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>3.3pt</Left>
+        <Top>76.2pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="parent_subdivision_truck">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression >={parent_subdivision}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>true</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox30">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>11pt</FontSize>
+                            <PaddingLeft>10pt</PaddingLeft>
+                            <TextAlign>General</TextAlign>
+                          </Style>
+                          <Value>='Подразделение: ' + {parent_subdivision}</Value>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>3</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox36">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                            <PaddingRight>0pt</PaddingRight>
+                          </Style>
+                          <Value>Итого:</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>2</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox37">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Left</TextAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                          <Value>=sum({balance})</Value>
+                          <CanGrow>true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -1137,16 +1587,19 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
-	employees.category
+	employees.category,
+    IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
 LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 LEFT JOIN cars ON employees.id = cars.driver_id
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE
 	wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
@@ -1168,7 +1621,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1181,18 +1634,25 @@ ORDER BY driver
           <DataField>category</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="parent_subdivision">
+          <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="ForwarderBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
-	employees.category
+	employees.category,
+	IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
 LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND w.wage_type != 'Manual'
@@ -1210,7 +1670,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1223,19 +1683,26 @@ ORDER BY driver
           <DataField>category</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="parent_subdivision">
+          <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="LargusDriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
-	employees.category
+	employees.category,
+    IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
 LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 LEFT JOIN cars ON employees.id = cars.driver_id
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
@@ -1255,7 +1722,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1268,19 +1735,26 @@ ORDER BY driver
           <DataField>category</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="parent_subdivision">
+          <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="GAZelleDriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
-	employees.category
+	employees.category,
+    IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
 LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 LEFT JOIN cars ON employees.id = cars.driver_id
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
@@ -1300,7 +1774,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1313,18 +1787,27 @@ ORDER BY driver
           <DataField>category</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="parent_subdivision">
+          <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="TotalBalance">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT SUM(wages_movement_operations.money) AS balance
+        <CommandText>SELECT 
+	SUM(wages_movement_operations.money) AS balance,
+	IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
 LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
-	AND w.wage_type != 'Manual'
 	AND wages_movement_operations.employee_id IN (@drivers)
+	AND w.wage_type != 'Manual'
+GROUP BY parent_subdivision
 HAVING balance &lt;&gt; 0
 ;</CommandText>
         <QueryParameters>
@@ -1341,19 +1824,26 @@ HAVING balance &lt;&gt; 0
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="parent_subdivision">
+          <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="RaskatBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
 	SUM(wages_movement_operations.money) AS balance,
-	employees.category
+	employees.category,
+    IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
 LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 LEFT JOIN cars ON employees.id = cars.driver_id
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'  
@@ -1372,7 +1862,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
@@ -1383,6 +1873,62 @@ ORDER BY driver
         </Field>
         <Field Name="category">
           <DataField>category</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="parent_subdivision">
+          <DataField>parent_subdivision</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="TruckBalance">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
+	SUM(wages_movement_operations.money) AS balance,
+	employees.category,
+    IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
+FROM wages_movement_operations
+LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
+LEFT JOIN cars ON employees.id = cars.driver_id
+LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
+LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
+WHERE wages_movement_operations.operation_time &lt;= @date
+	AND wages_movement_operations.employee_id IN (@drivers)
+	AND employees.category = 'driver'
+	AND w.wage_type != 'Manual'
+	AND employees.driver_of = 'CompanyTruck'
+	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
+GROUP BY wages_movement_operations.employee_id
+HAVING balance &lt;&gt; 0
+ORDER BY driver
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="date">
+            <Value>={?date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="drivers">
+            <Value>={?drivers}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="driver">
+          <DataField>driver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="category">
+          <DataField>category</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="balance">
+          <DataField>balance</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="parent_subdivision">
+          <DataField>parent_subdivision</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

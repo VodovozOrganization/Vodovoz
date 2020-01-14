@@ -10,6 +10,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using QS.Dialog.GtkUI;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
+using QS.Project.Services;
 
 namespace Vodovoz.Reports
 {
@@ -25,7 +28,10 @@ namespace Vodovoz.Reports
 				x => x.ShowFired = false
 			);
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
-			yentryreferenceCar.SubjectType = typeof(Car);
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.CompletionPopupSetWidth(false);
+
 			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
@@ -59,7 +65,7 @@ namespace Vodovoz.Reports
 			}
 
 			if(radioCar.Active) {
-				parameters.Add("car_id", (yentryreferenceCar.Subject as Car)?.Id);
+				parameters.Add("car_id", (entityviewmodelentryCar.Subject as Car)?.Id);
 				parameters.Add("driver_id", -1);
 			}
 
@@ -90,7 +96,7 @@ namespace Vodovoz.Reports
 				errorString += "Не заполнена дата\n Не заполнен водитель\n";
 			}
 
-			if(radioCar.Active && (dateperiodpicker.StartDateOrNull == null | yentryreferenceCar.Subject == null)) {
+			if(radioCar.Active && (dateperiodpicker.StartDateOrNull == null | entityviewmodelentryCar.Subject == null)) {
 				errorString += "Не заполнена дата\n Не заполнен автомобиль\n";
 			}
 				
@@ -114,7 +120,7 @@ namespace Vodovoz.Reports
 			hboxCar.Visible = false;
 			hboxAuthor.Visible = false;
 
-			yentryreferenceCar.Subject = null;
+			entityviewmodelentryCar.Subject = null;
 			yentryAuthor.Subject = null;
 		}
 
@@ -134,7 +140,7 @@ namespace Vodovoz.Reports
 			hboxCar.Visible = false;
 			hboxAuthor.Visible = true;
 
-			yentryreferenceCar.Subject = null;
+			entityviewmodelentryCar.Subject = null;
 			yentryreferenceDriver.Subject = null;
 		}
 

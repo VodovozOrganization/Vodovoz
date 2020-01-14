@@ -9,6 +9,7 @@ using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Validation.GtkUI;
@@ -23,6 +24,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
@@ -42,7 +44,7 @@ namespace Vodovoz
 			set {
 				isEditable = value;
 				speccomboShift.Sensitive = isEditable;
-				ggToStringWidget.Sensitive = datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = yspeccomboboxCashSubdivision.Sensitive = isEditable;
+				ggToStringWidget.Sensitive = datepickerDate.Sensitive = entityviewmodelentryCar.Sensitive = referenceForwarder.Sensitive = yspeccomboboxCashSubdivision.Sensitive = isEditable;
 				createroutelistitemsview1.IsEditable(isEditable);
 			}
 		}
@@ -98,10 +100,11 @@ namespace Vodovoz
 		{
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
-			referenceCar.SubjectType = typeof(Car);
-			referenceCar.ItemsQuery = Repository.Logistics.CarRepository.ActiveCarsQuery();
-			referenceCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
-			referenceCar.ChangedByUser += (sender, e) => {
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryCar.CompletionPopupSetWidth(false);
+			entityviewmodelentryCar.ChangedByUser += (sender, e) => {
 				if(Entity.Car != null) {
 					Entity.Driver = (Entity.Car.Driver != null && !Entity.Car.Driver.IsFired) ? Entity.Car.Driver : null;
 					referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyCar;

@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Reports
@@ -17,12 +21,13 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
-			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(UoW);
+			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty,
+				CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
 		}	
 
 		public void SetDeliveryPoint(DeliveryPoint deliveryPoint)
 		{
-			referenceCounterparty.Subject = deliveryPoint.Counterparty;
+			entityViewModelEntryCounterparty.Subject = deliveryPoint.Counterparty;
 			referenceDeliveryPoint.Subject = deliveryPoint;
 		}
 
@@ -53,7 +58,7 @@ namespace Vodovoz.Reports
 				{
 					{ "startDate", new DateTime(2000,1,1) },
 					{ "endDate", DateTime.Today.AddYears(1) },
-					{ "client_id", referenceCounterparty.GetSubject<Counterparty>().Id},
+					{ "client_id", entityViewModelEntryCounterparty.GetSubject<Counterparty>().Id},
 					{ "delivery_point_id", referenceDeliveryPoint.Subject == null ? -1 : referenceDeliveryPoint.GetSubject<DeliveryPoint>().Id},
 					{ "show_stock_bottle", ShowStockBottle }
 				}
@@ -67,16 +72,16 @@ namespace Vodovoz.Reports
 
 		private void ValidateParameters()
 		{
-			var counterpartySelected = referenceCounterparty.Subject != null;
+			var counterpartySelected = entityViewModelEntryCounterparty.Subject != null;
 			buttonRun.Sensitive = counterpartySelected;
 		}
 
-		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
+		protected void OnEntryCounterpartyChanged (object sender, EventArgs e)
 		{
 			ValidateParameters();
-			ShowStockBottle = OrderRepository.IsBottleStockExists(UoW, referenceCounterparty.GetSubject<Counterparty>());
+			ShowStockBottle = OrderRepository.IsBottleStockExists(UoW, entityViewModelEntryCounterparty.GetSubject<Counterparty>());
 
-			if(referenceCounterparty.Subject == null)
+			if(entityViewModelEntryCounterparty.Subject == null)
 			{
 				referenceDeliveryPoint.Subject = null;
 				referenceDeliveryPoint.Sensitive = false;
@@ -86,7 +91,7 @@ namespace Vodovoz.Reports
 				referenceDeliveryPoint.Subject = null;
 				referenceDeliveryPoint.Sensitive = true;
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, 
-					referenceCounterparty.GetSubject<Counterparty>());
+					entityViewModelEntryCounterparty.GetSubject<Counterparty>());
 			}
 		}
 	}

@@ -4,6 +4,7 @@ using QSOrmProject;
 using QS.Tdi;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
+using QS.Permissions;
 
 namespace Vodovoz
 {
@@ -55,7 +56,7 @@ namespace Vodovoz
 			var category = accountabledebtsfilter1.RestrictExpenseCategory;
 			decimal money = representationtreeviewDebts.GetSelectedObject<AccountableDebtsVMNode> ().Debt;
 
-			var dlg = new AdvanceReportDlg (accountable, category, money);
+			var dlg = new AdvanceReportDlg (accountable, category, money, PermissionsSettings.PermissionService);
 			OpenNewTab (dlg);
 		}
 

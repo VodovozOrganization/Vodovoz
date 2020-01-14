@@ -985,11 +985,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>=Iif(({Status} = "EnRoute") or ({Status} = "Completed"), White, Lightgrey)</BackgroundColor>
-                        <FontStyle>=Iif(
-    {payment_type} = 'CourierByCard',
-    'Italic',
-    'Normal'
-)</FontStyle>
+                        <FontStyle>='Normal'</FontStyle>
                         <FontWeight>=Iif(
     {payment_type} = 'courier_card',
     'Bold',

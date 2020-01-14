@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Suppliers
 
 		int Id { get; set; }
 		Nomenclature Nomenclature { get; set; }
-		int Quantity { get; set; }
+		decimal Quantity { get; set; }
 		RequestToSupplier RequestToSupplier { get; set; }
 
 		#endregion With Nhibernate mapping

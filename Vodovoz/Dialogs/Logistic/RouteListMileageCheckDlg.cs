@@ -13,6 +13,9 @@ using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Project.Services;
 using QS.Dialog;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz
 {
@@ -47,9 +50,10 @@ namespace Vodovoz
 				HasChanges = false;
 				vbxMain.Sensitive = false;
 			}
-			referenceCar.SubjectType = typeof(Car);
-			referenceCar.ItemsQuery = CarRepository.ActiveCarsQuery();
-			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
+			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 

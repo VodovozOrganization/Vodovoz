@@ -1339,10 +1339,45 @@ namespace Vodovoz.Domain.Orders
 
 			if(actualContract != oldContract) {
 				Contract = actualContract;
-				ChangeWaterAgreement(actualContract, oldContract);
+				ChangeWaterAgreementContractChanged(actualContract, oldContract);
 				ChangeOrderBasedAgreements(actualContract);
 			}
+
 			UpdateDocuments();
+		}
+
+		/// <summary>
+		/// При смене точки доставки переделывает связанные с доп соглашением на воду
+		/// элементы в заказе на актуальное доп соглашение точки доставки.
+		/// </summary>
+		public virtual void ChangeWaterAgreementDeliveryPointChanged()
+		{
+			if(!this.HasWater() || Contract == null)
+				return;
+
+			var wsa = Contract.GetWaterSalesAgreement(DeliveryPoint);
+			if(wsa == null)
+				return;
+
+			var waterCategories = Nomenclature.GetCategoriesRequirementForWaterAgreement();
+			var waterItems = OrderItems.Where(x => waterCategories.Contains(x.Nomenclature.Category)).ToList();
+
+			//Необходимо для автоматического пересчёта бывших фиксированных цен
+			foreach(var item in waterItems.Where(i => i.GetWaterFixedPrice() != null)) {
+				item.IsUserPrice = false;
+			}
+			//Привязываем товары на новое доп соглашение
+			waterItems.ForEach(x => x.AdditionalAgreement = wsa);
+
+			//Пересчёт цен промо-наборов
+			if(promotionalSets.Count > 0) {
+				foreach(OrderItem item in ObservableOrderItems.Where(i => i.PromoSet != null))
+					item.Price = item.Nomenclature.GetPrice(item.Count);
+			}
+			//Пересчёт цен фиксы по новому допсоглашению
+			UpdatePrices(wsa);
+			//Остальной пересчёт цен
+			RecalculateItemsPrice();
 		}
 
 		/// <summary>
@@ -1350,7 +1385,7 @@ namespace Vodovoz.Domain.Orders
 		/// все елементы в заказе на актуальное доп соглашение измененного договора.
 		/// ВНИМАНИЕ! Использовать только при смене договора
 		/// </summary>
-		private void ChangeWaterAgreement(CounterpartyContract actualContract, CounterpartyContract oldContract)
+		private void ChangeWaterAgreementContractChanged(CounterpartyContract actualContract, CounterpartyContract oldContract)
 		{
 			if(oldContract == null) {
 				return;
@@ -1538,10 +1573,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool HasActualWaterSaleAgreementByDeliveryPoint()
 		{
-			if(Contract == null) {
+			if(Contract == null)
 				return false;
-			}
-			Contract.AdditionalAgreements.Where(x => !x.IsCancelled).OfType<WaterSalesAgreement>();
+
 			var waterSalesAgreementList = Contract.AdditionalAgreements
 												   .Where(x => !x.IsCancelled)
 												   .Select(x => x.Self)
@@ -1958,16 +1992,13 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Проверка на возможность добавления промо-набора в заказ и, если
-		/// не возможно, то генерирование сообщения.
+		/// Проверка на возможность добавления промо-набора в заказ
 		/// </summary>
 		/// <returns><c>true</c>, если можно добавить промо-набор,
 		/// <c>false</c> если нельзя.</returns>
 		/// <param name="proSet">Рекламный набор (промо-набор)</param>
-		/// <param name="msg">Сообщение (в случае повторения адреса)</param>
-		public virtual bool CanAddPromotionalSet(PromotionalSet proSet, out string msg)
+		public virtual bool CanAddPromotionalSet(PromotionalSet proSet)
 		{
-			msg = string.Empty;
 			if(PromotionalSets.Any()) {
 				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промо-набора");
 				return false;
@@ -1975,9 +2006,11 @@ namespace Vodovoz.Domain.Orders
 
 			if(SelfDelivery)
 				return true;
+
 			var proSetDict = Repositories.Orders.PromotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
 			if(!proSetDict.Any())
 				return true;
+
 			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
 			StringBuilder sb = new StringBuilder(string.Format("Для адреса \"{0}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n", address));
 			foreach(var d in proSetDict) {
@@ -1991,7 +2024,6 @@ namespace Vodovoz.Domain.Orders
 			sb.AppendLine($"Вы уверены, что хотите добавить \"{proSet.Title}\"");
 			if(InteractiveService.Question(sb.ToString()))
 				return true;
-			msg = sb.ToString();
 			return false;
 		}
 
@@ -3318,10 +3350,10 @@ namespace Vodovoz.Domain.Orders
 				if(BottlesMovementOperation == null) {
 					BottlesMovementOperation = new BottlesMovementOperation {
 						Order = this,
-						Counterparty = Client,
-						DeliveryPoint = DeliveryPoint
 					};
 				}
+				BottlesMovementOperation.Counterparty = Client;
+				BottlesMovementOperation.DeliveryPoint = DeliveryPoint;
 				BottlesMovementOperation.OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 				BottlesMovementOperation.Delivered = amountDelivered;
 				BottlesMovementOperation.Returned = returnByStock + forfeitQuantity.Value;

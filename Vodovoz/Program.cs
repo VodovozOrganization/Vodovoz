@@ -22,7 +22,6 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		public static MainWindow MainWin;
 		public static IProgressBarDisplayable progressBarWin;
-		public static StatusIcon TrayIcon;
 
 		[STAThread]
 		public static void Main (string[] args)
@@ -34,10 +33,6 @@ namespace Vodovoz
 
 			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
-
-			TrayIcon = new StatusIcon(Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png"));
-			TrayIcon.Visible = true;
-			TrayIcon.Tooltip = "Веселый Водовоз";
 
 			CreateProjectParam ();
 			ConfigureViewModelWidgetResolver();

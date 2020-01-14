@@ -49,6 +49,7 @@ namespace Vodovoz.Views.Suppliers
 					.AddTextRenderer(n => n is SupplierNode ? string.Empty : n.Nomenclature.ShortOrFullName)
 				.AddColumn("Кол-во")
 					.AddNumericRenderer(n => n.Quantity)
+					.Digits(2).WidthChars(10)
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddSetter(
 						(c, n) => {

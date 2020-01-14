@@ -11,6 +11,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
+using QS.Services;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -18,14 +20,22 @@ namespace Vodovoz.Dialogs.Cash
 	public partial class CashIncomeSelfDeliveryDlg : EntityDialogBase<Income>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private bool canEdit = true;
 
-		public CashIncomeSelfDeliveryDlg()
+		public CashIncomeSelfDeliveryDlg(IPermissionService permissionService)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
 			Entity.Casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Casher == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
+				FailInitialize = true;
+				return;
+			}
+
+			var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			if(!userPermission.CanCreate) {
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
 				FailInitialize = true;
 				return;
 			}
@@ -42,12 +52,12 @@ namespace Vodovoz.Dialogs.Cash
 			ConfigureDlg();
 		}
 
-		public CashIncomeSelfDeliveryDlg(Order forOrder) : this()
+		public CashIncomeSelfDeliveryDlg(Order forOrder, IPermissionService permissionService) : this(permissionService)
 		{
 			Entity.Order = UoW.GetById<Order>(forOrder.Id);
 		}
 
-		public CashIncomeSelfDeliveryDlg(int id)
+		public CashIncomeSelfDeliveryDlg(int id, IPermissionService permissionService)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Income>(id);
@@ -60,10 +70,18 @@ namespace Vodovoz.Dialogs.Cash
 			}
 			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
 
+			var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			if(!userPermission.CanRead) {
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
+				FailInitialize = true;
+				return;
+			}
+			canEdit = userPermission.CanUpdate;
+
 			ConfigureDlg();
 		}
 
-		public CashIncomeSelfDeliveryDlg(Income sub) : this(sub.Id) { }
+		public CashIncomeSelfDeliveryDlg(Income sub, IPermissionService permissionService) : this(sub.Id, permissionService) { }
 
 		void ConfigureDlg()
 		{
@@ -110,6 +128,13 @@ namespace Vodovoz.Dialogs.Cash
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
 
 			ytextviewDescription.Binding.AddBinding(Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource();
+
+			if(!canEdit) {
+				table1.Sensitive = false;
+				ytextviewDescription.Editable = false;
+				buttonSave.Sensitive = false;
+				accessfilteredsubdivisionselectorwidget.Sensitive = false;
+			}
 
 			UpdateSubdivision();
 		}

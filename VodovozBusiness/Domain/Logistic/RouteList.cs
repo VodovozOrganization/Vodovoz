@@ -106,8 +106,9 @@ namespace Vodovoz.Domain.Logistic
 					if(Id == 0) {
 						while(ObservableGeographicGroups.Any())
 							ObservableGeographicGroups.Remove(ObservableGeographicGroups.FirstOrDefault());
-						foreach(var group in value.GeographicGroups)
-							ObservableGeographicGroups.Add(group);
+						if(value != null)
+							foreach(var group in value.GeographicGroups)
+								ObservableGeographicGroups.Add(group);
 					}
 				}
 			}
@@ -473,15 +474,6 @@ namespace Vodovoz.Domain.Logistic
 				decimal payedForFuel = FuelDocuments.Where(x => x.PayedForFuel.HasValue && x.FuelPaymentType.HasValue && x.FuelPaymentType == FuelPaymentType.Cash).Sum(x => x.PayedForFuel.Value);
 
 				return Total - payedForFuel;
-			}
-		}
-
-		public virtual decimal ByTerminalTotal {
-			get {
-				decimal terminalSum = 0;
-				foreach(var item in Addresses.Where((arg) => arg.Order.PaymentType == PaymentType.CourierByCard))
-					terminalSum += item.Order.ActualTotalSum;
-				return terminalSum;
 			}
 		}
 

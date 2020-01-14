@@ -11,6 +11,9 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
+using QS.Services;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz
 {
@@ -23,6 +26,7 @@ namespace Vodovoz
 		decimal closingSum = 0;
 
 		List<RecivedAdvance> advanceList;
+		private bool canEdit = true;
 
 		protected decimal Debt {
 			get {
@@ -45,7 +49,7 @@ namespace Vodovoz
 			}
 		}
 
-		public AdvanceReportDlg(Expense advance) : this(advance.Employee, advance.ExpenseCategory, advance.UnclosedMoney)
+		public AdvanceReportDlg(Expense advance, IPermissionService permissionService) : this(advance.Employee, advance.ExpenseCategory, advance.UnclosedMoney, permissionService)
 		{
 			if(advance.Employee == null) {
 				logger.Error("Аванс без сотрудника. Для него нельзя открыть диалог возврата.");
@@ -55,20 +59,27 @@ namespace Vodovoz
 			advanceList.Find(x => x.Advance.Id == advance.Id).Selected = true;
 		}
 
-		public AdvanceReportDlg(Employee accountable, ExpenseCategory expenseCategory, decimal money) : this()
+		public AdvanceReportDlg(Employee accountable, ExpenseCategory expenseCategory, decimal money, IPermissionService permissionService) : this(permissionService)
 		{
 			Entity.Accountable = accountable;
 			Entity.ExpenseCategory = expenseCategory;
 			Entity.Money = money;
 		}
 
-		public AdvanceReportDlg()
+		public AdvanceReportDlg(IPermissionService permissionService)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<AdvanceReport>();
-			Entity.Casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Casher = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
 			if(Entity.Casher == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
+				FailInitialize = true;
+				return;
+			}
+
+			var userPermission = permissionService.ValidateUserPermission(typeof(AdvanceReport), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			if(!userPermission.CanCreate) {
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
 				FailInitialize = true;
 				return;
 			}
@@ -85,7 +96,7 @@ namespace Vodovoz
 			FillDebt();
 		}
 
-		public AdvanceReportDlg(int id)
+		public AdvanceReportDlg(int id, IPermissionService permissionService)
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<AdvanceReport>(id);
@@ -96,6 +107,13 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
+			var userPermission = permissionService.ValidateUserPermission(typeof(AdvanceReport), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			if(!userPermission.CanRead) {
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
+				FailInitialize = true;
+				return;
+			}
+			canEdit = userPermission.CanUpdate;
 
 			//Отключаем отображение ненужных элементов.
 			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = labelCreating.Visible = false;
@@ -105,7 +123,7 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public AdvanceReportDlg(AdvanceReport sub) : this(sub.Id) { }
+		public AdvanceReportDlg(AdvanceReport sub, IPermissionService permissionService) : this(sub.Id, permissionService) { }
 
 		void ConfigureDlg()
 		{
@@ -143,6 +161,14 @@ namespace Vodovoz
 				.AddColumn("Основание").AddTextRenderer(a => a.Advance.Description)
 				.Finish();
 			UpdateSubdivision();
+
+			if(!canEdit) {
+				table1.Sensitive = false;
+				accessfilteredsubdivisionselectorwidget.Sensitive = false;
+				buttonSave.Sensitive = false;
+				ytreeviewDebts.Sensitive = false;
+				ytextviewDescription.Editable = false;
+			}
 		}
 
 		void OnExpenseCategoryUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)

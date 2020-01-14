@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.DomainModel.UoW;
+using QS.Permissions;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 
@@ -62,7 +63,7 @@ namespace Vodovoz
 		{
 			var expense = UoW.GetById<Expense> (representationUnclosed.GetSelectedId ());
 
-			var dlg = new CashIncomeDlg (expense);
+			var dlg = new CashIncomeDlg (expense, PermissionsSettings.PermissionService);
 			OpenNewTab (dlg);
 		}
 
@@ -70,7 +71,7 @@ namespace Vodovoz
 		{
 			var expense = UoW.GetById<Expense> (representationUnclosed.GetSelectedId ());
 
-			var dlg = new AdvanceReportDlg (expense);
+			var dlg = new AdvanceReportDlg (expense, PermissionsSettings.PermissionService);
 			OpenNewTab (dlg);
 		}
 

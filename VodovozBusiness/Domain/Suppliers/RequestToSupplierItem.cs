@@ -31,9 +31,9 @@ namespace Vodovoz.Domain.Suppliers
 			set => SetField(ref nomenclature, value);
 		}
 
-		int quantity;
+		decimal quantity;
 		[Display(Name = "Количество")]
-		public virtual int Quantity {
+		public virtual decimal Quantity {
 			get => quantity;
 			set => SetField(ref quantity, value);
 		}

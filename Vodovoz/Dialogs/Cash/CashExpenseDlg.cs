@@ -8,6 +8,8 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
+using QS.Services;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz
 {
@@ -15,8 +17,9 @@ namespace Vodovoz
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private decimal currentEmployeeWage = default(decimal);
+		private bool canEdit = true;
 
-		public CashExpenseDlg ()
+		public CashExpenseDlg (IPermissionService permissionService)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Expense>();
@@ -24,6 +27,13 @@ namespace Vodovoz
 			if(Entity.Casher == null)
 			{
 				MessageDialogHelper.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
+				FailInitialize = true;
+				return;
+			}
+
+			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			if(!userPermission.CanCreate) {
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
 				FailInitialize = true;
 				return;
 			}
@@ -39,7 +49,7 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public CashExpenseDlg (int id)
+		public CashExpenseDlg (int id, IPermissionService permissionService)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense>(id);
@@ -51,10 +61,18 @@ namespace Vodovoz
 				return;
 			}
 
+			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			if(!userPermission.CanRead) {
+				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
+				FailInitialize = true;
+				return;
+			}
+			canEdit = userPermission.CanUpdate;
+
 			ConfigureDlg ();
 		}
 
-		public CashExpenseDlg (Expense sub) : this (sub.Id) {}
+		public CashExpenseDlg (Expense sub, IPermissionService permissionService) : this (sub.Id, permissionService) {}
 
 		void ConfigureDlg()
 		{
@@ -92,6 +110,13 @@ namespace Vodovoz
 											 || type == ExpenseType.Salary;
 			UpdateEmployeeBalaceInfo();
 			UpdateSubdivision();
+
+			if(!canEdit) {
+				table1.Sensitive = false;
+				accessfilteredsubdivisionselectorwidget.Sensitive = false;
+				buttonSave.Sensitive = false;
+				ytextviewDescription.Editable = false;
+			}
 		}
 
 		void OnExpenseCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)

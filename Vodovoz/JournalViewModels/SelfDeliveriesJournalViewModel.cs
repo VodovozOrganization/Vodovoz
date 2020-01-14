@@ -11,6 +11,7 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
+using QS.Permissions;
 using QS.Project.Journal;
 using QS.Services;
 using QSProjectsLib;
@@ -225,14 +226,14 @@ namespace Vodovoz.Representations
 			if(order.OrderSum > 0 && !order.SelfDeliveryIsFullyIncomePaid()) {
 				MainClass.MainWin.TdiMain.OpenTab(
 					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Income>(orderId),
-					() => new CashIncomeSelfDeliveryDlg(order)
+					() => new CashIncomeSelfDeliveryDlg(order, PermissionsSettings.PermissionService)
 				);
 			}
 
 			if(order.OrderSumReturn > 0 && !order.SelfDeliveryIsFullyExpenseReturned()) {
 				MainClass.MainWin.TdiMain.OpenTab(
 					"selfDelivery_" + DialogHelper.GenerateDialogHashName<Expense>(orderId),
-					() => new CashExpenseSelfDeliveryDlg(order)
+					() => new CashExpenseSelfDeliveryDlg(order, PermissionsSettings.PermissionService)
 				);
 			}
 		}

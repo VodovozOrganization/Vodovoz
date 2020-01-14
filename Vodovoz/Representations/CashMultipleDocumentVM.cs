@@ -8,7 +8,10 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Permissions;
+using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
+using QS.Services;
 using QS.Utilities.Text;
 using QSProjectsLib;
 using Vodovoz.Core.Journal;
@@ -173,9 +176,9 @@ namespace Vodovoz.Representations
 				//заголовок действия для создания нового документа
 				CashDocumentType.Income.GetEnumTitle(),
 				//функция диалога создания документа
-				() => new CashIncomeDlg(),
+				() => new CashIncomeDlg(PermissionsSettings.PermissionService),
 				//функция диалога открытия документа
-				(CashDocumentVMNode node) => new CashIncomeDlg(node.DocumentId)
+				(CashDocumentVMNode node) => new CashIncomeDlg(node.DocumentId, PermissionsSettings.PermissionService)
 			);
 
 			incomeConfig.AddDocumentConfigurationWithoutCreation<TransferIncomeDlg>(
@@ -185,7 +188,7 @@ namespace Vodovoz.Representations
 					&& node.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeTransferDocument;
 				},
 				//функция диалога открытия документа
-				(CashDocumentVMNode node) => new TransferIncomeDlg(node.DocumentId)
+				(CashDocumentVMNode node) => new TransferIncomeDlg(node.DocumentId, PermissionsSettings.PermissionService)
 			);
 
 			incomeConfig.AddDocumentConfiguration<CashIncomeSelfDeliveryDlg>(
@@ -193,8 +196,8 @@ namespace Vodovoz.Representations
 					return node.DocTypeEnum == CashDocumentType.IncomeSelfDelivery && node.IncomeDocumentType == IncomeInvoiceDocumentType.IncomeInvoiceSelfDelivery;
 				},
 				CashDocumentType.IncomeSelfDelivery.GetEnumTitle(),
-				() => new CashIncomeSelfDeliveryDlg(),
-				(CashDocumentVMNode node) => new CashIncomeSelfDeliveryDlg(node.DocumentId)
+				() => new CashIncomeSelfDeliveryDlg(PermissionsSettings.PermissionService),
+				(CashDocumentVMNode node) => new CashIncomeSelfDeliveryDlg(node.DocumentId, PermissionsSettings.PermissionService)
 			);
 
 			//завершение конфигурации
@@ -278,9 +281,9 @@ namespace Vodovoz.Representations
 				//заголовок действия для создания нового документа
 				CashDocumentType.Expense.GetEnumTitle(),
 				//функция диалога создания документа
-				() => new CashExpenseDlg(),
+				() => new CashExpenseDlg(PermissionsSettings.PermissionService),
 				//функция диалога открытия документа
-				(CashDocumentVMNode node) => new CashExpenseDlg(node.DocumentId)
+				(CashDocumentVMNode node) => new CashExpenseDlg(node.DocumentId, PermissionsSettings.PermissionService)
 			);
 
 			expenseConfig.AddDocumentConfigurationWithoutCreation<TransferExpenseDlg>(
@@ -290,7 +293,7 @@ namespace Vodovoz.Representations
 					&& node.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseTransferDocument;
 				},
 				//функция диалога открытия документа
-				(CashDocumentVMNode node) => new TransferExpenseDlg(node.DocumentId)
+				(CashDocumentVMNode node) => new TransferExpenseDlg(node.DocumentId, PermissionsSettings.PermissionService)
 			);
 
 			expenseConfig.AddDocumentConfiguration<CashExpenseSelfDeliveryDlg>(
@@ -298,8 +301,8 @@ namespace Vodovoz.Representations
 					return node.DocTypeEnum == CashDocumentType.ExpenseSelfDelivery && node.ExpenseDocumentType == ExpenseInvoiceDocumentType.ExpenseInvoiceSelfDelivery;
 				},
 				CashDocumentType.ExpenseSelfDelivery.GetEnumTitle(),
-				() => new CashExpenseSelfDeliveryDlg(),
-				(CashDocumentVMNode node) => new CashExpenseSelfDeliveryDlg(node.DocumentId)
+				() => new CashExpenseSelfDeliveryDlg(PermissionsSettings.PermissionService),
+				(CashDocumentVMNode node) => new CashExpenseSelfDeliveryDlg(node.DocumentId, PermissionsSettings.PermissionService)
 			);
 
 			//завершение конфигурации
@@ -367,9 +370,9 @@ namespace Vodovoz.Representations
 				//заголовок действия для создания нового документа
 				CashDocumentType.AdvanceReport.GetEnumTitle(),
 				//функция диалога создания документа
-				() => new AdvanceReportDlg(),
+				() => new AdvanceReportDlg(PermissionsSettings.PermissionService),
 				//функция диалога открытия документа
-				(CashDocumentVMNode node) => new AdvanceReportDlg(node.DocumentId)
+				(CashDocumentVMNode node) => new AdvanceReportDlg(node.DocumentId, PermissionsSettings.PermissionService)
 			);
 
 			//завершение конфигурации

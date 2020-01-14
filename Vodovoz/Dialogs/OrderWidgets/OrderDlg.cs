@@ -1116,28 +1116,13 @@ namespace Vodovoz
 
 		void YCmbPromoSets_ItemSelected(object sender, ItemSelectedEventArgs e)
 		{
-			PromotionalSet proSet = e.SelectedItem as PromotionalSet;
+			if(!(e.SelectedItem is PromotionalSet proSet))
+				return;
 
-			if(CanAddPromotionalSet(proSet))
+			if(CanAddNomenclaturesToOrder() && Entity.CanAddPromotionalSet(proSet))
 				ActivatePromotionalSet(proSet);
 			if(!yCmbPromoSets.IsSelectedNot)
 				yCmbPromoSets.SelectedItem = SpecialComboState.Not;
-		}
-
-		bool CanAddPromotionalSet(PromotionalSet proSet)
-		{
-			if(proSet == null || !CanAddNomenclaturesToOrder())
-				return false;
-
-			if(Entity.PromotionalSets.Any()) {
-				MessageDialogHelper.RunWarningDialog("В заказ нельзя добавить больше 1 промо-набора");
-				return false;
-			}
-
-			if(!Entity.CanAddPromotionalSet(proSet, out string msg) && !MessageDialogHelper.RunQuestionWithTitleDialog("Повтор промо-набора", msg))
-				return false;
-
-			return true;
 		}
 
 		bool CanAddNomenclaturesToOrder()
@@ -1638,13 +1623,19 @@ namespace Vodovoz
 		void AgreementSaved(object sender, AgreementSavedEventArgs e)
 		{
 			var agreement = UoWGeneric.GetById<AdditionalAgreement>(e.Agreement.Id);
-			//UoWGeneric.Session.Refresh(agreement);
 
 			Entity.CreateOrderAgreementDocument(agreement);
 			Entity.FillItemsFromAgreement(agreement);
 			/*CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType)
 										  .AdditionalAgreements
 										  .Add(agreement);*/
+			if(!Entity.Contract.ObservableAdditionalAgreements.Contains(agreement))
+				Entity.Contract.ObservableAdditionalAgreements.Add(agreement);
+
+			var waterSalesAgreementList = Contract.AdditionalAgreements
+									   .Where(x => !x.IsCancelled)
+									   .Select(x => x.Self)
+									   .OfType<WaterSalesAgreement>();
 		}
 
 		void RunContractCreateDialog(OrderAgreementType type)
@@ -1895,6 +1886,7 @@ namespace Vodovoz
 			}
 			CheckSameOrders();
 			Entity.ChangeOrderContract();
+			Entity.ChangeWaterAgreementDeliveryPointChanged();
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
@@ -1983,9 +1975,7 @@ namespace Vodovoz
 				Enum[] hideEnums = {
 					PaymentType.barter,
 					PaymentType.BeveragesWorld,
-					PaymentType.CourierByCard,
 					PaymentType.ContractDoc,
-					PaymentType.CourierByCard,
 					PaymentType.cashless
 				};
 				enumPaymentType.AddEnumToHideList(hideEnums);

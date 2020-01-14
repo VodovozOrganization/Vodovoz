@@ -33,7 +33,6 @@ using Vodovoz.Dialogs.Employees;
 using Vodovoz.Dialogs.Fuel;
 using Vodovoz.Dialogs.Goods;
 using Vodovoz.Dialogs.Logistic;
-using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
@@ -215,6 +214,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<DeliveryTimeAdvancedWageParameterViewModel, DeliveryTimeAdvancedWagePrameterView>()
 				.RegisterWidgetForWidgetViewModel<AdvancedWageParametersViewModel, AdvancedWageParametersView>()
 				.RegisterWidgetForWidgetViewModel<AddFixPriceActionViewModel, AddFixPriceActionView>()
+				.RegisterWidgetForWidgetViewModel<CarJournalFilterViewModel, CarFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -294,7 +294,6 @@ namespace Vodovoz
 				OrmObjectMapping<Tag>.Create().Dialog<TagDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
 				OrmObjectMapping<DocTemplate>.Create().Dialog<DocTemplateDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип", x => x.TemplateType.GetEnumTitle()).End(),
-				OrmObjectMapping<Residue>.Create().Dialog<ResidueDlg>(),
 				OrmObjectMapping<TransferOperationDocument>.Create().Dialog<TransferOperationDocumentDlg>(),
 				//Справочники с фильтрами
 				OrmObjectMapping<Equipment>.Create().Dialog<EquipmentDlg>().JournalFilter<EquipmentFilter>()
@@ -400,6 +399,12 @@ namespace Vodovoz
 				   .Column("< 0,6л б.", x => x.Water600mlCount)
 				   .SearchColumn("Описание правила", x => x.ToString())
 				   .End();
+			OrmMain.AddObjectDescription<Car>().Dialog<CarsDlg>().DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Модель а/м", x => x.Model)
+				   .SearchColumn("Гос. номер", x => x.RegistrationNumber)
+				   .SearchColumn("Водитель", x => x.Driver != null ? x.Driver.FullName : string.Empty)
+				   .End();
 			OrmMain.AddObjectDescription<Certificate>().Dialog<CertificateDlg>().DefaultTableView()
 				   .SearchColumn("Имя", x => x.Name)
 				   .Column("Тип", x => x.TypeOfCertificate.GetEnumTitle())
@@ -417,12 +422,6 @@ namespace Vodovoz
 			OrmMain.AddObjectDescription<TariffZone>().DefaultTableView()
 				   .SearchColumn("Номер", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
-				   .End();
-			OrmMain.AddObjectDescription<Car>().Dialog<CarsDlg>().DefaultTableView()
-				   .SearchColumn("Код", x => x.Id.ToString())
-				   .SearchColumn("Модель а/м", x => x.Model)
-				   .SearchColumn("Гос. номер", x => x.RegistrationNumber)
-				   .SearchColumn("Водитель", x => x.Driver != null ? x.Driver.FullName : string.Empty)
 				   .End();
 			OrmMain.AddObjectDescription<DeliveryPointCategory>().Dialog<DeliveryPointCategoryDlg>().DefaultTableView()
 				   .SearchColumn("Код", x => x.Id.ToString())

@@ -967,11 +967,7 @@
 </FontWeight>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontStyle>=Iif(
-    {payment_type} = 'CourierByCard',
-    'Italic',
-    'Normal'
-)</FontStyle>
+                        <FontStyle>='Normal'</FontStyle>
                       </Style>
                     </Textbox>
                   </ReportItems>

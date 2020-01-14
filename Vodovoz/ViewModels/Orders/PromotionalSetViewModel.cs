@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using QS.Commands;
 using QS.DomainModel.UoW;
@@ -18,13 +19,15 @@ namespace Vodovoz.ViewModels.Orders
 	{
 		public PromotionalSetViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
-			if(!FailInitialize && !CanRead)
+			if(!CanRead)
 				AbortOpening("У вас недостаточно прав для просмотра");
 
 			TabName = "Рекламные наборы";
 			UoW = uowBuilder.CreateUoW<PromotionalSet>(unitOfWorkFactory);
 			CreateCommands();
 		}
+
+		public string CreationDate => Entity.Id != 0 ? Entity.CreateDate.ToString("dd-MM-yyyy") : String.Empty;
 
 		private IEnumerable<DiscountReason> discountReasonSource;
 		public IEnumerable<DiscountReason> DiscountReasonSource {

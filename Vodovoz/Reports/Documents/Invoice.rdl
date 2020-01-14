@@ -32,7 +32,6 @@
 		WHEN 'cash' THEN 'НАЛ'
 		WHEN 'cashless' THEN 'БЕЗНАЛ'
 		WHEN 'ByCard' THEN 'ПО КАРТЕ'
-        WHEN 'CourierByCard' THEN 'ПО КАРТЕ КУРЬЕРУ'
 		ELSE orders.payment_type
 	END AS pay_type,
 	orders.payment_type AS order_payment_type,
@@ -2467,7 +2466,7 @@ WHERE stored_resource.id = @id1</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox39">
                       <Value>=Iif(Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund') &gt;= 0,
-   Iif( First({order_payment_type}, "Order")='CourierByCard' , "Итого к оплате по карте курьеру: ", "Всего получить от клиента: ") +Code.SummaString_Val(
+   "Всего получить от клиента: " +Code.SummaString_Val(
         Convert.ToString(
             Iif(First({order_payment_type}, "Order")!='ByCard',
                 Sum({total}, 'Goods') - Sum({deposit_price}*{deposit_count}, 'DepositRefund'),

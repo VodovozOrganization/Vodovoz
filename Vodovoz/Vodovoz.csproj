@@ -746,8 +746,6 @@
     <Compile Include="Representations\DriverRouteListAddressesVM.cs" />
     <Compile Include="ServiceDialogs\ChatWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.ChatWidget.cs" />
-    <Compile Include="ServiceDialogs\UnreadedMessagesWidget.cs" />
-    <Compile Include="gtk-gui\Vodovoz.UnreadedMessagesWidget.cs" />
     <Compile Include="ViewWidgets\Store\ReturnsReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReturnsReceptionView.cs" />
     <Compile Include="JournalFilters\DeliveryPointFilter.cs" />
@@ -757,9 +755,6 @@
     <Compile Include="Additions\Logistic\PrintRouteListHelper.cs" />
     <Compile Include="ReportsParameters\RevisionBottlesAndDeposits.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.RevisionBottlesAndDeposits.cs" />
-    <Compile Include="Dialogs\ResidueDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ResidueDlg.cs" />
-    <Compile Include="Representations\ResidueVM.cs" />
     <Compile Include="Dialogs\Logistic\FuelTypeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelTypeDlg.cs" />
     <Compile Include="Dialogs\Logistic\CarsDlg.cs" />
@@ -1361,6 +1356,11 @@
     <Compile Include="ViewModels\Orders\PromotionalSetActionWidgetResolver.cs" />
     <Compile Include="JournalSelector\NomenclatureAutoCompleteSelectorFactory.cs" />
     <Compile Include="JournalSelector\NomenclatureSelectorFactory.cs" />
+    <Compile Include="JournalViewModels\CarJournalViewModel.cs" />
+    <Compile Include="JournalNodes\CarJournalNode.cs" />
+    <Compile Include="Filters\ViewModels\CarJournalFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\CarFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -183,7 +183,6 @@ namespace Vodovoz
 					.Adjustment(new Adjustment(0, -1000000, 1000000, 1, 1, 1))
 				.AddColumn("№ оплаты")
 					.AddTextRenderer(node => node.TerminalPaymentNumber).Editable()
-					.AddSetter((cell, node) => cell.BackgroundGdk = node.Order.PaymentType == PaymentType.CourierByCard ? colorLightBlue : colorWhite)
 				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.TotalCash)
 				.AddColumn ("Комментарий\nкассира")

@@ -120,11 +120,11 @@ namespace Vodovoz.JournalColumnsConfigs
 			//ClientCameFromFilterViewModel
 			TreeViewColumnsConfigFactory.Register<ClientCameFromJournalViewModel>(
 				() => FluentColumnsConfig<ClientCameFromJournalNode>.Create()
-																	.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
-																	.AddColumn("Название").AddTextRenderer(n => n.Name)
-																	.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive ? "Да" : "Нет")
-																	.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
-																	.Finish()
+					.AddColumn("Код").AddTextRenderer(n => n.Id.ToString())
+						.AddColumn("Название").AddTextRenderer(n => n.Name)
+						.AddColumn("В архиве").AddTextRenderer(n => n.IsArchive ? "Да" : "Нет")
+						.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+						.Finish()
 			);
 
 			//ComplaintsJournalViewModel
@@ -384,10 +384,21 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(n => n.PromoSetDiscountReasonName)
 					.AddColumn("В архиве?")
 						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.IsArchiveString)
+						.AddTextRenderer()
+						.AddSetter((c, n) => c.Text = n.IsArchive? "Да" : String.Empty)
 					.AddColumn("")
 					.RowCells()
-						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+					.Finish()
+			);
+
+			//CarJournalViewModel
+			TreeViewColumnsConfigFactory.Register<CarJournalViewModel>(
+				() => FluentColumnsConfig<CarJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
+					.AddColumn("Модель").AddTextRenderer(x => x.Model).WrapWidth(300).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Гос. номер").AddTextRenderer(x => x.RegistrationNumber)
+					.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
 					.Finish()
 			);
 		}

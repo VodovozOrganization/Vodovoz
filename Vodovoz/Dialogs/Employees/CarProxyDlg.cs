@@ -12,6 +12,9 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 
 namespace Vodovoz.Dialogs.Employees
 {
@@ -59,8 +62,10 @@ namespace Vodovoz.Dialogs.Employees
 			yentryDriver.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			yentryDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();
 
-			yentryCar.SubjectType = typeof(Car);
-			yentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityviewmodelentryCar.Binding.AddBinding(Entity, x => x.Car, x => x.Subject).InitializeFromSource();
+			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 
 			RefreshParserRootObject();
 
@@ -104,7 +109,7 @@ namespace Vodovoz.Dialogs.Employees
 			bool isNewDoc = !(Entity.Id > 0);
 			yentryOrganization.Sensitive = isNewDoc;
 			yentryDriver.Sensitive = isNewDoc;
-			yentryCar.Sensitive = isNewDoc;
+			entityviewmodelentryCar.Sensitive = isNewDoc;
 			if(Entity.Organization == null || !isNewDoc) {
 				return;
 			}

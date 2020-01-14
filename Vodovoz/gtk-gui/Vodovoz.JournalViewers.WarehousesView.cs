@@ -20,8 +20,6 @@ namespace Vodovoz.JournalViewers
 
 		private global::Gtk.HBox hboxFilter;
 
-		private global::QSWidgetLib.SearchEntity searchentity1;
-
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
 		private global::QSOrmProject.RepresentationTreeView tableWarehouses;
@@ -123,15 +121,6 @@ namespace Vodovoz.JournalViewers
 			w11.Position = 1;
 			w11.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.searchentity1 = new global::QSWidgetLib.SearchEntity();
-			this.searchentity1.Events = ((global::Gdk.EventMask)(256));
-			this.searchentity1.Name = "searchentity1";
-			this.vbox1.Add(this.searchentity1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchentity1]));
-			w12.Position = 2;
-			w12.Expand = false;
-			w12.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -141,8 +130,8 @@ namespace Vodovoz.JournalViewers
 			this.tableWarehouses.Name = "tableWarehouses";
 			this.GtkScrolledWindow1.Add(this.tableWarehouses);
 			this.vbox1.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
-			w14.Position = 3;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
+			w13.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -154,7 +143,6 @@ namespace Vodovoz.JournalViewers
 			this.buttonEdit.Clicked += new global::System.EventHandler(this.OnButtonEditClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
 			this.buttonRefresh.Clicked += new global::System.EventHandler(this.OnButtonRefreshClicked);
-			this.searchentity1.TextChanged += new global::System.EventHandler(this.OnSearchentity1TextChanged);
 			this.tableWarehouses.RowActivated += new global::Gtk.RowActivatedHandler(this.OnTableWarehousesRowActivated);
 		}
 	}

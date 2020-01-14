@@ -13,7 +13,6 @@ namespace Vodovoz.Repository.Client
 		{
 			switch(paymentType) {
 				case PaymentType.cash:
-				case PaymentType.CourierByCard:
 				case PaymentType.ByCard:
 					if(clientType == PersonType.legal) {
 						return ContractType.CashUL;
