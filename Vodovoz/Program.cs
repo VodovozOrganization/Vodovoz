@@ -83,6 +83,7 @@ namespace Vodovoz
 
 			QSOsm.OsmWorker.ServiceHost = "osm.vod.qsolution.ru";
 			QSOsm.OsmWorker.ServicePort = 7073;
+			QSOsm.OsmWorker.MaxReceivedMessageSize = 2000000;
 			QSOsm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
 			
 			PerformanceHelper.StartPointsGroup ("Главное окно");

@@ -2024,7 +2024,6 @@ namespace Vodovoz.Domain.Orders
 			sb.AppendLine($"Вы уверены, что хотите добавить \"{proSet.Title}\"");
 			if(InteractiveService.Question(sb.ToString()))
 				return true;
-
 			return false;
 		}
 

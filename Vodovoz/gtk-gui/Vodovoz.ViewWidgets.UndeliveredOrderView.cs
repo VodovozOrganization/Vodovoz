@@ -108,6 +108,8 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gtk.Label lblFines;
 
+		private global::Gtk.Button buttonAddFine;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -547,12 +549,26 @@ namespace Vodovoz.ViewWidgets
 			this.vbxReasonAndFines.Add(this.frame3);
 			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vbxReasonAndFines[this.frame3]));
 			w47.Position = 2;
+			// Container child vbxReasonAndFines.Gtk.Box+BoxChild
+			this.buttonAddFine = new global::Gtk.Button();
+			this.buttonAddFine.CanFocus = true;
+			this.buttonAddFine.Name = "buttonAddFine";
+			this.buttonAddFine.UseUnderline = true;
+			this.buttonAddFine.Label = global::Mono.Unix.Catalog.GetString("Добавить штраф");
+			global::Gtk.Image w48 = new global::Gtk.Image();
+			w48.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAddFine.Image = w48;
+			this.vbxReasonAndFines.Add(this.buttonAddFine);
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vbxReasonAndFines[this.buttonAddFine]));
+			w49.PackType = ((global::Gtk.PackType)(1));
+			w49.Position = 3;
+			w49.Fill = false;
 			this.vbxWithControls.Add(this.vbxReasonAndFines);
-			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.vbxWithControls[this.vbxReasonAndFines]));
-			w48.Position = 2;
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.vbxWithControls[this.vbxReasonAndFines]));
+			w50.Position = 2;
 			this.mainBox.Add(this.vbxWithControls);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.mainBox[this.vbxWithControls]));
-			w49.Position = 1;
+			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.mainBox[this.vbxWithControls]));
+			w51.Position = 1;
 			this.Add(this.mainBox);
 			if ((this.Child != null))
 			{
@@ -563,6 +579,7 @@ namespace Vodovoz.ViewWidgets
 			this.yEnumCMBDriverCallPlace.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYEnumCMBDriverCallPlaceEnumItemSelected);
 			this.btnChooseOrder.Clicked += new global::System.EventHandler(this.OnBtnChooseOrderClicked);
 			this.btnNewOrder.Clicked += new global::System.EventHandler(this.OnBtnNewOrderClicked);
+			this.buttonAddFine.Clicked += new global::System.EventHandler(this.OnButtonAddFineClicked);
 		}
 	}
 }

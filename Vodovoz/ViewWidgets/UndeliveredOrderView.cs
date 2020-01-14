@@ -398,5 +398,18 @@ namespace Vodovoz.ViewWidgets
 					undelivery.DriverCallNr = 1;
 			}
 		}
+
+		protected void OnButtonAddFineClicked(object sender, EventArgs e)
+		{
+			FineDlg fineDlg = new FineDlg(UoW.GetById<UndeliveredOrder>(undelivery.Id));
+			MyTab.TabParent.OpenTab(
+				DialogHelper.GenerateDialogHashName<Fine>(undelivery.Id),
+				() => fineDlg
+			);
+			fineDlg.EntitySaved += (object sender2, QS.Tdi.EntitySavedEventArgs args) => { 
+					undelivery.Fines.Add(args.Entity as Fine); 
+					GetFines(); 
+			};
+		}
 	}
 }
