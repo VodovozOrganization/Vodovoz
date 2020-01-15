@@ -374,7 +374,7 @@ namespace Vodovoz
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 
 			yvalidatedentryEShopOrder.ValidationMode = ValidationType.numeric;
-			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new IntToStringConverter());
+			yvalidatedentryEShopOrder.Binding.AddBinding(Entity, c => c.EShopOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 
 			chkAddCertificates.Binding.AddBinding(Entity, c => c.AddCertificates, w => w.Active).InitializeFromSource();
 
