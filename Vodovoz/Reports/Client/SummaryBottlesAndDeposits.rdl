@@ -23,17 +23,7 @@
 	IFNULL(docs.delivery_point_address, 'Самовывоз') AS delivery_point_address,
 	docs.doc_name,
 	docs.doc_status,
-	IF(docs.doc_name = 'Ввод остатков',
-		(SELECT
-			GROUP_CONCAT(DISTINCT GET_TRANSLATED_PAYMENT_TYPE(doc_residue_equipment_deposit_items.payment_type) SEPARATOR ',\n')
-		FROM
-			doc_residue
-			LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
-		WHERE
-			doc_residue.id = docs.doc_id
-		GROUP BY doc_residue.id),
-        GET_TRANSLATED_PAYMENT_TYPE(docs.doc_payment_type))
-			AS doc_payment_type,
+	docs.doc_payment_type,
 	CASE
 #sum if it's residue
 		WHEN docs.doc_name = 'Ввод остатков' THEN
@@ -292,7 +282,7 @@ FROM
 		orders.id AS doc_id,
 		orders.bottles_movement_operation_id,
 		orders.delivery_date AS doc_date,
-		orders.payment_type AS doc_payment_type,
+		GET_TRANSLATED_PAYMENT_TYPE_SHORT(orders.payment_type) AS doc_payment_type,
 		delivery_points.id AS delivery_point_id,
 		delivery_points.compiled_address AS delivery_point_address,
 		'Заказ' AS doc_name,
@@ -314,7 +304,7 @@ FROM
 		doc_residue.id AS doc_id,
 		doc_residue.bottles_movement_operation_id,
 		doc_residue.date AS doc_date,
-		doc_residue.debt_payment_type AS doc_payment_type,
+		GROUP_CONCAT(DISTINCT GET_TRANSLATED_PAYMENT_TYPE_SHORT(doc_residue_equipment_deposit_items.payment_type) SEPARATOR ',\n') AS doc_payment_type,
 		doc_residue.delivery_point_id AS delivery_point_id,
 		delivery_points.compiled_address AS delivery_point_address,
 		'Ввод остатков' AS doc_name,
@@ -326,6 +316,9 @@ FROM
 		doc_residue
 	LEFT JOIN
 		delivery_points ON delivery_points.id = doc_residue.delivery_point_id
+	LEFT JOIN
+		doc_residue_equipment_deposit_items ON doc_residue_equipment_deposit_items.residue_id = doc_residue.id
+	GROUP BY(doc_residue.id)
 #subselect transfer_operations: transfer from client
 	UNION SELECT
 		transfer_operations.id AS doc_id,
@@ -855,19 +848,19 @@ WHERE
             <Width>65.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>119.3pt</Width>
+            <Width>119.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.2pt</Width>
+            <Width>54.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>46.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>34.9pt</Width>
+            <Width>32.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.9pt</Width>
+            <Width>32.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.1pt</Width>
@@ -905,7 +898,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -922,9 +915,9 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -940,7 +933,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -957,7 +950,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -974,7 +967,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -998,7 +991,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>Кол. пустых</Value>
+                      <Value>Кол. пуст.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1073,8 +1066,8 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1092,8 +1085,8 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1176,7 +1169,7 @@ WHERE
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <CanShrink >true</CanShrink>
+                          <CanShrink>true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1211,7 +1204,7 @@ WHERE
                             <BorderColor />
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1230,7 +1223,7 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1249,7 +1242,7 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1267,7 +1260,7 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1285,7 +1278,7 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1304,7 +1297,7 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1321,8 +1314,8 @@ WHERE
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
                           </Style>
-                          <CanGrow >true</CanGrow>
-                          <CanShrink >true</CanShrink>
+                          <CanGrow>true</CanGrow>
+                          <CanShrink>true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1338,8 +1331,8 @@ WHERE
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
                           </Style>
-                          <CanGrow >true</CanGrow>
-                          <CanShrink >true</CanShrink>
+                          <CanGrow>true</CanGrow>
+                          <CanShrink>true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1357,7 +1350,7 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1390,7 +1383,7 @@ WHERE
                               <Default>Solid</Default>
                             </BorderStyle>
                           </Style>
-                          <CanShrink >true</CanShrink>
+                          <CanShrink>true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1424,7 +1417,7 @@ WHERE
                             <BorderColor />
                             <BorderWidth />
                             <FontWeight>Bold</FontWeight>
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1531,8 +1524,8 @@ WHERE
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
                           </Style>
-                          <CanGrow >true</CanGrow>
-                          <CanShrink >true</CanShrink>
+                          <CanGrow>true</CanGrow>
+                          <CanShrink>true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1548,8 +1541,8 @@ WHERE
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
                           </Style>
-                          <CanGrow >true</CanGrow>
-                          <CanShrink >true</CanShrink>
+                          <CanGrow>true</CanGrow>
+                          <CanShrink>true</CanShrink>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1567,7 +1560,7 @@ WHERE
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
-                            <VerticalAlign >Middle</VerticalAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1602,8 +1595,8 @@ WHERE
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1621,10 +1614,10 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <Format>d</Format>
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1640,8 +1633,11 @@ WHERE
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingTop >0pt</PaddingTop>
+                        <PaddingBottom >0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1649,7 +1645,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="delivery_point_address">
-                      <Value>={doc_payment_type}</Value>
+                      <Value>=Iif({doc_payment_type} = 'inc' or {doc_payment_type} = 'out', '', {doc_payment_type})</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1658,10 +1654,10 @@ WHERE
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1678,7 +1674,7 @@ WHERE
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1693,10 +1689,10 @@ WHERE
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1713,8 +1709,8 @@ WHERE
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1731,7 +1727,7 @@ WHERE
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1748,7 +1744,7 @@ WHERE
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1766,7 +1762,7 @@ WHERE
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1785,10 +1781,11 @@ WHERE
                         <BorderWidth />
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1804,10 +1801,11 @@ WHERE
                         <TextAlign>Left</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft >2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1824,7 +1822,7 @@ WHERE
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1860,10 +1858,10 @@ WHERE
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1898,7 +1896,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1917,7 +1915,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1936,7 +1934,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1954,7 +1952,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1972,7 +1970,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1991,7 +1989,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2008,8 +2006,8 @@ WHERE
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2025,8 +2023,8 @@ WHERE
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2044,7 +2042,7 @@ WHERE
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
