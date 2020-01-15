@@ -699,8 +699,8 @@ WHERE
     AND (@complaint_kind = '' OR complaint_kinds.name = @complaint_kind)
     AND 
 		(@start_date = '' 
-		OR (@date_type = 'CreationDate' AND complaints.creation_date &lt; @end_date AND complaints.creation_date &gt; @start_date)
-		OR (@date_type = 'PlannedCompletionDate' AND complaints.planned_completion_date &lt; @end_date AND complaints.planned_completion_date &gt; @start_date))
+		OR (@date_type = 'CreationDate' AND DATE(complaints.creation_date) &lt;= Date(@end_date) AND DATE(complaints.creation_date) &gt;= DATE(@start_date))
+		OR (@date_type = 'PlannedCompletionDate' AND DATE(complaints.planned_completion_date) &lt;= DATE(@end_date) AND DATE(complaints.planned_completion_date) &gt;= DATE(@start_date)))
 GROUP BY
     complaints.id
     ORDER BY complaints.id DESC</CommandText>
