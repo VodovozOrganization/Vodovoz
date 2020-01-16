@@ -214,13 +214,13 @@ namespace Vodovoz
 		private void UpdateBottlesSummaryInfo()
 		{
 			string bottles = null;
-			int completedBottles = Entity.Addresses.Where(x => x.Status == RouteListItemStatus.Completed).Sum(x => x.Order.TotalWaterBottles);
+			int completedBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.Completed).Sum(x => x.Order.TotalWaterBottles);
 			int canceledBottles = Entity.Addresses.Where(
-				  x => x.Status == RouteListItemStatus.Canceled
+				  x => x != null && (x.Status == RouteListItemStatus.Canceled
 					|| x.Status == RouteListItemStatus.Overdue
-					|| x.Status == RouteListItemStatus.Transfered
+					|| x.Status == RouteListItemStatus.Transfered)
 				).Sum(x => x.Order.TotalWaterBottles);
-			int enrouteBottles = Entity.Addresses.Where(x => x.Status == RouteListItemStatus.EnRoute).Sum(x => x.Order.TotalWaterBottles);
+			int enrouteBottles = Entity.Addresses.Where(x => x != null && x.Status == RouteListItemStatus.EnRoute).Sum(x => x.Order.TotalWaterBottles);
 			bottles = string.Format("<b>Всего 19л. бутылей в МЛ:</b>\n");
 			bottles += string.Format("Выполнено: <b>{0}</b>\n", completedBottles);
 			bottles += string.Format(" Отменено: <b>{0}</b>\n", canceledBottles);
@@ -256,7 +256,7 @@ namespace Vodovoz
 		{
 			List<string> emptyDP = new List<string>();
 			items = new List<RouteListKeepingItemNode>();
-			foreach(var item in Entity.Addresses) {
+			foreach(var item in Entity.Addresses.Where(x => x != null)) {
 				items.Add(new RouteListKeepingItemNode { RouteListItem = item });
 				if(item.Order.DeliveryPoint == null) {
 					emptyDP.Add(string.Format(
