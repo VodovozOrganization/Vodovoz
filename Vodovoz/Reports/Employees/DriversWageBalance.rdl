@@ -1605,8 +1605,7 @@ WHERE
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
 	AND w.wage_type != 'Manual'
-	AND (employees.driver_of != 'CompanyLargus' OR driver_of IS NULL)
-	AND (employees.driver_of != 'CompanyGAZelle' OR driver_of IS NULL)
+	AND (employees.driver_of = 'DriverCar' OR driver_of IS NULL)
 	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
 HAVING balance &lt;&gt; 0
