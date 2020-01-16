@@ -37,8 +37,8 @@ using QSDocTemplates;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
-using Vodovoz.Parameters;
 using QSWidgetLib;
+using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain;
@@ -60,6 +60,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
@@ -283,7 +284,10 @@ namespace Vodovoz
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+					ServicesConfig.CommonServices,
+					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				)
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;
@@ -1159,7 +1163,8 @@ namespace Vodovoz
 			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};
@@ -1190,7 +1195,8 @@ namespace Vodovoz
 			NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};

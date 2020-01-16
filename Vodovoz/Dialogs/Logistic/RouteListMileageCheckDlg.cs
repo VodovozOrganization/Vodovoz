@@ -4,18 +4,19 @@ using System.Linq;
 using Dialogs.Logistic;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Validation.GtkUI;
+using Vodovoz.Core;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
-using QS.Project.Services;
-using QS.Dialog;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
-using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz
 {
@@ -51,7 +52,11 @@ namespace Vodovoz
 				vbxMain.Sensitive = false;
 			}
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(
+					ServicesConfig.CommonServices,
+					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				)
+			);
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 

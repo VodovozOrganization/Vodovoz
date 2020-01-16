@@ -5,23 +5,21 @@ using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
+using QS.Project.Services;
+using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Tdi;
+using Vodovoz.Core;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using QS.Project.Dialogs.GtkUI;
-using QS.Project.Dialogs;
-using Vodovoz.ViewModel;
-using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.EntityRepositories.Store;
-using QS.Project.Services;
-using Vodovoz.JournalViewModels;
-using QS.Project.Journal;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalNodes;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -163,7 +161,8 @@ namespace Vodovoz
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 				filter,
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 			);
 
 			vm.SelectionMode = JournalSelectionMode.Single;
@@ -222,7 +221,8 @@ namespace Vodovoz
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 				filter,
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 			);
 
 			vm.SelectionMode = JournalSelectionMode.Single;

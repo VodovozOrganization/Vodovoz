@@ -3,7 +3,9 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Views.GtkUI;
+using Vodovoz.Core;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
@@ -25,7 +27,10 @@ namespace Vodovoz.Views
 		{
 			ypickerDocDate.Binding.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
-			var counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices);
+			var counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+				ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+			);
 			entryClient.Binding.AddBinding(ViewModel.Entity, e => e.Customer, w => w.Subject).InitializeFromSource();
 			entryClient.SetEntityAutocompleteSelectorFactory(counterpartySelectorFactory);
 			buttonOpenSlider.Clicked += OnButtonOpenSliderClicked;

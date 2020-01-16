@@ -27,6 +27,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories;
 using System.Collections.Generic;
+using QS.Project.Services;
+using Vodovoz.Core;
 
 namespace Vodovoz
 {
@@ -137,7 +139,10 @@ namespace Vodovoz
 			checkIsArchive.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_create_and_arc_nomenclatures"];
 
 			entityviewmodelentryShipperCounterparty.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+					ServicesConfig.CommonServices,
+					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				)
 			);
 			entityviewmodelentryShipperCounterparty.Binding.AddBinding(Entity, s => s.ShipperCounterparty, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryShipperCounterparty.CanEditReference = true;

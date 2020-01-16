@@ -1,8 +1,10 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Core;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
@@ -17,7 +19,10 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			entryreferenceNomenclature.SubjectType = typeof(Nomenclature);
-			entryClient.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
+			entryClient.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+				ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+			));
 		}
 
 		public ClientBalanceFilter(IUnitOfWork uow) : this()

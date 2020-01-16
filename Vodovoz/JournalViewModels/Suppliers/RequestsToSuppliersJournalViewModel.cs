@@ -8,6 +8,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -32,8 +34,9 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
-			ISupplierPriceItemsRepository supplierPriceItemsRepository
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ISupplierPriceItemsRepository supplierPriceItemsRepository,
+			ICriterionSearch criterionSearch
+		) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));

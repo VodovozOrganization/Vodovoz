@@ -5,17 +5,18 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Validation.GtkUI;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
-using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.Core;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.JournalViewModels;
 using Vodovoz.PermissionExtensions;
 
@@ -93,7 +94,10 @@ namespace Vodovoz
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+					ServicesConfig.CommonServices,
+					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				)
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Contractor, w => w.Subject).InitializeFromSource();
 			entityVMEntryClient.CanEditReference = true;

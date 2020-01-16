@@ -6,18 +6,16 @@ using NLog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Dialogs;
-using QS.Project.Dialogs.GtkUI;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Tdi;
+using Vodovoz.Core;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -96,7 +94,8 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 				filter,
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 			);
 
 			vm.SelectionMode = JournalSelectionMode.Single;

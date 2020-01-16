@@ -4,14 +4,13 @@ using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
-using QS.Services;
+using Vodovoz.Core;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
-using Vodovoz.FilterViewModels.Goods;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -114,7 +113,10 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual IEntityAutocompleteSelectorFactory NomenclatureVM {
 			get {
 				if(nomenclatureVM == null) {
-					nomenclatureVM = new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(ServicesConfig.CommonServices);
+					nomenclatureVM = new DefaultEntityAutocompleteSelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(
+						ServicesConfig.CommonServices,
+						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					);
 				}
 				return nomenclatureVM;
 			}
@@ -124,7 +126,10 @@ namespace Vodovoz.Filters.ViewModels
 		public virtual IEntityAutocompleteSelectorFactory CounterpartyVM {
 			get {
 				if(counterpartyVM == null) {
-					counterpartyVM = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices);
+					counterpartyVM = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+						ServicesConfig.CommonServices,
+						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					);
 				};
 				return counterpartyVM;
 			}

@@ -15,6 +15,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QSOrmProject;
+using Vodovoz.Core;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Employees;
@@ -86,7 +87,11 @@ namespace Vodovoz
 			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged; ;
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(
+					ServicesConfig.CommonServices,
+					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				)
+			);
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.Sensitive = logisticanEditing;

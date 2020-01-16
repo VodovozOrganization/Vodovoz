@@ -2,6 +2,8 @@
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Project.Search;
 using QS.Project.Search.GtkUI;
 using QS.Utilities;
@@ -27,7 +29,8 @@ namespace Vodovoz.Views.Client
 
 		protected override void ConfigureWidget()
 		{
-			var searchView = new SearchView(ViewModel.Search as SearchViewModel);
+			//FIXME Не правильное приведение, нужно переделать диалог на журнал
+			var searchView = new MultipleEntrySearchView(ViewModel.SearchViewModel as MultipleEntrySearchViewModel);
 			hboxSearch.Add(searchView);
 			searchView.Show();
 

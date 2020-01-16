@@ -7,6 +7,8 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
@@ -322,7 +324,8 @@ namespace Vodovoz.ViewModels.ForAdministrators
 						() => {
 							var districtsJournalViewModel = new ScheduleRestrictedDistrictsJournalViewModel(
 								unitOfWorkFactory,
-								commonServices
+								commonServices,
+								new MultipleEntryCriterionSearch(new MultipleEntryCriterionSearchViewModel(new CriterionSearchModel()))
 							) {
 								SelectionMode = JournalSelectionMode.Multiple
 							};

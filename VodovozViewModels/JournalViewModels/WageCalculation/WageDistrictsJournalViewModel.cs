@@ -5,6 +5,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.JournalNodes;
@@ -16,7 +18,7 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
-		public WageDistrictsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
+		public WageDistrictsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 

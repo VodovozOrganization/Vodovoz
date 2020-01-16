@@ -8,34 +8,35 @@ using Gtk;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
+using QS.Validation.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
-using Vodovoz.Parameters;
-using QS.Validation.GtkUI;
+using Vodovoz.Core;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Parameters;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.FuelDocuments;
-using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.EntityRepositories.Fuel;
-using Vodovoz.EntityRepositories.Employees;
-using QS.Project.Services;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.Core.DataService;
-using Vodovoz.EntityRepositories.WageCalculation;
-using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
-using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
@@ -120,7 +121,11 @@ namespace Vodovoz
 			Entity.ObservableFuelDocuments.ElementRemoved += ObservableFuelDocuments_ElementRemoved;
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(
+					ServicesConfig.CommonServices,
+					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				)
+			);
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 

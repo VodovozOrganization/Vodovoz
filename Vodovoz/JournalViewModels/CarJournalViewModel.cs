@@ -4,6 +4,8 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -14,7 +16,7 @@ namespace Vodovoz.JournalViewModels
 {
 	public class CarJournalViewModel : FilterableSingleEntityJournalViewModelBase<Car, CarsDlg, CarJournalNode, CarJournalFilterViewModel>
 	{
-		public CarJournalViewModel(CarJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public CarJournalViewModel(CarJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			TabName = "Журнал автомобилей";
 			UpdateOnChanges(

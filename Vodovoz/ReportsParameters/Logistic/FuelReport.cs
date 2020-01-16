@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Dialog;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Report;
 using QSProjectsLib;
 using QSReport;
+using Vodovoz.Core;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
-using QS.Dialog.GtkUI;
-using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
-using QS.Project.Services;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.Reports
 {
@@ -29,9 +29,11 @@ namespace Vodovoz.Reports
 			);
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(
+					ServicesConfig.CommonServices,
+					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				));
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
-
 			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,

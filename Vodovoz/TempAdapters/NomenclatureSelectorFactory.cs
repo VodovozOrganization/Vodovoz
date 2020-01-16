@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using Vodovoz.Core;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
@@ -21,7 +22,8 @@ namespace Vodovoz.TempAdapters
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 				nomenclatureStockFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 			);
 
 			vm.SelectionMode = JournalSelectionMode.Multiple;

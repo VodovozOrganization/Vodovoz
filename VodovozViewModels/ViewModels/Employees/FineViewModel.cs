@@ -15,6 +15,8 @@ using QS.Project.Journal.EntitySelector;
 using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 
 namespace Vodovoz.ViewModels.Employees
 {
@@ -203,7 +205,8 @@ namespace Vodovoz.ViewModels.Employees
 						() => new FineTemplateViewModel(EntityUoWBuilder.ForCreate(), uowFactory, CommonServices),
 						(node) => new FineTemplateViewModel(EntityUoWBuilder.ForOpen(node.Id), uowFactory, CommonServices),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices
+						CommonServices,
+						new MultipleEntryCriterionSearch(new MultipleEntryCriterionSearchViewModel(new CriterionSearchModel()))
 					);
 					fineTemplatesJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 					fineTemplatesJournalViewModel.OnEntitySelectedResult += (sender, args) => {

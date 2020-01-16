@@ -14,6 +14,8 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 
 namespace Vodovoz.JournalViewModels.Employees
 {
@@ -30,8 +32,9 @@ namespace Vodovoz.JournalViewModels.Employees
 			IEmployeeService employeeService,
 			IEntitySelectorFactory employeeSelectorFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices
-		) : base(filterViewModel, unitOfWorkFactory,  commonServices)
+			ICommonServices commonServices,
+			ICriterionSearch criterionSearch
+		) : base(filterViewModel, unitOfWorkFactory,  commonServices, criterionSearch)
 		{
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));

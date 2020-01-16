@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using Gtk;
 using NLog;
 using QS.Banks.Domain;
 using QS.Contacts;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
@@ -14,22 +14,21 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
+using QS.Validation.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Validation.GtkUI;
+using Vodovoz.Core;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repository;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
-using Gtk;
-using Vodovoz.Domain.Goods;
-using QS.Services;
-using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -90,7 +89,8 @@ namespace Vodovoz
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract>();
 			}
 			commentsview4.UoW = UoW;
-			supplierPricesWidget.ViewModel = new ViewModels.Client.SupplierPricesWidgetViewModel(Entity, UoW, this, QS.Project.Services.ServicesConfig.CommonServices);
+			supplierPricesWidget.ViewModel = new ViewModels.Client.SupplierPricesWidgetViewModel(Entity, UoW, this, ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch());
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
@@ -125,9 +125,15 @@ namespace Vodovoz
 			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
 
 			lblVodovozNumber.LabelProp = Entity.VodovozInternalId.ToString();
-			entryMainCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
+			entryMainCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+				ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch())
+			);
 			entryMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
-			entryPreviousCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
+			entryPreviousCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+				ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch())
+			);
 			entryPreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
 
 			//Setting subjects

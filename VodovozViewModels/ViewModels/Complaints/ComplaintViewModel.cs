@@ -7,6 +7,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
@@ -284,7 +286,8 @@ namespace Vodovoz.ViewModels.Complaints
 						employeeService,
 						employeeSelectorFactory,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices
+						CommonServices,
+						new MultipleEntryCriterionSearch(new MultipleEntryCriterionSearchViewModel(new CriterionSearchModel()))
 					);
 					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 					fineJournalViewModel.OnEntitySelectedResult += (sender, e) => {

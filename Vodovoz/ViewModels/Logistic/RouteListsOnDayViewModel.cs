@@ -14,6 +14,7 @@ using QS.Utilities;
 using QS.ViewModels;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
+using Vodovoz.Core;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -194,7 +195,8 @@ namespace Vodovoz.ViewModels.Logistic
 					var drvJournalViewModel = new EmployeesJournalViewModel(
 						drvFilter,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						commonServices
+						commonServices,
+						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 					) {
 						SelectionMode = JournalSelectionMode.Multiple
 					};
@@ -260,7 +262,8 @@ namespace Vodovoz.ViewModels.Logistic
 					var fwdJournalViewModel = new EmployeesJournalViewModel(
 						fwdFilter,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						commonServices
+						commonServices,
+						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 					) {
 						SelectionMode = JournalSelectionMode.Multiple
 					};

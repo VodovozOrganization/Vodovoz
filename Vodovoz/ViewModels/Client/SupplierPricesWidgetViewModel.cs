@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
-using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
-using QS.Project.Search;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using Vodovoz.Core;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
@@ -23,14 +24,23 @@ namespace Vodovoz.ViewModels.Client
 
 		public IJournalSearch Search { get; private set; }
 
-		public SupplierPricesWidgetViewModel(Counterparty entity, IUnitOfWork uow, ITdiTab dialogTab, ICommonServices commonServices) : base(entity, commonServices)
+		public SearchViewModelBase SearchViewModel { get; }
+
+		public SupplierPricesWidgetViewModel(Counterparty entity, IUnitOfWork uow, ITdiTab dialogTab, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(entity, commonServices)
 		{
+			if(criterionSearch == null) {
+				throw new ArgumentNullException(nameof(criterionSearch));
+			}
+
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			CreateCommands();
 			RefreshPrices();
-			Search = new SearchViewModel();
+
+			Search = criterionSearch.CriterionSearchModel;
+			SearchViewModel = criterionSearch.SearchViewModel;
 			Search.OnSearch += (sender, e) => RefreshPrices();
+
 			Entity.ObservableSuplierPriceItems.ElementAdded += (aList, aIdx) => RefreshPrices();
 			Entity.ObservableSuplierPriceItems.ElementRemoved += (aList, aIdx, aObject) => RefreshPrices();
 		}
@@ -74,7 +84,8 @@ namespace Vodovoz.ViewModels.Client
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices
+						CommonServices,
+						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 					) {
 						SelectionMode = JournalSelectionMode.Single,
 						ExcludingNomenclatureIds = existingNomenclatures.ToArray()

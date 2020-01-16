@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Views.GtkUI;
+using Vodovoz.Core;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
@@ -26,7 +26,12 @@ namespace Vodovoz.Filters.GtkViews
 
 			comboboxDateType.ItemsEnum = typeof(TaskFilterDateType);
 			comboboxDateType.Binding.AddBinding(ViewModel, x => x.DateType, w => w.SelectedItem).InitializeFromSource();
-			entVMEmployee.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices));
+			entVMEmployee.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+					ServicesConfig.CommonServices,
+					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				)
+			);
 			entVMEmployee.Binding.AddBinding(ViewModel, x => x.Employee, w => w.Subject).InitializeFromSource();
 			checkbuttonHideCompleted.Binding.AddBinding(ViewModel, x => x.HideCompleted, w => w.Active).InitializeFromSource();
 			showWithoutCheckButton.Binding.AddBinding(ViewModel, x => x.ShowOnlyWithoutEmployee, w => w.Active).InitializeFromSource();

@@ -3,6 +3,8 @@ using System.Linq.Expressions;
 using Gamma.Binding.Core;
 using Gtk;
 using QS.ViewModels;
+using QS.Dialog.Gtk;
+using QS.Navigation.GtkUI;
 
 namespace Vodovoz.Core
 {
@@ -11,7 +13,7 @@ namespace Vodovoz.Core
 	{
 		public BindingControler<WidgetContainerView> Binding { get; private set; }
 
-		public IWidgetResolver WidgetResolver { get; set; } = ViewModelWidgetResolver.Instance;
+		public IWidgetResolver WidgetResolver { get; set; } = DialogHelper.ViewResolver;
 
 		private WidgetViewModelBase widgetViewModel;
 		public WidgetViewModelBase WidgetViewModel {

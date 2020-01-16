@@ -1120,7 +1120,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.StockMovementsAdvancedReport.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Representations\CallTasksVM.cs" />
-    <Compile Include="Core\ViewModelWidgetResolver.cs" />
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
     <Compile Include="Dialogs\Fuel\FuelTransferDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTransferDocumentView.cs" />
@@ -1324,7 +1323,6 @@
     <Compile Include="Core\WarehousePermissionValidator.cs" />
     <Compile Include="Core\WarehousePermissionValidatorFactory.cs" />
     <Compile Include="TempAdapters\NomenclatureSelectorFactory.cs" />
-    <Compile Include="Core\BasedOnNameViewModelWidgetResolver.cs" />
     <Compile Include="Core\RdlPreviewOpener.cs" />
     <Compile Include="ViewModels\Logistic\DeliveryScheduleFilterType.cs" />
     <Compile Include="ReportsParameters\ZeroDebtClientReport.cs" />
@@ -1338,7 +1336,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Complaints.ComplaintKindView.cs" />
     <Compile Include="Core\WidgetContainerView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Core.WidgetContainerView.cs" />
-    <Compile Include="Core\IWidgetResolver.cs" />
     <Compile Include="ReportsParameters\Sales\SalesByDiscountReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalesByDiscountReport.cs" />
     <Compile Include="Filters\ViewModels\CallTaskFilterViewModel.cs" />
@@ -1361,6 +1358,7 @@
     <Compile Include="Filters\ViewModels\CarJournalFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
+    <Compile Include="Core\CriterionSearchFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

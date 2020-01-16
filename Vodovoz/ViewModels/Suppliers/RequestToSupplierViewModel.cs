@@ -8,6 +8,7 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.Utilities;
 using QS.ViewModels;
+using Vodovoz.Core;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -224,7 +225,8 @@ namespace Vodovoz.ViewModels.Suppliers
 					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
 						filter,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						CommonServices
+						CommonServices,
+						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 					) {
 						SelectionMode = JournalSelectionMode.Single,
 						ExcludingNomenclatureIds = existingNomenclatures.ToArray()

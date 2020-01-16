@@ -10,6 +10,8 @@ using QS.Dialog;
 using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using QSReport;
 using Vodovoz.Dialogs;
@@ -28,7 +30,7 @@ namespace Vodovoz.Representations
 
 		IEmployeeRepository employeeRepository { get; set;}
 
-		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEmployeeRepository employeeRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEmployeeRepository employeeRepository, ICriterionSearch criterionSearch) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;

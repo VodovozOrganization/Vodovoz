@@ -6,6 +6,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using Vodovoz.Core;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
@@ -21,8 +22,12 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
-			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty,
-				CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices));
+			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+					ServicesConfig.CommonServices,
+					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				)
+			);
 		}	
 
 		public void SetDeliveryPoint(DeliveryPoint deliveryPoint)

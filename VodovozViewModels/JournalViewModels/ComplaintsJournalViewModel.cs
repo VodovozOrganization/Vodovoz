@@ -10,6 +10,8 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Domain.Client;
@@ -67,8 +69,9 @@ namespace Vodovoz.JournalViewModels
 			IFilePickerService filePickerService,
 			ISubdivisionRepository subdivisionRepository,
 			IReportViewOpener reportViewOpener,
-			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener,
+			ICriterionSearch criterionSearch
+		) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

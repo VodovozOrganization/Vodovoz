@@ -4,6 +4,8 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Sale;
@@ -14,7 +16,7 @@ namespace Vodovoz.JournalViewModels.Logistic
 {
 	public class ScheduleRestrictedDistrictsJournalViewModel : SingleEntityJournalViewModelBase<ScheduleRestrictedDistrict, EntityTabViewModelBase<ScheduleRestrictedDistrict>, ScheduleRestrictedDistrictJournalNode>
 	{
-		public ScheduleRestrictedDistrictsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices)
+		public ScheduleRestrictedDistrictsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			TabName = "Журнал районов доставки";
 			UpdateOnChanges(typeof(ScheduleRestrictedDistrict));

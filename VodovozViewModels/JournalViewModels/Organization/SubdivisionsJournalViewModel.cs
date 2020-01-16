@@ -7,6 +7,8 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.FilterViewModels.Organization;
@@ -24,8 +26,9 @@ namespace Vodovoz.JournalViewModels.Organization
 			SubdivisionFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			ICriterionSearch criterionSearch
+		) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

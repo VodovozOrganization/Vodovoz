@@ -7,6 +7,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Core;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.FilterViewModels.Goods;
@@ -110,7 +111,11 @@ namespace Vodovoz.ViewModels.Orders
 					x => x.SelectCategory = NomenclatureCategory.water,
 					x => x.SelectSaleCategory = SaleCategory.forSale);
 
-				var nomenJournalViewModel = new NomenclaturesJournalViewModel(nomenFilter, UnitOfWorkFactory, CommonServices) {
+				var nomenJournalViewModel = new NomenclaturesJournalViewModel(
+					nomenFilter, 
+					UnitOfWorkFactory, 
+					CommonServices,
+					CriterionSearchFactory.GetMultipleEntryCriterionSearch()) {
 					SelectionMode = JournalSelectionMode.Single
 				};
 

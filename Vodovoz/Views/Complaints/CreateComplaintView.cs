@@ -4,6 +4,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Views.GtkUI;
+using Vodovoz.Core;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
@@ -44,7 +45,12 @@ namespace Vodovoz.Views.Complaints
 				if(ViewModel.Entity.Counterparty != null) {
 					filter.RestrictCounterparty = ViewModel.Entity.Counterparty;
 				}
-				return new OrderJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+				return new OrderJournalViewModel(
+					filter, 
+					UnitOfWorkFactory.GetDefaultFactory, 
+					ServicesConfig.CommonServices,
+					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				);
 			});
 
 			entryOrder.SetEntitySelectorFactory(orderSelectorFactory);

@@ -6,6 +6,8 @@ using NHibernate.Transform;
 using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
@@ -19,11 +21,13 @@ namespace Vodovoz.JournalViewModels
 		public EmployeesJournalViewModel(
 			EmployeeFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices
+			ICommonServices commonServices, 
+			ICriterionSearch criterionSearch
 		) : base(
 			filterViewModel,
 			unitOfWorkFactory,
-			commonServices
+			commonServices,
+			criterionSearch
 		)
 		{
 			UpdateOnChanges(typeof(Employee));

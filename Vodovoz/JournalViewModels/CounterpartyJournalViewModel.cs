@@ -5,6 +5,8 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Contacts;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
@@ -14,7 +16,7 @@ namespace Vodovoz.JournalViewModels
 {
 	public class CounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
 	{
-		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			TabName = "Журнал контрагентов";
 			UpdateOnChanges(

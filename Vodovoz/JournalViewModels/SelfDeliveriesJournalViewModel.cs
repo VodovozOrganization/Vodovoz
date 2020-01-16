@@ -26,12 +26,14 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 
 namespace Vodovoz.Representations
 {
 	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
 	{
-		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			TabName = "Журнал самовывозов";
 			SetOrder(x => x.Date, true);

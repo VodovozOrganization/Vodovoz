@@ -10,6 +10,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Core;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Domain.Logistic;
@@ -145,7 +146,8 @@ namespace Vodovoz.Dialogs.Fuel
 						() => new FuelTypeViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices),
 						(node) => new FuelTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
-						commonServices
+						commonServices,
+						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 					);
 					fuelTypeJournalViewModel.SetRestriction(() => {
 						return Restrictions.Not(Restrictions.In(Projections.Id(), Entity.ObservableFuelWriteoffDocumentItems.Select(x => x.FuelType.Id).ToArray()));

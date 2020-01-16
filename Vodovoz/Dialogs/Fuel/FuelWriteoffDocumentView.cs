@@ -4,15 +4,11 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Views.GtkUI;
+using Vodovoz.Core;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -48,7 +44,8 @@ namespace Vodovoz.Dialogs.Fuel
 							QS.Project.Services.ServicesConfig.CommonServices
 						),
 						UnitOfWorkFactory.GetDefaultFactory,
-						QS.Project.Services.ServicesConfig.CommonServices
+						QS.Project.Services.ServicesConfig.CommonServices,
+						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 					) {
 						SelectionMode = JournalSelectionMode.Single
 					};

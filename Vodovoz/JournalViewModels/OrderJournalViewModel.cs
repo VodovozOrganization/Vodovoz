@@ -9,6 +9,8 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -27,7 +29,7 @@ namespace Vodovoz.JournalViewModels
 {
 	public class OrderJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel>
 	{
-		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			TabName = "Журнал заказов";
 			SetOrder(x => x.CreateDate, true);

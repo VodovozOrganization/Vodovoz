@@ -5,6 +5,8 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -22,8 +24,9 @@ namespace Vodovoz.JournalViewModels
 		public NomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices
-		) : base(filterViewModel, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices, 
+			ICriterionSearch criterionSearch
+		) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			TabName = "Журнал ТМЦ";
 			this.currentUserId = commonServices.UserService.CurrentUserId;

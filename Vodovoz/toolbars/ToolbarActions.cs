@@ -40,6 +40,7 @@ using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.EntityRepositories.Store;
 using QS.Project.Journal;
 using Vodovoz.Infrastructure;
+using Vodovoz.Core;
 
 public partial class MainWindow : Window
 {
@@ -297,14 +298,18 @@ public partial class MainWindow : Window
 
 	void ActionJournalOfRequestsToSuppliers_Activated(object sender, System.EventArgs e)
 	{
-		IEntitySelectorFactory nomenclatureSelectorFactory = new DefaultEntitySelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices);
+		IEntitySelectorFactory nomenclatureSelectorFactory = new DefaultEntitySelectorFactory<Nomenclature, NomenclaturesJournalViewModel, NomenclatureFilterViewModel>(
+			ServicesConfig.CommonServices,
+			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+		);
 		RequestsToSuppliersFilterViewModel filter = new RequestsToSuppliersFilterViewModel(nomenclatureSelectorFactory);
 		var requestsJournal = new RequestsToSuppliersJournalViewModel(
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
-			QS.Project.Services.ServicesConfig.CommonServices,
+			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
-			new SupplierPriceItemsRepository()
+			new SupplierPriceItemsRepository(),
+			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 		);
 		tdiMain.AddTab(requestsJournal);
 	}
@@ -328,7 +333,13 @@ public partial class MainWindow : Window
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
 	{
 		DebtorsJournalFilterViewModel filter = new DebtorsJournalFilterViewModel();
-		var debtorsJournal = new DebtorsJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, EmployeeSingletonRepository.GetInstance());
+		var debtorsJournal = new DebtorsJournalViewModel(
+			filter, 
+			UnitOfWorkFactory.GetDefaultFactory, 
+			ServicesConfig.CommonServices, 
+			EmployeeSingletonRepository.GetInstance(),
+			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+		);
 
 		tdiMain.AddTab(debtorsJournal);
 
@@ -451,7 +462,12 @@ public partial class MainWindow : Window
 			x => x.RestrictOnlyWithoutCoodinates = false
 		);
 		filter.HidenByDefault = true;
-		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, QS.Project.Services.ServicesConfig.CommonServices);
+		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(
+			filter, 
+			UnitOfWorkFactory.GetDefaultFactory, 
+			ServicesConfig.CommonServices,
+			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+		);
 		tdiMain.AddTab(selfDeliveriesJournal);
 	}
 
@@ -480,7 +496,10 @@ public partial class MainWindow : Window
 					subdivisionRepository,
 					fuelRepository,
 					VodovozGtkServicesConfig.RepresentationEntityPicker,
-					new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices)
+					new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+						ServicesConfig.CommonServices,
+						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					)
 				);
 				return new MultipleEntityJournal("Журнал учета топлива", vm, vm);
 			}
@@ -675,7 +694,8 @@ public partial class MainWindow : Window
 		NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
-			ServicesConfig.CommonServices
+			ServicesConfig.CommonServices,
+			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 		);
 		vm.SelectionMode = JournalSelectionMode.None;
 
@@ -701,7 +721,12 @@ public partial class MainWindow : Window
 	void ActionOrdersTableActivated(object sender, System.EventArgs e)
 	{
 		OrderJournalFilterViewModel filter = new OrderJournalFilterViewModel();
-		var ordersJournal = new OrderJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, QS.Project.Services.ServicesConfig.CommonServices);
+		var ordersJournal = new OrderJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory, 
+			ServicesConfig.CommonServices,
+			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+		);
 		tdiMain.AddTab(ordersJournal);
 	}
 
@@ -733,7 +758,11 @@ public partial class MainWindow : Window
 			bottlesRepository,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices)
+			new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+				ServicesConfig.CommonServices,
+				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+			),
+			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
 		);
 		tdiMain.AddTab(residueJournalViewModel);
 	}

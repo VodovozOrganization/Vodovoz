@@ -136,6 +136,8 @@
     <Compile Include="ViewModels\Complaints\ComplaintKindViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\IWageParameterViewModel.cs" />
     <Compile Include="Infrastructure\NavigationManagerProvider.cs" />
+    <Compile Include="SearchViewModels\DelayedMultipleEntryCriterionSearchViewModel.cs" />
+    <Compile Include="SearchViewModels\DelayedSingleEntryCriterionSearchViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -163,6 +165,7 @@
     <Folder Include="Infrastructure\Print\" />
     <Folder Include="ViewModels\ForAdministrators\" />
     <Folder Include="JournalViewModels\Logistic\" />
+    <Folder Include="SearchViewModels\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

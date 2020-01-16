@@ -6,6 +6,8 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search;
+using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -30,9 +32,10 @@ namespace Vodovoz.JournalViewModels
 			IBottlesRepository bottlesRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory, 
+			ICriterionSearch criterionSearch
 		) 
-		: base(filterViewModel, unitOfWorkFactory, commonServices)
+		: base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			TabName = "Журнал остатков";
