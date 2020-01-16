@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.Report;
+using QS.Tdi;
 using QS.Tdi.Gtk;
 using QSReport;
 using Vodovoz.Infrastructure.Print;

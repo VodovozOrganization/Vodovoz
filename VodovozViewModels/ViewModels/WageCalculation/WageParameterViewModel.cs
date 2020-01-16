@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.WageCalculation;
+using QS.Navigation;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
@@ -17,7 +18,8 @@ namespace Vodovoz.ViewModels.WageCalculation
 		public event EventHandler<WageParameter> OnWageParameterCreated;
 		private readonly bool isNewEntity;
 
-		public WageParameterViewModel(IUnitOfWork uow, WageParameterTargets wageParameterTarget, ICommonServices commonServices) : base(commonServices.InteractiveService)
+		public WageParameterViewModel(IUnitOfWork uow, WageParameterTargets wageParameterTarget, ICommonServices commonServices, INavigationManager navigationManager) 
+			: base(commonServices.InteractiveService, navigationManager)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			this.wageParameterTarget = wageParameterTarget;
@@ -27,7 +29,8 @@ namespace Vodovoz.ViewModels.WageCalculation
 			CreateWageParameter();
 		}
 
-		public WageParameterViewModel(WageParameter wageParameter, IUnitOfWork uow, ICommonServices commonServices) : base(commonServices.InteractiveService)
+		public WageParameterViewModel(WageParameter wageParameter, IUnitOfWork uow, ICommonServices commonServices, INavigationManager navigationManager) 
+			: base(commonServices.InteractiveService, navigationManager)
 		{
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));

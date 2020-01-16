@@ -13,6 +13,7 @@ using Vodovoz.Representations;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using QS.Project.Repositories;
+using QS.Tdi;
 
 namespace Vodovoz.JournalViewers
 {

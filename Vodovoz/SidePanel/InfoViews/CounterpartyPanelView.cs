@@ -5,6 +5,7 @@ using Gamma.Utilities;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Utilities;
 using Vodovoz.Domain.Client;

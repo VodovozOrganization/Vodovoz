@@ -27,6 +27,7 @@ using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.Core.DataService;
 using QS.Project.Services;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
@@ -187,7 +188,8 @@ namespace Vodovoz
 				UoW, 
 				new PresetPermissionValidator(),
 				UserSingletonRepository.GetInstance(), 
-				QS.Project.Services.ServicesConfig.CommonServices
+				QS.Project.Services.ServicesConfig.CommonServices,
+				NavigationManagerProvider.NavigationManager
 			);
 
 			logger.Info("Ok");

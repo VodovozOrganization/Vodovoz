@@ -35,6 +35,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
@@ -1035,7 +1036,8 @@ namespace Vodovoz
 					  ServicesConfig.CommonServices,
 					  new SubdivisionRepository(),
 					  EmployeeSingletonRepository.GetInstance(),
-					  new FuelRepository()
+					  new FuelRepository(),
+					  NavigationManagerProvider.NavigationManager
   			);
 			TabParent.AddSlaveTab(this, tab);
 		}
@@ -1048,7 +1050,8 @@ namespace Vodovoz
 				  ServicesConfig.CommonServices,
 				  new SubdivisionRepository(),
 				  EmployeeSingletonRepository.GetInstance(),
-				  new FuelRepository()
+				  new FuelRepository(),
+				  NavigationManagerProvider.NavigationManager
 		  	);
 			TabParent.AddSlaveTab(this, tab);
 		}

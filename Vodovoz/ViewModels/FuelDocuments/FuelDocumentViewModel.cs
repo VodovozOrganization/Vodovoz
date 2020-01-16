@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
+using QS.Navigation;
 
 namespace Vodovoz.ViewModels.FuelDocuments
 {
@@ -154,8 +155,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionsRepository,
 			IEmployeeRepository employeeRepository,
-			IFuelRepository fuelRepository
-		) : base(commonServices.InteractiveService)
+			IFuelRepository fuelRepository,
+			INavigationManager navigationManager
+		) : base(commonServices.InteractiveService, navigationManager)
 		{
 			this.commonServices = commonServices ?? throw new NotImplementedException(nameof(commonServices));
 			this.subdivisionsRepository = subdivisionsRepository ?? throw new NotImplementedException(nameof(subdivisionsRepository));
@@ -178,8 +180,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionsRepository,
 			IEmployeeRepository employeeRepository,
-			IFuelRepository fuelRepository
-		) : base(commonServices.InteractiveService)
+			IFuelRepository fuelRepository,
+			INavigationManager navigationManager
+		) : base(commonServices.InteractiveService, navigationManager)
 		{
 			this.commonServices = commonServices ?? throw new NotImplementedException(nameof(commonServices));
 			this.subdivisionsRepository = subdivisionsRepository ?? throw new NotImplementedException(nameof(subdivisionsRepository));
@@ -204,8 +207,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			ICommonServices commonServices,
 			ISubdivisionRepository subdivisionsRepository, 
 			IEmployeeRepository employeeRepository, 
-			IFuelRepository fuelRepository
-		) : base(commonServices.InteractiveService)
+			IFuelRepository fuelRepository,
+			INavigationManager navigationManager
+		) : base(commonServices.InteractiveService, navigationManager)
 		{
 			this.commonServices = commonServices ?? throw new NotImplementedException(nameof(commonServices));
 			this.subdivisionsRepository = subdivisionsRepository ?? throw new NotImplementedException(nameof(subdivisionsRepository));

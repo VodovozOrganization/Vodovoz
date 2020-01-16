@@ -29,6 +29,7 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
+using QS.Navigation;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -49,8 +50,9 @@ namespace Vodovoz.ViewModels.Logistic
 			ISubdivisionRepository subdivisionRepository,
 			IOrderRepository orderRepository,
 			IAtWorkRepository atWorkRepository,
-			ICarRepository carRepository
-		) : base(QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices.InteractiveService)
+			ICarRepository carRepository,
+			INavigationManager navigationManager
+		) : base(QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices.InteractiveService, navigationManager)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));

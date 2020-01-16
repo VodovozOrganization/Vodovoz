@@ -6,6 +6,7 @@ using Gtk;
 using NHibernate.Util;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
+using QS.Tdi;
 using QS.Tdi.Gtk;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;

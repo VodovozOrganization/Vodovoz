@@ -67,6 +67,8 @@ using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using QSSupportLib;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.Domain.Service.BaseParametersServices;
+using QS.Tdi;
+using Vodovoz.Infrastructure;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -1454,7 +1456,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			new CarsWageParametersViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				WageSingletonRepository.GetInstance(),
-				ServicesConfig.CommonServices
+				ServicesConfig.CommonServices,
+				NavigationManagerProvider.NavigationManager
 			)
 		);
 	}
@@ -1484,7 +1487,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new DeliverySchedulesCopierViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				ServicesConfig.CommonServices.InteractiveService
+				ServicesConfig.CommonServices.InteractiveService,
+				NavigationManagerProvider.NavigationManager
 			)
 		);
 	}

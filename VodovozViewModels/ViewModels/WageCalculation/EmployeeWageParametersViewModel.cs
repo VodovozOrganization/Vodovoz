@@ -5,13 +5,13 @@ using Vodovoz.Domain.Employees;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Commands;
-using QS.Project.Domain;
 using QS.Tdi;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.WageCalculation;
 using QS.DomainModel.Entity.PresetPermissions;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.Entity;
+using QS.Navigation;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
@@ -19,12 +19,22 @@ namespace Vodovoz.ViewModels.WageCalculation
 	{
 		private readonly ITdiTab tab;
 		private readonly ICommonServices commonServices;
+		private readonly INavigationManager navigationManager;
 		private readonly bool canChangeWageCalculation;
 
-		public EmployeeWageParametersViewModel(Employee entity, ITdiTab tab, IUnitOfWork uow, IPresetPermissionValidator permissionValidator, IUserRepository userRepository, ICommonServices commonServices) : base(entity, commonServices)
+		public EmployeeWageParametersViewModel(
+			Employee entity, 
+			ITdiTab tab,
+			IUnitOfWork uow, 
+			IPresetPermissionValidator permissionValidator,
+			IUserRepository userRepository, 
+			ICommonServices commonServices,
+			INavigationManager navigationManager
+			) : base(entity, commonServices)
 		{
 			this.tab = tab ?? throw new ArgumentNullException(nameof(tab));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			this.navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			Entity.ObservableWageParameters.ElementAdded += (aList, aIdx) => WageParametersUpdated();
 			Entity.ObservableWageParameters.ElementRemoved += (aList, aIdx, aObject) => WageParametersUpdated();
@@ -68,7 +78,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		{
 			ChangeWageParameterCommand = new DelegateCommand(
 				() => {
-					WageParameterViewModel newWageParameterViewModel = new WageParameterViewModel(UoW, WageParameterTargets.ForMercenariesCars, CommonServices);
+					WageParameterViewModel newWageParameterViewModel = new WageParameterViewModel(UoW, WageParameterTargets.ForMercenariesCars, CommonServices, navigationManager);
 					newWageParameterViewModel.OnWageParameterCreated += (sender, wageParameter) => {
 						Entity.ChangeWageParameter(wageParameter, StartDate.Value);
 					};
@@ -138,7 +148,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		{
 			OpenWageParameterCommand = new DelegateCommand<WageParameterNode>(
 				(node) => {
-					WageParameterViewModel wageParameterViewModel = new WageParameterViewModel(node.WageParameter, UoW, CommonServices);
+					WageParameterViewModel wageParameterViewModel = new WageParameterViewModel(node.WageParameter, UoW, CommonServices, navigationManager);
 					tab.TabParent.AddTab(wageParameterViewModel, tab);
 				},
 				(node) => node != null

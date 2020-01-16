@@ -135,6 +135,7 @@
     <Compile Include="JournalNodes\NomenclatureStockJournalNode.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintKindViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\IWageParameterViewModel.cs" />
+    <Compile Include="Infrastructure\NavigationManagerProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
