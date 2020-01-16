@@ -201,7 +201,7 @@ namespace Vodovoz.JournalViewModels
 				new JournalAction(
 					"Перейти в маршрутный лист",
 					selectedItems => selectedItems.Any(
-						x => (x as OrderJournalNode).StatusEnum != OrderStatus.Accepted && (x as OrderJournalNode).StatusEnum != OrderStatus.NewOrder
+						x => AccessRouteListKeeping((x as OrderJournalNode).Id)
 					),
 					selectedItems => true,
 					(selectedItems) => {
@@ -245,7 +245,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть диалог закрытия",
-					(selectedItems) => selectedItems.Any(x => IsOrderInRouteListStatusEnRouted((x as OrderJournalNode).Id)),
+					(selectedItems) => selectedItems.Any(x => AccessToRouteListClosing((x as OrderJournalNode).Id)),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -332,18 +332,31 @@ namespace Vodovoz.JournalViewModels
 			);
 		}
 
-		bool IsOrderInRouteListStatusEnRouted(int orderId)
+		bool AccessToRouteListClosing(int orderId)
 		{
 			var orderIdArr = new[] { orderId };
 			var routeListItems = UoW.Session.QueryOver<RouteListItem>()
 						.Where(x => x.Order.Id.IsIn(orderIdArr)).List();
 
 			if(routeListItems.Any()) {
-				foreach(var routeListItem in routeListItems) {
-					if(routeListItem.RouteList.Status >= RouteListStatus.EnRoute)
-						return true;
-					return false;
-				}
+				var validStates = new RouteListStatus[] {
+											RouteListStatus.OnClosing,
+											RouteListStatus.MileageCheck,
+											RouteListStatus.Closed
+								  };
+				return validStates.Contains(routeListItems.First().RouteList.Status);
+			}
+			return false;
+		}
+
+		bool AccessRouteListKeeping(int orderId)
+		{
+			var orderIdArr = new[] { orderId };
+			var routeListItems = UoW.Session.QueryOver<RouteListItem>()
+						.Where(x => x.Order.Id.IsIn(orderIdArr)).List();
+
+			if(routeListItems.Any()) {
+				return true;
 			}
 			return false;
 		}

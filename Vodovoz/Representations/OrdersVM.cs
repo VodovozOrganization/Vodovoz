@@ -240,7 +240,7 @@ namespace Vodovoz.ViewModel
 							);
 						}
 					},
-					(selectedItems) => selectedItems.Any(x => ((OrdersVMNode)x).StatusEnum != OrderStatus.Accepted && ((OrdersVMNode)x).StatusEnum != OrderStatus.NewOrder)));
+					(selectedItems) => selectedItems.Any(x => AccessRouteListKeeping((x as OrdersVMNode).Id))));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Перейти в недовоз",
 					(selectedItems) => {
@@ -276,7 +276,7 @@ namespace Vodovoz.ViewModel
 							);
 						}
 					},
-					(selectedItems) => selectedItems.Any(x => IsOrderInRouteListStatusEnRouted(((OrdersVMNode)x).Id))
+					(selectedItems) => selectedItems.Any(x => AccessRouteListClosing(((OrdersVMNode)x).Id))
 				));
 
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Открыть на Yandex картах(координаты)",
@@ -330,18 +330,31 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		bool IsOrderInRouteListStatusEnRouted(int orderId)
+		bool AccessRouteListClosing(int orderId)
 		{
 			var orderIdArr = new[] { orderId };
 			var routeListItems = UoW.Session.QueryOver<RouteListItem>()
 						.Where(x => x.Order.Id.IsIn(orderIdArr)).List();
 
-			if(routeListItems.Count != 0) {
-				foreach(var routeListItem in routeListItems) {
-					if(routeListItem.RouteList.Status >= RouteListStatus.EnRoute)
-						return true;
-					return false;
-				}
+			if(routeListItems.Any()) {
+				var validStates = new RouteListStatus[] {
+											RouteListStatus.OnClosing,
+											RouteListStatus.MileageCheck,
+											RouteListStatus.Closed
+								  };
+				return validStates.Contains(routeListItems.First().RouteList.Status);
+			}
+			return false;
+		}
+
+		bool AccessRouteListKeeping(int orderId)
+		{
+			var orderIdArr = new[] { orderId };
+			var routeListItems = UoW.Session.QueryOver<RouteListItem>()
+						.Where(x => x.Order.Id.IsIn(orderIdArr)).List();
+
+			if(routeListItems.Any()) {
+				return true;
 			}
 			return false;
 		}
