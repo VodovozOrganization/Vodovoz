@@ -152,7 +152,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>10pt</PaddingLeft>
-                        <Color >Black</Color>
+                        <Color>Black</Color>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -168,7 +168,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
                         <PaddingLeft>5pt</PaddingLeft>
                       </Style>
@@ -187,7 +187,7 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={parent_subdivision}</GroupExpression>
+                <GroupExpression>={parent_subdivision}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -252,7 +252,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
                           </Style>
                           <Value>=sum({balance})</Value>
@@ -393,7 +393,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>5pt</PaddingLeft>
@@ -413,7 +413,7 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={parent_subdivision}</GroupExpression>
+                <GroupExpression>={parent_subdivision}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -478,7 +478,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
                           </Style>
                           <Value>=sum({balance})</Value>
@@ -620,7 +620,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>5pt</PaddingLeft>
@@ -640,7 +640,7 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={parent_subdivision}</GroupExpression>
+                <GroupExpression>={parent_subdivision}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -704,7 +704,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
                           </Style>
                           <Value>=sum({balance})</Value>
@@ -724,10 +724,10 @@
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
-            <Left >Solid</Left>
-            <Right >Solid</Right>
-            <Top >Solid</Top>
-            <Bottom >Solid</Bottom>
+            <Left>Solid</Left>
+            <Right>Solid</Right>
+            <Top>Solid</Top>
+            <Bottom>Solid</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
@@ -736,13 +736,13 @@
           <TableColumn>
             <Width>131.2pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>110.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Left>2.9pt</Left>
         <Top>422.0pt</Top>
-        <TableGroups >
+        <TableGroups>
           <TableGroup>
             <Grouping Name="total">
               <PageBreakAtStart>false</PageBreakAtStart>
@@ -785,7 +785,7 @@
                             <BorderColor />
                             <BorderWidth />
                             <PaddingLeft>5pt</PaddingLeft>
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Right</TextAlign>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>
@@ -797,7 +797,7 @@
             </Header>
           </TableGroup>
         </TableGroups>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -836,7 +836,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>5pt</PaddingLeft>
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -846,7 +846,7 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Header >
+        <Header>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -1012,7 +1012,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
                         <PaddingLeft>5pt</PaddingLeft>
@@ -1032,7 +1032,7 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={parent_subdivision}</GroupExpression>
+                <GroupExpression>={parent_subdivision}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -1097,7 +1097,7 @@
                             <BorderColor />
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
                           </Style>
                           <Value>=sum({balance})</Value>
@@ -1239,7 +1239,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <PaddingLeft>5pt</PaddingLeft>
                       </Style>
                     </Textbox>
@@ -1257,7 +1257,7 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={parent_subdivision}</GroupExpression>
+                <GroupExpression>={parent_subdivision}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -1321,7 +1321,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
                           </Style>
                           <Value>=sum({balance})</Value>
@@ -1465,7 +1465,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign>Left</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
                         <PaddingLeft>5pt</PaddingLeft>
                       </Style>
@@ -1484,7 +1484,7 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={parent_subdivision}</GroupExpression>
+                <GroupExpression>={parent_subdivision}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -1549,7 +1549,7 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign>Left</TextAlign>
+                            <TextAlign>Right</TextAlign>
                             <PaddingLeft>5pt</PaddingLeft>
                           </Style>
                           <Value>=sum({balance})</Value>
@@ -1793,7 +1793,7 @@ ORDER BY driver
       </Fields>
     </DataSet>
     <DataSet Name="TotalBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	SUM(wages_movement_operations.money) AS balance,
@@ -1818,7 +1818,7 @@ HAVING balance &lt;&gt; 0
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
