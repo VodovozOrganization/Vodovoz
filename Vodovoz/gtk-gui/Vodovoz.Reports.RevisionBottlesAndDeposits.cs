@@ -61,7 +61,7 @@ namespace Vodovoz.Reports
 			this.entityViewModelEntryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityViewModelEntryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entityViewModelEntryCounterparty.Name = "entityViewModelEntryCounterparty";
-			this.entityViewModelEntryCounterparty.CanEditReference = false;
+			this.entityViewModelEntryCounterparty.CanEditReference = true;
 			this.table1.Add(this.entityViewModelEntryCounterparty);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.entityViewModelEntryCounterparty]));
 			w3.TopAttach = ((uint)(1));
