@@ -35,7 +35,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>497.6pt</Height>
+    <Height>524.6pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>DriverBalance</DataSetName>
@@ -179,8 +179,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>4pt</Left>
-        <Top>8.6pt</Top>
+        <Left>1.6pt</Left>
+        <Top>14.8pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision">
@@ -405,8 +405,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
-        <Top>213.3pt</Top>
+        <Left>1.6pt</Left>
+        <Top>251.6pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_largus">
@@ -632,8 +632,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
-        <Top>280.8pt</Top>
+        <Left>1.6pt</Left>
+        <Top>329.4pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_forwarder">
@@ -740,8 +740,8 @@
             <Width>110.8pt</Width>
           </TableColumn>
         </TableColumns>
-        <Left>2.9pt</Left>
-        <Top>422.0pt</Top>
+        <Left>1.2pt</Left>
+        <Top>470.9pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="total">
@@ -1024,8 +1024,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
-        <Top>349.0pt</Top>
+        <Left>1.5pt</Left>
+        <Top>407.2pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_raskat">
@@ -1249,8 +1249,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
-        <Top>144.5pt</Top>
+        <Left>1.6pt</Left>
+        <Top>171.3pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_gazelle">
@@ -1476,8 +1476,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>3.3pt</Left>
-        <Top>76.2pt</Top>
+        <Left>1.6pt</Left>
+        <Top>94.1pt</Top>
         <TableGroups>
           <TableGroup>
             <Grouping Name="parent_subdivision_truck">
