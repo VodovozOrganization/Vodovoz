@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		{
 			this.tab = tab ?? throw new ArgumentNullException(nameof(tab));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			this.navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
+			this.navigationManager = navigationManager;
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 			Entity.ObservableWageParameters.ElementAdded += (aList, aIdx) => WageParametersUpdated();
 			Entity.ObservableWageParameters.ElementRemoved += (aList, aIdx, aObject) => WageParametersUpdated();
