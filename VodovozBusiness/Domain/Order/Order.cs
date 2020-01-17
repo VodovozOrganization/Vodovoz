@@ -3824,10 +3824,10 @@ namespace Vodovoz.Domain.Orders
 						Order = this,
 						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 						DepositType = DepositType.Bottles,
-						Counterparty = Client,
-						DeliveryPoint = DeliveryPoint
+						Counterparty = Client
 					};
 				}
+				bottlesOperation.DeliveryPoint = DeliveryPoint;
 				bottlesOperation.ReceivedDeposit = bottleReceivedDeposit;
 				bottlesOperation.RefundDeposit = bottleRefundDeposit;
 				result.Add(bottlesOperation);
@@ -3845,10 +3845,10 @@ namespace Vodovoz.Domain.Orders
 						Order = this,
 						OperationTime = DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 						DepositType = DepositType.Equipment,
-						Counterparty = Client,
-						DeliveryPoint = DeliveryPoint
+						Counterparty = Client
 					};
 				}
+				equipmentOperation.DeliveryPoint = DeliveryPoint;
 				equipmentOperation.ReceivedDeposit = equipmentReceivedDeposit;
 				equipmentOperation.RefundDeposit = equipmentRefundDeposit;
 				result.Add(equipmentOperation);
