@@ -779,6 +779,8 @@
     <Compile Include="Domain\Order\PromotionalSetActionBase.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetActionBaseMap.cs" />
     <Compile Include="Domain\Order\PromotionalSetActionFixPrice.cs" />
+    <Compile Include="Tools\PasswordGenerator.cs" />
+    <Compile Include="Tools\IPasswordGenerator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -1,5 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
+using System.Linq;
+using NHibernate;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 
@@ -48,6 +49,19 @@ namespace Vodovoz.EntityRepositories
 			return uow.Session.QueryOver<UserSettings>()
 				.Where(s => s.User.Id == userId)
 				.SingleOrDefault();
+		}
+
+		public User GetUserByLogin(IUnitOfWork uow, string login)
+		{
+			return uow.Session.QueryOver<User>()
+				.Where(e => e.Login == login)
+				.SingleOrDefault();
+		}
+		public bool MySQLUserWithLoginExists(IUnitOfWork uow, string login)
+		{
+			var query = $"SELECT COUNT(*) AS c from mysql.user WHERE USER = '{login}'";
+			int count = uow.Session.CreateSQLQuery(query).AddScalar("c", NHibernateUtil.Int32).List<int>().FirstOrDefault();
+			return count > 0;
 		}
 	}
 }

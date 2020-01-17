@@ -15,6 +15,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Deactivated).Column("deactivated");
 			Map(x => x.IsAdmin).Column("admin");
 			Map(x => x.Email).Column("email");
+			Map(x => x.NeedPasswordChange).Column("need_password_change");
 
 			Map(x => x.WarehouseAccess).Column("warehouse_access").LazyLoad();
 		}
