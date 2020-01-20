@@ -138,6 +138,8 @@
     <Compile Include="Infrastructure\NavigationManagerProvider.cs" />
     <Compile Include="SearchViewModels\DelayedMultipleEntryCriterionSearchViewModel.cs" />
     <Compile Include="SearchViewModels\DelayedSingleEntryCriterionSearchViewModel.cs" />
+    <Compile Include="SolrMapping\CounterpartySolrMap.cs" />
+    <Compile Include="SolrModel\CounterpartySolrEntity.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -166,6 +168,8 @@
     <Folder Include="ViewModels\ForAdministrators\" />
     <Folder Include="JournalViewModels\Logistic\" />
     <Folder Include="SearchViewModels\" />
+    <Folder Include="SolrMapping\" />
+    <Folder Include="SolrModel\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
@@ -196,9 +200,9 @@
       <Project>{E2228A2B-4883-4DD8-8A05-23501F7B8A33}</Project>
       <Name>QS.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QS.Validation\QS.Validation.csproj">
-      <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
-      <Name>QS.Validation</Name>
+    <ProjectReference Include="..\SolrSearch\SolrSearch.csproj">
+      <Project>{DD07B37B-69B9-411D-9C63-04FC75385B9F}</Project>
+      <Name>SolrSearch</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
