@@ -1359,6 +1359,7 @@
     <Compile Include="Filters\GtkViews\CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
     <Compile Include="Core\CriterionSearchFactory.cs" />
+    <Compile Include="NhibernateMappingInfoProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1509,6 +1510,10 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj">
       <Project>{B1DD034B-EC88-400C-9C6B-83CE68AB3541}</Project>
       <Name>QS.Contacts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SolrSearch\SolrSearch.csproj">
+      <Project>{DD07B37B-69B9-411D-9C63-04FC75385B9F}</Project>
+      <Name>SolrSearch</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
