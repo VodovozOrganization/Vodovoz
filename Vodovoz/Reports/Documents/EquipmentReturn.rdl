@@ -393,7 +393,7 @@ WHERE orders.id = @order_id</CommandText>
         <Value>Настоящий акт составлен в двух экземплярах, один из которых находится у Фирмы, другой – у Клиента.</Value>
         <ZIndex>1</ZIndex>
         <Left>2.4pt</Left>
-        <Top>619.1pt</Top>
+        <Top>623.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -412,7 +412,7 @@ ______________ /Сосновцев С.С./
 М.П.</Value>
         <ZIndex>1</ZIndex>
         <Left>4.6pt</Left>
-        <Top>660.9pt</Top>
+        <Top>652.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -432,7 +432,7 @@ ______________ /                                    /
 М.П.</Value>
         <ZIndex>1</ZIndex>
         <Left>279.4pt</Left>
-        <Top>661.5pt</Top>
+        <Top>652.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1076,9 +1076,9 @@ ______________ /                                    /
         </Footer>
       </fyi:Grid>
       <Textbox Name="Textbox51" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>61.80pt</Height>
+        <Height>76.05pt</Height>
         <Width>510.55pt</Width>
-        <Value>Оборудование, поступающее в ремонт, должно быть в 100% стандартной упаковке (паспорт, пакет, коробка) и соответствовать требованиям, прописанным в паспорте изделия. При отсутствии копии гарантийного талона продавца или договора продажи/аренды ремонт является платным.</Value>
+        <Value>Оборудование с согласия Клиента, принято без разборки и проверки неисправностей, без проверки внутренних повреждений. Клиент согласен, что все неисправности и внутренние повреждения, которые могут быть обнаружены в оборудовании при его техническом обслуживании, возникли до приема оборудования по этому акту. В случае отказа Клиента от ремонта после проведения диагностических работ и установления причины неисправности сданного оборудования по вине Клиента, Клиент обязуется оплатить диагностику. Гарантия распространяется ТОЛЬКО на выполненные работы и замененные запчасти. Гарантия не распространяется на оборудование, которое подвергалось механическому воздействию, а также в случае неквалифицированного ремонта сторонними ремонтными организациями.</Value>
         <ZIndex>1</ZIndex>
         <Left>5.27pt</Left>
         <Top>455.78pt</Top>
@@ -1088,8 +1088,9 @@ ______________ /                                    /
           <BorderWidth />
           <TextAlign>Justified</TextAlign>
           <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
+          <FontSize>9pt</FontSize>
         </Style>
+        <CanGrow >true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox52" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>16.50pt</Height>
@@ -1097,7 +1098,7 @@ ______________ /                                    /
         <Value>Оборудование принято, претензий не имею</Value>
         <ZIndex>1</ZIndex>
         <Left>17.8pt</Left>
-        <Top>522.7pt</Top>
+        <Top>554.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1112,7 +1113,7 @@ ______________ /                                    /
         <Value>Оборудование передано клиенту</Value>
         <ZIndex>1</ZIndex>
         <Left>17.8pt</Left>
-        <Top>566.7pt</Top>
+        <Top>585.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1127,7 +1128,7 @@ ______________ /                                    /
         <Value>/                                      /</Value>
         <ZIndex>1</ZIndex>
         <Left>350.8pt</Left>
-        <Top>522.7pt</Top>
+        <Top>554.7pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -1144,7 +1145,7 @@ ______________ /                                    /
         <Value>Подпись клиента</Value>
         <ZIndex>1</ZIndex>
         <Left>355.6pt</Left>
-        <Top>534.5pt</Top>
+        <Top>566.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1160,7 +1161,7 @@ ______________ /                                    /
         <Value>/                                      /</Value>
         <ZIndex>1</ZIndex>
         <Left>350.8pt</Left>
-        <Top>566.7pt</Top>
+        <Top>585.9pt</Top>
         <Style>
           <BorderStyle>
             <Bottom>Solid</Bottom>
@@ -1177,7 +1178,7 @@ ______________ /                                    /
         <Value>Подпись водителя</Value>
         <ZIndex>1</ZIndex>
         <Left>355.6pt</Left>
-        <Top>578.5pt</Top>
+        <Top>597.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
