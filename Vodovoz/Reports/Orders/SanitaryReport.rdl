@@ -178,7 +178,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>=Fields!address_1c.Value</Value>
+                      <Value>=Fields!address.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -194,7 +194,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>=Fields!phone_from_1c.Value</Value>
+                      <Value>=Fields!phone.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -240,40 +240,44 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	delivery_date, 
-	counterparty.name AS counterparty,
-	address_1c, 
-	phone_from_1c
+    delivery_date, 
+    counterparty.name AS counterparty,
+    delivery_points.compiled_address_short as address,
+    IFNULL(dp_phones.number, cp_phones.number) as phone
 FROM
-	orders
+    orders
 LEFT JOIN
-	counterparty ON orders.client_id = counterparty.id
+    counterparty ON orders.client_id = counterparty.id
 LEFT JOIN
-	order_items ON order_items.order_id = orders.id
+    delivery_points ON orders.delivery_point_id = delivery_points.id
 LEFT JOIN
-	nomenclature ON nomenclature.id = order_items.nomenclature_id
+    phones dp_phones ON delivery_points.id = dp_phones.delivery_point_id
+LEFT JOIN
+    phones cp_phones ON delivery_points.id = cp_phones.counterparty_id
+LEFT JOIN
+    order_items ON order_items.order_id = orders.id
+LEFT JOIN
+    nomenclature ON nomenclature.id = order_items.nomenclature_id
 WHERE
-	delivery_date = DATE(@date)
-AND
-	(nomenclature.code_1c = "00000005" OR nomenclature.code_1c = "00000969")
-AND
-	NOT EXISTS
-		(SELECT 
-			1
-		FROM
-			orders AS t2
-		LEFT JOIN
-			order_items ON order_items.order_id = t2.id
-		LEFT JOIN
-			nomenclature ON nomenclature.id = order_items.nomenclature_id
-		WHERE
-			t2.client_id = orders.client_id
-		AND
-			t2.address_1c_code = orders.address_1c_code
-		AND
-			(nomenclature.code_1c = "00000005" OR nomenclature.code_1c = "00000969")
-		AND
-			t2.delivery_date &gt; DATE(@date));</CommandText>
+    delivery_date = DATE(@date)
+    AND nomenclature.id = 53
+    AND NOT EXISTS (
+        SELECT 
+            1
+        FROM
+            orders AS t2
+        LEFT JOIN
+            delivery_points dp ON t2.delivery_point_id = dp.id
+        LEFT JOIN
+            order_items ON order_items.order_id = t2.id
+        LEFT JOIN
+            nomenclature ON nomenclature.id = order_items.nomenclature_id
+        WHERE
+            t2.client_id = orders.client_id
+            AND dp.id = orders.delivery_point_id
+            AND nomenclature.id = 53
+            AND t2.delivery_date &gt; DATE(@date)
+    );</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -289,12 +293,12 @@ AND
           <DataField>counterparty</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="address_1c">
-          <DataField>address_1c</DataField>
+        <Field Name="address">
+          <DataField>address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="phone_from_1c">
-          <DataField>phone_from_1c</DataField>
+        <Field Name="phone">
+          <DataField>phone</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
