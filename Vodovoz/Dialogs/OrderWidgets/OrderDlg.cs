@@ -1243,7 +1243,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.AddNomenclature(nomenclature, count, discount, discountReason);
+			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
 		}
 
 		void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
@@ -1269,7 +1269,8 @@ namespace Vodovoz
 					Entity.AddNomenclature(
 						proSetItem.Nomenclature,
 						proSetItem.Count,
-						proSetItem.Discount,
+						proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
+						proSetItem.IsDiscountInMoney,
 						proSetItem.PromoSet.PromoSetDiscountReason,
 						proSetItem.PromoSet
 					);

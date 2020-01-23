@@ -13,6 +13,8 @@ namespace Vodovoz.HibernateMapping.Order
 
 			Map(x => x.Count).Column("count");
 			Map(x => x.Discount).Column("discount");
+			Map(x => x.DiscountMoney).Column("discount_money");
+			Map(x => x.IsDiscountInMoney).Column("is_discount_in_money");
 			References(x => x.PromoSet).Column("promotional_set_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");
 		}

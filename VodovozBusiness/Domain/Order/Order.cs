@@ -1720,7 +1720,7 @@ namespace Vodovoz.Domain.Orders
 				AddAnyGoodsNomenclatureForSale(followingNomenclature, false, 1);
 		}
 
-		public virtual OrderItem AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count, decimal discount = 0, DiscountReason reason = null, PromotionalSet proSet = null)
+		public virtual OrderItem AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa, int count, decimal discount = 0, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 				return null;
@@ -1754,6 +1754,7 @@ namespace Vodovoz.Domain.Orders
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = price,
+				IsDiscountInMoney = discountInMoney,
 				DiscountSetter = discount,
 				DiscountReason = reason,
 				PromoSet = proSet
@@ -1910,7 +1911,7 @@ namespace Vodovoz.Domain.Orders
 			//UpdateDocuments();
 		}
 
-		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null, PromotionalSet proSet = null)
+		public virtual void AddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, bool discountInMoney = false, DiscountReason discountReason = null, PromotionalSet proSet = null)
 		{
 			OrderItem oi = null;
 			switch(nomenclature.Category) {
@@ -1925,7 +1926,7 @@ namespace Vodovoz.Domain.Orders
 							action.Activate(this);
 						UoW.Session.Refresh(ag);
 					}
-					AddWaterForSale(nomenclature, ag, count, discount, discountReason, proSet);
+					AddWaterForSale(nomenclature, ag, count, discount, discountInMoney, discountReason, proSet);
 					break;
 				case NomenclatureCategory.master:
 					contract = CreateServiceContractAddMasterNomenclature(nomenclature);
@@ -1935,6 +1936,7 @@ namespace Vodovoz.Domain.Orders
 					oi = new OrderItem {
 						Count = count,
 						DiscountSetter = discount,
+						IsDiscountInMoney = discountInMoney,
 						DiscountReason = discountReason,
 						Nomenclature = nomenclature,
 						Price = nomenclature.GetPrice(1),
@@ -2055,7 +2057,7 @@ namespace Vodovoz.Domain.Orders
 			return wsa;
 		}
 
-		void CreateSalesEquipmentAgreementAndAddEquipment(Nomenclature nom, int count, decimal discount, DiscountReason reason, PromotionalSet proSet)
+		void CreateSalesEquipmentAgreementAndAddEquipment(Nomenclature nom, int count, decimal discount, DiscountReason reason, PromotionalSet proSet, bool discountInMoney = false)
 		{
 			if(Contract == null) {
 				Contract = Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
@@ -2081,7 +2083,7 @@ namespace Vodovoz.Domain.Orders
 			var ag = UoW.GetById<SalesEquipmentAgreement>(agId);
 
 			CreateOrderAgreementDocument(ag);
-			FillItemsFromAgreement(ag, count, discount, reason, proSet);
+			FillItemsFromAgreement(ag, count, discount, discountInMoney, reason, proSet);
 			Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType)
 										  .AdditionalAgreements
 										  .Add(ag);
@@ -2445,7 +2447,7 @@ namespace Vodovoz.Domain.Orders
 			return waterItemsCount - BottlesReturn ?? 0;
 		}
 
-		public virtual void FillItemsFromAgreement(AdditionalAgreement a, int count = -1, decimal discount = -1, DiscountReason reason = null, PromotionalSet proSet = null)
+		public virtual void FillItemsFromAgreement(AdditionalAgreement a, int count = -1, decimal discount = -1, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
 		{
 			if(a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
 				IList<PaidRentEquipment> paidRentEquipmentList;
@@ -2580,7 +2582,7 @@ namespace Vodovoz.Domain.Orders
 								Order = this,
 								AdditionalAgreement = agreement,
 								Count = count > 0 ? count : equipment.Count,
-								IsDiscountInMoney = false,
+								IsDiscountInMoney = discountInMoney,
 								DiscountSetter = discount > 0 ? discount : 0,
 								DiscountReason = reason,
 								PromoSet = proSet,
