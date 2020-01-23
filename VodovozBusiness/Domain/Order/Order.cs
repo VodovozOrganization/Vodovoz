@@ -1916,7 +1916,7 @@ namespace Vodovoz.Domain.Orders
 			OrderItem oi = null;
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.equipment://Оборудование
-					CreateSalesEquipmentAgreementAndAddEquipment(nomenclature, count, discount, discountReason, proSet);
+					CreateSalesEquipmentAgreementAndAddEquipment(nomenclature, count, discount, discountReason, proSet, discountInMoney);
 					break;
 				case NomenclatureCategory.water:
 					var ag = CreateWaterSalesAgreement(nomenclature);
@@ -1935,11 +1935,11 @@ namespace Vodovoz.Domain.Orders
 				default://rest
 					oi = new OrderItem {
 						Count = count,
+						Nomenclature = nomenclature,
+						Price = nomenclature.GetPrice(1),
 						DiscountSetter = discount,
 						IsDiscountInMoney = discountInMoney,
 						DiscountReason = discountReason,
-						Nomenclature = nomenclature,
-						Price = nomenclature.GetPrice(1),
 						PromoSet = proSet
 					};
 					AddItemWithNomenclatureForSale(oi);
@@ -2581,14 +2581,14 @@ namespace Vodovoz.Domain.Orders
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = agreement,
+								Nomenclature = equipment.Nomenclature,
+								Price = equipment.Price,
 								Count = count > 0 ? count : equipment.Count,
 								IsDiscountInMoney = discountInMoney,
 								DiscountSetter = discount > 0 ? discount : 0,
 								DiscountReason = reason,
 								PromoSet = proSet,
-								Equipment = null,
-								Nomenclature = equipment.Nomenclature,
-								Price = equipment.Price
+								Equipment = null
 							}
 						);
 					}
