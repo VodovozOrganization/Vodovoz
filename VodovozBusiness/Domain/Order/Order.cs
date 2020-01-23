@@ -1935,11 +1935,11 @@ namespace Vodovoz.Domain.Orders
 				default://rest
 					oi = new OrderItem {
 						Count = count,
+						Nomenclature = nomenclature,
+						Price = nomenclature.GetPrice(1),
 						DiscountSetter = discount,
 						IsDiscountInMoney = discountInMoney,
 						DiscountReason = discountReason,
-						Nomenclature = nomenclature,
-						Price = nomenclature.GetPrice(1),
 						PromoSet = proSet
 					};
 					AddItemWithNomenclatureForSale(oi);
