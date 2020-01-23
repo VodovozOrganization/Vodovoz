@@ -31,6 +31,9 @@ using Vodovoz.EntityRepositories.Employees;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Project.Services.GtkUI;
 using QS.EntityRepositories;
+using Vodovoz.Domain.Sms;
+using System.Threading.Tasks;
+using InstantSmsService;
 
 namespace Vodovoz
 {
@@ -238,28 +241,65 @@ namespace Vodovoz
 						return false;
 				}
 			}
-
 			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
 			phonesView.RemoveEmpty();
+			UoWGeneric.Save(Entity);
 
-			if(!String.IsNullOrEmpty(Entity.LoginForNewUser)) {
+			#region Попытка сохранить логин для нового юзера
+
+			if(!String.IsNullOrEmpty(Entity.LoginForNewUser) && InstantSmsServiceSetting.SendingAllowed) {
 				var user = new User {
 					Login = Entity.LoginForNewUser,
 					Name = Entity.FullName,
 					NeedPasswordChange = true
 				};
+				bool cont = MessageDialogHelper.RunQuestionDialog($"При сохранении работника будет создан \nпользователь с логином {user.Login} \nи на " +
+					$"указанный номер +7{Entity.GetPhoneForSmsNotification()}\nбудет выслана SMS с временным паролем\n\t\t\tПродолжить?");
+				if(!cont)
+					return false;
+
 				var password = new Tools.PasswordGenerator().GeneratePassword(8);
+				//Сразу пишет в базу
 				var result = mySQLUserRepository.CreateLogin(user.Login, password);
 				if(result) {
-					mySQLUserRepository.UpdatePrivileges(user.Login, false);
+					try {
+						mySQLUserRepository.UpdatePrivileges(user.Login, false);
+					} catch {
+						mySQLUserRepository.DropUser(user.Login);
+						throw;
+					}
 					UoWGeneric.Save(user);
+
+					logger.Info("Идёт отправка sms (до 10 секунд)...");
+					bool sendResult = false;
+					try {
+						sendResult = SendPasswordByPhone(password);
+					} catch(TimeoutException) {
+						RemoveUserData(user);
+						logger.Info("Ошибка при отправке sms");
+						MessageDialogHelper.RunErrorDialog("Сервис отправки Sms временно недоступен\n");
+						return false;
+					} catch {
+						RemoveUserData(user);
+						logger.Info("Ошибка при отправке sms");
+						throw;
+					}
+					if(!sendResult) {
+						//Если не получилось отправить смс с паролем - удаляем пользователя
+						RemoveUserData(user);
+						logger.Info("Ошибка при отправке sms");
+						return false;
+					}
+					logger.Info("Sms успешно отправлено");
 					Entity.User = user;
 				} else {
 					MessageDialogHelper.RunErrorDialog("Не получилось создать нового пользователя");
 					return false;
 				}
 			}
+
+			#endregion
 
 			logger.Info("Сохраняем сотрудника...");
 			try {
@@ -274,8 +314,28 @@ namespace Vodovoz
 				return false;
 			}
 			logger.Info("Ok");
-
 			return true;
+		}
+
+		private void RemoveUserData(User user)
+		{
+			UoWGeneric.Delete(user);
+			UoWGeneric.Session.Flush();
+			mySQLUserRepository.DropUser(user.Login);
+		}
+
+		private bool SendPasswordByPhone(string password)
+		{
+			SmsNotifier smsNotifier = new SmsNotifier(new BaseParametersProvider());
+			SmsMessageResult result;
+			result = smsNotifier.SendPasswordToEmployee(Entity, password);
+			if(result.MessageStatus == SmsMessageStatus.Ok) {
+				MessageDialogHelper.RunInfoDialog("Sms с паролем отправлена успешно");
+				return true;
+			} else {
+				MessageDialogHelper.RunErrorDialog(result.ErrorDescription, "Ошибка при отправке Sms");
+				return false;
+			}
 		}
 
 		protected void OnRussianCitizenToggled(object sender, EventArgs e)

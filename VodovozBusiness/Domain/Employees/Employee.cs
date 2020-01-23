@@ -19,6 +19,7 @@ using QS.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using System.Text.RegularExpressions;
+using QS.Contacts;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -291,9 +292,11 @@ namespace Vodovoz.Domain.Employees
 			yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { this.GetPropertyName(x => x.LoginForNewUser) });
 			}
-			if(!String.IsNullOrEmpty(LoginForNewUser) && !Phones.Any()) {
-				yield return new ValidationResult($"Для создания пользователя должен быть указан телефон",
-						new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+			if(!String.IsNullOrEmpty(LoginForNewUser)) {
+				string exist = GetPhoneForSmsNotification();
+				if(exist == null)
+					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан мобильный телефон",
+							new[] { this.GetPropertyName(x => x.LoginForNewUser) });
 			}
 
 		}
@@ -420,6 +423,18 @@ namespace Vodovoz.Domain.Employees
 
 			}
 			return;
+		}
+
+		public virtual string GetPhoneForSmsNotification()
+		{
+			string stringPhoneNumber = Phones.FirstOrDefault(p => p?.DigitsNumber != null && p.DigitsNumber.Count() == 10)?.DigitsNumber.TrimStart('+').TrimStart('7').TrimStart('8');
+			if(String.IsNullOrWhiteSpace(stringPhoneNumber)
+				|| stringPhoneNumber.Length == 0
+				|| stringPhoneNumber.First() != '9'
+				|| stringPhoneNumber.Length != 10)
+				return null;
+
+			return stringPhoneNumber;
 		}
 
 		#endregion

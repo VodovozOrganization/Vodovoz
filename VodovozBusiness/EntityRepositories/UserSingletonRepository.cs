@@ -57,6 +57,7 @@ namespace Vodovoz.EntityRepositories
 				.Where(e => e.Login == login)
 				.SingleOrDefault();
 		}
+
 		public bool MySQLUserWithLoginExists(IUnitOfWork uow, string login)
 		{
 			var query = $"SELECT COUNT(*) AS c from mysql.user WHERE USER = '{login}'";
