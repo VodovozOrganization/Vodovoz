@@ -49,7 +49,42 @@ namespace Vodovoz.Domain.Orders
 					value = 100;
 				if(value < 0)
 					value = 0;
-				SetField(ref discount, value, () => Discount);
+				if(SetField(ref discount, value, () => Discount)) {
+					OnPropertyChanged(nameof(ManualChangingDiscount));
+				}
+			}
+		}
+
+		private decimal discountMoney;
+		[Display(Name = "Скидка в рублях")]
+		public virtual decimal DiscountMoney {
+			get => discountMoney;
+			set {
+				if(SetField(ref discountMoney, value)) {
+					OnPropertyChanged(nameof(ManualChangingDiscount));
+				}
+			}
+		}
+
+		private bool isDiscountInMoney;
+		[Display(Name = "Установлена ли скидка в рублях")]
+		public virtual bool IsDiscountInMoney {
+			get => isDiscountInMoney;
+			set {
+				if(SetField(ref isDiscountInMoney, value, () => IsDiscountInMoney)) {
+					OnPropertyChanged(nameof(ManualChangingDiscount));
+				}
+			}
+		}
+
+		public virtual decimal ManualChangingDiscount {
+			get => IsDiscountInMoney ? DiscountMoney : Discount;
+			set {
+				if(IsDiscountInMoney) {
+					DiscountMoney = value;
+				} else {
+					Discount = value;
+				}
 			}
 		}
 
