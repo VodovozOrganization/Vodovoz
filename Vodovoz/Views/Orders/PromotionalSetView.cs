@@ -1,5 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
+using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Orders;
@@ -77,11 +78,17 @@ namespace Vodovoz.Views.Orders
 				.AddTextRenderer(i => i.Nomenclature.Unit == null ? string.Empty : i.Nomenclature.Unit.Name, false)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(i => i.Discount).Editing(true)
-					.Adjustment(new Adjustment(0, 0, 100, 1, 100, 1))
+					.AddNumericRenderer(i => i.ManualChangingDiscount).Editing(true)
+					.AddSetter(
+						(c, n) => c.Adjustment = n.IsDiscountInMoney
+									? new Adjustment(0, 0, 1000000000, 1, 100, 1)
+									: new Adjustment(0, 0, 100, 1, 100, 1)
+					)
 					.Digits(2)
 					.WidthChars(10)
-					.AddTextRenderer(n => "%", false)
+					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
+				.AddColumn("Скидка \nв рублях?")
+					.AddToggleRenderer(x => x.IsDiscountInMoney)
 				.AddColumn("")
 				.Finish();
 
