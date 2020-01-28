@@ -10,14 +10,16 @@ using QS.HistoryLog;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services;
-using Vodovoz.Core.DataService;
 using QS.Services;
 using QS.Dialog;
-using QS.Project.Services;
+using QS.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories;
+using System.Text.RegularExpressions;
+using QS.Contacts;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -233,6 +235,13 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref isDriverForOneDay, value);
 		}
 
+		private string loginForNewUser;
+		[Display(Name = "Логин нового пользователя")]
+		public virtual string LoginForNewUser {
+			get { return loginForNewUser; }
+			set { SetField(ref loginForNewUser, value, () => LoginForNewUser); }
+		}
+
 		#endregion
 
 		public Employee()
@@ -255,11 +264,41 @@ namespace Vodovoz.Domain.Employees
 			}
 
 			if(!string.IsNullOrEmpty(AndroidLogin)) {
-				Employee exist = EmployeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
+				Employee exist = EmployeeSingletonRepository.GetInstance().GetDriverByAndroidLogin(UoW, AndroidLogin);
 				if(exist != null && exist.Id != Id)
 					yield return new ValidationResult(string.Format("Другой водитель с логином {0} для Android уже есть в БД.", AndroidLogin),
 						new[] { this.GetPropertyName(x => x.AndroidLogin) });
 			}
+			if(!String.IsNullOrEmpty(LoginForNewUser) && User != null) {
+				yield return new ValidationResult($"Сотрудник уже привязан к пользователю",
+					new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+			}
+			var regex = new Regex(@"^[a-zA-Z0-9].{3,25}$");
+			if(!String.IsNullOrEmpty(LoginForNewUser) && !regex.IsMatch(LoginForNewUser)) {
+				yield return new ValidationResult($"Логин пользователя должен иметь длину от 3 до 25 символов и состоять из латинских букв и цифр",
+					new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+			}
+			if(!String.IsNullOrEmpty(LoginForNewUser)) {
+				User exist = UserSingletonRepository.GetInstance().GetUserByLogin(UoW, LoginForNewUser);
+				if(exist != null && exist.Id != Id)
+					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует в базе",
+						new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+			}
+			if(!String.IsNullOrEmpty(LoginForNewUser) && UserSingletonRepository.GetInstance().MySQLUserWithLoginExists(UoW, LoginForNewUser)) {
+					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует на сервере",
+						new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+			}
+			if(!String.IsNullOrEmpty(LoginForNewUser) && !UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_manage_users"]) {
+			yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
+					new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+			}
+			if(!String.IsNullOrEmpty(LoginForNewUser)) {
+				string exist = GetPhoneForSmsNotification();
+				if(exist == null)
+					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан мобильный телефон",
+							new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+			}
+
 		}
 
 		#endregion
@@ -384,6 +423,18 @@ namespace Vodovoz.Domain.Employees
 
 			}
 			return;
+		}
+
+		public virtual string GetPhoneForSmsNotification()
+		{
+			string stringPhoneNumber = Phones.FirstOrDefault(p => p?.DigitsNumber != null && p.DigitsNumber.Count() == 10)?.DigitsNumber.TrimStart('+').TrimStart('7').TrimStart('8');
+			if(String.IsNullOrWhiteSpace(stringPhoneNumber)
+				|| stringPhoneNumber.Length == 0
+				|| stringPhoneNumber.First() != '9'
+				|| stringPhoneNumber.Length != 10)
+				return null;
+
+			return stringPhoneNumber;
 		}
 
 		#endregion

@@ -779,6 +779,8 @@
     <Compile Include="Domain\Order\PromotionalSetActionBase.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetActionBaseMap.cs" />
     <Compile Include="Domain\Order\PromotionalSetActionFixPrice.cs" />
+    <Compile Include="Tools\PasswordGenerator.cs" />
+    <Compile Include="Tools\IPasswordGenerator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -938,6 +940,10 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj">
       <Project>{B1DD034B-EC88-400C-9C6B-83CE68AB3541}</Project>
       <Name>QS.Contacts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\VodovozService\VodovozSmsInformerService\InstantSmsService\InstantSmsService.csproj">
+      <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
+      <Name>InstantSmsService</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -21,13 +21,19 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.Core.DataService;
 using QS.Project.Services;
 using Vodovoz.Infrastructure;
+using Vodovoz.EntityRepositories.Employees;
+using QS.Project.Dialogs.GtkUI.ServiceDlg;
+using QS.Project.Services.GtkUI;
+using QS.EntityRepositories;
+using Vodovoz.Domain.Sms;
+using System.Threading.Tasks;
+using InstantSmsService;
 
 namespace Vodovoz
 {
@@ -38,11 +44,11 @@ namespace Vodovoz
 		public override bool HasChanges {
 			get {
 				phonesView.RemoveEmpty();
-				return UoWGeneric.HasChanges || attachmentFiles.HasChanges;
+				return UoWGeneric.HasChanges || attachmentFiles.HasChanges || !String.IsNullOrEmpty(yentryUserLogin.Text);
 			}
 			set => base.HasChanges = value;
 		}
-
+		private MySQLUserRepository mySQLUserRepository;
 		private EmployeeCategory[] hiddenCategory;
 		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence };
 		private readonly EmployeeDocumentType[] hiddenForForeignCitizen = { EmployeeDocumentType.MilitaryID, EmployeeDocumentType.NavyPassport, EmployeeDocumentType.OfficerCertificate };
@@ -51,6 +57,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
+			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
 			TabName = "Новый сотрудник";
 			ConfigureDlg();
 		}
@@ -60,6 +67,7 @@ namespace Vodovoz
 			this.Build();
 			logger.Info("Загрузка информации о сотруднике...");
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Employee>(id);
+			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
 			ConfigureDlg();
 		}
 
@@ -74,6 +82,7 @@ namespace Vodovoz
 			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_change_trainee_to_driver"]) {
 				hiddenCategory = new EmployeeCategory[] { EmployeeCategory.driver, EmployeeCategory.forwarder };
 			}
+			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
 			ConfigureDlg();
 		}
 
@@ -124,6 +133,7 @@ namespace Vodovoz
 			referenceUser.SubjectType = typeof(User);
 			referenceUser.CanEditReference = false;
 			referenceUser.Binding.AddBinding(Entity, e => e.User, w => w.Subject).InitializeFromSource();
+			referenceUser.Sensitive = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_manage_users"];
 
 			comboCategory.ItemsEnum = typeof(EmployeeCategory);
 			if(hiddenCategory != null && hiddenCategory.Any()) {
@@ -159,6 +169,10 @@ namespace Vodovoz
 			yspinDriverSpeed.Binding.AddBinding(Entity, e => e.DriverSpeed, w => w.Value, new MultiplierToPercentConverter()).InitializeFromSource();
 			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
 
+			ylblUserLogin.TooltipText = "При сохранении сотрудника создаёт нового пользователя с введённым логином и отправляет сотруднику SMS с сгенерированным паролем";
+			yentryUserLogin.Binding.AddBinding(Entity, e => e.LoginForNewUser, w => w.Text);
+			yentryUserLogin.Sensitive = CanCreateNewUser;
+
 			Entity.CheckAndFixDriverPriorities();
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
 				.AddColumn("Район").AddTextRenderer(x => x.District.DistrictName)
@@ -187,13 +201,15 @@ namespace Vodovoz
 				this, 
 				UoW, 
 				new PresetPermissionValidator(),
-				UserSingletonRepository.GetInstance(), 
-				QS.Project.Services.ServicesConfig.CommonServices,
+				UserSingletonRepository.GetInstance(),
+				ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager
 			);
 
 			logger.Info("Ok");
 		}
+
+		bool CanCreateNewUser => Entity.User == null && UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_manage_users"];
 
 		void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
@@ -211,7 +227,7 @@ namespace Vodovoz
 				return false;
 
 			if(Entity.User != null) {
-				var associatedEmployees = EmployeeRepository.GetEmployeesForUser(UoW, Entity.User.Id);
+				var associatedEmployees = EmployeeSingletonRepository.GetInstance().GetEmployeesForUser(UoW, Entity.User.Id);
 				if(associatedEmployees.Any(e => e.Id != Entity.Id)) {
 					string mes = String.Format("Пользователь {0} уже связан с сотрудником {1}, при привязке этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
 									 Entity.User.Name,
@@ -226,10 +242,66 @@ namespace Vodovoz
 						return false;
 				}
 			}
-
 			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
 			phonesView.RemoveEmpty();
+			UoWGeneric.Save(Entity);
+
+			#region Попытка сохранить логин для нового юзера
+
+			if(!String.IsNullOrEmpty(Entity.LoginForNewUser) && InstantSmsServiceSetting.SendingAllowed) {
+				var user = new User {
+					Login = Entity.LoginForNewUser,
+					Name = Entity.FullName,
+					NeedPasswordChange = true
+				};
+				bool cont = MessageDialogHelper.RunQuestionDialog($"При сохранении работника будет создан \nпользователь с логином {user.Login} \nи на " +
+					$"указанный номер +7{Entity.GetPhoneForSmsNotification()}\nбудет выслана SMS с временным паролем\n\t\t\tПродолжить?");
+				if(!cont)
+					return false;
+
+				var password = new Tools.PasswordGenerator().GeneratePassword(5);
+				//Сразу пишет в базу
+				var result = mySQLUserRepository.CreateLogin(user.Login, password);
+				if(result) {
+					try {
+						mySQLUserRepository.UpdatePrivileges(user.Login, false);
+					} catch {
+						mySQLUserRepository.DropUser(user.Login);
+						throw;
+					}
+					UoWGeneric.Save(user);
+
+					logger.Info("Идёт отправка sms (до 10 секунд)...");
+					bool sendResult = false;
+					try {
+						sendResult = SendPasswordByPhone(password);
+					} catch(TimeoutException) {
+						RemoveUserData(user);
+						logger.Info("Ошибка при отправке sms");
+						MessageDialogHelper.RunErrorDialog("Сервис отправки Sms временно недоступен\n");
+						return false;
+					} catch {
+						RemoveUserData(user);
+						logger.Info("Ошибка при отправке sms");
+						throw;
+					}
+					if(!sendResult) {
+						//Если не получилось отправить смс с паролем - удаляем пользователя
+						RemoveUserData(user);
+						logger.Info("Ошибка при отправке sms");
+						return false;
+					}
+					logger.Info("Sms успешно отправлено");
+					Entity.User = user;
+				} else {
+					MessageDialogHelper.RunErrorDialog("Не получилось создать нового пользователя");
+					return false;
+				}
+			}
+
+			#endregion
+
 			logger.Info("Сохраняем сотрудника...");
 			try {
 				UoWGeneric.Save();
@@ -244,6 +316,27 @@ namespace Vodovoz
 			}
 			logger.Info("Ok");
 			return true;
+		}
+
+		private void RemoveUserData(User user)
+		{
+			UoWGeneric.Delete(user);
+			UoWGeneric.Session.Flush();
+			mySQLUserRepository.DropUser(user.Login);
+		}
+
+		private bool SendPasswordByPhone(string password)
+		{
+			SmsNotifier smsNotifier = new SmsNotifier(new BaseParametersProvider());
+			SmsMessageResult result;
+			result = smsNotifier.SendPasswordToEmployee(Entity, password);
+			if(result.MessageStatus == SmsMessageStatus.Ok) {
+				MessageDialogHelper.RunInfoDialog("Sms с паролем отправлена успешно");
+				return true;
+			} else {
+				MessageDialogHelper.RunErrorDialog(result.ErrorDescription, "Ошибка при отправке Sms");
+				return false;
+			}
 		}
 
 		protected void OnRussianCitizenToggled(object sender, EventArgs e)
