@@ -133,6 +133,7 @@ namespace Vodovoz
 			referenceUser.SubjectType = typeof(User);
 			referenceUser.CanEditReference = false;
 			referenceUser.Binding.AddBinding(Entity, e => e.User, w => w.Subject).InitializeFromSource();
+			referenceUser.Sensitive = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_manage_users"];
 
 			comboCategory.ItemsEnum = typeof(EmployeeCategory);
 			if(hiddenCategory != null && hiddenCategory.Any()) {
@@ -208,7 +209,7 @@ namespace Vodovoz
 			logger.Info("Ok");
 		}
 
-		bool CanCreateNewUser => Entity.User == null && UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_create_new_user"];
+		bool CanCreateNewUser => Entity.User == null && UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_manage_users"];
 
 		void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
@@ -259,7 +260,7 @@ namespace Vodovoz
 				if(!cont)
 					return false;
 
-				var password = new Tools.PasswordGenerator().GeneratePassword(8);
+				var password = new Tools.PasswordGenerator().GeneratePassword(5);
 				//Сразу пишет в базу
 				var result = mySQLUserRepository.CreateLogin(user.Login, password);
 				if(result) {

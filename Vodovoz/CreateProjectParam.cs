@@ -149,7 +149,7 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_edit_counterparty_details", new PresetUserPermissionSource("can_edit_counterparty_details", "Редактирование реквизитов контрагента", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_edit_order_extra_cash", new PresetUserPermissionSource("can_edit_order_extra_cash", "Редактирование доп. нала в заказе", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_accept_movement_document_dicrepancy", new PresetUserPermissionSource("can_accept_movement_document_dicrepancy", "Подтверждение расхождений в документа перемещения ТМЦ", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_create_new_user", new PresetUserPermissionSource("can_create_new_user", "Создание новых пользователей", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_manage_users", new PresetUserPermissionSource("can_manage_users", "Изменение существующего и создание нового пользователей в диалоге сотрудника", string.Empty));
 
 			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {
