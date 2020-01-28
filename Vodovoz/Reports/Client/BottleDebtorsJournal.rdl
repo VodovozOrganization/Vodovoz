@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>58.9pt</Height>
+    <Height>103.2pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table1">
@@ -27,25 +27,30 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
             <Width>30.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>175.4pt</Width>
+            <Width>150.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>261.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>106.5pt</Width>
+            <Width>91.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>49.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>36.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -59,6 +64,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -75,6 +81,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -91,6 +98,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -100,6 +108,23 @@
                     <Textbox Name="Textbox3">
                       <Value>Номер телефона</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>Долг по таре по адресу</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -145,7 +170,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>=Fields!client.Value</Value>
+                      <Value>={counterparty}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -203,12 +228,73 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>={bottle_debt}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>9.2pt</Left>
-        <Top>8.8pt</Top>
+        <Left>2.1pt</Left>
+        <Top>6.4pt</Top>
+        <Footer >
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <Value>Итого: </Value>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>4</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <Value>=Sum({bottle_debt})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
     </ReportItems>
   </Body>
@@ -261,14 +347,25 @@
         (SELECT TRIM('\n' FROM GROUP_CONCAT(DISTINCT CONCAT('8', digits_number) SEPARATOR ';\n'))
         FROM phones
         WHERE counterparty_id = orders.client_id)
-    ) AS phones
+    ) AS phones,
+    (
+		SELECT 
+			SUM(CAST(bm.delivered AS SIGNED) - CAST(bm.returned AS SIGNED)) AS sum
+		FROM 
+			bottles_movement_operations AS bm
+		WHERE 
+			bm.counterparty_id = counterparty.id 
+			AND (delivery_points.id = bm.delivery_point_id 
+				OR (delivery_points.id IS NULL AND bm.delivery_point_id IS NULL AND bm.order_id IS NOT NULL)
+				)  
+    ) as bottle_debt
 FROM
     orders 
-    LEFT OUTER JOIN counterparty ON orders.client_id=counterparty.id 
-    LEFT OUTER JOIN delivery_points ON orders.delivery_point_id= delivery_points.id 
-    LEFT OUTER JOIN bottles_movement_operations ON orders.bottles_movement_operation_id = bottles_movement_operations.id
-    LEFT OUTER JOIN phones AS client_phone ON client_phone.counterparty_id = counterparty.id
-    LEFT OUTER JOIN phones AS dp_phone ON dp_phone.delivery_point_id = delivery_points.id
+    LEFT JOIN counterparty ON orders.client_id = counterparty.id 
+    LEFT JOIN delivery_points ON orders.delivery_point_id = delivery_points.id 
+    LEFT JOIN bottles_movement_operations ON orders.bottles_movement_operation_id = bottles_movement_operations.id
+    LEFT JOIN phones AS client_phone ON client_phone.counterparty_id = counterparty.id
+    LEFT JOIN phones AS dp_phone ON dp_phone.delivery_point_id = delivery_points.id
 WHERE
     (@CounterpartyId = 0 OR orders.client_id = @CounterpartyId)
     AND (@AddressId = 0 OR orders.delivery_point_id = @AddressId)
@@ -357,7 +454,11 @@ WHERE
     ) 
 GROUP BY
     delivery_points.id,
-    counterparty.id</CommandText>
+    counterparty.id
+
+
+
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="CounterpartyId">
             <Value>={?CounterpartyId}</Value>
@@ -395,7 +496,7 @@ GROUP BY
         </QueryParameters>
       </Query>
       <Fields >
-        <Field Name="client">
+        <Field Name="counterparty">
           <DataField>name</DataField>
         </Field>
         <Field Name="delivery_point">
@@ -404,10 +505,13 @@ GROUP BY
         <Field Name="phones">
           <DataField>phones</DataField>
         </Field>
+        <Field Name="bottle_debt">
+          <DataField>bottle_debt</DataField>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="discount_reason_id">
       <DataType>Integer</DataType>
       <DefaultValue>
