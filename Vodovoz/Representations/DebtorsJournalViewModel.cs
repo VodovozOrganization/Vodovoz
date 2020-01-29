@@ -291,6 +291,13 @@ namespace Vodovoz.Representations
 
 			#endregion Filter
 
+			ordersQuery.Where(GetSearchCriterion(
+				() => deliveryPointAlias.Id,
+				() => deliveryPointAlias.CompiledAddress,
+				() => counterpartyAlias.Id,
+				() => counterpartyAlias.Name
+			));
+
 			IProjection sumProj = Projections.Sum(Projections.SubQuery(bottleDebtByAddressQuery));
 
 			var queryResult = ordersQuery
