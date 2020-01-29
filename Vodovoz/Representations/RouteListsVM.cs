@@ -12,6 +12,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
+using QS.Tdi;
 using QS.Tdi.Gtk;
 using QS.Utilities.Text;
 using QSOrmProject;
@@ -22,6 +23,7 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Infrastructure;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModels.FuelDocuments;
 
@@ -357,7 +359,8 @@ namespace Vodovoz.ViewModel
 														ServicesConfig.CommonServices, 
 														new SubdivisionRepository(), 
 														EmployeeSingletonRepository.GetInstance(), 
-														new FuelRepository()
+														new FuelRepository(),
+														NavigationManagerProvider.NavigationManager
 									)
 								);
 						}

@@ -9,6 +9,7 @@ using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.WageCalculation;
 using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
+using QS.Navigation;
 
 namespace Vodovoz.ViewModels.WageCalculation
 {
@@ -19,7 +20,8 @@ namespace Vodovoz.ViewModels.WageCalculation
 
 		public event EventHandler OnParameterNodesUpdated;
 
-		public CarsWageParametersViewModel(IUnitOfWorkFactory unitOfWorkFactory, IWageCalculationRepository wageCalculationRepository, ICommonServices commonServices) : base(unitOfWorkFactory, commonServices.InteractiveService)
+		public CarsWageParametersViewModel(IUnitOfWorkFactory unitOfWorkFactory, IWageCalculationRepository wageCalculationRepository, ICommonServices commonServices, INavigationManager navigationManager) 
+			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
 			TabName = "Ставки для автомобилей компании";
 
@@ -120,7 +122,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		{
 			ChangeWageParameterCommand = new DelegateCommand(
 				() => {
-					WageParameterViewModel newWageParameterViewModel = new WageParameterViewModel(UoW, WageParameterTargets.ForOurCars, commonServices);
+					WageParameterViewModel newWageParameterViewModel = new WageParameterViewModel(UoW, WageParameterTargets.ForOurCars, commonServices, NavigationManager);
 					newWageParameterViewModel.OnWageParameterCreated += (sender, wageParameter) => {
 						ChangeWageParameter(wageParameter);
 					};
@@ -192,7 +194,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 		{
 			OpenWageParameterCommand = new DelegateCommand<WageParameterNode>(
 				(node) => {
-					WageParameterViewModel wageParameterViewModel = new WageParameterViewModel(node.WageParameter, UoW, commonServices);
+					WageParameterViewModel wageParameterViewModel = new WageParameterViewModel(node.WageParameter, UoW, commonServices, NavigationManager);
 					TabParent.AddTab(wageParameterViewModel, this);
 				},
 				(node) => node != null

@@ -39,6 +39,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.EntityRepositories.Store;
 using QS.Project.Journal;
+using Vodovoz.Infrastructure;
 
 public partial class MainWindow : Window
 {
@@ -399,7 +400,8 @@ public partial class MainWindow : Window
 					new SubdivisionRepository(),
 					OrderSingletonRepository.GetInstance(),
 					new AtWorkRepository(),
-					new CarRepository()
+					new CarRepository(),
+					NavigationManagerProvider.NavigationManager
 				)
 			);
 	}

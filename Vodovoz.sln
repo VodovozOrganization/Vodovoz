@@ -95,6 +95,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.BusinessCommon", "..\QSP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Contacts", "..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj", "{B1DD034B-EC88-400C-9C6B-83CE68AB3541}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstantSmsService", "..\VodovozService\VodovozSmsInformerService\InstantSmsService\InstantSmsService.csproj", "{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -846,6 +848,24 @@ Global
 		{B1DD034B-EC88-400C-9C6B-83CE68AB3541}.DebugShortWin|x86.Build.0 = Debug|Any CPU
 		{B1DD034B-EC88-400C-9C6B-83CE68AB3541}.DebugWin|x86.ActiveCfg = Release|Any CPU
 		{B1DD034B-EC88-400C-9C6B-83CE68AB3541}.DebugWin|x86.Build.0 = Release|Any CPU
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.Debug|x86.ActiveCfg = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.Debug|x86.Build.0 = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.Release|x86.ActiveCfg = Release|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.Release|x86.Build.0 = Release|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.Debug|x64.ActiveCfg = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.Debug|x64.Build.0 = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.Release|x64.ActiveCfg = Release|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.Release|x64.Build.0 = Release|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.v4.0-Debug|Any CPU.ActiveCfg = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.v4.0-Debug|Any CPU.Build.0 = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.v4.0-Release|Any CPU.ActiveCfg = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.v4.0-Release|Any CPU.Build.0 = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.Debug-short|x86.ActiveCfg = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.Debug-short|x86.Build.0 = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.DebugShortWin|x86.ActiveCfg = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.DebugShortWin|x86.Build.0 = Debug|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.DebugWin|x86.ActiveCfg = Release|x86
+		{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}.DebugWin|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2} = {2B971ED3-E5E1-4CE7-B142-4393EC61DA67}

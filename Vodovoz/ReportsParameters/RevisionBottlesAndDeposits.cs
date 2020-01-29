@@ -79,7 +79,6 @@ namespace Vodovoz.Reports
 		protected void OnEntryCounterpartyChanged (object sender, EventArgs e)
 		{
 			ValidateParameters();
-			ShowStockBottle = OrderRepository.IsBottleStockExists(UoW, entityViewModelEntryCounterparty.GetSubject<Counterparty>());
 
 			if(entityViewModelEntryCounterparty.Subject == null)
 			{
@@ -88,6 +87,7 @@ namespace Vodovoz.Reports
 			}
 			else
 			{
+				ShowStockBottle = OrderRepository.IsBottleStockExists(UoW, entityViewModelEntryCounterparty.GetSubject<Counterparty>());
 				referenceDeliveryPoint.Subject = null;
 				referenceDeliveryPoint.Sensitive = true;
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, 

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Gamma.ColumnConfig;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog;
-using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
@@ -17,25 +15,61 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Vodovoz.Representations
 {
-	public class DebtorsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Domain.Orders.Order, CallTaskDlg, DebtorJournalNode, DebtorsJournalFilterViewModel>
+	public class DebtorsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Order, CallTaskDlg, DebtorJournalNode, DebtorsJournalFilterViewModel>
 	{
 
-		IEmployeeRepository employeeRepository { get; set;}
 
 		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEmployeeRepository employeeRepository) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
 			this.employeeRepository = employeeRepository;
+			DataLoader.ItemsListUpdated += UpdateFooterInfo;
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<Domain.Orders.Order>> ItemsSourceQueryFunction => (uow) => {
+		IEmployeeRepository employeeRepository { get; set; }
+
+		Task newTask;
+		CancellationTokenSource cts = new CancellationTokenSource();
+
+		private void UpdateFooterInfo(object sender, EventArgs e)
+		{
+			if(newTask?.Status == TaskStatus.Running) {
+				cts.Cancel();
+				cts = new CancellationTokenSource();
+			}
+
+			newTask = Task.Run(() => SetInfo(cts.Token));
+		}
+
+		protected void SetInfo(CancellationToken token)
+		{
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				FooterInfo = $"Идёт загрузка данных...";
+				var result = CountQueryFunction.Invoke(uow);
+				if(token.IsCancellationRequested)
+					return;
+					
+				FooterInfo = $"Сумма всех долгов по таре (по адресам): {result}  |  " + base.FooterInfo;
+			}
+		}
+
+		private string footerInfo = "Идёт загрузка данных...";
+		public override string FooterInfo {
+			get => footerInfo;
+			set => SetField(ref footerInfo, value);
+		}
+
+		protected override Func<IUnitOfWork, IQueryOver<Order>> ItemsSourceQueryFunction => (uow) => {
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
 			BottlesMovementOperation bottleMovementOperationAlias = null;
@@ -43,8 +77,8 @@ namespace Vodovoz.Representations
 			DebtorJournalNode resultAlias = null;
 			Residue residueAlias = null;
 			CallTask taskAlias = null;
-			Domain.Orders.Order orderAlias = null;
-			Domain.Orders.Order lastOrderAlias = null;
+			Order orderAlias = null;
+			Order lastOrderAlias = null;
 			OrderItem orderItemAlias = null;
 			DiscountReason discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -119,8 +153,7 @@ namespace Vodovoz.Representations
 
 			#region Filter
 
-			if(FilterViewModel != null) 
-			{
+			if(FilterViewModel != null) {
 				if(FilterViewModel.Client != null)
 					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == FilterViewModel.Client.Id);
 				if(FilterViewModel.Address != null)
@@ -175,6 +208,104 @@ namespace Vodovoz.Representations
 				.TransformUsing(Transformers.AliasToBean<DebtorJournalNode>());
 
 			return resultQuery;
+		};
+
+		protected Func<IUnitOfWork, int> CountQueryFunction => (uow) => {
+			DeliveryPoint deliveryPointAlias = null;
+			Counterparty counterpartyAlias = null;
+			BottlesMovementOperation bottleMovementOperationAlias = null;
+			BottlesMovementOperation bottlesMovementAlias = null;
+			Order orderAlias = null;
+			Order lastOrderAlias = null;
+			OrderItem orderItemAlias = null;
+			DiscountReason discountReasonAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
+
+			var bottleDebtByAddressQuery = QueryOver.Of(() => bottlesMovementAlias)
+			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
+			.And(new Disjunction().Add(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id)
+											.Add(Restrictions.On(() => deliveryPointAlias.Id).IsNull
+														&& Restrictions.On(() => bottlesMovementAlias.DeliveryPoint.Id).IsNull
+														&& Restrictions.On(() => bottlesMovementAlias.Order.Id).IsNotNull))
+			.Select(
+				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
+					NHibernateUtil.Int32, new IProjection[] {
+					Projections.Sum(() => bottlesMovementAlias.Returned),
+					Projections.Sum(() => bottlesMovementAlias.Delivered)}
+				));
+
+			#region LastOrder
+
+			var LastOrderIdQuery = QueryOver.Of(() => lastOrderAlias)
+				.Where(() => lastOrderAlias.Client.Id == counterpartyAlias.Id)
+				.And(() => (lastOrderAlias.SelfDelivery && orderAlias.DeliveryPoint == null) || (lastOrderAlias.DeliveryPoint.Id == deliveryPointAlias.Id))
+				.And((x) => x.OrderStatus == OrderStatus.Closed)
+				.Select(Projections.Property<Domain.Orders.Order>(p => p.Id))
+				.OrderByAlias(() => orderAlias.Id).Desc
+				.Take(1);
+
+			var LastOrderNomenclatures = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Select(Projections.Property(() => nomenclatureAlias.Id))
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.And(() => FilterViewModel.LastOrderNomenclature.Id == nomenclatureAlias.Id);
+
+			var LastOrderDiscount = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Select(Projections.Property(() => discountReasonAlias.Id))
+				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+				.And(() => FilterViewModel.DiscountReason.Id == discountReasonAlias.Id);
+
+			#endregion LastOrder
+
+			ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
+
+			#region Filter
+
+			if(FilterViewModel != null) {
+				if(FilterViewModel.Client != null)
+					ordersQuery = ordersQuery.Where((arg) => arg.Client.Id == FilterViewModel.Client.Id);
+				if(FilterViewModel.Address != null)
+					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == FilterViewModel.Address.Id);
+				if(FilterViewModel.OPF != null)
+					ordersQuery = ordersQuery.Where(() => counterpartyAlias.PersonType == FilterViewModel.OPF.Value);
+				if(FilterViewModel.LastOrderBottlesFrom != null)
+					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered >= FilterViewModel.LastOrderBottlesFrom.Value);
+				if(FilterViewModel.LastOrderBottlesTo != null)
+					ordersQuery = ordersQuery.Where(() => bottleMovementOperationAlias.Delivered <= FilterViewModel.LastOrderBottlesTo.Value);
+				if(FilterViewModel.StartDate != null)
+					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate.Value);
+				if(FilterViewModel.EndDate != null)
+					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= FilterViewModel.EndDate.Value);
+				if(FilterViewModel.LastOrderNomenclature != null)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderNomenclatures);
+				if(FilterViewModel.DiscountReason != null)
+					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderDiscount);
+				if(FilterViewModel.DebtBottlesFrom != null)
+					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
+				if(FilterViewModel.DebtBottlesTo != null)
+					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
+			}
+
+			#endregion Filter
+
+			ordersQuery.Where(GetSearchCriterion(
+				() => deliveryPointAlias.Id,
+				() => deliveryPointAlias.CompiledAddress,
+				() => counterpartyAlias.Id,
+				() => counterpartyAlias.Name
+			));
+
+			IProjection sumProj = Projections.Sum(Projections.SubQuery(bottleDebtByAddressQuery));
+
+			var queryResult = ordersQuery
+				.Left.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias)
+				.Left.JoinAlias(c => c.Client, () => counterpartyAlias)
+				.Left.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias)
+				.Select(sumProj).UnderlyingCriteria.SetTimeout(60).UniqueResult<int>();
+			return queryResult;
 		};
 
 		protected override void CreatePopupActions()

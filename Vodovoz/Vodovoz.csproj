@@ -1512,6 +1512,10 @@
       <Project>{B1DD034B-EC88-400C-9C6B-83CE68AB3541}</Project>
       <Name>QS.Contacts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\VodovozService\VodovozSmsInformerService\InstantSmsService\InstantSmsService.csproj">
+      <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
+      <Name>InstantSmsService</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />

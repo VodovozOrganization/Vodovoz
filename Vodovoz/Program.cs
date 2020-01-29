@@ -2,18 +2,18 @@
 using Gtk;
 using NLog;
 using QSProjectsLib;
-using Gdk;
 using Vodovoz.Parameters;
 using Vodovoz.Additions;
 using Vodovoz.DriverTerminal;
 using QS.Project.Repositories;
 using EmailService;
 using QS.Project.Dialogs.GtkUI;
-using QS.Tools;
-using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Utilities.Text;
 using QSSupportLib;
 using QS.Widgets.GtkUI;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain.Employees;
+using InstantSmsService;
 
 namespace Vodovoz
 {
@@ -106,31 +106,17 @@ namespace Vodovoz
 				usersDlg.Run();
 				usersDlg.Destroy();
 				return;
-			}else if(UserPermissionRepository.CurrentUserPresetPermissions["driver_terminal"]){
+			} else if(UserPermissionRepository.CurrentUserPresetPermissions["driver_terminal"]) {
 				DriverTerminalWindow driverTerminal = new DriverTerminalWindow();
 				progressBarWin = driverTerminal;
 				driverTerminal.Title = "Печать документов МЛ";
 				QSMain.ErrorDlgParrent = driverTerminal;
 				driverTerminal.Show();
-			}else{
-				//Настрока удаления
-				Configure.ConfigureDeletion();
-				PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
-
-				if(ParametersProvider.Instance.ContainsParameter("email_send_enabled_database") && ParametersProvider.Instance.ContainsParameter("email_service_address")) {
-					if(ParametersProvider.Instance.GetParameterValue("email_send_enabled_database") == LoginDialog.BaseName) {
-						EmailServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("email_service_address"));
-					}
-				}
-
-				CreateTempDir();
-
-				//Запускаем программу
-				MainWin = new MainWindow();
-				progressBarWin = MainWin;
-				MainWin.Title += string.Format(" (БД: {0})", LoginDialog.BaseName);
-				QSMain.ErrorDlgParrent = MainWin;
-				MainWin.Show();
+			} else {
+				if(ChangePassword(LoginDialog.BaseName))
+					StartMainWindow(LoginDialog.BaseName);
+				else
+					return;
 			}
 
 			PerformanceHelper.EndPointsGroup ();
@@ -142,9 +128,59 @@ namespace Vodovoz
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончен старт SAAS. Конец загрузки.");
 			QSProjectsLib.PerformanceHelper.Main.PrintAllPoints (logger);
 
-			Application.Run ();
+			Application.Run();
 			QSSaaS.Session.StopSessionRefresh ();
 			ClearTempDir();
+		}
+
+		private static bool ChangePassword(string loginDialogName)
+		{
+			using(var UoW = UnitOfWorkFactory.GetDefaultFactory.CreateForRoot<User>(QSMain.User.Id)) {
+				if(!UoW.Root.NeedPasswordChange)
+					return true;
+
+				ChangePassword changePasswordWindow = new ChangePassword();
+				changePasswordWindow.Title = "Требуется сменить пароль";
+				QSMain.ErrorDlgParrent = changePasswordWindow;
+
+				int response = changePasswordWindow.Run();
+				if(response == (int)ResponseType.Ok) {
+					UoW.Root.NeedPasswordChange = false;
+					UoW.Save();
+					changePasswordWindow.Destroy();
+					return true;
+				} else {
+					QSSaaS.Session.StopSessionRefresh();
+					ClearTempDir();
+					return false;
+				}
+			}
+		}
+
+		private static void StartMainWindow(string loginDialogName)
+		{
+			//Настрока удаления
+			Configure.ConfigureDeletion();
+			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
+
+			if(ParametersProvider.Instance.ContainsParameter("email_send_enabled_database") && ParametersProvider.Instance.ContainsParameter("email_service_address")) {
+				if(ParametersProvider.Instance.GetParameterValue("email_send_enabled_database") == loginDialogName) {
+					EmailServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("email_service_address"));
+				}
+			}
+			if(ParametersProvider.Instance.ContainsParameter("instant_sms_enabled_database") && ParametersProvider.Instance.ContainsParameter("sms_service_address")) {
+				if(ParametersProvider.Instance.GetParameterValue("instant_sms_enabled_database") == loginDialogName) {
+					InstantSmsServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("sms_service_address"));
+				}
+			}
+			CreateTempDir();
+
+			//Запускаем программу
+			MainWin = new MainWindow();
+			progressBarWin = MainWin;
+			MainWin.Title += string.Format(" (БД: {0})", loginDialogName);
+			QSMain.ErrorDlgParrent = MainWin;
+			MainWin.Show();
 		}
 	}
 }

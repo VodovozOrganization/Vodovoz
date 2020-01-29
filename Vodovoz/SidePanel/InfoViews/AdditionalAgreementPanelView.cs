@@ -18,6 +18,8 @@ using Vodovoz.ViewModelBased;
 using QS.DomainModel.NotifyChange;
 using QS.Project.Domain;
 using QS.DomainModel.UoW;
+using QS.Tdi;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.SidePanel.InfoViews
 {
@@ -148,7 +150,7 @@ namespace Vodovoz.SidePanel.InfoViews
 				return;
 			}
 
-			wsa.ReloadListFromDB(InfoProvider.UoW.Session, x => x.FixedPrices);
+			wsa.ReloadChildCollection(x => x.ObservableFixedPrices, x => (WaterSalesAgreement)x.AdditionalAgreement, InfoProvider.UoW.Session);
 
 			fixedPricesList = wsa.FixedPrices;
 		}

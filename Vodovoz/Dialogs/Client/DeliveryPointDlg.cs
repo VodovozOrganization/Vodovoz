@@ -26,6 +26,7 @@ using Vodovoz.JournalFilters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
+using QS.Tdi;
 
 namespace Vodovoz
 {

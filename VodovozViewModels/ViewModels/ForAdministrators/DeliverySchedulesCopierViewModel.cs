@@ -12,6 +12,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.JournalViewModels.Logistic;
+using QS.Navigation;
 
 namespace Vodovoz.ViewModels.ForAdministrators
 {
@@ -22,7 +23,7 @@ namespace Vodovoz.ViewModels.ForAdministrators
 		readonly IInteractiveService interactiveService;
 		readonly ICommonServices commonServices;
 
-		public DeliverySchedulesCopierViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IInteractiveService interactiveService) : base(interactiveService)
+		public DeliverySchedulesCopierViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IInteractiveService interactiveService, INavigationManager navigationManager) : base(interactiveService, navigationManager)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
