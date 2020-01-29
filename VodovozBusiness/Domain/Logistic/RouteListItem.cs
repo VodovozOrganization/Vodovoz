@@ -395,11 +395,23 @@ namespace Vodovoz.Domain.Logistic
 				if(!string.IsNullOrWhiteSpace(Order.ToClientText))
 					return Order.ToClientText;
 
-				return string.Join("\n",
-								   Order.OrderEquipments
-										.Where(x => x.Direction == Direction.Deliver)
-								   .Select(x => $"{x.NameString}: {x.Count}")
-								  );
+				var orderEquipment = string.Join(
+								Environment.NewLine,
+								Order.OrderEquipments
+									.Where(x => x.Direction == Direction.Deliver)
+								    .Select(x => $"{x.NameString}: {x.Count}")
+				);
+
+				var orderItemEquipment = string.Join(
+								Environment.NewLine,
+								Order.OrderItems
+									.Where(x => x.Nomenclature.Category == NomenclatureCategory.equipment)
+							  		.Select(x => $"{x.Nomenclature.Name}: {x.Count}")
+				);
+
+				if(String.IsNullOrWhiteSpace(orderItemEquipment))
+					return orderEquipment;
+				return $"{orderEquipment}{Environment.NewLine}{orderItemEquipment}";
 			}
 		}
 

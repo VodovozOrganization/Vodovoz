@@ -130,16 +130,19 @@ namespace Vodovoz
 				.Finish();
 		}
 
-		private string ShowAdditional(IList<OrderItem> items)
+		private string ShowAdditional(IList<OrderItem> orderItems)
 		{
 			List<string> stringParts = new List<string>();
 
-			foreach(var item in items) {
-				if(item.Nomenclature.Category == NomenclatureCategory.additional) {
-					stringParts.Add(
-						string.Format("{0}: {1}", item.Nomenclature.Name, item.Count));
-				}
-			}
+			var additionalItems = orderItems
+					.Where(x => x.Nomenclature.Category != NomenclatureCategory.water 
+								&& x.Nomenclature.Category != NomenclatureCategory.equipment
+								&& x.Nomenclature.Category != NomenclatureCategory.service
+								&& x.Nomenclature.Category != NomenclatureCategory.deposit
+								&& x.Nomenclature.Category != NomenclatureCategory.master
+					);
+			foreach(var item in additionalItems)
+				stringParts.Add($"{item.Nomenclature.Name}: {item.Count}");
 
 			return string.Join("\n", stringParts);
 		}
