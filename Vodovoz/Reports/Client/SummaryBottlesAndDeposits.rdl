@@ -141,8 +141,12 @@
 	CASE
 #Оборудование из ввода остатков
 		WHEN docs.doc_name = 'Ввод остатков' THEN
-			(SELECT IF(doc_residue_equipment_deposit_items.equipment_count = 0, '',
-				GROUP_CONCAT(CONCAT(nomenclature.official_name, ' (', doc_residue_equipment_deposit_items.equipment_count, ' шт.)') SEPARATOR ', '))
+			(SELECT 
+				GROUP_CONCAT(
+				IF(doc_residue_equipment_deposit_items.equipment_count = 0,
+					NULL,
+					CONCAT(nomenclature.official_name, ' (', doc_residue_equipment_deposit_items.equipment_count, ' шт.)')) 
+				SEPARATOR ', ')
 			FROM
 				doc_residue
 				LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
@@ -186,8 +190,12 @@
 		CASE
 #Оборудование из ввода остатков
 		WHEN docs.doc_name = 'Ввод остатков' THEN
-			(SELECT IF(doc_residue_equipment_deposit_items.equipment_count = 0, '',
-				GROUP_CONCAT(CONCAT(nomenclature.official_name, ' (', doc_residue_equipment_deposit_items.equipment_count, ' шт.)') SEPARATOR ', '))
+			(SELECT 
+				GROUP_CONCAT(
+				IF(doc_residue_equipment_deposit_items.equipment_count = 0,
+					NULL,
+					CONCAT(nomenclature.official_name, ' (', doc_residue_equipment_deposit_items.equipment_count, ' шт.)')) 
+				SEPARATOR ', ')
 			FROM
 				doc_residue
 				LEFT JOIN doc_residue_equipment_deposit_items ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
@@ -304,7 +312,10 @@ FROM
 		doc_residue.id AS doc_id,
 		doc_residue.bottles_movement_operation_id,
 		doc_residue.date AS doc_date,
-		GROUP_CONCAT(DISTINCT GET_TRANSLATED_PAYMENT_TYPE_SHORT(doc_residue_equipment_deposit_items.payment_type) SEPARATOR ',\n') AS doc_payment_type,
+		GROUP_CONCAT(DISTINCT 
+			IF(doc_residue_equipment_deposit_items.equipment_count = 0,
+				NULL,
+				GET_TRANSLATED_PAYMENT_TYPE_SHORT(doc_residue_equipment_deposit_items.payment_type)) SEPARATOR ',\n') AS doc_payment_type,
 		doc_residue.delivery_point_id AS delivery_point_id,
 		delivery_points.compiled_address AS delivery_point_address,
 		'Ввод остатков' AS doc_name,
@@ -1635,9 +1646,9 @@ WHERE
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >0pt</PaddingTop>
-                        <PaddingBottom >0pt</PaddingBottom>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1782,7 +1793,7 @@ WHERE
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingLeft>2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
@@ -1802,7 +1813,7 @@ WHERE
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingLeft>2pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
