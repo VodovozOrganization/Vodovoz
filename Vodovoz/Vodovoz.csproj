@@ -1361,6 +1361,8 @@
     <Compile Include="Filters\ViewModels\CarJournalFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SetBillsReport.cs" />
+    <Compile Include="ReportsParameters\Sales\SetBillsReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2070,6 +2072,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Sales\SalesByDiscountReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\SetBillsReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
