@@ -81,6 +81,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		Build();
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
+		Gtk.Settings.Default.SetLongProperty("gtk-button-images", 1, "");
 		this.BuildToolbarActions();
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
