@@ -798,6 +798,13 @@
     <Compile Include="EntityRepositories\Contacts\IEmailRepository.cs" />
     <Compile Include="EntityRepositories\Contacts\PhoneRepository.cs" />
     <Compile Include="EntityRepositories\Contacts\IPhoneRepository.cs" />
+    <Compile Include="Domain\Permissions\PresetPermissionValidator.cs" />
+    <Compile Include="Domain\Permissions\PresetSubdivisionPermission.cs" />
+    <Compile Include="Domain\Permissions\PresetUserPermission.cs" />
+    <Compile Include="HibernateMapping\Permissions\PresetSubdivisionPermissionMap.cs" />
+    <Compile Include="HibernateMapping\Permissions\PresetUserPermissionMap.cs" />
+    <Compile Include="Domain\Permissions\PresetPermissionBase.cs" />
+    <Compile Include="HibernateMapping\Permissions\PresetPermissionBaseMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
