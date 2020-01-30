@@ -27,6 +27,8 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using QS.Tdi;
+using QSOsm.Loaders;
+using QSOsm;
 
 namespace Vodovoz
 {
@@ -85,6 +87,10 @@ namespace Vodovoz
 		{
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
+
+			entryCity.CitiesDataLoader = new CitiesDataLoader(OsmWorker.GetOsmService());
+			entryStreet.StreetsDataLoader = new StreetsDataLoader(OsmWorker.GetOsmService());
+			entryBuilding.HousesDataLoader = new HousesDataLoader(OsmWorker.GetOsmService());
 
 			buttonDeleteResponsiblePerson.Sensitive = false;
 			ytreeviewResponsiblePersons.ColumnsConfig = FluentColumnsConfig<Contact>.Create()
