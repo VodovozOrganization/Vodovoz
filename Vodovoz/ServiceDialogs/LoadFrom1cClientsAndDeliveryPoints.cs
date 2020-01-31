@@ -16,6 +16,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.LoadFrom1c;
 using QS.Project.Repositories;
 using QS.Banks.Domain;
+using QS.Project.Services;
 
 namespace Vodovoz.ServiceDialogs
 {
@@ -40,7 +41,7 @@ namespace Vodovoz.ServiceDialogs
 
 		public LoadFrom1cClientsAndDeliveryPoints()
 		{
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["database_maintenance"]) {
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance")) {
 				MessageDialogHelper.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
 				FailInitialize = true;
 				return;

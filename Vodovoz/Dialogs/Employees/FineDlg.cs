@@ -15,6 +15,7 @@ using Vodovoz.Repository.Logistics;
 using Vodovoz.ViewModel;
 using QS.Project.Repositories;
 using Vodovoz.Filters.ViewModels;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -89,7 +90,7 @@ namespace Vodovoz
 			filterRouteList.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRouteList);
 			yentryreferenceRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
-			yentryreferenceRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
+			yentryreferenceRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			Entity.ObservableItems.ListChanged += ObservableItems_ListChanged;
 			yentryAuthor.RepresentationModel = new EmployeesVM();

@@ -75,7 +75,7 @@ namespace Vodovoz
 			var vmFrom = new RouteListsVM(filterFrom);
 			GC.KeepAlive(vmFrom);
 			yentryreferenceRLFrom.RepresentationModel = vmFrom;
-			yentryreferenceRLFrom.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
+			yentryreferenceRLFrom.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			var filterTo = new RouteListsFilter(UoW);
 			filterTo.SetAndRefilterAtOnce(
@@ -92,7 +92,7 @@ namespace Vodovoz
 			);
 			var vmTo = new RouteListsVM(filterTo);
 			yentryreferenceRLTo.RepresentationModel = vmTo;
-			yentryreferenceRLTo.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
+			yentryreferenceRLTo.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			yentryreferenceRLFrom.Changed += YentryreferenceRLFrom_Changed;
 			yentryreferenceRLTo.Changed += YentryreferenceRLTo_Changed;

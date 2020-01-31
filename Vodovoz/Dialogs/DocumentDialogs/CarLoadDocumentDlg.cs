@@ -18,6 +18,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.HumanResources;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -93,7 +94,7 @@ namespace Vodovoz
 			filter.SetAndRefilterAtOnce(x => x.RestrictStatus = RouteListStatus.InLoading);
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
-			yentryrefRouteList.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
+			yentryrefRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			enumPrint.ItemsEnum = typeof(CarLoadPrintableDocuments);
 

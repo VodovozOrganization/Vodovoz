@@ -203,7 +203,7 @@ namespace Vodovoz
 
 		protected void Configure()
 		{
-			canEditPrices = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_price_discount_from_route_list"];
+			canEditPrices = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_price_discount_from_route_list");
 			orderNode = new OrderNode(routeListItem.Order);
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);

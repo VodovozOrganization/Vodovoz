@@ -5,6 +5,7 @@ using QS.Project.Repositories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.Permissions;
 using QS.Dialog.GtkUI;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -94,7 +95,7 @@ namespace Vodovoz
 			Gtk.MenuItem menuItemRouteList = new MenuItem("Вернуть в статус \"Сдается\"");
 			menuItemRouteList.Activated += MenuItemRouteList_Activated;
 			menuItemRouteList.Sensitive = node.StatusEnum == Vodovoz.Domain.Logistic.RouteListStatus.Closed
-														  && UserPermissionRepository.CurrentUserPresetPermissions["routelist_unclosing"];
+														  && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("routelist_unclosing");
 			popupMenu.Add(menuItemRouteList);
 
 			return popupMenu;
@@ -102,7 +103,7 @@ namespace Vodovoz
 
 		private void MenuItemRouteList_Activated(object sender, EventArgs e)
 		{
-			if(UserPermissionRepository.CurrentUserPresetPermissions["routelist_unclosing"]) {
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("routelist_unclosing")) {
 				RouteList rl = UoW.GetById<RouteList>(selectedNode.Id);
 				if(rl == null) {
 					return;

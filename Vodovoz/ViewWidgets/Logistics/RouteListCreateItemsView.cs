@@ -13,6 +13,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -59,7 +60,7 @@ namespace Vodovoz
 			}
 		}
 
-		private bool CanEditRows => UserPermissionRepository.CurrentUserPresetPermissions["logistican"]
+		private bool CanEditRows => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican")
 										&& RouteListUoW.Root.Status != RouteListStatus.Closed
 										&& RouteListUoW.Root.Status != RouteListStatus.MileageCheck;
 

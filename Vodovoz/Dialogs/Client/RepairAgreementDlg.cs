@@ -8,6 +8,7 @@ using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModelBased;
 using QS.Project.Domain;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -66,7 +67,7 @@ namespace Vodovoz
 			if (Entity.DocumentTemplate != null)
 				(Entity.DocumentTemplate.DocParser as RepairAgreementParser).RootObject = Entity;
 
-			templatewidget2.CanRevertCommon = UserPermissionRepository.CurrentUserPresetPermissions["can_set_common_additionalagreement"];
+			templatewidget2.CanRevertCommon = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_common_additionalagreement");
 			templatewidget2.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget2.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 		}

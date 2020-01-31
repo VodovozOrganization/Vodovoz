@@ -9,6 +9,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Validation.GtkUI;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
@@ -70,7 +71,7 @@ namespace Vodovoz.Dialogs.Employees
 			yEForOrder.Changed += (sender, e) => {
 				FillForOrder();
 			};
-			yEForOrder.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
+			yEForOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			yentryOrganization.SubjectType = typeof(Organization);
 			yentryOrganization.Binding.AddBinding(Entity, x => x.Organization, x => x.Subject).InitializeFromSource();
@@ -96,7 +97,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			RefreshParserRootObject();
 
-			templatewidget.CanRevertCommon = UserPermissionRepository.CurrentUserPresetPermissions["can_set_common_additionalagreement"];
+			templatewidget.CanRevertCommon = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_common_additionalagreement");
 			templatewidget.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 

@@ -27,6 +27,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories;
 using System.Collections.Generic;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -134,7 +135,7 @@ namespace Vodovoz
 			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text, new NullToEmptyStringConverter()).InitializeFromSource();
 			yentryShortName.MaxLength = 220;
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			checkIsArchive.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_create_and_arc_nomenclatures"];
+			checkIsArchive.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
 
 			entityviewmodelentryShipperCounterparty.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
@@ -176,7 +177,7 @@ namespace Vodovoz
 			ConfigureInputs(Entity.Category);
 
 			pricesView.UoWGeneric = UoWGeneric;
-			pricesView.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_create_and_arc_nomenclatures"];
+			pricesView.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
 
 			Imageslist.ImageButtonPressEvent += Imageslist_ImageButtonPressEvent;
 

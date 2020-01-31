@@ -9,6 +9,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Utilities;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -315,7 +316,7 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult(string.Format("Не выбран маршрутный лист, при типе штрафа \"{0}\"", FineType.GetEnumTitle()));
 			}
 
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"] && Id > 0) {
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines") && Id > 0) {
 				yield return new ValidationResult(string.Format("Недостаточно прав для изменения штрафа!"));
 			}
 		}

@@ -14,6 +14,7 @@ using QS.Widgets.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using InstantSmsService;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -106,7 +107,7 @@ namespace Vodovoz
 				usersDlg.Run();
 				usersDlg.Destroy();
 				return;
-			} else if(UserPermissionRepository.CurrentUserPresetPermissions["driver_terminal"]) {
+			} else if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("driver_terminal")) {
 				DriverTerminalWindow driverTerminal = new DriverTerminalWindow();
 				progressBarWin = driverTerminal;
 				driverTerminal.Title = "Печать документов МЛ";

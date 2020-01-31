@@ -8,6 +8,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
@@ -90,7 +91,7 @@ namespace Vodovoz.Dialogs.Fuel
 		}
 
 		public bool CanEdit => true;
-		public bool CanEditDate => CanEdit && UserPermissionRepository.CurrentUserPresetPermissions["can_edit_fuelwriteoff_document_date"];
+		public bool CanEditDate => CanEdit && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_fuelwriteoff_document_date");
 
 		public decimal GetAvailableLiters(FuelType fuelType)
 		{
