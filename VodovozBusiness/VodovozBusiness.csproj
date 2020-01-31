@@ -798,12 +798,12 @@
     <Compile Include="EntityRepositories\Contacts\IEmailRepository.cs" />
     <Compile Include="EntityRepositories\Contacts\PhoneRepository.cs" />
     <Compile Include="EntityRepositories\Contacts\IPhoneRepository.cs" />
-    <Compile Include="Domain\Permissions\PresetPermissionValidator.cs" />
-    <Compile Include="Domain\Permissions\PresetSubdivisionPermission.cs" />
-    <Compile Include="Domain\Permissions\PresetUserPermission.cs" />
+    <Compile Include="Domain\Permissions\HierarchicalPresetPermissionValidator.cs" />
+    <Compile Include="Domain\Permissions\HierarchicalPresetSubdivisionPermission.cs" />
+    <Compile Include="Domain\Permissions\HierarchicalPresetUserPermission.cs" />
     <Compile Include="HibernateMapping\Permissions\PresetSubdivisionPermissionMap.cs" />
     <Compile Include="HibernateMapping\Permissions\PresetUserPermissionMap.cs" />
-    <Compile Include="Domain\Permissions\PresetPermissionBase.cs" />
+    <Compile Include="Domain\Permissions\HierarchicalPresetPermissionBase.cs" />
     <Compile Include="HibernateMapping\Permissions\PresetPermissionBaseMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -882,6 +882,7 @@
     <Folder Include="Domain\Contacts\" />
     <Folder Include="HibernateMapping\Contacts\" />
     <Folder Include="EntityRepositories\Contacts\" />
+    <Folder Include="EntityRepositories\Permissions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

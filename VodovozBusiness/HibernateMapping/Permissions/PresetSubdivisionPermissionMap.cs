@@ -3,7 +3,7 @@ using Vodovoz.Domain.Permissions;
 
 namespace Vodovoz.HibernateMapping.Permissions
 {
-	public class PresetSubdivisionPermissionMap : SubclassMap<PresetSubdivisionPermission>
+	public class PresetSubdivisionPermissionMap : SubclassMap<HierarchicalPresetSubdivisionPermission>
 	{
 		public PresetSubdivisionPermissionMap()
 		{
