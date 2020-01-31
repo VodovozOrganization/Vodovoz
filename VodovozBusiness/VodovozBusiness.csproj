@@ -805,6 +805,8 @@
     <Compile Include="HibernateMapping\Permissions\PresetUserPermissionMap.cs" />
     <Compile Include="Domain\Permissions\HierarchicalPresetPermissionBase.cs" />
     <Compile Include="HibernateMapping\Permissions\PresetPermissionBaseMap.cs" />
+    <Compile Include="EntityRepositories\Permissions\IPermissionRepository.cs" />
+    <Compile Include="EntityRepositories\Permissions\PermissionRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

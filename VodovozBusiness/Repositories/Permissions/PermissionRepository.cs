@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
-using QS.Permissions;
 using QS.Project.Domain;
-using QSSupportLib;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Parameters;
-using Vodovoz.PermissionExtensions;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz.Repositories.Permissions
 {
+	[Obsolete("Используйте одноимённый класс из Vodovoz.EntityRepositories.Permissions")]
 	public static class PermissionRepository
 	{
 		public static EntitySubdivisionOnlyPermission GetSubdivisionEntityPermission(IUnitOfWork uow, string entityName, int subdisionId)
@@ -128,17 +123,5 @@ namespace Vodovoz.Repositories.Permissions
 		}
 	}
 
-	public class SubdivisionPermissionNode : IPermissionNode
-	{
-		public TypeOfEntity TypeOfEntity { get; set; }
-		public EntitySubdivisionOnlyPermission EntitySubdivisionOnlyPermission { get; set; }
-		public IList<EntitySubdivisionPermissionExtended> EntityPermissionExtended { get; set; }
 
-		public EntityPermissionBase EntityPermission => EntitySubdivisionOnlyPermission;
-		IList<EntityPermissionExtendedBase> IPermissionNode.EntityPermissionExtended 
-		{ 
-			get => EntityPermissionExtended.OfType<EntityPermissionExtendedBase>().ToList();
-			set => EntityPermissionExtended = value.OfType<EntitySubdivisionPermissionExtended>().ToList();
-		}
-	}
 }
