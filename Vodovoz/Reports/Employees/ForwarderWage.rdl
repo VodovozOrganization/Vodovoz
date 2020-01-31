@@ -365,7 +365,7 @@
       </Textbox>
       <Table Name="Table2">
         <DataSetName>Advances</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Авансов нет</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -1142,13 +1142,16 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    route_lists.date AS date,
-    route_lists.id AS route_list_number,
-    SUM(bottles_movement_operations.returned) AS empty_bottles,
-    SUM(bottles_movement_operations.delivered) AS full_bottles,
-    SUM(route_list_addresses.forwarder_wage) AS wage,
+    route_lists.date 										AS date,
+    route_lists.id 											AS route_list_number,
+    SUM(bottles_movement_operations.returned)				AS empty_bottles,
+    SUM(bottles_movement_operations.delivered) 				AS full_bottles,
+    SUM(route_list_addresses.forwarder_wage)				AS wage,
     COUNT(IF(route_list_addresses.status = 'Overdue'
-	OR route_list_addresses.status = 'Canceled', NULL, route_list_addresses.id)) AS addresses_count
+			OR route_list_addresses.status = 'Canceled', 
+		NULL,
+		route_list_addresses.id)
+		) 													AS addresses_count
 FROM
     route_lists
         LEFT JOIN
@@ -1157,6 +1160,7 @@ FROM
     bottles_movement_operations ON bottles_movement_operations.order_id = route_list_addresses.order_id
 WHERE
     route_lists.forwarder_id = @forwarder_id
+    	AND route_list_addresses.status != 'Transfered'
         AND date &gt;= @start_date
         AND date &lt;= @end_date
         AND (route_lists.status = 'NotDelivered'
