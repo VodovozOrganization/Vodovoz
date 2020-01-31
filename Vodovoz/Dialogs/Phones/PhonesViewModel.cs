@@ -1,19 +1,19 @@
 ﻿using System;
-using QS.Contacts;
 using System.Collections.Generic;
-using QS.Services;
 using QS.ViewModels;
 using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Commands;
 using System.Linq;
-using QSContacts;
+using Vodovoz.Services;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Repositories.Contacts;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Dialogs.Phones
 {
 	public class PhonesViewModel : WidgetViewModelBase
 	{
-
 		#region Properties
 
 		public IList<PhoneType> PhoneTypes;
@@ -34,11 +34,14 @@ namespace Vodovoz.Dialogs.Phones
 			set => SetField(ref readOnly, value, () => ReadOnly);
 		}
 
-		public PhonesViewModel(IUnitOfWork uow)
+		public PhonesViewModel(IUnitOfWork uow, IContactsParameters contactsParameters)
 		{
-			PhoneTypes = PhoneTypeRepository.GetPhoneTypes(uow);
+			PhoneTypes = PhoneRepository.GetPhoneTypes(uow);
+			this.contactsParameters = contactsParameters;
 			CreateCommands();
 		}
+
+		IContactsParameters contactsParameters;
 
 		#endregion Prorerties
 
@@ -51,7 +54,7 @@ namespace Vodovoz.Dialogs.Phones
 		{
 			AddItemCommand = new DelegateCommand(
 				() => {
-					var phone = new Phone();
+					var phone = new Phone().Init(ContactParametersProvider.Instance);
 					if(PhonesList == null)
 						PhonesList = new GenericObservableList<Phone>();
 					PhonesList.Add(phone);
@@ -75,7 +78,7 @@ namespace Vodovoz.Dialogs.Phones
 		/// </summary>
 		public void RemoveEmpty()
 		{
-			PhonesList.Where(p => p.Number.Length < QSContactsMain.MinSavePhoneLength)
+			PhonesList.Where(p => p.DigitsNumber.Length < contactsParameters.MinSavePhoneLength)
 					.ToList().ForEach(p => PhonesList.Remove(p));
 		}
 

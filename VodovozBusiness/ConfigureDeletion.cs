@@ -2,7 +2,6 @@
 using QS.Banks;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
-using QS.Contacts;
 using QS.Deletion;
 using QS.HistoryLog.Domain;
 using QS.Project.Domain;
@@ -29,6 +28,7 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz
 {
@@ -40,7 +40,6 @@ namespace Vodovoz
 		{
 			logger.Info("Настройка параметров удаления...");
 
-			ConfigureDeletionContacts.ConfigureDeletion();
 			ConfigureDeletionBanks.ConfigureDeletion();
 
 			#region Goods
@@ -197,6 +196,58 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>()
 				.AddClearDependence<PaidRentEquipment>(x => x.PaidRentPackage);
+
+			#endregion
+
+			#region Contacts
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo {
+				ObjectClass = typeof(PhoneType),
+				SqlSelect = "SELECT id, name FROM @tablename ",
+				DisplayString = "Тип телефона {1}",
+				DeleteItems = new List<DeleteDependenceInfo> {
+					DeleteDependenceInfo.Create<Phone> (item => item.NumberType)
+				}
+			}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo {
+				ObjectClass = typeof(Phone),
+				SqlSelect = "SELECT id, number, additional FROM @tablename ",
+				DisplayString = "Телефон {1} доб. {2}"
+			}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo {
+				ObjectClass = typeof(EmailType),
+				SqlSelect = "SELECT id, name FROM @tablename ",
+				DisplayString = "Тип E-mail {1}",
+				DeleteItems = new List<DeleteDependenceInfo> {
+					DeleteDependenceInfo.Create<Email> (item => item.EmailType)
+				}
+			}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo {
+				ObjectClass = typeof(Email),
+				SqlSelect = "SELECT id, address FROM @tablename ",
+				DisplayString = "{1}"
+			}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo {
+				ObjectClass = typeof(Person),
+				SqlSelect = "SELECT id, surname, name FROM @tablename ",
+				DisplayString = "{1} {2}"
+			}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo {
+				ObjectClass = typeof(Post),
+				SqlSelect = "SELECT id, name FROM @tablename ",
+				DisplayString = "{1}"
+			}.FillFromMetaInfo()
+			);
 
 			#endregion
 

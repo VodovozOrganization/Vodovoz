@@ -1,0 +1,89 @@
+﻿using System;
+using System.Text.RegularExpressions;
+using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
+using Vodovoz.Services;
+using Vodovoz.Core.DataService;
+
+namespace Vodovoz.Domain.Contacts
+{
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "телефоны",
+		Nominative = "телефон")]
+	public class Phone : PropertyChangedBase, IDomainObject
+	{
+		#region Свойства
+
+		public virtual int Id { get; set; }
+
+		private string number;
+		public virtual string Number {
+			get => number;
+			set {
+				if(SetField(ref number, value, () => Number))
+					DigitsNumber = Regex.Replace(Number, "[^0-9]", "");
+			}
+		}
+
+		private string digitsNumber;
+		[Display(Name = "Только цифры")]
+		public virtual string DigitsNumber {
+			get => digitsNumber; 
+			protected set { SetField(ref digitsNumber, value, () => DigitsNumber); }
+		}
+
+		public virtual string Additional { get; set; }
+
+		private PhoneType numberType;
+		public virtual PhoneType NumberType {
+			get => numberType;
+			set { SetField(ref numberType, value, () => NumberType); }
+		}
+
+		private string name;
+		[Display(Name = "Имя")]
+		public virtual string Name {
+			get => name;
+			set { SetField(ref name, value, () => Name); }
+		}
+
+		#endregion
+
+		#region Рассчетные
+
+		public virtual string LongText {
+			get {
+				return NumberType?.Name
+					 + (String.IsNullOrWhiteSpace(Number) ? "" : " +7 " + Number)
+					 + (String.IsNullOrWhiteSpace(Additional) ? "" : " доп." + Additional)
+					 + (String.IsNullOrWhiteSpace(Name) ? "" : String.Format(" [{0}]", Name));
+			}
+		}
+
+		#endregion
+
+		/// <summary>
+		/// Обязательно вызвать <see cref="Init(IContactsParameters)"/> после вызова конструктора
+		/// </summary>
+		public Phone()
+		{
+		}
+
+		public virtual Phone Init(IContactsParameters contactsParameters)
+		{
+			if(String.IsNullOrWhiteSpace(contactsParameters.DefaultCityCode))
+				Number = String.Empty;
+			else
+				Number = String.Format("({0})", contactsParameters.DefaultCityCode);
+
+			Additional = String.Empty;
+
+			return this;
+		}
+
+		public override string ToString()
+		{
+			return "+7 " + Number;
+		}
+	}
+}

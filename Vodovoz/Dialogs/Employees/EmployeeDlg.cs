@@ -5,7 +5,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NLog;
 using QS.Banks.Domain;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.PresetPermissions;
 using QS.DomainModel.UoW;

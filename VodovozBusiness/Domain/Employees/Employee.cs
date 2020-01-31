@@ -19,7 +19,7 @@ using QS.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using System.Text.RegularExpressions;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Domain.Employees
 {

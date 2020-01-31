@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using NLog;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
-using QS.Contacts;
-using QSOrmProject;
 using QS.Validation.GtkUI;
 using Vodovoz.Domain.Client;
 

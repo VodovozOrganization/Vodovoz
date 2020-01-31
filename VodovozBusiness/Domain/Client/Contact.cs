@@ -5,7 +5,7 @@ using QS.DomainModel.Entity;
 using QSProjectsLib;
 using QS.DomainModel.UoW;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Domain.Client
 {

@@ -18,7 +18,6 @@ namespace Vodovoz.Core
 				Assembly.GetAssembly(typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				Assembly.GetAssembly(typeof(HibernateMapping.OrganizationMap)),
 				Assembly.GetAssembly(typeof(Bank)),
-				Assembly.GetAssembly(typeof(QS.Contacts.Phone)),
 				Assembly.GetAssembly(typeof(HistoryMain)),
 				Assembly.GetAssembly(typeof(MainWindow)),
 				Assembly.GetAssembly(typeof(VodovozViewModelAssemblyFinder))

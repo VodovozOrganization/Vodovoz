@@ -1363,6 +1363,12 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SetBillsReport.cs" />
     <Compile Include="ReportsParameters\Sales\SetBillsReport.cs" />
+    <Compile Include="Views\Contacts\EmailsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Contacts.EmailsView.cs" />
+    <Compile Include="Views\Contacts\PersonsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Contacts.PersonsView.cs" />
+    <Compile Include="Views\Contacts\PhonesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Contacts.PhonesView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1389,10 +1395,6 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QSAttachment\QSAttachment.csproj">
       <Project>{AED7339A-4A71-4063-9C67-0D54821230A3}</Project>
       <Name>QSAttachment</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\Modules\QSContacts\QSContacts.csproj">
-      <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
-      <Name>QSContacts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSSaaS\QSSaaS.csproj">
       <Project>{4B502FE5-D419-4B5C-9276-0A25EF2F508A}</Project>
@@ -1510,10 +1512,6 @@
       <Project>{F22749B2-E35B-455D-BD8D-081373B16FC7}</Project>
       <Name>QS.BusinessCommon</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj">
-      <Project>{B1DD034B-EC88-400C-9C6B-83CE68AB3541}</Project>
-      <Name>QS.Contacts</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\VodovozService\VodovozSmsInformerService\InstantSmsService\InstantSmsService.csproj">
       <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
       <Name>InstantSmsService</Name>
@@ -1616,6 +1614,7 @@
     <Folder Include="ViewModels\Orders\" />
     <Folder Include="ViewWidgets\PromoSetAction\" />
     <Folder Include="JournalSelector\" />
+    <Folder Include="Views\Contacts\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

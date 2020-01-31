@@ -7,7 +7,7 @@ using System.Text;
 using Gamma.Utilities;
 using NHibernate.Exceptions;
 using NHibernate.Util;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;

@@ -5,7 +5,7 @@ using Gtk;
 using NLog;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -91,7 +91,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		this.Title = MainSupport.GetTitle();
 		QSMain.MakeNewStatusTargetForNlog();
 		//Настраиваем модули
-		MainClass.SetupAppFromBase();
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
@@ -342,9 +341,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionCarsActivated(object sender, EventArgs e)
 	{
 		CarJournalFilterViewModel filter = new CarJournalFilterViewModel();
-		var counterpartyJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		var carJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 
-		tdiMain.AddTab(counterpartyJournal);
+		tdiMain.AddTab(carJournal);
 	}
 
 	protected void OnActionUnitsActivated(object sender, EventArgs e)

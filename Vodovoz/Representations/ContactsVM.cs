@@ -1,9 +1,8 @@
 ﻿using System;
 using Gamma.ColumnConfig;
 using NHibernate.Transform;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
-using QS.Contacts;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 

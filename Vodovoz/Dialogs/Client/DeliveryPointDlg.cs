@@ -29,6 +29,9 @@ using Vodovoz.ViewModel;
 using QS.Tdi;
 using QSOsm.Loaders;
 using QSOsm;
+using Vodovoz.Services;
+using Vodovoz.Core.DataService;
+using Vodovoz.Parameters;
 
 namespace Vodovoz
 {
@@ -101,7 +104,7 @@ namespace Vodovoz
 			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
 			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
 
-			phonesview1.ViewModel = new PhonesViewModel(UoW);
+			phonesview1.ViewModel = new PhonesViewModel(UoW, ContactParametersProvider.Instance);
 			phonesview1.ViewModel.PhonesList = Entity.ObservablePhones;
 
 			ShowResidue();
