@@ -24,6 +24,10 @@ namespace Vodovoz.EntityRepositories.Permissions
 		IList<EntitySubdivisionForUserPermission> GetAllSubdivisionForUserEntityPermissions(IUnitOfWork uow, int userId);
 
 		bool HasAccessToClosingRoutelist(ISubdivisionService subdivisionService, IEmployeeRepository employeeRepository);
+
+		HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, Domain.Employees.User user, string permission);
+
+		HierarchicalPresetSubdivisionPermission GetPresetSubdivisionPermission(IUnitOfWork uow, Subdivision subdivision, string permission);
 	}
 
 	public class SubdivisionPermissionNode : IPermissionNode

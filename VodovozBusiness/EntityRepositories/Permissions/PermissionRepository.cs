@@ -82,7 +82,7 @@ namespace Vodovoz.EntityRepositories.Permissions
 			EntitySubdivisionOnlyPermission entitySubdivisionPermissionAlias = null;
 			Subdivision subdivisionAlias = null;
 			TypeOfEntity typeOfEntityAlias = null;
-			return uow.Session.QueryOver<EntitySubdivisionOnlyPermission>(() => entitySubdivisionPermissionAlias)
+			return uow.Session.QueryOver(() => entitySubdivisionPermissionAlias)
 				.Left.JoinAlias(() => entitySubdivisionPermissionAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => entitySubdivisionPermissionAlias.TypeOfEntity, () => typeOfEntityAlias)
 				.Where(() => subdivisionAlias.Id == subdisionId)
@@ -114,6 +114,20 @@ namespace Vodovoz.EntityRepositories.Permissions
 				}
 				return userSubdivision.Id != restrictSubdivision;
 			}
+		}
+
+		public HierarchicalPresetSubdivisionPermission GetPresetSubdivisionPermission(IUnitOfWork uow, Subdivision subdivision, string permission)
+		{
+			return uow.Session.QueryOver<HierarchicalPresetSubdivisionPermission>()
+					.Where(x => x.Subdivision.Id == subdivision.Id && x.PermissionName == permission)
+					.SingleOrDefault();
+		}
+
+		public HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, Domain.Employees.User user, string permission)
+		{
+			return uow.Session.QueryOver<HierarchicalPresetUserPermission>()
+					.Where(x => x.User.Id == user.Id && x.PermissionName == permission)
+					.SingleOrDefault();
 		}
 	}
 }
