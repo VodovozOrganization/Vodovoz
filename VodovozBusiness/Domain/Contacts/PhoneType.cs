@@ -18,11 +18,11 @@ namespace Vodovoz.Domain.Contacts
 			set => SetField(ref name, value, () => Name); 
 		}
 
-		private PhoneEnumType phoneEnumType;
+		private PhoneAdditionalType phoneAdditionalType;
 		[Display(Name = "Дополнительный тип")]
-		public virtual PhoneEnumType PhoneEnumType {
-			get => phoneEnumType;
-			set => SetField(ref phoneEnumType, value, () => PhoneEnumType);
+		public virtual PhoneAdditionalType PhoneAdditionalType {
+			get => phoneAdditionalType;
+			set => SetField(ref phoneAdditionalType, value, () => PhoneAdditionalType);
 		}
 
 		public PhoneType()
@@ -31,7 +31,7 @@ namespace Vodovoz.Domain.Contacts
 		}
 	}
 
-	public enum PhoneEnumType
+	public enum PhoneAdditionalType
 	{
 		[Display(Name = "Стандартный")]
 		Default,
@@ -39,9 +39,9 @@ namespace Vodovoz.Domain.Contacts
 		ForReceipts
 	}
 
-	public class PhoneEnumTypeStringType : NHibernate.Type.EnumStringType
+	public class PhoneAdditionalTypeStringType : NHibernate.Type.EnumStringType
 	{
-		public PhoneEnumTypeStringType() : base(typeof(PhoneEnumType))
+		public PhoneAdditionalTypeStringType() : base(typeof(PhoneAdditionalType))
 		{
 		}
 	}

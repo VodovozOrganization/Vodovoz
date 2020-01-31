@@ -78,6 +78,7 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewWidgets.PromoSetAction;
+using Vodovoz.Views.Contacts;
 
 namespace Vodovoz
 {
@@ -193,6 +194,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
 				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
+				.RegisterWidgetForTabViewModel<PhoneTypeViewModel, PhoneTypeView>()
+				.RegisterWidgetForTabViewModel<EmailTypeViewModel, EmailTypeView>()
 				;
 
 			//Регистрация виджетов

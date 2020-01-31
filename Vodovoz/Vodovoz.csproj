@@ -1369,6 +1369,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Contacts.PersonsView.cs" />
     <Compile Include="Views\Contacts\PhonesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Contacts.PhonesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Contacts.EmailTypeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Contacts.PhoneTypeView.cs" />
+    <Compile Include="Views\Contacts\EmailTypeView.cs" />
+    <Compile Include="Views\Contacts\PhoneTypeView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

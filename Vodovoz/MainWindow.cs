@@ -391,8 +391,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionPhoneTypesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(PhoneType));
-		tdiMain.AddTab(refWin);
+		tdiMain.AddTab(
+			new PhoneTypeJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
 	}
 
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
@@ -405,8 +409,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionEMailTypesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(EmailType));
-		tdiMain.AddTab(refWin);
+		tdiMain.AddTab(
+			new EmailTypeJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
 	}
 
 	protected void OnActionCounterpartyPostActivated(object sender, EventArgs e)
