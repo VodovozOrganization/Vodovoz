@@ -1513,4 +1513,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		complaintKindsViewModel.SetActionsVisible(deleteActionEnabled: false);
 		tdiMain.AddTab(complaintKindsViewModel);
 	}
+
+	protected void OnActionSetBillsReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<SetBillsReport>(),
+			() => new QSReport.ReportViewDlg(new SetBillsReport())
+		);
+	}
 }
