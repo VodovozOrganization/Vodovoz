@@ -69,6 +69,7 @@ using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using QS.Tdi;
 using Vodovoz.Infrastructure;
+using Vodovoz.EntityRepositories;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -391,8 +392,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionPhoneTypesActivated(object sender, EventArgs e)
 	{
+		IPhoneRepository phoneRepository = new PhoneRepository();
+
 		tdiMain.AddTab(
 			new PhoneTypeJournalViewModel(
+				phoneRepository,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			)
@@ -409,8 +413,11 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionEMailTypesActivated(object sender, EventArgs e)
 	{
+		IEmailRepository emailRepository = new EmailRepository();
+
 		tdiMain.AddTab(
 			new EmailTypeJournalViewModel(
+				emailRepository,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			)

@@ -18,9 +18,9 @@ namespace Vodovoz.Views.Contacts
 
 		private global::Gamma.GtkWidgets.yEntry yentryName;
 
-		private global::Gamma.Widgets.yEnumComboBox yenumcomboAdditionalType;
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboPurpose;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelAdditionalType;
+		private global::Gamma.GtkWidgets.yLabel ylabelPurpose;
 
 		protected virtual void Build()
 		{
@@ -96,14 +96,14 @@ namespace Vodovoz.Views.Contacts
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yenumcomboAdditionalType = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumcomboAdditionalType.Name = "yenumcomboAdditionalType";
-			this.yenumcomboAdditionalType.ShowSpecialStateAll = false;
-			this.yenumcomboAdditionalType.ShowSpecialStateNot = false;
-			this.yenumcomboAdditionalType.UseShortTitle = false;
-			this.yenumcomboAdditionalType.DefaultFirst = false;
-			this.table1.Add(this.yenumcomboAdditionalType);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcomboAdditionalType]));
+			this.yenumcomboPurpose = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboPurpose.Name = "yenumcomboPurpose";
+			this.yenumcomboPurpose.ShowSpecialStateAll = false;
+			this.yenumcomboPurpose.ShowSpecialStateNot = false;
+			this.yenumcomboPurpose.UseShortTitle = false;
+			this.yenumcomboPurpose.DefaultFirst = false;
+			this.table1.Add(this.yenumcomboPurpose);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcomboPurpose]));
 			w8.TopAttach = ((uint)(1));
 			w8.BottomAttach = ((uint)(2));
 			w8.LeftAttach = ((uint)(1));
@@ -111,11 +111,11 @@ namespace Vodovoz.Views.Contacts
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ylabelAdditionalType = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelAdditionalType.Name = "ylabelAdditionalType";
-			this.ylabelAdditionalType.LabelProp = global::Mono.Unix.Catalog.GetString("Дополнительный тип");
-			this.table1.Add(this.ylabelAdditionalType);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelAdditionalType]));
+			this.ylabelPurpose = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelPurpose.Name = "ylabelPurpose";
+			this.ylabelPurpose.LabelProp = global::Mono.Unix.Catalog.GetString("Назначение:");
+			this.table1.Add(this.ylabelPurpose);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelPurpose]));
 			w9.TopAttach = ((uint)(1));
 			w9.BottomAttach = ((uint)(2));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));

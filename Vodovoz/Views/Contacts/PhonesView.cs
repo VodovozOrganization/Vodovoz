@@ -9,8 +9,8 @@ using NLog;
 using QS.DomainModel.UoW;
 using QSWidgetLib;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Parameters;
-using Vodovoz.Repositories.Contacts;
 
 namespace Vodovoz.Views.Contacts
 {
@@ -21,6 +21,7 @@ namespace Vodovoz.Views.Contacts
 		private GenericObservableList<Phone> phonesList;
 		private IList<PhoneType> phoneTypes;
 		private IUnitOfWork uow;
+		private IPhoneRepository phoneRepository;
 
 		private bool isReadOnly;
 		public bool IsReadOnly {
@@ -37,7 +38,7 @@ namespace Vodovoz.Views.Contacts
 			get { return uow; }
 			set {
 				uow = value;
-				phoneTypes = PhoneRepository.GetPhoneTypes(uow);
+				phoneTypes = phoneRepository.GetPhoneTypes(uow);
 			}
 		}
 
@@ -112,6 +113,7 @@ namespace Vodovoz.Views.Contacts
 		public PhonesView()
 		{
 			this.Build();
+			phoneRepository = new PhoneRepository();
 			datatablePhones.NRows = RowNum = 0;
 		}
 
@@ -128,7 +130,7 @@ namespace Vodovoz.Views.Contacts
 			phoneDataCombo.WidthRequest = 100;
 			phoneDataCombo.SetRenderTextFunc((PhoneType x) => x.Name);
 			phoneDataCombo.ItemsList = phoneTypes;
-			phoneDataCombo.Binding.AddBinding(newPhone, e => e.NumberType, w => w.SelectedItem).InitializeFromSource();
+			phoneDataCombo.Binding.AddBinding(newPhone, e => e.PhoneType, w => w.SelectedItem).InitializeFromSource();
 			datatablePhones.Attach(phoneDataCombo, (uint)0, (uint)1, RowNum, RowNum + 1, AttachOptions.Fill | AttachOptions.Expand, (AttachOptions)0, (uint)0, (uint)0);
 
 			Gtk.Label textPhoneLabel = new Gtk.Label("+7");

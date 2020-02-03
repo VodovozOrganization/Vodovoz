@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => deliveryPointAlias.CompiledAddress).WithAlias (() => resultAlias.DeliveryPoint)
 					.SelectCount (() => deliveryPointAlias.Id).WithAlias (() => resultAlias.DeliveryPointsCount)
 					.Select (() => phoneAlias.Number).WithAlias (() => resultAlias.Number)
-					.Select (() => phoneAlias.NumberType).WithAlias (() => resultAlias.NumberType)
+					.Select (() => phoneAlias.PhoneType).WithAlias (() => resultAlias.NumberType)
 			                   )
 				.TransformUsing (Transformers.AliasToBean<ContactsVMNode> ())
 				.List<ContactsVMNode> ();

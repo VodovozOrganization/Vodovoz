@@ -54,7 +54,7 @@ namespace Vodovoz.Dialogs.Phones
 			phoneDataCombo.WidthRequest = 100;
 			phoneDataCombo.SetRenderTextFunc((PhoneType x) => x.Name);
 			phoneDataCombo.ItemsList = viewModel.PhoneTypes;
-			phoneDataCombo.Binding.AddBinding(newPhone, e => e.NumberType, w => w.SelectedItem).InitializeFromSource();
+			phoneDataCombo.Binding.AddBinding(newPhone, e => e.PhoneType, w => w.SelectedItem).InitializeFromSource();
 			phoneDataCombo.Binding.AddFuncBinding(viewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
 			hBox.Add(phoneDataCombo);
 			hBox.SetChildPacking(phoneDataCombo, true, true, 0, PackType.Start);

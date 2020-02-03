@@ -34,10 +34,10 @@ namespace Vodovoz.Domain.Contacts
 
 		public virtual string Additional { get; set; }
 
-		private PhoneType numberType;
-		public virtual PhoneType NumberType {
-			get => numberType;
-			set { SetField(ref numberType, value, () => NumberType); }
+		private PhoneType phoneType;
+		public virtual PhoneType PhoneType {
+			get => phoneType;
+			set { SetField(ref phoneType, value, () => PhoneType); }
 		}
 
 		private string name;
@@ -53,7 +53,7 @@ namespace Vodovoz.Domain.Contacts
 
 		public virtual string LongText {
 			get {
-				return NumberType?.Name
+				return PhoneType?.Name
 					 + (String.IsNullOrWhiteSpace(Number) ? "" : " +7 " + Number)
 					 + (String.IsNullOrWhiteSpace(Additional) ? "" : " доп." + Additional)
 					 + (String.IsNullOrWhiteSpace(Name) ? "" : String.Format(" [{0}]", Name));

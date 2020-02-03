@@ -16,12 +16,15 @@ namespace Vodovoz.Views.Contacts
 		private void ConfigureDlg()
 		{
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			yentryName.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
+			buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive);
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
 
-			yenumcomboAdditionalType.ItemsEnum = typeof(EmailAdditionalType);
-			yenumcomboAdditionalType.Binding.AddBinding(ViewModel, e => e.EmailAdditionalType, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboPurpose.ItemsEnum = typeof(EmailPurpose);
+			yenumcomboPurpose.Binding.AddBinding(ViewModel, e => e.EmailPurpose, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboPurpose.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 		}
 	}
 }

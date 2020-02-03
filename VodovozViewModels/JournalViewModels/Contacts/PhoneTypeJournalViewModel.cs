@@ -6,16 +6,21 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class PhoneTypeJournalViewModel : SingleEntityJournalViewModelBase<PhoneType, PhoneTypeViewModel, PhoneTypeJournalNode>
 	{
-		public PhoneTypeJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+		public PhoneTypeJournalViewModel(
+			IPhoneRepository phoneRepository,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices)
 			: base(unitOfWorkFactory, commonServices)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 
 			TabName = "Типы телефонов";
 
@@ -23,6 +28,7 @@ namespace Vodovoz.JournalViewModels
 		}
 
 		IUnitOfWorkFactory unitOfWorkFactory;
+		IPhoneRepository phoneRepository;
 
 		protected override Func<IUnitOfWork, IQueryOver<PhoneType>> ItemsSourceQueryFunction => (uow) => {
 
@@ -32,13 +38,13 @@ namespace Vodovoz.JournalViewModels
 				.SelectList(list => list
 				.Select(x => x.Id).WithAlias(() => resultAlias.Id)
 				.Select(x => x.Name).WithAlias(() => resultAlias.Name)
-				.Select(x => x.PhoneAdditionalType).WithAlias(() => resultAlias.PhoneAdditionalType))
+				.Select(x => x.PhonePurpose).WithAlias(() => resultAlias.PhonePurpose))
 				.TransformUsing(Transformers.AliasToBean<PhoneTypeJournalNode>()).OrderBy(x => x.Id).Desc;
 
 			query.Where(
 			GetSearchCriterion<PhoneType>(
 				x => x.Id,
-				x => x.PhoneAdditionalType,
+				x => x.PhonePurpose,
 				x => x.Name
 				)
 			);
@@ -47,12 +53,14 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<PhoneTypeViewModel> CreateDialogFunction => () => new PhoneTypeViewModel(
+			phoneRepository,
 			EntityUoWBuilder.ForCreate(),
 			unitOfWorkFactory,
 			commonServices
 		);
 
 		protected override Func<PhoneTypeJournalNode, PhoneTypeViewModel> OpenDialogFunction => node => new PhoneTypeViewModel(
+			phoneRepository,
 			EntityUoWBuilder.ForOpen(node.Id),
 			unitOfWorkFactory,
 			commonServices
@@ -65,11 +73,12 @@ namespace Vodovoz.JournalViewModels
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
 		}
+
 	}
 
 	public class PhoneTypeJournalNode : JournalEntityNodeBase<PhoneType>
 	{
 		public string Name { get; set; }
-		public PhoneAdditionalType PhoneAdditionalType { get; set; }
+		public PhonePurpose PhonePurpose { get; set; }
 	}
 }

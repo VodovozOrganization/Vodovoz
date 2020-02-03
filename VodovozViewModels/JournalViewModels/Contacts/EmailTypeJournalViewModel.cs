@@ -6,22 +6,27 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels;
 
 namespace Vodovoz.JournalViewModels
 {
 	public class EmailTypeJournalViewModel : SingleEntityJournalViewModelBase<EmailType, EmailTypeViewModel, EmailTypeJournalNode>
 	{
-		public EmailTypeJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+		public EmailTypeJournalViewModel
+		(
+			IEmailRepository emailRepository,
+			IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
 			: base(unitOfWorkFactory, commonServices)
 		{
+			this.emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
 			TabName = "Типы e-mail адресов";
-
 			UpdateOnChanges(typeof(EmailType));
 		}
 
+		IEmailRepository emailRepository;
 		IUnitOfWorkFactory unitOfWorkFactory;
 
 		protected override Func<IUnitOfWork, IQueryOver<EmailType>> ItemsSourceQueryFunction => (uow) => {
@@ -32,13 +37,13 @@ namespace Vodovoz.JournalViewModels
 				.SelectList(list => list
 				.Select(x => x.Id).WithAlias(() => resultAlias.Id)
 				.Select(x => x.Name).WithAlias(() => resultAlias.Name)
-				.Select(x => x.EmailAdditionalType).WithAlias(() => resultAlias.EmailAdditionalType))
+				.Select(x => x.EmailPurpose).WithAlias(() => resultAlias.EmailPurpose))
 				.TransformUsing(Transformers.AliasToBean<EmailTypeJournalNode>()).OrderBy(x => x.Id).Desc;
 
 			query.Where(
 			GetSearchCriterion<EmailType>(
 				x => x.Id,
-				x => x.EmailAdditionalType,
+				x => x.EmailPurpose,
 				x => x.Name
 				)
 			);
@@ -47,12 +52,14 @@ namespace Vodovoz.JournalViewModels
 		};
 
 		protected override Func<EmailTypeViewModel> CreateDialogFunction => () => new EmailTypeViewModel(
+			emailRepository,
 			EntityUoWBuilder.ForCreate(),
 			unitOfWorkFactory,
 			commonServices
 		);
 
 		protected override Func<EmailTypeJournalNode, EmailTypeViewModel> OpenDialogFunction => node => new EmailTypeViewModel(
+			emailRepository,
 			EntityUoWBuilder.ForOpen(node.Id),
 			unitOfWorkFactory,
 			commonServices
@@ -70,6 +77,6 @@ namespace Vodovoz.JournalViewModels
 	public class EmailTypeJournalNode : JournalEntityNodeBase<EmailType>
 	{
 		public string Name { get; set; }
-		public EmailAdditionalType EmailAdditionalType { get; set; }
+		public EmailPurpose EmailPurpose { get; set; }
 	}
 }

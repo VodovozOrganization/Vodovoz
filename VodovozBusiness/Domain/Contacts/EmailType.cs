@@ -1,13 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Domain.Contacts
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "типы e-mail",
 		Nominative = "тип e-mail")]
-	public class EmailType : PropertyChangedBase, IDomainObject
+	[EntityPermission]
+	public class EmailType : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
@@ -19,11 +25,11 @@ namespace Vodovoz.Domain.Contacts
 			set { SetField(ref name, value, () => Name); }
 		}
 
-		private EmailAdditionalType emailAdditionalType;
+		private EmailPurpose emailPurpose;
 		[Display(Name = "Дополнительный тип")]
-		public virtual EmailAdditionalType EmailAdditionalType {
-			get => emailAdditionalType;
-			set => SetField(ref emailAdditionalType, value, () => EmailAdditionalType);
+		public virtual EmailPurpose EmailPurpose {
+			get => emailPurpose;
+			set => SetField(ref emailPurpose, value, () => EmailPurpose);
 		}
 		#endregion
 
@@ -31,9 +37,64 @@ namespace Vodovoz.Domain.Contacts
 		{
 			Name = String.Empty;
 		}
+
+		public virtual ValidationContext ConfigureValidationContext(IUnitOfWork uow, IEmailRepository emailRepository)
+		{
+			if(uow == null) {
+				throw new ArgumentNullException(nameof(uow));
+			}
+			if(emailRepository == null) {
+				throw new ArgumentNullException(nameof(emailRepository));
+			}
+
+			ValidationContext context = new ValidationContext(this, new Dictionary<object, object> {
+				{"Reason", nameof(ConfigureValidationContext)}
+			});
+			context.ServiceContainer.AddService(typeof(IUnitOfWork), uow);
+			context.ServiceContainer.AddService(typeof(IEmailRepository), emailRepository);
+			return context;
+		}
+
+		#region IValidatableObject
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(String.IsNullOrEmpty(Name))
+				yield return new ValidationResult($"Укажите название типа e-mail");
+
+			if(validationContext.Items.ContainsKey("Reason") && (validationContext.Items["Reason"] as string) == nameof(ConfigureValidationContext)) {
+				if(!(validationContext.GetService(typeof(IUnitOfWork)) is IUnitOfWork uow)) {
+					throw new ArgumentException($"Для валидации отправки должен быть доступен UnitOfWork");
+				}
+				if(!(validationContext.GetService(typeof(IEmailRepository)) is IEmailRepository emailRepository)) {
+					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IEmailRepository)}");
+				}
+
+				EmailType emailType = this;
+				if(Id != 0)
+					emailType = uow.GetById<EmailType>(this.Id);
+
+				var existsForReceipts = emailRepository.EmailTypeWithPurposeExists(uow, EmailPurpose.ForReceipts);
+				if(existsForReceipts != null && EmailPurpose == EmailPurpose.ForReceipts && emailType.Id != existsForReceipts.Id) {
+					yield return new ValidationResult($"В базе уже создан тип e-mail адреса с назначением " +
+						$"'{EmailPurpose.ForReceipts.GetEnumTitle()}'. " +
+						$"Не может быть создано более 1 типа e-mail адреса с назначением '{EmailPurpose.ForReceipts.GetEnumTitle()}'");
+				}
+
+				var existsForBills = emailRepository.EmailTypeWithPurposeExists(uow, EmailPurpose.ForBills);
+				if(existsForBills != null && EmailPurpose == EmailPurpose.ForBills && emailType.Id != existsForBills.Id) {
+					yield return new ValidationResult($"В базе уже создан тип e-mail адреса с назначением " +
+						$"'{EmailPurpose.ForBills.GetEnumTitle()}'. " +
+						$"Не может быть создано более 1 типа e-mail адреса с назначением '{EmailPurpose.ForBills.GetEnumTitle()}'");
+				}
+			}
+		}
+
+		#endregion
+
 	}
 
-	public enum EmailAdditionalType
+	public enum EmailPurpose
 	{
 		[Display(Name = "Стандартный")]
 		Default,
@@ -43,9 +104,9 @@ namespace Vodovoz.Domain.Contacts
 		ForBills
 	}
 
-	public class EmailAdditionalTypeStringType : NHibernate.Type.EnumStringType
+	public class EmailPurposeStringType : NHibernate.Type.EnumStringType
 	{
-		public EmailAdditionalTypeStringType() : base(typeof(EmailAdditionalType))
+		public EmailPurposeStringType() : base(typeof(EmailPurpose))
 		{
 		}
 	}

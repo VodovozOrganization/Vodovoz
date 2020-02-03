@@ -411,9 +411,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Название")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Name)
-					.AddColumn("Доп. тип")
+					.AddColumn("Назначение")
 						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.PhoneAdditionalType.GetEnumTitle())
+						.AddTextRenderer(n => n.PhonePurpose.GetEnumTitle())
 					.AddColumn("")
 					.Finish()
 			);
@@ -427,9 +427,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Название")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Name)
-					.AddColumn("Доп. тип")
+					.AddColumn("Назначение")
 						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.EmailAdditionalType.GetEnumTitle())
+						.AddTextRenderer(n => n.EmailPurpose.GetEnumTitle())
 					.AddColumn("")
 					.Finish()
 			);

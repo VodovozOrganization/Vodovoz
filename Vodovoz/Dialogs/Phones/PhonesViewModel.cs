@@ -7,8 +7,9 @@ using QS.Commands;
 using System.Linq;
 using Vodovoz.Services;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Repositories.Contacts;
 using Vodovoz.Parameters;
+using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Dialogs.Phones
 {
@@ -34,14 +35,16 @@ namespace Vodovoz.Dialogs.Phones
 			set => SetField(ref readOnly, value, () => ReadOnly);
 		}
 
-		public PhonesViewModel(IUnitOfWork uow, IContactsParameters contactsParameters)
+		public PhonesViewModel(IPhoneRepository phoneRepository, IUnitOfWork uow, IContactsParameters contactsParameters)
 		{
-			PhoneTypes = PhoneRepository.GetPhoneTypes(uow);
-			this.contactsParameters = contactsParameters;
+			this.phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
+			this.contactsParameters = contactsParameters ?? throw new ArgumentNullException(nameof(contactsParameters));
+			PhoneTypes = phoneRepository.GetPhoneTypes(uow);
 			CreateCommands();
 		}
 
 		IContactsParameters contactsParameters;
+		IPhoneRepository phoneRepository;
 
 		#endregion Prorerties
 

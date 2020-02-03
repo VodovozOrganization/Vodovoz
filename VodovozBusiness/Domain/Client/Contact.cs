@@ -121,7 +121,7 @@ namespace Vodovoz.Domain.Client
 			get { 
 				if (Phones.Count > 0 && Phones [0].Number != String.Empty)
 					return String.Format ("{0}{1}", 
-						Phones [0].NumberType != null ? Phones [0].NumberType.Name + " " : String.Empty, 
+						Phones [0].PhoneType != null ? Phones [0].PhoneType.Name + " " : String.Empty, 
 						Phones [0].Number);
 				else
 					return String.Empty; 

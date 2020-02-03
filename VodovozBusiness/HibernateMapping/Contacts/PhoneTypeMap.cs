@@ -11,7 +11,7 @@ namespace Vodovoz.HibernateMapping.Contacts
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.Name).Column("name");
-			Map(x => x.PhoneAdditionalType).Column("additional_type").CustomType<PhoneAdditionalTypeStringType>();
+			Map(x => x.PhonePurpose).Column("purpose").CustomType<PhonePurposeStringType>();
 		}
 	}
 }

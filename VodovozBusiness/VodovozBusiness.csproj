@@ -489,7 +489,6 @@
     <Compile Include="Tools\CommerceML\Nodes\OffersPackage.cs" />
     <Compile Include="Domain\StoredEmails\StoredEmail.cs" />
     <Compile Include="HibernateMapping\StoredEmails\StoredEmailMap.cs" />
-    <Compile Include="Repositories\EmailRepository.cs" />
     <Compile Include="Domain\Goods\NomenclatureImage.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureImageMap.cs" />
     <Compile Include="Tools\CommerceML\Nodes\PropertyOfGoods.cs" />
@@ -793,9 +792,12 @@
     <Compile Include="HibernateMapping\Contacts\PhoneMap.cs" />
     <Compile Include="HibernateMapping\Contacts\PhoneTypeMap.cs" />
     <Compile Include="HibernateMapping\Contacts\PostMap.cs" />
-    <Compile Include="Repositories\Contacts\PhoneRepository.cs" />
     <Compile Include="Services\IContactsParameters.cs" />
     <Compile Include="Parameters\ContactParametersProvider.cs" />
+    <Compile Include="EntityRepositories\Contacts\EmailRepository.cs" />
+    <Compile Include="EntityRepositories\Contacts\IEmailRepository.cs" />
+    <Compile Include="EntityRepositories\Contacts\PhoneRepository.cs" />
+    <Compile Include="EntityRepositories\Contacts\IPhoneRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -872,7 +874,7 @@
     <Folder Include="Domain\Service\BaseParametersServices\" />
     <Folder Include="Domain\Contacts\" />
     <Folder Include="HibernateMapping\Contacts\" />
-    <Folder Include="Repositories\Contacts\" />
+    <Folder Include="EntityRepositories\Contacts\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

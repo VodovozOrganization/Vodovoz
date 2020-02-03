@@ -206,7 +206,7 @@ namespace Vodovoz
 				SqlSelect = "SELECT id, name FROM @tablename ",
 				DisplayString = "Тип телефона {1}",
 				DeleteItems = new List<DeleteDependenceInfo> {
-					DeleteDependenceInfo.Create<Phone> (item => item.NumberType)
+					DeleteDependenceInfo.Create<Phone> (item => item.PhoneType)
 				}
 			}.FillFromMetaInfo()
 			);
