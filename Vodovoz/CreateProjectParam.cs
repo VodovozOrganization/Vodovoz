@@ -17,7 +17,6 @@ using QS.Project.Domain;
 using QS.Project.Repositories;
 using QS.Widgets.GtkUI;
 using QSBusinessCommon;
-using QSContacts;
 using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
@@ -57,7 +56,6 @@ using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.JournalColumnsConfigs;
-using Vodovoz.Parameters;
 using Vodovoz.Services.Permissions;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Complaints;
@@ -80,6 +78,7 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewWidgets.PromoSetAction;
+using Vodovoz.Views.Contacts;
 
 namespace Vodovoz
 {
@@ -195,6 +194,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
 				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
+				.RegisterWidgetForTabViewModel<PhoneTypeViewModel, PhoneTypeView>()
+				.RegisterWidgetForTabViewModel<EmailTypeViewModel, EmailTypeView>()
 				;
 
 			//Регистрация виджетов
@@ -244,7 +245,6 @@ namespace Vodovoz
 				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(Bank)),
-				System.Reflection.Assembly.GetAssembly (typeof(QS.Contacts.Phone)),
 				System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
 			},
 								  (cnf) => cnf.DataBaseIntegration(
@@ -443,7 +443,6 @@ namespace Vodovoz
 			#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
-			OrmMain.ClassMappingList.AddRange(QSContactsMain.GetModuleMaping());
 
 			#endregion
 
@@ -501,13 +500,6 @@ namespace Vodovoz
 
 				dirInfo.Delete();
 			}
-		}
-
-		public static void SetupAppFromBase()
-		{
-			//Устанавливаем код города по умолчанию.
-			if(ParametersProvider.Instance.ContainsParameter("default_city_code"))
-				QSContactsMain.DefaultCityCode = ParametersProvider.Instance.GetParameterValue("default_city_code");
 		}
 	}
 }

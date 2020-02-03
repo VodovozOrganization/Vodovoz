@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using NLog;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
-using QS.Contacts;
-using QSOrmProject;
 using QS.Validation.GtkUI;
 using Vodovoz.Domain.Client;
 

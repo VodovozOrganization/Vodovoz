@@ -9,14 +9,13 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSBanks;
 using QSBanks.Repositories;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.LoadFrom1c;
 using QS.Project.Repositories;
 using QS.Banks.Domain;
-using QS.Contacts;
 
 namespace Vodovoz.ServiceDialogs
 {

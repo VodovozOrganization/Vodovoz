@@ -39,9 +39,9 @@ namespace VodovozBusinessTests.Employees
 			traineeMock.AddressCurrent.Returns("TestPassportSeria");
 			traineeMock.INN.Returns("TestPassportSeria");
 
-			var phones = new List<QS.Contacts.Phone>();
+			var phones = new List<Vodovoz.Domain.Contacts.Phone>();
 			//TODO возможно здесь нужно сделать мок для Phone
-			phones.Add(new QS.Contacts.Phone { Name = "TestPhoneName" });
+			phones.Add(new Vodovoz.Domain.Contacts.Phone { Name = "TestPhoneName" });
 			traineeMock.Phones.Returns(phones);
 
 			var documents = new List<EmployeeDocument>();
@@ -60,7 +60,7 @@ namespace VodovozBusinessTests.Employees
 				new[] { typeof(IEmployee), typeof(Employee) },
 				new object[0]
 			) as Employee;
-			employeeMock.Phones.Returns(new List<QS.Contacts.Phone>());
+			employeeMock.Phones.Returns(new List<Vodovoz.Domain.Contacts.Phone>());
 			employeeMock.Documents.Returns(new List<EmployeeDocument>());
 		}
 

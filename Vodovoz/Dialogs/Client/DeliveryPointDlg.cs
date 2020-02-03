@@ -13,7 +13,6 @@ using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
-using QS.Tdi.Gtk;
 using QSOsm.DTO;
 using QSProjectsLib;
 using QS.Validation.GtkUI;
@@ -21,7 +20,6 @@ using Vodovoz.Dialogs.Phones;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -29,6 +27,10 @@ using Vodovoz.ViewModel;
 using QS.Tdi;
 using QSOsm.Loaders;
 using QSOsm;
+using Vodovoz.Services;
+using Vodovoz.Core.DataService;
+using Vodovoz.Parameters;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz
 {
@@ -36,6 +38,8 @@ namespace Vodovoz
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
+
+		IPhoneRepository phoneRepository = new PhoneRepository();
 
 		GMapControl MapWidget;
 		readonly GMapOverlay addressOverlay = new GMapOverlay();
@@ -101,7 +105,7 @@ namespace Vodovoz
 			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
 			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
 
-			phonesview1.ViewModel = new PhonesViewModel(UoW);
+			phonesview1.ViewModel = new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance);
 			phonesview1.ViewModel.PhonesList = Entity.ObservablePhones;
 
 			ShowResidue();

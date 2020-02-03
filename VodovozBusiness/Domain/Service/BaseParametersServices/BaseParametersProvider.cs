@@ -1,24 +1,22 @@
 ﻿using System;
-using QSSupportLib;
 using Vodovoz.Services;
 using System.Globalization;
 using Vodovoz.Parameters;
-using QS.DomainModel.UoW;
-using Vodovoz.Domain;
 
 namespace Vodovoz.Core.DataService
 {
 	public class BaseParametersProvider : 
-		IStandartNomenclatures , 
+		IStandartNomenclatures, 
 		IImageProvider, 
-		IStandartDiscountsService , 
+		IStandartDiscountsService, 
 		IPersonProvider ,
 		ICommonParametersProvider, 
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
-		IEmailServiceSettings
+		IEmailServiceSettings,
+		IContactsParameters
 	{
 		public int GetForfeitId()
 		{
@@ -209,5 +207,38 @@ namespace Vodovoz.Core.DataService
 
 		#endregion IEmailServiceSettings implementation
 
+		#region IContactsParameters
+
+		public int MinSavePhoneLength {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("MinSavePhoneLength")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено значение минимальной длины телефонного номера (MinSavePhoneLength)");
+				}
+				string value = ParametersProvider.Instance.GetParameterValue("MinSavePhoneLength");
+
+				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено значение минимальной длины телефонного номера (MinSavePhoneLength)");
+				}
+
+				return result;
+			}
+	 	}
+		public string DefaultCityCode {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("default_city_code")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено значение стандартного кода города (default_city_code)");
+				}
+
+				string value = ParametersProvider.Instance.GetParameterValue("default_city_code");
+
+				if(string.IsNullOrWhiteSpace(value)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено значение стандартного кода города (default_city_code)");
+				}
+
+				return value;
+			}
+		}
+
+		#endregion
 	}
 }

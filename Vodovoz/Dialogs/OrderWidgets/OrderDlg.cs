@@ -60,13 +60,14 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz
 {
@@ -87,6 +88,7 @@ namespace Vodovoz
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
+		private IEmailRepository emailRepository { get; set; } = new EmailRepository();
 
 		#region Работа с боковыми панелями
 
@@ -113,7 +115,7 @@ namespace Vodovoz
 
 		public Order Order => Entity;
 
-		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? EmailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
+		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? emailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
 
 		#endregion
 
@@ -648,7 +650,7 @@ namespace Vodovoz
 
 			logger.Info("Сохраняем заказ...");
 
-			if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill()) {
+			if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
 				var emailAddressForBill = Entity.GetEmailAddressForBill();
 				if(emailAddressForBill == null) {
 					if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
@@ -2527,13 +2529,13 @@ namespace Vodovoz
 
 		private bool HaveEmailForBill()
 		{
-			QS.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
+			Vodovoz.Domain.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 			return clientEmail != null || MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?");
 		}
 
-		private void SendBillByEmail(QS.Contacts.Email emailAddressForBill)
+		private void SendBillByEmail(Vodovoz.Domain.Contacts.Email emailAddressForBill)
 		{
-			if(!EmailServiceSetting.SendingAllowed || EmailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
+			if(!EmailServiceSetting.SendingAllowed || emailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
 				return;
 			}
 
@@ -2552,7 +2554,7 @@ namespace Vodovoz
 			billDocument.HideSignature = wasHideSignature;
 
 			var billTemplate = billDocument.GetEmailTemplate();
-			Email email = new Email {
+			EmailService.Email email = new EmailService.Email {
 				Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
 				Text = billTemplate.Text,
 				HtmlText = billTemplate.TextHtml,
@@ -2599,7 +2601,7 @@ namespace Vodovoz
 			if(!Entity.Client.Emails.Any()) {
 				email = "";
 			} else {
-				QS.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
+				Vodovoz.Domain.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 				if(clientEmail == null) {
 					clientEmail = Entity.Client.Emails.FirstOrDefault();
 				}

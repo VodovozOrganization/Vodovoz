@@ -1,6 +1,6 @@
 ﻿using System;
 using QS.DomainModel.UoW;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;

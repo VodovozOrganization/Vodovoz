@@ -4,9 +4,8 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
 using QS.Banks.Domain;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
@@ -28,7 +27,6 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using Gtk;
 using Vodovoz.Domain.Goods;
-using QS.Services;
 using QS.Project.Services;
 
 namespace Vodovoz

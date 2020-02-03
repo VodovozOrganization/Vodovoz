@@ -15,6 +15,10 @@ using Vodovoz.Dialogs.Phones;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Services;
+using Vodovoz.Core.DataService;
+using Vodovoz.Parameters;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Dialogs
 {
@@ -27,6 +31,7 @@ namespace Vodovoz.Dialogs
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IBottlesRepository bottleRepository { get; set; } = new BottlesRepository();
 		private ICallTaskRepository callTaskRepository { get; set; } = new CallTaskRepository();
+		private IPhoneRepository phoneRepository { get; set; } = new PhoneRepository();
 
 		public CallTaskDlg()
 		{
@@ -90,10 +95,10 @@ namespace Vodovoz.Dialogs
 
 			employee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
-			ClientPhonesView.ViewModel = new PhonesViewModel(UoW);
+			ClientPhonesView.ViewModel = new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance);
 			ClientPhonesView.ViewModel.ReadOnly = true;
 
-			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(UoW);
+			DeliveryPointPhonesView.ViewModel = new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance);
 			DeliveryPointPhonesView.ViewModel.ReadOnly = true;
 
 			if(Entity.Counterparty != null)

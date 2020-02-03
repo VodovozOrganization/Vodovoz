@@ -401,6 +401,38 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
 					.Finish()
 			);
+
+			//PhoneTypeJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PhoneTypeJournalViewModel>(
+				() => FluentColumnsConfig<PhoneTypeJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Name)
+					.AddColumn("Назначение")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.PhonePurpose.GetEnumTitle())
+					.AddColumn("")
+					.Finish()
+			);
+
+			//EmailTypeJournalViewModel
+			TreeViewColumnsConfigFactory.Register<EmailTypeJournalViewModel>(
+				() => FluentColumnsConfig<EmailTypeJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Name)
+					.AddColumn("Назначение")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.EmailPurpose.GetEnumTitle())
+					.AddColumn("")
+					.Finish()
+			);
 		}
 	}
 }

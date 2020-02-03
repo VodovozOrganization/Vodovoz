@@ -76,7 +76,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label9;
 
-		private global::QSContacts.PhonesView phonesview1;
+		private global::Vodovoz.Views.Contacts.PhonesView phonesview1;
 
 		private global::QS.Widgets.GtkUI.RepresentationEntry referenceBuhgalter;
 
@@ -485,7 +485,7 @@ namespace Vodovoz
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
 			w36.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.phonesview1 = new global::QSContacts.PhonesView();
+			this.phonesview1 = new global::Vodovoz.Views.Contacts.PhonesView();
 			this.phonesview1.Events = ((global::Gdk.EventMask)(256));
 			this.phonesview1.Name = "phonesview1";
 			this.phonesview1.IsReadOnly = false;

@@ -5,7 +5,7 @@ using Gtk;
 using NLog;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -69,6 +69,7 @@ using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using QS.Tdi;
 using Vodovoz.Infrastructure;
+using Vodovoz.EntityRepositories;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -91,7 +92,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		this.Title = MainSupport.GetTitle();
 		QSMain.MakeNewStatusTargetForNlog();
 		//Настраиваем модули
-		MainClass.SetupAppFromBase();
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
@@ -342,9 +342,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionCarsActivated(object sender, EventArgs e)
 	{
 		CarJournalFilterViewModel filter = new CarJournalFilterViewModel();
-		var counterpartyJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		var carJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 
-		tdiMain.AddTab(counterpartyJournal);
+		tdiMain.AddTab(carJournal);
 	}
 
 	protected void OnActionUnitsActivated(object sender, EventArgs e)
@@ -392,8 +392,15 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionPhoneTypesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(PhoneType));
-		tdiMain.AddTab(refWin);
+		IPhoneRepository phoneRepository = new PhoneRepository();
+
+		tdiMain.AddTab(
+			new PhoneTypeJournalViewModel(
+				phoneRepository,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
 	}
 
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
@@ -406,8 +413,15 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionEMailTypesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(EmailType));
-		tdiMain.AddTab(refWin);
+		IEmailRepository emailRepository = new EmailRepository();
+
+		tdiMain.AddTab(
+			new EmailTypeJournalViewModel(
+				emailRepository,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
 	}
 
 	protected void OnActionCounterpartyPostActivated(object sender, EventArgs e)
