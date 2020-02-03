@@ -87,7 +87,10 @@ namespace Vodovoz.Domain.Contacts
 						$"'{EmailPurpose.ForBills.GetEnumTitle()}'. " +
 						$"Не может быть создано более 1 типа e-mail адреса с назначением '{EmailPurpose.ForBills.GetEnumTitle()}'");
 				}
+			} else {
+				throw new ArgumentException("Неверно передан ValidationContext");
 			}
+
 		}
 
 		#endregion

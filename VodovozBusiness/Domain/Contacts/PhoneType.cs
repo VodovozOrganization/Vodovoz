@@ -78,8 +78,10 @@ namespace Vodovoz.Domain.Contacts
 						$"'{PhonePurpose.ForReceipts.GetEnumTitle()}'. " +
 						$"Не может быть создано более 1 типа телефона с назначением '{PhonePurpose.ForReceipts.GetEnumTitle()}'");
 				}
-
+			} else {
+				throw new ArgumentException("Неверно передан ValidationContext");
 			}
+
 		}
 
 		#endregion

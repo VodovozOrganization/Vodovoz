@@ -34,13 +34,17 @@ using QS.EntityRepositories;
 using Vodovoz.Domain.Sms;
 using System.Threading.Tasks;
 using InstantSmsService;
+using Vodovoz.Services;
+using Vodovoz.Domain.Service.BaseParametersServices;
 
 namespace Vodovoz
 {
 	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>
 	{
 		IWageCalculationRepository wageParametersRepository;
+		ISubdivisionService subdivisionService;
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+
 		public override bool HasChanges {
 			get {
 				phonesView.RemoveEmpty();
@@ -96,6 +100,7 @@ namespace Vodovoz
 			notebookMain.ShowTabs = false;
 
 			wageParametersRepository = WageSingletonRepository.GetInstance();
+			subdivisionService = SubdivisionParametersProvider.Instance;
 
 			checkIsFired.Binding.AddBinding(Entity, e => e.IsFired, w => w.Active).InitializeFromSource();
 			checkVisitingMaster.Binding.AddBinding(Entity, e => e.VisitingMaster, w => w.Active).InitializeFromSource();
@@ -222,7 +227,7 @@ namespace Vodovoz
 			if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
 				Entity.AndroidLogin = null;
 
-			var valid = new QSValidator<Employee>(UoWGeneric.Root);
+			var valid = new QSValidator<Employee>(UoWGeneric.Root, Entity.GetValidationContextItems(subdivisionService));
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 

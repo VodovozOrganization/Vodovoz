@@ -32,5 +32,20 @@ namespace Vodovoz.Domain.Service.BaseParametersServices
 			}
 			return int.Parse(ParametersProvider.Instance.GetParameterValue("accept_route_list_subdivision_restrict"));
 		}
+
+		public int GetParentVodovozSubdivisionId()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("Id_Главного_подразделения_Веселый_Водовоз")) {
+				throw new InvalidProgramException("В параметрах базы не настроен параметр : Id_Главного_подразделения_Веселый_Водовоз");
+			}
+			string value = ParametersProvider.Instance.GetParameterValue("Id_Главного_подразделения_Веселый_Водовоз");
+
+			if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+				throw new InvalidProgramException("В параметрах базы неверно заполнено значение " +
+					"Id подразделения Веселый Водовоз (Id_Главного_подразделения_Веселый_Водовоз)");
+			}
+
+			return result;
+		}
 	}
 }
