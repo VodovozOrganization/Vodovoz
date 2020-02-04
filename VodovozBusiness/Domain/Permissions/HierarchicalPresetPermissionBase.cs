@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.Permissions;
 
 namespace Vodovoz.Domain.Permissions
 {
@@ -23,6 +24,19 @@ namespace Vodovoz.Domain.Permissions
 			get => value;
 			set => SetField(ref this.value, value, () => Value);
 		}
+
+		public virtual PresetUserPermissionSource PermissionSource {
+			get {
+				if(!PermissionsSettings.PresetPermissions.ContainsKey(PermissionName)) {
+					return null;
+				}
+				return PermissionsSettings.PresetPermissions[PermissionName];
+			}
+		}
+
+		public virtual string DisplayName => PermissionSource != null ? PermissionSource.DisplayName : PermissionName;
+
+		public virtual bool IsLostPermission => PermissionSource == null;
 	}
 
 	public enum PresetPermissionType

@@ -8,12 +8,12 @@ namespace Vodovoz.HibernateMapping.Permissions
 	{
 		public PresetPermissionBaseMap()
 		{
-			Table("permission_preset_user");
+			Table("permission_preset");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			DiscriminateSubClassesOnColumn("permission_type");
-			Map(x => x.PresetPermissionType).CustomType<PresetPermissionTypeCustomType>().Update().Not.Insert(); ;
+			Map(x => x.PresetPermissionType).Column("permission_type").CustomType<PresetPermissionTypeCustomType>().Update().Not.Insert(); ;
 
 			Map(x => x.PermissionName).Column("permission_name");
 			Map(x => x.Value).Column("value");

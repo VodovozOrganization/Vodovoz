@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using QS.Project.Domain;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Permissions
 {
@@ -7,9 +7,9 @@ namespace Vodovoz.Domain.Permissions
 	{
 		public override PresetPermissionType PresetPermissionType => PresetPermissionType.user;
 
-		private UserBase user;
+		private User user;
 		[Display(Name = "Пользователь")]
-		public virtual UserBase User {
+		public virtual User User {
 			get => user;
 			set => SetField(ref user, value, () => User);
 		}

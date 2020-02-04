@@ -27,7 +27,11 @@ namespace Vodovoz.EntityRepositories.Permissions
 
 		HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, Domain.Employees.User user, string permission);
 
+		IList<HierarchicalPresetUserPermission> GetAllPresetUserPermission(IUnitOfWork uow, Domain.Employees.User user);
+
 		HierarchicalPresetSubdivisionPermission GetPresetSubdivisionPermission(IUnitOfWork uow, Subdivision subdivision, string permission);
+
+		IList<HierarchicalPresetSubdivisionPermission> GetAllPresetSubdivisionPermission(IUnitOfWork uow, Subdivision subdivision);
 	}
 
 	public class SubdivisionPermissionNode : IPermissionNode

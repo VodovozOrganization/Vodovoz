@@ -123,11 +123,25 @@ namespace Vodovoz.EntityRepositories.Permissions
 					.SingleOrDefault();
 		}
 
+		public IList<HierarchicalPresetSubdivisionPermission> GetAllPresetSubdivisionPermission(IUnitOfWork uow, Subdivision subdivision)
+		{
+			return uow.Session.QueryOver<HierarchicalPresetSubdivisionPermission>()
+						.Where(x => x.Subdivision.Id == subdivision.Id)
+						.List();
+		}
+
 		public HierarchicalPresetUserPermission GetPresetUserPermission(IUnitOfWork uow, Domain.Employees.User user, string permission)
 		{
 			return uow.Session.QueryOver<HierarchicalPresetUserPermission>()
 					.Where(x => x.User.Id == user.Id && x.PermissionName == permission)
 					.SingleOrDefault();
+		}
+
+		public IList<HierarchicalPresetUserPermission> GetAllPresetUserPermission(IUnitOfWork uow, Domain.Employees.User user)
+		{
+			return uow.Session.QueryOver<HierarchicalPresetUserPermission>()
+						.Where(x => x.User.Id == user.Id)
+						.List();
 		}
 	}
 }
