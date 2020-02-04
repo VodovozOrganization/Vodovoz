@@ -6,8 +6,11 @@ using QS.Views.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Representations;
 using Vodovoz.ViewModels.Organization;
+using Vodovoz.ViewModels.Permissions;
+
 namespace Vodovoz.Views.Organization
 {
 	[System.ComponentModel.ToolboxItem(true)]
@@ -59,7 +62,9 @@ namespace Vodovoz.Views.Organization
 				lblWarehouses.Text = ViewModel.Entity.GetWarehousesNames(ViewModel.UoW);
 			else
 				frmWarehoses.Visible = false;
-			vboxDocuments.Visible = QSMain.User.Admin;
+
+			vboxDocuments.Visible = ViewModel.CurrentUser.IsAdmin;
+			widgetcontainerview2.Visible = ViewModel.CurrentUser.IsAdmin;
 
 			buttonAddDocument.Clicked += ButtonAddDocument_Clicked;
 			buttonAddDocument.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -72,6 +77,7 @@ namespace Vodovoz.Views.Organization
 
 			ViewModel.OnSavedEntity += () => subdivisionentitypermissionwidget.ViewModel.SavePermissions(subdivisionentitypermissionwidget.UoW);
 
+			widgetcontainerview2.Binding.AddBinding(ViewModel, vm => vm.PresetSubdivisionPermissionVM, w => w.WidgetViewModel).InitializeFromSource();
 		}
 
 		void ButtonAddDocument_Clicked(object sender, EventArgs e)

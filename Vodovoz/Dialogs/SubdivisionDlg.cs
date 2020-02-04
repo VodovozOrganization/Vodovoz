@@ -11,6 +11,9 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Representations;
 using Vodovoz.ViewModel;
 using System;
+using Vodovoz.ViewWidgets.Permissions;
+using Vodovoz.ViewModels.Permissions;
+using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz
 {
@@ -19,6 +22,7 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		SubdivisionsVM subdivisionsVM;
+		PresetSubdivisionPermissionsViewModel presetPermissionVM;
 
 		public override bool HasChanges { get => true; set { } }
 
@@ -73,6 +77,11 @@ namespace Vodovoz
 			else
 				frmWarehoses.Visible = false;
 			vboxDocuments.Visible = QSMain.User.Admin;
+
+			presetPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, new PermissionRepository(), Entity);
+			vboxPresetPermissions.Add(new PresetPermissionsView(presetPermissionVM));
+			vboxPresetPermissions.ShowAll();
+			vboxPresetPermissions.Visible = QSMain.User.Admin;
 		}
 
 		void YSpecCmbGeographicGroup_ItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -94,6 +103,7 @@ namespace Vodovoz
 
 			UoWGeneric.Save();
 			subdivisionentitypermissionwidget.ViewModel.SavePermissions(UoW);
+			presetPermissionVM.SaveCommand.Execute();
 			UoW.Commit();
 			return true;
 		}
