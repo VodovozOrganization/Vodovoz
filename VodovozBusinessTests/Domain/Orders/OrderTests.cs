@@ -1174,5 +1174,74 @@ namespace VodovozBusinessTests.Domain.Orders
 			// assert
 			Assert.That(contact, Is.EqualTo("8121234567"));
 		}
+
+		[Test(Description = "Возврат телефона для чеков точки доставки если он есть")]
+		public void GetContact_WhenDeliveryPointNumberForReceiptsExist_ThenReturnsNumberForReceipts()
+		{
+			// arrange
+			var client = Substitute.For<Counterparty>();
+
+			var pt = Substitute.For<PhoneType>();
+			pt.PhonePurpose = PhonePurpose.ForReceipts;
+
+			var dp = Substitute.For<DeliveryPoint>();
+			dp.Phones.Returns<IList<Phone>>(
+				new List<Phone> {
+					new Phone { Number = "1234567", PhoneType = pt}
+				}
+			);
+
+			Order order = new Order {
+				Client = client,
+				DeliveryPoint = dp
+			};
+
+			// act
+			var contact = order.GetContact();
+
+			// assert
+			Assert.That(contact, Is.EqualTo("1234567"));
+		}
+
+		[Test(Description = "Возврат e-mail не для чеков или счетов, если отсутствуют мобильные телефоны и телефоны и email для чеков и счетов")]
+		public void GetContact_WhenNoAnyMobilePhonesANDNoAnyPhonesOREmailsForBillsORReceipts_ThenReturnsEmailNotForReceiptsORBills()
+		{
+			// arrange
+			var client = Substitute.For<Counterparty>();
+
+			var et = Substitute.For<EmailType>();
+			et.EmailPurpose = EmailPurpose.Default;
+
+			client.Emails.Returns<IList<Email>>(
+			new List<Email> {
+				new Email { Address = "123@dsd.dss",
+					EmailType = et }
+				}
+			);
+
+			client.Phones.Returns<IList<Phone>>(
+			new List<Phone> {
+				new Phone { Number = "8121234567",}
+				}
+			);
+
+			var dp = Substitute.For<DeliveryPoint>();
+			dp.Phones.Returns<IList<Phone>>(
+				new List<Phone> {
+					new Phone { Number = "8121234567",}
+				}
+			);
+
+			Order order = new Order {
+				Client = client,
+				DeliveryPoint = dp
+			};
+
+			// act
+			var contact = order.GetContact();
+
+			// assert
+			Assert.That(contact, Is.EqualTo("123@dsd.dss"));
+		}
 	}
 }

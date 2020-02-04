@@ -16,7 +16,6 @@ using QS.EntityRepositories;
 using QS.HistoryLog;
 using QS.Project.Repositories;
 using QS.Services;
-using QSSupportLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -39,7 +38,6 @@ using Vodovoz.Repository.Client;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
-using Vodovoz.Repositories;
 using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Domain.Orders
@@ -3581,8 +3579,9 @@ namespace Vodovoz.Domain.Orders
 		///3. Мобильный телефон точки доставки;
 		///4. Мобильный телефон контрагента;
 		///5. Эл.почта для счетов контрагента;
-		///6. Городской телефон точки доставки;
-		///7. Городской телефон контрагента.
+		///6. Иная эл. почта (не для чеков или счетов);
+		///7. Городской телефон точки доставки;
+		///8. Городской телефон контрагента.
 		/// </summary>
 		/// <returns>Контакт с минимальным весом.</returns>
 		public virtual string GetContact()
@@ -3595,7 +3594,7 @@ namespace Vodovoz.Domain.Orders
 				if(!SelfDelivery && DeliveryPoint != null && DeliveryPoint.Phones.Any()) {
 
 					var receiptPhone = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)
-						&& p.PhoneType.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
+						&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
 					if(receiptPhone != null)
 						contacts[0] = receiptPhone;
 
@@ -3603,7 +3602,7 @@ namespace Vodovoz.Domain.Orders
 					if(phone != null)
 						contacts[3] = phone.DigitsNumber;
 					else if(DeliveryPoint.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
-						contacts[6] = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+						contacts[7] = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
@@ -3612,7 +3611,7 @@ namespace Vodovoz.Domain.Orders
 				if(Client.Phones.Any()) {
 
 					var receiptPhone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) 
-						&& p.PhoneType.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
+						&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
 					if(receiptPhone != null)
 						contacts[0] = receiptPhone;
 
@@ -3620,7 +3619,7 @@ namespace Vodovoz.Domain.Orders
 					if(phone != null)
 						contacts[4] = phone.DigitsNumber;
 					else if(Client.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
-						contacts[7] = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+						contacts[8] = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
@@ -3628,14 +3627,22 @@ namespace Vodovoz.Domain.Orders
 			try {
 				if(Client.Emails.Any()) {
 					var receiptEmail = Client.Emails.FirstOrDefault(e => !String.IsNullOrWhiteSpace(e.Address)
-						 && e.EmailType.EmailPurpose == EmailPurpose.ForReceipts)?.Address;
+						 && e.EmailType?.EmailPurpose == EmailPurpose.ForReceipts)?.Address;
 					if(receiptEmail != null)
 						contacts[2] = receiptEmail;
 
 					var billsEmail = Client.Emails.FirstOrDefault(e => !String.IsNullOrWhiteSpace(e.Address)
-						&& e.EmailType.EmailPurpose == EmailPurpose.ForBills)?.Address;
+						&& e.EmailType?.EmailPurpose == EmailPurpose.ForBills)?.Address;
 					if(billsEmail != null)
 						contacts[5] = billsEmail;
+
+					var email = Client.Emails.FirstOrDefault(e => 
+						!String.IsNullOrWhiteSpace(e.Address)
+						&& e.EmailType?.EmailPurpose != EmailPurpose.ForBills 
+						&& e.EmailType?.EmailPurpose != EmailPurpose.ForReceipts)
+						?.Address;
+					if(email != null)
+						contacts[6] = email;
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
