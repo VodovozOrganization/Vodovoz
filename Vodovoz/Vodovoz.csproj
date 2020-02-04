@@ -1373,6 +1373,8 @@
     <Compile Include="Views\Contacts\PhoneTypeView.cs" />
     <Compile Include="Views\Users\UserSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Users.UserSettingsView.cs" />
+    <Compile Include="ViewWidgets\Permissions\PresetPermissionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Permissions.PresetPermissionsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1620,6 +1622,7 @@
     <Folder Include="JournalSelector\" />
     <Folder Include="Views\Contacts\" />
     <Folder Include="Views\Users\" />
+    <Folder Include="ViewWidgets\Permissions\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

@@ -18,7 +18,6 @@ using QS.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using System.Text.RegularExpressions;
-using QS.Contacts;
 using QS.Project.Services;
 
 namespace Vodovoz.Domain.Employees

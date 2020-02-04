@@ -81,6 +81,8 @@ using Vodovoz.ViewWidgets.PromoSetAction;
 using Vodovoz.Views.Contacts;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.Views.Users;
+using Vodovoz.ViewModels.Permissions;
+using Vodovoz.ViewWidgets.Permissions;
 
 namespace Vodovoz
 {
@@ -216,6 +218,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<AdvancedWageParametersViewModel, AdvancedWageParametersView>()
 				.RegisterWidgetForWidgetViewModel<AddFixPriceActionViewModel, AddFixPriceActionView>()
 				.RegisterWidgetForWidgetViewModel<CarJournalFilterViewModel, CarFilterView>()
+				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
