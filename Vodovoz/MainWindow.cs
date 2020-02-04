@@ -70,6 +70,7 @@ using Vodovoz.Domain.Service.BaseParametersServices;
 using QS.Tdi;
 using Vodovoz.Infrastructure;
 using Vodovoz.EntityRepositories;
+using Vodovoz.ViewModels.Users;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -654,8 +655,13 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnPropertiesActionActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			DialogHelper.GenerateDialogHashName<UserSettings>(CurrentUserSettings.Settings.Id),
-			() => new UserSettingsDlg(CurrentUserSettings.Settings)
+			() => {
+				return new UserSettingsViewModel(
+					EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id),
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices
+				);
+			}
 		);
 	}
 

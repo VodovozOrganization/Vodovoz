@@ -715,8 +715,6 @@
     <Compile Include="gtk-gui\Vodovoz.FineDlg.cs" />
     <Compile Include="Dialogs\Employees\FineItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FineItemsView.cs" />
-    <Compile Include="Dialogs\Employees\UserSettingsDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.UserSettingsDlg.cs" />
     <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsTemplateItemsView.cs" />
     <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateDlg.cs" />
@@ -1373,6 +1371,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Contacts.PhoneTypeView.cs" />
     <Compile Include="Views\Contacts\EmailTypeView.cs" />
     <Compile Include="Views\Contacts\PhoneTypeView.cs" />
+    <Compile Include="Views\Users\UserSettingsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Users.UserSettingsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1619,6 +1619,7 @@
     <Folder Include="ViewWidgets\PromoSetAction\" />
     <Folder Include="JournalSelector\" />
     <Folder Include="Views\Contacts\" />
+    <Folder Include="Views\Users\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

@@ -79,6 +79,8 @@ using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using Vodovoz.Views.Contacts;
+using Vodovoz.ViewModels.Users;
+using Vodovoz.Views.Users;
 
 namespace Vodovoz
 {
@@ -196,6 +198,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
 				.RegisterWidgetForTabViewModel<PhoneTypeViewModel, PhoneTypeView>()
 				.RegisterWidgetForTabViewModel<EmailTypeViewModel, EmailTypeView>()
+				.RegisterWidgetForTabViewModel<UserSettingsViewModel, UserSettingsView>()
 				;
 
 			//Регистрация виджетов
@@ -260,7 +263,7 @@ namespace Vodovoz
 				OrmObjectMapping<Manufacturer>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<EquipmentColors>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<User>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<UserSettings>.Create().Dialog<UserSettingsDlg>(),
+				OrmObjectMapping<UserSettings>.Create().Dialog<UserSettingsView>(),
 				OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Стоимость", x => x.Cost.ToString()).End(),
 				OrmObjectMapping<MovementWagon>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Остальные справочники

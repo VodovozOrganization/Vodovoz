@@ -140,6 +140,7 @@
     <Compile Include="JournalViewModels\Contacts\PhoneTypeJournalViewModel.cs" />
     <Compile Include="JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
     <Compile Include="ViewModels\Contacts\EmailTypeViewModel.cs" />
+    <Compile Include="ViewModels\Users\UserSettingsViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -169,6 +170,7 @@
     <Folder Include="JournalViewModels\Logistic\" />
     <Folder Include="ViewModels\Contacts\" />
     <Folder Include="JournalViewModels\Contacts\" />
+    <Folder Include="ViewModels\Users\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

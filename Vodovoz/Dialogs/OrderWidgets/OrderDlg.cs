@@ -1181,10 +1181,14 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
+			var defaultCategory = NomenclatureCategory.water;
+			if(CurrentUserSettings.Settings.DefaultSaleCategory.HasValue)
+				defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;
+
 			var nomenclatureFilter = new NomenclatureFilterViewModel();
 			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-				x => x.SelectCategory = NomenclatureCategory.water,
+				x => x.SelectCategory = defaultCategory,
 				x => x.SelectSaleCategory = SaleCategory.forSale,
 				x => x.RestrictArchive = false
 			);
