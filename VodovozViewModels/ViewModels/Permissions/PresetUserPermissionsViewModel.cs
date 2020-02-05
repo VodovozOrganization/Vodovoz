@@ -19,7 +19,7 @@ namespace Vodovoz.ViewModels.Permissions
 			this.user = user ?? throw new ArgumentNullException(nameof(user));
 
 			permissionList = permissionRepository.GetAllPresetUserPermission(UoW, user).OfType<HierarchicalPresetPermissionBase>().ToList();
-			ObservablePermissionsList = new GenericObservableList<HierarchicalPresetPermissionBase>(permissionList.ToList());
+			ObservablePermissionsList = new GenericObservableList<HierarchicalPresetPermissionBase>(permissionList);
 
 			originalPermissionsSourceList = PermissionsSettings.PresetPermissions.Values.ToList();
 			foreach(var item in permissionList) {
@@ -42,9 +42,9 @@ namespace Vodovoz.ViewModels.Permissions
 							};
 							ObservablePermissionsList.Add(newPermission);
 
-							var sourceItem = originalPermissionsSourceList
-												.SingleOrDefault(x => x.Name == newPermission.PermissionName);
-							originalPermissionsSourceList.Remove(sourceItem);
+							var sourceItem = ObservablePermissionsSourceList
+                                                .SingleOrDefault(x => x.Name == newPermission.PermissionName);
+                            ObservablePermissionsSourceList.Remove(sourceItem);
 
 							var deletedPermission = deletePermissionList.FirstOrDefault(x => x.PermissionName == source.Name);
 							if(deletedPermission != null)
@@ -83,7 +83,7 @@ namespace Vodovoz.ViewModels.Permissions
 				if(saveCommand == null) {
 					saveCommand = new DelegateCommand(
 						() => {
-							foreach(var item in permissionList)
+							foreach(HierarchicalPresetPermissionBase item in ObservablePermissionsList)
 								UoW.Save(item);
 
 							foreach(var item in deletePermissionList)

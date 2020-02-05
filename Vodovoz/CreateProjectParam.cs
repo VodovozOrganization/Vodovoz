@@ -152,7 +152,8 @@ namespace Vodovoz
 
 			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {
-					new SubdivisionForUserEntityPermissionWidget()
+					new SubdivisionForUserEntityPermissionWidget(),
+					new PresetPermissionsView()
 				};
 			};
 

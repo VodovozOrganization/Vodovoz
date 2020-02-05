@@ -1,21 +1,33 @@
 ﻿using System;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.DomainModel.UoW;
 using QS.Permissions;
+using QS.Project.Domain;
 using QS.Views.GtkUI;
+using QS.Widgets.GtkUI;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.ViewWidgets.Permissions
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PresetPermissionsView : WidgetViewBase<PresetPermissionsViewModelBase>
+	public partial class PresetPermissionsView : WidgetViewBase<PresetPermissionsViewModelBase>, IUserPermissionTab
 	{
+		public string Title => "Предустановленные права";
+
 		public PresetPermissionsView(PresetPermissionsViewModelBase viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();
+		}
+
+		public PresetPermissionsView()
+		{
+			this.Build();
 		}
 
 		protected void Configure()
@@ -58,6 +70,17 @@ namespace Vodovoz.ViewWidgets.Permissions
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
 			DeletePermisission();
+		}
+
+		public void ConfigureDlg(IUnitOfWork uow, UserBase user)
+		{
+			ViewModel = new PresetUserPermissionsViewModel(uow, new PermissionRepository(), uow.GetById<User>(user.Id));
+			Configure();
+		}
+
+		public void Save()
+		{
+			ViewModel.SaveCommand.Execute();
 		}
 	}
 }
