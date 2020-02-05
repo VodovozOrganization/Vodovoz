@@ -1373,6 +1373,8 @@
     <Compile Include="Views\Contacts\PhoneTypeView.cs" />
     <Compile Include="Views\Users\UserSettingsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Users.UserSettingsView.cs" />
+    <Compile Include="Views\UndeliveryProblemSourceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.UndeliveryProblemSourceView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

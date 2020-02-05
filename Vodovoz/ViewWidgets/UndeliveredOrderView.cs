@@ -10,6 +10,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
+using QS.Project.Services;
+using QS.Services;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -29,12 +31,13 @@ namespace Vodovoz.ViewWidgets
 		bool routeListDoesNotExist = false;
 		string InitialProcDepartmentName = String.Empty;
 		IList<GuiltyInUndelivery> initialGuiltyList = new List<GuiltyInUndelivery>();
+		UndeliveredOrder undelivery;
+		ICommonServices commonServices = ServicesConfig.CommonServices;
+		bool CanChangeProblemSource = false;
 
 		public IUnitOfWork UoW { get; set; }
-
-		UndeliveredOrder undelivery;
-
 		public UndeliveredOrderView() => this.Build();
+
 
 		public void OnTabAdded()
 		{
@@ -46,6 +49,7 @@ namespace Vodovoz.ViewWidgets
 
 		public void ConfigureDlg(IUnitOfWork uow, UndeliveredOrder undelivery)
 		{
+			CanChangeProblemSource = commonServices.PermissionService.ValidateUserPresetPermission("can_change_undelivery_problem_source", commonServices.UserService.CurrentUserId);
 			this.undelivery = undelivery;
 			UoW = uow;
 			oldOrder = undelivery.OldOrder;
@@ -144,7 +148,11 @@ namespace Vodovoz.ViewWidgets
 
 			yenumcomboboxTransferType.ItemsEnum = typeof(TransferType);
 			yenumcomboboxTransferType.Binding.AddBinding(undelivery, u => u.OrderTransferType, w => w.SelectedItemOrNull).InitializeFromSource();
-			ytextviewProblemSource.Binding.AddBinding(undelivery, u => u.ProblemSource, w => w.Buffer.Text).InitializeFromSource();
+
+			comboProblemSource.SetRenderTextFunc<UndeliveryProblemSource>(k => k.GetFullName);
+			comboProblemSource.Binding.AddBinding(undelivery, u => u.ProblemSourceItems, w => w.ItemsList).InitializeFromSource();
+			comboProblemSource.Binding.AddBinding(undelivery, u => u.ProblemSource, w => w.SelectedItem).InitializeFromSource();
+			comboProblemSource.Sensitive = CanChangeProblemSource;
 
 			yTreeFines.ColumnsConfig = ColumnsConfigFactory.Create<FineItem>()
 				.AddColumn("Номер").AddTextRenderer(node => node.Fine.Id.ToString())

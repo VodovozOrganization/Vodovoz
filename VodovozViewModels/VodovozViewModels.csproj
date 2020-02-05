@@ -141,6 +141,7 @@
     <Compile Include="JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
     <Compile Include="ViewModels\Contacts\EmailTypeViewModel.cs" />
     <Compile Include="ViewModels\Users\UserSettingsViewModel.cs" />
+    <Compile Include="ViewModels\UndeliveryProblemSourceViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

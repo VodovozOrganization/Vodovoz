@@ -17,7 +17,6 @@ namespace Vodovoz.HibernateMapping.Order
 			Map(x => x.Reason).Column("reason");
 			Map(x => x.TimeOfCreation).Column("creation_date");
 			Map(x => x.LastEditedTime).Column("last_edited_time");
-			Map(x => x.ProblemSource).Column("problem_source");
 
 			Map(x => x.DriverCallType).Column("driver_call_type").CustomType<DriverCallTypeStringType>();
 			Map(x => x.UndeliveryStatus).Column("status").CustomType<UndeliveredOrderUndeliveryStatusStringType>();
@@ -30,6 +29,7 @@ namespace Vodovoz.HibernateMapping.Order
 			References(x => x.EmployeeRegistrator).Column("registered_by_employee_id");
 			References(x => x.Author).Column("author_employee_id");
 			References(x => x.LastEditor).Column("editor_employee_id");
+			References(x => x.ProblemSource).Column("undelivery_problem_source_id");
 
 			HasMany(x => x.Fines).Inverse().KeyColumn("undelivery_id");
 			HasMany(x => x.GuiltyInUndelivery).Cascade.AllDeleteOrphan().Inverse().KeyColumn("undelivery_id");
