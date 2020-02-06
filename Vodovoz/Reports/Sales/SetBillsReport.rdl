@@ -125,7 +125,7 @@ ORDER BY orders.create_date DESC
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox6" >
+      <Textbox Name="Textbox6">
         <Height>12.75pt</Height>
         <Width>294.25pt</Width>
         <Value>="Сформировано: " + Format( {?creationDate}, "dd-MM-yyyy HH:mm")</Value>
@@ -225,7 +225,7 @@ ORDER BY orders.create_date DESC
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>Адрес</Value>
+                      <Value>Адрес доставки</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -242,7 +242,7 @@ ORDER BY orders.create_date DESC
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>Дата созд. заказа</Value>
+                      <Value>Дата начала</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -276,7 +276,7 @@ ORDER BY orders.create_date DESC
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>Сумма заказа</Value>
+                      <Value>Сумма</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -293,7 +293,7 @@ ORDER BY orders.create_date DESC
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>Комментарий к заказу</Value>
+                      <Value>Комментарий</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -310,7 +310,7 @@ ORDER BY orders.create_date DESC
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
-                      <Value>Автор заказа</Value>
+                      <Value>Автор заказа в ДВ</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -382,8 +382,8 @@ ORDER BY orders.create_date DESC
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -474,8 +474,8 @@ ORDER BY orders.create_date DESC
                         <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
