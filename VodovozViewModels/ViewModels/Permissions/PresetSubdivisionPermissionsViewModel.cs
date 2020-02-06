@@ -34,6 +34,8 @@ namespace Vodovoz.ViewModels.Permissions
 					originalPermissionsSourceList.Remove(sourceItem);
 			}
 			ObservablePermissionsSourceList = new GenericObservableList<PresetUserPermissionSource>(originalPermissionsSourceList);
+
+			OrderPermission();
 		}
 
 		public override DelegateCommand<PresetUserPermissionSource> AddPermissionCommand {
@@ -56,6 +58,8 @@ namespace Vodovoz.ViewModels.Permissions
 							if(deletedPermission != null)
 								deletePermissionList.Remove(deletedPermission);
 
+							OrderPermission();
+
 						},
 						(source) => true
 					);
@@ -76,6 +80,8 @@ namespace Vodovoz.ViewModels.Permissions
 
 							if(permission.Id > 0)
 								deletePermissionList.Add(permission);
+
+							OrderPermission();
 						},
 						(permission) => true
 					);

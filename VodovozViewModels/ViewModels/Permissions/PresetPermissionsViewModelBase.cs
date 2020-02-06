@@ -16,16 +16,22 @@ namespace Vodovoz.ViewModels.Permissions
 
 		protected IList<HierarchicalPresetPermissionBase> deletePermissionList = new List<HierarchicalPresetPermissionBase>();
 
-		protected IList<HierarchicalPresetPermissionBase> permissionList;
+		protected List<HierarchicalPresetPermissionBase> permissionList;
 		public GenericObservableList<HierarchicalPresetPermissionBase> ObservablePermissionsList { get; protected set; }
 
-		protected IList<PresetUserPermissionSource> originalPermissionsSourceList;
+		protected List<PresetUserPermissionSource> originalPermissionsSourceList;
 		public GenericObservableList<PresetUserPermissionSource> ObservablePermissionsSourceList { get; protected set; }
 
 		protected PresetPermissionsViewModelBase(IUnitOfWork unitOfWork, IPermissionRepository permissionRepository)
 		{
 			UoW = unitOfWork ?? throw new NullReferenceException(nameof(unitOfWork));
 			this.permissionRepository = permissionRepository ?? throw new NullReferenceException(nameof(permissionRepository));
+		}
+
+		protected void OrderPermission()
+		{
+			permissionList.Sort((x, y) => string.Compare(x.DisplayName, y.DisplayName, StringComparison.Ordinal));
+			originalPermissionsSourceList.Sort((x, y) => string.Compare(x.DisplayName, y.DisplayName, StringComparison.Ordinal));
 		}
 
 		protected DelegateCommand<PresetUserPermissionSource> addPermissionCommand;
