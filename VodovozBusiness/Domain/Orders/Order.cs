@@ -1233,7 +1233,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual Email GetEmailAddressForBill()
 		{
-			return Client.Emails.FirstOrDefault(x => (x.EmailType.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
+			return Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 		}
 
 		public virtual bool NeedSendBill(IEmailRepository emailRepository)
