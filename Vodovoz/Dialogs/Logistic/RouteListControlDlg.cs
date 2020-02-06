@@ -69,7 +69,6 @@ namespace Vodovoz.Dialogs.Logistic
 				.RowCells()
 				.Finish();
 
-			ytreeviewNotLoaded.RowActivated += YtreeviewNotLoaded_RowActivated; ;
 			ytreeviewNotAttached.RowActivated += YtreeviewNotAttached_RowActivated;
 
 			UpdateLists();
@@ -89,15 +88,6 @@ namespace Vodovoz.Dialogs.Logistic
 			ObservableNotAttachedList = new GenericObservableList<Nomenclature>(notAttachedNomenclatures);
 			ytreeviewNotLoaded.ItemsDataSource = ObservableNotLoadedList;
 			ytreeviewNotAttached.ItemsDataSource = ObservableNotAttachedList;
-		}
-
-		void YtreeviewNotLoaded_RowActivated(object o, Gtk.RowActivatedArgs args)
-		{
-			if(ytreeviewNotLoaded.GetSelectedObject() is RouteListControlNotLoadedNode notLoadedNomenclature) {
-				throw new NotImplementedException("\n\nПоломали, т.к. складов в номенклатуре теперь несколько!\n");
-				/*var dlg = new CarLoadDocumentDlg(Entity.Id, notLoadedNomenclature.Nomenclature.Warehouse?.Id);
-				TabParent.AddTab(dlg, this);*/
-			}
 		}
 
 		void YtreeviewNotAttached_RowActivated(object o, Gtk.RowActivatedArgs args)
