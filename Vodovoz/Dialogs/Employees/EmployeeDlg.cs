@@ -36,6 +36,8 @@ using System.Threading.Tasks;
 using InstantSmsService;
 using Vodovoz.Services;
 using Vodovoz.Domain.Service.BaseParametersServices;
+using Vodovoz.Domain.Permissions;
+using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz
 {
@@ -205,7 +207,7 @@ namespace Vodovoz
 				Entity, 
 				this, 
 				UoW, 
-				new PresetPermissionValidator(),
+				new HierarchicalPresetPermissionValidator(EmployeeSingletonRepository.GetInstance(), new PermissionRepository()),
 				UserSingletonRepository.GetInstance(),
 				ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager
