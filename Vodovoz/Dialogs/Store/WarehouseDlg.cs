@@ -9,6 +9,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -48,7 +49,7 @@ namespace Vodovoz
 			ycheckbuttonArchive.Binding
 				.AddBinding(UoWGeneric.Root, (warehouse) => warehouse.IsArchive, (widget) => widget.Active)
 				.InitializeFromSource();
-			ycheckbuttonArchive.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_archive_warehouse"];
+			ycheckbuttonArchive.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_archive_warehouse");
 
 			comboTypeOfUse.ItemsEnum = typeof(WarehouseUsing);
 			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItem).InitializeFromSource();

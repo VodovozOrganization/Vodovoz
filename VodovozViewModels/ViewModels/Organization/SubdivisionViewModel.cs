@@ -7,6 +7,8 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.Permissions;
+using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.ViewModels.Organization
 {
@@ -17,13 +19,28 @@ namespace Vodovoz.ViewModels.Organization
 
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory;
 
+		private PresetSubdivisionPermissionsViewModel presetSubdivisionPermissionVM;
+		public PresetSubdivisionPermissionsViewModel PresetSubdivisionPermissionVM {
+			get { return presetSubdivisionPermissionVM; }
+			set {
+				if(value != presetSubdivisionPermissionVM && presetSubdivisionPermissionVM != null) {
+					OnSavedEntity -= presetSubdivisionPermissionVM.SaveCommand.Execute;
+					if(value != null)
+						OnSavedEntity += value.SaveCommand.Execute;
+				}
+				SetField(ref presetSubdivisionPermissionVM, value); 
+			}
+		}
+
 		public SubdivisionViewModel(
 			IEntityUoWBuilder uoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IPermissionRepository permissionRepository
 		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
+			PresetSubdivisionPermissionVM = new PresetSubdivisionPermissionsViewModel(UoW, permissionRepository, Entity);
 			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			ConfigureEntityChangingRelations();
 			CreateCommands();

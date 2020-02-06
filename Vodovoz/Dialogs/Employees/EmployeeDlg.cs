@@ -83,7 +83,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = uow;
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_change_trainee_to_driver"]) {
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_trainee_to_driver")) {
 				hiddenCategory = new EmployeeCategory[] { EmployeeCategory.driver, EmployeeCategory.forwarder };
 			}
 			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
@@ -138,7 +138,7 @@ namespace Vodovoz
 			referenceUser.SubjectType = typeof(User);
 			referenceUser.CanEditReference = false;
 			referenceUser.Binding.AddBinding(Entity, e => e.User, w => w.Subject).InitializeFromSource();
-			referenceUser.Sensitive = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_manage_users"];
+			referenceUser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
 
 			comboCategory.ItemsEnum = typeof(EmployeeCategory);
 			if(hiddenCategory != null && hiddenCategory.Any()) {
@@ -214,7 +214,7 @@ namespace Vodovoz
 			logger.Info("Ok");
 		}
 
-		bool CanCreateNewUser => Entity.User == null && UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_manage_users"];
+		bool CanCreateNewUser => Entity.User == null && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
 
 		void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
@@ -501,7 +501,7 @@ namespace Vodovoz
 				= hboxDriversParameters.Visible
 				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
 
-			wageParametersView.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_wage"];
+			wageParametersView.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
 		}
 
 		protected void OnRadioWageParametersClicked(object sender, EventArgs e)

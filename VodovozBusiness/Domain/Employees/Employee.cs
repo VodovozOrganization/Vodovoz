@@ -18,6 +18,7 @@ using QS.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using System.Text.RegularExpressions;
+using QS.Project.Services;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -296,7 +297,7 @@ namespace Vodovoz.Domain.Employees
 					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует на сервере",
 						new[] { this.GetPropertyName(x => x.LoginForNewUser) });
 			}
-			if(!String.IsNullOrEmpty(LoginForNewUser) && !UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_manage_users"]) {
+			if(!String.IsNullOrEmpty(LoginForNewUser) && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users")) {
 			yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { this.GetPropertyName(x => x.LoginForNewUser) });
 			}

@@ -93,7 +93,7 @@ namespace Vodovoz.ViewWidgets
 			};
 			yEForUndeliveredOrder.RepresentationModel = new OrdersVM(filterOrders);
 			yEForUndeliveredOrder.Binding.AddBinding(undelivery, x => x.OldOrder, x => x.Subject).InitializeFromSource();
-			yEForUndeliveredOrder.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
+			yEForUndeliveredOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			yDateDriverCallTime.Binding.AddBinding(undelivery, t => t.DriverCallTime, w => w.DateOrNull).InitializeFromSource();
 			if(undelivery.Id <= 0)
@@ -202,7 +202,7 @@ namespace Vodovoz.ViewWidgets
 		void RemoveItemsFromEnums()
 		{
 			//удаляем статус "закрыт" из списка, если недовоз не закрыт и нет прав на их закрытие
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_undeliveries"] && undelivery.UndeliveryStatus != UndeliveryStatus.Closed) {
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries") && undelivery.UndeliveryStatus != UndeliveryStatus.Closed) {
 				yEnumCMBStatus.AddEnumToHideList(new Enum[] { UndeliveryStatus.Closed });
 				yEnumCMBStatus.SelectedItem = (UndeliveryStatus)undelivery.UndeliveryStatus;
 			}
@@ -218,7 +218,7 @@ namespace Vodovoz.ViewWidgets
 
 		void SetSensitivities()
 		{
-			bool hasPermissionOrNew = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_undeliveries"] || undelivery.Id == 0;
+			bool hasPermissionOrNew = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_undeliveries") || undelivery.Id == 0;
 
 			//основные поля доступны если есть разрешение или это новый недовоз,
 			//выбран старый заказ и статус недовоза не "Закрыт"
@@ -238,7 +238,7 @@ namespace Vodovoz.ViewWidgets
 			//можем менять статус, если есть права или нет прав и статус не "закрыт"
 			hbxStatus.Sensitive = (
 				(
-					UserPermissionRepository.CurrentUserPresetPermissions["can_close_undeliveries"]
+					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_undeliveries")
 					|| undelivery.UndeliveryStatus != UndeliveryStatus.Closed
 				)
 				&& undelivery.OldOrder != null
@@ -330,7 +330,7 @@ namespace Vodovoz.ViewWidgets
 				x => x.RestrictCounterparty = oldOrder.Client,
 				x => x.HideStatuses = new Enum[] { OrderStatus.WaitForPayment }
 			);
-			Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? Buttons.All : (Buttons.Add | Buttons.Edit);
+			Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete") ? Buttons.All : (Buttons.Add | Buttons.Edit);
 			PermissionControlledRepresentationJournal dlg = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
 				Mode = JournalSelectMode.Single
 			};

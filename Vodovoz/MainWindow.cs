@@ -97,29 +97,29 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
-		ActionCash.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["money_manage_cash"];
-		ActionAccounting.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["money_manage_bookkeeping"];
+		ActionCash.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_cash");
+		ActionAccounting.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
-			ActionRouteListAddressesTransferring.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
+			ActionRouteListAddressesTransferring.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 		ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
 
-		bool hasAccessToSalaries = UserPermissionRepository.CurrentUserPresetPermissions["access_to_salaries"];
-		bool hasAccessToWagesAndBonuses = UserPermissionRepository.CurrentUserPresetPermissions["access_to_fines_bonuses"];
+		bool hasAccessToSalaries = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
+		bool hasAccessToWagesAndBonuses = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
 		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
 		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses;
 		ActionDriverWages.Sensitive = hasAccessToSalaries;
 		ActionWagesOperations.Sensitive = hasAccessToSalaries;
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries;
 
-		ActionWage.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_wage"];
+		ActionWage.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
 
-		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = UserPermissionRepository.CurrentUserPresetPermissions["access_to_fines_bonuses"];
+		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
 		ActionReports.Sensitive = false;
 		//ActionServices.Visible = false;
 		ActionDocTemplates.Visible = QSMain.User.Admin;
-		ActionService.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["database_maintenance"];
+		ActionService.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
 		ActionEmployeeWorkChart.Sensitive = false;
 
 		ActionAddOrder.Sensitive = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
@@ -644,7 +644,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
 		Buttons mode = Buttons.Edit;
-		if(UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"])
+		if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint"))
 			mode |= Buttons.Delete;
 
 		tdiMain.OpenTab(
@@ -1173,7 +1173,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionDeliveryPriceRulesActivated(object sender, EventArgs e)
 	{
-		bool right = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_delivery_price_rules"];
+		bool right = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_price_rules");
 		tdiMain.OpenTab(
 			OrmReference.GenerateHashName<DeliveryPriceRule>(),
 			() => {

@@ -304,7 +304,7 @@ namespace Vodovoz
 
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPoint.CanEditReference = true;
-			chkContractCloser.Sensitive = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_set_contract_closer"];
+			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer");
 
 			buttonViewDocument.Sensitive = false;
 			btnDeleteOrderItem.Sensitive = false;
@@ -768,7 +768,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonCloseOrderClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderStatus == OrderStatus.Accepted && UserPermissionRepository.CurrentUserPresetPermissions["can_close_orders"]) {
+			if(Entity.OrderStatus == OrderStatus.Accepted && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_orders")) {
 				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?")) {
 					return;
 				}
@@ -1793,7 +1793,7 @@ namespace Vodovoz
 
 		void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
 		{
-			if(pickerDeliveryDate.Date < DateTime.Today && !UserPermissionRepository.CurrentUserPresetPermissions["can_can_create_order_in_advance"])
+			if(pickerDeliveryDate.Date < DateTime.Today && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance"))
 				pickerDeliveryDate.ModifyBase(StateType.Normal, new Gdk.Color(255, 0, 0));
 			else
 				pickerDeliveryDate.ModifyBase(StateType.Normal, new Gdk.Color(255, 255, 255));
@@ -1948,7 +1948,7 @@ namespace Vodovoz
 				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
 				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.BeveragesWorld);
-			spinSumDifference.Visible = spinSumDifference.Visible && UserPermissionRepository.CurrentUserPresetPermissions["can_edit_order_extra_cash"];
+			spinSumDifference.Visible = spinSumDifference.Visible && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_order_extra_cash");
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
@@ -2373,7 +2373,7 @@ namespace Vodovoz
 			buttonAddForSale.Sensitive = referenceContract.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
-			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"] && val && !Entity.SelfDelivery;
+			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;
 			hbxTareNonReturnReason.Sensitive = val;
 
 			if(Entity != null)
@@ -2421,7 +2421,7 @@ namespace Vodovoz
 
 		void UpdateButtonState()
 		{
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_edit_order"]) {
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_order")) {
 				buttonEditOrder.Sensitive = false;
 				buttonEditOrder.TooltipText = "Нет права на редактирование";
 			}
@@ -2446,13 +2446,13 @@ namespace Vodovoz
 
 			menuItemSelfDeliveryToLoading.Sensitive = Entity.SelfDelivery
 				&& Entity.OrderStatus == OrderStatus.Accepted
-				&& UserPermissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"];
+				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 			menuItemSelfDeliveryPaid.Sensitive = Entity.SelfDelivery
 				&& (Entity.PaymentType == PaymentType.cashless || Entity.PaymentType == PaymentType.ByCard)
 				&& Entity.OrderStatus == OrderStatus.WaitForPayment
-				&& UserPermissionRepository.CurrentUserPresetPermissions["accept_cashless_paid_selfdelivery"];
+				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
 
-			menuItemCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && UserPermissionRepository.CurrentUserPresetPermissions["can_close_orders"] && !Entity.SelfDelivery;
+			menuItemCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_orders") && !Entity.SelfDelivery;
 			menuItemReturnToAccepted.Sensitive = Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted;
 		}
 

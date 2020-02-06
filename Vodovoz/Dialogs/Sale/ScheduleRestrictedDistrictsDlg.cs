@@ -14,6 +14,7 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.EntityRepositories;
+using QS.Project.Services;
 using QS.Validation.GtkUI;
 using QSOrmProject;
 using QSProjectsLib;
@@ -138,7 +139,7 @@ namespace Vodovoz.Dialogs.Logistic
 				yTreeGeographicGroups.ItemsDataSource = currentDistrict.ObservableGeographicGroups;
 
 				if(currentDistrict.Id > 0)
-					cmbWageDistrict.Sensitive = UserPermission.CurrentUserPresetPermissions["can_change_district_wage_type"];
+					cmbWageDistrict.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_district_wage_type");
 				else
 					cmbWageDistrict.Sensitive = true;
 			}

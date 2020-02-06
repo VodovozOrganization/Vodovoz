@@ -8,6 +8,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Chats;
 using Chats;
+using QS.Project.Services;
 
 namespace Vodovoz.ServiceDialogs.Chat
 {
@@ -38,7 +39,7 @@ namespace Vodovoz.ServiceDialogs.Chat
 				new BasicHttpBinding(), 
 				ChatMain.ChatServiceUrl).CreateChannel();
 				
-			var accessToLogisticChat = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
+			var accessToLogisticChat = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			var unreadedMessages = ChatMessageRepository.GetUnreadedChatMessages(UoW, currentEmployee, accessToLogisticChat);
 			bool needCommit = false;
 

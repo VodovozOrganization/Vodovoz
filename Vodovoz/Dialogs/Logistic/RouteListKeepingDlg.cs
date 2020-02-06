@@ -47,7 +47,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = string.Format("Ведение МЛ №{0}", Entity.Id);
 			allEditing = Entity.Status == RouteListStatus.EnRoute;
-			isUserLogist = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
+			isUserLogist = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			logisticanEditing = isUserLogist && allEditing;
 
 			ConfigureDlg();
@@ -294,7 +294,7 @@ namespace Vodovoz
 		{
 			buttonSetStatusComplete.Sensitive = ytreeviewAddresses.GetSelectedObjects().Any() && allEditing;
 			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1 
-													&& UserPermissionRepository.CurrentUserPresetPermissions["logistic_changedeliverytime"]
+													&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistic_changedeliverytime")
 													&& allEditing;								
 		}
 
@@ -369,7 +369,7 @@ namespace Vodovoz
 
 		protected void OnButtonChangeDeliveryTimeClicked(object sender, EventArgs e)
 		{
-			if(UserPermissionRepository.CurrentUserPresetPermissions["logistic_changedeliverytime"]) {
+			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistic_changedeliverytime")) {
 				var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
 				if(selectedObjects.Count() != 1)
 					return;

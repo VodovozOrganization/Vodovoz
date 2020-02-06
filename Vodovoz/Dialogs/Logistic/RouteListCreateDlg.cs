@@ -165,7 +165,7 @@ namespace Vodovoz
 				buttonAccept.Label = "Редактировать";
 			}
 
-			IsEditable = Entity.Status == RouteListStatus.New && UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
+			IsEditable = Entity.Status == RouteListStatus.New && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 
 			ggToStringWidget.UoW = UoW;
 			ggToStringWidget.Label = "Район города:";
@@ -278,7 +278,7 @@ namespace Vodovoz
 				warningMsg.Append(string.Format("\n\t- объём груза превышен на {0} м<sup>3</sup>", Entity.VolumeExecess()));
 
 			if(buttonAccept.Label == "Подтвердить" && (Entity.HasOverweight() || Entity.HasVolumeExecess())) {
-				if(UserPermissionRepository.CurrentUserPresetPermissions["can_confirm_routelist_with_overweight"]) {
+				if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_routelist_with_overweight")) {
 					warningMsg.AppendLine("\nВы уверены что хотите подтвердить маршрутный лист?");
 					if(!MessageDialogHelper.RunQuestionDialog(warningMsg.ToString()))
 						return;

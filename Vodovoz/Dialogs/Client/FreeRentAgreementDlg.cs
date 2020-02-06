@@ -4,6 +4,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Validation.GtkUI;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
@@ -97,7 +98,7 @@ namespace Vodovoz
 			if (Entity.DocumentTemplate != null)
 				(Entity.DocumentTemplate.DocParser as FreeRentAgreementParser).RootObject = Entity;
 
-			templatewidget1.CanRevertCommon = UserPermissionRepository.CurrentUserPresetPermissions["can_set_common_additionalagreement"];
+			templatewidget1.CanRevertCommon = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_common_additionalagreement");
 			templatewidget1.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 		}

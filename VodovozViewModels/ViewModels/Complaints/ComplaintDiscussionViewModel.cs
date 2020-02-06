@@ -79,10 +79,10 @@ namespace Vodovoz.ViewModels.Complaints
 
 		public virtual ComplaintStatuses[] HiddenStatuses => new[] { ComplaintStatuses.Closed };
 
-		public bool CanEditStatus => CanEdit && Entity.Status != ComplaintStatuses.Closed || (CanEdit && UserPermissionRepository.CurrentUserPresetPermissions["can_complete_complaint_discussion"]);
+		public bool CanEditStatus => CanEdit && Entity.Status != ComplaintStatuses.Closed || (CanEdit && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_complete_complaint_discussion"));
 
 		//FIXME переделать репозиторий на зависимость
-		public bool CanCompleteDiscussion => CanEditStatus && UserPermissionRepository.CurrentUserPresetPermissions["can_complete_complaint_discussion"];
+		public bool CanCompleteDiscussion => CanEditStatus && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_complete_complaint_discussion");
 
 		#endregion Status
 

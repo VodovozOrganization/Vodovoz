@@ -6,6 +6,7 @@ using QS.Project.Repositories;
 using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModel;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -29,7 +30,7 @@ namespace Vodovoz
 
 		bool CanDelete()
 		{
-			return UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"] 
+			return ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint") 
 				         && treeDeliveryPoints.Selection.CountSelectedRows() > 0;
 		}
 

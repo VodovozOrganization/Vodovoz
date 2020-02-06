@@ -15,6 +15,7 @@ using QS.DomainModel.UoW;
 using QS.EntityRepositories;
 using QS.HistoryLog;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
@@ -910,7 +911,7 @@ namespace Vodovoz.Domain.Orders
 						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
 						if(!hasMaster
-						   && !UserPermissionRepository.CurrentUserPresetPermissions["can_create_several_orders_for_date_and_deliv_point"]
+						   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
 						   && ordersForDeliveryPoints.Any()
 						   && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) {
 							yield return new ValidationResult(
@@ -944,14 +945,14 @@ namespace Vodovoz.Domain.Orders
 
 				if(IsService && PaymentType == PaymentType.cashless
 				   && newStatus == OrderStatus.Accepted
-				   && !UserPermissionRepository.CurrentUserPresetPermissions["can_accept_cashles_service_orders"]) {
+				   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders")) {
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.OrderStatus) }
 					);
 				}
 
-				if(IsContractCloser && !UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"]) {
+				if(IsContractCloser && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer")) {
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения зыкрывашки по контракту. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.IsContractCloser) }
@@ -1012,7 +1013,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе выбрана точка доставки для которой нет актуального дополнительного соглашения по доставке воды");
 			}
 
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_can_create_order_in_advance"]
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance")
 			   && DeliveryDate.HasValue && DeliveryDate.Value < DateTime.Today
 			   && OrderStatus <= OrderStatus.Accepted) {
 				yield return new ValidationResult(
@@ -1132,7 +1133,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int TotalWaterBottles => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
 		public virtual bool CanBeMovedFromClosedToAcepted => new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
-																 && UserPermissionRepository.CurrentUserPresetPermissions["can_move_order_from_closed_to_acepted"];
+																 && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
 
 		#endregion
 
@@ -2925,7 +2926,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			if(OrderStatus != OrderStatus.WaitForPayment)
 				return;
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["accept_cashless_paid_selfdelivery"])
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery"))
 				return;
 
 			ChangeStatus(PayAfterShipment ? OrderStatus.Closed : OrderStatus.Accepted);

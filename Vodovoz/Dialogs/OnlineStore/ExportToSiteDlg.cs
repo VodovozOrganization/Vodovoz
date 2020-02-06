@@ -8,6 +8,7 @@ using QSSupportLib;
 using Vodovoz.Tools.CommerceML;
 using QS.Project.Repositories;
 using Vodovoz.Parameters;
+using QS.Project.Services;
 
 namespace Vodovoz.Dialogs.OnlineStore
 {
@@ -15,7 +16,7 @@ namespace Vodovoz.Dialogs.OnlineStore
 	{
 		public ExportToSiteDlg()
 		{
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["database_maintenance"]) {
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance")) {
 				MessageDialogHelper.RunWarningDialog("Доступ запрещён!", "У вас недостаточно прав для доступа к этой вкладке. Обратитесь к своему руководителю.", Gtk.ButtonsType.Ok);
 				FailInitialize = true;
 				return;

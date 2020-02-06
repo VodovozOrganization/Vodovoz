@@ -4,6 +4,8 @@ using QS.Permissions;
 using Vodovoz.Infrastructure.Journal;
 using QS.Services;
 using QS.Project.Services.GtkUI;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz
 {
@@ -24,7 +26,7 @@ namespace Vodovoz
 
 			//пространство имен специально прописано чтобы при изменениях не было случайного совпадения с валидатором из QS
 			var entityPermissionValidator = new Vodovoz.Domain.Permissions.EntityPermissionValidator();
-			var presetPermissionValidator = new QS.DomainModel.Entity.PresetPermissions.PresetPermissionValidator();
+			var presetPermissionValidator = new Vodovoz.Domain.Permissions.HierarchicalPresetPermissionValidator(EmployeeSingletonRepository.GetInstance(), new PermissionRepository());
 			PermissionsSettings.PermissionService = new PermissionService(entityPermissionValidator, presetPermissionValidator);
 		}
 	}

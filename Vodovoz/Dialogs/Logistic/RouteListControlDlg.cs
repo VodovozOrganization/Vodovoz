@@ -7,6 +7,7 @@ using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Validation.GtkUI;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -118,7 +119,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			if(
 				!fullyLoaded &&
-				UserPermissionRepository.CurrentUserPresetPermissions["can_send_not_loaded_route_lists_en_route"] &&
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_send_not_loaded_route_lists_en_route") &&
 				MessageDialogHelper.RunQuestionWithTitleDialog(
 					"Оптправить в путь?",
 					string.Format(
@@ -130,7 +131,7 @@ namespace Vodovoz.Dialogs.Logistic
 			) {
 				Entity.ChangeStatus(RouteListStatus.EnRoute);
 				Entity.NotFullyLoaded = true;
-			} else if(!fullyLoaded && !UserPermissionRepository.CurrentUserPresetPermissions["can_send_not_loaded_route_lists_en_route"]) {
+			} else if(!fullyLoaded && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_send_not_loaded_route_lists_en_route")) {
 				MessageDialogHelper.RunWarningDialog(
 					"Недостаточно прав",
 					string.Format("У вас нет прав для перевода не полностью погруженных МЛ в статус \"{0}\"", RouteListStatus.EnRoute.GetEnumTitle()),
