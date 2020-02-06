@@ -1129,8 +1129,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>
-                      </Value>
+                      <Value>=Iif({payment_type} = 'cashless' OR{payment_type} = 'barter' OR {payment_type} = 'ContractDoc',
+'б/н',
+'')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2248,7 +2249,7 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
@@ -2430,7 +2431,7 @@ ORDER BY order_in_route
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>
