@@ -13,11 +13,12 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
 	orders.delivery_date AS order_date,
+	orders.order_status AS order_status,
 	IF(is_bottle_stock, 
 		orders.bottles_by_stock_count,
 		orders.bottles_return
@@ -115,7 +116,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -227,6 +228,10 @@ WHERE
         <Field Name="bottles_return_fact">
           <DataField>bottles_return_fact</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="order_status">
+          <DataField>order_status</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -2805,7 +2810,9 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>='(' + {bottles_return_fact} + ')*'</Value>
+                      <Value>=Iif( {order_status} = 'Closed', 
+'( ' + {bottles_return_fact} + ' )',
+'(          )')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
