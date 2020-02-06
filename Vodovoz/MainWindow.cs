@@ -71,6 +71,7 @@ using QS.Tdi;
 using Vodovoz.Infrastructure;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Users;
+using Vodovoz.ViewModels;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -1541,5 +1542,26 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			QSReport.ReportViewDlg.GenerateHashName<SetBillsReport>(),
 			() => new QSReport.ReportViewDlg(new SetBillsReport())
 		);
+	}
+
+	protected void OnActionUndeliveryProblemSourcesActivated(object sender, EventArgs e)
+	{
+		var undeliveryProblemSourcesViewModel = new SimpleEntityJournalViewModel<UndeliveryProblemSource, UndeliveryProblemSourceViewModel>(
+			x => x.Name,
+			() => new UndeliveryProblemSourceViewModel(
+				EntityUoWBuilder.ForCreate(),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			),
+			(node) => new UndeliveryProblemSourceViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			),
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices
+		);
+		undeliveryProblemSourcesViewModel.SetActionsVisible(deleteActionEnabled: false);
+		tdiMain.AddTab(undeliveryProblemSourcesViewModel);
 	}
 }

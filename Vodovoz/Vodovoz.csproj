@@ -1375,6 +1375,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Users.UserSettingsView.cs" />
     <Compile Include="ViewWidgets\Permissions\PresetPermissionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Permissions.PresetPermissionsView.cs" />
+    <Compile Include="Views\UndeliveryProblemSourceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.UndeliveryProblemSourceView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

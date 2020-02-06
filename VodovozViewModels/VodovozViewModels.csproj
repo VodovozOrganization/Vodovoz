@@ -144,6 +144,7 @@
     <Compile Include="ViewModels\Permissions\PresetUserPermissionsViewModel.cs" />
     <Compile Include="ViewModels\Permissions\PresetPermissionsViewModelBase.cs" />
     <Compile Include="ViewModels\Permissions\PresetSubdivisionPermissionsViewModel.cs" />
+    <Compile Include="ViewModels\UndeliveryProblemSourceViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

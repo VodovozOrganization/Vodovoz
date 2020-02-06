@@ -52,13 +52,13 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>20.3pt</Width>
+            <Width>18.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>42.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.7pt</Width>
+            <Width>34.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>77.3pt</Width>
@@ -67,6 +67,9 @@
             <Width>57.2pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>45.0pt</Width>
+          </TableColumn>
+          <TableColumn >
             <Width>247.5pt</Width>
           </TableColumn>
           <TableColumn>
@@ -79,7 +82,7 @@
             <Width>58.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>72.9pt</Width>
+            <Width>53.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -180,6 +183,24 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
+                      <Value>Источник проблемы</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
                       <Value>Причина</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -384,6 +405,27 @@
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>false</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>={reason}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>6pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -608,7 +650,8 @@
     un_ord_subqry.guilty,
     un_ord_subqry.at_work_sub,
     un_ord_subqry.transfer_type,
-    un_ord_subqry.problem_source
+    un_ord_subqry.problem_source,
+    un_ord_subqry.reason
 FROM
 #поля недовоза
 (
@@ -648,6 +691,7 @@ FROM
 				WHEN 'ServiceMan' THEN 'Мастер СЦ'
                 WHEN 'ForceMajor' THEN 'Форс-мажор'
 				WHEN 'None' THEN 'Нет (не недовоз)'
+				WHEN 'Unknown' THEN 'Неизвестно'
 				ELSE g.guilty_side
 			END
 			SEPARATOR ';\n'
@@ -664,9 +708,11 @@ FROM
         
 	GROUP_CONCAT(CONCAT_WS(': ',fine_employee.last_name, fines_items.money) SEPARATOR '\n') AS fines,
     IF(in_work_sub.short_name IS NULL OR in_work_sub.short_name = '', in_work_sub.name, in_work_sub.short_name) as at_work_sub,
-    un.problem_source
+    ups.name as problem_source,
+    un.reason as reason
     
 	FROM undelivered_orders un
+	LEFT JOIN undelivery_problem_sources ups ON ups.id = un.undelivery_problem_source_id 
     LEFT JOIN fines ON fines.undelivery_id = un.id
     LEFT JOIN fines_items ON fines_items.fine_id = fines.id
     LEFT JOIN employees AS fine_employee ON fine_employee.id = fines_items.employee_id
@@ -793,6 +839,10 @@ ORDER BY order_by_column ASC
         </Field>
         <Field Name="problem_source">
           <DataField>problem_source</DataField>
+        </Field>
+        <Field Name="reason">
+          <DataField>reason</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
