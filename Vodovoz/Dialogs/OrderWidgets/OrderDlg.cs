@@ -803,7 +803,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonSelfDeliveryToLoadingClicked(object sender, EventArgs e)
 		{
-			Entity.SelfDeliveryToLoading(UserPermissionSingletonRepository.GetInstance());
+			Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService);
 			UpdateUIState();
 		}
 

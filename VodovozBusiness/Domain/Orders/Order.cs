@@ -2892,12 +2892,12 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Отправка самовывоза на погрузку
 		/// </summary>
-		public virtual void SelfDeliveryToLoading(IUserPermissionRepository permissionRepository)
+		public virtual void SelfDeliveryToLoading(ICurrentPermissionService permissionService)
 		{
 			if(!SelfDelivery) {
 				return;
 			}
-			if(OrderStatus == OrderStatus.Accepted && permissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"]) {
+			if(OrderStatus == OrderStatus.Accepted && permissionService.ValidatePresetPermission("allow_load_selfdelivery")) {
 				ChangeStatus(OrderStatus.OnLoading);
 				LoadAllowedBy = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			}
