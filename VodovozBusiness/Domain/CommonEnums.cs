@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Attributes;
 
 namespace Vodovoz.Domain.Goods
 {

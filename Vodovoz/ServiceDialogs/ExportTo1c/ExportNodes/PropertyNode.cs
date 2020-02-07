@@ -24,6 +24,9 @@ namespace Vodovoz.ExportTo1c
 			this.AdditionalAttributes = new List<XAttribute>();
 		}
 
+		public PropertyNode(string name, string type, bool value)
+			: this(name, type, new PropertyValueNode(XmlConvert.ToString(value))) { }
+
 		public PropertyNode(string name, string type, decimal value)
 			: this(name, type, new PropertyValueNode(XmlConvert.ToString(value))){}
 		

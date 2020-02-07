@@ -809,6 +809,7 @@
     <Compile Include="EntityRepositories\Permissions\PermissionRepository.cs" />
     <Compile Include="Domain\Orders\UndeliveryProblemSource.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveryProblemSourceMap.cs" />
+    <Compile Include="Attributes\Value1cType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
