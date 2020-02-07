@@ -59,7 +59,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			if (nomenclature.Unit != null)
 			{
 				properties.Add(
-					new PropertyNode("БазоваяЕдиницаИзмерения",
+					new PropertyNode("ЕдиницаИзмерения",
 						Common1cTypes.ReferenceMeasurementUnit,
 						exportData.MeasurementUnitCatalog.CreateReferenceTo(nomenclature.Unit)
 					)
@@ -68,7 +68,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			else
 			{
 				properties.Add(
-					new PropertyNode("БазоваяЕдиницаИзмерения",
+					new PropertyNode("ЕдиницаИзмерения",
 						Common1cTypes.ReferenceMeasurementUnit
 					)
 				);
@@ -84,25 +84,17 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				)
 			);
 
-			var vat = nomenclature.VAT.GetAttribute<Value1c>().Value;
+			var vat = nomenclature.VAT.GetAttribute<Value1cType>().Value;
+
 			properties.Add(
-				new PropertyNode("СтавкаНДС",
-					Common1cTypes.EnumVAT,
+				new PropertyNode("ВидСтавкиНДС",
+					Common1cTypes.EnumVATTypes,
 					vat
 				)
 			);
 
-			properties.Add(
-				new PropertyNode("СтранаПроисхождения",
-					Common1cTypes.ReferenceCountry
-				)
-			);
-			properties.Add(
-				new PropertyNode("ПометкаУдаления",
-					Common1cTypes.Boolean
-				)
-			);
 			var isService = !Nomenclature.GetCategoriesForGoods().Contains(nomenclature.Category);
+
 			if (isService)
 				properties.Add(
 					new PropertyNode("Услуга",
@@ -116,6 +108,22 @@ namespace Vodovoz.ExportTo1c.Catalogs
 						Common1cTypes.Boolean
 					)
 				);
+
+			if (isService)
+				properties.Add(
+					new PropertyNode("ВидНоменклатуры",
+						Common1cTypes.ReferenceNomenclatureType,
+						exportData.NomenclatureTypeCatalog.CreateReferenceTo(NomenclatureType1c.ServicesType)
+					)
+				);
+			else
+				properties.Add(
+					new PropertyNode("ВидНоменклатуры",
+						Common1cTypes.ReferenceNomenclatureType,
+						exportData.NomenclatureTypeCatalog.CreateReferenceTo(NomenclatureType1c.GoodsType)
+					)
+				);
+
 			properties.Add(
 				new PropertyNode("НаименованиеПолное",
 					Common1cTypes.String,

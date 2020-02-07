@@ -43,6 +43,7 @@ namespace Vodovoz.ExportTo1c
 		public CurrencyCatalog CurrencyCatalog { get; private set; }
 		public MeasurementUnitsCatalog MeasurementUnitCatalog { get; private set; }
 		public NomenclatureCatalog NomenclatureCatalog { get; private set; }
+		public NomenclatureTypeCatalog NomenclatureTypeCatalog { get; private set; }
 		public NomenclatureGroupCatalog NomenclatureGroupCatalog { get; private set; }
 		public OrganizationCatalog OrganizationCatalog { get; private set; }
 		public WarehouseCatalog WarehouseCatalog { get; private set; }
@@ -74,6 +75,7 @@ namespace Vodovoz.ExportTo1c
 			this.CurrencyCatalog = new CurrencyCatalog(this);
 			this.MeasurementUnitCatalog = new MeasurementUnitsCatalog(this);
 			this.NomenclatureCatalog = new NomenclatureCatalog(this);
+			this.NomenclatureTypeCatalog = new NomenclatureTypeCatalog(this);
 			this.NomenclatureGroupCatalog = new NomenclatureGroupCatalog(this);
 			this.OrganizationCatalog = new OrganizationCatalog(this);
 			this.WarehouseCatalog = new WarehouseCatalog(this);
