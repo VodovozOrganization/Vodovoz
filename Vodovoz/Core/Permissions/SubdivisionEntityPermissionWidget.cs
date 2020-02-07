@@ -77,7 +77,7 @@ namespace Vodovoz.Core.Permissions
 		private IUnitOfWork uow;
 		private Subdivision subdivision;
 		private IList<SubdivisionPermissionNode> originalPermissionList;
-		private IList<TypeOfEntity> originalTypeOfEntityList;
+		private List<TypeOfEntity> originalTypeOfEntityList;
 		public IPermissionExtensionStore ExtensionStore { get; set; }
 		public PermissionListViewModel PermissionListViewModel { get; set; }
 
@@ -96,13 +96,14 @@ namespace Vodovoz.Core.Permissions
 			PermissionListViewModel.PermissionsList = new GenericObservableList<IPermissionNode>(permissionList.OfType<IPermissionNode>().ToList());
 			PermissionListViewModel.PermissionsList.ElementRemoved += (aList, aIdx, aObject) => DeletePermission(aObject as SubdivisionPermissionNode);
 
-			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
+			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow).ToList();
 			//убираем типы уже загруженные в права
 			foreach(var item in originalPermissionList) {
 				if(originalTypeOfEntityList.Contains(item.TypeOfEntity)) {
 					originalTypeOfEntityList.Remove(item.TypeOfEntity);
 				}
 			}
+			SortTypeOfEntityList();
 			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(originalTypeOfEntityList);
 		}
 
@@ -146,6 +147,7 @@ namespace Vodovoz.Core.Permissions
 			uow.Delete(deletedPermission.EntitySubdivisionOnlyPermission);
 			foreach(var permission in deletedPermission.EntityPermissionExtended)
 				uow.Delete(permission);
+			SortTypeOfEntityList();
 		}
 
 		public void SavePermissions(IUnitOfWork uow)
@@ -158,6 +160,15 @@ namespace Vodovoz.Core.Permissions
 				uow.Save(item);
 
 			PermissionListViewModel.SaveExtendedPermissions(uow);
+		}
+
+		private void SortTypeOfEntityList()
+		{
+			if(originalTypeOfEntityList?.FirstOrDefault() == null)
+				return;
+
+			originalTypeOfEntityList.Sort((x, y) =>
+					string.Compare(x.CustomName ?? x.Type, y.CustomName ?? y.Type));
 		}
 	}
 }
