@@ -55,9 +55,9 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					Common1cTypes.ReferenceContract			
 				)
 			);
-			var counterpartyType = counterparty.PersonType == PersonType.legal ? "ЮрЛицо" : "ФизЛицо";
+			var counterpartyType = counterparty.PersonType == PersonType.legal ? "ЮридическоеЛицо" : "ФизическоеЛицо";
 			properties.Add(
-				new PropertyNode("ЮрФизЛицо",
+				new PropertyNode("ЮридическоеФизическоеЛицо",
 					Common1cTypes.String,
 					counterpartyType
 				)
