@@ -6,7 +6,7 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {
-	public class NomenclatureType1cTypeCatalog:GenericCatalog<NomenclatureType1c>
+	public class NomenclatureType1cTypeCatalog : GenericCatalog<NomenclatureType1c>
 	{
 		public NomenclatureType1cTypeCatalog(ExportData exportData)
 			:base(exportData)
@@ -29,21 +29,21 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			);
 		}
 
-		protected override PropertyNode[] GetProperties(NomenclatureType1c NomenclatureType1c)
+		protected override PropertyNode[] GetProperties(NomenclatureType1c nomenclatureType1c)
 		{
 			var properties = new List<PropertyNode>();
 			properties.Add(
 				new PropertyNode("Наименование",
 					Common1cTypes.String,
-					NomenclatureType1c.Name
+					nomenclatureType1c.Name
 				)
 			);
 			
 			properties.Add(
-					new PropertyNode("Услуга",
-						Common1cTypes.Boolean,
-						NomenclatureType1c.isService
-					)
+				new PropertyNode("Услуга",
+					Common1cTypes.Boolean,
+					nomenclatureType1c.IsService
+				)
 			);
 			
 			return properties.ToArray();
