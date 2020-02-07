@@ -1153,26 +1153,26 @@ public partial class MainWindow
 				"nsumptionReport\'/></menu><separator/><menu name=\'ActionReportEmployees\' action=\'" +
 				"ActionReportEmployees\'><menuitem name=\'ActionEmployeeFines\' action=\'ActionEmploy" +
 				"eeFines\'/><menuitem name=\'ActionEmployeesBonuses\' action=\'ActionEmployeesBonuses" +
-				"\'/><menuitem name=\'ActionWagesOperations\' action=\'ActionWagesOperations\'/><menui" +
-				"tem name=\'ActionForwarderWageReport\' action=\'ActionForwarderWageReport\'/></menu>" +
-				"<menu name=\'ActionReportsDrivers\' action=\'ActionReportsDrivers\'><menuitem name=\'" +
-				"ActionDriverWages\' action=\'ActionDriverWages\'/><menuitem name=\'ActionFuelReport\'" +
-				" action=\'ActionFuelReport\'/><menuitem name=\'ActionDriversWageBalance\' action=\'Ac" +
-				"tionDriversWageBalance\'/><menuitem name=\'ActionDeliveriesLate\' action=\'ActionDel" +
-				"iveriesLate\'/><menuitem name=\'ActionUnclosedRouteLists\' action=\'ActionUnclosedRo" +
-				"uteLists\'/><separator/><menuitem name=\'ActionRoutesListRegister\' action=\'ActionR" +
-				"outesListRegister\'/><menuitem name=\'ActionOnLoadTime\' action=\'ActionOnLoadTime\'/" +
-				"><menuitem name=\'ActionDeliveryTimeReport\' action=\'ActionDeliveryTimeReport\'/><m" +
-				"enuitem name=\'ActionCompanyTrucks\' action=\'ActionCompanyTrucks\'/><menuitem name=" +
-				"\'ActionShipmentReport\' action=\'ActionShipmentReport\'/><menuitem name=\'ActionMile" +
-				"ageReport\' action=\'ActionMileageReport\'/><menuitem name=\'ActionDriveingCalls\' ac" +
-				"tion=\'ActionDriveingCalls\'/></menu><separator/><menu name=\'ActionReportService\' " +
-				"action=\'ActionReportService\'><menuitem name=\'Action42\' action=\'Action42\'/><menui" +
-				"tem name=\'Action41\' action=\'Action41\'/><menuitem name=\'ActionMastersVisitReport\'" +
-				" action=\'ActionMastersVisitReport\'/></menu><menu name=\'ActionBookkeepping\' actio" +
-				"n=\'ActionBookkeepping\'><menuitem name=\'ActionCloseDeliveryReport\' action=\'Action" +
-				"CloseDeliveryReport\'/></menu><menu name=\'Action61\' action=\'Action61\'><menuitem n" +
-				"ame=\'ActionIncomeBalanceReport\' action=\'ActionIncomeBalanceReport\'/></menu></men" +
+				"\'/></menu><menu name=\'ActionReportsDrivers\' action=\'ActionReportsDrivers\'><menui" +
+				"tem name=\'ActionDeliveriesLate\' action=\'ActionDeliveriesLate\'/><menuitem name=\'A" +
+				"ctionUnclosedRouteLists\' action=\'ActionUnclosedRouteLists\'/><separator/><menuite" +
+				"m name=\'ActionRoutesListRegister\' action=\'ActionRoutesListRegister\'/><menuitem n" +
+				"ame=\'ActionOnLoadTime\' action=\'ActionOnLoadTime\'/><menuitem name=\'ActionDelivery" +
+				"TimeReport\' action=\'ActionDeliveryTimeReport\'/><menuitem name=\'ActionCompanyTruc" +
+				"ks\' action=\'ActionCompanyTrucks\'/><menuitem name=\'ActionShipmentReport\' action=\'" +
+				"ActionShipmentReport\'/><menuitem name=\'ActionMileageReport\' action=\'ActionMileag" +
+				"eReport\'/><menuitem name=\'ActionDriveingCalls\' action=\'ActionDriveingCalls\'/></m" +
+				"enu><separator/><menu name=\'ActionReportService\' action=\'ActionReportService\'><m" +
+				"enuitem name=\'Action42\' action=\'Action42\'/><menuitem name=\'Action41\' action=\'Act" +
+				"ion41\'/><menuitem name=\'ActionMastersVisitReport\' action=\'ActionMastersVisitRepo" +
+				"rt\'/></menu><menu name=\'ActionBookkeepping\' action=\'ActionBookkeepping\'><menuite" +
+				"m name=\'ActionCloseDeliveryReport\' action=\'ActionCloseDeliveryReport\'/></menu><m" +
+				"enu name=\'Action61\' action=\'Action61\'><menuitem name=\'ActionIncomeBalanceReport\'" +
+				" action=\'ActionIncomeBalanceReport\'/><menuitem name=\'ActionDriverWages\' action=\'" +
+				"ActionDriverWages\'/><menuitem name=\'ActionDriversWageBalance\' action=\'ActionDriv" +
+				"ersWageBalance\'/><menuitem name=\'ActionFuelReport\' action=\'ActionFuelReport\'/><m" +
+				"enuitem name=\'ActionForwarderWageReport\' action=\'ActionForwarderWageReport\'/><me" +
+				"nuitem name=\'ActionWagesOperations\' action=\'ActionWagesOperations\'/></menu></men" +
 				"u><menu name=\'ActionAdministration\' action=\'ActionAdministration\'><menuitem name" +
 				"=\'ActionTypesOfEntities\' action=\'ActionTypesOfEntities\'/><menuitem name=\'ActionU" +
 				"sers\' action=\'ActionUsers\'/><menuitem name=\'ActionParameters\' action=\'ActionPara" +
