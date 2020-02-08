@@ -249,13 +249,6 @@ namespace Vodovoz.ExportTo1c
 			);
 
 			exportSaleDocument.Properties.Add(
-				new PropertyNode("УчитыватьНДС",
-					Common1cTypes.Boolean,
-					"true"
-				)
-			);
-
-			exportSaleDocument.Properties.Add(
 				new PropertyNode("СуммаВключаетНДС",
 					Common1cTypes.Boolean,
 					"true"

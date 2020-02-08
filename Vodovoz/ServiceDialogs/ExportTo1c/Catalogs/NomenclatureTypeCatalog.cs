@@ -14,7 +14,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		}
 		protected override string Name
 		{
-			get{return "ВидНоменклатуры";}
+			get{return "ВидыНоменклатуры";}
 		}
 
 		public override ReferenceNode CreateReferenceTo(NomenclatureType1c NomenclatureType1c)
