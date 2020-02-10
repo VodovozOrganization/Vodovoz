@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -51,7 +51,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -328,8 +328,8 @@ WHERE
             <Width>84.27pt</Width>
             <Value>Счет-фактура №</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.8pt</Left>
-            <Top>4.1pt</Top>
+            <Left>0.80pt</Left>
+            <Top>4.10pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -592,8 +592,8 @@ WHERE
             <Width>103.14pt</Width>
             <Value>--</Value>
             <ZIndex>1</ZIndex>
-            <Left>196.9pt</Left>
-            <Top>12.4pt</Top>
+            <Left>196.90pt</Left>
+            <Top>12.40pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2415,8 +2415,8 @@ WHERE
         <Top>196.4pt</Top>
       </Table>
       <List Name="List4">
-        <Height>244.81pt</Height>
-        <Width>793.01pt</Width>
+        <Height>304.24pt</Height>
+        <Width>793.00pt</Width>
         <Left>1.50pt</Left>
         <Top>284.80pt</Top>
         <ReportItems>
@@ -3550,6 +3550,68 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox191" >
+            <Height>12pt</Height>
+            <Width>1in</Width>
+            <Value>=Fields!order_id.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>628.7pt</Left>
+            <Top>248.5pt</Top>
+            <Style>
+              <FontSize>8pt</FontSize>
+              <BorderStyle>
+                <Top>None</Top>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox192" >
+            <Height>12.00pt</Height>
+            <Width>15.07pt</Width>
+            <Value>от</Value>
+            <ZIndex>1</ZIndex>
+            <Left>704.3pt</Left>
+            <Top>250.4pt</Top>
+            <Style>
+              <FontSize>8pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox193" >
+            <Height>12pt</Height>
+            <Width>1in</Width>
+            <Value>=Fields!order_date.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>717.9pt</Left>
+            <Top>248.3pt</Top>
+            <Style>
+              <FontSize>8pt</FontSize>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <Format>d</Format>
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox190" >
+            <Height>12pt</Height>
+            <Width>1in</Width>
+            <Value>№</Value>
+            <ZIndex>1</ZIndex>
+            <Left>550.5pt</Left>
+            <Top>249.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8pt</FontSize>
+              <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
         </ReportItems>
