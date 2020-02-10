@@ -16,7 +16,8 @@ namespace Vodovoz.Core.DataService
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
 		IEmailServiceSettings,
-		IContactsParameters
+		IContactsParameters,
+		IDriverServiceParametersProvider
 	{
 		public int GetForfeitId()
 		{
@@ -236,6 +237,26 @@ namespace Vodovoz.Core.DataService
 				}
 
 				return value;
+			}
+		}
+
+		#endregion
+
+		#region IDriverServiceParametersProvider
+
+		public int MaxUoWAllowed {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("max_uow_allowed")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено значение максимального количества UoW (max_uow_allowed)");
+				}
+
+				string value = ParametersProvider.Instance.GetParameterValue("max_uow_allowed");
+
+				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено значение максимального количества UoW (max_uow_allowed)");
+				}
+
+				return result;
 			}
 		}
 
