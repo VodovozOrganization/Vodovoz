@@ -5,6 +5,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using System.Data.Bindings.Utilities;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -13,8 +14,9 @@ namespace Vodovoz.Domain.Goods
 		Nominative = "группа товаров")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class ProductGroup : DomainTreeNodeBase<ProductGroup>
+	public class ProductGroup : DomainTreeNodeBase<ProductGroup>, IValidatableObject
 	{
+
 		#region Свойства
 
 		string name;
@@ -25,6 +27,28 @@ namespace Vodovoz.Domain.Goods
 		public virtual string Name {
 			get { return name; }
 			set { SetField(ref name, value, () => Name); }
+		}
+
+		/// <summary>
+		/// Нужен для NHibernate. Используйте <see cref="Parent"/>
+		/// </summary>
+		public virtual ProductGroup MappedParent {
+			get => parent;
+			set { SetField(ref parent, value, () => MappedParent); }
+		}
+
+		private ProductGroup parent;
+		public override ProductGroup Parent {
+			get => parent;
+			set {
+				if(parent != null)
+					parent.Childs.Remove(this);
+
+				MappedParent = value;
+
+				if(parent != null)
+					parent.Childs.Add(this);
+			}
 		}
 
 		private Guid? onlineStoreGuid;
@@ -81,6 +105,26 @@ namespace Vodovoz.Domain.Goods
 				OnlineStoreGuid = Guid.NewGuid();
 				uow.Save(this);
 			}
+		}
+
+		private bool IsValidParent(ProductGroup parentGroup)
+		{
+			if(parentGroup == null)
+				return true;
+
+			if(this == parentGroup)
+				return false;
+				
+			return IsValidParent(parentGroup.parent);
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(!IsValidParent(parent))
+				yield return new ValidationResult(
+					"\"Родитель не назначен, так как возникает зацикливание\"",
+					new[] { this.GetPropertyName(o => o.Parent) }
+				);
 		}
 
 		public ProductGroup() { }
