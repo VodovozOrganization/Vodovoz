@@ -20,18 +20,15 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
-using QS.EntityRepositories;
 using QS.Print;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Report;
 using QS.Tdi;
-using QS.Tdi.Gtk;
 using QS.Validation.GtkUI;
 using QSDocTemplates;
 using QSOrmProject;
@@ -1246,6 +1243,11 @@ namespace Vodovoz
 			if(Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
 			   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
 				MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
+				return;
+			}
+			if(nomenclature.ProductGroup.IsOnlineStore && !ServicesConfig.CommonServices.CurrentPermissionService
+				.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
+				MessageDialogHelper.RunWarningDialog("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
 				return;
 			}
 
