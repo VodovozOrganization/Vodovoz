@@ -876,6 +876,16 @@ namespace Vodovoz.Domain.Goods
 			};
 		}
 
+		public static NomenclatureCategory[] GetAllCategories()
+		{
+			var values = new List<NomenclatureCategory>();
+			foreach(var item in Enum.GetValues(typeof(NomenclatureCategory))) {
+				values.Add((NomenclatureCategory)item);
+			}
+			return values.ToArray();
+		}
+
+
 		/// <summary>
 		/// Определяет категории для которых необходимо создавать доп соглашение по продаже воды
 		/// </summary>

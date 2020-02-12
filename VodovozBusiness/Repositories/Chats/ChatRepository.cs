@@ -3,6 +3,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Chats;
 using System.Collections.Generic;
 using QS.Project.Repositories;
+using QS.Project.Services;
 
 namespace Vodovoz.Repository.Chats
 {
@@ -21,7 +22,7 @@ namespace Vodovoz.Repository.Chats
 			//employee пригодится в дальнейшем
 			Chat chatAlias = null;
 
-			if (UserPermissionRepository.CurrentUserPresetPermissions ["logistican"]) {
+			if (ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican")) {
 				return uow.Session.QueryOver<Chat> (() => chatAlias)
 				.Where (() => chatAlias.ChatType == ChatType.DriverAndLogists)
 				.List ();

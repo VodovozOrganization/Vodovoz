@@ -20,18 +20,15 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
-using QS.EntityRepositories;
 using QS.Print;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Report;
 using QS.Tdi;
-using QS.Tdi.Gtk;
 using QS.Validation.GtkUI;
 using QSDocTemplates;
 using QSOrmProject;
@@ -60,13 +57,14 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Repositories;
+using Vodovoz.EntityRepositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz
 {
@@ -87,6 +85,7 @@ namespace Vodovoz
 		private IEmployeeRepository employeeRepository { get; set; } = EmployeeSingletonRepository.GetInstance();
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
+		private IEmailRepository emailRepository { get; set; } = new EmailRepository();
 
 		#region Работа с боковыми панелями
 
@@ -113,7 +112,7 @@ namespace Vodovoz
 
 		public Order Order => Entity;
 
-		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? EmailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
+		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? emailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
 
 		#endregion
 
@@ -302,7 +301,7 @@ namespace Vodovoz
 
 			referenceDeliveryPoint.Binding.AddBinding(Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPoint.CanEditReference = true;
-			chkContractCloser.Sensitive = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_set_contract_closer"];
+			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer");
 
 			buttonViewDocument.Sensitive = false;
 			btnDeleteOrderItem.Sensitive = false;
@@ -648,7 +647,7 @@ namespace Vodovoz
 
 			logger.Info("Сохраняем заказ...");
 
-			if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill()) {
+			if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
 				var emailAddressForBill = Entity.GetEmailAddressForBill();
 				if(emailAddressForBill == null) {
 					if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
@@ -766,7 +765,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonCloseOrderClicked(object sender, EventArgs e)
 		{
-			if(Entity.OrderStatus == OrderStatus.Accepted && UserPermissionRepository.CurrentUserPresetPermissions["can_close_orders"]) {
+			if(Entity.OrderStatus == OrderStatus.Accepted && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_orders")) {
 				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите закрыть заказ?")) {
 					return;
 				}
@@ -801,7 +800,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonSelfDeliveryToLoadingClicked(object sender, EventArgs e)
 		{
-			Entity.SelfDeliveryToLoading(UserPermissionSingletonRepository.GetInstance());
+			Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService);
 			UpdateUIState();
 		}
 
@@ -1179,10 +1178,14 @@ namespace Vodovoz
 			if(!CanAddNomenclaturesToOrder())
 				return;
 
+			var defaultCategory = NomenclatureCategory.water;
+			if(CurrentUserSettings.Settings.DefaultSaleCategory.HasValue)
+				defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;
+
 			var nomenclatureFilter = new NomenclatureFilterViewModel();
 			nomenclatureFilter.SetAndRefilterAtOnce(
 				x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-				x => x.SelectCategory = NomenclatureCategory.water,
+				x => x.SelectCategory = defaultCategory,
 				x => x.SelectSaleCategory = SaleCategory.forSale,
 				x => x.RestrictArchive = false
 			);
@@ -1242,6 +1245,12 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
 				return;
 			}
+			if(nomenclature.ProductGroup != null)
+				if(nomenclature.ProductGroup.IsOnlineStore && !ServicesConfig.CommonServices.CurrentPermissionService
+					.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {
+					MessageDialogHelper.RunWarningDialog("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
+					return;
+				}
 
 			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
 		}
@@ -1787,7 +1796,7 @@ namespace Vodovoz
 
 		void PickerDeliveryDate_DateChanged(object sender, EventArgs e)
 		{
-			if(pickerDeliveryDate.Date < DateTime.Today && !UserPermissionRepository.CurrentUserPresetPermissions["can_can_create_order_in_advance"])
+			if(pickerDeliveryDate.Date < DateTime.Today && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance"))
 				pickerDeliveryDate.ModifyBase(StateType.Normal, new Gdk.Color(255, 0, 0));
 			else
 				pickerDeliveryDate.ModifyBase(StateType.Normal, new Gdk.Color(255, 255, 255));
@@ -1942,7 +1951,7 @@ namespace Vodovoz
 				treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType == PaymentType.cashless;
 			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
 				dataSumDifferenceReason.Visible = (Entity.PaymentType == PaymentType.cash || Entity.PaymentType == PaymentType.BeveragesWorld);
-			spinSumDifference.Visible = spinSumDifference.Visible && UserPermissionRepository.CurrentUserPresetPermissions["can_edit_order_extra_cash"];
+			spinSumDifference.Visible = spinSumDifference.Visible && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_order_extra_cash");
 			pickerBillDate.Visible = labelBillDate.Visible = Entity.PaymentType == PaymentType.cashless;
 			Entity.SetProxyForOrder();
 			UpdateProxyInfo();
@@ -2367,7 +2376,7 @@ namespace Vodovoz
 			buttonAddForSale.Sensitive = referenceContract.Sensitive = enumAddRentButton.Sensitive = !Entity.IsLoadedFrom1C;
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
-			chkContractCloser.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"] && val && !Entity.SelfDelivery;
+			chkContractCloser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer") && val && !Entity.SelfDelivery;
 			hbxTareNonReturnReason.Sensitive = val;
 
 			if(Entity != null)
@@ -2415,7 +2424,7 @@ namespace Vodovoz
 
 		void UpdateButtonState()
 		{
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_edit_order"]) {
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_order")) {
 				buttonEditOrder.Sensitive = false;
 				buttonEditOrder.TooltipText = "Нет права на редактирование";
 			}
@@ -2440,13 +2449,13 @@ namespace Vodovoz
 
 			menuItemSelfDeliveryToLoading.Sensitive = Entity.SelfDelivery
 				&& Entity.OrderStatus == OrderStatus.Accepted
-				&& UserPermissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"];
+				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("allow_load_selfdelivery");
 			menuItemSelfDeliveryPaid.Sensitive = Entity.SelfDelivery
 				&& (Entity.PaymentType == PaymentType.cashless || Entity.PaymentType == PaymentType.ByCard)
 				&& Entity.OrderStatus == OrderStatus.WaitForPayment
-				&& UserPermissionRepository.CurrentUserPresetPermissions["accept_cashless_paid_selfdelivery"];
+				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery");
 
-			menuItemCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && UserPermissionRepository.CurrentUserPresetPermissions["can_close_orders"] && !Entity.SelfDelivery;
+			menuItemCloseOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_orders") && !Entity.SelfDelivery;
 			menuItemReturnToAccepted.Sensitive = Entity.OrderStatus == OrderStatus.Closed && Entity.CanBeMovedFromClosedToAcepted;
 		}
 
@@ -2527,13 +2536,13 @@ namespace Vodovoz
 
 		private bool HaveEmailForBill()
 		{
-			QS.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
+			Vodovoz.Domain.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 			return clientEmail != null || MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?");
 		}
 
-		private void SendBillByEmail(QS.Contacts.Email emailAddressForBill)
+		private void SendBillByEmail(Vodovoz.Domain.Contacts.Email emailAddressForBill)
 		{
-			if(!EmailServiceSetting.SendingAllowed || EmailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
+			if(!EmailServiceSetting.SendingAllowed || emailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
 				return;
 			}
 
@@ -2552,7 +2561,7 @@ namespace Vodovoz
 			billDocument.HideSignature = wasHideSignature;
 
 			var billTemplate = billDocument.GetEmailTemplate();
-			Email email = new Email {
+			EmailService.Email email = new EmailService.Email {
 				Title = string.Format("{0} {1}", billTemplate.Title, billDocument.Title),
 				Text = billTemplate.Text,
 				HtmlText = billTemplate.TextHtml,
@@ -2599,7 +2608,7 @@ namespace Vodovoz
 			if(!Entity.Client.Emails.Any()) {
 				email = "";
 			} else {
-				QS.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
+				Vodovoz.Domain.Contacts.Email clientEmail = Entity.Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 				if(clientEmail == null) {
 					clientEmail = Entity.Client.Emails.FirstOrDefault();
 				}

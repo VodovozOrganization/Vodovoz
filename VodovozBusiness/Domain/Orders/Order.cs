@@ -7,7 +7,7 @@ using System.Text;
 using Gamma.Utilities;
 using NHibernate.Exceptions;
 using NHibernate.Util;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -15,8 +15,8 @@ using QS.DomainModel.UoW;
 using QS.EntityRepositories;
 using QS.HistoryLog;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Services;
-using QSSupportLib;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -39,6 +39,7 @@ using Vodovoz.Repository.Client;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -910,7 +911,7 @@ namespace Vodovoz.Domain.Orders
 						bool hasMaster = ObservableOrderItems.Any(i => i.Nomenclature.Category == NomenclatureCategory.master);
 
 						if(!hasMaster
-						   && !UserPermissionRepository.CurrentUserPresetPermissions["can_create_several_orders_for_date_and_deliv_point"]
+						   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_several_orders_for_date_and_deliv_point")
 						   && ordersForDeliveryPoints.Any()
 						   && validationContext.Items.ContainsKey("IsCopiedFromUndelivery") && !(bool)validationContext.Items["IsCopiedFromUndelivery"]) {
 							yield return new ValidationResult(
@@ -944,14 +945,14 @@ namespace Vodovoz.Domain.Orders
 
 				if(IsService && PaymentType == PaymentType.cashless
 				   && newStatus == OrderStatus.Accepted
-				   && !UserPermissionRepository.CurrentUserPresetPermissions["can_accept_cashles_service_orders"]) {
+				   && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_accept_cashles_service_orders")) {
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения безнального сервисного заказа. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.OrderStatus) }
 					);
 				}
 
-				if(IsContractCloser && !UserPermissionRepository.CurrentUserPresetPermissions["can_set_contract_closer"]) {
+				if(IsContractCloser && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_contract_closer")) {
 					yield return new ValidationResult(
 						"Недостаточно прав для подтверждения зыкрывашки по контракту. Обратитесь к руководителю.",
 						new[] { this.GetPropertyName(o => o.IsContractCloser) }
@@ -1012,7 +1013,7 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("В заказе выбрана точка доставки для которой нет актуального дополнительного соглашения по доставке воды");
 			}
 
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_can_create_order_in_advance"]
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_can_create_order_in_advance")
 			   && DeliveryDate.HasValue && DeliveryDate.Value < DateTime.Today
 			   && OrderStatus <= OrderStatus.Accepted) {
 				yield return new ValidationResult(
@@ -1132,7 +1133,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual int TotalWaterBottles => OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water && x.Nomenclature.TareVolume == TareVolume.Vol19L).Sum(x => x.Count);
 
 		public virtual bool CanBeMovedFromClosedToAcepted => new RouteListItemRepository().WasOrderInAnyRouteList(UoW, this)
-																 && UserPermissionRepository.CurrentUserPresetPermissions["can_move_order_from_closed_to_acepted"];
+																 && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_move_order_from_closed_to_acepted");
 
 		#endregion
 
@@ -1233,14 +1234,14 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual Email GetEmailAddressForBill()
 		{
-			return Client.Emails.FirstOrDefault(x => x.EmailType == null || (x.EmailType.Name == "Для счетов"));
+			return Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 		}
 
-		public virtual bool NeedSendBill()
+		public virtual bool NeedSendBill(IEmailRepository emailRepository)
 		{
 			if((OrderStatus == OrderStatus.Accepted || OrderStatus == OrderStatus.WaitForPayment)
 				&& PaymentType == PaymentType.cashless
-				&& !Repositories.EmailRepository.HaveSendedEmail(Id, OrderDocumentType.Bill)) {
+				&& !emailRepository.HaveSendedEmail(Id, OrderDocumentType.Bill)) {
 				//Проверка должен ли формироваться счет для текущего заказа
 				return GetRequirementDocTypes().Contains(OrderDocumentType.Bill);
 			}
@@ -2891,12 +2892,12 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Отправка самовывоза на погрузку
 		/// </summary>
-		public virtual void SelfDeliveryToLoading(IUserPermissionRepository permissionRepository)
+		public virtual void SelfDeliveryToLoading(ICurrentPermissionService permissionService)
 		{
 			if(!SelfDelivery) {
 				return;
 			}
-			if(OrderStatus == OrderStatus.Accepted && permissionRepository.CurrentUserPresetPermissions["allow_load_selfdelivery"]) {
+			if(OrderStatus == OrderStatus.Accepted && permissionService.ValidatePresetPermission("allow_load_selfdelivery")) {
 				ChangeStatus(OrderStatus.OnLoading);
 				LoadAllowedBy = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			}
@@ -2925,7 +2926,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			if(OrderStatus != OrderStatus.WaitForPayment)
 				return;
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["accept_cashless_paid_selfdelivery"])
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery"))
 				return;
 
 			ChangeStatus(PayAfterShipment ? OrderStatus.Closed : OrderStatus.Accepted);
@@ -3573,11 +3574,15 @@ namespace Vodovoz.Domain.Orders
 
 		/// <summary>
 		/// Возврат первого попавшегося контакта из цепочки:
-		/// 1. Мобильный телефон точки доставки;
-		/// 2. Мобильный телефон контрагента;
-		/// 3. Эл.почта для счетов контрагента;
-		/// 4. Городской телефон точки доставки;
-		/// 5. Городской телефон контрагента.
+		///0. Телефон для чеков точки доставки;
+		///1. Телефон для чеков контрагента;
+		///2. Эл.почта для чеков контрагентов;
+		///3. Мобильный телефон точки доставки;
+		///4. Мобильный телефон контрагента;
+		///5. Эл.почта для счетов контрагента;
+		///6. Иная эл. почта (не для чеков или счетов);
+		///7. Городской телефон точки доставки;
+		///8. Городской телефон контрагента.
 		/// </summary>
 		/// <returns>Контакт с минимальным весом.</returns>
 		public virtual string GetContact()
@@ -3588,29 +3593,58 @@ namespace Vodovoz.Domain.Orders
 			Dictionary<int, string> contacts = new Dictionary<int, string>();
 			try {
 				if(!SelfDelivery && DeliveryPoint != null && DeliveryPoint.Phones.Any()) {
-					var phone = DeliveryPoint.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
+
+					var receiptPhone = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)
+						&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
+					if(receiptPhone != null)
+						contacts[0] = receiptPhone;
+
+					var phone = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
 					if(phone != null)
-						contacts[0] = phone.DigitsNumber;
-					else if(DeliveryPoint.Phones.Any(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)))
-						contacts[3] = DeliveryPoint.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+						contacts[3] = phone.DigitsNumber;
+					else if(DeliveryPoint.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
+						contacts[7] = DeliveryPoint.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
 			}
 			try {
 				if(Client.Phones.Any()) {
-					var phone = Client.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
+
+					var receiptPhone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) 
+						&& p.PhoneType?.PhonePurpose == PhonePurpose.ForReceipts)?.DigitsNumber;
+					if(receiptPhone != null)
+						contacts[0] = receiptPhone;
+
+					var phone = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber) && p.DigitsNumber.Substring(0, 1) == "9");
 					if(phone != null)
-						contacts[1] = phone.DigitsNumber;
-					else if(Client.Phones.Any(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)))
-						contacts[4] = Client.Phones.FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
+						contacts[4] = phone.DigitsNumber;
+					else if(Client.Phones.Any(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)))
+						contacts[8] = Client.Phones.FirstOrDefault(p => !String.IsNullOrWhiteSpace(p.DigitsNumber)).DigitsNumber;
 				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
 			}
 			try {
-				if(Client.Emails.Any())
-					contacts[2] = Client.Emails.FirstOrDefault().Address;
+				if(Client.Emails.Any()) {
+					var receiptEmail = Client.Emails.FirstOrDefault(e => !String.IsNullOrWhiteSpace(e.Address)
+						 && e.EmailType?.EmailPurpose == EmailPurpose.ForReceipts)?.Address;
+					if(receiptEmail != null)
+						contacts[2] = receiptEmail;
+
+					var billsEmail = Client.Emails.FirstOrDefault(e => !String.IsNullOrWhiteSpace(e.Address)
+						&& e.EmailType?.EmailPurpose == EmailPurpose.ForBills)?.Address;
+					if(billsEmail != null)
+						contacts[5] = billsEmail;
+
+					var email = Client.Emails.FirstOrDefault(e => 
+						!String.IsNullOrWhiteSpace(e.Address)
+						&& e.EmailType?.EmailPurpose != EmailPurpose.ForBills 
+						&& e.EmailType?.EmailPurpose != EmailPurpose.ForReceipts)
+						?.Address;
+					if(email != null)
+						contacts[6] = email;
+				}
 			} catch(GenericADOException ex) {
 				logger.Error(ex.Message);
 			}

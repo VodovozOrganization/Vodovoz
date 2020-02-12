@@ -32,10 +32,10 @@ namespace Vodovoz
 		public RouteListMileageCheckDlg(int id)
 		{
 			this.Build();
-			editing = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
+			editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = string.Format("Контроль за километражом маршрутного листа №{0}", Entity.Id);
-			var canConfirmMileage = UserPermissionRepository.CurrentUserPresetPermissions["can_confirm_mileage_for_our_GAZelles_Larguses"];
+			var canConfirmMileage = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_mileage_for_our_GAZelles_Larguses");
 			editing &= canConfirmMileage || !(Entity.Car.TypeOfUse.HasValue && Entity.Car.IsCompanyCar && new[] { CarTypeOfUse.CompanyGAZelle, CarTypeOfUse.CompanyLargus }.Contains(Entity.Car.TypeOfUse.Value));
 
 			ConfigureDlg();

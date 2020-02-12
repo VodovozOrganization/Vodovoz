@@ -8,7 +8,6 @@ namespace Vodovoz.Dialogs.Goods
 {
 	public partial class ProductGroupDlg : QS.Dialog.Gtk.EntityDialogBase<ProductGroup>
 	{
-
 		public ProductGroupDlg()
 		{
 			this.Build();
@@ -28,19 +27,20 @@ namespace Vodovoz.Dialogs.Goods
 
 		protected void ConfigureDialog()
 		{
-			yentryName.Binding
-					  .AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			yentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
-			yentryOnlineStoreGuid.Binding
-			                     .AddBinding(Entity, e => e.OnlineStoreGuid, w => w.Text, new GuidToStringConverter()).InitializeFromSource();
+			yentryOnlineStoreGuid.Binding.AddBinding(
+				Entity, e => e.OnlineStoreGuid, w => w.Text, new GuidToStringConverter()).InitializeFromSource();
 
-			ycheckOnlineStore.Binding.AddBinding(Entity, e => e.ExportToOnlineStore, w => w.Active).InitializeFromSource();
+			ycheckExportToOnlineStore.Binding.AddBinding(Entity, e => e.ExportToOnlineStore, w => w.Active).InitializeFromSource();
+			ycheckbuttonOnlineStore.Binding.AddBinding(Entity, e => e.IsOnlineStore, w => w.Active).InitializeFromSource();
 
 			yentryParent.SubjectType = typeof(ProductGroup);
 			yentryParent.Binding.AddBinding(Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
 
 			checklistCharacteristics.EnumType = typeof(NomenclatureProperties);
-			checklistCharacteristics.Binding.AddBinding(Entity, e => e.Characteristics, w => w.SelectedValuesList, new EnumsListConverter<NomenclatureProperties>()).InitializeFromSource();
+			checklistCharacteristics.Binding.AddBinding(
+				Entity, e => e.Characteristics, w => w.SelectedValuesList, new EnumsListConverter<NomenclatureProperties>()).InitializeFromSource();
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase

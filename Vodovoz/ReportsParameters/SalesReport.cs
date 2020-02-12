@@ -11,7 +11,6 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Dialog;
 using QS.Report;
 using QSReport;
 using Vodovoz.Domain;
@@ -22,6 +21,8 @@ using Vodovoz.Domain.Orders;
 using Gamma.Utilities;
 using Vodovoz.Domain.Sale;
 using QS.Dialog.GtkUI;
+using NHibernate.Util;
+using Gamma.Binding;
 
 namespace Vodovoz.Reports
 {
@@ -152,14 +153,84 @@ namespace Vodovoz.Reports
 		}
 
 		Dictionary<FilterTypes, Criterion> criterions = new Dictionary<FilterTypes, Criterion>();
+		GenericObservableList<SelectableProductGroupNode> observableProductGroups { get; set; }
 
 		public SalesReport()
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 			ConfigureFilters();
-			ytreeviewSelectedList.ColumnsConfig = columnsConfig;
+			ConfigureDlg();
+		}
+
+		private void ConfigureDlg()
+		{
+			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
+
+			ytreeviewSelectedList.ColumnsConfig = ColumnsConfigFactory
+				.Create<SalesReportNode>()
+				.AddColumn("Выбрать").AddToggleRenderer(n => n.Selected).Editing()
+				.AddColumn("Название").AddTextRenderer(n => n.Name)
+					.WrapMode(Pango.WrapMode.WordChar)
+					.WrapWidth(400)
+				.Finish();
+
+			scrolledwindow3.WidthRequest = 350;
+
+			ConfigureProductGroups();
+		}
+
+		private void ConfigureProductGroups()
+		{
+			var groups = UoW.Session.QueryOver<ProductGroup>().List().ToList();
+			var parentGroups = UoW.Session.QueryOver<ProductGroup>().Where(g => g.Parent == null).List().ToList();
+
+			List<SelectableProductGroupNode> items = new List<SelectableProductGroupNode>();
+
+			foreach(var parentGroup in parentGroups) {
+				var node = new SelectableProductGroupNode();
+				node.Name = parentGroup.Name;
+				node.Id = parentGroup.Id;
+				node.Children = GenerateGoodsGroupNodes(groups, parentGroup);
+				node.Children.ForEach(x => x.Parent = node);
+				items.Add(node);
+			}
+
+			observableProductGroups = new GenericObservableList<SelectableProductGroupNode>(items);
+			observableProductGroups.ListContentChanged += (sender, e) => { ytreeviewProductGroup.QueueDraw(); };
+
+			foreach(SelectableProductGroupNode item in SelectableProductGroupNode.GetAllNodes(observableProductGroups)) {
+				if(item.Children != null && item.Children.Any()) {
+					item.Children.ListContentChanged += (sender, e) => { ytreeviewProductGroup.QueueDraw(); };
+				}
+			}
+
+			ytreeviewProductGroup.ColumnsConfig = FluentColumnsConfig<SelectableProductGroupNode>
+				.Create()
+				.AddColumn("Выбрать").AddToggleRenderer(node => node.Selected).Editing()
+				.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.WrapMode(Pango.WrapMode.WordChar)
+					.WrapWidth(200)
+				.Finish();
+
+			ytreeviewProductGroup.WidthRequest = 300;
+			ytreeviewProductGroup.YTreeModel = new RecursiveTreeModel<SelectableProductGroupNode>(
+				observableProductGroups, x => x.Parent, x => x.Children);
+		}
+
+		public GenericObservableList<SelectableProductGroupNode> GenerateGoodsGroupNodes(List<ProductGroup> groups, ProductGroup parent)
+		{
+			var result = new GenericObservableList<SelectableProductGroupNode>();
+
+			foreach(var item in groups.Where(x => x.Parent == parent)) {
+				var subNode = new SelectableProductGroupNode();
+				subNode.Name = item.Name;
+				subNode.Id = item.Id;
+				subNode.Children = GenerateGoodsGroupNodes(groups, item);
+				subNode.Children.ForEach(x => x.Parent = subNode);
+				result.Add(subNode);
+			}
+			return result;
 		}
 
 		private void ConfigureFilters()
@@ -446,12 +517,6 @@ namespace Vodovoz.Reports
 
 		#endregion
 
-		private IColumnsConfig columnsConfig = ColumnsConfigFactory
-			.Create<SalesReportNode>()
-			.AddColumn("Выбрать").AddToggleRenderer(node => node.Selected).Editing()
-			.AddColumn("Название").AddTextRenderer(node => node.Name)
-			.Finish();
-
 		#region IParametersWidget implementation
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
@@ -497,6 +562,11 @@ namespace Vodovoz.Reports
 			string[] includePayTypes = GetPayTypes(criterions[FilterTypes.PaymentTypeInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
 			string[] excludePayTypes = GetPayTypes(criterions[FilterTypes.PaymentTypeExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id).ToArray());
 
+			int[] productGroupIds = SelectableProductGroupNode.GetAllNodes(observableProductGroups)
+																 .Where(g => g.Children == null || !g.Children.Any())
+																 .Where(g => g.Selected)
+																 .Select(g => g.Id).ToArray();
+
 			return new ReportInfo {
 				Identifier = ycheckbuttonDetail.Active ? "Sales.SalesReportDetail" : "Sales.SalesReport",
 				Parameters = new Dictionary<string, object>
@@ -534,7 +604,8 @@ namespace Vodovoz.Reports
 					{ "promo_sets_include", GetResultIds(criterions[FilterTypes.PromoSetInclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 					{ "promo_sets_exclude", GetResultIds(criterions[FilterTypes.PromoSetExclude].ObservableList.Where(x => x.Selected).Select(d => d.Id)) },
 
-					{"creation_date", DateTime.Now}
+					{"creation_date", DateTime.Now},
+					{"product_group_ids", GetResultIds(productGroupIds) }
 				}
 			};
 		}
@@ -795,6 +866,53 @@ namespace Vodovoz.Reports
 				searchEntityInSelectedList.Text = String.Empty;
 			}
 		}
+
+		#region SalesReportNode
+
+		public class SelectableProductGroupNode : PropertyChangedBase
+		{
+			private bool selected;
+			public bool Selected {
+				get { return selected; }
+				set {
+					if(SetField(ref selected, value, () => Selected)) {
+						if(Children != null && Children.Any())
+							Children.ForEach(x => x.Selected = value);
+						if(!value && Parent != null)
+							UnselectParentOnly(Parent);
+					}
+				}
+			}
+
+			public int Id { get; set; }
+			public string Name { get; set; }
+			public SelectableProductGroupNode Parent { get; set; }
+			public GenericObservableList<SelectableProductGroupNode> Children { get; set; }
+
+			public void UnselectParentOnly(SelectableProductGroupNode parentNode)
+			{
+				parentNode.selected = false;
+				OnPropertyChanged(() => parentNode.Selected);
+				if(parentNode.Parent != null)
+					parentNode.UnselectParentOnly(parentNode.Parent);
+			}
+
+			//Не возвращает parent ноды
+			public static IEnumerable<SelectableProductGroupNode> GetAllNodes(GenericObservableList<SelectableProductGroupNode> list)
+			{
+				List<SelectableProductGroupNode> result = new List<SelectableProductGroupNode>();
+
+				foreach(SelectableProductGroupNode item in list) {
+
+					result.Add(item);
+					if(item.Children != null && item.Children.Any())
+						result.AddRange(GetAllNodes(item.Children));
+				}
+				return result;
+			}
+		}
+
+		#endregion
 
 	}
 }

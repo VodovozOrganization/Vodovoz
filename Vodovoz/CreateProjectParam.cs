@@ -17,7 +17,6 @@ using QS.Project.Domain;
 using QS.Project.Repositories;
 using QS.Widgets.GtkUI;
 using QSBusinessCommon;
-using QSContacts;
 using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
@@ -57,7 +56,6 @@ using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.JournalColumnsConfigs;
-using Vodovoz.Parameters;
 using Vodovoz.Services.Permissions;
 using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Complaints;
@@ -80,6 +78,11 @@ using Vodovoz.ViewWidgets.AdvancedWageParameterViews;
 using Vodovoz.Views.Warehouse;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewWidgets.PromoSetAction;
+using Vodovoz.Views.Contacts;
+using Vodovoz.ViewModels.Users;
+using Vodovoz.Views.Users;
+using Vodovoz.ViewModels.Permissions;
+using Vodovoz.ViewWidgets.Permissions;
 
 namespace Vodovoz
 {
@@ -93,7 +96,6 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("driver_terminal", new PresetUserPermissionSource("driver_terminal", "ВНИМАНИЕ! Аккаунт будет использоватся только для печати документов МЛ", "Для использования отдельного окна для печати документов МЛ без доступа к остальным частям системы."));
 			PermissionsSettings.PresetPermissions.Add("max_loan_amount", new PresetUserPermissionSource("max_loan_amount", "Установка максимального кредита", "Пользователь имеет права для установки максимальной суммы кредита."));
 			PermissionsSettings.PresetPermissions.Add("logistican", new PresetUserPermissionSource("logistican", "Логист", "Пользователь является логистом."));
-			PermissionsSettings.PresetPermissions.Add("logistic_admin", new PresetUserPermissionSource("logistic_admin", "Логист- пересчет топлива в закрытых МЛ", "Пользователь может пересчитывать километраж в закрытых МЛ"));
 			PermissionsSettings.PresetPermissions.Add("logistic_changedeliverytime", new PresetUserPermissionSource("logistic_changedeliverytime", "Логистика. Изменение времени доставки при ведении МЛ", "Пользователь может изменять время доставки в диалоге ведения маршрутного листа"));
 			PermissionsSettings.PresetPermissions.Add("money_manage_bookkeeping", new PresetUserPermissionSource("money_manage_bookkeeping", "Управление деньгами. Бухгалтерия.", "Пользователь имеет доступ к денежным операциям во вкладке \"Бухгалтерия\"."));
 			PermissionsSettings.PresetPermissions.Add("money_manage_cash", new PresetUserPermissionSource("money_manage_cash", "Управление деньгами. Касса.", "Пользователь имеет доступ к денежным операциям во вкладке \"Касса\"."));
@@ -107,7 +109,6 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_delete_counterparty_and_deliverypoint", new PresetUserPermissionSource("can_delete_counterparty_and_deliverypoint", "Удаление контрагентов и точек доставки", "Пользователь может удалять контрагентов и точки доставки."));
 			PermissionsSettings.PresetPermissions.Add("can_arc_counterparty_and_deliverypoint", new PresetUserPermissionSource("can_arc_counterparty_and_deliverypoint", "Архивирование контрагентов и точек доставки", "Пользователь может устанавливать галочку архивный для контрагентов и точек доставки."));
 			PermissionsSettings.PresetPermissions.Add("can_set_common_additionalagreement", new PresetUserPermissionSource("can_set_common_additionalagreement", "Возврат общего доп.соглашения", "Пользователь может нажать кнопку 'Вернуть общий' в доп.соглашении."));
-			PermissionsSettings.PresetPermissions.Add("can_delete_nomenclatures", new PresetUserPermissionSource("can_delete_nomenclatures", "Удаление номенклатур", "Пользователь может удалять номенклатуры."));
 			PermissionsSettings.PresetPermissions.Add("can_confirm_routelist_with_overweight", new PresetUserPermissionSource("can_confirm_routelist_with_overweight", "Подтверждение МЛ с перегрузом", "Пользователь может подтверждать МЛ, суммарный вес товаров и оборудования в котором превышает грузоподъемность автомобиля."));
 			PermissionsSettings.PresetPermissions.Add("can_set_contract_closer", new PresetUserPermissionSource("can_set_contract_closer", "Установка крыжика 'Закрывашка по контракту'", "Пользователю доступна возможность установки крыжика 'Закрывашка по контракту'."));
 			PermissionsSettings.PresetPermissions.Add("can_can_create_order_in_advance", new PresetUserPermissionSource("can_can_create_order_in_advance", "Проведение накладных задним числом", "Пользователь может создавать заказы с датой доставки более ранней, чем текущая дата."));
@@ -120,7 +121,6 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_edit_undeliveries", new PresetUserPermissionSource("can_edit_undeliveries", "Изменение недовозов", "Пользователь может изменять недовозы, в т.ч. менять их статус."));
 			PermissionsSettings.PresetPermissions.Add("can_close_undeliveries", new PresetUserPermissionSource("can_close_undeliveries", "Закрытие недовозов", "Пользователь может переводить статус недовоза в \"Закрыт\""));
 			PermissionsSettings.PresetPermissions.Add("can_archive_warehouse", new PresetUserPermissionSource("can_archive_warehouse", "Архивирование склада", "Пользователь может архивировать склады."));
-			PermissionsSettings.PresetPermissions.Add("can_delete_cash_documents", new PresetUserPermissionSource("can_delete_cash_documents", "Удаление кассовых документов", "Пользователь может удалять кассовые документы."));
 			PermissionsSettings.PresetPermissions.Add("access_to_salaries", new PresetUserPermissionSource("access_to_salaries", "Доступ к зарплатам и отчётам по ним", "Пользователю предоставляется доступ к отчётам по зарплатам водителей и экспедиторов"));
 			PermissionsSettings.PresetPermissions.Add("access_to_fines_bonuses", new PresetUserPermissionSource("access_to_fines_bonuses", "Доступ к премиям, штрафам и отчётам по ним", "Пользователю предоставляется доступ к отчету по штрафам и премиям, а так же ко вкладке \"Штрафы и премии\" в \"Кадры\""));
 			PermissionsSettings.PresetPermissions.Add("can_move_order_from_closed_to_acepted", new PresetUserPermissionSource("can_move_order_from_closed_to_acepted", "Перевод заказа из \"Закрыт\" в \"Принят\"", "Пользователь может вернуть заказ, находящийся в статусе \"Закрыт\", в статус \"Принят\". Это касается только заказов, закрытых без доставки, то есть те, у которых нет МЛ."));
@@ -145,15 +145,17 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_change_car_load_and_unload_docs", new PresetUserPermissionSource("can_change_car_load_and_unload_docs", "Редактирование талонов разгрузки и погрузки по закрытым МЛ", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_change_district_wage_type", new PresetUserPermissionSource("can_change_district_wage_type", "Изменение зарплатного типа района", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_change_cars_volume_weight_consumption", new PresetUserPermissionSource("can_change_cars_volume_weight_consumption", "Изменение в автомобиле расхода топлива, объема груза, грузоподъемности", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_edit_delivered_goods_transfer_documents", new PresetUserPermissionSource("can_edit_delivered_goods_transfer_documents", "Редактирование складского документа перемещения в статусе \"Доставлен\"", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_edit_counterparty_details", new PresetUserPermissionSource("can_edit_counterparty_details", "Редактирование реквизитов контрагента", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_edit_order_extra_cash", new PresetUserPermissionSource("can_edit_order_extra_cash", "Редактирование доп. нала в заказе", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_accept_movement_document_dicrepancy", new PresetUserPermissionSource("can_accept_movement_document_dicrepancy", "Подтверждение расхождений в документа перемещения ТМЦ", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_manage_users", new PresetUserPermissionSource("can_manage_users", "Изменение существующего и создание нового пользователей в диалоге сотрудника", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_change_undelivery_problem_source", new PresetUserPermissionSource("can_change_undelivery_problem_source", "Изменение источника проблемы в недовозах", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_add_online_store_nomenclatures_to_order", new PresetUserPermissionSource("can_add_online_store_nomenclatures_to_order", "Добавление номенклатур интернет магазина в заказ", string.Empty));
 
 			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {
-					new SubdivisionForUserEntityPermissionWidget()
+					new SubdivisionForUserEntityPermissionWidget(),
+					new PresetPermissionsView()
 				};
 			};
 
@@ -195,6 +197,9 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<FuelDocumentViewModel, FuelDocumentView>()
 				.RegisterWidgetForTabViewModel<ComplaintKindViewModel, ComplaintKindView>()
 				.RegisterWidgetForTabViewModel<MovementDocumentViewModel, MovementDocumentView>()
+				.RegisterWidgetForTabViewModel<PhoneTypeViewModel, PhoneTypeView>()
+				.RegisterWidgetForTabViewModel<EmailTypeViewModel, EmailTypeView>()
+				.RegisterWidgetForTabViewModel<UserSettingsViewModel, UserSettingsView>()
 				;
 
 			//Регистрация виджетов
@@ -216,6 +221,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<AdvancedWageParametersViewModel, AdvancedWageParametersView>()
 				.RegisterWidgetForWidgetViewModel<AddFixPriceActionViewModel, AddFixPriceActionView>()
 				.RegisterWidgetForWidgetViewModel<CarJournalFilterViewModel, CarFilterView>()
+				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -244,7 +250,6 @@ namespace Vodovoz
 				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(Bank)),
-				System.Reflection.Assembly.GetAssembly (typeof(QS.Contacts.Phone)),
 				System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
 			},
 								  (cnf) => cnf.DataBaseIntegration(
@@ -260,7 +265,7 @@ namespace Vodovoz
 				OrmObjectMapping<Manufacturer>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<EquipmentColors>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<User>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<UserSettings>.Create().Dialog<UserSettingsDlg>(),
+				OrmObjectMapping<UserSettings>.Create().Dialog<UserSettingsView>(),
 				OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Стоимость", x => x.Cost.ToString()).End(),
 				OrmObjectMapping<MovementWagon>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Остальные справочники
@@ -443,7 +448,6 @@ namespace Vodovoz
 			#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
-			OrmMain.ClassMappingList.AddRange(QSContactsMain.GetModuleMaping());
 
 			#endregion
 
@@ -501,13 +505,6 @@ namespace Vodovoz
 
 				dirInfo.Delete();
 			}
-		}
-
-		public static void SetupAppFromBase()
-		{
-			//Устанавливаем код города по умолчанию.
-			if(ParametersProvider.Instance.ContainsParameter("default_city_code"))
-				QSContactsMain.DefaultCityCode = ParametersProvider.Instance.GetParameterValue("default_city_code");
 		}
 	}
 }

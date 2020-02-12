@@ -3,7 +3,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
 using QS.Services;
 using Vodovoz.Domain.Client;

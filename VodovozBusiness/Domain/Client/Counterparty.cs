@@ -8,14 +8,15 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Gamma.Utilities;
 using QS.Banks.Domain;
-using QS.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -624,7 +625,7 @@ namespace Vodovoz.Domain.Client
 
 		protected virtual bool CloseDelivery(IUnitOfWork UoW)
 		{
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"])
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
 				return false;
 			IsDeliveriesClosed = true;
 			CloseDeliveryDate = DateTime.Now;
@@ -635,7 +636,7 @@ namespace Vodovoz.Domain.Client
 
 		protected virtual bool OperDelivery(IUnitOfWork UoW)
 		{
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"])
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty"))
 				return false;
 
 			IsDeliveriesClosed = false;

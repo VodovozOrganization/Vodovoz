@@ -136,6 +136,15 @@
     <Compile Include="ViewModels\Complaints\ComplaintKindViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\IWageParameterViewModel.cs" />
     <Compile Include="Infrastructure\NavigationManagerProvider.cs" />
+    <Compile Include="ViewModels\Contacts\PhoneTypeViewModel.cs" />
+    <Compile Include="JournalViewModels\Contacts\PhoneTypeJournalViewModel.cs" />
+    <Compile Include="JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
+    <Compile Include="ViewModels\Contacts\EmailTypeViewModel.cs" />
+    <Compile Include="ViewModels\Users\UserSettingsViewModel.cs" />
+    <Compile Include="ViewModels\Permissions\PresetUserPermissionsViewModel.cs" />
+    <Compile Include="ViewModels\Permissions\PresetPermissionsViewModelBase.cs" />
+    <Compile Include="ViewModels\Permissions\PresetSubdivisionPermissionsViewModel.cs" />
+    <Compile Include="ViewModels\UndeliveryProblemSourceViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -163,6 +172,10 @@
     <Folder Include="Infrastructure\Print\" />
     <Folder Include="ViewModels\ForAdministrators\" />
     <Folder Include="JournalViewModels\Logistic\" />
+    <Folder Include="ViewModels\Contacts\" />
+    <Folder Include="JournalViewModels\Contacts\" />
+    <Folder Include="ViewModels\Users\" />
+    <Folder Include="ViewModels\Permissions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

@@ -2,6 +2,7 @@
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using Vodovoz.Repositories.HumanResources;
 
 namespace Vodovoz.ViewWidgets
@@ -45,7 +46,7 @@ namespace Vodovoz.ViewWidgets
 			if(String.IsNullOrWhiteSpace(PermissionName))
 				throw new ArgumentNullException($"Необходимо установить PermissionName для {nameof(PermissionCommentView)}");
 
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_edit_cashier_review_comment"]) 
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_cashier_review_comment")) 
 			{
 				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения/создания комментария");
 				return false;

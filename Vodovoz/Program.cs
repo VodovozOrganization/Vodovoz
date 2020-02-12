@@ -14,6 +14,7 @@ using QS.Widgets.GtkUI;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using InstantSmsService;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -83,7 +84,7 @@ namespace Vodovoz
 
 			QSOsm.OsmWorker.ServiceHost = "osm.vod.qsolution.ru";
 			QSOsm.OsmWorker.ServicePort = 7073;
-			QSOsm.OsmWorker.MaxReceivedMessageSize = 2000000;
+
 			QSOsm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
 			
 			PerformanceHelper.StartPointsGroup ("Главное окно");
@@ -106,12 +107,13 @@ namespace Vodovoz
 				usersDlg.Run();
 				usersDlg.Destroy();
 				return;
-			} else if(UserPermissionRepository.CurrentUserPresetPermissions["driver_terminal"]) {
-				DriverTerminalWindow driverTerminal = new DriverTerminalWindow();
-				progressBarWin = driverTerminal;
-				driverTerminal.Title = "Печать документов МЛ";
-				QSMain.ErrorDlgParrent = driverTerminal;
-				driverTerminal.Show();
+				// Пока неактуально + ломает работу для пользователей с админскими правами
+				//} else if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("driver_terminal")) {
+				//DriverTerminalWindow driverTerminal = new DriverTerminalWindow();
+				//progressBarWin = driverTerminal;
+				//driverTerminal.Title = "Печать документов МЛ";
+				//QSMain.ErrorDlgParrent = driverTerminal;
+				//driverTerminal.Show();
 			} else {
 				if(ChangePassword(LoginDialog.BaseName))
 					StartMainWindow(LoginDialog.BaseName);

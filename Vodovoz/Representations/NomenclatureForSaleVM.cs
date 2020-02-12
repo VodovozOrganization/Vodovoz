@@ -13,6 +13,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.JournalFilters;
+using QS.Project.Services;
 
 namespace Vodovoz.ViewModel
 {
@@ -69,13 +70,13 @@ namespace Vodovoz.ViewModel
 			if(Filter.SelectedCategories.Count() == 1 && Nomenclature.GetCategoriesWithSaleCategory().Contains(Filter.SelectedCategories.FirstOrDefault()))
 				itemsQuery.Where(n => n.SaleCategory.IsIn(Filter.SelectedSubCategories));
 
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_add_spares_to_order"])
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_spares_to_order"))
 				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.spare_parts && n.SaleCategory == SaleCategory.notForSale));
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_add_bottles_to_order"])
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_bottles_to_order"))
 				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.bottle && n.SaleCategory == SaleCategory.notForSale));
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_add_materials_to_order"])
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_materials_to_order"))
 				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.material && n.SaleCategory == SaleCategory.notForSale));
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_add_equipment_not_for_sale_to_order"])
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_add_equipment_not_for_sale_to_order"))
 				itemsQuery.Where(n => !(n.Category == NomenclatureCategory.equipment && n.SaleCategory == SaleCategory.notForSale));
 
 			itemsQuery.Left.JoinAlias(() => nomenclatureAlias.Unit, () => unitAlias)

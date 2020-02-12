@@ -4,9 +4,8 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using NLog;
 using QS.Banks.Domain;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Config;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
@@ -28,7 +27,6 @@ using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using Gtk;
 using Vodovoz.Domain.Goods;
-using QS.Services;
 using QS.Project.Services;
 
 namespace Vodovoz
@@ -120,7 +118,7 @@ namespace Vodovoz
 			chkNeedNewBottles.Binding.AddBinding(Entity, e => e.NewBottlesNeeded, w => w.Active).InitializeFromSource();
 
 			ycheckIsArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			ycheckIsArchived.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_arc_counterparty_and_deliverypoint"];
+			ycheckIsArchived.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_arc_counterparty_and_deliverypoint");
 
 			entryJurAddress.Binding.AddBinding(Entity, e => e.RawJurAddress, w => w.Text).InitializeFromSource();
 
@@ -175,7 +173,7 @@ namespace Vodovoz
 			//Setting Contacts
 			contactsview1.CounterpartyUoW = UoWGeneric;
 			//Setting permissions
-			spinMaxCredit.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["max_loan_amount"];
+			spinMaxCredit.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("max_loan_amount");
 			datalegalname1.Binding.AddSource(Entity)
 				.AddBinding(s => s.Name, t => t.OwnName)
 				.AddBinding(s => s.TypeOfOwnership, t => t.Ownership)
@@ -281,7 +279,7 @@ namespace Vodovoz
 		{
 			var filter = new OrdersFilter(UoW);
 			filter.SetAndRefilterAtOnce(x => x.RestrictCounterparty = Entity);
-			Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"] ? Buttons.All : (Buttons.Add | Buttons.Edit);
+			Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete") ? Buttons.All : (Buttons.Add | Buttons.Edit);
 			PermissionControlledRepresentationJournal OrdersDialog = new PermissionControlledRepresentationJournal(new OrdersVM(filter), buttons) {
 				Mode = JournalSelectMode.None
 			};
@@ -528,7 +526,7 @@ namespace Vodovoz
 			if(String.IsNullOrWhiteSpace(ytextviewCloseComment.Buffer.Text))
 				return;
 
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"]) {
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty")) {
 				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
 				return;
 			}
@@ -539,7 +537,7 @@ namespace Vodovoz
 
 		protected void OnButtonEditCloseDeliveryCommentClicked(object sender, EventArgs e)
 		{
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_close_deliveries_for_counterparty"]) {
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_close_deliveries_for_counterparty")) {
 				MessageDialogHelper.RunWarningDialog("У вас нет прав для изменения комментария по закрытию поставок");
 				return;
 			}

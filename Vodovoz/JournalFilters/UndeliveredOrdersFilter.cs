@@ -11,6 +11,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
+using QS.Project.Services;
 
 namespace Vodovoz.JournalFilters
 {
@@ -27,7 +28,7 @@ namespace Vodovoz.JournalFilters
 			ySpecCMBinProcessAt.ItemsList = ySpecCMBGuiltyDep.ItemsList = EmployeeRepository.Subdivisions(UoW);
 
 			refOldOrder.RepresentationModel = new OrdersVM(new OrdersFilter(UoW));
-			refOldOrder.CanEditReference = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"];
+			refOldOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			var driversFilter = new EmployeeFilterViewModel();
 			driversFilter.SetAndRefilterAtOnce(

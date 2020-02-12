@@ -495,7 +495,7 @@ public partial class MainWindow : Window
 			() => {
 				FinesVM vm = new FinesVM();
 				vm.Filter.SetAndRefilterAtOnce(f => f.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
-				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"]
+				Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines")
 														  ? Buttons.All
 														  : (Buttons.Add | Buttons.Edit);
 				return new PermissionControlledRepresentationJournal(vm, buttons).CustomTabName("Журнал штрафов");
@@ -508,7 +508,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			PermissionControlledRepresentationJournal.GenerateHashName<PremiumVM>(),
 			() => {
-				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete_fines"]
+				Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_fines")
 														  ? Buttons.All
 														  : (Buttons.Add | Buttons.Edit);
 				return new PermissionControlledRepresentationJournal(new PremiumVM(), buttons).CustomTabName("Журнал премий");
@@ -579,7 +579,7 @@ public partial class MainWindow : Window
 			() => {
 				var vm = new RouteListsVM();
 				vm.Filter.SetAndRefilterAtOnce(x => x.SetFilterDates(System.DateTime.Today.AddMonths(-2), System.DateTime.Today));
-				Buttons buttons = UserPermissionRepository.CurrentUserPresetPermissions["can_delete"]
+				Buttons buttons = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete")
 					? Buttons.All
 					: (Buttons.Add | Buttons.Edit);
 				return new PermissionControlledRepresentationJournal(vm, buttons);
@@ -711,7 +711,7 @@ public partial class MainWindow : Window
 			TdiTabBase.GenerateHashName<UndeliveriesView>(),
 			() => {
 				var view = new UndeliveriesView {
-					ButtonMode = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_undeliveries"] ? ReferenceButtonMode.CanAll : ReferenceButtonMode.CanAdd
+					ButtonMode = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_undeliveries") ? ReferenceButtonMode.CanAll : ReferenceButtonMode.CanAdd
 				};
 				return view;
 			}

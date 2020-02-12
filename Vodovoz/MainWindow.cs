@@ -5,7 +5,7 @@ using Gtk;
 using NLog;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -69,6 +69,9 @@ using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using QS.Tdi;
 using Vodovoz.Infrastructure;
+using Vodovoz.EntityRepositories;
+using Vodovoz.ViewModels.Users;
+using Vodovoz.ViewModels;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -81,6 +84,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		Build();
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
+		Gtk.Settings.Default.SetLongProperty("gtk-button-images", 1, "");
 		this.BuildToolbarActions();
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
@@ -90,33 +94,32 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		this.Title = MainSupport.GetTitle();
 		QSMain.MakeNewStatusTargetForNlog();
 		//Настраиваем модули
-		MainClass.SetupAppFromBase();
 		ActionUsers.Sensitive = QSMain.User.Admin;
 		ActionAdministration.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
-		ActionCash.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["money_manage_cash"];
-		ActionAccounting.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["money_manage_bookkeeping"];
+		ActionCash.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_cash");
+		ActionAccounting.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_bookkeeping");
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
-			ActionRouteListAddressesTransferring.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["logistican"];
+			ActionRouteListAddressesTransferring.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("logistican");
 		ActionStock.Sensitive = CurrentPermissions.Warehouse.Allowed().Any();
 
-		bool hasAccessToSalaries = UserPermissionRepository.CurrentUserPresetPermissions["access_to_salaries"];
-		bool hasAccessToWagesAndBonuses = UserPermissionRepository.CurrentUserPresetPermissions["access_to_fines_bonuses"];
+		bool hasAccessToSalaries = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_salaries");
+		bool hasAccessToWagesAndBonuses = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
 		ActionEmployeesBonuses.Sensitive = hasAccessToWagesAndBonuses;
 		ActionEmployeeFines.Sensitive = hasAccessToWagesAndBonuses;
 		ActionDriverWages.Sensitive = hasAccessToSalaries;
 		ActionWagesOperations.Sensitive = hasAccessToSalaries;
 		ActionForwarderWageReport.Sensitive = hasAccessToSalaries;
 
-		ActionWage.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_wage"];
+		ActionWage.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
 
-		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = UserPermissionRepository.CurrentUserPresetPermissions["access_to_fines_bonuses"];
+		ActionFinesJournal.Visible = ActionPremiumJournal.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("access_to_fines_bonuses");
 		ActionReports.Sensitive = false;
 		//ActionServices.Visible = false;
 		ActionDocTemplates.Visible = QSMain.User.Admin;
-		ActionService.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["database_maintenance"];
+		ActionService.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("database_maintenance");
 		ActionEmployeeWorkChart.Sensitive = false;
 
 		ActionAddOrder.Sensitive = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
@@ -341,9 +344,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionCarsActivated(object sender, EventArgs e)
 	{
 		CarJournalFilterViewModel filter = new CarJournalFilterViewModel();
-		var counterpartyJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		var carJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
 
-		tdiMain.AddTab(counterpartyJournal);
+		tdiMain.AddTab(carJournal);
 	}
 
 	protected void OnActionUnitsActivated(object sender, EventArgs e)
@@ -391,8 +394,15 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionPhoneTypesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(PhoneType));
-		tdiMain.AddTab(refWin);
+		IPhoneRepository phoneRepository = new PhoneRepository();
+
+		tdiMain.AddTab(
+			new PhoneTypeJournalViewModel(
+				phoneRepository,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
 	}
 
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
@@ -405,8 +415,15 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionEMailTypesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference(typeof(EmailType));
-		tdiMain.AddTab(refWin);
+		IEmailRepository emailRepository = new EmailRepository();
+
+		tdiMain.AddTab(
+			new EmailTypeJournalViewModel(
+				emailRepository,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
 	}
 
 	protected void OnActionCounterpartyPostActivated(object sender, EventArgs e)
@@ -627,7 +644,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
 		Buttons mode = Buttons.Edit;
-		if(UserPermissionRepository.CurrentUserPresetPermissions["can_delete_counterparty_and_deliverypoint"])
+		if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint"))
 			mode |= Buttons.Delete;
 
 		tdiMain.OpenTab(
@@ -639,8 +656,13 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnPropertiesActionActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
-			DialogHelper.GenerateDialogHashName<UserSettings>(CurrentUserSettings.Settings.Id),
-			() => new UserSettingsDlg(CurrentUserSettings.Settings)
+			() => {
+				return new UserSettingsViewModel(
+					EntityUoWBuilder.ForOpen(CurrentUserSettings.Settings.Id),
+					UnitOfWorkFactory.GetDefaultFactory,
+					ServicesConfig.CommonServices
+				);
+			}
 		);
 	}
 
@@ -1151,7 +1173,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionDeliveryPriceRulesActivated(object sender, EventArgs e)
 	{
-		bool right = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_delivery_price_rules"];
+		bool right = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_price_rules");
 		tdiMain.OpenTab(
 			OrmReference.GenerateHashName<DeliveryPriceRule>(),
 			() => {
@@ -1520,5 +1542,26 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			QSReport.ReportViewDlg.GenerateHashName<SetBillsReport>(),
 			() => new QSReport.ReportViewDlg(new SetBillsReport())
 		);
+	}
+
+	protected void OnActionUndeliveryProblemSourcesActivated(object sender, EventArgs e)
+	{
+		var undeliveryProblemSourcesViewModel = new SimpleEntityJournalViewModel<UndeliveryProblemSource, UndeliveryProblemSourceViewModel>(
+			x => x.Name,
+			() => new UndeliveryProblemSourceViewModel(
+				EntityUoWBuilder.ForCreate(),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			),
+			(node) => new UndeliveryProblemSourceViewModel(
+				EntityUoWBuilder.ForOpen(node.Id),
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			),
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices
+		);
+		undeliveryProblemSourcesViewModel.SetActionsVisible(deleteActionEnabled: false);
+		tdiMain.AddTab(undeliveryProblemSourcesViewModel);
 	}
 }

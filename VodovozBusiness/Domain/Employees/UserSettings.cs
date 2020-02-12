@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Employees
@@ -70,11 +71,19 @@ namespace Vodovoz.Domain.Employees
 				SetField(ref journalDaysToFwd, value, () => JournalDaysToFwd);
 			}
 		}
+
+		NomenclatureCategory? defaultSaleCategory;
+
+		[Display(Name = "Номенклатура на продажу")]
+		public virtual NomenclatureCategory? DefaultSaleCategory {
+			get { return defaultSaleCategory; }
+			set { SetField(ref defaultSaleCategory, value, () => DefaultSaleCategory); }
+		}
+
 		#endregion
 
 		public UserSettings ()
 		{
-
 		}
 
 		public UserSettings (User user)

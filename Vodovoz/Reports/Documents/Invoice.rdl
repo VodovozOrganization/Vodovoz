@@ -13,12 +13,30 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
 	orders.delivery_date AS order_date,
-	IF(is_bottle_stock, orders.bottles_by_stock_count, orders.bottles_return) AS bottles_return,
+	orders.order_status AS order_status,
+	IF(is_bottle_stock, 
+		orders.bottles_by_stock_count,
+		orders.bottles_return
+	) AS bottles_return,
+	IF(orders.self_delivery = false,
+		IFNULL(SUM(route_list_addresses.bottles_returned), 0),
+		(SELECT
+			CAST(ROUND(IFNULL(SUM(ssddr.amount), 0), 0) AS INT)
+		FROM 
+			store_self_delivery_document_returned ssddr 
+		LEFT JOIN 
+			store_self_delivery_document ssdd ON ssdd.id = ssddr.store_self_delivery_document_id 
+		WHERE 
+			ssdd.order_id = orders.id 
+			AND
+			ssddr.nomenclature_id = CAST(GET_PARAMETER('default_bottle_nomenclature') AS INT)
+		)
+	) AS bottles_return_fact,
 	orders.sum_to_receive AS total,
 	orders.comment AS order_comment,
 	orders.comment_logist AS order_comment_for_logist,
@@ -70,11 +88,6 @@
 				'',
 				CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author,
 	orders.trifle AS trifle,
-	IF(
-		orders.order_status = 'Closed',
-		MAX(route_list_addresses.bottles_returned),
-		 '	'
-	) AS bottles_in_fact,
 	orders.self_delivery
 FROM
 	orders
@@ -103,7 +116,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -200,10 +213,6 @@ WHERE
           <DataField>order_signature_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="bottles_in_fact">
-          <DataField>bottles_in_fact</DataField>
-          <TypeName>System.UInt32</TypeName>
-        </Field>
         <Field Name="order_comment_for_logist">
           <DataField>order_comment_for_logist</DataField>
           <TypeName>System.String</TypeName>
@@ -215,6 +224,14 @@ WHERE
         <Field Name="self_delivery">
           <DataField>self_delivery</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="bottles_return_fact">
+          <DataField>bottles_return_fact</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="order_status">
+          <DataField>order_status</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -2217,52 +2234,6 @@ WHERE stored_resource.id = @id1</CommandText>
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
-      <Table Name="Table5">
-        <DataSetName>Order</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>537.9pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Details>
-          <TableRows>
-            <TableRow>
-              <Height>25.1pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontWeight>Bold</FontWeight>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Left>15.9pt</Left>
-        <Top>398.7pt</Top>
-      </Table>
       <Table Name="Table6">
         <DataSetName>Order</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -2326,70 +2297,6 @@ WHERE stored_resource.id = @id1</CommandText>
         </Details>
         <Left>24.0pt</Left>
         <Top>226.0pt</Top>
-      </Table>
-      <Table Name="Table7">
-        <DataSetName>Order</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>546.3pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Details>
-          <TableRows>
-            <TableRow>
-              <Height>16.4pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox35">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <Color>Crimson</Color>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>22.6pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox36">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontWeight>Bold</FontWeight>
-                        <FontSize>12pt</FontSize>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Left>25.4pt</Left>
-        <Top>407.3pt</Top>
       </Table>
       <Image Name="Image2">
         <Height>67.50pt</Height>
@@ -2903,7 +2810,9 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>(         )*</Value>
+                      <Value>=Iif( {order_status} = 'Closed', 
+'( ' + {bottles_return_fact} + ' )',
+'(          )')</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>

@@ -5,7 +5,7 @@ using QS.DomainModel.Entity;
 using QSProjectsLib;
 using QS.DomainModel.UoW;
 using QS.DomainModel.Entity.EntityPermissions;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Domain.Client
 {
@@ -121,7 +121,7 @@ namespace Vodovoz.Domain.Client
 			get { 
 				if (Phones.Count > 0 && Phones [0].Number != String.Empty)
 					return String.Format ("{0}{1}", 
-						Phones [0].NumberType != null ? Phones [0].NumberType.Name + " " : String.Empty, 
+						Phones [0].PhoneType != null ? Phones [0].PhoneType.Name + " " : String.Empty, 
 						Phones [0].Number);
 				else
 					return String.Empty; 

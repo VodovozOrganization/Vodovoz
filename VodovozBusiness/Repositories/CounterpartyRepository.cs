@@ -8,7 +8,7 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using QS.Banks.Domain;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Repository
 {

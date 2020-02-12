@@ -69,7 +69,7 @@ namespace Vodovoz.Dialogs.Employees
 
 			RefreshParserRootObject();
 
-			templatewidget.CanRevertCommon = UserPermissionRepository.CurrentUserPresetPermissions["can_set_common_additionalagreement"];
+			templatewidget.CanRevertCommon = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_common_additionalagreement");
 			templatewidget.Binding.AddBinding(Entity, e => e.DocumentTemplate, w => w.Template).InitializeFromSource();
 			templatewidget.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 			templatewidget.BeforeOpen += Templatewidget_BeforeOpen;

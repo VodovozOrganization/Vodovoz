@@ -35,13 +35,15 @@ FROM
 	nomenclature ON order_items.nomenclature_id = nomenclature.id
 		LEFT JOIN
 	measurement_units ON measurement_units.id = nomenclature.unit_id
+		LEFT JOIN 
+	nomenclature_groups ng ON ng.id = nomenclature.group_id
 		LEFT JOIN
 	nomenclatures_to_warehouses ON nomenclatures_to_warehouses.nomenclature_id = nomenclature.id
 WHERE
 	route_list_addresses.route_list_id = @id
 		AND nomenclatures_to_warehouses.warehouse_id = 1 #Отгрузка только с софийской
 		AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
-		AND IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id) = false
+		AND ng.is_online_store = false
 GROUP BY nomenclature.id
 ORDER BY clmn_for_sorting;</CommandText>
         <QueryParameters>
@@ -144,12 +146,12 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Equipment">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	n.official_name,
 	SUM(eq.count) AS count,
-	IS_FROM_ONLINE_SHOP_GROUP(n.group_id) AS online_nomenclature,
+	ng.is_online_store AS online_nomenclature,
 	eq.order_id AS order_id
 FROM(
 	SELECT
@@ -172,6 +174,7 @@ FROM(
 	AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
 ) AS eq
 LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
+LEFT JOIN nomenclature_groups ng ON ng.id = n.id
 WHERE n.category IN ('equipment', 'additional', 'spare_parts')
 GROUP BY eq.nomenclature_id
 ;</CommandText>
@@ -181,7 +184,7 @@ GROUP BY eq.nomenclature_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="official_name">
           <DataField>official_name</DataField>
           <TypeName>System.String</TypeName>
@@ -2802,7 +2805,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </Filter>
         </Filters>
       </Table>
-      <Table Name="Table15" >
+      <Table Name="Table15">
         <DataSetName>Equipment</DataSetName>
         <NoRows>Нет отгрузки товаров ИМ</NoRows>
         <Style>

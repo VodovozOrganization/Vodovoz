@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
@@ -250,7 +251,7 @@ namespace Vodovoz.Domain.Logistic
 		#endregion
 
 		public virtual string Title => String.Format("{0} ({1})", Model, RegistrationNumber);
-		public virtual bool CanEditFuelCardNumber => UserPermissionRepository.CurrentUserPresetPermissions["can_change_fuel_card_number"];
+		public virtual bool CanEditFuelCardNumber => ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_fuel_card_number");
 
 		[Display(Name = "Имущество компании")]
 		public virtual bool IsCompanyCar => TypeOfUse.HasValue && GetCompanyHavingsTypes().Contains(TypeOfUse.Value);

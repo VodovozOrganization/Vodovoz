@@ -107,7 +107,8 @@ namespace Vodovoz
 
 			ExpenseType type = (ExpenseType)enumcomboOperation.SelectedItem;
 			ylabelEmployeeWageBalance.Visible = type == ExpenseType.EmployeeAdvance
-											 || type == ExpenseType.Salary;
+											 || type == ExpenseType.Salary
+											 || type == ExpenseType.Advance;
 			UpdateEmployeeBalaceInfo();
 			UpdateSubdivision();
 
@@ -159,7 +160,7 @@ namespace Vodovoz
 			{
 				case ExpenseType.Advance: 
 					labelEmployee.LabelProp = "Подотчетное лицо:";
-					ylabelEmployeeWageBalance.Visible = false;
+					ylabelEmployeeWageBalance.Visible = true;
 					break;
 				case ExpenseType.Expense :
 					labelEmployee.LabelProp = "Сотрудник:";

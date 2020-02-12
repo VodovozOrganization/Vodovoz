@@ -16,7 +16,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yCheckButton checkbuttonFired;
 
-		private global::QSContacts.EmailsView emailsView;
+		private global::Vodovoz.Views.Contacts.EmailsView emailsView;
 
 		private global::Gamma.GtkWidgets.yEntry entryName;
 
@@ -44,7 +44,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label8;
 
-		private global::QSContacts.PhonesView phonesView;
+		private global::Vodovoz.Views.Contacts.PhonesView phonesView;
 
 		private global::Gamma.Widgets.yEntryReference referencePost;
 
@@ -116,7 +116,7 @@ namespace Vodovoz
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.emailsView = new global::QSContacts.EmailsView();
+			this.emailsView = new global::Vodovoz.Views.Contacts.EmailsView();
 			this.emailsView.Events = ((global::Gdk.EventMask)(256));
 			this.emailsView.Name = "emailsView";
 			this.datatable1.Add(this.emailsView);
@@ -271,7 +271,7 @@ namespace Vodovoz
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.phonesView = new global::QSContacts.PhonesView();
+			this.phonesView = new global::Vodovoz.Views.Contacts.PhonesView();
 			this.phonesView.Events = ((global::Gdk.EventMask)(256));
 			this.phonesView.Name = "phonesView";
 			this.phonesView.IsReadOnly = false;

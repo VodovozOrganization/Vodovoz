@@ -47,7 +47,7 @@ namespace Vodovoz
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
-		private bool editing = UserPermissionRepository.CurrentUserPresetPermissions["money_manage_cash"];
+		private bool editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_cash");
 		private bool canCloseRoutelist = false;
 		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;

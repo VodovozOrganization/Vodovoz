@@ -13,7 +13,6 @@ using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Repositories;
-using QS.Tdi.Gtk;
 using QSOsm.DTO;
 using QSProjectsLib;
 using QS.Validation.GtkUI;
@@ -21,12 +20,18 @@ using Vodovoz.Dialogs.Phones;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalFilters;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
 using QS.Tdi;
+using QSOsm.Loaders;
+using QSOsm;
+using Vodovoz.Services;
+using Vodovoz.Core.DataService;
+using Vodovoz.Parameters;
+using Vodovoz.EntityRepositories;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -34,6 +39,8 @@ namespace Vodovoz
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
+
+		IPhoneRepository phoneRepository = new PhoneRepository();
 
 		GMapControl MapWidget;
 		readonly GMapOverlay addressOverlay = new GMapOverlay();
@@ -86,6 +93,10 @@ namespace Vodovoz
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
 
+			entryCity.CitiesDataLoader = new CitiesDataLoader(OsmWorker.GetOsmService());
+			entryStreet.StreetsDataLoader = new StreetsDataLoader(OsmWorker.GetOsmService());
+			entryBuilding.HousesDataLoader = new HousesDataLoader(OsmWorker.GetOsmService());
+
 			buttonDeleteResponsiblePerson.Sensitive = false;
 			ytreeviewResponsiblePersons.ColumnsConfig = FluentColumnsConfig<Contact>.Create()
 				.AddColumn("Ответственные лица").AddTextRenderer(x => x.FullName)
@@ -95,7 +106,7 @@ namespace Vodovoz
 			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
 			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
 
-			phonesview1.ViewModel = new PhonesViewModel(UoW);
+			phonesview1.ViewModel = new PhonesViewModel(phoneRepository, UoW, ContactParametersProvider.Instance);
 			phonesview1.ViewModel.PhonesList = Entity.ObservablePhones;
 
 			ShowResidue();
@@ -115,7 +126,7 @@ namespace Vodovoz
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			labelCompiledAddress.Binding.AddBinding(Entity, e => e.CompiledAddress, w => w.LabelProp).InitializeFromSource();
 			checkIsActive.Binding.AddBinding(Entity, e => e.IsActive, w => w.Active).InitializeFromSource();
-			checkIsActive.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_arc_counterparty_and_deliverypoint"];
+			checkIsActive.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_arc_counterparty_and_deliverypoint");
 			entryRoom.Binding.AddBinding(Entity, e => e.Room, w => w.Text).InitializeFromSource();
 			entryFloor.Binding.AddBinding(Entity, e => e.Floor, w => w.Text).InitializeFromSource();
 			entryEntrance.Binding.AddBinding(Entity, e => e.Entrance, w => w.Text).InitializeFromSource();
@@ -139,7 +150,7 @@ namespace Vodovoz
 			#endregion
 			spinBottlesReserv.Binding.AddBinding(Entity, e => e.BottleReserv, w => w.ValueAsInt).InitializeFromSource();
 			ychkAlwaysFreeDelivery.Binding.AddBinding(Entity, e => e.AlwaysFreeDelivery, w => w.Active).InitializeFromSource();
-			ychkAlwaysFreeDelivery.Visible = UserPermissionRepository.CurrentUserPresetPermissions["can_set_free_delivery"];
+			ychkAlwaysFreeDelivery.Visible = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_set_free_delivery");
 			lblCounterparty.LabelProp = Entity.Counterparty.FullName;
 			lblId.LabelProp = Entity.Id.ToString();
 

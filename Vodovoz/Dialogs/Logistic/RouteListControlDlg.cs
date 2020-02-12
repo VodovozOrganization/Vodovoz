@@ -7,6 +7,7 @@ using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Repositories;
+using QS.Project.Services;
 using QS.Validation.GtkUI;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -68,7 +69,6 @@ namespace Vodovoz.Dialogs.Logistic
 				.RowCells()
 				.Finish();
 
-			ytreeviewNotLoaded.RowActivated += YtreeviewNotLoaded_RowActivated; ;
 			ytreeviewNotAttached.RowActivated += YtreeviewNotAttached_RowActivated;
 
 			UpdateLists();
@@ -90,15 +90,6 @@ namespace Vodovoz.Dialogs.Logistic
 			ytreeviewNotAttached.ItemsDataSource = ObservableNotAttachedList;
 		}
 
-		void YtreeviewNotLoaded_RowActivated(object o, Gtk.RowActivatedArgs args)
-		{
-			if(ytreeviewNotLoaded.GetSelectedObject() is RouteListControlNotLoadedNode notLoadedNomenclature) {
-				throw new NotImplementedException("\n\nПоломали, т.к. складов в номенклатуре теперь несколько!\n");
-				/*var dlg = new CarLoadDocumentDlg(Entity.Id, notLoadedNomenclature.Nomenclature.Warehouse?.Id);
-				TabParent.AddTab(dlg, this);*/
-			}
-		}
-
 		void YtreeviewNotAttached_RowActivated(object o, Gtk.RowActivatedArgs args)
 		{
 			if(ytreeviewNotAttached.GetSelectedObject() is Nomenclature notAttachedNomenclature)
@@ -118,7 +109,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 			if(
 				!fullyLoaded &&
-				UserPermissionRepository.CurrentUserPresetPermissions["can_send_not_loaded_route_lists_en_route"] &&
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_send_not_loaded_route_lists_en_route") &&
 				MessageDialogHelper.RunQuestionWithTitleDialog(
 					"Оптправить в путь?",
 					string.Format(
@@ -130,7 +121,7 @@ namespace Vodovoz.Dialogs.Logistic
 			) {
 				Entity.ChangeStatus(RouteListStatus.EnRoute);
 				Entity.NotFullyLoaded = true;
-			} else if(!fullyLoaded && !UserPermissionRepository.CurrentUserPresetPermissions["can_send_not_loaded_route_lists_en_route"]) {
+			} else if(!fullyLoaded && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_send_not_loaded_route_lists_en_route")) {
 				MessageDialogHelper.RunWarningDialog(
 					"Недостаточно прав",
 					string.Format("У вас нет прав для перевода не полностью погруженных МЛ в статус \"{0}\"", RouteListStatus.EnRoute.GetEnumTitle()),

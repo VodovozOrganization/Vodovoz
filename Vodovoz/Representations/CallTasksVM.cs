@@ -8,7 +8,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.RepresentationModel.GtkUI;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Client;

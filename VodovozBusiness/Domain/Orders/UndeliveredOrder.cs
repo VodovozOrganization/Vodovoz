@@ -105,9 +105,9 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref reason, value, () => Reason); }
 		}
 
-		string problemSource;
+		UndeliveryProblemSource problemSource;
 		[Display(Name = "Источник проблемы")]
-		public virtual string ProblemSource {
+		public virtual UndeliveryProblemSource ProblemSource {
 			get { return problemSource; }
 			set { SetField(ref problemSource, value, () => ProblemSource); }
 		}
@@ -215,6 +215,18 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		UndeliveryStatus? InitialStatus { get; set; } = null;
+
+		List<UndeliveryProblemSource> problemSourceItems;
+		public virtual IEnumerable<UndeliveryProblemSource> ProblemSourceItems {
+			get {
+				if(problemSourceItems == null)
+					problemSourceItems = UoW.GetAll<UndeliveryProblemSource>().Where(k => !k.IsArchive).ToList();
+				if(ProblemSource != null && ProblemSource.IsArchive)
+					problemSourceItems.Add(UoW.GetById<UndeliveryProblemSource>(ProblemSource.Id));
+
+				return problemSourceItems;
+			}
+		}
 
 		#endregion
 
@@ -425,7 +437,7 @@ namespace Vodovoz.Domain.Orders
 
 			if(string.IsNullOrWhiteSpace(Reason))
 				yield return new ValidationResult(
-					"Не заполнено поле \"Причина\"",
+					"Не заполнено поле \"Что случилось?\"",
 					new[] { this.GetPropertyName(u => u.Reason) }
 				);
 

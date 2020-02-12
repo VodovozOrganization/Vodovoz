@@ -9,6 +9,7 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.JournalNodes;
 using Vodovoz.ViewModels.Organization;
@@ -71,8 +72,8 @@ namespace Vodovoz.JournalViewModels.Organization
 
 		};
 
-		protected override Func<SubdivisionViewModel> CreateDialogFunction => () => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, employeeSelectorFactory);
+		protected override Func<SubdivisionViewModel> CreateDialogFunction => () => new SubdivisionViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, employeeSelectorFactory, new PermissionRepository());
 
-		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction => (node) => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, employeeSelectorFactory);
+		protected override Func<SubdivisionJournalNode, SubdivisionViewModel> OpenDialogFunction => (node) => new SubdivisionViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, employeeSelectorFactory, new PermissionRepository());
 	}
 }

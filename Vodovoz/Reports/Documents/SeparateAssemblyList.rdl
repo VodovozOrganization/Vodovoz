@@ -13,7 +13,7 @@
   <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Nomenclature">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	nomenclature.official_name AS name,
@@ -24,8 +24,9 @@
 	GET_TOTAL_SUM_FOR_ORDER_ITEM(order_items.id) AS total_item_price
 FROM order_items
 LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id 
 WHERE order_items.order_id = @order_id
-	AND IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id)
+	AND ng.is_online_store = true
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -33,7 +34,7 @@ WHERE order_items.order_id = @order_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
         </Field>
@@ -146,15 +147,16 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="PaymentTotal">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     IF(orders.payment_type = 'cash', GET_TOTAL_SUM_FOR_ORDER_ITEM(order_items.id), 0) AS total_payment
 FROM order_items
 LEFT JOIN orders ON orders.id = order_items.order_id
 LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id 
 WHERE orders.id = @order_id
-    AND IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id)
+   AND ng.is_online_store = true
 ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -162,7 +164,7 @@ WHERE orders.id = @order_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="total_payment">
           <DataField>total_payment</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1882,7 +1884,7 @@ WHERE orders.id = @order_id
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <VerticalAlign>Bottom</VerticalAlign>
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                       <Value>=Sum({total_payment}, "PaymentTotal")</Value>
                     </Textbox>

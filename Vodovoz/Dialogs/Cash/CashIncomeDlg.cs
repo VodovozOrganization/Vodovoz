@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Employees;
 using QS.EntityRepositories;
 using QS.Services;
 using Vodovoz.EntityRepositories;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -122,7 +123,7 @@ namespace Vodovoz
 			filterRL.OnlyStatuses = new RouteListStatus[] { RouteListStatus.EnRoute, RouteListStatus.OnClosing };
 			yEntryRouteList.RepresentationModel = new ViewModel.RouteListsVM(filterRL);
 			yEntryRouteList.Binding.AddBinding(Entity, s => s.RouteListClosing, w => w.Subject).InitializeFromSource();
-			yEntryRouteList.CanEditReference = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_delete"];
+			yEntryRouteList.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			yEntryRouteList.Hidden += YEntryRouteList_ValueOrVisibilityChanged;
 			yEntryRouteList.Shown += YEntryRouteList_ValueOrVisibilityChanged;

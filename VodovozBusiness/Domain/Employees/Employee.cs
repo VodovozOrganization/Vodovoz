@@ -11,7 +11,6 @@ using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services;
 using QS.Services;
 using QS.Dialog;
@@ -19,7 +18,7 @@ using QS.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using System.Text.RegularExpressions;
-using QS.Contacts;
+using QS.Project.Services;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -255,6 +254,16 @@ namespace Vodovoz.Domain.Employees
 			AddressCurrent = String.Empty;
 		}
 
+		public virtual IDictionary<object, object> GetValidationContextItems(ISubdivisionService subdivisionService)
+		{
+			if(subdivisionService == null) {
+				throw new ArgumentNullException(nameof(subdivisionService));
+			}
+
+			return new Dictionary<object, object> {
+				{"Reason", subdivisionService} };
+		}
+
 		#region IValidatableObject implementation
 
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -288,7 +297,7 @@ namespace Vodovoz.Domain.Employees
 					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует на сервере",
 						new[] { this.GetPropertyName(x => x.LoginForNewUser) });
 			}
-			if(!String.IsNullOrEmpty(LoginForNewUser) && !UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_manage_users"]) {
+			if(!String.IsNullOrEmpty(LoginForNewUser) && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users")) {
 			yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { this.GetPropertyName(x => x.LoginForNewUser) });
 			}
@@ -298,7 +307,20 @@ namespace Vodovoz.Domain.Employees
 					yield return new ValidationResult($"Для создания пользователя должен быть правильно указан мобильный телефон",
 							new[] { this.GetPropertyName(x => x.LoginForNewUser) });
 			}
+			if(Category == EmployeeCategory.driver && DriverOf == null) {
+				yield return new ValidationResult($"Обязательно должно быть выбрано поле 'Управляет а\\м'",
+					new[] { this.GetPropertyName(x => x.DriverOf) });
+			}
 
+			if(validationContext.Items.ContainsKey("Reason") && validationContext.Items["Reason"] is ISubdivisionService subdivisionService) {
+
+				if(Subdivision == null || Subdivision.Id == subdivisionService.GetParentVodovozSubdivisionId()) {
+					yield return new ValidationResult($"Поле подразделение должно быть заполнено и не должно являться" +
+						" общим подразделением 'Веселый Водовоз'");
+				}
+			} else {
+				throw new ArgumentException("Неверно передан ValidationContext");
+			}
 		}
 
 		#endregion

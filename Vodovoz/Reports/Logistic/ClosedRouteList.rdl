@@ -1121,7 +1121,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox79">
-                      <Value/>
+                      <Value />
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1799,11 +1799,12 @@ LEFT JOIN (
 	FROM(
 		SELECT 
 			order_items.order_id AS order_id,
-			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), -1, nomenclature_id) AS nomenclature_id,
-			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), CONCAT('Заказ ИМ ', order_items.order_id), IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
-			IF(IS_FROM_ONLINE_SHOP_GROUP(nomenclature.group_id), 1, SUM(IFNULL(order_items.actual_count, 0))) AS cnt
+			IF(ng.is_online_store , -1, nomenclature_id) AS nomenclature_id,
+			IF(ng.is_online_store , CONCAT('Заказ ИМ ', order_items.order_id), IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
+			IF(ng.is_online_store , 1, SUM(IFNULL(order_items.actual_count, 0))) AS cnt
 		FROM order_items
 		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+		LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id 
 		JOIN route_list_addresses ON route_list_addresses.order_id = order_items.order_id
 		WHERE (nomenclature.category = 'equipment' OR nomenclature.category = 'additional') AND nomenclature.hide = 0
 			AND route_list_addresses.route_list_id = @route_list_id

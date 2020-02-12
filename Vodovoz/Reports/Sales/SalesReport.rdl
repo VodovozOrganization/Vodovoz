@@ -342,8 +342,8 @@
         <Width>223.58pt</Width>
         <Value>=First({criterions}, "Criterions")</Value>
         <ZIndex>1</ZIndex>
-        <Left>334.8pt</Left>
-        <Top>114.3pt</Top>
+        <Left>335.6pt</Left>
+        <Top>119.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -449,7 +449,7 @@
           </TableRows>
         </Footer>
       </fyi:Grid>
-      <Textbox Name="Textbox17" >
+      <Textbox Name="Textbox17">
         <Height>12pt</Height>
         <Width>265pt</Width>
         <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
@@ -492,7 +492,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	T.counterparty,
@@ -522,6 +522,8 @@ FROM
 		orders ON order_id = orders.id
 	LEFT JOIN
 		nomenclature ON order_items.nomenclature_id = nomenclature.id
+	LEFT JOIN 
+		nomenclature_groups ON nomenclature.group_id = nomenclature_groups.id 
 	LEFT JOIN
 		counterparty ON orders.client_id = counterparty.id
 	LEFT JOIN
@@ -609,6 +611,10 @@ FROM
 	            (IFNULL(order_items.promotional_set_id, 0) NOT IN (@promo_sets_exclude) AND 0 IN (@promo_sets_include)))
 	            OR (0 IN (@promo_sets_include) AND 0 IN (@promo_sets_exclude))
 			)
+		AND (
+				(IFNULL(nomenclature_groups.id , 0) IN (@product_group_ids))
+	            OR (0 IN (@product_group_ids))
+			)
 		GROUP BY order_items.id
 	) as T
 GROUP BY nomenclature_id
@@ -680,9 +686,12 @@ GROUP BY nomenclature_id
           <QueryParameter Name="promo_sets_exclude">
             <Value>={?promo_sets_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="product_group_ids">
+            <Value>={?product_group_ids}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -718,7 +727,7 @@ GROUP BY nomenclature_id
       </Fields>
     </DataSet>
     <DataSet Name="Criterions">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -782,6 +791,9 @@ GROUP BY nomenclature_id
 		'')),
 		(IF(excluded_promo_sets!=0,
 		CONCAT('Искл.промо-наборов: ',excluded_promo_sets,'\n'),
+		'')),
+		(IF(included_product_groups!=0,
+		CONCAT('Вкл.групп товаров: ',included_product_groups,'\n'),
 		''))
 	) AS criterions
 FROM
@@ -893,7 +905,12 @@ FROM
 			0 NOT IN (@promo_sets_exclude),
 			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@promo_sets_exclude)),
 			0
-		) AS excluded_promo_sets
+		) AS excluded_promo_sets,
+		IF(
+			0 NOT IN (@product_group_ids),
+			(SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@product_group_ids)),
+			0
+		) AS included_product_groups
 	) AS tbl
 ;</CommandText>
         <QueryParameters>
@@ -963,9 +980,12 @@ FROM
           <QueryParameter Name="promo_sets_exclude">
             <Value>={?promo_sets_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="product_group_ids">
+            <Value>={?product_group_ids}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="criterions">
           <DataField>criterions</DataField>
           <TypeName>System.String</TypeName>
@@ -973,7 +993,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="bottles">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	SUM(t.plan) AS plan,
@@ -994,6 +1014,8 @@ FROM
 		LEFT JOIN employees ON employees.id = orders.author_employee_id
 		LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id
 		LEFT JOIN order_items ON order_items.order_id = orders.id
+		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id 
+		LEFT JOIN nomenclature_groups ON nomenclature.group_id = nomenclature_groups.id 
 		LEFT JOIN
 		(
 			SELECT
@@ -1073,6 +1095,10 @@ FROM
 				(IF(order_items.promotional_set_id IS NULL, 0, order_items.promotional_set_id) NOT IN (@promo_sets_exclude) AND 0 IN (@promo_sets_include)))
 				OR (0 IN (@promo_sets_include) AND 0 IN (@promo_sets_exclude))
 			)
+		AND (
+				(IFNULL(nomenclature_groups.id , 0) IN (@product_group_ids))
+	            OR (0 IN (@product_group_ids))
+			)
 	GROUP BY orders.id
 ) AS t</CommandText>
         <QueryParameters>
@@ -1130,9 +1156,12 @@ FROM
           <QueryParameter Name="promo_sets_exclude">
             <Value>={?promo_sets_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="product_group_ids">
+            <Value>={?product_group_ids}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="plan">
           <DataField>plan</DataField>
         </Field>
@@ -1336,7 +1365,16 @@ FROM
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="product_group_ids">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

@@ -127,7 +127,7 @@ namespace Vodovoz
 			);
 			yentryrefOrder.RepresentationModel = new ViewModel.OrdersVM(filter);
 			yentryrefOrder.Binding.AddBinding(Entity, e => e.Order, w => w.Subject).InitializeFromSource();
-			yentryrefOrder.CanEditReference = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_delete"];
+			yentryrefOrder.CanEditReference = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete");
 
 			UpdateOrderInfo();
 			Entity.UpdateStockAmount(UoW);

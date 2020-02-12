@@ -62,7 +62,7 @@ namespace Vodovoz.Dialogs.Employees
 
 		private global::Gtk.Label labelCitizenship;
 
-		private global::QSContacts.PhonesView phonesView;
+		private global::Vodovoz.Views.Contacts.PhonesView phonesView;
 
 		private global::QS.Widgets.GtkUI.PhotoView photoviewEmployee;
 
@@ -432,7 +432,7 @@ namespace Vodovoz.Dialogs.Employees
 			w28.XOptions = ((global::Gtk.AttachOptions)(4));
 			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.phonesView = new global::QSContacts.PhonesView();
+			this.phonesView = new global::Vodovoz.Views.Contacts.PhonesView();
 			this.phonesView.Events = ((global::Gdk.EventMask)(256));
 			this.phonesView.Name = "phonesView";
 			this.phonesView.IsReadOnly = false;

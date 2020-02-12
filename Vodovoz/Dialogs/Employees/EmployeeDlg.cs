@@ -5,7 +5,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NLog;
 using QS.Banks.Domain;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.PresetPermissions;
 using QS.DomainModel.UoW;
@@ -34,13 +34,19 @@ using QS.EntityRepositories;
 using Vodovoz.Domain.Sms;
 using System.Threading.Tasks;
 using InstantSmsService;
+using Vodovoz.Services;
+using Vodovoz.Domain.Service.BaseParametersServices;
+using Vodovoz.Domain.Permissions;
+using Vodovoz.EntityRepositories.Permissions;
 
 namespace Vodovoz
 {
 	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>
 	{
 		IWageCalculationRepository wageParametersRepository;
+		ISubdivisionService subdivisionService;
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+
 		public override bool HasChanges {
 			get {
 				phonesView.RemoveEmpty();
@@ -79,7 +85,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = uow;
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_change_trainee_to_driver"]) {
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_trainee_to_driver")) {
 				hiddenCategory = new EmployeeCategory[] { EmployeeCategory.driver, EmployeeCategory.forwarder };
 			}
 			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
@@ -96,6 +102,7 @@ namespace Vodovoz
 			notebookMain.ShowTabs = false;
 
 			wageParametersRepository = WageSingletonRepository.GetInstance();
+			subdivisionService = SubdivisionParametersProvider.Instance;
 
 			checkIsFired.Binding.AddBinding(Entity, e => e.IsFired, w => w.Active).InitializeFromSource();
 			checkVisitingMaster.Binding.AddBinding(Entity, e => e.VisitingMaster, w => w.Active).InitializeFromSource();
@@ -133,7 +140,7 @@ namespace Vodovoz
 			referenceUser.SubjectType = typeof(User);
 			referenceUser.CanEditReference = false;
 			referenceUser.Binding.AddBinding(Entity, e => e.User, w => w.Subject).InitializeFromSource();
-			referenceUser.Sensitive = UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_manage_users"];
+			referenceUser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
 
 			comboCategory.ItemsEnum = typeof(EmployeeCategory);
 			if(hiddenCategory != null && hiddenCategory.Any()) {
@@ -200,7 +207,7 @@ namespace Vodovoz
 				Entity, 
 				this, 
 				UoW, 
-				new PresetPermissionValidator(),
+				new HierarchicalPresetPermissionValidator(EmployeeSingletonRepository.GetInstance(), new PermissionRepository()),
 				UserSingletonRepository.GetInstance(),
 				ServicesConfig.CommonServices,
 				NavigationManagerProvider.NavigationManager
@@ -209,7 +216,7 @@ namespace Vodovoz
 			logger.Info("Ok");
 		}
 
-		bool CanCreateNewUser => Entity.User == null && UserPermissionSingletonRepository.GetInstance().CurrentUserPresetPermissions["can_manage_users"];
+		bool CanCreateNewUser => Entity.User == null && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
 
 		void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
@@ -222,7 +229,7 @@ namespace Vodovoz
 			if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
 				Entity.AndroidLogin = null;
 
-			var valid = new QSValidator<Employee>(UoWGeneric.Root);
+			var valid = new QSValidator<Employee>(UoWGeneric.Root, Entity.GetValidationContextItems(subdivisionService));
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
@@ -496,7 +503,7 @@ namespace Vodovoz
 				= hboxDriversParameters.Visible
 				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
 
-			wageParametersView.Sensitive = UserPermissionRepository.CurrentUserPresetPermissions["can_edit_wage"];
+			wageParametersView.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_wage");
 		}
 
 		protected void OnRadioWageParametersClicked(object sender, EventArgs e)

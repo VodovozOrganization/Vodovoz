@@ -1,9 +1,8 @@
 ﻿using System;
 using Gamma.ColumnConfig;
 using NHibernate.Transform;
-using QS.Contacts;
+using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
-using QS.Contacts;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 
@@ -70,7 +69,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => deliveryPointAlias.CompiledAddress).WithAlias (() => resultAlias.DeliveryPoint)
 					.SelectCount (() => deliveryPointAlias.Id).WithAlias (() => resultAlias.DeliveryPointsCount)
 					.Select (() => phoneAlias.Number).WithAlias (() => resultAlias.Number)
-					.Select (() => phoneAlias.NumberType).WithAlias (() => resultAlias.NumberType)
+					.Select (() => phoneAlias.PhoneType).WithAlias (() => resultAlias.NumberType)
 			                   )
 				.TransformUsing (Transformers.AliasToBean<ContactsVMNode> ())
 				.List<ContactsVMNode> ();

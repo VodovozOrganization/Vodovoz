@@ -10,6 +10,7 @@ using QS.Project.Domain;
 using QS.Project.Repositories;
 using QS.Project.Services.GtkUI;
 using Vodovoz.Domain.Permissions;
+using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.Permissions;
 
@@ -36,7 +37,7 @@ namespace Vodovoz.Core.Permissions
 			this.subdivision = subdivision;
 			var permissionExtensionStore = PermissionExtensionSingletonStore.GetInstance();
 			permissionlistview.ViewModel = new PermissionListViewModel(permissionExtensionStore);
-			ViewModel = new EntitySubdivisionPermissionModel(UoW, subdivision, permissionlistview.ViewModel);
+			ViewModel = new EntitySubdivisionPermissionModel(UoW, subdivision, permissionlistview.ViewModel, new EntityRepositories.Permissions.PermissionRepository());
 
 			var extensions = ViewModel.ExtensionStore.PermissionExtensions;
 
@@ -76,32 +77,33 @@ namespace Vodovoz.Core.Permissions
 		private IUnitOfWork uow;
 		private Subdivision subdivision;
 		private IList<SubdivisionPermissionNode> originalPermissionList;
-		private IList<TypeOfEntity> originalTypeOfEntityList;
+		private List<TypeOfEntity> originalTypeOfEntityList;
 		public IPermissionExtensionStore ExtensionStore { get; set; }
 		public PermissionListViewModel PermissionListViewModel { get; set; }
 
 		public GenericObservableList<TypeOfEntity> ObservableTypeOfEntitiesList { get; private set; }
 
-		public EntitySubdivisionPermissionModel(IUnitOfWork uow, Subdivision subdivision, PermissionListViewModel permissionListViewModel)
+		public EntitySubdivisionPermissionModel(IUnitOfWork uow, Subdivision subdivision, PermissionListViewModel permissionListViewModel, IPermissionRepository permissionRepository)
 		{
 			PermissionListViewModel = permissionListViewModel ?? throw new NullReferenceException(nameof(permissionListViewModel));
 
 			this.subdivision = subdivision;
 			this.uow = uow;
 			ExtensionStore = PermissionListViewModel.PermissionExtensionStore;
-			var permissionList = PermissionRepository.GetAllSubdivisionEntityPermissions(uow, subdivision.Id, ExtensionStore);
+			var permissionList = permissionRepository.GetAllSubdivisionEntityPermissions(uow, subdivision.Id, ExtensionStore);
 			originalPermissionList = permissionList.ToList(); 
 
 			PermissionListViewModel.PermissionsList = new GenericObservableList<IPermissionNode>(permissionList.OfType<IPermissionNode>().ToList());
 			PermissionListViewModel.PermissionsList.ElementRemoved += (aList, aIdx, aObject) => DeletePermission(aObject as SubdivisionPermissionNode);
 
-			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow);
+			originalTypeOfEntityList = TypeOfEntityRepository.GetAllSavedTypeOfEntity(uow).ToList();
 			//убираем типы уже загруженные в права
 			foreach(var item in originalPermissionList) {
 				if(originalTypeOfEntityList.Contains(item.TypeOfEntity)) {
 					originalTypeOfEntityList.Remove(item.TypeOfEntity);
 				}
 			}
+			SortTypeOfEntityList();
 			ObservableTypeOfEntitiesList = new GenericObservableList<TypeOfEntity>(originalTypeOfEntityList);
 		}
 
@@ -145,6 +147,7 @@ namespace Vodovoz.Core.Permissions
 			uow.Delete(deletedPermission.EntitySubdivisionOnlyPermission);
 			foreach(var permission in deletedPermission.EntityPermissionExtended)
 				uow.Delete(permission);
+			SortTypeOfEntityList();
 		}
 
 		public void SavePermissions(IUnitOfWork uow)
@@ -157,6 +160,15 @@ namespace Vodovoz.Core.Permissions
 				uow.Save(item);
 
 			PermissionListViewModel.SaveExtendedPermissions(uow);
+		}
+
+		private void SortTypeOfEntityList()
+		{
+			if(originalTypeOfEntityList?.FirstOrDefault() == null)
+				return;
+
+			originalTypeOfEntityList.Sort((x, y) =>
+					string.Compare(x.CustomName ?? x.Type, y.CustomName ?? y.Type));
 		}
 	}
 }

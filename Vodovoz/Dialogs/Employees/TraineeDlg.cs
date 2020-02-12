@@ -9,10 +9,7 @@ using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
-using QSBanks;
-using QS.Contacts;
 using QSOrmProject;
-using QSProjectsLib;
 using QS.Validation.GtkUI;
 using Vodovoz.Domain.Employees;
 
@@ -71,7 +68,7 @@ namespace Vodovoz.Dialogs.Employees
 			phonesView.UoW = UoWGeneric;
 			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
 			if(Entity.Phones == null) {
-				Entity.Phones = new List<QS.Contacts.Phone>();
+				Entity.Phones = new List<Vodovoz.Domain.Contacts.Phone>();
 			}
 			phonesView.Phones = Entity.Phones;
 

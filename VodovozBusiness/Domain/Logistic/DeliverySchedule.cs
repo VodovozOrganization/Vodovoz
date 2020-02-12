@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.Project.Services;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -47,7 +48,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if(!UserPermissionRepository.CurrentUserPresetPermissions["can_edit_delivery_schedule"] && Id > 0)
+			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_schedule") && Id > 0)
 				yield return new ValidationResult("Вы не можете изменять график доставки");
 
 			if (From > To)
