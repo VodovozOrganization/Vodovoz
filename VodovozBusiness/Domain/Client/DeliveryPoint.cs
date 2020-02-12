@@ -652,6 +652,8 @@ namespace Vodovoz.Domain.Client
 			Latitude = latitude;
 			Longitude = longitude;
 
+			OnPropertyChanged(nameof(CoordinatesExist));
+
 			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
 				return true;
 			var gg = District.GeographicGroups.FirstOrDefault();
