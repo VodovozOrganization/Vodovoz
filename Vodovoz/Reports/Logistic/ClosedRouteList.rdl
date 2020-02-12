@@ -1799,9 +1799,15 @@ LEFT JOIN (
 	FROM(
 		SELECT 
 			order_items.order_id AS order_id,
-			IF(ng.is_online_store , -1, nomenclature_id) AS nomenclature_id,
-			IF(ng.is_online_store , CONCAT('Заказ ИМ ', order_items.order_id), IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
-			IF(ng.is_online_store , 1, SUM(IFNULL(order_items.actual_count, 0))) AS cnt
+			IF(
+				IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+				-1, nomenclature_id) AS nomenclature_id,
+			IF(
+				IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+				CONCAT('Заказ ИМ ', order_items.order_id), IFNULL(nomenclature.short_name, nomenclature.name)) AS name,
+			IF(
+				IF(nomenclature.group_id IS NOT NULL, ng.is_online_store, FALSE),
+				1, SUM(IFNULL(order_items.actual_count, 0))) AS cnt
 		FROM order_items
 		LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 		LEFT JOIN nomenclature_groups ng ON ng.id = nomenclature.group_id 
