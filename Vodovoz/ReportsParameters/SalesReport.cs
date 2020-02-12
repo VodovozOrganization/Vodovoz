@@ -183,7 +183,7 @@ namespace Vodovoz.Reports
 		private void ConfigureProductGroups()
 		{
 			var groups = UoW.Session.QueryOver<ProductGroup>().List().ToList();
-			var parentGroups = UoW.Session.QueryOver<ProductGroup>().Where(g => g.Parent == null).List().ToList();
+			var parentGroups = UoW.Session.QueryOver<ProductGroup>().Where(g => g.MappedParent == null).List().ToList();
 
 			List<SelectableProductGroupNode> items = new List<SelectableProductGroupNode>();
 
