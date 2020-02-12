@@ -43,7 +43,7 @@ WHERE
 	route_list_addresses.route_list_id = @id
 		AND nomenclatures_to_warehouses.warehouse_id = 1 #Отгрузка только с софийской
 		AND ((route_list_addresses.was_transfered = true AND route_list_addresses.need_to_reload = true) OR route_list_addresses.was_transfered = false)
-		AND ng.is_online_store = false
+		AND IF(nomenclature.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE) 
 GROUP BY nomenclature.id
 ORDER BY clmn_for_sorting;</CommandText>
         <QueryParameters>
@@ -151,7 +151,7 @@ LIMIT 1
         <CommandText>SELECT
 	n.official_name,
 	SUM(eq.count) AS count,
-	ng.is_online_store AS online_nomenclature,
+	IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE) AS online_nomenclature ,
 	eq.order_id AS order_id
 FROM(
 	SELECT
