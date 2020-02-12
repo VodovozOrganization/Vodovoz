@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	nomenclature.name AS nomenclature,
@@ -52,7 +52,7 @@ ORDER BY clmn_for_sorting;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -151,7 +151,6 @@ LIMIT 1
         <CommandText>SELECT
 	n.official_name,
 	SUM(eq.count) AS count,
-	IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE) AS online_nomenclature ,
 	eq.order_id AS order_id
 FROM(
 	SELECT
@@ -174,10 +173,12 @@ FROM(
 	AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
 ) AS eq
 LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
-LEFT JOIN nomenclature_groups ng ON ng.id = n.id
+LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
 WHERE n.category IN ('equipment', 'additional', 'spare_parts')
+AND IF(n.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
 GROUP BY eq.nomenclature_id
-;</CommandText>
+;
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
             <Value>={?route_list_id}</Value>
@@ -193,9 +194,60 @@ GROUP BY eq.nomenclature_id
           <DataField>count</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="online_nomenclature">
-          <DataField>online_nomenclature</DataField>
-          <TypeName>System.Boolean</TypeName>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="EquipmentOnlineStore">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	n.official_name,
+	SUM(eq.count) AS count,
+	eq.order_id AS order_id
+FROM(
+	SELECT
+		nomenclature_id,
+		e.order_id,
+		count
+	FROM order_equipment e
+	LEFT JOIN route_list_addresses a ON e.order_id = a.order_id
+	WHERE a.route_list_id = @id
+		AND direction = 'Deliver'
+		AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
+	UNION ALL
+	SELECT
+		nomenclature_id,
+		i.order_id,
+		count
+	FROM order_items i
+	LEFT JOIN route_list_addresses a ON i.order_id = a.order_id
+	WHERE a.route_list_id = @id
+	AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
+) AS eq
+LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
+LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
+WHERE n.category IN ('equipment', 'additional', 'spare_parts')
+AND IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE)
+GROUP BY eq.nomenclature_id
+;
+</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id">
+            <Value>={?route_list_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="official_name">
+          <DataField>official_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="order_id">
           <DataField>order_id</DataField>
@@ -2320,7 +2372,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox89">
-                      <Value>= {official_name}</Value>
+                      <Value>={official_name}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2360,15 +2412,6 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Left>22.4pt</Left>
         <Top>367.5pt</Top>
         <ZIndex>2</ZIndex>
-        <Filters>
-          <Filter>
-            <FilterExpression>={online_nomenclature}</FilterExpression>
-            <Operator>Equal</Operator>
-            <FilterValues>
-              <FilterValue>false</FilterValue>
-            </FilterValues>
-          </Filter>
-        </Filters>
       </Table>
       <Line Name="Line4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>0.07pt</Height>
@@ -2488,7 +2531,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         </Style>
       </Textbox>
       <Table Name="Table6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <DataSetName>Equipment</DataSetName>
+        <DataSetName>EquipmentOnlineStore</DataSetName>
         <NoRows>Нет отгрузки товаров ИМ</NoRows>
         <Style>
           <BorderStyle>
@@ -2573,18 +2616,9 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </Header>
           </TableGroup>
         </TableGroups>
-        <Filters>
-          <Filter>
-            <FilterExpression>={online_nomenclature}</FilterExpression>
-            <Operator>Equal</Operator>
-            <FilterValues>
-              <FilterValue>true</FilterValue>
-            </FilterValues>
-          </Filter>
-        </Filters>
       </Table>
       <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <DataSetName>Equipment</DataSetName>
+        <DataSetName>EquipmentOnlineStore</DataSetName>
         <NoRows>Нет отгрузки товаров ИМ</NoRows>
         <Style>
           <BorderStyle>
@@ -2669,15 +2703,6 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </Header>
           </TableGroup>
         </TableGroups>
-        <Filters>
-          <Filter>
-            <FilterExpression>={online_nomenclature}</FilterExpression>
-            <Operator>Equal</Operator>
-            <FilterValues>
-              <FilterValue>true</FilterValue>
-            </FilterValues>
-          </Filter>
-        </Filters>
       </Table>
       <Table Name="Table7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Equipment</DataSetName>
@@ -2795,18 +2820,9 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Left>22.8pt</Left>
         <Top>473.3pt</Top>
         <ZIndex>2</ZIndex>
-        <Filters>
-          <Filter>
-            <FilterExpression>={online_nomenclature}</FilterExpression>
-            <Operator>Equal</Operator>
-            <FilterValues>
-              <FilterValue>false</FilterValue>
-            </FilterValues>
-          </Filter>
-        </Filters>
       </Table>
       <Table Name="Table15">
-        <DataSetName>Equipment</DataSetName>
+        <DataSetName>EquipmentOnlineStore</DataSetName>
         <NoRows>Нет отгрузки товаров ИМ</NoRows>
         <Style>
           <BorderStyle>
@@ -2887,15 +2903,6 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
             </Header>
           </TableGroup>
         </TableGroups>
-        <Filters>
-          <Filter>
-            <FilterExpression>={online_nomenclature}</FilterExpression>
-            <Operator>Equal</Operator>
-            <FilterValues>
-              <FilterValue>true</FilterValue>
-            </FilterValues>
-          </Filter>
-        </Filters>
       </Table>
     </ReportItems>
     <Height>531.7pt</Height>
