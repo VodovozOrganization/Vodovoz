@@ -29,7 +29,21 @@ namespace Vodovoz.Domain.Payments
 			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
 			culture.NumberFormat.NumberDecimalSeparator = ".";
 
-			switch(data[0]) {
+			if(!int.TryParse(data[0], out paymentNr))
+				paymentNr = 0;
+
+			DateAndTime = DateTime.ParseExact(
+				data[1],
+				"dd.MM.yyyy H:m",
+				null
+			);
+
+			Shop = data[2];
+
+			if(!decimal.TryParse(data[3], NumberStyles.AllowDecimalPoint, culture.NumberFormat, out paymentRUR))
+				paymentRUR = 0m;
+
+			switch(data[4]) {
 				case "3DS_CHECKING":
 					paymentStatus = PaymentStatus.CHECKING;
 					break;
@@ -37,30 +51,14 @@ namespace Vodovoz.Domain.Payments
 					paymentStatus = PaymentStatus.CHECKED;
 					break;
 				default:
-					if(!Enum.TryParse(data[0], out paymentStatus))
+					if(!Enum.TryParse(data[4], out paymentStatus))
 						paymentStatus = PaymentStatus.Unacceptable;
-					//else
-					//Selectable = Selected = PaymentStatus == PaymentStatus.CONFIRMED;
 					break;
 			}
 
-			DateAndTime = DateTime.ParseExact(
-				data[1],
-				"yyyy-MM-dd HH:mm:ss",
-				null
-			);
+			Email = data[6];
 
-			if(!int.TryParse(data[2], out paymentNr))
-				paymentNr = 0;
-
-			if(!decimal.TryParse(data[3], NumberStyles.AllowDecimalPoint, culture.NumberFormat, out paymentRUR))
-				paymentRUR = 0m;
-
-			Email = data[4];
-
-			Phone = data[5];
-
-			Shop = data[6];
+			Phone = data[7];
 		}
 
 		#endregion
