@@ -91,8 +91,6 @@ namespace Vodovoz.ServiceDialogs
 												 .Where(d => d.District == null)
 												 .Future<DeliveryPoint>();
 
-			var districtSource = ScheduleRestrictionRepository.AreasWithGeometry(UoW);
-
 			DeliveryPointsList = deliveryPointsQuery.ToList();
 
 			TotalDP = DeliveryPointsList.Count;
@@ -103,7 +101,7 @@ namespace Vodovoz.ServiceDialogs
 				if(!dp.CoordinatesExist) {
 					errors.Add(new KeyValuePair<int, string>(dp.Id, "Нет координат"));
 					SkipedDP++;
-				} else if(dp.FindAndAssociateDistrict(districtSource)) {
+				} else if(dp.FindAndAssociateDistrict(UoW)) {
 					DeliveryPointsToSave.Add(dp);
 					SuccessDP++;
 				} else {

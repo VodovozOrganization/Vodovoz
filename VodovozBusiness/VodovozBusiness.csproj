@@ -810,6 +810,8 @@
     <Compile Include="Domain\Orders\UndeliveryProblemSource.cs" />
     <Compile Include="HibernateMapping\Order\UndeliveryProblemSourceMap.cs" />
     <Compile Include="Services\IDriverServiceParametersProvider.cs" />
+    <Compile Include="EntityRepositories\Delivery\IDeliveryRepository.cs" />
+    <Compile Include="EntityRepositories\Delivery\DeliveryRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -888,6 +890,7 @@
     <Folder Include="HibernateMapping\Contacts\" />
     <Folder Include="EntityRepositories\Contacts\" />
     <Folder Include="EntityRepositories\Permissions\" />
+    <Folder Include="EntityRepositories\Delivery\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

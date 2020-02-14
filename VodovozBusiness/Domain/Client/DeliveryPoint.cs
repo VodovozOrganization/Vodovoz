@@ -18,6 +18,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Sale;
+using Vodovoz.EntityRepositories.Delivery;
+using System.Collections;
 
 namespace Vodovoz.Domain.Client
 {
@@ -532,39 +534,20 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
+		//FIXME вынести зависимость
+		IDeliveryRepository deliveryRepository = new DeliveryRepository();
+
 		/// <summary>
 		/// Возврат районов доставки, в которые попадает точка доставки
 		/// </summary>
 		/// <param name="uow">UnitOfWork через который будет получены все районы доставки,
 		/// среди которых будет производится поиск подходящего района</param>
-		public virtual IList<ScheduleRestrictedDistrict> CalculateDistricts(IUnitOfWork uow)
+		public virtual IEnumerable<ScheduleRestrictedDistrict> CalculateDistricts(IUnitOfWork uow)
 		{
-			return CalculateDistricts(ScheduleRestrictionRepository.AreasWithGeometry(uow));
-		}
-
-		/// <summary>
-		/// Возврат районов доставки, в которые попадает точка доставки
-		/// </summary>
-		/// <returns>Районы доставки</returns>
-		/// <param name="districtsSource">Районы доставки, среди которых будет производится поиск подходящего района</param>
-		public virtual IList<ScheduleRestrictedDistrict> CalculateDistricts(IList<ScheduleRestrictedDistrict> districtsSource)
-		{
-			List<ScheduleRestrictedDistrict> districts = new List<ScheduleRestrictedDistrict>();
-			if(CoordinatesExist) {
-				districts = districtsSource.Where(x => x.DistrictBorder.Contains(NetTopologyPoint))
-										   .ToList();
-
-				if(districts.Any())
-					return districts;
-
-				foreach(var point in Get4PointsInRadiusOfXMetersFromBasePoint(NetTopologyPoint)) {
-					districts = districtsSource.Where(x => x.DistrictBorder.Contains(point))
-											   .ToList();
-					if(districts.Any())
-						return districts;
-				}
+			if(!CoordinatesExist) {
+				return new List<ScheduleRestrictedDistrict>();
 			}
-			return districts;
+			return deliveryRepository.GetDistricts(uow, Latitude.Value, Longitude.Value);
 		}
 
 		/// <summary>
@@ -574,52 +557,17 @@ namespace Vodovoz.Domain.Client
 		/// <param name="uow">UnitOfWork через который будет производится поиск подходящего района города</param>
 		public bool FindAndAssociateDistrict(IUnitOfWork uow)
 		{
-			District = CalculateDistricts(uow).FirstOrDefault();
-			return District != null;
+			if(!CoordinatesExist) {
+				return false;
+			}
+
+			ScheduleRestrictedDistrict foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value);
+			if(foundDistrict == null) {
+				return false;
+			}
+			District = foundDistrict;
+			return true;
 		}
-
-		public bool FindAndAssociateDistrict(IList<ScheduleRestrictedDistrict> districtsSource)
-		{
-			District = CalculateDistricts(districtsSource).FirstOrDefault();
-			return District != null;
-		}
-
-		/// <summary>
-		/// Получение 4 точек, отстоящих от базовой точки на <paramref name="distanceInMeters"/> вправо, влево, вверх и вниз.
-		/// </summary>
-		/// <param name="basePoint">Базовая точка</param>
-		/// <param name="distanceInMeters">Дистанция отступа от базовой точки <paramref name="basePoint"/></param>
-		Point[] Get4PointsInRadiusOfXMetersFromBasePoint(Point basePoint, double distanceInMeters = 100)
-		{
-			Point[] array = new Point[4];
-			array[0] = new Point(GetNewLatitude(basePoint.X, distanceInMeters), basePoint.Y);
-			array[1] = new Point(basePoint.X, GetNewLongitude(basePoint.Y, distanceInMeters));
-			array[2] = new Point(GetNewLatitude(basePoint.X, -distanceInMeters), basePoint.Y);
-			array[3] = new Point(basePoint.X, GetNewLongitude(basePoint.Y, -distanceInMeters));
-			return array;
-		}
-
-		double GetNewLatitude(double lat, double metersToAdd)
-		{
-			double earth = 6378.137; //radius of the earth in kilometer
-			double pi = Math.PI;
-			double m = 1 / (2 * pi / 360 * earth) / 1000;  //1 meter in degree
-
-			double newLatitude = lat + (metersToAdd * m);
-
-			return newLatitude;
-		}
-
-		double GetNewLongitude(double lon, double metersToAdd)
-		{
-			double earth = 6378.137;  //radius of the earth in kilometer
-			double pi = Math.PI;
-			double m = 1 / (2 * pi / 360 * earth) / 1000;  //1 meter in degree
-
-			double newLongitude = lon + metersToAdd * m / Math.Cos(lon * (pi / 180));
-			return newLongitude;
-		}
-
 
 		public DeliveryPoint()
 		{
