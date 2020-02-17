@@ -145,6 +145,13 @@
     <Compile Include="ViewModels\Permissions\PresetPermissionsViewModelBase.cs" />
     <Compile Include="ViewModels\Permissions\PresetSubdivisionPermissionsViewModel.cs" />
     <Compile Include="ViewModels\UndeliveryProblemSourceViewModel.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParametersReportFilter.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameter.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSet.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableFilterType.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\RecursiveParametersFactory.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\IParametersFactory.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\ParametersFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -176,6 +183,8 @@
     <Folder Include="JournalViewModels\Contacts\" />
     <Folder Include="ViewModels\Users\" />
     <Folder Include="ViewModels\Permissions\" />
+    <Folder Include="Infrastructure\Report\" />
+    <Folder Include="Infrastructure\Report\SelectableParametersFilter\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">
