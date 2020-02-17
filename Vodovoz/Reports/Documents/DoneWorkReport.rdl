@@ -1710,6 +1710,65 @@ WHERE stored_resource.id = @id1
         <Sizing>FitProportional</Sizing>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
+      <Textbox Name="Textbox24" >
+        <Height>11.99pt</Height>
+        <Width>115.85pt</Width>
+        <Value>Заполняется клиентом:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2pt</Left>
+        <Top>580.8pt</Top>
+        <Style>
+          <TextAlign>Left</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox45" >
+        <Height>12.00pt</Height>
+        <Width>87.27pt</Width>
+        <Value>Время прибытия:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>121.6pt</Left>
+        <Top>572.9pt</Top>
+      </Textbox>
+      <Textbox Name="Textbox71" >
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>206.0pt</Left>
+        <Top>572.6pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox72" >
+        <Height>12.00pt</Height>
+        <Width>87.27pt</Width>
+        <Value>Время убытия:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>121.6pt</Left>
+        <Top>586.7pt</Top>
+      </Textbox>
+      <Textbox Name="Textbox73" >
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>
+        </Value>
+        <ZIndex>1</ZIndex>
+        <Left>206.0pt</Left>
+        <Top>586.4pt</Top>
+        <Style>
+          <BorderStyle>
+            <Bottom>Solid</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2138,7 +2197,7 @@ WHERE stored_resource.id = @id1
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
