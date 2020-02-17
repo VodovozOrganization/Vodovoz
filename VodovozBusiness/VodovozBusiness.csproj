@@ -52,24 +52,6 @@
     <Reference Include="System.Data" />
     <Reference Include="Mono.Posix" />
     <Reference Include="System.Core" />
-    <Reference Include="NetTopologySuite.IO">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.IO.GeoTools">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.GeoTools.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.IO.MsSqlSpatial">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.MsSqlSpatial.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.IO.PostGis">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.PostGis.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.IO.ShapeFile">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.ShapeFile.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.IO.ShapeFile.Extended">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.ShapeFile.Extended.dll</HintPath>
-    </Reference>
     <Reference Include="Polylines">
       <HintPath>..\packages\Polylines.1.0.0\lib\Polylines.dll</HintPath>
     </Reference>
@@ -100,16 +82,7 @@
     <Reference Include="GeoAPI.CoordinateSystems">
       <HintPath>..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45\GeoAPI.CoordinateSystems.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Protobuf">
-      <HintPath>..\packages\Google.Protobuf.3.8.0\lib\net45\Google.Protobuf.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel" />
-    <Reference Include="NetTopologySuite.CoordinateSystems">
-      <HintPath>..\packages\NetTopologySuite.CoordinateSystems.1.15.2\lib\net45\NetTopologySuite.CoordinateSystems.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite">
-      <HintPath>..\packages\NetTopologySuite.Core.1.15.2\lib\net45\NetTopologySuite.dll</HintPath>
-    </Reference>
     <Reference Include="Remotion.Linq">
       <HintPath>..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
     </Reference>
@@ -121,29 +94,76 @@
       <HintPath>..\packages\DataAnnotationsExtensions.5.0.1.27\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="MySql.Data">
-      <HintPath>..\packages\MySql.Data.8.0.16\lib\net452\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\packages\NLog.4.6.4\lib\net45\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.Spatial">
-      <HintPath>..\packages\NHibernate.Spatial.5.2.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.Spatial.MySQL">
-      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.2.0\lib\netstandard2.0\NHibernate.Spatial.MySQL.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate">
-      <HintPath>..\packages\NHibernate.5.2.5\lib\net461\NHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="BouncyCastle.Crypto">
       <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
+    <Reference Include="Renci.SshNet">
+      <HintPath>..\packages\SSH.NET.2016.1.0\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data">
+      <HintPath>..\packages\MySql.Data.8.0.19\lib\net452\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Ubiety.Dns.Core">
+      <HintPath>..\packages\MySql.Data.8.0.19\lib\net452\Ubiety.Dns.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="Google.Protobuf">
+      <HintPath>..\packages\Google.Protobuf.3.11.4\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
     <Reference Include="CommonServiceLocator">
-      <HintPath>..\packages\CommonServiceLocator.2.0.4\lib\net46\CommonServiceLocator.dll</HintPath>
+      <HintPath>..\packages\CommonServiceLocator.2.0.5\lib\net46\CommonServiceLocator.dll</HintPath>
     </Reference>
     <Reference Include="RestSharp">
-      <HintPath>..\..\VodovozService\packages\RestSharp.106.6.10\lib\net452\RestSharp.dll</HintPath>
+      <HintPath>..\packages\RestSharp.106.10.1\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\VodovozService\packages\NHibernate.5.2.7\lib\net461\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Buffers">
+      <HintPath>..\..\VodovozService\packages\System.Buffers.4.5.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory">
+      <HintPath>..\..\VodovozService\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>..\..\VodovozService\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>..\..\VodovozService\packages\System.Runtime.CompilerServices.Unsafe.4.7.0\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite.CoordinateSystems">
+      <HintPath>..\packages\NetTopologySuite.CoordinateSystems.1.15.0\lib\net45\NetTopologySuite.CoordinateSystems.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite">
+      <HintPath>..\packages\NetTopologySuite.Core.1.15.0\lib\net45\NetTopologySuite.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite.IO">
+      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite.IO.GeoTools">
+      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.GeoTools.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite.IO.MsSqlSpatial">
+      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.MsSqlSpatial.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite.IO.PostGis">
+      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.PostGis.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite.IO.ShapeFile">
+      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.ShapeFile.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite.IO.ShapeFile.Extended">
+      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.ShapeFile.Extended.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Spatial">
+      <HintPath>..\packages\NHibernate.Spatial.5.3.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Spatial.MySQL">
+      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.3.0\lib\netstandard2.0\NHibernate.Spatial.MySQL.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

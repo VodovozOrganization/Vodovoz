@@ -102,24 +102,6 @@
       <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
-    <Reference Include="NetTopologySuite.IO">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.IO.GeoTools">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.GeoTools.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.IO.MsSqlSpatial">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.MsSqlSpatial.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.IO.PostGis">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.PostGis.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.IO.ShapeFile">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.ShapeFile.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite.IO.ShapeFile.Extended">
-      <HintPath>..\packages\NetTopologySuite.IO.1.14.0.1\lib\net45\NetTopologySuite.IO.ShapeFile.Extended.dll</HintPath>
-    </Reference>
     <Reference Include="Antlr3.Runtime">
       <HintPath>..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
     </Reference>
@@ -143,51 +125,65 @@
     <Reference Include="GeoAPI.CoordinateSystems">
       <HintPath>..\packages\GeoAPI.CoordinateSystems.1.7.5\lib\net45\GeoAPI.CoordinateSystems.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Protobuf">
-      <HintPath>..\packages\Google.Protobuf.3.8.0\lib\net45\Google.Protobuf.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel" />
-    <Reference Include="NetTopologySuite.CoordinateSystems">
-      <HintPath>..\packages\NetTopologySuite.CoordinateSystems.1.15.3\lib\net45\NetTopologySuite.CoordinateSystems.dll</HintPath>
-    </Reference>
-    <Reference Include="NetTopologySuite">
-      <HintPath>..\packages\NetTopologySuite.Core.1.15.3\lib\net45\NetTopologySuite.dll</HintPath>
-    </Reference>
     <Reference Include="Remotion.Linq">
       <HintPath>..\packages\Remotion.Linq.2.2.0\lib\net45\Remotion.Linq.dll</HintPath>
     </Reference>
     <Reference Include="Remotion.Linq.EagerFetching">
       <HintPath>..\packages\Remotion.Linq.EagerFetching.2.2.0\lib\net45\Remotion.Linq.EagerFetching.dll</HintPath>
     </Reference>
-    <Reference Include="DiffPlex">
-      <HintPath>..\packages\DiffPlex.1.4.4\lib\net40\DiffPlex.dll</HintPath>
-    </Reference>
     <Reference Include="FluentNHibernate">
       <HintPath>..\packages\FluentNHibernate.2.1.2\lib\net461\FluentNHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data">
-      <HintPath>..\packages\MySql.Data.8.0.18\lib\net452\MySql.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\packages\NLog.4.6.6\lib\net45\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.Spatial">
-      <HintPath>..\packages\NHibernate.Spatial.5.2.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.Spatial.MySQL">
-      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.2.0\lib\netstandard2.0\NHibernate.Spatial.MySQL.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate">
-      <HintPath>..\packages\NHibernate.5.2.5\lib\net461\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="BouncyCastle.Crypto">
       <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
-    <Reference Include="DiffPlex">
-      <HintPath>..\packages\DiffPlex.1.4.4\lib\net40\DiffPlex.dll</HintPath>
-    </Reference>
     <Reference Include="Renci.SshNet">
       <HintPath>..\packages\SSH.NET.2016.1.0\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
+    <Reference Include="DiffPlex">
+      <HintPath>..\packages\DiffPlex.1.5.0\lib\net40\DiffPlex.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Buffers">
+      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf">
+      <HintPath>..\packages\Google.Protobuf.3.11.4\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory">
+      <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data">
+      <HintPath>..\packages\MySql.Data.8.0.19\lib\net452\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Ubiety.Dns.Core">
+      <HintPath>..\packages\MySql.Data.8.0.19\lib\net452\Ubiety.Dns.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\packages\NHibernate.5.2.7\lib\net461\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite.CoordinateSystems">
+      <HintPath>..\packages\NetTopologySuite.CoordinateSystems.1.15.0\lib\net45\NetTopologySuite.CoordinateSystems.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite">
+      <HintPath>..\packages\NetTopologySuite.Core.1.15.0\lib\net45\NetTopologySuite.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Spatial">
+      <HintPath>..\packages\NHibernate.Spatial.5.3.0\lib\netstandard2.0\NHibernate.Spatial.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Spatial.MySQL">
+      <HintPath>..\packages\NHibernate.Spatial.MySQL.5.3.0\lib\netstandard2.0\NHibernate.Spatial.MySQL.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
