@@ -314,7 +314,7 @@ WHERE
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>635.8pt</Height>
+    <Height>539.0pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List2">
@@ -2026,6 +2026,8 @@ WHERE
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -2415,8 +2417,8 @@ WHERE
         <Top>196.4pt</Top>
       </Table>
       <List Name="List4">
-        <Height>304.24pt</Height>
-        <Width>793.00pt</Width>
+        <Height>251.59pt</Height>
+        <Width>793.74pt</Width>
         <Left>1.50pt</Left>
         <Top>284.80pt</Top>
         <ReportItems>
@@ -3552,15 +3554,15 @@ WHERE
               <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox191" >
+          <Textbox Name="Textbox191">
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>=Fields!order_id.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>628.7pt</Left>
-            <Top>248.5pt</Top>
+            <Left>629.5pt</Left>
+            <Top>238.1pt</Top>
             <Style>
-              <FontSize>8pt</FontSize>
+              <FontSize>7pt</FontSize>
               <BorderStyle>
                 <Top>None</Top>
                 <Bottom>Solid</Bottom>
@@ -3570,26 +3572,26 @@ WHERE
               <TextAlign>Center</TextAlign>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox192" >
+          <Textbox Name="Textbox192">
             <Height>12.00pt</Height>
             <Width>15.07pt</Width>
             <Value>от</Value>
             <ZIndex>1</ZIndex>
-            <Left>704.3pt</Left>
-            <Top>250.4pt</Top>
+            <Left>705.1pt</Left>
+            <Top>240.0pt</Top>
             <Style>
-              <FontSize>8pt</FontSize>
+              <FontSize>7pt</FontSize>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox193" >
+          <Textbox Name="Textbox193">
             <Height>12pt</Height>
             <Width>1in</Width>
             <Value>=Fields!order_date.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>717.9pt</Left>
-            <Top>248.3pt</Top>
+            <Left>718.7pt</Left>
+            <Top>237.9pt</Top>
             <Style>
-              <FontSize>8pt</FontSize>
+              <FontSize>7pt</FontSize>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
@@ -3599,18 +3601,18 @@ WHERE
               <TextAlign>Center</TextAlign>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox190" >
-            <Height>12pt</Height>
-            <Width>1in</Width>
+          <Textbox Name="Textbox190">
+            <Height>11.25pt</Height>
+            <Width>12.09pt</Width>
             <Value>№</Value>
             <ZIndex>1</ZIndex>
-            <Left>550.5pt</Left>
-            <Top>249.0pt</Top>
+            <Left>613.8pt</Left>
+            <Top>237.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize>8pt</FontSize>
+              <FontSize>7pt</FontSize>
               <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
