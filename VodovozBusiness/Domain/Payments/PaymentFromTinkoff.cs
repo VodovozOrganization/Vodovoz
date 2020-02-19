@@ -51,7 +51,7 @@ namespace Vodovoz.Domain.Payments
 					paymentStatus = PaymentStatus.CHECKED;
 					break;
 				default:
-					if(!Enum.TryParse(data[4], out paymentStatus))
+					if(!Enum.TryParse(data[4].ToUpper(), out paymentStatus))
 						paymentStatus = PaymentStatus.Unacceptable;
 					break;
 			}
