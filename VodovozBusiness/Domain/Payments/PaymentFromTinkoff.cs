@@ -34,7 +34,7 @@ namespace Vodovoz.Domain.Payments
 
 			DateAndTime = DateTime.ParseExact(
 				data[1],
-				"dd.MM.yyyy H:m",
+				"yyyy-MM-dd HH:mm:ss",
 				null
 			);
 
