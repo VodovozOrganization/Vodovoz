@@ -53,52 +53,14 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					Common1cTypes.Date
 				)
 			);
-			properties.Add(
-				new PropertyNode("КодПоОКАТО",
-					Common1cTypes.String
-				)
-			);
-			properties.Add(
-				new PropertyNode("НаименованиеОКВЭД",
-					Common1cTypes.String
-				)
-			);
-			properties.Add(
-				new PropertyNode("КодОКОНХ",
-					Common1cTypes.String
-				)
-			);
-			properties.Add(
-				new PropertyNode("КодОКОПФ",
-					Common1cTypes.String
-				)
-			);
-			properties.Add(
-				new PropertyNode("КодПоОКПО",
-					Common1cTypes.String
-				)
-			);
+			
 			properties.Add(
 				new PropertyNode("ОГРН",
 					Common1cTypes.String,
 					organization.OGRN
 				)
 			);		
-			properties.Add(
-				new PropertyNode("НаименованиеИМНС",
-					Common1cTypes.String
-				)
-			);
-			properties.Add(
-				new PropertyNode("КодИМНС",
-					Common1cTypes.String
-				)
-			);
-			properties.Add(
-				new PropertyNode("НаименованиеПлательщикаПриПеречисленииВБюджет",
-					Common1cTypes.String
-				)
-			);
+			
 			properties.Add(
 				new PropertyNode("КПП",
 					Common1cTypes.String,
@@ -107,14 +69,14 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			);
 			properties.Add(
 				new PropertyNode("ВидСтавокЕСНиПФР",
-					"ПеречислениеСсылка.ВидыСтавокЕСНиПФР",
+					"ПеречислениеСсылка.УдалитьВидыСтавокЕСНиПФР",
 					"ДляНеСельскохозяйственныхПроизводителей"
 				)
 			);
 			properties.Add(
-				new PropertyNode("ЮрФизЛицо",
+				new PropertyNode("ЮридическоеФизическоеЛицо",
 					Common1cTypes.EnumNaturalOrLegal,
-					"ЮрЛицо"
+					"ЮридическоеЛицо"
 				)
 			);
 			return properties.ToArray();

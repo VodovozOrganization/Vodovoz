@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
+using Vodovoz.Attributes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -43,6 +44,7 @@ namespace Vodovoz.ExportTo1c
 		public CurrencyCatalog CurrencyCatalog { get; private set; }
 		public MeasurementUnitsCatalog MeasurementUnitCatalog { get; private set; }
 		public NomenclatureCatalog NomenclatureCatalog { get; private set; }
+		public NomenclatureType1cTypeCatalog NomenclatureTypeCatalog { get; private set; }
 		public NomenclatureGroupCatalog NomenclatureGroupCatalog { get; private set; }
 		public OrganizationCatalog OrganizationCatalog { get; private set; }
 		public WarehouseCatalog WarehouseCatalog { get; private set; }
@@ -74,6 +76,7 @@ namespace Vodovoz.ExportTo1c
 			this.CurrencyCatalog = new CurrencyCatalog(this);
 			this.MeasurementUnitCatalog = new MeasurementUnitsCatalog(this);
 			this.NomenclatureCatalog = new NomenclatureCatalog(this);
+			this.NomenclatureTypeCatalog = new NomenclatureType1cTypeCatalog(this);
 			this.NomenclatureGroupCatalog = new NomenclatureGroupCatalog(this);
 			this.OrganizationCatalog = new OrganizationCatalog(this);
 			this.WarehouseCatalog = new WarehouseCatalog(this);
