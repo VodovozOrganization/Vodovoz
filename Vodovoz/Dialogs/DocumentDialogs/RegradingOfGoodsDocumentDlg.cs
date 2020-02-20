@@ -82,7 +82,7 @@ namespace Vodovoz
 			if(!Entity.CanEdit)
 				return false;
 
-			var valid = new QS.Validation.GtkUI.QSValidator<RegradingOfGoodsDocument> (UoWGeneric.Root);
+			var valid = new QS.Validation.QSValidator<RegradingOfGoodsDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 

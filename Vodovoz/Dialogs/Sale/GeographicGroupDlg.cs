@@ -6,7 +6,7 @@ using GMap.NET.MapProviders;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.SidePanel.InfoProviders;

@@ -15,7 +15,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.EntityRepositories;
 using QS.Project.Services;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Additions.Logistic;

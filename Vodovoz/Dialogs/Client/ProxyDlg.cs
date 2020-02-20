@@ -7,7 +7,7 @@ using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz

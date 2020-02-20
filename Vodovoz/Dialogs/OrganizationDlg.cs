@@ -4,7 +4,7 @@ using NLog;
 using QS.Banks.Domain;
 using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.ViewModel;

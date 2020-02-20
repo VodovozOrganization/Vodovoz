@@ -3,7 +3,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Dialogs.Employees

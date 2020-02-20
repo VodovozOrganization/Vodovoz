@@ -67,7 +67,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 				if(addCommand == null) {
 					AddCommand = new DelegateCommand(() => {
 						var parameter = (ParameterViewModel as IWageParameterViewModel).GetParameter();
-						if(!CommonServices.ValidationService.GetValidator().Validate(parameter))
+						if(!CommonServices.ValidationService.Validate(parameter))
 							return;
 						AcceptCreation.Invoke((ParameterViewModel as IWageParameterViewModel).GetParameter());
 					}, () => true);

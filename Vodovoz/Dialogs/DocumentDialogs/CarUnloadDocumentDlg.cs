@@ -156,7 +156,7 @@ namespace Vodovoz
 			if(!UpdateReceivedItemsOnEntity())
 				return false;
 
-			var valid = new QS.Validation.GtkUI.QSValidator<CarUnloadDocument>(UoWGeneric.Root);
+			var valid = new QS.Validation.QSValidator<CarUnloadDocument>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 

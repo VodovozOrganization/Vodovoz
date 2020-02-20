@@ -3,7 +3,7 @@ using System.Linq;
 using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using QS.Project.Repositories;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;

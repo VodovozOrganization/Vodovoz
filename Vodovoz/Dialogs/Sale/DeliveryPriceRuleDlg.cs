@@ -1,7 +1,7 @@
 ﻿using Gamma.GtkWidgets;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Sale;
 

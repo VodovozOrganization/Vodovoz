@@ -1,5 +1,5 @@
 ﻿using QS.DomainModel.UoW;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz

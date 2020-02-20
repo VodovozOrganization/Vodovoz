@@ -8,7 +8,7 @@ using QS.HistoryLog;
 using QS.HistoryLog.Domain;
 using QS.HistoryLog.Repositories;
 using QSOrmProject;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;

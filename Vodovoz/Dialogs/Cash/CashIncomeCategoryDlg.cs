@@ -36,7 +36,7 @@ namespace Vodovoz.Dialogs.Cash
 
 		public override bool Save()
 		{
-			var valid = new QS.Validation.GtkUI.QSValidator<IncomeCategory>(UoWGeneric.Root);
+			var valid = new QS.Validation.QSValidator<IncomeCategory>(UoWGeneric.Root);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 

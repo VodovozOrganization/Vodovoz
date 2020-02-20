@@ -8,7 +8,7 @@ using QS.Project.Dialogs;
 using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;

@@ -10,7 +10,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QSOrmProject;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Dialogs.Employees

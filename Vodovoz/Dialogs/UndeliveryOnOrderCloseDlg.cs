@@ -2,7 +2,7 @@
 using System.Linq;
 using Gtk;
 using QS.DomainModel.UoW;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;

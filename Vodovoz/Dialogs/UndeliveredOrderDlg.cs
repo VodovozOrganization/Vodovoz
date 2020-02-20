@@ -4,7 +4,7 @@ using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Tdi;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories;
