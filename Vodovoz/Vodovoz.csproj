@@ -1378,6 +1378,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.UndeliveryProblemSourceView.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\ExportDefaults\NomenclatureType1c.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\NomenclatureTypeCatalog.cs" />
+    <Compile Include="ReportsParameters\SelectableParameterReportFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SelectableParameterReportFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -1,49 +1,57 @@
 ﻿using System;
-using QS.DomainModel.Entity;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.DomainModel.Entity;
+
 namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 {
-	public class SelectableParameter : PropertyChangedBase
+	public abstract class SelectableParameter : PropertyChangedBase
 	{
 		private bool selected;
 		public virtual bool Selected {
 			get => selected;
 			set {
 				if(SetField(ref selected, value)) {
+					RaiseAnySelectedChanged();
 					if(selected) {
 						SelectAllChilds();
 					} else {
 						UnselectAllChilds();
 					}
-					Parent.ActualizeSelected();
+					RaiseAnySelectedChanged();
+					Parent?.ActualizeSelected();
 				}
 			}
 		}
 
-		private string title;
-		public virtual string Title => title;
+		public event EventHandler AnySelectedChanged;
 
-		public int Id => Entity.Id;
+		public abstract string Title { get; }
 
-		public IDomainObject Entity { get; }
+		public abstract Func<object> ValueFunc { get; }
+
+		public object Value => ValueFunc();
 
 		public virtual SelectableParameter Parent { get; set; }
 
-		public virtual IList<SelectableParameter> Childs { get; set; } = new List<SelectableParameter>();
+		public virtual GenericObservableList<SelectableParameter> Children { get; private set; } = new GenericObservableList<SelectableParameter>();
 
-		public SelectableParameter(IDomainObject entity)
+		protected SelectableParameter()
 		{
-			Entity = entity ?? throw new ArgumentNullException(nameof(entity));
-			title = Entity.GetType().GetSubjectName();
+		}
+
+		private void RaiseAnySelectedChanged()
+		{
+			AnySelectedChanged?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void ActualizeSelected()
 		{
-			if(Childs == null || !Childs.Any()) {
+			if(Children == null || !Children.Any()) {
 				return;
 			}
-			if(Childs.All(x => x.Selected)) {
+			if(Children.All(x => x.Selected)) {
 				SelectOnlyThis();
 			} else {
 				UnselectOnlyThis();
@@ -54,39 +62,56 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		{
 			selected = true;
 			OnPropertyChanged(nameof(Selected));
-			Parent.ActualizeSelected();
+			Parent?.ActualizeSelected();
 		}
 
 		private void UnselectOnlyThis()
 		{
 			selected = false;
 			OnPropertyChanged(nameof(Selected));
-			Parent.ActualizeSelected();
+			Parent?.ActualizeSelected();
 		}
 
 		private void UnselectAllChilds()
 		{
-			foreach(var child in Childs) {
+			foreach(SelectableParameter child in Children) {
 				child.Selected = false;
 			}
 		}
 
 		private void SelectAllChilds()
 		{
-			foreach(var child in Childs) {
-				child.Selected = false;
+			foreach(SelectableParameter child in Children) {
+				child.Selected = true;
 			}
 		}
-	}
 
-	public class SelectableParameter<TEntity> : SelectableParameter
-		where TEntity : class, IDomainObject
-	{
-		public TEntity GenericEntity { get; }
-
-		public SelectableParameter(TEntity entity) : base(entity)
+		public void SetChilds(IList<SelectableParameter> childs)
 		{
-			GenericEntity = entity ?? throw new ArgumentNullException(nameof(entity));
+			foreach(SelectableParameter oldChild in Children) {
+				oldChild.AnySelectedChanged -= OnChildAnySelectedChanged;
+			}
+
+			foreach(SelectableParameter child in childs) {
+				child.AnySelectedChanged += OnChildAnySelectedChanged;
+			}
+
+			Children = new GenericObservableList<SelectableParameter>(childs.ToList());
+		}
+
+		void OnChildAnySelectedChanged(object sender, EventArgs e)
+		{
+			RaiseAnySelectedChanged();
+		}
+
+		public IEnumerable<SelectableParameter> GetAllSelected()
+		{
+			List<SelectableParameter> result = new List<SelectableParameter>();
+			if(Selected) {
+				result.Add(this);
+			}
+			result.AddRange(Children.SelectMany(x => x.GetAllSelected()));
+			return result;
 		}
 	}
 }

@@ -83,6 +83,8 @@ using Vodovoz.ViewModels.Users;
 using Vodovoz.Views.Users;
 using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewWidgets.Permissions;
+using Vodovoz.ViewModels.Reports;
+using Vodovoz.ReportsParameters;
 
 namespace Vodovoz
 {
@@ -204,6 +206,7 @@ namespace Vodovoz
 
 			//Регистрация виджетов
 			ViewModelWidgetResolver.Instance
+				.RegisterWidgetForWidgetViewModel<SelectableParameterReportFilterViewModel, SelectableParameterReportFilterView>()
 				.RegisterWidgetForWidgetViewModel<ComplaintFilterViewModel, ComplaintFilterView>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
 				.RegisterWidgetForWidgetViewModel<DebtorsJournalFilterViewModel, DebtorsFilterView>()

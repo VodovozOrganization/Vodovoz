@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.DomainModel.Entity;
 
 namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 {
-	public interface IParametersFactory<TEntity>
-		where TEntity : class, IDomainObject
+	public interface IParametersFactory
 	{
-		IList<SelectableParameter> GetParameters(IEnumerable<TEntity> entities);
+		IList<SelectableParameter> GetParameters();
 	}
 }

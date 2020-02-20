@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
+﻿namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 {
 	public enum SelectableFilterType
 	{

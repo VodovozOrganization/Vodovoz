@@ -1,23 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using NHibernate.Mapping;
 using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 {
 	public class SelectableParametersReportFilter
 	{
-		private List<SelectableParameterSet> parameterSets = new List<SelectableParameterSet>();
+		private HashSet<string> parameterNames = new HashSet<string>();
+		private readonly IUnitOfWork uow;
 
-		public SelectableParametersReportFilter()
+		public List<SelectableParameterSet> ParameterSets { get; } = new List<SelectableParameterSet>();
+
+		public SelectableParametersReportFilter(IUnitOfWork uow)
 		{
+			this.uow = uow ?? throw new ArgumentNullException(nameof(uow));
 		}
 
-		public void CreateParameterSet<TEntity>(IEnumerable<TEntity> source, IParametersFactory<TEntity> parametersFactory, string parameterName, string includeSuffix = "_include", string excludeSuffix = "_exclude")
+		public SelectableEntityParameterSet<TEntity> CreateEntityParameterSet<TEntity>(string name, IParametersEntityFactory<TEntity> parametersFactory, string parameterName, string includeSuffix = "_include", string excludeSuffix = "_exclude")
 			where TEntity : class, IDomainObject
 		{
-			if(source == null) {
-				throw new ArgumentNullException(nameof(source));
+			if(string.IsNullOrWhiteSpace(name)) {
+				throw new ArgumentNullException(nameof(name));
 			}
 
 			if(parametersFactory == null) {
@@ -28,11 +32,55 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 				throw new ArgumentNullException(nameof(parameterName));
 			}
 
-			var parameters = parametersFactory.GetParameters(source);
+			if(parameterNames.Contains(parameterName)) {
+				throw new InvalidOperationException($"Параметр с именем {parameterName} уже был добавлен.");
+			}
+			parameterNames.Add(parameterName);
 
-			SelectableParameterSet parameterSet = new SelectableParameterSet(parameters, parameterName);
+			SelectableEntityParameterSet<TEntity> parameterSet = new SelectableEntityParameterSet<TEntity>(name, parametersFactory, parameterName, includeSuffix, excludeSuffix);
 
-			parameterSets.Add(parameterSet);
+			ParameterSets.Add(parameterSet);
+
+			return parameterSet;
+		}
+
+		public SelectableParameterSet CreateEnumParameterSet<TEnum>(string name, IParametersEnumFactory<TEnum> enumParametersFactory, string parameterName, string includeSuffix = "_include", string excludeSuffix = "_exclude")
+		{
+			if(string.IsNullOrWhiteSpace(name)) {
+				throw new ArgumentNullException(nameof(name));
+			}
+
+			if(enumParametersFactory == null) {
+				throw new ArgumentNullException(nameof(enumParametersFactory));
+			}
+
+			if(string.IsNullOrWhiteSpace(parameterName)) {
+				throw new ArgumentNullException(nameof(parameterName));
+			}
+
+			if(parameterNames.Contains(parameterName)) {
+				throw new InvalidOperationException($"Параметр с именем {parameterName} уже был добавлен.");
+			}
+
+			SelectableParameterSet parameterSet = new SelectableParameterSet(name, enumParametersFactory, parameterName, includeSuffix, excludeSuffix);
+
+			ParameterSets.Add(parameterSet);
+
+			return parameterSet;
+		}
+
+		public IDictionary<string, object> GetParameters()
+		{
+			Dictionary<string, object> result = new Dictionary<string, object>();
+
+			foreach(var parameterSet in ParameterSets) {
+				var selectedValues = parameterSet.GetSelectedValues();
+				foreach(var parameter in parameterSet.GetSelectedValues()) {
+					result.Add(parameter.Key, parameter.Value);
+				}
+			}
+
+			return result;
 		}
 	}
 }
