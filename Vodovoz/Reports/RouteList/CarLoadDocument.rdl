@@ -174,7 +174,7 @@ FROM(
 ) AS eq
 LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
-WHERE n.category IN ('equipment', 'additional', 'spare_parts')
+WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material')
 AND IF(n.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
 GROUP BY eq.nomenclature_id
 ;
@@ -229,7 +229,7 @@ FROM(
 ) AS eq
 LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
-WHERE n.category IN ('equipment', 'additional', 'spare_parts')
+WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material')
 AND IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE)
 GROUP BY eq.nomenclature_id
 ;
