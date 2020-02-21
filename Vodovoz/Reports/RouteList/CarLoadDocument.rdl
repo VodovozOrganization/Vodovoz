@@ -174,7 +174,7 @@ FROM(
 ) AS eq
 LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
-WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material')
+WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
 AND IF(n.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
 GROUP BY eq.nomenclature_id
 ;
@@ -229,7 +229,7 @@ FROM(
 ) AS eq
 LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
-WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material')
+WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
 AND IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE)
 GROUP BY eq.nomenclature_id
 ;
@@ -1917,7 +1917,7 @@ GROUP BY eq.nomenclature_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox91">
-                      <Value>='Погрузка оборудования по МЛ №' + {route_list_id} +
+                      <Value>='Погрузка товаров по МЛ №' + {route_list_id} +
 ' от ' + 
 Format({route_list_date}, "dd.MM.yyyy")</Value>
                       <CanGrow>false</CanGrow>
@@ -2449,7 +2449,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox85">
-                      <Value>='Погрузка оборудования по МЛ №' + {route_list_id} +
+                      <Value>='Погрузка товаров по МЛ №' + {route_list_id} +
 ' от ' + 
 Format({route_list_date}, "dd.MM.yyyy")</Value>
                       <CanGrow>false</CanGrow>
