@@ -32,6 +32,9 @@ namespace Vodovoz.ReportsParameters
 				.AddColumn("Выбрать").AddToggleRenderer(x => x.Selected).Editing()
 				.AddColumn("Название").AddTextRenderer(x => x.Title)
 				.Finish();
+
+			ytreeviewParameters.HeadersVisible = false;
+			ytreeviewParameterSets.HeadersVisible = false;
 		}
 
 		private void ConfigureBindings()
