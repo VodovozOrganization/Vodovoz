@@ -56,6 +56,19 @@
     <Reference Include="NHibernate">
       <HintPath>..\packages\NHibernate.5.2.7\lib\net461\NHibernate.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.3\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="CsvHelper">
+      <HintPath>..\packages\CsvHelper.14.0.0\lib\net45\CsvHelper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -156,6 +169,7 @@
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableEnumParameter.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameter.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\ParametersEnumFactory.cs" />
+    <Compile Include="ViewModels\ExportImportNomenclatureCatalogViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -223,6 +237,18 @@
     <ProjectReference Include="..\..\QSProjects\QS.Validation\QS.Validation.csproj">
       <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
       <Name>QS.Validation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
+      <Project>{F22749B2-E35B-455D-BD8D-081373B16FC7}</Project>
+      <Name>QS.BusinessCommon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSBusinessCommon\QSBusinessCommon.csproj">
+      <Project>{AD329D59-938D-42AC-ABE2-B0F14FDBB7C6}</Project>
+      <Name>QSBusinessCommon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
+      <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
+      <Name>QSProjectsLib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

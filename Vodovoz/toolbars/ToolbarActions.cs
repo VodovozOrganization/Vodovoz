@@ -40,6 +40,8 @@ using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.EntityRepositories.Store;
 using QS.Project.Journal;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels;
+using Vodovoz.EntityRepositories.Goods;
 
 public partial class MainWindow : Window
 {
@@ -82,6 +84,7 @@ public partial class MainWindow : Window
 	Action ActionRevision;
 	Action ActionRevisionBottlesAndDeposits;
 	Action ActionReportDebtorsBottles;
+	Action ActionExportImportNomenclatureCatalog;
 	Action ActionTransferBankDocs;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
@@ -147,6 +150,7 @@ public partial class MainWindow : Window
 		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
+		ActionExportImportNomenclatureCatalog = new Action("ActionExportImportNomenclatureCatalog", "Выгрузка/Загрузка каталога номенклатур", null, "table");
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
 		ActionRevisionBottlesAndDeposits = new Action("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
@@ -204,6 +208,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionRevision, null);
 		w1.Add(ActionRevisionBottlesAndDeposits, null);
 		w1.Add(ActionReportDebtorsBottles, null);
+		w1.Add(ActionExportImportNomenclatureCatalog, null);
 		w1.Add(ActionTransferBankDocs, null);
 		w1.Add(ActionAccountingTable, null);
 		w1.Add(ActionAccountFlow, null);
@@ -262,6 +267,7 @@ public partial class MainWindow : Window
 		ActionRevision.Activated += ActionRevision_Activated;
 		ActionRevisionBottlesAndDeposits.Activated += ActionRevisionBottlesAndDeposits_Activated;
 		ActionReportDebtorsBottles.Activated += ActionReportDebtorsBottles_Activated;
+		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
@@ -372,6 +378,21 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.ReportDebtorsBottles>(),
 			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.ReportDebtorsBottles())
+		);
+	}
+
+	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
+	{
+		INomenclatureRepository nomenclatureRepository = new NomenclatureRepository();
+
+		tdiMain.OpenTab(
+			"ExportImportNomenclatureCatalog",
+			() => new ExportImportNomenclatureCatalogViewModel(
+				nomenclatureRepository,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				NavigationManagerProvider.NavigationManager
+			)
 		);
 	}
 

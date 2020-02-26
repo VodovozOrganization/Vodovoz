@@ -47,8 +47,6 @@ namespace Vodovoz.Domain.Goods
 		string name;
 
 		[Display(Name = "Название")]
-		[StringLength(220)]
-		[Required(ErrorMessage = "Название номенклатуры должно быть заполнено.")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField(ref name, value, () => Name); }
@@ -57,8 +55,6 @@ namespace Vodovoz.Domain.Goods
 		string officialName;
 
 		[Display(Name = "Официальное название")]
-		[StringLength(220)]
-		[Required(ErrorMessage = "Официальное название номенклатуры должно быть заполнено.")]
 		public virtual string OfficialName {
 			get { return officialName; }
 			set { SetField(ref officialName, value, () => OfficialName); }
@@ -90,7 +86,6 @@ namespace Vodovoz.Domain.Goods
 
 		string code1c;
 		[Display(Name = "Код 1с")]
-		[Required(ErrorMessage = "Код 1с должен быть заполнен.")]
 		[StringLength(11)]
 		public virtual string Code1c {
 			get { return code1c; }
@@ -100,7 +95,6 @@ namespace Vodovoz.Domain.Goods
 		private Folder1c folder1;
 
 		[Display(Name = "Папка в 1с")]
-		[Required(ErrorMessage = "Папка 1с обязательна для заполнения.")]
 		public virtual Folder1c Folder1C {
 			get { return folder1; }
 			set { SetField(ref folder1, value, () => Folder1C); }
@@ -671,6 +665,28 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			if(String.IsNullOrWhiteSpace(Name))
+				yield return new ValidationResult(
+					string.Format("Название номенклатуры должно быть заполнено."), new[] { this.GetPropertyName(o => o.Name) });
+			else if(Name.Length > 220)
+				yield return new ValidationResult(
+					string.Format("Превышено максимальное количество символов в названии (220)."), new[] { this.GetPropertyName(o => o.Name) });
+
+			if(String.IsNullOrWhiteSpace(OfficialName))
+				yield return new ValidationResult(
+					string.Format("Официальное название номенклатуры должно быть заполнено."), new[] { this.GetPropertyName(o => o.OfficialName) });
+			else if(Name.Length > 220)
+				yield return new ValidationResult(
+					string.Format("Превышено максимальное количество символов в официальном названии (220)."), new[] { this.GetPropertyName(o => o.OfficialName) });
+
+			if(Folder1C == null)
+				yield return new ValidationResult(
+					string.Format("Папка 1С обязательна для заполнения"), new[] { this.GetPropertyName(o => o.Folder1C) });
+
+			if(String.IsNullOrWhiteSpace(Code1c))
+				yield return new ValidationResult(
+					string.Format("Код 1С обязателен для заполнения"), new[] { this.GetPropertyName(o => o.Code1c) });
+
 			if(Category == NomenclatureCategory.equipment && Type == null)
 				yield return new ValidationResult(
 					string.Format("Не указан тип оборудования."),

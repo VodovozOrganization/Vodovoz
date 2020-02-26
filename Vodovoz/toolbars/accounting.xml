@@ -7,5 +7,6 @@
         <toolitem name='ActionExportTo1c' action='ActionExportTo1c'/>
         <toolitem name='ActionExportCounterpartiesTo1c' action='ActionExportCounterpartiesTo1c'/>
         <toolitem name='ActionImportFromTinkoff' action='ActionImportFromTinkoff'/>
+        <toolitem name='ActionExportImportNomenclatureCatalog' action='ActionExportImportNomenclatureCatalog'/>
 	</toolbar>
 </ui>
