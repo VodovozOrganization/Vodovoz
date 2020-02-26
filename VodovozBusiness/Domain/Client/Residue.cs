@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
+using QS.Validation;
 
 namespace Vodovoz.Domain.Client
 {
@@ -191,7 +192,7 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		public virtual void UpdateOperations(IUnitOfWork uow, IBottlesRepository bottlesRepository, IMoneyRepository moneyRepository, IDepositRepository depositRepository, IValidationService validationService)
+		public virtual void UpdateOperations(IUnitOfWork uow, IBottlesRepository bottlesRepository, IMoneyRepository moneyRepository, IDepositRepository depositRepository, IValidator validator)
 		{
 			if(uow == null) {
 				throw new ArgumentNullException(nameof(uow));
@@ -209,11 +210,11 @@ namespace Vodovoz.Domain.Client
 				throw new ArgumentNullException(nameof(depositRepository));
 			}
 
-			if(validationService == null) {
-				throw new ArgumentNullException(nameof(validationService));
+			if(validator == null) {
+				throw new ArgumentNullException(nameof(validator));
 			}
 
-			var validator = validationService.GetValidator();
+			//var validator = validationService.GetValidator();
 			if(!validator.Validate(this)) {
 				return;
 			}

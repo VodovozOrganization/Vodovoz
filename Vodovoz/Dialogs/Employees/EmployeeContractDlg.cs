@@ -5,7 +5,7 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSDocTemplates;
 using QSProjectsLib;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;

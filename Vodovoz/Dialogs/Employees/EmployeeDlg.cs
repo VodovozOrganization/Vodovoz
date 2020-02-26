@@ -11,7 +11,7 @@ using QS.DomainModel.Entity.PresetPermissions;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Repositories;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Dialogs.Employees;

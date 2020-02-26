@@ -5,7 +5,7 @@ using NLog;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz

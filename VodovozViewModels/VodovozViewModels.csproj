@@ -41,9 +41,6 @@
     <Reference Include="Remotion.Linq.EagerFetching">
       <HintPath>..\packages\Remotion.Linq.EagerFetching.2.2.0\lib\net45\Remotion.Linq.EagerFetching.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate">
-      <HintPath>..\packages\NHibernate.5.2.5\lib\net461\NHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.ServiceModel" />
@@ -56,6 +53,9 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
+    <Reference Include="NHibernate">
+      <HintPath>..\packages\NHibernate.5.2.7\lib\net461\NHibernate.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -145,6 +145,17 @@
     <Compile Include="ViewModels\Permissions\PresetPermissionsViewModelBase.cs" />
     <Compile Include="ViewModels\Permissions\PresetSubdivisionPermissionsViewModel.cs" />
     <Compile Include="ViewModels\UndeliveryProblemSourceViewModel.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParametersReportFilter.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableEntityParameter.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableFilterType.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\RecursiveParametersFactory.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\IParametersFactory.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\ParametersFactory.cs" />
+    <Compile Include="ViewModels\Reports\SelectableParameterReportFilterViewModel.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSet.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableEnumParameter.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameter.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\ParametersEnumFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -176,6 +187,9 @@
     <Folder Include="JournalViewModels\Contacts\" />
     <Folder Include="ViewModels\Users\" />
     <Folder Include="ViewModels\Permissions\" />
+    <Folder Include="Infrastructure\Report\" />
+    <Folder Include="Infrastructure\Report\SelectableParametersFilter\" />
+    <Folder Include="ViewModels\Reports\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

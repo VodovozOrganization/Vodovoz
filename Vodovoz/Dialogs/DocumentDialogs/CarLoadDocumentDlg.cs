@@ -133,7 +133,7 @@ namespace Vodovoz
 				return false;
 
 			Entity.UpdateAlreadyLoaded(UoW, new RouteListRepository());
-			var valid = new QS.Validation.GtkUI.QSValidator<CarLoadDocument> (UoWGeneric.Root);
+			var valid = new QS.Validation.QSValidator<CarLoadDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 

@@ -3,7 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Dialog;
 using QS.Project.Repositories;
 using QSProjectsLib;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;

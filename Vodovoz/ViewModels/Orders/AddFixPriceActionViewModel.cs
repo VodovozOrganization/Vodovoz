@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModels.Orders
 						PromotionalSet = PromotionalSet,
 						IsForZeroDebt = IsForZeroDebt
 					};
-					if(!CommonServices.ValidationService.GetValidator().Validate(validatableAction))
+					if(!CommonServices.ValidationService.Validate(validatableAction))
 						return;
 
 					WaterFixedPriceGenerator waterFixedPriceGenerator = new WaterFixedPriceGenerator(UoW);
@@ -74,7 +74,7 @@ namespace Vodovoz.ViewModels.Orders
 							PromotionalSet = PromotionalSet,
 							IsForZeroDebt = IsForZeroDebt
 						};
-						if(!CommonServices.ValidationService.GetValidator().Validate(newAction))
+						if(!CommonServices.ValidationService.Validate(newAction))
 							return;
 						PromotionalSet.ObservablePromotionalSetActions.Add(newAction);
 					}

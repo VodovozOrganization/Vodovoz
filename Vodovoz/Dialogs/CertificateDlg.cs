@@ -5,7 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.JournalFilters;

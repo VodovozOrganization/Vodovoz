@@ -6,7 +6,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Repositories;
 using QSOrmProject;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;

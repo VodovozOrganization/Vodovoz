@@ -7,6 +7,7 @@ using QS.Project.Services.GtkUI;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using QS.Project.Services;
+using QS.Validation;
 
 namespace Vodovoz
 {
@@ -17,7 +18,8 @@ namespace Vodovoz
 
 		public static void CreateVodovozDefaultServices()
 		{
-			GtkAppServicesConfig.CreateDefaultGtkServices();
+			ServicesConfig.InteractiveService = new GtkInteractiveService();
+			ServicesConfig.ValidationService = new ObjectValidator(new GtkValidationViewFactory());
 			EmployeeService = new EmployeeService();
 
 			IRepresentationJournalFactory journalFactory = new PermissionControlledRepresentationJournalFactory();

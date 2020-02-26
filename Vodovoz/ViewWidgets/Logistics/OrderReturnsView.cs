@@ -12,7 +12,7 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
 using QSOrmProject;
 using QSProjectsLib;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain.Client;

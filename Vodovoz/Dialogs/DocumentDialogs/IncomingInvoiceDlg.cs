@@ -5,7 +5,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;

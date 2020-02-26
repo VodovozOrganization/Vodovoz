@@ -5,7 +5,7 @@ using NHibernate.Criterion;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Client;

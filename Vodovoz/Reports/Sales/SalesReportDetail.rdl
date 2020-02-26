@@ -838,34 +838,34 @@ FROM
 				AND delivery_date &lt;= @end_date)
 			AND !orders.is_contract_closer
 		AND (
-				((nomenclature.id IN (@nomen_include) AND 0 IN (@nomen_exclude) )
+				((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
 				OR
-				(nomenclature.id NOT IN (@nomen_exclude) AND 0 IN (@nomen_include)))
-				OR (0 IN (@nomen_include) AND 0 IN (@nomen_exclude))
+				(nomenclature.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
+				OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
 			)
 		AND (
-				((nomenclature.category IN (@nomtype_include) AND '0' IN (@nomtype_exclude) )
+				((nomenclature.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
 				OR
-				(nomenclature.category NOT IN (@nomtype_exclude) AND '0' IN (@nomtype_include)))
-				OR ('0' IN (@nomtype_include) AND '0' IN (@nomtype_exclude))
+				(nomenclature.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+				OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
 			)
 		AND (
-				((orders.client_id IN (@client_include) AND 0 IN (@client_exclude) )
+				((orders.client_id IN (@counterparty_include) AND 0 IN (@counterparty_exclude) )
 				OR
-				(orders.client_id NOT IN (@client_exclude) AND 0 IN (@client_include)))
-				OR (0 IN (@client_include) AND 0 IN (@client_exclude))
+				(orders.client_id NOT IN (@counterparty_exclude) AND 0 IN (@counterparty_include)))
+				OR (0 IN (@counterparty_include) AND 0 IN (@counterparty_exclude))
 			)
 		AND (
-				((counterparty_contract.organization_id IN (@org_include) AND 0 IN (@org_exclude) )
+				((counterparty_contract.organization_id IN (@organization_include) AND 0 IN (@organization_exclude) )
 				OR
-				(counterparty_contract.organization_id NOT IN (@org_exclude) AND 0 IN (@org_include)))
-				OR (0 IN (@org_include) AND 0 IN (@org_exclude))
+				(counterparty_contract.organization_id NOT IN (@organization_exclude) AND 0 IN (@organization_include)))
+				OR (0 IN (@organization_include) AND 0 IN (@organization_exclude))
 			)
 		AND ( 
-				((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
+				((order_items.discount_reason_id IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude) )
 				OR
-				(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
-				OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
+				(order_items.discount_reason_id NOT IN (@discount_reason_exclude) AND 0 IN (@discount_reason_include)))
+				OR (0 IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude))
 			)
 		AND (
 				((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
@@ -874,16 +874,16 @@ FROM
 				OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
 			)
 		AND (
-				((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude) )
+				((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@order_author_include) AND 0 IN (@order_author_exclude) )
 				OR
-				(IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@orderauthor_exclude) AND 0 IN (@orderauthor_include)))
-				OR (0 IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude))
+				(IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@order_author_exclude) AND 0 IN (@order_author_include)))
+				OR (0 IN (@order_author_include) AND 0 IN (@order_author_exclude))
 			)
 		AND (
-				((IFNULL(gge.geographic_group_id, 0) IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
+				((IFNULL(gge.geographic_group_id, 0) IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude) )
 				OR
-				(IFNULL(gge.geographic_group_id, 0) NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
-				OR (0 IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude))
+				(IFNULL(gge.geographic_group_id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
+				OR (0 IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
 			)
 		AND (
 				((orders.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
@@ -892,15 +892,17 @@ FROM
                 OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
 			)
 		AND (
-				((IFNULL(order_items.promotional_set_id, 0) IN (@promo_sets_include) AND 0 IN (@promo_sets_exclude))
+				((IFNULL(order_items.promotional_set_id, 0) IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
 				OR
-	            (IFNULL(order_items.promotional_set_id, 0) NOT IN (@promo_sets_exclude) AND 0 IN (@promo_sets_include)))
-	            OR (0 IN (@promo_sets_include) AND 0 IN (@promo_sets_exclude))
+	            (IFNULL(order_items.promotional_set_id, 0) NOT IN (@promotional_set_exclude) AND 0 IN (@promotional_set_include)))
+	            OR (0 IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
 			)
 		AND (
-				(IFNULL(nomenclature_groups.id , 0) IN (@product_group_ids))
-	            OR (0 IN (@product_group_ids))
-			)
+            ((IFNULL(nomenclature_groups.id , 0) IN (@product_group_include) AND 0 IN (@product_group_exclude))
+            OR
+            (IFNULL(nomenclature_groups.id , 0) NOT IN (@product_group_exclude) AND 0 IN (@product_group_include)))
+            OR (0 IN (@product_group_include) AND 0 IN (@product_group_exclude))
+        )
 		GROUP BY order_items.id
 		) AS T
 GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id, T.orders_author_employee_id
@@ -912,41 +914,41 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
-          <QueryParameter Name="nomen_include">
-            <Value>=Parameters!nomen_include</Value>
+          <QueryParameter Name="nomenclature_include">
+            <Value>=Parameters!nomenclature_include</Value>
           </QueryParameter>
-          <QueryParameter Name="nomen_exclude">
-            <Value>=Parameters!nomen_exclude</Value>
+          <QueryParameter Name="nomenclature_exclude">
+            <Value>=Parameters!nomenclature_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="nomtype_include">
-            <Value>=Parameters!nomtype_include</Value>
+          <QueryParameter Name="nomenclature_type_include">
+            <Value>=Parameters!nomenclature_type_include</Value>
           </QueryParameter>
-          <QueryParameter Name="nomtype_exclude">
-            <Value>=Parameters!nomtype_exclude</Value>
+          <QueryParameter Name="nomenclature_type_exclude">
+            <Value>=Parameters!nomenclature_type_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="discountreason_include">
-            <Value>=Parameters!discountreason_include</Value>
+          <QueryParameter Name="discount_reason_include">
+            <Value>=Parameters!discount_reason_include</Value>
           </QueryParameter>
-          <QueryParameter Name="discountreason_exclude">
-            <Value>=Parameters!discountreason_exclude</Value>
+          <QueryParameter Name="discount_reason_exclude">
+            <Value>=Parameters!discount_reason_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="org_include">
-            <Value>=Parameters!org_include</Value>
+          <QueryParameter Name="organization_include">
+            <Value>=Parameters!organization_include</Value>
           </QueryParameter>
-          <QueryParameter Name="org_exclude">
-            <Value>=Parameters!org_exclude</Value>
+          <QueryParameter Name="organization_exclude">
+            <Value>=Parameters!organization_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="client_include">
-            <Value>=Parameters!client_include</Value>
+          <QueryParameter Name="counterparty_include">
+            <Value>=Parameters!counterparty_include</Value>
           </QueryParameter>
-          <QueryParameter Name="client_exclude">
-            <Value>=Parameters!client_exclude</Value>
+          <QueryParameter Name="counterparty_exclude">
+            <Value>=Parameters!counterparty_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_include">
-            <Value>=Parameters!orderauthor_include</Value>
+          <QueryParameter Name="order_author_include">
+            <Value>=Parameters!order_author_include</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_exclude">
-            <Value>=Parameters!orderauthor_exclude</Value>
+          <QueryParameter Name="order_author_exclude">
+            <Value>=Parameters!order_author_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="subdivision_include">
             <Value>=Parameters!subdivision_include</Value>
@@ -954,11 +956,11 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           <QueryParameter Name="subdivision_exclude">
             <Value>=Parameters!subdivision_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_include">
-            <Value>=Parameters!geographic_groups_include</Value>
+          <QueryParameter Name="geographic_group_include">
+            <Value>=Parameters!geographic_group_include</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_exclude">
-            <Value>=Parameters!geographic_groups_exclude</Value>
+          <QueryParameter Name="geographic_group_exclude">
+            <Value>=Parameters!geographic_group_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="payment_type_include">
             <Value>={?payment_type_include}</Value>
@@ -966,14 +968,17 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           <QueryParameter Name="payment_type_exclude">
             <Value>={?payment_type_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="promo_sets_include">
-            <Value>={?promo_sets_include}</Value>
+          <QueryParameter Name="promotional_set_include">
+            <Value>={?promotional_set_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="promo_sets_exclude">
-            <Value>={?promo_sets_exclude}</Value>
+          <QueryParameter Name="promotional_set_exclude">
+            <Value>={?promotional_set_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="product_group_ids">
-            <Value>={?product_group_ids}</Value>
+          <QueryParameter Name="product_group_include">
+            <Value>={?product_group_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_exclude">
+            <Value>={?product_group_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1093,46 +1098,46 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
 FROM
 	(SELECT
 		IF(
-			0 NOT IN (@nomen_include),
-			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomen_include)),
+			0 NOT IN (@nomenclature_include),
+			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomenclature_include)),
 			0
 		) AS included_noms,
 		IF(
-			0 NOT IN (@nomen_exclude),
-			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomen_exclude)),
+			0 NOT IN (@nomenclature_exclude),
+			(SELECT COUNT(id) FROM nomenclature WHERE nomenclature.id IN(@nomenclature_exclude)),
 			0
 		) AS excluded_noms,
 
 		IF(
-			'0' NOT IN (@nomtype_include),
-			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomtype_include) GROUP BY nomenclature.category) AS q),
+			'0' NOT IN (@nomenclature_type_include),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomenclature_type_include) GROUP BY nomenclature.category) AS q),
 			0
 		) AS included_nomtypes,
 		IF(
-			'0' NOT IN (@nomtype_exclude),
-			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomtype_exclude) GROUP BY nomenclature.category) AS q),
+			'0' NOT IN (@nomenclature_type_exclude),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomenclature_type_exclude) GROUP BY nomenclature.category) AS q),
 			0
 		) AS excluded_nomtypes,
 
 		IF(
-			0 NOT IN (@client_include),
-			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@client_include)),
+			0 NOT IN (@counterparty_include),
+			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@counterparty_include)),
 			0
 		) AS included_client,
 		IF(
-			0 NOT IN (@client_exclude),
-			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@client_exclude)),
+			0 NOT IN (@counterparty_exclude),
+			(SELECT COUNT(id) FROM counterparty WHERE counterparty.id IN(@counterparty_exclude)),
 			0
 		) AS excluded_client,
 
 		IF(
-			0 NOT IN (@org_include),
-			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@org_include)),
+			0 NOT IN (@organization_include),
+			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@organization_include)),
 			0
 		) AS included_org,
 		IF(
-			0 NOT IN (@org_exclude),
-			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@org_exclude)),
+			0 NOT IN (@organization_exclude),
+			(SELECT COUNT(id) FROM organizations WHERE organizations.id IN(@organization_exclude)),
 			0
 		) AS excluded_org,
 
@@ -1148,35 +1153,35 @@ FROM
 		) AS excluded_subdivision,
 
 		IF(
-			0 NOT IN (@orderauthor_include),
-			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@orderauthor_include)),
+			0 NOT IN (@order_author_include),
+			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@order_author_include)),
 			0
 		) AS included_orderauthor,
 		IF(
-			0 NOT IN (@orderauthor_exclude),
-			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@orderauthor_exclude)),
+			0 NOT IN (@order_author_exclude),
+			(SELECT COUNT(id) FROM employees WHERE employees.id IN(@order_author_exclude)),
 			0
 		) AS excluded_orderauthor,
 
 		IF(
-			0 NOT IN (@discountreason_include),
-			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discountreason_include)),
+			0 NOT IN (@discount_reason_include),
+			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discount_reason_include)),
 			0
 		) AS included_discountreason,
 		IF(
-			0 NOT IN (@discountreason_exclude),
-			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discountreason_exclude)),
+			0 NOT IN (@discount_reason_exclude),
+			(SELECT COUNT(id) FROM discount_reasons WHERE discount_reasons.id IN(@discount_reason_exclude)),
 			0
 		) AS excluded_discountreason,
 
 		IF(
-			0 NOT IN (@geographic_groups_include),
-			(SELECT COUNT(@geographic_groups_include)),
+			0 NOT IN (@geographic_group_include),
+			(SELECT COUNT(@geographic_group_include)),
 			0
 		) AS included_geographic_groups,
 		IF(
-			0 NOT IN (@geographic_groups_exclude),
-			(SELECT COUNT(@geographic_groups_exclude)),
+			0 NOT IN (@geographic_group_exclude),
+			(SELECT COUNT(@geographic_group_exclude)),
 			0
 		) AS excluded_geographic_groups,
 		
@@ -1192,20 +1197,25 @@ FROM
 		) AS excluded_payment_types,
 		
 		IF(
-			0 NOT IN (@promo_sets_include),
-			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@promo_sets_include)),
+			0 NOT IN (@promotional_set_include),
+			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@promotional_set_include)),
 			0
 		) AS included_promo_sets,
 		IF(
-			0 NOT IN (@promo_sets_exclude),
-			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@promo_sets_exclude)),
+			0 NOT IN (@promotional_set_exclude),
+			(SELECT COUNT(id) FROM promotional_sets WHERE promotional_sets.id IN(@promotional_set_exclude)),
 			0
 		) AS excluded_promo_sets,
-				IF(
-			0 NOT IN (@product_group_ids),
-			(SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@product_group_ids)),
-			0
-		) AS included_product_groups
+		IF(
+            0 NOT IN (@product_group_include),
+            (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@product_group_include)),
+            0
+        ) AS included_product_groups,
+        IF(
+            0 NOT IN (@product_group_exclude),
+            (SELECT COUNT(id) FROM nomenclature_groups WHERE nomenclature_groups.id IN(@product_group_exclude)),
+            0
+        ) AS excluded_product_groups
 	) AS tbl
 ;</CommandText>
         <QueryParameters>
@@ -1215,41 +1225,41 @@ FROM
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
-          <QueryParameter Name="nomen_include">
-            <Value>=Parameters!nomen_include</Value>
+          <QueryParameter Name="nomenclature_include">
+            <Value>=Parameters!nomenclature_include</Value>
           </QueryParameter>
-          <QueryParameter Name="nomen_exclude">
-            <Value>=Parameters!nomen_exclude</Value>
+          <QueryParameter Name="nomenclature_exclude">
+            <Value>=Parameters!nomenclature_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="nomtype_include">
-            <Value>=Parameters!nomtype_include</Value>
+          <QueryParameter Name="nomenclature_type_include">
+            <Value>=Parameters!nomenclature_type_include</Value>
           </QueryParameter>
-          <QueryParameter Name="nomtype_exclude">
-            <Value>=Parameters!nomtype_exclude</Value>
+          <QueryParameter Name="nomenclature_type_exclude">
+            <Value>=Parameters!nomenclature_type_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="discountreason_include">
-            <Value>=Parameters!discountreason_include</Value>
+          <QueryParameter Name="discount_reason_include">
+            <Value>=Parameters!discount_reason_include</Value>
           </QueryParameter>
-          <QueryParameter Name="discountreason_exclude">
-            <Value>=Parameters!discountreason_exclude</Value>
+          <QueryParameter Name="discount_reason_exclude">
+            <Value>=Parameters!discount_reason_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="org_include">
-            <Value>=Parameters!org_include</Value>
+          <QueryParameter Name="organization_include">
+            <Value>=Parameters!organization_include</Value>
           </QueryParameter>
-          <QueryParameter Name="org_exclude">
-            <Value>=Parameters!org_exclude</Value>
+          <QueryParameter Name="organization_exclude">
+            <Value>=Parameters!organization_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="client_include">
-            <Value>=Parameters!client_include</Value>
+          <QueryParameter Name="counterparty_include">
+            <Value>=Parameters!counterparty_include</Value>
           </QueryParameter>
-          <QueryParameter Name="client_exclude">
-            <Value>=Parameters!client_exclude</Value>
+          <QueryParameter Name="counterparty_exclude">
+            <Value>=Parameters!counterparty_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_include">
-            <Value>=Parameters!orderauthor_include</Value>
+          <QueryParameter Name="order_author_include">
+            <Value>=Parameters!order_author_include</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_exclude">
-            <Value>=Parameters!orderauthor_exclude</Value>
+          <QueryParameter Name="order_author_exclude">
+            <Value>=Parameters!order_author_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="subdivision_include">
             <Value>=Parameters!subdivision_include</Value>
@@ -1257,11 +1267,11 @@ FROM
           <QueryParameter Name="subdivision_exclude">
             <Value>=Parameters!subdivision_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_include">
-            <Value>=Parameters!geographic_groups_include</Value>
+          <QueryParameter Name="geographic_group_include">
+            <Value>=Parameters!geographic_group_include</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_exclude">
-            <Value>=Parameters!geographic_groups_exclude</Value>
+          <QueryParameter Name="geographic_group_exclude">
+            <Value>=Parameters!geographic_group_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="payment_type_include">
             <Value>={?payment_type_include}</Value>
@@ -1269,14 +1279,17 @@ FROM
           <QueryParameter Name="payment_type_exclude">
             <Value>={?payment_type_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="promo_sets_include">
-            <Value>={?promo_sets_include}</Value>
+          <QueryParameter Name="promotional_set_include">
+            <Value>={?promotional_set_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="promo_sets_exclude">
-            <Value>={?promo_sets_exclude}</Value>
+          <QueryParameter Name="promotional_set_exclude">
+            <Value>={?promotional_set_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="product_group_ids">
-            <Value>={?product_group_ids}</Value>
+          <QueryParameter Name="product_group_include">
+            <Value>={?product_group_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_exclude">
+            <Value>={?product_group_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1337,28 +1350,28 @@ FROM
 		AND orders.delivery_date &lt;= @end_date
 		AND !orders.is_contract_closer
 		
-		AND ( (0 IN (@client_include) AND 0 IN (@client_exclude)) OR EXISTS
+		AND ( (0 IN (@counterparty_include) AND 0 IN (@counterparty_exclude)) OR EXISTS
 		(
 			SELECT * FROM order_items
 			WHERE order_items.order_id = orders.id
 			AND ( 
-					((order_items.discount_reason_id IN (@discountreason_include) AND 0 IN (@discountreason_exclude) )
+					((order_items.discount_reason_id IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude) )
 					OR
-					(order_items.discount_reason_id NOT IN (@discountreason_exclude) AND 0 IN (@discountreason_include)))
-					OR (0 IN (@discountreason_include) AND 0 IN (@discountreason_exclude))
+					(order_items.discount_reason_id NOT IN (@discount_reason_exclude) AND 0 IN (@discount_reason_include)))
+					OR (0 IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude))
 				)
 		))
 		AND (
-				((orders.client_id IN (@client_include) AND 0 IN (@client_exclude) )
+				((orders.client_id IN (@counterparty_include) AND 0 IN (@counterparty_exclude) )
 				OR
-				(orders.client_id NOT IN (@client_exclude) AND 0 IN (@client_include)))
-				OR (0 IN (@client_include) AND 0 IN (@client_exclude))
+				(orders.client_id NOT IN (@counterparty_exclude) AND 0 IN (@counterparty_include)))
+				OR (0 IN (@counterparty_include) AND 0 IN (@counterparty_exclude))
 			)
 		AND (
-				((counterparty_contract.organization_id IN (@org_include) AND 0 IN (@org_exclude) )
+				((counterparty_contract.organization_id IN (@organization_include) AND 0 IN (@organization_exclude) )
 				OR
-				(counterparty_contract.organization_id NOT IN (@org_exclude) AND 0 IN (@org_include)))
-				OR (0 IN (@org_include) AND 0 IN (@org_exclude))
+				(counterparty_contract.organization_id NOT IN (@organization_exclude) AND 0 IN (@organization_include)))
+				OR (0 IN (@organization_include) AND 0 IN (@organization_exclude))
 			)
 		AND (
 				((IF(employees.subdivision_id IS NULL, 0, employees.subdivision_id) IN (@subdivision_include) AND 0 IN (@subdivision_exclude) )
@@ -1367,16 +1380,16 @@ FROM
 				OR (0 IN (@subdivision_include) AND 0 IN (@subdivision_exclude))
 			)
 		AND (
-				((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude) )
+				((IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) IN (@order_author_include) AND 0 IN (@order_author_exclude) )
 				OR
-				(IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@orderauthor_exclude) AND 0 IN (@orderauthor_include)))
-				OR (0 IN (@orderauthor_include) AND 0 IN (@orderauthor_exclude))
+				(IF(orders.author_employee_id IS NULL, 0, orders.author_employee_id) NOT IN (@order_author_exclude) AND 0 IN (@order_author_include)))
+				OR (0 IN (@order_author_include) AND 0 IN (@order_author_exclude))
 			)
 		AND (
-				((IFNULL(gge.geographic_group_id, 0) IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
+				((IFNULL(gge.geographic_group_id, 0) IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude) )
 				OR
-				(IFNULL(gge.geographic_group_id, 0) NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
-				OR (0 IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude))
+				(IFNULL(gge.geographic_group_id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
+				OR (0 IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
 			)
 		AND (
  				((orders.payment_type IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
@@ -1385,15 +1398,17 @@ FROM
                 OR ('0' IN (@payment_type_include) AND '0' IN (@payment_type_exclude))
 			)
 		AND (
-				((IF(order_items.promotional_set_id IS NULL, 0, order_items.promotional_set_id) IN (@promo_sets_include) AND 0 IN (@promo_sets_exclude) )
+				((IF(order_items.promotional_set_id IS NULL, 0, order_items.promotional_set_id) IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude) )
 				OR
-				(IF(order_items.promotional_set_id IS NULL, 0, order_items.promotional_set_id) NOT IN (@promo_sets_exclude) AND 0 IN (@promo_sets_include)))
-				OR (0 IN (@promo_sets_include) AND 0 IN (@promo_sets_exclude))
+				(IF(order_items.promotional_set_id IS NULL, 0, order_items.promotional_set_id) NOT IN (@promotional_set_exclude) AND 0 IN (@promotional_set_include)))
+				OR (0 IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
 			)
 		AND (
-				(IFNULL(nomenclature_groups.id , 0) IN (@product_group_ids))
-	            OR (0 IN (@product_group_ids))
-			)
+                ((IFNULL(nomenclature_groups.id , 0) IN (@product_group_include) AND 0 IN (@product_group_exclude) )
+                OR
+                (IFNULL(nomenclature_groups.id , 0) NOT IN (@product_group_exclude) AND 0 IN (@product_group_include)))
+                OR (0 IN (@product_group_include) AND 0 IN (@product_group_exclude))
+            )
 	GROUP BY orders.id
 ) AS t</CommandText>
         <QueryParameters>
@@ -1403,23 +1418,23 @@ FROM
           <QueryParameter Name="end_date">
             <Value>={?end_date}</Value>
           </QueryParameter>
-          <QueryParameter Name="discountreason_include">
-            <Value>={?discountreason_include}</Value>
+          <QueryParameter Name="discount_reason_include">
+            <Value>={?discount_reason_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="discountreason_exclude">
-            <Value>={?discountreason_exclude}</Value>
+          <QueryParameter Name="discount_reason_exclude">
+            <Value>={?discount_reason_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="client_include">
-            <Value>={?client_include}</Value>
+          <QueryParameter Name="counterparty_include">
+            <Value>={?counterparty_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="client_exclude">
-            <Value>={?client_exclude}</Value>
+          <QueryParameter Name="counterparty_exclude">
+            <Value>={?counterparty_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="org_include">
-            <Value>={?org_include}</Value>
+          <QueryParameter Name="organization_include">
+            <Value>={?organization_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="org_exclude">
-            <Value>={?org_exclude}</Value>
+          <QueryParameter Name="organization_exclude">
+            <Value>={?organization_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="subdivision_include">
             <Value>={?subdivision_include}</Value>
@@ -1427,17 +1442,17 @@ FROM
           <QueryParameter Name="subdivision_exclude">
             <Value>={?subdivision_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_include">
-            <Value>={?orderauthor_include}</Value>
+          <QueryParameter Name="order_author_include">
+            <Value>={?order_author_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_exclude">
-            <Value>={?orderauthor_exclude}</Value>
+          <QueryParameter Name="order_author_exclude">
+            <Value>={?order_author_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_include">
-            <Value>={?geographic_groups_include}</Value>
+          <QueryParameter Name="geographic_group_include">
+            <Value>={?geographic_group_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_exclude">
-            <Value>={?geographic_groups_exclude}</Value>
+          <QueryParameter Name="geographic_group_exclude">
+            <Value>={?geographic_group_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="payment_type_include">
             <Value>={?payment_type_include}</Value>
@@ -1445,14 +1460,17 @@ FROM
           <QueryParameter Name="payment_type_exclude">
             <Value>={?payment_type_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="promo_sets_include">
-            <Value>={?promo_sets_include}</Value>
+          <QueryParameter Name="promotional_set_include">
+            <Value>={?promotional_set_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="promo_sets_exclude">
-            <Value>={?promo_sets_exclude}</Value>
+          <QueryParameter Name="promotional_set_exclude">
+            <Value>={?promotional_set_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="product_group_ids">
-            <Value>={?product_group_ids}</Value>
+          <QueryParameter Name="product_group_include">
+            <Value>={?product_group_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="product_group_exclude">
+            <Value>={?product_group_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1495,7 +1513,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="nomen_exclude">
+    <ReportParameter Name="nomenclature_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1503,7 +1521,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="nomen_include">
+    <ReportParameter Name="nomenclature_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1511,7 +1529,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="nomtype_include">
+    <ReportParameter Name="nomenclature_type_include">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1519,7 +1537,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="nomtype_exclude">
+    <ReportParameter Name="nomenclature_type_exclude">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1527,7 +1545,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="client_include">
+    <ReportParameter Name="counterparty_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1535,7 +1553,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="client_exclude">
+    <ReportParameter Name="counterparty_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1543,7 +1561,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="org_include">
+    <ReportParameter Name="organization_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1551,7 +1569,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="org_exclude">
+    <ReportParameter Name="organization_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1559,7 +1577,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="discountreason_include">
+    <ReportParameter Name="discount_reason_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1567,7 +1585,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="discountreason_exclude">
+    <ReportParameter Name="discount_reason_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1575,7 +1593,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="orderauthor_include">
+    <ReportParameter Name="order_author_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1583,7 +1601,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="orderauthor_exclude">
+    <ReportParameter Name="order_author_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1607,7 +1625,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="geographic_groups_include">
+    <ReportParameter Name="geographic_group_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1615,7 +1633,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="geographic_groups_exclude">
+    <ReportParameter Name="geographic_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1639,7 +1657,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="promo_sets_include">
+    <ReportParameter Name="promotional_set_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1647,7 +1665,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="promo_sets_exclude">
+    <ReportParameter Name="promotional_set_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1663,7 +1681,14 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="product_group_ids">
+    <ReportParameter Name="product_group_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="product_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

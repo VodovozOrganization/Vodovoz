@@ -2,7 +2,7 @@
 using NLog;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Dialogs.Employees

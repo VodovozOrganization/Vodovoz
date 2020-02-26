@@ -3,7 +3,7 @@ using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QSDocTemplates;
 using QSProjectsLib;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 

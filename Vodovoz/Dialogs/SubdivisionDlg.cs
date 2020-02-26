@@ -4,7 +4,7 @@ using Gamma.GtkWidgets;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Sale;

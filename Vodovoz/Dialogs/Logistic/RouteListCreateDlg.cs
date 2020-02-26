@@ -12,7 +12,7 @@ using QS.Print;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.Project.Services;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Core.DataService;

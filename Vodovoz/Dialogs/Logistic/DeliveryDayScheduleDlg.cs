@@ -2,7 +2,7 @@
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QSOrmProject;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Dialogs.Logistic

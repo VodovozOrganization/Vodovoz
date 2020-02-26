@@ -114,7 +114,7 @@ namespace Vodovoz
             {
                 Entity.Author = author;
             }
-			var valid = new QS.Validation.GtkUI.QSValidator<Fine> (UoWGeneric.Root);
+			var valid = new QS.Validation.QSValidator<Fine> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 

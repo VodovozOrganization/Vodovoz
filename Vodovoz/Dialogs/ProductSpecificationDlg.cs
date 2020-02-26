@@ -1,6 +1,6 @@
 ﻿using QS.DomainModel.UoW;
 using QSOrmProject;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 

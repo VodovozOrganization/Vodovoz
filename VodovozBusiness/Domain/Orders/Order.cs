@@ -926,6 +926,7 @@ namespace Vodovoz.Domain.Orders
 							new[] { this.GetPropertyName(o => o.PaymentType) }
 						);
 
+					//FIXME Исправить изменение данных. В валидации нельзя менять объекты.
 					if(DeliveryPoint != null && !DeliveryPoint.FindAndAssociateDistrict(UoW))
 						yield return new ValidationResult(
 							"Район доставки не найден. Укажите правильные координаты или разметьте район доставки.",

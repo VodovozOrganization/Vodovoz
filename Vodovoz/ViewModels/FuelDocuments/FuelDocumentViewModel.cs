@@ -285,7 +285,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				FuelDocument.FuelCashExpense.Casher = cashier;
 			}
 
-			var valid = commonServices.ValidationService.GetValidator().Validate(FuelDocument, new ValidationContext(FuelDocument));
+			var valid = commonServices.ValidationService.Validate(FuelDocument, new ValidationContext(FuelDocument));
 
 			if(!valid)
 				return false;

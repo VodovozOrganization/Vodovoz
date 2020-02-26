@@ -2,7 +2,7 @@
 using NLog;
 using Vodovoz.Domain.Contacts;
 using QS.DomainModel.UoW;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz

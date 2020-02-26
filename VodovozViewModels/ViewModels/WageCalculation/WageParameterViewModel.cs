@@ -148,8 +148,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 				return;
 			}
 
-			var validator = commonServices.ValidationService.GetValidator();
-			if(!validator.Validate(WageParameter)) {
+			if(!commonServices.ValidationService.Validate(WageParameter)) {
 				return;
 			}
 

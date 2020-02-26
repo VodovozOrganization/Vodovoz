@@ -5,7 +5,7 @@ using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.RepresentationModel.GtkUI;
 using QSProjectsLib;
-using QS.Validation.GtkUI;
+using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
