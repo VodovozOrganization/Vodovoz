@@ -15,6 +15,9 @@ using NHibernate.Util;
 using Vodovoz.Infrastructure.Report.SelectableParametersFilter;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
+using NHibernate.Transform;
+using NHibernate;
+using NHibernate.Criterion;
 
 namespace Vodovoz.Reports
 {
@@ -34,71 +37,223 @@ namespace Vodovoz.Reports
 		{
 			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 
-			var nomenclatureTypeParam = filter.CreateEnumParameterSet<NomenclatureCategory>(
-				"Типы номенклатур", 
-				new ParametersEnumFactory<NomenclatureCategory>(),
-				"nomenclature_type"
+			var nomenclatureTypeParam = filter.CreateParameterSet(
+				"Типы номенклатур",
+				"nomenclature_type",
+				new ParametersEnumFactory<NomenclatureCategory>()
 			);
 
-			var nomenclatureParam = filter.CreateEntityParameterSet<Nomenclature>(
+			var nomenclatureParam = filter.CreateParameterSet(
 				"Номенклатуры",
-				new ParametersFactory<Nomenclature>(UoW, x => x.OfficialName, x => !x.IsArchive), 
-				"nomenclature"
-			);
-			nomenclatureParam.FilterOnSourceSelectionChanged(x => x.Category, nomenclatureTypeParam);
+				"nomenclature",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<Nomenclature> resultAlias = null;
+					var query = UoW.Session.QueryOver<Nomenclature>()
+						.Where(x => !x.IsArchive);
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							var filterCriterion = f();
+							if(filterCriterion != null) {
+								query.Where(filterCriterion);
+							}
+						}
+					}
 
-			filter.CreateEntityParameterSet<ProductGroup>(
-				"Группы товаров", 
-				new RecursiveParametersFactory<ProductGroup>(UoW, x => x.Name, x => x.Childs), 
-				"product_group"
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.OfficialName).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Nomenclature>>());
+					return query.List<SelectableParameter>();
+				})
 			);
 
-			filter.CreateEntityParameterSet<Counterparty>(
+			nomenclatureParam.AddFilterOnSourceSelectionChanged(nomenclatureTypeParam,
+				() => {
+					var selectedValues = nomenclatureTypeParam.GetSelectedValues();
+					if(!selectedValues.Any()) {
+						return null;
+					}
+					return Restrictions.On<Nomenclature>(x => x.Category).IsIn(nomenclatureTypeParam.GetSelectedValues().ToArray());
+				}
+			);
+
+			//Предзагрузка. Для избежания ленивой загрузки
+			UoW.Session.QueryOver<ProductGroup>().Fetch(SelectMode.Fetch, x => x.Childs).List();
+
+			filter.CreateParameterSet(
+				"Группы товаров",
+				"product_group",
+				new RecursiveParametersFactory<ProductGroup>(UoW,
+				(filters) => {
+					var query = UoW.Session.QueryOver<ProductGroup>();
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							query.Where(f());
+						}
+					}
+					return query.List();
+				},
+				x => x.Name,
+				x => x.Childs)
+			);
+
+			filter.CreateParameterSet(
 				"Контрагенты",
-				new ParametersFactory<Counterparty>(UoW, x => x.FullName, x => !x.IsArchive),
-				"counterparty"
+				"counterparty",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<Counterparty> resultAlias = null;
+					var query = UoW.Session.QueryOver<Counterparty>()
+							.Where(x => !x.IsArchive);
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.FullName).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Counterparty>>());
+					return query.List<SelectableParameter>();
+				})
 			);
 
-			filter.CreateEntityParameterSet<Organization>(
+			filter.CreateParameterSet(
 				"Организации",
-				new ParametersFactory<Organization>(UoW, x => x.FullName),
-				"organization"
+				"organization",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<Organization> resultAlias = null;
+					var query = UoW.Session.QueryOver<Organization>();
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.FullName).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Organization>>());
+					return query.List<SelectableParameter>();
+				})
 			);
 
-			filter.CreateEntityParameterSet<DiscountReason>(
+			filter.CreateParameterSet(
 				"Основания скидок",
-				new ParametersFactory<DiscountReason>(UoW, x => x.Name),
-				"discount_reason"
+				"discount_reason",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<DiscountReason> resultAlias = null;
+					var query = UoW.Session.QueryOver<DiscountReason>();
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<DiscountReason>>());
+					return query.List<SelectableParameter>();
+				})
 			);
 
-			filter.CreateEntityParameterSet<Subdivision>(
+			filter.CreateParameterSet(
 				"Подразделения",
-				new ParametersFactory<Subdivision>(UoW, x => x.Name),
-				"subdivision"
+				"subdivision",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<Subdivision> resultAlias = null;
+					var query = UoW.Session.QueryOver<Subdivision>();
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Subdivision>>());
+					return query.List<SelectableParameter>();
+				})
 			);
 
-			filter.CreateEntityParameterSet<Employee>(
+			filter.CreateParameterSet(
 				"Авторы заказов",
-				new ParametersFactory<Employee>(UoW, x => x.LastName, x => !x.IsFired),
-				"order_author"
+				"order_author",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<Employee> resultAlias = null;
+					var query = UoW.Session.QueryOver<Employee>()
+						.Where(x => !x.IsFired);
+
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
+					return query.List<SelectableParameter>();
+				})
 			);
 
-			filter.CreateEntityParameterSet<GeographicGroup>(
+			filter.CreateParameterSet(
 				"Части города",
-				new ParametersFactory<GeographicGroup>(UoW, x => x.Name),
-				"geographic_group"
+				"geographic_group",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<GeographicGroup> resultAlias = null;
+					var query = UoW.Session.QueryOver<GeographicGroup>();
+
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<GeographicGroup>>());
+					return query.List<SelectableParameter>();
+				})
 			);
 
-			filter.CreateEnumParameterSet<PaymentType>(
+			filter.CreateParameterSet(
 				"Тип оплаты",
-				new ParametersEnumFactory<PaymentType>(),
-				"payment_type"
+				"payment_type",
+				new ParametersEnumFactory<PaymentType>()
 			);
 
-			filter.CreateEntityParameterSet<PromotionalSet>(
+			filter.CreateParameterSet(
 				"Промонаборы",
-				new ParametersFactory<PromotionalSet>(UoW, x => x.Name, x => !x.IsArchive),
-				"promotional_set"
+				"promotional_set",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<PromotionalSet> resultAlias = null;
+					var query = UoW.Session.QueryOver<PromotionalSet>()
+							.Where(x => !x.IsArchive);
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<PromotionalSet>>());
+					return query.List<SelectableParameter>();
+				})
 			);
 
 			var viewModel = new SelectableParameterReportFilterViewModel(filter);
@@ -106,6 +261,7 @@ namespace Vodovoz.Reports
 			vboxParameters.Add(filterWidget);
 			filterWidget.Show();
 		}
+
 
 		#region IParametersWidget implementation
 

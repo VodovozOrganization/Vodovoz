@@ -12,7 +12,7 @@
   <RightMargin>10mm</RightMargin>
   <BottomMargin>10mm</BottomMargin>
   <PageHeader>
-    <Height>.5in</Height>
+    <Height>0.0pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
@@ -93,16 +93,16 @@
             <Width>52.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.1pt</Width>
+            <Width>62.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>54.7pt</Width>
+            <Width>64.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.4pt</Width>
+            <Width>63.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.9pt</Width>
+            <Width>61.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>57.0pt</Width>
@@ -117,10 +117,10 @@
             <Width>57.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.4pt</Width>
+            <Width>52.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>56.5pt</Width>
+            <Width>51.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -165,8 +165,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
-                      <Value>='Заказы,
-принятые с ' + First({creationTime1_from}, "CreationTimes") + ' до ' + First({creationTime2_to}, "CreationTimes")</Value>
+                      <Value>='Заказы, принятые 
+с ' + First({creationTime1_from}, "CreationTimes") + ' до ' + First({creationTime2_to}, "CreationTimes")</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -175,6 +175,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -183,8 +184,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>='Заказы,
-принятые с ' + First({creationTime2_from}, "CreationTimes") + ' до ' + First({creationTime3_to}, "CreationTimes")</Value>
+                      <Value>='Заказы, принятые 
+с ' + First({creationTime2_from}, "CreationTimes") + ' до ' + First({creationTime3_to}, "CreationTimes")</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -212,6 +213,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -506,6 +508,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -519,6 +522,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -532,6 +536,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -545,6 +550,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -558,6 +564,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -571,6 +578,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -584,6 +592,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -597,6 +606,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -610,6 +620,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -623,6 +634,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -636,6 +648,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -649,6 +662,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -657,7 +671,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>14.9pt</Left>
+        <Left>7.7pt</Left>
         <Top>78.5pt</Top>
         <Footer>
           <TableRows>
@@ -684,6 +698,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime1_addresses})</Value>
                     </Textbox>
@@ -698,6 +713,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime1_bottles})</Value>
                     </Textbox>
@@ -712,6 +728,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime2_addresses})</Value>
                     </Textbox>
@@ -726,6 +743,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime2_bottles})</Value>
                     </Textbox>
@@ -740,6 +758,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime3_addresses})</Value>
                     </Textbox>
@@ -754,6 +773,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime3_bottles})</Value>
                     </Textbox>
@@ -768,6 +788,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime4_addresses})</Value>
                     </Textbox>
@@ -782,6 +803,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({creationTime4_bottles})</Value>
                     </Textbox>
@@ -796,6 +818,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({online_addresses})</Value>
                     </Textbox>
@@ -810,6 +833,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({online_bottles})</Value>
                     </Textbox>
@@ -824,6 +848,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({summary_addresses})</Value>
                     </Textbox>
@@ -838,6 +863,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                       <Value>=Sum({summary_bottles})</Value>
                     </Textbox>
@@ -939,7 +965,7 @@ FROM
                         WHEN @interval9 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval9,'%H:%i') THEN @interval9
                         WHEN @interval10 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval10,'%H:%i') THEN @interval10
                         WHEN @interval11 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval11,'%H:%i') THEN @interval11
-                        WHEN @interval12 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval12,'%H:%i') THEN @interval12
+                        WHEN @interval12 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval12,'%H:%i') THEN @interval12                        
                         ELSE '23:59'
                     END AS delivery_interval
                 FROM delivery_schedule ds
@@ -981,6 +1007,34 @@ FROM
             OR (0 IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude))
         )
     GROUP BY orders.id
+    UNION ALL
+    (SELECT
+        intervals.*, intervals_null_values.*
+    FROM
+        (SELECT @interval1 as delivery_interval UNION ALL
+         SELECT @interval2 as delivery_interval UNION ALL
+         SELECT @interval3 as delivery_interval UNION ALL
+         SELECT @interval4 as delivery_interval UNION ALL
+         SELECT @interval5 as delivery_interval UNION ALL
+         SELECT @interval6 as delivery_interval UNION ALL
+         SELECT @interval7 as delivery_interval UNION ALL
+         SELECT @interval8 as delivery_interval UNION ALL
+         SELECT @interval9 as delivery_interval UNION ALL
+         SELECT @interval10 as delivery_interval UNION ALL
+         SELECT @interval11 as delivery_interval UNION ALL
+         SELECT @interval12 as delivery_interval UNION ALL
+         SELECT IF('23:59' IN (@interval1, @interval2, @interval3, @interval4, @interval5, @interval6, @interval7, @interval8, @interval9, @interval10, @interval11, @interval12), '', '23:59') as delivery_interval) as intervals
+    JOIN 
+        (SELECT
+            null as creationTime1_address, 
+            0 as creationTime1_bottles,
+            null as creationTime2_address, 
+            0 as creationTime2_bottles, 
+            null as creationTime3_address, 
+            0 as creationTime3_bottles, 
+            null as creationTime4_address, 
+            0 as creationTime4_bottles) as intervals_null_values ON true
+    WHERE intervals.delivery_interval != '')
 ) as source
 GROUP BY source.delivery_interval
 ;</CommandText>
@@ -1155,11 +1209,11 @@ TIME_FORMAT(DATE_ADD(STR_TO_DATE(@creation_time3,'%H:%i'), INTERVAL -1 minute), 
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    CONCAT(
-        CONCAT(included_geographic_groups,'\n'),
-        CONCAT(excluded_geographic_groups,'\n'),
-        CONCAT(included_districts,'\n'),
-        CONCAT(excluded_districts,'\n')        
+    CONCAT_WS('\n',
+        included_geographic_groups,
+        excluded_geographic_groups,
+        included_districts,
+        excluded_districts     
     ) AS filters
 FROM
     (SELECT
@@ -1167,12 +1221,12 @@ FROM
         #Части города
         IF(
             0 NOT IN (@geographic_group_include),
-            (SELECT CONCAT('Вкл. районы: ', GROUP_CONCAT(gg.name SEPARATOR ', ')) FROM geographic_groups gg WHERE gg.id IN(@geographic_group_include)),
+            (SELECT CONCAT('Вкл. части города: ', GROUP_CONCAT(gg.name SEPARATOR ', ')) FROM geographic_groups gg WHERE gg.id IN(@geographic_group_include)),
             null
         ) AS included_geographic_groups,
         IF(
             0 NOT IN (@geographic_group_exclude),
-            (SELECT CONCAT('Искл. районы: ', GROUP_CONCAT(gg.name SEPARATOR ', ')) FROM geographic_groups gg WHERE gg.id IN(@geographic_group_exclude)),
+            (SELECT CONCAT('Искл. части города: ', GROUP_CONCAT(gg.name SEPARATOR ', ')) FROM geographic_groups gg WHERE gg.id IN(@geographic_group_exclude)),
             null
         ) AS excluded_geographic_groups,
 

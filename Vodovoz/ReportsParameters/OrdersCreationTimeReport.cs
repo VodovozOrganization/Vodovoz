@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
+using NHibernate.Transform;
+using NHibernate.Criterion;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -66,15 +68,64 @@ namespace Vodovoz.ReportsParameters
 			treeviewDeliveryIntervals.ItemsDataSource = Times;
 			treeviewDeliveryIntervals.HeadersVisible = false;
 
-			var geoGroupParameter = filter.CreateEntityParameterSet<GeographicGroup>(
-				"Части города", new ParametersFactory<GeographicGroup>(UoW, x => x.Name),
-				"geographic_groups"
+			var geoGroups = filter.CreateParameterSet(
+				"Части города",
+				"geographic_groups",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<GeographicGroup> resultAlias = null;
+					var query = UoW.Session.QueryOver<GeographicGroup>();
+
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							query.Where(f());
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<GeographicGroup>>());
+					return query.List<SelectableParameter>();
+				})
 			);
 
-			var districtParameter = filter.CreateEntityParameterSet<ScheduleRestrictedDistrict>(
-				"Районы", new ParametersFactory<ScheduleRestrictedDistrict>(UoW, x => x.DistrictName),
-				"districts"
+			ScheduleRestrictedDistrict districtAlias = null;
+			GeographicGroup geoGroupAlias = null;
+			var districtParameter = filter.CreateParameterSet(
+				"Районы",
+				"districts",
+				new ParametersFactory(UoW, (filters) => {
+					SelectableEntityParameter<ScheduleRestrictedDistrict> resultAlias = null;
+
+					var query = UoW.Session.QueryOver<ScheduleRestrictedDistrict>(() => districtAlias)
+						.Left.JoinAlias(() => districtAlias.GeographicGroups, () => geoGroupAlias);
+
+					if(filters != null && filters.Any()) {
+						foreach(var f in filters) {
+							var filterCriterion = f();
+							if(filterCriterion != null) {
+								query.Where(filterCriterion);
+							}
+						}
+					}
+
+					query.SelectList(list => list
+							.Select(() => districtAlias.Id).WithAlias(() => resultAlias.EntityId)
+							.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.EntityTitle)
+						);
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<ScheduleRestrictedDistrict>>());
+					return query.List<SelectableParameter>();
+				})
 			);
+			districtParameter.AddFilterOnSourceSelectionChanged(geoGroups, () => {
+				var selectedValues = geoGroups.GetSelectedValues();
+				if(!selectedValues.Any()) {
+					return null;
+				}
+				return Restrictions.On(() => geoGroupAlias.Id).IsIn(selectedValues.ToArray());
+			});
+
 
 			var viewModel = new SelectableParameterReportFilterViewModel(filter);
 			var filterWidget = new SelectableParameterReportFilterView(viewModel);
