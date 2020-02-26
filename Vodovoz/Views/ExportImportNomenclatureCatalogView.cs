@@ -4,6 +4,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using QS.Views.GtkUI;
+using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels;
 
 namespace Vodovoz.Views
@@ -19,8 +20,12 @@ namespace Vodovoz.Views
 
 		private void ConfigureDlg()
 		{
-			ybuttonExport.Clicked += (sender, e) => { ViewModel.ExportCommand.Execute(); };
 			yfilechooserbuttonExportFolder.Binding.AddBinding(ViewModel, vm => vm.FolderPath, w => w.Filename);
+
+			enummenubuttonExport.ItemsEnum = typeof(ExportType);
+			enummenubuttonExport.EnumItemClicked += (sender, e) => {
+				ViewModel.ExportCommand.Execute(e.ItemEnum);
+			};
 
 			enummenubuttonLoadActions.ItemsEnum = typeof(LoadAction);
 			enummenubuttonLoadActions.EnumItemClicked += (sender, e) => {

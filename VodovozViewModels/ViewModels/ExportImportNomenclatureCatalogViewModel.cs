@@ -159,13 +159,11 @@ namespace Vodovoz.ViewModels
 
 		public bool CanClose()
 		{
-			bool can = true;
 			if(TaskIsRunning) {
-				can = commonServices.InteractiveService.Question($"Запущена задача. Выход до её окончания может повлечь за собой потерю данных.", "Выйти?");
-				if(can == true)
-					can = commonServices.InteractiveService.Question($"Вы уверены?", "Выйти?");
+				commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Дождитесь завершения работы задачи");
+				return false;
 			}
-			return can;
+			return true;
 		}
 
 		private void CreateCommands()
@@ -390,37 +388,41 @@ namespace Vodovoz.ViewModels
 							newNomenclature.TypeOfDepositCategory = typeOfDepositCategories[node.TypeOfDepositCategory];
 					newNomenclature.PurchasePrice = node.PurchasePrice;
 
-					var folder = folders1C.FirstOrDefault(x => x.Name == node.Folder1cName);
-					if(folder == null) {
-						node.AddWrongDataErrorMessage($"Не найдена папка 1С с названием: \"{node.Folder1cName}\"");
-						//Чтобы валидация не ругалась
-						newNomenclature.Folder1C = folders1C.FirstOrDefault();
-					} else
-						newNomenclature.Folder1C = folder;
+					if(!String.IsNullOrWhiteSpace(node.Folder1cName)) {
+						var folder = folders1C.FirstOrDefault(x => x.Name.Trim() == node.Folder1cName);
+						if(folder == null) {
+							node.AddWrongDataErrorMessage($"Не найдена папка 1С с названием: \"{node.Folder1cName}\"");
+							//Чтобы валидация не ругалась
+							newNomenclature.Folder1C = folders1C.FirstOrDefault();
+						} else
+							newNomenclature.Folder1C = folder;
+					}
 
-					if(!string.IsNullOrWhiteSpace(node.FuelTypeName)) {
-						var fuelType = fuelTypes.FirstOrDefault(x => x.Name == node.FuelTypeName);
+					if(!String.IsNullOrWhiteSpace(node.FuelTypeName)) {
+						var fuelType = fuelTypes.FirstOrDefault(x => x.Name.Trim() == node.FuelTypeName);
 						if(fuelType == null) {
 							node.AddWrongDataErrorMessage($"Не найден тип топлива с названием: \"{node.FuelTypeName}\"");
 						} else
 							newNomenclature.FuelType = fuelType;
 					}
 
-					if(!string.IsNullOrWhiteSpace(node.EquipmentTypeName)) {
-						var equipType = equipmentTypes.FirstOrDefault(x => x.Name == node.EquipmentTypeName);
+					if(!String.IsNullOrWhiteSpace(node.EquipmentTypeName)) {
+						var equipType = equipmentTypes.FirstOrDefault(x => x.Name.Trim() == node.EquipmentTypeName);
 						if(equipType == null) {
 							node.AddWrongDataErrorMessage($"Не найден тип оборудования с названием: \"{node.EquipmentTypeName}\"");
 						} else
 							newNomenclature.Type = equipType;
 					}
 
-					var unit = measurementUnits.FirstOrDefault(n => n.Name == node.MeasurementUnit);
-					if(unit == null) {
-						node.AddWrongDataErrorMessage($"Не найдена единица измерения с названием: \"{node.MeasurementUnit}\"");
-						//Чтобы валидация не ругалась
-						newNomenclature.Unit = measurementUnits.FirstOrDefault();
-					} else
-						newNomenclature.Unit = unit;
+					if(!String.IsNullOrWhiteSpace(node.MeasurementUnit)) {
+						var unit = measurementUnits.FirstOrDefault(n => n.Name.Trim() == node.MeasurementUnit);
+						if(unit == null) {
+							node.AddWrongDataErrorMessage($"Не найдена единица измерения с названием: \"{node.MeasurementUnit}\"");
+							//Чтобы валидация не ругалась
+							newNomenclature.Unit = measurementUnits.FirstOrDefault();
+						} else
+							newNomenclature.Unit = unit;
+					}
 
 					newNomenclature.NomenclaturePrice.Add(new NomenclaturePrice {
 						MinCount = 1,
@@ -470,8 +472,8 @@ namespace Vodovoz.ViewModels
 				foreach(var item in itemsToSave.Union(Items.Where(x => x.ConflictSolveAction == ConflictSolveAction.Ignore && x.Source == Source.File))) {
 					item.SetColors();
 				}
-			} catch(Exception) {
-				SetProgressBar($"Неизвестная ошибка при проверке данных", ConsoleColor.DarkRed);
+			} catch(Exception ex) {
+				SetProgressBar($"Неизвестная ошибка при проверке данных" + ex.Message, ConsoleColor.DarkRed);
 				Items.Clear();
 				NeedReload = true;
 				return;
@@ -484,43 +486,54 @@ namespace Vodovoz.ViewModels
 
 		#region Export
 
-		public DelegateCommand ExportCommand;
+		public DelegateCommand<ExportType> ExportCommand;
 		private void CreateExportCommand()
 		{
-			ExportCommand = new DelegateCommand(
-			() => {
+			ExportCommand = new DelegateCommand<ExportType>(
+			(exportType) => {
 				if(folderPath == null) {
 					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Необходимо выбрать папку выгрузки");
 					return;
 				}
+				if(!commonServices.InteractiveService.Question($"Подтвердить выгрузку {exportType.GetEnumTitle().ToLower()}?", "Подтвердить?"))
+					return;
 				TaskIsRunning = true;
-				Task.Run(() => Export()).ContinueWith((x) => { TaskIsRunning = false; });
+				Task.Run(() => Export(exportType)).ContinueWith((x) => { TaskIsRunning = false; });
 			},
-			() => true
+			(category) => true
 		  );
 		}
 
-		private void Export()
+		private void Export(ExportType exportType)
 		{
-			SetProgressBar(0, 2, "Выгружаем данные...");
-			IEnumerable<NomenclatureCatalogNode> nodes;
 			try {
-				nodes = ReadNodesFromBase();
-			} catch(Exception) {
-				SetProgressBar(1, 1, "Ошибка в запросе к базе", ConsoleColor.DarkRed);
-				throw;
-			}
-			ProgressBarValue++;
-			CsvConfiguration configuration = new CsvConfiguration(CultureInfo.InvariantCulture);
-			configuration.Delimiter = ";";
-			configuration.TrimOptions = TrimOptions.Trim;
-			configuration.RegisterClassMap<NomenclatureCatalogeNodeMap>();
+				SetProgressBar(0, 2, "Выгружаем данные...");
+				IEnumerable<NomenclatureCatalogNode> nodes;
+				try {
+					nodes = ReadNodesFromBase();
+				} catch(Exception ex) {
+					SetProgressBar(1, 1, "Ошибка в запросе к базе" + ex.Message, ConsoleColor.DarkRed);
+					return;
+				}
+				if(exportType == ExportType.OnlineStoreGoods) {
+					var onlineStoreGroups = UoW.Session.QueryOver<ProductGroup>().Where(x => x.MappedIsOnlineStore).Select(x => x.Id).List<int>();
+					nodes = nodes.Where(x => x.GroupId.HasValue && onlineStoreGroups.Contains(x.GroupId.Value));
+				}
+				ProgressBarValue++;
+				CsvConfiguration configuration = new CsvConfiguration(CultureInfo.InvariantCulture);
+				configuration.Delimiter = ";";
+				configuration.TrimOptions = TrimOptions.Trim;
+				configuration.RegisterClassMap<NomenclatureCatalogeNodeMap>();
 
-			using(var writer = new StreamWriter($"{FolderPath}/Nomeclatures.csv", false, encoding))
-			using(var csv = new CsvWriter(writer, configuration)) {
-				csv.WriteRecords(nodes);
+				using(var writer = new StreamWriter($"{FolderPath}/Nomeclatures.csv", false, encoding))
+				using(var csv = new CsvWriter(writer, configuration)) {
+					csv.WriteRecords(nodes);
+				}
+				SetProgressBar(1, 1, "Выгрузка завершена", ConsoleColor.DarkGreen);
+			} catch(Exception ex) {
+				SetProgressBar(1, 1, "Неизвестная ошибка при выгрузке" + ex.Message, ConsoleColor.DarkRed);
+				return;
 			}
-			SetProgressBar(1, 1, "Выгрузка завершена", ConsoleColor.DarkGreen);
 		}
 
 		#endregion
@@ -566,64 +579,70 @@ namespace Vodovoz.ViewModels
 
 		private void LoadNew(out bool NeedReload)
 		{
-			SetProgressBar(0, 3, "Загружаем данные из файла...");
-			IList<NomenclatureCatalogNode> itemsToAdd = new List<NomenclatureCatalogNode>();
-			IEnumerable<NomenclatureCatalogNode> baseNodes;
 			try {
-				baseNodes = ReadNodesFromBase();
-			} catch(Exception) {
-				SetProgressBar(1, 1, "Ошибка в запросе к базе", ConsoleColor.DarkRed);
-				NeedReload = true;
-				return;
-			}
-			ProgressBarValue++;
-			var fileNodes = ReadNodesFromFile();
-			ProgressBarValue++;
-			if(fileNodes == null) {
-				SetProgressBar(1, 1);
-				NeedReload = true;
-				return;
-			}
-			if(!fileNodes.Any()) {
-				SetProgressBar(1, 1, "В файле нет данных.", ConsoleColor.Yellow);
-				NeedReload = true;
-				return;
-			}
-
-			IList<NomenclatureCatalogNode> goodNodes = new List<NomenclatureCatalogNode>();
-			int i = 1;
-			foreach(var newNode in fileNodes.Where(n => n.Id == null)) {
-				i++;
-				var duplicateNode = GetDuplicateNode(baseNodes, newNode);
-				if(duplicateNode != null) {
-
-					duplicateNode.DuplicateOf = newNode;
-					duplicateNode.Status = NodeStatus.Conflict;
-
-					newNode.DuplicateOf = duplicateNode;
-					newNode.Status = NodeStatus.Conflict;
-					newNode.ErrorMessages.Add(new ColoredMessage { Text = "Номенклатура с похожим наименованием уже существует в базе", Color = ConsoleColor.Yellow });
-
-					if(!itemsToAdd.Contains(duplicateNode))
-						itemsToAdd.Add(duplicateNode);
-					itemsToAdd.Add(newNode);
-				} else {
-					newNode.Status = NodeStatus.NewData;
-					goodNodes.Add(newNode);
+				SetProgressBar(0, 3, "Загружаем данные из файла...");
+				IList<NomenclatureCatalogNode> itemsToAdd = new List<NomenclatureCatalogNode>();
+				IEnumerable<NomenclatureCatalogNode> baseNodes;
+				try {
+					baseNodes = ReadNodesFromBase();
+				} catch(Exception ex) {
+					SetProgressBar(1, 1, "Ошибка в запросе к базе" + ex.Message, ConsoleColor.DarkRed);
+					NeedReload = true;
+					return;
 				}
-			}
-			foreach(var goodNode in goodNodes) {
-				itemsToAdd.Add(goodNode);
-			}
-			Items = new List<NomenclatureCatalogNode>(itemsToAdd);
-			ProgressBarValue++;
-			if(Items.Count == 0) {
-				SetProgressBar("В файле нет данных, удовлетворяющих условиям", ConsoleColor.Yellow);
+				ProgressBarValue++;
+				var fileNodes = ReadNodesFromFile();
+				ProgressBarValue++;
+				if(fileNodes == null) {
+					SetProgressBar(1, 1);
+					NeedReload = true;
+					return;
+				}
+				if(!fileNodes.Any()) {
+					SetProgressBar(1, 1, "В файле нет данных.", ConsoleColor.Yellow);
+					NeedReload = true;
+					return;
+				}
+
+				IList<NomenclatureCatalogNode> goodNodes = new List<NomenclatureCatalogNode>();
+				int i = 1;
+				foreach(var newNode in fileNodes.Where(n => n.Id == null)) {
+					i++;
+					var duplicateNode = GetDuplicateNode(baseNodes, newNode);
+					if(duplicateNode != null) {
+
+						duplicateNode.DuplicateOf = newNode;
+						duplicateNode.Status = NodeStatus.Conflict;
+
+						newNode.DuplicateOf = duplicateNode;
+						newNode.Status = NodeStatus.Conflict;
+						newNode.ErrorMessages.Add(new ColoredMessage { Text = "Номенклатура с похожим наименованием уже существует в базе", Color = ConsoleColor.Yellow });
+
+						if(!itemsToAdd.Contains(duplicateNode))
+							itemsToAdd.Add(duplicateNode);
+						itemsToAdd.Add(newNode);
+					} else {
+						newNode.Status = NodeStatus.NewData;
+						goodNodes.Add(newNode);
+					}
+				}
+				foreach(var goodNode in goodNodes) {
+					itemsToAdd.Add(goodNode);
+				}
+				Items = new List<NomenclatureCatalogNode>(itemsToAdd);
+				ProgressBarValue++;
+				if(Items.Count == 0) {
+					SetProgressBar("В файле нет данных, удовлетворяющих условиям", ConsoleColor.Yellow);
+					NeedReload = true;
+					return;
+				}
+				SetProgressBar("Данные загружены.", ConsoleColor.DarkGreen);
+				NeedReload = false;
+			} catch(Exception ex) {
+				SetProgressBar(1, 1, "Неизвестная ошибка при загрузке файлов" + ex.Message, ConsoleColor.DarkRed);
 				NeedReload = true;
 				return;
 			}
-			SetProgressBar("Данные загружены.", ConsoleColor.DarkGreen);
-			NeedReload = false;
 		}
 
 		public DelegateCommand ConfirmLoadNewCommand;
@@ -650,6 +669,9 @@ namespace Vodovoz.ViewModels
 					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Для подтверждения необходимо решить все конфликты");
 					return;
 				}
+				if(!commonServices.InteractiveService.Question($"Подтвердить загрузку новых номенклатур?")) {
+					return;
+				}
 				TaskIsRunning = true;
 				var task = Task.Run(() => ConfirmLoadNew()).ContinueWith((x) => { TaskIsRunning = false; needReload = true; }); 
 			},
@@ -663,32 +685,37 @@ namespace Vodovoz.ViewModels
 
 		private void ConfirmLoadNew()
 		{
-			ProgressBarValue++;
-			SetProgressBar(0, itemsToSave.Count(), $"Сохранение данных...");
-			int batchCounter = 0;
-			UoW.Session.SetBatchSize(500);
-			foreach(var nomenclature in itemsToSave.Where(x => !(x.Status == NodeStatus.Conflict 
-					&& x.ConflictSolveAction != ConflictSolveAction.CreateDuplicate)).Select(x => x.Nomenclature)) {
-				UoW.Save(nomenclature);
-				if(batchCounter == 500) {
-					UoW.Commit();
-					batchCounter = 0;
-				}
-				batchCounter++;
+			try {
 				ProgressBarValue++;
-			}
-			SetProgressBar(1, 120, $"Завершение сохранения...");
-			//Fake Counter
-			CancellationTokenSource cts = new CancellationTokenSource();
-			var task = Task.Run(() => {
-				do {
-					Thread.Sleep(500);
+				SetProgressBar(0, itemsToSave.Count(), $"Сохранение данных...");
+				int batchCounter = 0;
+				UoW.Session.SetBatchSize(500);
+				foreach(var nomenclature in itemsToSave.Where(x => !(x.Status == NodeStatus.Conflict
+						&& x.ConflictSolveAction != ConflictSolveAction.CreateDuplicate)).Select(x => x.Nomenclature)) {
+					UoW.Save(nomenclature);
+					if(batchCounter == 500) {
+						UoW.Commit();
+						batchCounter = 0;
+					}
+					batchCounter++;
 					ProgressBarValue++;
-				} while(!cts.IsCancellationRequested);
-			}, cts.Token);
-			UoW.Commit();
-			cts.Cancel();
-			SetProgressBar(1, 1, $"Сохранено.", ConsoleColor.DarkGreen);
+				}
+				SetProgressBar(1, 120, $"Завершение сохранения...");
+				//Fake Counter
+				CancellationTokenSource cts = new CancellationTokenSource();
+				var task = Task.Run(() => {
+					do {
+						Thread.Sleep(500);
+						ProgressBarValue++;
+					} while(!cts.IsCancellationRequested);
+				}, cts.Token);
+				UoW.Commit();
+				cts.Cancel();
+				SetProgressBar(1, 1, $"Сохранено.", ConsoleColor.DarkGreen);
+			} catch(Exception ex) {
+				SetProgressBar(1, 1, $"Неизвестная ошибка при сохранении." + ex.Message, ConsoleColor.DarkRed);
+				return;
+			}
 		}
 
 		#endregion
@@ -697,70 +724,76 @@ namespace Vodovoz.ViewModels
 
 		private void UpdateData(out bool NeedReload)
 		{
-			SetProgressBar(0, 3, "Загружаем данные из файла...");
-			IList<NomenclatureCatalogNode> itemsToAdd = new List<NomenclatureCatalogNode>();
-			IList<NomenclatureCatalogNode> errorNodes = new List<NomenclatureCatalogNode>();
-
-			IEnumerable<NomenclatureCatalogNode> baseNodes;
 			try {
-				baseNodes = ReadNodesFromBase();
-			} catch(Exception) {
-				SetProgressBar(1, 1, "Ошибка в запросе к базе", ConsoleColor.DarkRed);
-				NeedReload = true;
-				return;
-			}
-			ProgressBarValue++;
-			var fileNodes = ReadNodesFromFile();
-			progressBarValue++;
-			if(fileNodes == null) {
-				SetProgressBar(1, 1);
-				NeedReload = true;
-				return;
-			}
-			if(!fileNodes.Any()) {
-				SetProgressBar(1, 1, "В файле нет данных.", ConsoleColor.Yellow);
-				NeedReload = true;
-				return;
-			}
+				SetProgressBar(0, 3, "Загружаем данные из файла...");
+				IList<NomenclatureCatalogNode> itemsToAdd = new List<NomenclatureCatalogNode>();
+				IList<NomenclatureCatalogNode> errorNodes = new List<NomenclatureCatalogNode>();
 
-			int i = 1;
-			foreach(var newNode in fileNodes.Where(n => n.Id != null)) {
-				if(itemsToAdd.Any(x => x.Id == newNode.Id)){
-					newNode.AddWrongDataErrorMessage($"В файле найдено больше 1 номенклатуры с таким ID: {newNode.Id}");
-					newNode.ConflictSolveAction = ConflictSolveAction.Ignore;
-					errorNodes.Add(newNode);
-					continue;
+				IEnumerable<NomenclatureCatalogNode> baseNodes;
+				try {
+					baseNodes = ReadNodesFromBase();
+				} catch(Exception ex) {
+					SetProgressBar(1, 1, "Ошибка в запросе к базе" + ex.Message, ConsoleColor.DarkRed);
+					NeedReload = true;
+					return;
 				}
-				var baseNode = baseNodes.FirstOrDefault(x => x.Id == newNode.Id && x.DuplicateOf == null);
-				if(baseNode != null) {
-					i++;
-					baseNode.Status = NodeStatus.OldData;
-					baseNode.DuplicateOf = newNode;
-
-					newNode.Status = NodeStatus.ChangedData;
-					newNode.DuplicateOf = baseNode;
-
-					itemsToAdd.Add(baseNode);
-					itemsToAdd.Add(newNode);
-				} else {
-					newNode.ConflictSolveAction = ConflictSolveAction.Ignore;
-					newNode.AddWrongDataErrorMessage($"Номенклатура с ID: {newNode.Id} не найдена в базе");
-					errorNodes.Add(newNode);
+				ProgressBarValue++;
+				var fileNodes = ReadNodesFromFile();
+				progressBarValue++;
+				if(fileNodes == null) {
+					SetProgressBar(1, 1);
+					NeedReload = true;
+					return;
 				}
-			}
+				if(!fileNodes.Any()) {
+					SetProgressBar(1, 1, "В файле нет данных.", ConsoleColor.Yellow);
+					NeedReload = true;
+					return;
+				}
 
-			foreach(var errorNode in errorNodes) {
-				itemsToAdd.Add(errorNode);
-			}
-			ProgressBarValue++;
-			Items = new List<NomenclatureCatalogNode>(itemsToAdd);
-			if(Items.Count == 0) {
-				SetProgressBar("В файле нет данных, удовлетворяющих условиям", ConsoleColor.Yellow);
+				int i = 1;
+				foreach(var newNode in fileNodes.Where(n => n.Id != null)) {
+					if(itemsToAdd.Any(x => x.Id == newNode.Id)) {
+						newNode.AddWrongDataErrorMessage($"В файле найдено больше 1 номенклатуры с таким ID: {newNode.Id}");
+						newNode.ConflictSolveAction = ConflictSolveAction.Ignore;
+						errorNodes.Add(newNode);
+						continue;
+					}
+					var baseNode = baseNodes.FirstOrDefault(x => x.Id == newNode.Id && x.DuplicateOf == null);
+					if(baseNode != null) {
+						i++;
+						baseNode.Status = NodeStatus.OldData;
+						baseNode.DuplicateOf = newNode;
+
+						newNode.Status = NodeStatus.ChangedData;
+						newNode.DuplicateOf = baseNode;
+
+						itemsToAdd.Add(baseNode);
+						itemsToAdd.Add(newNode);
+					} else {
+						newNode.ConflictSolveAction = ConflictSolveAction.Ignore;
+						newNode.AddWrongDataErrorMessage($"Номенклатура с ID: {newNode.Id} не найдена в базе");
+						errorNodes.Add(newNode);
+					}
+				}
+
+				foreach(var errorNode in errorNodes) {
+					itemsToAdd.Add(errorNode);
+				}
+				ProgressBarValue++;
+				Items = new List<NomenclatureCatalogNode>(itemsToAdd);
+				if(Items.Count == 0) {
+					SetProgressBar("В файле нет данных, удовлетворяющих условиям", ConsoleColor.Yellow);
+					NeedReload = true;
+					return;
+				}
+				SetProgressBar("Данные загружены.", ConsoleColor.DarkGreen);
+				NeedReload = false;
+			} catch(Exception ex) {
+				SetProgressBar(1, 1, "Неизвестная ошибка при замене данных." + ex.Message, ConsoleColor.DarkRed);
 				NeedReload = true;
 				return;
 			}
-			SetProgressBar("Данные загружены.", ConsoleColor.DarkGreen);
-			NeedReload = false;
 		}
 
 		public DelegateCommand<ConfirmUpdateAction> ConfirmUpdateDataCommand;
@@ -786,6 +819,9 @@ namespace Vodovoz.ViewModels
 					commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Для подтверждения необходимо решить все конфликты");
 					return;
 				}
+				if(!commonServices.InteractiveService.Question($"Вы уверены что вы хотите произвести замену {action.GetEnumTitle().ToLower()}?", "Подтвердить?")) {
+					return;
+				}
 				TaskIsRunning = true;
 				Task.Run(() => ConfirmUpdateData(action))
 					.ContinueWith((x) => { needReload = true; TaskIsRunning = false; });
@@ -801,15 +837,15 @@ namespace Vodovoz.ViewModels
 
 		private void ConfirmUpdateData(ConfirmUpdateAction action)
 		{
-			SetProgressBar(0, 0, $"Замена {action.GetEnumTitle().ToLower()}...");
-			if(itemsToSave == null || !itemsToSave.Any()) {
-				SetProgressBar(1, 1, $"Нет данных для сохранения", ConsoleColor.DarkRed);
-				return;
-			}
-			var nomenclatures = UoW.GetById<Nomenclature>(itemsToSave.Select(x => x.Nomenclature.Id));
-			ProgressBarUpper = itemsToSave.Count();
-
 			try {
+				SetProgressBar(0, 0, $"Замена {action.GetEnumTitle().ToLower()}...");
+				if(itemsToSave == null || !itemsToSave.Any()) {
+					SetProgressBar(1, 1, $"Нет данных для сохранения", ConsoleColor.DarkRed);
+					return;
+				}
+				var nomenclatures = UoW.GetById<Nomenclature>(itemsToSave.Select(x => x.Nomenclature.Id));
+				ProgressBarUpper = itemsToSave.Count();
+
 				int batchCounter = 0;
 				UoW.Session.SetBatchSize(500);
 				foreach(var newNom in itemsToSave.Where(x => !(x.Status == NodeStatus.Conflict 
@@ -894,13 +930,12 @@ namespace Vodovoz.ViewModels
 					ProgressBarValue++;
 				}
 				UoW.Commit();
-			} catch(Exception) {
-				SetProgressBar(1, 1, $"Неизвестная ошибка при сохранении.", ConsoleColor.DarkRed);
-				throw;
+				SetProgressBar(1, 1, $"Замена {action.GetEnumTitle().ToLower()} завершена.", ConsoleColor.DarkGreen);
+			} catch(Exception ex) {
+				SetProgressBar(1, 1, $"Неизвестная ошибка при сохранении." + ex.Message, ConsoleColor.DarkRed);
+				return;
 			}
-			SetProgressBar(1, 1, $"Замена {action.GetEnumTitle().ToLower()} завершена.", ConsoleColor.DarkGreen);
 		}
-
 		#endregion
 	}
 
@@ -1053,6 +1088,14 @@ namespace Vodovoz.ViewModels
 		LoadNew,
 		[Display(Name = "Заменить данные у номенклатур")]
 		UpdateData
+	}
+
+	public enum ExportType
+	{
+		[Display(Name = "Товаров ИМ")]
+		OnlineStoreGoods,
+		[Display(Name = "Всех номенклатур")]
+		AllNomenclatures
 	}
 
 	public enum ConfirmUpdateAction

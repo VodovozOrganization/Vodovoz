@@ -28,7 +28,7 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		/// <summary>
-		/// Нужен для NHibernate. Используйте <see cref="Parent"/>
+		/// Нужен для NHibernate.
 		/// </summary>
 		public virtual ProductGroup MappedParent {
 			get => parent;
@@ -36,6 +36,9 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		private ProductGroup parent;
+		/// <summary>
+		/// Для Nhibernate используйте <see cref="MappedParent"/>
+		/// </summary>
 		public override ProductGroup Parent {
 			get => parent;
 			set {
@@ -64,6 +67,9 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		private bool isOnlineStore;
+		/// <summary>
+		/// Для Nhibernate используйте <see cref="MappedIsOnlineStore"/>
+		/// </summary>
 		[Display(Name = "Группа товаров интернет магазина?")]
 		public virtual bool IsOnlineStore {
 			get => isOnlineStore;
@@ -78,7 +84,7 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		/// <summary>
-		/// Нужен для NHibernate. Используйте <see cref="IsOnlineStore"/>
+		/// Нужен для NHibernate.
 		/// </summary>
 		public virtual bool MappedIsOnlineStore {
 			get { return isOnlineStore; }

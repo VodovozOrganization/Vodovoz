@@ -150,7 +150,6 @@ public partial class MainWindow : Window
 		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
 		ActionAccountFlow = new Action("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action("ActionRevision", "Акт сверки", null, "table");
-		ActionExportImportNomenclatureCatalog = new Action("ActionExportImportNomenclatureCatalog", "Выгрузка/Загрузка каталога номенклатур", null, "table");
 		//Архив
 		ActionReportDebtorsBottles = new Action("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
 		ActionRevisionBottlesAndDeposits = new Action("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
@@ -165,6 +164,7 @@ public partial class MainWindow : Window
 		//Suppliers
 		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
+		ActionExportImportNomenclatureCatalog = new Action("ActionExportImportNomenclatureCatalog", "Выгрузка/Загрузка каталога номенклатур", null, "table");
 
 		#endregion
 		#region Inserting actions to the toolbar
@@ -208,7 +208,6 @@ public partial class MainWindow : Window
 		w1.Add(ActionRevision, null);
 		w1.Add(ActionRevisionBottlesAndDeposits, null);
 		w1.Add(ActionReportDebtorsBottles, null);
-		w1.Add(ActionExportImportNomenclatureCatalog, null);
 		w1.Add(ActionTransferBankDocs, null);
 		w1.Add(ActionAccountingTable, null);
 		w1.Add(ActionAccountFlow, null);
@@ -223,6 +222,7 @@ public partial class MainWindow : Window
 		//Suppliers
 		w1.Add(ActionNewRequestToSupplier, null);
 		w1.Add(ActionJournalOfRequestsToSuppliers, null);
+		w1.Add(ActionExportImportNomenclatureCatalog, null);
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -267,7 +267,6 @@ public partial class MainWindow : Window
 		ActionRevision.Activated += ActionRevision_Activated;
 		ActionRevisionBottlesAndDeposits.Activated += ActionRevisionBottlesAndDeposits_Activated;
 		ActionReportDebtorsBottles.Activated += ActionReportDebtorsBottles_Activated;
-		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
@@ -283,6 +282,7 @@ public partial class MainWindow : Window
 		//Suppliers
 		ActionNewRequestToSupplier.Activated += ActionNewRequestToSupplier_Activated;
 		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
+		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
 
 		#endregion
 	}
