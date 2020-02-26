@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 
 namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
@@ -11,6 +12,8 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		private readonly IParametersFactory parametersFactory;
 		private readonly string includeSuffix;
 		private readonly string excludeSuffix;
+
+		protected List<Func<ICriterion>> FilterRelations { get; } = new List<Func<ICriterion>>();
 
 		public string Name { get; set; }
 
@@ -26,7 +29,10 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		public GenericObservableList<SelectableParameter> Parameters {
 			get {
 				if(parameters == null) {
-					parameters = new GenericObservableList<SelectableParameter>(parametersFactory.GetParameters());
+					parameters = new GenericObservableList<SelectableParameter>(parametersFactory.GetParameters(FilterRelations));
+					foreach(SelectableParameter parameter in parameters) {
+						parameter.AnySelectedChanged += Parameter_AnySelectedChanged;
+					}
 				}
 				return parameters;
 			}
@@ -103,11 +109,17 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			RaiseSelectionChanged();
 		}
 
-		public Dictionary<string, object> GetSelectedValues()
+		public IEnumerable<object> GetSelectedValues()
+		{
+			var selectedValues = Parameters.SelectMany(x => x.GetAllSelected().Select(y => y.Value));
+			return selectedValues;
+		}
+
+		public Dictionary<string, object> GetParameters()
 		{
 			Dictionary<string, object> result = new Dictionary<string, object>();
 
-			var selectedValues = Parameters.SelectMany(x => x.GetAllSelected().Select(y => y.Value));
+			var selectedValues = GetSelectedValues();
 
 			result.Add($"{ParameterName}{includeSuffix}", FilterType == SelectableFilterType.Include ? GetValidSelectedValues(selectedValues) : EmptyValue);
 			result.Add($"{ParameterName}{excludeSuffix}", FilterType == SelectableFilterType.Exclude ? GetValidSelectedValues(selectedValues) : EmptyValue);
@@ -121,6 +133,27 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 				return EmptyValue;
 			}
 			return selectedValues.ToArray();
+		}
+
+		public void AddFilterOnSourceSelectionChanged(SelectableParameterSet sourceParameterSet, Func<ICriterion> filterCriterionFunc)
+		{
+			if(sourceParameterSet == null) {
+				throw new ArgumentNullException(nameof(sourceParameterSet));
+			}
+
+			if(filterCriterionFunc == null) {
+				throw new ArgumentNullException(nameof(filterCriterionFunc));
+			}
+
+			FilterRelations.Add(filterCriterionFunc);
+
+			sourceParameterSet.SelectionChanged -= MasterParameterSet_SelectionChanged;
+			sourceParameterSet.SelectionChanged += MasterParameterSet_SelectionChanged;
+		}
+
+		void MasterParameterSet_SelectionChanged(object sender, EventArgs e)
+		{
+			Parameters = new GenericObservableList<SelectableParameter>(parametersFactory.GetParameters(FilterRelations));
 		}
 	}
 }

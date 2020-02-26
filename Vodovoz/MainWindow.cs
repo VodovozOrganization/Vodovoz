@@ -1564,4 +1564,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		undeliveryProblemSourcesViewModel.SetActionsVisible(deleteActionEnabled: false);
 		tdiMain.AddTab(undeliveryProblemSourcesViewModel);
 	}
+
+	protected void OnActionOrdersCreationTimeReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<OrdersCreationTimeReport>(),
+			() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport())
+		);
+	}
 }

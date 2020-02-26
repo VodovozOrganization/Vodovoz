@@ -844,10 +844,10 @@ FROM
 				OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
 			)
 		AND (
-				((nomenclature.category IN (@nomenclature_type__include) AND '0' IN (@nomenclature_type__exclude) )
+				((nomenclature.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
 				OR
-				(nomenclature.category NOT IN (@nomenclature_type__exclude) AND '0' IN (@nomenclature_type__include)))
-				OR ('0' IN (@nomenclature_type__include) AND '0' IN (@nomenclature_type__exclude))
+				(nomenclature.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+				OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
 			)
 		AND (
 				((orders.client_id IN (@counterparty_include) AND 0 IN (@counterparty_exclude) )
@@ -938,17 +938,17 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           <QueryParameter Name="organization_exclude">
             <Value>=Parameters!organization_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="client_include">
-            <Value>=Parameters!client_include</Value>
+          <QueryParameter Name="counterparty_include">
+            <Value>=Parameters!counterparty_include</Value>
           </QueryParameter>
-          <QueryParameter Name="client_exclude">
-            <Value>=Parameters!client_exclude</Value>
+          <QueryParameter Name="counterparty_exclude">
+            <Value>=Parameters!counterparty_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_include">
-            <Value>=Parameters!orderauthor_include</Value>
+          <QueryParameter Name="order_author_include">
+            <Value>=Parameters!order_author_include</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_exclude">
-            <Value>=Parameters!orderauthor_exclude</Value>
+          <QueryParameter Name="order_author_exclude">
+            <Value>=Parameters!order_author_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="subdivision_include">
             <Value>=Parameters!subdivision_include</Value>
@@ -956,11 +956,11 @@ GROUP BY T.nomenclature_id, T.counterparty_id, T.delivery_points_id, T.orders_id
           <QueryParameter Name="subdivision_exclude">
             <Value>=Parameters!subdivision_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_include">
-            <Value>=Parameters!geographic_groups_include</Value>
+          <QueryParameter Name="geographic_group_include">
+            <Value>=Parameters!geographic_group_include</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_exclude">
-            <Value>=Parameters!geographic_groups_exclude</Value>
+          <QueryParameter Name="geographic_group_exclude">
+            <Value>=Parameters!geographic_group_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="payment_type_include">
             <Value>={?payment_type_include}</Value>
@@ -1109,13 +1109,13 @@ FROM
 		) AS excluded_noms,
 
 		IF(
-			'0' NOT IN (@nomenclature_type__include),
-			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomenclature_type__include) GROUP BY nomenclature.category) AS q),
+			'0' NOT IN (@nomenclature_type_include),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomenclature_type_include) GROUP BY nomenclature.category) AS q),
 			0
 		) AS included_nomtypes,
 		IF(
-			'0' NOT IN (@nomenclature_type__exclude),
-			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomenclature_type__exclude) GROUP BY nomenclature.category) AS q),
+			'0' NOT IN (@nomenclature_type_exclude),
+			(SELECT COUNT(q.cat) FROM (SELECT COUNT(nomenclature.category) AS cat FROM nomenclature WHERE nomenclature.category IN(@nomenclature_type_exclude) GROUP BY nomenclature.category) AS q),
 			0
 		) AS excluded_nomtypes,
 
@@ -1249,17 +1249,17 @@ FROM
           <QueryParameter Name="organization_exclude">
             <Value>=Parameters!organization_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="client_include">
-            <Value>=Parameters!client_include</Value>
+          <QueryParameter Name="counterparty_include">
+            <Value>=Parameters!counterparty_include</Value>
           </QueryParameter>
-          <QueryParameter Name="client_exclude">
-            <Value>=Parameters!client_exclude</Value>
+          <QueryParameter Name="counterparty_exclude">
+            <Value>=Parameters!counterparty_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_include">
-            <Value>=Parameters!orderauthor_include</Value>
+          <QueryParameter Name="order_author_include">
+            <Value>=Parameters!order_author_include</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_exclude">
-            <Value>=Parameters!orderauthor_exclude</Value>
+          <QueryParameter Name="order_author_exclude">
+            <Value>=Parameters!order_author_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="subdivision_include">
             <Value>=Parameters!subdivision_include</Value>
@@ -1267,11 +1267,11 @@ FROM
           <QueryParameter Name="subdivision_exclude">
             <Value>=Parameters!subdivision_exclude</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_include">
-            <Value>=Parameters!geographic_groups_include</Value>
+          <QueryParameter Name="geographic_group_include">
+            <Value>=Parameters!geographic_group_include</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_exclude">
-            <Value>=Parameters!geographic_groups_exclude</Value>
+          <QueryParameter Name="geographic_group_exclude">
+            <Value>=Parameters!geographic_group_exclude</Value>
           </QueryParameter>
           <QueryParameter Name="payment_type_include">
             <Value>={?payment_type_include}</Value>
@@ -1424,11 +1424,11 @@ FROM
           <QueryParameter Name="discount_reason_exclude">
             <Value>={?discount_reason_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="client_include">
-            <Value>={?client_include}</Value>
+          <QueryParameter Name="counterparty_include">
+            <Value>={?counterparty_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="client_exclude">
-            <Value>={?client_exclude}</Value>
+          <QueryParameter Name="counterparty_exclude">
+            <Value>={?counterparty_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="organization_include">
             <Value>={?organization_include}</Value>
@@ -1442,17 +1442,17 @@ FROM
           <QueryParameter Name="subdivision_exclude">
             <Value>={?subdivision_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_include">
-            <Value>={?orderauthor_include}</Value>
+          <QueryParameter Name="order_author_include">
+            <Value>={?order_author_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="orderauthor_exclude">
-            <Value>={?orderauthor_exclude}</Value>
+          <QueryParameter Name="order_author_exclude">
+            <Value>={?order_author_exclude}</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_include">
-            <Value>={?geographic_groups_include}</Value>
+          <QueryParameter Name="geographic_group_include">
+            <Value>={?geographic_group_include}</Value>
           </QueryParameter>
-          <QueryParameter Name="geographic_groups_exclude">
-            <Value>={?geographic_groups_exclude}</Value>
+          <QueryParameter Name="geographic_group_exclude">
+            <Value>={?geographic_group_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="payment_type_include">
             <Value>={?payment_type_include}</Value>
@@ -1545,7 +1545,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="client_include">
+    <ReportParameter Name="counterparty_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1553,7 +1553,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="client_exclude">
+    <ReportParameter Name="counterparty_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1593,7 +1593,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="orderauthor_include">
+    <ReportParameter Name="order_author_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1601,7 +1601,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="orderauthor_exclude">
+    <ReportParameter Name="order_author_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1625,7 +1625,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="geographic_groups_include">
+    <ReportParameter Name="geographic_group_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
@@ -1633,7 +1633,7 @@ FROM
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="geographic_groups_exclude">
+    <ReportParameter Name="geographic_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

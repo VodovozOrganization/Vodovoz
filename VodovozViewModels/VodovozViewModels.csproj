@@ -147,17 +147,15 @@
     <Compile Include="ViewModels\UndeliveryProblemSourceViewModel.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParametersReportFilter.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableEntityParameter.cs" />
-    <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableEntityParameterSet.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableFilterType.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\RecursiveParametersFactory.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\IParametersFactory.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\ParametersFactory.cs" />
     <Compile Include="ViewModels\Reports\SelectableParameterReportFilterViewModel.cs" />
-    <Compile Include="Infrastructure\Report\SelectableParametersFilter\IParametersEntityFactory.cs" />
-    <Compile Include="Infrastructure\Report\SelectableParametersFilter\IParametersEnumFactory.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameterSet.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableEnumParameter.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameter.cs" />
+    <Compile Include="Infrastructure\Report\SelectableParametersFilter\ParametersEnumFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

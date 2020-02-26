@@ -1380,6 +1380,8 @@
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\NomenclatureTypeCatalog.cs" />
     <Compile Include="ReportsParameters\SelectableParameterReportFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SelectableParameterReportFilterView.cs" />
+    <Compile Include="ReportsParameters\OrdersCreationTimeReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrdersCreationTimeReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2087,6 +2089,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Sales\SetBillsReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\OrdersCreationTime.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
