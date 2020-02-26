@@ -354,7 +354,7 @@ namespace Vodovoz
 		{
 			return new ChannelFactory<IChatService>(
 				new BasicHttpBinding(),
-				"http://vod-srv.qsolution.ru:9000/ChatService"
+				"http://driver.vod.qsolution.ru:7071/ChatService"
 			).CreateChannel();
 		}
 
