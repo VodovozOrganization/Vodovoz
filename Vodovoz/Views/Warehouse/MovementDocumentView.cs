@@ -74,6 +74,10 @@ namespace Vodovoz.Views.Warehouse
 			ViewModel.AddItemCommand.CanExecuteChanged += (sender, e) => ybuttonAddItem.Sensitive = ViewModel.AddItemCommand.CanExecute();
 			ybuttonAddItem.Sensitive = ViewModel.AddItemCommand.CanExecute();
 
+			ybuttonFillFromOrders.Clicked += (sender, e) => ViewModel.FillFromOrdersCommand.Execute();
+			ViewModel.FillFromOrdersCommand.CanExecuteChanged += (sender, e) => ybuttonFillFromOrders.Sensitive = ViewModel.FillFromOrdersCommand.CanExecute(); 
+			ybuttonFillFromOrders.Sensitive = ViewModel.FillFromOrdersCommand.CanExecute();
+
 			ybuttonDeleteItem.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute(GetSelectedItem());
 			ViewModel.DeleteItemCommand.CanExecuteChanged += (sender, e) => ybuttonDeleteItem.Sensitive = ViewModel.DeleteItemCommand.CanExecute(GetSelectedItem());
 			ytreeviewItems.Selection.Changed += (sender, e) => ViewModel.DeleteItemCommand.RaiseCanExecuteChanged();

@@ -5,6 +5,7 @@ using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
+using Vodovoz.Domain.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Employees;
@@ -46,6 +47,25 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Номер звонка").AddTextRenderer(node => node.DriverCallId.ToString())
 					.AddColumn("OnLine заказ №").AddTextRenderer(node => node.OnLineNumber)
 					.AddColumn("Номер заказа интернет-магазина").AddTextRenderer(node => node.EShopNumber)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
+			//OrderForMovDocJournalViewModel
+			TreeViewColumnsConfigFactory.Register<OrderForMovDocJournalViewModel>(
+				() => FluentColumnsConfig<OrderForMovDocJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
+					.AddColumn("Статус").AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
+					.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
+					.AddColumn("Клиент")
+						.AddTextRenderer(node => node.Counterparty)
+						.WrapMode(Pango.WrapMode.WordChar)
+						.WrapWidth(400)
+					.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
+					.AddColumn("OnLine заказ №").AddTextRenderer(node => node.OnLineNumber)
+					.AddColumn("Номер заказа ИМ").AddTextRenderer(node => node.EShopNumber)
+					.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);

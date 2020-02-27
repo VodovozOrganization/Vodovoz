@@ -88,6 +88,8 @@ namespace Vodovoz.Views.Warehouse
 
 		private global::Gamma.GtkWidgets.yButton ybuttonAddItem;
 
+		private global::Gamma.GtkWidgets.yButton ybuttonFillFromOrders;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonDeleteItem;
 
 		protected virtual void Build()
@@ -530,24 +532,38 @@ namespace Vodovoz.Views.Warehouse
 			w43.Expand = false;
 			w43.Fill = false;
 			// Container child hboxItemsActions.Gtk.Box+BoxChild
+			this.ybuttonFillFromOrders = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonFillFromOrders.CanFocus = true;
+			this.ybuttonFillFromOrders.Name = "ybuttonFillFromOrders";
+			this.ybuttonFillFromOrders.UseUnderline = true;
+			this.ybuttonFillFromOrders.Label = global::Mono.Unix.Catalog.GetString("Добавить из заказов");
+			global::Gtk.Image w44 = new global::Gtk.Image();
+			w44.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.ybuttonFillFromOrders.Image = w44;
+			this.hboxItemsActions.Add(this.ybuttonFillFromOrders);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hboxItemsActions[this.ybuttonFillFromOrders]));
+			w45.Position = 1;
+			w45.Expand = false;
+			w45.Fill = false;
+			// Container child hboxItemsActions.Gtk.Box+BoxChild
 			this.ybuttonDeleteItem = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonDeleteItem.CanFocus = true;
 			this.ybuttonDeleteItem.Name = "ybuttonDeleteItem";
 			this.ybuttonDeleteItem.UseUnderline = true;
 			this.ybuttonDeleteItem.Label = global::Mono.Unix.Catalog.GetString("Удалить");
-			global::Gtk.Image w44 = new global::Gtk.Image();
-			w44.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
-			this.ybuttonDeleteItem.Image = w44;
+			global::Gtk.Image w46 = new global::Gtk.Image();
+			w46.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.ybuttonDeleteItem.Image = w46;
 			this.hboxItemsActions.Add(this.ybuttonDeleteItem);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hboxItemsActions[this.ybuttonDeleteItem]));
-			w45.Position = 1;
-			w45.Expand = false;
-			w45.Fill = false;
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.hboxItemsActions[this.ybuttonDeleteItem]));
+			w47.Position = 2;
+			w47.Expand = false;
+			w47.Fill = false;
 			this.vboxView.Add(this.hboxItemsActions);
-			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vboxView[this.hboxItemsActions]));
-			w46.Position = 4;
-			w46.Expand = false;
-			w46.Fill = false;
+			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.vboxView[this.hboxItemsActions]));
+			w48.Position = 4;
+			w48.Expand = false;
+			w48.Fill = false;
 			this.Add(this.vboxView);
 			if ((this.Child != null))
 			{

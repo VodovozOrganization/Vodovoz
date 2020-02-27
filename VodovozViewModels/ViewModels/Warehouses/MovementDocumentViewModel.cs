@@ -5,12 +5,14 @@ using QS.Commands;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Store;
@@ -19,6 +21,7 @@ using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.Repository;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Warehouses
@@ -29,6 +32,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		private readonly IEmployeeService employeeService;
 		private readonly IEntityExtendedPermissionValidator entityExtendedPermissionValidator;
 		private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
+		private readonly IOrderSelectorFactory orderSelectorFactory;
 		private readonly IWarehouseRepository warehouseRepository;
 		private readonly IUserRepository userRepository;
 		private readonly IRDLPreviewOpener rdlPreviewOpener;
@@ -42,6 +46,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			IEmployeeService employeeService,
 			IEntityExtendedPermissionValidator entityExtendedPermissionValidator,
 			INomenclatureSelectorFactory nomenclatureSelectorFactory,
+			IOrderSelectorFactory orderSelectorFactory,
 			IWarehouseRepository warehouseRepository,
 			IUserRepository userRepository,
 			IRDLPreviewOpener rdlPreviewOpener,
@@ -52,6 +57,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.entityExtendedPermissionValidator = entityExtendedPermissionValidator ?? throw new ArgumentNullException(nameof(entityExtendedPermissionValidator));
 			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
+			this.orderSelectorFactory = orderSelectorFactory ?? throw new ArgumentNullException(nameof(orderSelectorFactory));
 			this.warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.rdlPreviewOpener = rdlPreviewOpener ?? throw new ArgumentNullException(nameof(rdlPreviewOpener));
@@ -79,11 +85,11 @@ namespace Vodovoz.ViewModels.Warehouses
 			SetPropertyChangeRelation(e => e.ToWarehouse, () => CanSend, () => CanReceive, () => CanAcceptDiscrepancy);
 			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanSend, () => CanReceive, () => CanAcceptDiscrepancy);
 
-			SetPropertyChangeRelation(e => e.CanAddItem, () => CanAddItem);
+			SetPropertyChangeRelation(e => e.CanAddItem, () => CanAddItem, () => CanFillFromOrders);
 			SetPropertyChangeRelation(e => e.CanDeleteItems, () => CanDeleteItems);
 
 			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanSelectWarehouseTo);
-			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanAddItem);
+			SetPropertyChangeRelation(e => e.FromWarehouse, () => CanAddItem, () => CanFillFromOrders);
 			OnEntityPropertyChanged(ReloadAllowedWarehousesTo, e => e.FromWarehouse);
 
 			Entity.ObservableItems.ElementAdded += (aList, aIdx) => OnPropertyChanged(nameof(CanChangeWarehouseFrom));
@@ -392,6 +398,61 @@ namespace Vodovoz.ViewModels.Warehouses
 					deleteItemCommand.CanExecuteChangedWith(this, x => x.CanDeleteItems);
 				}
 				return deleteItemCommand;
+			}
+		}
+
+		public bool CanFillFromOrders => CanEdit && Entity.CanAddItem && Entity.FromWarehouse != null;
+
+		private DelegateCommand fillFromOrdersCommand;
+		public DelegateCommand FillFromOrdersCommand {
+			get {
+				if(fillFromOrdersCommand == null) {
+					fillFromOrdersCommand = new DelegateCommand(
+						() => {
+							bool IsOnlineStoreOrders = true;
+							IEnumerable<OrderStatus> orderStatuses = new OrderStatus[] { OrderStatus.Accepted, OrderStatus.InTravelList };
+							var orderSelector = orderSelectorFactory.CreateOrderSelectorForMovementDocument(IsOnlineStoreOrders, orderStatuses);
+							orderSelector.OnEntitySelectedResult += (sender, e) => {
+								IEnumerable<OrderForMovDocJournalNode> selectedNodes = e.SelectedNodes.Cast<OrderForMovDocJournalNode>();
+								if(!selectedNodes.Any()) {
+									return;
+								}
+								var orders = UoW.GetById<Order>(selectedNodes.Select(x => x.Id));
+								var orderItems = orders.SelectMany(x => x.OrderItems);
+								var nomIds = orderItems.Where(x => x.Nomenclature != null).Select(x => x.Nomenclature.Id).ToList();
+
+								var nomsAmount = new Dictionary<int, decimal>();
+								if(nomIds != null && nomIds.Any()) {
+									nomIds = nomIds.Distinct().ToList();
+									nomsAmount = StockRepository.NomenclatureInStock(UoW, Entity.FromWarehouse.Id, nomIds.ToArray());
+								}
+								foreach(var item in orderItems) {
+									var moveItem = Entity.Items.FirstOrDefault(x => x.Nomenclature.Id == item.Nomenclature.Id);
+									if(moveItem == null) {
+										var count = item.Count > nomsAmount[item.Nomenclature.Id] ? nomsAmount[item.Nomenclature.Id] : item.Count;
+										if(count == 0)
+											continue;
+										Entity.AddItem(item.Nomenclature, count, nomsAmount[item.Nomenclature.Id]);
+									} else {
+										var count = (moveItem.SendedAmount + item.Count) > nomsAmount[item.Nomenclature.Id] ?
+											nomsAmount[item.Nomenclature.Id] :
+											(moveItem.SendedAmount + item.Count);
+										if(count == 0)
+											continue;
+										moveItem.SendedAmount = count;
+									}
+								}
+								OnPropertyChanged(nameof(CanSend));
+								OnPropertyChanged(nameof(CanReceive));
+								OnPropertyChanged(nameof(CanAcceptDiscrepancy));
+							};
+							TabParent.AddSlaveTab(this, orderSelector);
+						},
+						() => CanFillFromOrders
+					);
+					fillFromOrdersCommand.CanExecuteChangedWith(this, x => x.CanFillFromOrders);
+				}
+				return fillFromOrdersCommand;
 			}
 		}
 
