@@ -65,7 +65,10 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>19.8pt</Width>
+            <Width>24.5pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>235.5pt</Width>
@@ -80,12 +83,12 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>26.1pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value>№</Value>
+                      <Value>№ п/п</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -95,6 +98,24 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>№ тмц</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>11pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -112,6 +133,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>11pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -129,6 +151,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>11pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -146,6 +169,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>11pt</FontSize>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -165,6 +189,20 @@
                     <Textbox Name="Textbox19">
                       <Value>=RowNumber()</Value>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>={nomenclature_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -244,6 +282,28 @@
                       </Style>
                       <Value>
                       </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>11pt</FontSize>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1042,7 +1102,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="movement_document">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 store_movement_document.id ,
@@ -1052,6 +1112,7 @@ WarehouseFrom.Name AS WarehouseFromName,
 WarehouseTo.Name AS WarehouseToName ,
 store_movement_wagon.name AS WagonName ,
 nomenclature.Name AS NomName ,
+nomenclature.id AS nomenclature_id, 
 measurement_units.name 
 	FROM store_movement_document
 		LEFT JOIN store_movement_document_items ON store_movement_document_items.movement_document_id = store_movement_document.id
@@ -1068,7 +1129,7 @@ GROUP BY store_movement_document_items.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="documentId">
           <DataField>id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1101,10 +1162,14 @@ GROUP BY store_movement_document_items.id</CommandText>
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="nomenclature_id">
+          <DataField>nomenclature_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="DocumentInfo">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 IFNULL( store_movement_wagon.name , "Внутреннее перемещение") AS WagonName,
@@ -1121,7 +1186,7 @@ WHERE store_movement_document.id = @documentId</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="WagonName">
           <DataField>WagonName</DataField>
           <TypeName>System.String</TypeName>
@@ -1146,7 +1211,7 @@ WHERE store_movement_document.id = @documentId</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="documentId">
       <DataType>Integer</DataType>
       <DefaultValue>

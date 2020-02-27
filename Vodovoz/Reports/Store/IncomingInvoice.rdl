@@ -603,11 +603,14 @@ WHERE i.incoming_invoice_id = @document_id
           <TableColumn>
             <Width>23.4pt</Width>
           </TableColumn>
-          <TableColumn>
-            <Width>180.7pt</Width>
+          <TableColumn >
+            <Width>42.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>33.1pt</Width>
+            <Width>164.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>28.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>41.1pt</Width>
@@ -616,7 +619,7 @@ WHERE i.incoming_invoice_id = @document_id
             <Width>38.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>60.3pt</Width>
+            <Width>54.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.9pt</Width>
@@ -625,7 +628,7 @@ WHERE i.incoming_invoice_id = @document_id
             <Width>66.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.5pt</Width>
+            <Width>69.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -636,6 +639,28 @@ WHERE i.incoming_invoice_id = @document_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Left</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -685,11 +710,29 @@ WHERE i.incoming_invoice_id = @document_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
-                      <Value>#</Value>
+                      <Value>№ п/п</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>№ тмц</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -864,6 +907,22 @@ WHERE i.incoming_invoice_id = @document_id
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>={nom_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>None</Right>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
@@ -1010,7 +1069,7 @@ WHERE i.incoming_invoice_id = @document_id
         <Top>152.7pt</Top>
       </Table>
     </ReportItems>
-    <Height>208.7pt</Height>
+    <Height>213.9pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -1048,7 +1107,7 @@ WHERE i.incoming_invoice_id = @document_id
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
