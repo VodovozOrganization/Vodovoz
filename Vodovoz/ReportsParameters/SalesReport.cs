@@ -18,6 +18,7 @@ using Vodovoz.ReportsParameters;
 using NHibernate.Transform;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 
 namespace Vodovoz.Reports
 {
@@ -197,9 +198,17 @@ namespace Vodovoz.Reports
 						}
 					}
 
+					IProjection authorProjection = Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT_WS(' ', ?2, ?1, ?3)"),
+						NHibernateUtil.String,
+						Projections.Property<Employee>(x => x.Name),
+						Projections.Property<Employee>(x => x.LastName),
+						Projections.Property<Employee>(x => x.Patronymic)
+					);
+
 					query.SelectList(list => list
 							.Select(x => x.Id).WithAlias(() => resultAlias.EntityId)
-							.Select(x => x.Name).WithAlias(() => resultAlias.EntityTitle)
+							.Select(authorProjection).WithAlias(() => resultAlias.EntityTitle)
 						);
 					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<Employee>>());
 					return query.List<SelectableParameter>();
