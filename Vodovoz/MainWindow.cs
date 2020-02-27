@@ -123,6 +123,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ActionEmployeeWorkChart.Sensitive = false;
 
 		ActionAddOrder.Sensitive = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
+		ActionExportImportNomenclatureCatalog.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
 
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle) {
