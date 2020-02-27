@@ -366,7 +366,7 @@ namespace Vodovoz.Representations
 		public void OpenReport(int counterpartyId, int deliveryPointId = -1)
 		{
 			var dlg = CreateReportDlg(counterpartyId, deliveryPointId);
-			TabParent.AddTab(dlg, this);
+			TabParent.AddTab(dlg, this, false);
 		}
 
 		public void OpenPrintingForm()
