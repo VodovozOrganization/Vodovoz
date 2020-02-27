@@ -473,7 +473,7 @@ namespace Vodovoz.ViewModels
 					item.SetColors();
 				}
 			} catch(Exception ex) {
-				SetProgressBar($"Неизвестная ошибка при проверке данных" + ex.Message, ConsoleColor.DarkRed);
+				SetProgressBar($"Неизвестная ошибка при проверке данных " + ex.Message, ConsoleColor.DarkRed);
 				Items.Clear();
 				NeedReload = true;
 				return;
@@ -531,7 +531,7 @@ namespace Vodovoz.ViewModels
 				}
 				SetProgressBar(1, 1, "Выгрузка завершена", ConsoleColor.DarkGreen);
 			} catch(Exception ex) {
-				SetProgressBar(1, 1, "Неизвестная ошибка при выгрузке" + ex.Message, ConsoleColor.DarkRed);
+				SetProgressBar(1, 1, "Неизвестная ошибка при выгрузке " + ex.Message, ConsoleColor.DarkRed);
 				return;
 			}
 		}
@@ -639,7 +639,7 @@ namespace Vodovoz.ViewModels
 				SetProgressBar("Данные загружены.", ConsoleColor.DarkGreen);
 				NeedReload = false;
 			} catch(Exception ex) {
-				SetProgressBar(1, 1, "Неизвестная ошибка при загрузке файлов" + ex.Message, ConsoleColor.DarkRed);
+				SetProgressBar(1, 1, "Неизвестная ошибка при загрузке файлов " + ex.Message, ConsoleColor.DarkRed);
 				NeedReload = true;
 				return;
 			}
@@ -713,7 +713,7 @@ namespace Vodovoz.ViewModels
 				cts.Cancel();
 				SetProgressBar(1, 1, $"Сохранено.", ConsoleColor.DarkGreen);
 			} catch(Exception ex) {
-				SetProgressBar(1, 1, $"Неизвестная ошибка при сохранении." + ex.Message, ConsoleColor.DarkRed);
+				SetProgressBar(1, 1, $"Неизвестная ошибка при сохранении. " + ex.Message, ConsoleColor.DarkRed);
 				return;
 			}
 		}
@@ -790,7 +790,7 @@ namespace Vodovoz.ViewModels
 				SetProgressBar("Данные загружены.", ConsoleColor.DarkGreen);
 				NeedReload = false;
 			} catch(Exception ex) {
-				SetProgressBar(1, 1, "Неизвестная ошибка при замене данных." + ex.Message, ConsoleColor.DarkRed);
+				SetProgressBar(1, 1, "Неизвестная ошибка при замене данных. " + ex.Message, ConsoleColor.DarkRed);
 				NeedReload = true;
 				return;
 			}
@@ -932,7 +932,7 @@ namespace Vodovoz.ViewModels
 				UoW.Commit();
 				SetProgressBar(1, 1, $"Замена {action.GetEnumTitle().ToLower()} завершена.", ConsoleColor.DarkGreen);
 			} catch(Exception ex) {
-				SetProgressBar(1, 1, $"Неизвестная ошибка при сохранении." + ex.Message, ConsoleColor.DarkRed);
+				SetProgressBar(1, 1, $"Неизвестная ошибка при сохранении. " + ex.Message, ConsoleColor.DarkRed);
 				return;
 			}
 		}
@@ -1042,9 +1042,20 @@ namespace Vodovoz.ViewModels
 	{
 		public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
 		{
-			if(!decimal.TryParse(text.Replace(",", "."), out decimal res))
+			text = text.Replace(",", ".");
+			var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+			culture.NumberFormat.NumberDecimalSeparator = ".";
+			if(!decimal.TryParse(text, NumberStyles.AllowDecimalPoint, culture, out decimal res))
 				throw new TypeConverterException(this, memberMapData, text, row.Context);
 			return res;
+		}
+
+		public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
+		{
+			if(value is string) {
+				value = (value as string).Replace(",", ".");
+			}
+			return base.ConvertToString(value, row, memberMapData);
 		}
 	}
 

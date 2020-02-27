@@ -14,7 +14,7 @@ namespace Vodovoz.Views
 
 		private global::QS.Widgets.EnumMenuButton enummenubuttonLoadActions;
 
-		private global::Gamma.GtkWidgets.yFileChooserButton yfilechooserbuttonExportFolder;
+		private global::Gamma.GtkWidgets.yButton ybuttonExport;
 
 		private global::Gamma.GtkWidgets.yFileChooserButton yfilechooserbuttonImport;
 
@@ -108,13 +108,15 @@ namespace Vodovoz.Views
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yfilechooserbuttonExportFolder = new global::Gamma.GtkWidgets.yFileChooserButton();
-			this.yfilechooserbuttonExportFolder.WidthRequest = 200;
-			this.yfilechooserbuttonExportFolder.Name = "yfilechooserbuttonExportFolder";
-			this.yfilechooserbuttonExportFolder.Title = global::Mono.Unix.Catalog.GetString("Выберите папку сохранения");
-			this.yfilechooserbuttonExportFolder.Action = ((global::Gtk.FileChooserAction)(2));
-			this.table1.Add(this.yfilechooserbuttonExportFolder);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.yfilechooserbuttonExportFolder]));
+			this.ybuttonExport = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonExport.WidthRequest = 200;
+			this.ybuttonExport.HeightRequest = 30;
+			this.ybuttonExport.CanFocus = true;
+			this.ybuttonExport.Name = "ybuttonExport";
+			this.ybuttonExport.UseUnderline = true;
+			this.ybuttonExport.Label = global::Mono.Unix.Catalog.GetString("Выбрать");
+			this.table1.Add(this.ybuttonExport);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.ybuttonExport]));
 			w5.TopAttach = ((uint)(1));
 			w5.BottomAttach = ((uint)(2));
 			w5.LeftAttach = ((uint)(1));
@@ -123,6 +125,8 @@ namespace Vodovoz.Views
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yfilechooserbuttonImport = new global::Gamma.GtkWidgets.yFileChooserButton();
+			this.yfilechooserbuttonImport.WidthRequest = 150;
+			this.yfilechooserbuttonImport.HeightRequest = 30;
 			this.yfilechooserbuttonImport.Name = "yfilechooserbuttonImport";
 			this.yfilechooserbuttonImport.Title = global::Mono.Unix.Catalog.GetString("Выберите csv файл");
 			this.table1.Add(this.yfilechooserbuttonImport);
@@ -224,7 +228,7 @@ namespace Vodovoz.Views
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.progressbar = new global::Gtk.ProgressBar();
-			this.progressbar.WidthRequest = 500;
+			this.progressbar.WidthRequest = 450;
 			this.progressbar.HeightRequest = 30;
 			this.progressbar.Name = "progressbar";
 			this.hbox2.Add(this.progressbar);

@@ -4,7 +4,6 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels;
 
 namespace Vodovoz.Views
@@ -20,7 +19,26 @@ namespace Vodovoz.Views
 
 		private void ConfigureDlg()
 		{
-			yfilechooserbuttonExportFolder.Binding.AddBinding(ViewModel, vm => vm.FolderPath, w => w.Filename);
+			ybuttonExport.Clicked += (sender, e) => {
+				var parentWindow = GetParentWindow(this);
+				var folderChooser = new FileChooserDialog("Выберите папку выгрузки", parentWindow, FileChooserAction.SelectFolder, 
+					Stock.Cancel, ResponseType.Cancel, Stock.Open, ResponseType.Accept);
+				folderChooser.ShowAll();
+				if((ResponseType)folderChooser.Run() == ResponseType.Accept) {
+					if(folderChooser.CurrentFolder == null) {
+						folderChooser.Destroy();
+						return;
+					}
+					ViewModel.FolderPath = folderChooser.CurrentFolder;
+					var shortpath = folderChooser.CurrentFolder;
+					if(folderChooser.CurrentFolder.Length > 25)
+						shortpath = "..." + shortpath.Substring(shortpath.Length - 25);
+					ybuttonExport.Label = shortpath;
+					folderChooser.Destroy();
+				}
+				else
+					folderChooser.Destroy();
+			};
 
 			enummenubuttonExport.ItemsEnum = typeof(ExportType);
 			enummenubuttonExport.EnumItemClicked += (sender, e) => {
@@ -224,6 +242,13 @@ namespace Vodovoz.Views
 		}
 
 		#region Helpers
+
+		private Window GetParentWindow(Widget widget)
+		{
+			if(!(widget is Window w))
+				w = GetParentWindow(widget.Parent);
+			return w;
+		}
 
 		private void ScrollToEnd()
 		{
