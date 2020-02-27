@@ -176,6 +176,7 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void UpdateOperations(IUnitOfWork uow)
 		{
+			IList<InventoryDocumentItem> itemsToDelete = new List<InventoryDocumentItem>();
 			foreach(var item in Items)
 			{
 				if(item.Difference == 0 && item.WarehouseChangeOperation != null)
@@ -194,11 +195,14 @@ namespace Vodovoz.Domain.Documents
 						item.CreateOperation(Warehouse, TimeStamp);
 					}
 				}
-				if(item.AmountInDB == 0 && item.AmountInFact == 0)
-				{
-					uow.Delete(item);
-					Items.Remove(item);
+				if(item.AmountInDB == 0 && item.AmountInFact == 0) {
+					itemsToDelete.Add(item);
 				}
+			}
+
+			foreach(var item in itemsToDelete) {
+				uow.Delete(item);
+				Items.Remove(item);
 			}
 		}
 

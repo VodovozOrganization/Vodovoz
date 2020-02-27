@@ -40,6 +40,8 @@ using Vodovoz.ViewModels.Suppliers;
 using Vodovoz.EntityRepositories.Store;
 using QS.Project.Journal;
 using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels;
+using Vodovoz.EntityRepositories.Goods;
 
 public partial class MainWindow : Window
 {
@@ -82,6 +84,7 @@ public partial class MainWindow : Window
 	Action ActionRevision;
 	Action ActionRevisionBottlesAndDeposits;
 	Action ActionReportDebtorsBottles;
+	Action ActionExportImportNomenclatureCatalog;
 	Action ActionTransferBankDocs;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
@@ -161,6 +164,7 @@ public partial class MainWindow : Window
 		//Suppliers
 		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
+		ActionExportImportNomenclatureCatalog = new Action("ActionExportImportNomenclatureCatalog", "Выгрузка/Загрузка каталога номенклатур", null, "table");
 
 		#endregion
 		#region Inserting actions to the toolbar
@@ -218,6 +222,7 @@ public partial class MainWindow : Window
 		//Suppliers
 		w1.Add(ActionNewRequestToSupplier, null);
 		w1.Add(ActionJournalOfRequestsToSuppliers, null);
+		w1.Add(ActionExportImportNomenclatureCatalog, null);
 		UIManager.InsertActionGroup(w1, 0);
 		#endregion
 		#region Creating events
@@ -277,6 +282,7 @@ public partial class MainWindow : Window
 		//Suppliers
 		ActionNewRequestToSupplier.Activated += ActionNewRequestToSupplier_Activated;
 		ActionJournalOfRequestsToSuppliers.Activated += ActionJournalOfRequestsToSuppliers_Activated;
+		ActionExportImportNomenclatureCatalog.Activated += ActionExportImportNomenclatureCatalog_Activated;
 
 		#endregion
 	}
@@ -372,6 +378,21 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.ReportsParameters.ReportDebtorsBottles>(),
 			() => new QSReport.ReportViewDlg(new Vodovoz.ReportsParameters.ReportDebtorsBottles())
+		);
+	}
+
+	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
+	{
+		INomenclatureRepository nomenclatureRepository = new NomenclatureRepository();
+
+		tdiMain.OpenTab(
+			"ExportImportNomenclatureCatalog",
+			() => new ExportImportNomenclatureCatalogViewModel(
+				nomenclatureRepository,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices,
+				NavigationManagerProvider.NavigationManager
+			)
 		);
 	}
 

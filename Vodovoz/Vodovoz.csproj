@@ -1382,6 +1382,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SelectableParameterReportFilterView.cs" />
     <Compile Include="ReportsParameters\OrdersCreationTimeReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrdersCreationTimeReport.cs" />
+    <Compile Include="Views\ExportImportNomenclatureCatalogView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ExportImportNomenclatureCatalogView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

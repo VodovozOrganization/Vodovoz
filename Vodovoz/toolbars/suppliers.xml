@@ -2,5 +2,6 @@
     <toolbar name='toolbarSub'>
         <toolitem name='ActionNewRequestToSupplier' action='ActionNewRequestToSupplier'/>
         <toolitem name='ActionJournalOfRequestsToSuppliers' action='ActionJournalOfRequestsToSuppliers'/>
+        <toolitem name='ActionExportImportNomenclatureCatalog' action='ActionExportImportNomenclatureCatalog'/>
     </toolbar>
 </ui>
