@@ -17,7 +17,7 @@ using Vodovoz.ViewModels.Organization;
 
 namespace Vodovoz.JournalViewModels.Organization
 {
-	public class SubdivisionsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Subdivision, SubdivisionViewModel, SubdivisionJournalNode, SubdivisionFilterViewModel>
+	public class SubdivisionsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Subdivision, SubdivisionViewModel, SubdivisionJournalNode, SubdivisionFilterViewModel, CriterionSearchModel>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
@@ -27,8 +27,8 @@ namespace Vodovoz.JournalViewModels.Organization
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
-			ICriterionSearch criterionSearch
-		) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+			SearchViewModelBase<CriterionSearchModel> searchViewModel
+		) : base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -60,7 +60,10 @@ namespace Vodovoz.JournalViewModels.Organization
 				Projections.Property(() => chiefAlias.Patronymic)
 			);
 
-			query.Where(GetSearchCriterion(() => subdivisionAlias));
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => subdivisionAlias.Id)
+				.GetSearchCriterion()
+			);
 
 			return query
 				.Left.JoinAlias(o => o.Chief, () => chiefAlias)

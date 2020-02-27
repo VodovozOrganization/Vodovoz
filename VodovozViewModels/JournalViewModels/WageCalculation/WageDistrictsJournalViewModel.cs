@@ -14,11 +14,15 @@ using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.JournalViewModels.WageCalculation
 {
-	public class WageDistrictsJournalViewModel : SingleEntityJournalViewModelBase<WageDistrict, WageDistrictViewModel, WageDistrictJournalNode>
+	public class WageDistrictsJournalViewModel : SingleEntityJournalViewModelBase<WageDistrict, WageDistrictViewModel, WageDistrictJournalNode, CriterionSearchModel>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
-		public WageDistrictsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(unitOfWorkFactory, commonServices, criterionSearch)
+		public WageDistrictsJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel) 
+		: base(unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
@@ -47,10 +51,9 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 			WageDistrictJournalNode resultAlias = null;
 
 			var query = uow.Session.QueryOver<WageDistrict>();
-			query.Where(
-				GetSearchCriterion<WageDistrict>(
-					x => x.Id
-				)
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy<WageDistrict>(x => x.Id)
+				.GetSearchCriterion()
 			);
 
 			var result = query.SelectList(list => list

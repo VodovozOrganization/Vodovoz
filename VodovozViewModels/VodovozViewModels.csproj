@@ -140,6 +140,13 @@
     <Compile Include="SearchViewModels\DelayedSingleEntryCriterionSearchViewModel.cs" />
     <Compile Include="SolrMapping\CounterpartySolrMap.cs" />
     <Compile Include="SolrModel\CounterpartySolrEntity.cs" />
+    <Compile Include="SearchModel\SolrCriterionSearchModel.cs" />
+    <Compile Include="Infrastructure\Search\SingleEntrySolrCriterionSearch.cs" />
+    <Compile Include="SearchViewModels\CriterionSearchFactory.cs" />
+    <Compile Include="SearchViewModels\SingleEntrySolrCriterionSearchViewModel.cs" />
+    <Compile Include="SearchViewModels\SolrSearchCompletionViewModel.cs" />
+    <Compile Include="SolrMapping\EmployeeSolrMap.cs" />
+    <Compile Include="SolrModel\EmployeeSolrEntity.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -170,6 +177,8 @@
     <Folder Include="SearchViewModels\" />
     <Folder Include="SolrMapping\" />
     <Folder Include="SolrModel\" />
+    <Folder Include="SearchModel\" />
+    <Folder Include="Infrastructure\Search\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\QS.Project\QS.Project.csproj">

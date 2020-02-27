@@ -9,6 +9,7 @@ using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Fuel;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -45,7 +46,7 @@ namespace Vodovoz.Dialogs.Fuel
 						),
 						UnitOfWorkFactory.GetDefaultFactory,
 						QS.Project.Services.ServicesConfig.CommonServices,
-						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+						CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 					) {
 						SelectionMode = JournalSelectionMode.Single
 					};

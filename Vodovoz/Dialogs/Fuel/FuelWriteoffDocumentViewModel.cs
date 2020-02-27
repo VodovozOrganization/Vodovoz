@@ -17,6 +17,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -147,7 +148,7 @@ namespace Vodovoz.Dialogs.Fuel
 						(node) => new FuelTypeViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices),
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						commonServices,
-						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+						CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 					);
 					fuelTypeJournalViewModel.SetRestriction(() => {
 						return Restrictions.Not(Restrictions.In(Projections.Id(), Entity.ObservableFuelWriteoffDocumentItems.Select(x => x.FuelType.Id).ToArray()));

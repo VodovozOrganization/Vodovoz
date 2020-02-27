@@ -14,6 +14,15 @@ using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Utilities.Text;
 using QSSupportLib;
 using QS.Widgets.GtkUI;
+using Vodovoz.Domain.Client;
+using QSOrmProject;
+using QS.Project.DB;
+using SolrSearch;
+using System.Reflection;
+using Vodovoz.Domain.Orders;
+using SolrSearch.Mapping;
+using Vodovoz.SolrModel;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -63,6 +72,8 @@ namespace Vodovoz
 			CreateBaseConfig ();
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
+
+			SolrCompositionRoot();
 
 			MainSupport.LoadBaseParameters();
 			ParametersProvider.Instance.RefreshParameters();
@@ -144,6 +155,13 @@ namespace Vodovoz
 			Application.Run ();
 			QSSaaS.Session.StopSessionRefresh ();
 			ClearTempDir();
+		}
+
+		private static void SolrCompositionRoot()
+		{
+			string solrCoreAddress = @"http://localhost:8983/solr/Vodovoz_test";
+			Utils.Register<Dictionary<string, object>>(solrCoreAddress);
+			Utils.Register<CounterpartySolrEntity>(solrCoreAddress);
 		}
 	}
 }

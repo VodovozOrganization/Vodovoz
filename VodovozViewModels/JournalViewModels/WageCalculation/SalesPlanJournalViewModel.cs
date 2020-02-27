@@ -15,11 +15,15 @@ using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.JournalViewModels.WageCalculation
 {
-	public class SalesPlanJournalViewModel : SingleEntityJournalViewModelBase<SalesPlan, SalesPlanViewModel, SalesPlanJournalNode>
+	public class SalesPlanJournalViewModel : SingleEntityJournalViewModelBase<SalesPlan, SalesPlanViewModel, SalesPlanJournalNode, CriterionSearchModel>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
-		public SalesPlanJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(unitOfWorkFactory, commonServices, criterionSearch)
+		public SalesPlanJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel)
+		: base(unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
@@ -37,9 +41,9 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 
 			var query = uow.Session.QueryOver<SalesPlan>();
 			query.Where(
-				GetSearchCriterion<SalesPlan>(
-					x => x.Id
-				)
+				CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy<SalesPlan>(x => x.Id)
+				.GetSearchCriterion()
 			);
 
 			var result = query.SelectList(list => list

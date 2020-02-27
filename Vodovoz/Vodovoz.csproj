@@ -1358,8 +1358,14 @@
     <Compile Include="Filters\ViewModels\CarJournalFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\CarFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
-    <Compile Include="Core\CriterionSearchFactory.cs" />
     <Compile Include="NhibernateMappingInfoProvider.cs" />
+    <Compile Include="SolrMapping.cs" />
+    <Compile Include="Views\Search\SolrSingleEntrySearchView1.cs" />
+    <Compile Include="Views\Search\SolrSearchCompletionWindow.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Search.SolrSearchCompletionWindow.cs" />
+    <Compile Include="Views\Search\SolrSearchResultNode.cs" />
+    <Compile Include="Views\Search\SolrSingleEntrySearchView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Search.SolrSingleEntrySearchView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1613,6 +1619,7 @@
     <Folder Include="ViewModels\Orders\" />
     <Folder Include="ViewWidgets\PromoSetAction\" />
     <Folder Include="JournalSelector\" />
+    <Folder Include="Views\Search\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

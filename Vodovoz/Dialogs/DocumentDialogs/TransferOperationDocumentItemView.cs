@@ -16,6 +16,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
@@ -95,7 +96,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 				filter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 			);
 
 			vm.SelectionMode = JournalSelectionMode.Single;

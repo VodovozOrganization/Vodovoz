@@ -16,18 +16,18 @@ using Vodovoz.JournalNodes;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class EmployeesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Employee, EmployeeDlg, EmployeeJournalNode, EmployeeFilterViewModel>
+	public class EmployeesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Employee, EmployeeDlg, EmployeeJournalNode, EmployeeFilterViewModel, CriterionSearchModel>
 	{
 		public EmployeesJournalViewModel(
 			EmployeeFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, 
-			ICriterionSearch criterionSearch
+			ICommonServices commonServices,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel
 		) : base(
 			filterViewModel,
 			unitOfWorkFactory,
 			commonServices,
-			criterionSearch
+			searchViewModel
 		)
 		{
 			UpdateOnChanges(typeof(Employee));
@@ -54,11 +54,12 @@ namespace Vodovoz.JournalViewModels
 				query.WithSubquery.WhereProperty(e => e.Id).In(subquery);
 			}
 
-			query.Where(GetSearchCriterion(
-				() => employeeAlias.Name,
-				() => employeeAlias.LastName,
-				() => employeeAlias.Patronymic
-			));
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => employeeAlias.Name)
+				.AddSearchBy(() => employeeAlias.LastName)
+				.AddSearchBy(() => employeeAlias.Patronymic)
+				.GetSearchCriterion()
+			);
 
 			var result = query
 				.SelectList(list => list

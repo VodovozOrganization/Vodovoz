@@ -19,7 +19,7 @@ using QS.Project.Journal.Search.Criterion;
 
 namespace Vodovoz.JournalViewModels.Employees
 {
-	public class FinesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Fine, FineViewModel, FineJournalNode, FineFilterViewModel>
+	public class FinesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Fine, FineViewModel, FineJournalNode, FineFilterViewModel, CriterionSearchModel>
 	{
 		private readonly IUndeliveriesViewOpener undeliveryViewOpener;
 		private readonly IEmployeeService employeeService;
@@ -33,8 +33,8 @@ namespace Vodovoz.JournalViewModels.Employees
 			IEntitySelectorFactory employeeSelectorFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			ICriterionSearch criterionSearch
-		) : base(filterViewModel, unitOfWorkFactory,  commonServices, criterionSearch)
+			SearchViewModelBase<CriterionSearchModel> searchViewModel
+		) : base(filterViewModel, unitOfWorkFactory,  commonServices, searchViewModel)
 		{
 			this.undeliveryViewOpener = undeliveryViewOpener ?? throw new ArgumentNullException(nameof(undeliveryViewOpener));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -77,14 +77,15 @@ namespace Vodovoz.JournalViewModels.Employees
 				query.Where(() => routeListAlias.Date <= FilterViewModel.RouteListDateEnd.Value);
 			}
 
-			query.Where(GetSearchCriterion(
-				() => fineAlias.Id,
-				() => fineAlias.TotalMoney,
-				() => fineAlias.FineReasonString,
-				() => employeeAlias.Name,
-				() => employeeAlias.LastName,
-				() => employeeAlias.Patronymic
-			));
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => fineAlias.Id)
+				.AddSearchBy(() => fineAlias.TotalMoney)
+				.AddSearchBy(() => fineAlias.FineReasonString)
+				.AddSearchBy(() => employeeAlias.Name)
+				.AddSearchBy(() => employeeAlias.LastName)
+				.AddSearchBy(() => employeeAlias.Patronymic)
+				.GetSearchCriterion()
+			);
 
 			return query
 				.SelectList(list => list

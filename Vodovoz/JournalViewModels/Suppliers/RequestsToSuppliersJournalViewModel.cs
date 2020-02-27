@@ -22,7 +22,7 @@ using Vodovoz.ViewModels.Suppliers;
 
 namespace Vodovoz.JournalViewModels.Suppliers
 {
-	public class RequestsToSuppliersJournalViewModel : FilterableSingleEntityJournalViewModelBase<RequestToSupplier, RequestToSupplierViewModel, RequestToSupplierJournalNode, RequestsToSuppliersFilterViewModel>
+	public class RequestsToSuppliersJournalViewModel : FilterableSingleEntityJournalViewModelBase<RequestToSupplier, RequestToSupplierViewModel, RequestToSupplierJournalNode, RequestsToSuppliersFilterViewModel, CriterionSearchModel>
 	{
 		readonly RequestsToSuppliersFilterViewModel filterViewModel;
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
@@ -35,8 +35,8 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			ICommonServices commonServices,
 			IEmployeeService employeeService,
 			ISupplierPriceItemsRepository supplierPriceItemsRepository,
-			ICriterionSearch criterionSearch
-		) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+			SearchViewModelBase<CriterionSearchModel> searchViewModel
+		) : base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.supplierPriceItemsRepository = supplierPriceItemsRepository ?? throw new ArgumentNullException(nameof(supplierPriceItemsRepository));
@@ -84,11 +84,10 @@ namespace Vodovoz.JournalViewModels.Suppliers
 			if(FilterViewModel != null && FilterViewModel.RestrictStatus.HasValue)
 				query.Where(o => o.Status == FilterViewModel.RestrictStatus.Value);
 
-			query.Where(
-				GetSearchCriterion<RequestToSupplier>(
-					x => x.Id,
-					x => x.Name
-				)
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy<RequestToSupplier>(x => x.Id)
+				.AddSearchBy<RequestToSupplier>(x => x.Name)
+				.GetSearchCriterion()
 			);
 
 			var result = query.SelectList(list => list

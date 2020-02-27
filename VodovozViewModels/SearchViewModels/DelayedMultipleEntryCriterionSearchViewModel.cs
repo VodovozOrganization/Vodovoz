@@ -1,15 +1,16 @@
 ﻿using System.Threading.Tasks;
 using System.Threading;
-using QS.Project.Journal.Search.Criterion;
+using QS.Project.Journal.Search;
 
 namespace Vodovoz.SearchViewModels
 {
-	public class DelayedMultipleEntryCriterionSearchViewModel : MultipleEntryCriterionSearchViewModel
+	public class DelayedMultipleEntryCriterionSearchViewModel<TSearchModel> : MultipleEntrySearchViewModel<TSearchModel>
+		where TSearchModel : QS.Project.Journal.Search.SearchModel
 	{
 		private CancellationTokenSource cts;
 		private readonly int delay;
 
-		public DelayedMultipleEntryCriterionSearchViewModel(CriterionSearchModel searchModel, int delay = 1000) : base(searchModel)
+		public DelayedMultipleEntryCriterionSearchViewModel(TSearchModel searchModel, int delay = 1000) : base(searchModel)
 		{
 			this.delay = delay < 0 ? 0 : delay;
 		}

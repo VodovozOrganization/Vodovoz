@@ -8,6 +8,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using QS.Project.Journal.Search.Criterion;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -27,9 +29,9 @@ namespace Vodovoz.Filters.GtkViews
 			comboboxDateType.ItemsEnum = typeof(TaskFilterDateType);
 			comboboxDateType.Binding.AddBinding(ViewModel, x => x.DateType, w => w.SelectedItem).InitializeFromSource();
 			entVMEmployee.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+				new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel, CriterionSearchModel>(
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				)
 			);
 			entVMEmployee.Binding.AddBinding(ViewModel, x => x.Employee, w => w.Subject).InitializeFromSource();

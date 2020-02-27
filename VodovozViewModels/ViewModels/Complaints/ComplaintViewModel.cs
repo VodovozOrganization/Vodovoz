@@ -19,6 +19,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels.Employees;
+using Vodovoz.SearchViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 
@@ -287,7 +288,7 @@ namespace Vodovoz.ViewModels.Complaints
 						employeeSelectorFactory,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,
-						new MultipleEntryCriterionSearch(new MultipleEntryCriterionSearchViewModel(new CriterionSearchModel()))
+						CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 					);
 					fineJournalViewModel.SelectionMode = JournalSelectionMode.Single;
 					fineJournalViewModel.OnEntitySelectedResult += (sender, e) => {

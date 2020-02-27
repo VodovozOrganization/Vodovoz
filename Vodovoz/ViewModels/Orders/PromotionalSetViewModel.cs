@@ -13,6 +13,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -115,7 +116,7 @@ namespace Vodovoz.ViewModels.Orders
 					nomenFilter, 
 					UnitOfWorkFactory, 
 					CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()) {
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()) {
 					SelectionMode = JournalSelectionMode.Single
 				};
 

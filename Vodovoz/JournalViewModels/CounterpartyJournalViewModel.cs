@@ -9,14 +9,22 @@ using QS.Project.Journal.Search;
 using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using Vodovoz.SearchModel;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class CounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel>
+	public class CounterpartyJournalViewModel : FilterableSingleEntityJournalViewModelBase<Counterparty, CounterpartyDlg, CounterpartyJournalNode, CounterpartyJournalFilterViewModel, SolrCriterionSearchModel>
 	{
-		public CounterpartyJournalViewModel(CounterpartyJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+		public CounterpartyJournalViewModel(
+			CounterpartyJournalFilterViewModel filterViewModel, 
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices,
+			SingleEntrySolrCriterionSearchViewModel searchViewModel) 
+		: base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			TabName = "Журнал контрагентов";
 			UpdateOnChanges(
@@ -26,6 +34,15 @@ namespace Vodovoz.JournalViewModels
 				typeof(Tag),
 				typeof(DeliveryPoint)
 			);
+
+			CriterionSearchModel.AddSolrSearchBy<Counterparty>(x => x.Id);
+			CriterionSearchModel.AddSolrSearchBy<Counterparty>(x => x.Name);
+			CriterionSearchModel.AddSolrSearchBy<Counterparty>(x => x.FullName);
+			CriterionSearchModel.AddSolrSearchBy<Counterparty>(x => x.INN);
+			CriterionSearchModel.AddSolrSearchBy<Employee>(x => x.Id);
+			CriterionSearchModel.AddSolrSearchBy<Employee>(x => x.Name);
+			CriterionSearchModel.AddSolrSearchBy<Employee>(x => x.LastName);
+
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
@@ -85,14 +102,14 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
 				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias);
 
-			query.Where(GetSearchCriterion(
-				() => counterpartyAlias.Id,
-				() => counterpartyAlias.VodovozInternalId,
-				() => counterpartyAlias.Name,
-				() => counterpartyAlias.INN,
-				() => phoneAlias.DigitsNumber,
-				() => deliveryPointAlias.CompiledAddress
-			));
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => counterpartyAlias.Id)
+				.AddSearchBy(() => counterpartyAlias.Name)
+				.AddSearchBy(() => counterpartyAlias.INN)
+				//.AddSearchBy(() => phoneAlias.DigitsNumber)
+				//.AddSearchBy(() => deliveryPointAlias.CompiledAddress)
+				.GetSearchCriterion()
+			);
 
 			var counterpartyResultQuery = query.SelectList(list => list
 				   .SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)

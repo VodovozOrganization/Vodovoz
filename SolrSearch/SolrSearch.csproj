@@ -50,11 +50,19 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SolrEntityBase.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="Mapping\SolrFieldMapInfo.cs" />
-    <Compile Include="Mapping\SolrHibernateSourceMapping.cs" />
+    <Compile Include="Mapping\SolrMapInfo.cs" />
+    <Compile Include="Mapping\SolrOrmSourceMapping.cs" />
     <Compile Include="Mapping\SolrOrmSourceClassMap.cs" />
     <Compile Include="Mapping\SolrOrmSourceClassMapGeneric.cs" />
     <Compile Include="Mapping\IOrmMappingInfoProvider.cs" />
+    <Compile Include="SolrSearchProviderBase.cs" />
+    <Compile Include="SolrOrmSearchProvider.cs" />
+    <Compile Include="SolrEntityFactory.cs" />
+    <Compile Include="Mapping\SolrEntityFactoryBase.cs" />
+    <Compile Include="SolrEntityCreator.cs" />
+    <Compile Include="Mapping\EntityMappingInfo.cs" />
+    <Compile Include="EntityContentProvider.cs" />
+    <Compile Include="SolrSearchResults.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

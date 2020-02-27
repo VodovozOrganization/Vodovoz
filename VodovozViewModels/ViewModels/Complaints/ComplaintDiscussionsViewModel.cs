@@ -16,6 +16,7 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -120,8 +121,7 @@ namespace Vodovoz.ViewModels.Complaints
 						UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,
 						employeeSelectorFactory,
-						new MultipleEntryCriterionSearch(new MultipleEntryCriterionSearchViewModel(new CriterionSearchModel()))
-
+						CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 					) {
 						SelectionMode = JournalSelectionMode.Single
 					};

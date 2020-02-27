@@ -20,14 +20,14 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class NomenclatureStockBalanceJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureDlg, NomenclatureStockJournalNode, NomenclatureStockFilterViewModel>
+	public class NomenclatureStockBalanceJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureDlg, NomenclatureStockJournalNode, NomenclatureStockFilterViewModel, CriterionSearchModel>
 	{
 		public NomenclatureStockBalanceJournalViewModel(
 			NomenclatureStockFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, 
-			ICriterionSearch criterionSearch
-		) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+			ICommonServices commonServices,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel
+		) : base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			TabName = "Складские остатки";
 
@@ -137,11 +137,10 @@ namespace Vodovoz.JournalViewModels
 				}
 			}
 
-			queryStock.Where(
-				GetSearchCriterion(
-					() => nomenclatureAlias.Name,
-					() => nomenclatureAlias.Id
-				)
+			queryStock.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => nomenclatureAlias.Id)
+				.AddSearchBy(() => nomenclatureAlias.Name)
+				.GetSearchCriterion()
 			);
 
 			queryStock.OrderByAlias(() => nomenclatureAlias.Name);

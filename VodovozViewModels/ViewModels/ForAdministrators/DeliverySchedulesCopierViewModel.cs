@@ -15,6 +15,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.JournalViewModels.Logistic;
 using QS.Navigation;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.ViewModels.ForAdministrators
 {
@@ -325,7 +326,7 @@ namespace Vodovoz.ViewModels.ForAdministrators
 							var districtsJournalViewModel = new ScheduleRestrictedDistrictsJournalViewModel(
 								unitOfWorkFactory,
 								commonServices,
-								new MultipleEntryCriterionSearch(new MultipleEntryCriterionSearchViewModel(new CriterionSearchModel()))
+								CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 							) {
 								SelectionMode = JournalSelectionMode.Multiple
 							};

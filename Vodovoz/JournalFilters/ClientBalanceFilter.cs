@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search.Criterion;
 using QS.Project.Services;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
@@ -9,6 +10,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz
 {
@@ -19,9 +21,9 @@ namespace Vodovoz
 		protected override void ConfigureWithUow()
 		{
 			entryreferenceNomenclature.SubjectType = typeof(Nomenclature);
-			entryClient.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+			entryClient.SetEntityAutocompleteSelectorFactory(new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel, CriterionSearchModel>(
 				ServicesConfig.CommonServices,
-				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 			));
 		}
 

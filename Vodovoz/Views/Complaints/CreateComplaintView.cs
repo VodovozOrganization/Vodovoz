@@ -10,6 +10,7 @@ using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.SearchViewModels;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.Views.Complaints
@@ -49,7 +50,7 @@ namespace Vodovoz.Views.Complaints
 					filter, 
 					UnitOfWorkFactory.GetDefaultFactory, 
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				);
 			});
 

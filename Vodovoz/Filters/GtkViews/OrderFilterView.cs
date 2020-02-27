@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search.Criterion;
 using QS.Project.Services;
 using QS.Views.GtkUI;
 using Vodovoz.Core;
@@ -10,6 +11,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -32,9 +34,9 @@ namespace Vodovoz.Filters.GtkViews
 			enumcomboPaymentType.Binding.AddBinding(ViewModel, vm => vm.RestrictPaymentType, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel, CriterionSearchModel>(
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				)
 			);
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.RestrictCounterparty, w => w.Subject).InitializeFromSource();

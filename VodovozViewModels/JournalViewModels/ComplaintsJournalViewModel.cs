@@ -33,7 +33,7 @@ using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class ComplaintsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<ComplaintJournalNode, ComplaintFilterViewModel>, IComplaintsInfoProvider
+	public class ComplaintsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<ComplaintJournalNode, ComplaintFilterViewModel, CriterionSearchModel>, IComplaintsInfoProvider
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly ICommonServices commonServices;
@@ -70,8 +70,8 @@ namespace Vodovoz.JournalViewModels
 			ISubdivisionRepository subdivisionRepository,
 			IReportViewOpener reportViewOpener,
 			IGtkTabsOpenerForRouteListViewAndOrderView gtkDialogsOpener,
-			ICriterionSearch criterionSearch
-		) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+			SearchViewModelBase<CriterionSearchModel> searchViewModel
+		) : base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -322,14 +322,13 @@ namespace Vodovoz.JournalViewModels
 
 			#endregion Filter
 
-			query.Where(
-					GetSearchCriterion(
-					() => complaintAlias.Id,
-					() => complaintAlias.ComplaintText,
-					() => complaintAlias.ResultText,
-					() => counterpartyAlias.Name,
-					() => deliveryPointAlias.CompiledAddress
-				)
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => complaintAlias.Id)
+				.AddSearchBy(() => complaintAlias.ComplaintText)
+				.AddSearchBy(() => complaintAlias.ResultText)
+				.AddSearchBy(() => counterpartyAlias.Name)
+				.AddSearchBy(() => deliveryPointAlias.CompiledAddress)
+				.GetSearchCriterion()
 			);
 
 			query.SelectList(list => list

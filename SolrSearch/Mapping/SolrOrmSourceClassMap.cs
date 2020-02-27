@@ -7,49 +7,56 @@ namespace SolrSearch.Mapping
 	{
 		internal Type SolrEntityType { get; }
 		internal Type OrmEntityType { get; }
-		internal Dictionary<string, SolrFieldMapInfo> FieldsMapping { get; } = new Dictionary<string, SolrFieldMapInfo>();
+		internal Type SolrEntityFactoryType { get; }
 
-		public SolrOrmSourceClassMap(Type solrEntityType, Type ormEntityType)
+		internal Dictionary<string, SolrMapInfo> PropertyMapping = new Dictionary<string, SolrMapInfo>();
+
+		protected SolrOrmSourceClassMap(Type solrEntityType, Type ormEntityType, Type solrEntityFactoryType)
 		{
 			SolrEntityType = solrEntityType ?? throw new ArgumentNullException(nameof(solrEntityType));
 			OrmEntityType = ormEntityType ?? throw new ArgumentNullException(nameof(ormEntityType));
+			SolrEntityFactoryType = solrEntityFactoryType ?? throw new ArgumentNullException(nameof(solrEntityFactoryType));
 		}
 
-		protected void Map(string propertyName, string fieldName, float? boost = null)
+		protected void Map(string solrEntityPropertyName, string solrFieldName, float? boost = null)
 		{
-			if(string.IsNullOrWhiteSpace(propertyName)) {
-				throw new ArgumentException(nameof(propertyName));
+			if(string.IsNullOrWhiteSpace(solrEntityPropertyName)) {
+				throw new ArgumentException(nameof(solrEntityPropertyName));
 			}
 
-			if(string.IsNullOrWhiteSpace(fieldName)) {
-				throw new ArgumentException(nameof(fieldName));
+			if(string.IsNullOrWhiteSpace(solrFieldName)) {
+				throw new ArgumentException(nameof(solrFieldName));
 			}
 
-			var fieldModel = new SolrFieldMapInfo(propertyName, (ormMappingProvider) => fieldName, boost);
+			var fieldModel = new SolrMapInfo(solrEntityPropertyName, (ormMapProvider) => solrFieldName, boost);
 
-			if(FieldsMapping.ContainsKey(propertyName)) {
-				FieldsMapping[propertyName] = fieldModel;
+			if(PropertyMapping.ContainsKey(solrEntityPropertyName)) {
+				PropertyMapping[solrEntityPropertyName] = fieldModel;
 			} else {
-				FieldsMapping.Add(propertyName, fieldModel);
+				PropertyMapping.Add(solrEntityPropertyName, fieldModel);
 			}
 		}
 
-		protected void Map(string propertyName, Func<IOrmMappingInfoProvider, string> fieldNameFunc, float? boost = null)
+		internal void Map(string solrEntityPropertyName, Func<IOrmMappingInfoProvider, string> solrFieldNameFunc, string ormEntityPropertyName, float? boost = null)
 		{
-			if(string.IsNullOrWhiteSpace(propertyName)) {
-				throw new ArgumentException(nameof(propertyName));
+			if(string.IsNullOrWhiteSpace(solrEntityPropertyName)) {
+				throw new ArgumentException(nameof(solrEntityPropertyName));
 			}
 
-			if(fieldNameFunc == null) {
-				throw new ArgumentNullException(nameof(fieldNameFunc));
+			if(string.IsNullOrWhiteSpace(ormEntityPropertyName)) {
+				throw new ArgumentException(nameof(ormEntityPropertyName));
 			}
 
-			var fieldModel = new SolrFieldMapInfo(propertyName, fieldNameFunc, boost);
+			if(solrFieldNameFunc == null) {
+				throw new ArgumentNullException(nameof(solrFieldNameFunc));
+			}
 
-			if(FieldsMapping.ContainsKey(propertyName)) {
-				FieldsMapping[propertyName] = fieldModel;
+			var fieldModel = new SolrMapInfo(solrEntityPropertyName, solrFieldNameFunc, ormEntityPropertyName, boost);
+
+			if(PropertyMapping.ContainsKey(solrEntityPropertyName)) {
+				PropertyMapping[solrEntityPropertyName] = fieldModel;
 			} else {
-				FieldsMapping.Add(propertyName, fieldModel);
+				PropertyMapping.Add(solrEntityPropertyName, fieldModel);
 			}
 		}
 	}

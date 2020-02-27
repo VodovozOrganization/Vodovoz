@@ -13,6 +13,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalViewModels;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.ViewModels.Client
 {
@@ -26,10 +27,10 @@ namespace Vodovoz.ViewModels.Client
 
 		public SearchViewModelBase SearchViewModel { get; }
 
-		public SupplierPricesWidgetViewModel(Counterparty entity, IUnitOfWork uow, ITdiTab dialogTab, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(entity, commonServices)
+		public SupplierPricesWidgetViewModel(Counterparty entity, IUnitOfWork uow, ITdiTab dialogTab, ICommonServices commonServices, SearchViewModelBase<CriterionSearchModel> searchViewModel) : base(entity, commonServices)
 		{
-			if(criterionSearch == null) {
-				throw new ArgumentNullException(nameof(criterionSearch));
+			if(searchViewModel == null) {
+				throw new ArgumentNullException(nameof(searchViewModel));
 			}
 
 			this.dialogTab = dialogTab ?? throw new ArgumentNullException(nameof(dialogTab));
@@ -37,8 +38,8 @@ namespace Vodovoz.ViewModels.Client
 			CreateCommands();
 			RefreshPrices();
 
-			Search = criterionSearch.CriterionSearchModel;
-			SearchViewModel = criterionSearch.SearchViewModel;
+			Search = searchViewModel.SearchModel;
+			SearchViewModel = searchViewModel;
 			Search.OnSearch += (sender, e) => RefreshPrices();
 
 			Entity.ObservableSuplierPriceItems.ElementAdded += (aList, aIdx) => RefreshPrices();
@@ -85,7 +86,7 @@ namespace Vodovoz.ViewModels.Client
 						filter,
 						UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,
-						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+						CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 					) {
 						SelectionMode = JournalSelectionMode.Single,
 						ExcludingNomenclatureIds = existingNomenclatures.ToArray()

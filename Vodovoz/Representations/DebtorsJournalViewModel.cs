@@ -25,12 +25,18 @@ using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Representations
 {
-	public class DebtorsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Domain.Orders.Order, CallTaskDlg, DebtorJournalNode, DebtorsJournalFilterViewModel>
+	public class DebtorsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Domain.Orders.Order, CallTaskDlg, DebtorJournalNode, DebtorsJournalFilterViewModel, CriterionSearchModel>
 	{
 
 		IEmployeeRepository employeeRepository { get; set;}
 
-		public DebtorsJournalViewModel(DebtorsJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, IEmployeeRepository employeeRepository, ICriterionSearch criterionSearch) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+		public DebtorsJournalViewModel(
+			DebtorsJournalFilterViewModel filterViewModel, 
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices, 
+			IEmployeeRepository employeeRepository, 
+			SearchViewModelBase<CriterionSearchModel> searchViewModel) 
+		: base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			TabName = "Журнал задолженности";
 			SelectionMode = JournalSelectionMode.Multiple;
@@ -149,12 +155,13 @@ namespace Vodovoz.Representations
 
 			#endregion Filter
 
-			ordersQuery.Where(GetSearchCriterion(
-					() => deliveryPointAlias.Id,
-					() => deliveryPointAlias.CompiledAddress,
-					() => counterpartyAlias.Id,
-					() => counterpartyAlias.Name
-			));
+			ordersQuery.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => deliveryPointAlias.Id)
+				.AddSearchBy(() => deliveryPointAlias.CompiledAddress)
+				.AddSearchBy(() => counterpartyAlias.Id)
+				.AddSearchBy(() => counterpartyAlias.Name)
+				.GetSearchCriterion()
+			);
 
 			var resultQuery = ordersQuery
 				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)

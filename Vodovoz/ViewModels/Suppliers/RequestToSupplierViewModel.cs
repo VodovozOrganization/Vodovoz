@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.ViewModels.Suppliers
 {
@@ -226,7 +227,7 @@ namespace Vodovoz.ViewModels.Suppliers
 						filter,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						CommonServices,
-						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+						CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 					) {
 						SelectionMode = JournalSelectionMode.Single,
 						ExcludingNomenclatureIds = existingNomenclatures.ToArray()

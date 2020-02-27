@@ -14,13 +14,17 @@ using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class PromotionalSetsJournalViewModel : SingleEntityJournalViewModelBase<PromotionalSet, PromotionalSetViewModel, PromotionalSetJournalNode>
+	public class PromotionalSetsJournalViewModel : SingleEntityJournalViewModelBase<PromotionalSet, PromotionalSetViewModel, PromotionalSetJournalNode, CriterionSearchModel>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
-		public PromotionalSetsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch,
-			bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false)
-			: base(unitOfWorkFactory, commonServices, criterionSearch, hideJournalForOpenDialog, hideJournalForCreateDialog)
+		public PromotionalSetsJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel,
+			bool hideJournalForOpenDialog = false, 
+			bool hideJournalForCreateDialog = false)
+		: base(unitOfWorkFactory, commonServices, searchViewModel, hideJournalForOpenDialog, hideJournalForCreateDialog)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
@@ -38,10 +42,9 @@ namespace Vodovoz.JournalViewModels
 			DiscountReason reasonAlias = null;
 
 			var query = uow.Session.QueryOver<PromotionalSet>().Left.JoinAlias(x => x.PromoSetDiscountReason, () => reasonAlias);
-			query.Where(
-				GetSearchCriterion<PromotionalSet>(
-					x => x.Id
-				)
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy<PromotionalSet>(x => x.Id)
+				.GetSearchCriterion()
 			);
 
 			var result = query.SelectList(list => list

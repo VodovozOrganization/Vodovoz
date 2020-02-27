@@ -27,9 +27,14 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class OrderJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel>
+	public class OrderJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel, CriterionSearchModel>
 	{
-		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+		public OrderJournalViewModel(
+			OrderJournalFilterViewModel filterViewModel, 
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel) 
+		: base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			TabName = "Журнал заказов";
 			SetOrder(x => x.CreateDate, true);
@@ -146,15 +151,16 @@ namespace Vodovoz.JournalViewModels
 				 .JoinAlias(o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				 .Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias);
 
-			query.Where(GetSearchCriterion(
-				() => orderAlias.Id,
-				() => counterpartyAlias.Name,
-				() => deliveryPointAlias.CompiledAddress,
-				() => authorAlias.LastName,
-				() => orderAlias.DriverCallId,
-				() => orderAlias.OnlineOrder,
-				() => orderAlias.EShopOrder
-			));
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => orderAlias.Id)
+				.AddSearchBy(() => counterpartyAlias.Name)
+				.AddSearchBy(() => deliveryPointAlias.CompiledAddress)
+				.AddSearchBy(() => authorAlias.LastName)
+				.AddSearchBy(() => orderAlias.DriverCallId)
+				.AddSearchBy(() => orderAlias.OnlineOrder)
+				.AddSearchBy(() => orderAlias.EShopOrder)
+				.GetSearchCriterion()
+			);
 
 			var resultQuery = query
 				.SelectList(list => list

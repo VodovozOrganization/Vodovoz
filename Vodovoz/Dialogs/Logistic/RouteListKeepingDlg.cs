@@ -12,6 +12,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search.Criterion;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QSOrmProject;
@@ -27,6 +28,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.SearchViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -87,9 +89,9 @@ namespace Vodovoz
 			Entity.ObservableAddresses.ElementChanged += ObservableAddresses_ElementChanged; ;
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel, CriterionSearchModel>(
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				)
 			);
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();

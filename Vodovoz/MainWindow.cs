@@ -72,6 +72,7 @@ using Vodovoz.Infrastructure;
 using QS.Project.Journal.Search;
 using QS.Project.Journal.Search.Criterion;
 using Vodovoz.SearchViewModels;
+using Vodovoz.SearchModel;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -343,7 +344,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionCarsActivated(object sender, EventArgs e)
 	{
 		CarJournalFilterViewModel filter = new CarJournalFilterViewModel();
-		var counterpartyJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, CriterionSearchFactory.GetMultipleEntryCriterionSearch());
+		var counterpartyJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel());
 
 		tdiMain.AddTab(counterpartyJournal);
 	}
@@ -386,7 +387,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 					new NomenclatureFilterViewModel() { HidenByDefault = true },
 					UnitOfWorkFactory.GetDefaultFactory,
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				);
 			}
 		);
@@ -401,7 +402,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
 		CounterpartyJournalFilterViewModel filter = new CounterpartyJournalFilterViewModel();
-		var counterpartyJournal = new CounterpartyJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, CriterionSearchFactory.GetMultipleEntryCriterionSearch());
+		var counterpartyJournal = new CounterpartyJournalViewModel(
+			filter, 
+			UnitOfWorkFactory.GetDefaultFactory, 
+			ServicesConfig.CommonServices,
+			//new MultipleEntrySearchViewModel<SolrCriterionSearchModel>(new SolrCriterionSearchModel(new SolrSearch.SolrOrmSearchProvider(SolrMapping.OrmMapping))));
+			new SingleEntrySolrCriterionSearchViewModel(new SolrCriterionSearchModel(new SolrSearch.SolrOrmSearchProvider(SolrMapping.OrmMapping))));
 
 		tdiMain.AddTab(counterpartyJournal);
 	}
@@ -694,13 +700,13 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	protected void OnActionComplaintsActivated(object sender, EventArgs e)
 	{
 		IUndeliveriesViewOpener undeliveriesViewOpener = new UndeliveriesViewOpener();
-		IEntityAutocompleteSelectorFactory employeeSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(
+		IEntityAutocompleteSelectorFactory employeeSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel, CriterionSearchModel>(
 			ServicesConfig.CommonServices, 
-			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+			CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 		);
-		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+		IEntityAutocompleteSelectorFactory counterpartySelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel, CriterionSearchModel>(
 			ServicesConfig.CommonServices, 
-			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+			CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 		);
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
@@ -727,7 +733,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 					subdivisionRepository,
 					new GtkReportViewOpener(),
 					new GtkTabsOpener(),
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				);
 			}
 		);
@@ -1115,7 +1121,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ClientCameFromFilterViewModel filter = new ClientCameFromFilterViewModel() {
 			HidenByDefault = true
 		};
-		var journal = new ClientCameFromJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, CriterionSearchFactory.GetMultipleEntryCriterionSearch());
+		var journal = new ClientCameFromJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel());
 		tdiMain.AddTab(journal);
 	}
 
@@ -1313,7 +1319,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			new PromotionalSetsJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 			)
 		);
 	}
@@ -1412,7 +1418,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			(node) => new ComplaintSourceViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
 			 UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+			CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 		);
 		tdiMain.AddTab(complaintSourcesViewModel);
 	}
@@ -1425,7 +1431,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			(node) => new ComplaintResultViewModel(EntityUoWBuilder.ForOpen(node.Id), UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices),
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+			CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 		);
 		tdiMain.AddTab(complaintResultsViewModel);
 	}
@@ -1449,7 +1455,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			new WageDistrictsJournalViewModel(
 				 UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 			)
 		);
 	}
@@ -1460,7 +1466,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			new WageDistrictLevelRatesJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 			)
 		);
 	}
@@ -1483,7 +1489,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			new SalesPlanJournalViewModel(
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 			)
 		);
 	}
@@ -1525,7 +1531,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			),
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+			CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 		);
 		complaintKindsViewModel.SetActionsVisible(deleteActionEnabled: false);
 		tdiMain.AddTab(complaintKindsViewModel);

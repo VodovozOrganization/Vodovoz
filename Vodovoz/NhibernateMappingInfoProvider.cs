@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Linq.Expressions;
-using NHibernate.Cfg;
-using QS.DomainModel.Entity;
-using System.Linq;
-using Gamma.Utilities;
-using NHibernate.Mapping;
-using SolrSearch;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using Gamma.Utilities;
+using NHibernate.Cfg;
+using NHibernate.Mapping;
+using SolrSearch.Mapping;
 
 namespace Vodovoz
 {
@@ -18,6 +16,17 @@ namespace Vodovoz
 		public NhibernateMappingInfoProvider(Configuration nhibernateCfg)
 		{
 			this.nhibernateCfg = nhibernateCfg ?? throw new ArgumentNullException(nameof(nhibernateCfg));
+		}
+
+		public string GetMappedTableName<TEntity>() where TEntity : class
+		{
+			return GetMappedTableName(typeof(TEntity));
+		}
+
+		public string GetMappedTableName(Type entityType)
+		{
+			var classMapping = nhibernateCfg.GetClassMapping(entityType);
+			return classMapping.Table.Name;
 		}
 
 		public string GetMappedColumnName<TEntity>(Expression<Func<TEntity, object>> propertySelector)
@@ -53,9 +62,11 @@ namespace Vodovoz
 			where TEntity : class
 		{
 			var classMapping = nhibernateCfg.GetClassMapping(typeof(TEntity));
-
 			List<Property> properties = new List<Property>();
 			properties.Add(classMapping.IdentifierProperty);
+			if(classMapping.RootClazz != null) {
+				properties.AddRange(classMapping.RootClazz.PropertyClosureIterator);
+			}
 			properties.AddRange(classMapping.PropertyIterator);
 
 			return properties;

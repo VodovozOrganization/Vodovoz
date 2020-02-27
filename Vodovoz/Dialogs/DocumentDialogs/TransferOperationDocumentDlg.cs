@@ -4,6 +4,7 @@ using NLog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search.Criterion;
 using QS.Project.Services;
 using QS.Validation.GtkUI;
 using Vodovoz.Core;
@@ -14,6 +15,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.SearchViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
@@ -54,18 +56,18 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			referenceCounterpartyFrom.SetEntitySelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel, CriterionSearchModel>(
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				)
 			);
 			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
 
 			counterpartyFilter = new CounterpartyFilter(UoW);
 			referenceCounterpartyTo.SetEntitySelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel, CriterionSearchModel>(
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				)
 			);
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using SolrNet;
 
 namespace SolrSearch
 {
@@ -24,6 +25,11 @@ namespace SolrSearch
 				return memberExpr.Member.Name;
 
 			throw new InvalidOperationException("Должно быть выбрано свойство");
+		}
+
+		public static void Register<TSolrEntity>(string solrCoreAddress)
+		{
+			Startup.Init<TSolrEntity>(solrCoreAddress);
 		}
 	}
 }

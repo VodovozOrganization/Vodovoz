@@ -27,6 +27,7 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search.Criterion;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Report;
@@ -64,6 +65,7 @@ using Vodovoz.Parameters;
 using Vodovoz.Repositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repository;
+using Vodovoz.SearchViewModels;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -284,9 +286,9 @@ namespace Vodovoz
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel, CriterionSearchModel>(
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				)
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Client, w => w.Subject).InitializeFromSource();
@@ -1164,7 +1166,7 @@ namespace Vodovoz
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};
@@ -1196,7 +1198,7 @@ namespace Vodovoz
 				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 			) {
 				SelectionMode = JournalSelectionMode.Single,
 			};

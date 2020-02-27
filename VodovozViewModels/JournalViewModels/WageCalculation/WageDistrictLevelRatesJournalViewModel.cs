@@ -14,11 +14,15 @@ using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.JournalViewModels.WageCalculation
 {
-	public class WageDistrictLevelRatesJournalViewModel : SingleEntityJournalViewModelBase<WageDistrictLevelRates, WageDistrictLevelRatesViewModel, WageDistrictLevelRatesJournalNode>
+	public class WageDistrictLevelRatesJournalViewModel : SingleEntityJournalViewModelBase<WageDistrictLevelRates, WageDistrictLevelRatesViewModel, WageDistrictLevelRatesJournalNode, CriterionSearchModel>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
-		public WageDistrictLevelRatesJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(unitOfWorkFactory, commonServices, criterionSearch)
+		public WageDistrictLevelRatesJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel) 
+		: base(unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			TabName = "Журнал ставок по уровням";
@@ -34,10 +38,9 @@ namespace Vodovoz.JournalViewModels.WageCalculation
 			WageDistrictLevelRatesJournalNode resultAlias = null;
 
 			var query = uow.Session.QueryOver<WageDistrictLevelRates>();
-			query.Where(
-				GetSearchCriterion<WageDistrictLevelRates>(
-					x => x.Id
-				)
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy<WageDistrictLevelRates>(x => x.Id)
+				.GetSearchCriterion()
 			);
 
 			var result = query.SelectList(list => list

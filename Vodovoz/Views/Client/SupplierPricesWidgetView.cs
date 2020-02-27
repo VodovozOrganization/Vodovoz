@@ -30,7 +30,7 @@ namespace Vodovoz.Views.Client
 		protected override void ConfigureWidget()
 		{
 			//FIXME Не правильное приведение, нужно переделать диалог на журнал
-			var searchView = new MultipleEntrySearchView(ViewModel.SearchViewModel as MultipleEntrySearchViewModel);
+			var searchView = new MultipleEntrySearchView(ViewModel.SearchViewModel as MultipleEntrySearchViewModel<CriterionSearchModel>);
 			hboxSearch.Add(searchView);
 			searchView.Show();
 

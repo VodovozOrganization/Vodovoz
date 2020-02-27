@@ -10,6 +10,8 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
 using Vodovoz.Core;
+using QS.Project.Journal.Search.Criterion;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz
 {
@@ -39,9 +41,9 @@ namespace Vodovoz
 			yentrydriver.Binding.AddBinding(ViewModel.FuelDocument, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel, CriterionSearchModel>(
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				)
 			);
 			entityviewmodelentryCar.Binding.AddBinding(ViewModel.FuelDocument, x => x.Car, x => x.Subject).InitializeFromSource();

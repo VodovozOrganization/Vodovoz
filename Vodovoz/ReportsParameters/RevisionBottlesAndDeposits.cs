@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search.Criterion;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
@@ -11,6 +12,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.Orders;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.Reports
 {
@@ -23,9 +25,9 @@ namespace Vodovoz.Reports
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel, CriterionSearchModel>(
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				)
 			);
 		}	

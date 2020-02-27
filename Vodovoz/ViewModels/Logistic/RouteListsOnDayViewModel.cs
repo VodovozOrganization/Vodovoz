@@ -31,6 +31,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -196,7 +197,7 @@ namespace Vodovoz.ViewModels.Logistic
 						drvFilter,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						commonServices,
-						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+						CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 					) {
 						SelectionMode = JournalSelectionMode.Multiple
 					};
@@ -263,7 +264,7 @@ namespace Vodovoz.ViewModels.Logistic
 						fwdFilter,
 						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
 						commonServices,
-						CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+						CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 					) {
 						SelectionMode = JournalSelectionMode.Multiple
 					};

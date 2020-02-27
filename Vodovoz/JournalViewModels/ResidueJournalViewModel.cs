@@ -19,7 +19,7 @@ using Vodovoz.ViewModels;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class ResidueJournalViewModel : FilterableSingleEntityJournalViewModelBase<Residue, ResidueViewModel, ResidueJournalNode, ResidueFilterViewModel>
+	public class ResidueJournalViewModel : FilterableSingleEntityJournalViewModelBase<Residue, ResidueViewModel, ResidueJournalNode, ResidueFilterViewModel, CriterionSearchModel>
 	{
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 
@@ -32,10 +32,10 @@ namespace Vodovoz.JournalViewModels
 			IBottlesRepository bottlesRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory, 
-			ICriterionSearch criterionSearch
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel
 		) 
-		: base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+		: base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			TabName = "Журнал остатков";
@@ -94,11 +94,12 @@ namespace Vodovoz.JournalViewModels
 				}
 			}
 
-			residueQuery.Where(GetSearchCriterion(
-				() => residueAlias.Id,
-				() => counterpartyAlias.Name,
-				() => deliveryPointAlias.CompiledAddress
-			));
+			residueQuery.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => residueAlias.Id)
+				.AddSearchBy(() => counterpartyAlias.Name)
+				.AddSearchBy(() => deliveryPointAlias.CompiledAddress)
+				.GetSearchCriterion()
+			);
 
 			var resultQuery = residueQuery
 				.SelectList(list => list

@@ -8,6 +8,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalViewModels;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz.TempAdapters
 {
@@ -23,7 +24,7 @@ namespace Vodovoz.TempAdapters
 				nomenclatureStockFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices,
-				CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+				CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 			);
 
 			vm.SelectionMode = JournalSelectionMode.Multiple;

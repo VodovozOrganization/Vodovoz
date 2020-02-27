@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search.Criterion;
 using QS.Project.Services;
 using QS.Report;
 using QSProjectsLib;
@@ -12,6 +13,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.SearchViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Reports
@@ -29,9 +31,9 @@ namespace Vodovoz.Reports
 			);
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel, CriterionSearchModel>(
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				));
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			var filter = new EmployeeFilterViewModel();

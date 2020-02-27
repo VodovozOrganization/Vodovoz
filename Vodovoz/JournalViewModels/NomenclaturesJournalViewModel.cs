@@ -17,16 +17,16 @@ using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class NomenclaturesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureDlg, NomenclatureJournalNode, NomenclatureFilterViewModel>
+	public class NomenclaturesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Nomenclature, NomenclatureDlg, NomenclatureJournalNode, NomenclatureFilterViewModel, CriterionSearchModel>
 	{
 		readonly int currentUserId;
 
 		public NomenclaturesJournalViewModel(
 			NomenclatureFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICommonServices commonServices, 
-			ICriterionSearch criterionSearch
-		) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+			ICommonServices commonServices,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel
+		) : base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			TabName = "Журнал ТМЦ";
 			this.currentUserId = commonServices.UserService.CurrentUserId;
@@ -99,11 +99,10 @@ namespace Vodovoz.JournalViewModels
 			if(ExcludingNomenclatureIds != null && ExcludingNomenclatureIds.Any())
 				itemsQuery.WhereNot(() => nomenclatureAlias.Id.IsIn(ExcludingNomenclatureIds));
 
-			itemsQuery.Where(
-				GetSearchCriterion(
-					() => nomenclatureAlias.Name,
-					() => nomenclatureAlias.Id
-				)
+			itemsQuery.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => nomenclatureAlias.Id)
+				.AddSearchBy(() => nomenclatureAlias.Name)
+				.GetSearchCriterion()
 			);
 
 			if(!FilterViewModel.RestrictDilers)

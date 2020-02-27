@@ -13,11 +13,16 @@ using Vodovoz.JournalNodes;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class ClientCameFromJournalViewModel : FilterableSingleEntityJournalViewModelBase<ClientCameFrom, ClientCameFromViewModel, ClientCameFromJournalNode, ClientCameFromFilterViewModel>
+	public class ClientCameFromJournalViewModel : FilterableSingleEntityJournalViewModelBase<ClientCameFrom, ClientCameFromViewModel, ClientCameFromJournalNode, ClientCameFromFilterViewModel, CriterionSearchModel>
 	{
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
-		public ClientCameFromJournalViewModel(ClientCameFromFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+		public ClientCameFromJournalViewModel(
+			ClientCameFromFilterViewModel filterViewModel, 
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel) 
+		: base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
@@ -34,10 +39,11 @@ namespace Vodovoz.JournalViewModels
 			if(!FilterViewModel.RestrictArchive)
 				query.Where(() => !clientCameFromAlias.IsArchive);
 
-			query.Where(GetSearchCriterion(
-				() => clientCameFromAlias.Name,
-				() => clientCameFromAlias.Id
-			));
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => clientCameFromAlias.Id)
+				.AddSearchBy(() => clientCameFromAlias.Name)
+				.GetSearchCriterion()
+			);
 
 			var resultQuery = query
 				.SelectList(list => list

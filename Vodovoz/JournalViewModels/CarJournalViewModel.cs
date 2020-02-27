@@ -14,9 +14,14 @@ using Vodovoz.JournalNodes;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class CarJournalViewModel : FilterableSingleEntityJournalViewModelBase<Car, CarsDlg, CarJournalNode, CarJournalFilterViewModel>
+	public class CarJournalViewModel : FilterableSingleEntityJournalViewModelBase<Car, CarsDlg, CarJournalNode, CarJournalFilterViewModel, CriterionSearchModel>
 	{
-		public CarJournalViewModel(CarJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+		public CarJournalViewModel(
+			CarJournalFilterViewModel filterViewModel, 
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices, 
+			SearchViewModelBase<CriterionSearchModel> searchViewModel) 
+		: base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			TabName = "Журнал автомобилей";
 			UpdateOnChanges(
@@ -37,14 +42,15 @@ namespace Vodovoz.JournalViewModels
 				query.Where(c => !c.IsArchive);
 			}
 
-			query.Where(GetSearchCriterion(
-				() => carAlias.Id,
-				() => carAlias.Model,
-				() => carAlias.RegistrationNumber,
-				() => driverAlias.Name,
-				() => driverAlias.LastName,
-				() => driverAlias.Patronymic
-			));
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => carAlias.Id)
+				.AddSearchBy(() => carAlias.Model)
+				.AddSearchBy(() => carAlias.RegistrationNumber)
+				.AddSearchBy(() => driverAlias.Name)
+				.AddSearchBy(() => driverAlias.LastName)
+				.AddSearchBy(() => driverAlias.Patronymic)
+				.GetSearchCriterion()
+			);
 
 			var result = query.SelectList(list => list
 			.Select(c => c.Id).WithAlias(() => carJournalNodeAlias.Id)

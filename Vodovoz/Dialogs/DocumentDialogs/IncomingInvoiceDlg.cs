@@ -5,6 +5,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Journal.Search.Criterion;
 using QS.Project.Services;
 using QS.Validation.GtkUI;
 using QSOrmProject;
@@ -19,6 +20,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.JournalViewModels;
 using Vodovoz.PermissionExtensions;
+using Vodovoz.SearchViewModels;
 
 namespace Vodovoz
 {
@@ -94,9 +96,9 @@ namespace Vodovoz
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.SetAndRefilterAtOnce(x => x.RestrictIncludeArhive = false);
 			entityVMEntryClient.SetEntityAutocompleteSelectorFactory(
-				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(
+				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel, CriterionSearchModel>(
 					ServicesConfig.CommonServices,
-					CriterionSearchFactory.GetMultipleEntryCriterionSearch()
+					CriterionSearchFactory.GetMultipleEntryCriterionSearchViewModel()
 				)
 			);
 			entityVMEntryClient.Binding.AddBinding(Entity, s => s.Contractor, w => w.Subject).InitializeFromSource();

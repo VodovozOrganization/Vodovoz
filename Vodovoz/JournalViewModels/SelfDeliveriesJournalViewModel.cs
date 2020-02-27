@@ -31,9 +31,14 @@ using QS.Project.Journal.Search.Criterion;
 
 namespace Vodovoz.Representations
 {
-	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
+	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel, CriterionSearchModel>
 	{
-		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(filterViewModel, unitOfWorkFactory, commonServices, criterionSearch)
+		public SelfDeliveriesJournalViewModel(
+			OrderJournalFilterViewModel filterViewModel, 
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel) 
+		: base(filterViewModel, unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			TabName = "Журнал самовывозов";
 			SetOrder(x => x.Date, true);
@@ -103,13 +108,14 @@ namespace Vodovoz.Representations
 				.JoinEntityAlias(() => incomeAlias, () => orderAlias.Id == incomeAlias.Order.Id, JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => expenseAlias, () => orderAlias.Id == expenseAlias.Order.Id, JoinType.LeftOuterJoin);
 
-			query.Where(GetSearchCriterion(
-				() => counterpartyAlias.Name,
-				() => authorAlias.Name,
-				() => authorAlias.LastName,
-				() => authorAlias.Patronymic,
-				() => orderAlias.Id
-			));
+			query.Where(CriterionSearchModel.ConfigureSearch()
+				.AddSearchBy(() => counterpartyAlias.Name)
+				.AddSearchBy(() => authorAlias.Name)
+				.AddSearchBy(() => authorAlias.LastName)
+				.AddSearchBy(() => authorAlias.Patronymic)
+				.AddSearchBy(() => orderAlias.Id)
+				.GetSearchCriterion()
+			);
 
 			var result = query.SelectList(list => list
 					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.Id)

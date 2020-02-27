@@ -14,9 +14,13 @@ using Vodovoz.JournalNodes;
 
 namespace Vodovoz.JournalViewModels.Logistic
 {
-	public class ScheduleRestrictedDistrictsJournalViewModel : SingleEntityJournalViewModelBase<ScheduleRestrictedDistrict, EntityTabViewModelBase<ScheduleRestrictedDistrict>, ScheduleRestrictedDistrictJournalNode>
+	public class ScheduleRestrictedDistrictsJournalViewModel : SingleEntityJournalViewModelBase<ScheduleRestrictedDistrict, EntityTabViewModelBase<ScheduleRestrictedDistrict>, ScheduleRestrictedDistrictJournalNode, CriterionSearchModel>
 	{
-		public ScheduleRestrictedDistrictsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, ICriterionSearch criterionSearch) : base(unitOfWorkFactory, commonServices, criterionSearch)
+		public ScheduleRestrictedDistrictsJournalViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices,
+			SearchViewModelBase<CriterionSearchModel> searchViewModel)
+		: base(unitOfWorkFactory, commonServices, searchViewModel)
 		{
 			TabName = "Журнал районов доставки";
 			UpdateOnChanges(typeof(ScheduleRestrictedDistrict));
