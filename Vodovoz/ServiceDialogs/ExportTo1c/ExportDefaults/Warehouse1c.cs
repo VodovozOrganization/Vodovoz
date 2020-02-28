@@ -17,7 +17,7 @@ namespace Vodovoz.ExportTo1c
 					Id = 1,
 					ExportId = "00001",
 					Name = "Основной склад",
-					Type = "ОптовыйСклад"
+					Type = "Оптовый"
 				};
 		}
 	}

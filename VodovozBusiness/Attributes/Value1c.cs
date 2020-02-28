@@ -1,12 +1,11 @@
 ﻿using System;
 
-namespace Vodovoz.Attributes
+namespace Vodovoz
 {
 	[AttributeUsage(AttributeTargets.Field)]
-	public class Value1c : Attribute
+	public class Value1c:Attribute
 	{
-		public string Value { get; }
-
+		public string Value;
 		public Value1c(string value)
 		{
 			this.Value = value;

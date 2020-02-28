@@ -30,7 +30,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		protected override PropertyNode[] GetProperties(Warehouse1c warehouse)
 		{
 			var properties = new List<PropertyNode>();
-			var warehouseTypeProperty = new PropertyNode("ТипСклада",
+			var warehouseTypeProperty = new PropertyNode("ВидСклада",
 				Common1cTypes.EnumWarehouseTypes,
 				warehouse.Type
 			);
