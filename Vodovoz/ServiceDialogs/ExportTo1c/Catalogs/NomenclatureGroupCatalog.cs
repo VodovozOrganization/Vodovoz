@@ -59,7 +59,47 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					)
 				);
 			}
-			
+			properties.Add(
+				new PropertyNode("БазоваяЕдиницаИзмерения",
+					Common1cTypes.ReferenceMeasurementUnit
+				)
+			);
+			properties.Add(
+				new PropertyNode("Комментарий",
+					Common1cTypes.String
+				)
+			);
+			properties.Add(
+				new PropertyNode("НомерГТД",
+					"СправочникСсылка.НомераГТД"
+				)
+			);
+			properties.Add(
+				new PropertyNode("СтавкаНДС",
+					Common1cTypes.EnumVAT
+				)
+			);
+			properties.Add(
+				new PropertyNode("СтранаПроисхождения",
+					Common1cTypes.ReferenceCountry
+				)
+			);
+			properties.Add(
+				new PropertyNode("ПометкаУдаления",
+					Common1cTypes.Boolean
+				)
+			);
+			properties.Add(
+				new PropertyNode("Услуга",
+					Common1cTypes.Boolean
+				)
+			);
+			properties.Add(
+				new PropertyNode("НаименованиеПолное",
+					Common1cTypes.String,
+					folder.Name
+				)
+			);
 			return properties.ToArray();
 		}			
 	}
