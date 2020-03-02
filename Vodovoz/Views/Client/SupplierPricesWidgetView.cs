@@ -5,7 +5,6 @@ using Gtk;
 using QS.Project.Search;
 using QS.Project.Search.GtkUI;
 using QS.Utilities;
-using QS.Utilities.GtkUI;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.ViewModels.Client;
