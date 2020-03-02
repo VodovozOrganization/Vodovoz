@@ -89,6 +89,8 @@ namespace Vodovoz.Domain.Orders
 				//Если цена не отличается от той которая должна быть по прайсам в 
 				//номенклатуре, то цена не изменена пользователем и сможет расчитываться автоматически
 				IsUserPrice = value != GetPriceByTotalCount() && value != 0;
+				if(IsUserPrice)
+					IsUserPrice = value != GetPriceByTotalCount() && value != 0;
 
 				if(SetField(ref price, value, () => Price)) {
 					if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
@@ -168,6 +170,14 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private decimal? originalDiscount;
+
+		[Display(Name = "Процент скидки на товар которая была установлена до отмены заказа")]
+		public virtual decimal? OriginalDiscount {
+			get => originalDiscount;
+			set { SetField(ref originalDiscount, value, () => OriginalDiscount); } 
+		}
+
 		private decimal discountMoney;
 
 		[Display(Name = "Скидка на товар в деньгах")]
@@ -177,7 +187,6 @@ namespace Vodovoz.Domain.Orders
 				//value = value > Price * CurrentCount ? Price * CurrentCount : value;
 				if(value != discountMoney && value == 0) {
 					DiscountReason = null;
-					IsDiscountInMoney = false;
 				}
 				if(SetField(ref discountMoney, value, () => DiscountMoney))
 					RecalculateNDS();
@@ -323,6 +332,10 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual decimal ManualChangingOriginalDiscount {
+			get	=> IsDiscountInMoney ? (OriginalDiscountMoney ?? 0) : (OriginalDiscount ?? 0);
+		}
+
 		public virtual decimal DiscountSetter {
 			get => IsDiscountInMoney ? DiscountMoney : Discount;
 			set => CalculateAndSetDiscount(value);
@@ -349,8 +362,8 @@ namespace Vodovoz.Domain.Orders
 			if(DiscountMoney > 0) {
 				OriginalDiscountMoney = DiscountMoney;
 				OriginalDiscountReason = DiscountReason;
+				OriginalDiscount = Discount;
 			}
-			IsDiscountInMoney = false;
 			DiscountReason = null;
 			DiscountMoney = 0;
 			Discount = 0;
@@ -405,6 +418,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Sum => Price * Count - DiscountMoney;//FIXME Count -- CurrentCount
 
 		public virtual decimal ActualSum => Price * CurrentCount - DiscountMoney;
+
+		public virtual decimal OriginalSum => Price * Count - (OriginalDiscountMoney ?? 0);
 
 		public virtual bool CanEditAmount {
 			get {

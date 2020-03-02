@@ -67,11 +67,12 @@ namespace Vodovoz.JournalViewModels
 											.Select(
 												Projections.Sum(
 													Projections.SqlFunction(
-														new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 - ?3"),
+														new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 - IF(?3 IS NULL OR ?3 = 0, IFNULL(?4, 0), ?3)"),
 														NHibernateUtil.Decimal,
 														Projections.Property<OrderItem>(x => x.Count),
 														Projections.Property<OrderItem>(x => x.Price),
-														Projections.Property<OrderItem>(x => x.DiscountMoney)
+														Projections.Property<OrderItem>(x => x.DiscountMoney),
+														Projections.Property<OrderItem>(x => x.OriginalDiscountMoney)
 													   )
 												   )
 											   );

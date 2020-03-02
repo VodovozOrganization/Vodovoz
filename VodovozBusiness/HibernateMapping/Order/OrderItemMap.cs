@@ -16,6 +16,7 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.Count)				.Column ("count");
 			Map (x => x.IsDiscountInMoney)	.Column ("is_discount_in_money");
 			Map (x => x.Discount)			.Column ("discount");
+			Map (x => x.OriginalDiscount)	.Column ("original_discount");
 			Map (x => x.DiscountMoney)		.Column ("discount_money");
 			Map	(x => x.OriginalDiscountMoney).Column ("original_discount_money");
 			Map	(x => x.DiscountByStock)	.Column ("discount_by_stock");

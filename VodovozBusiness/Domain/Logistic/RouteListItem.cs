@@ -540,9 +540,10 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void FillCountsOnCanceled()
 		{
 			foreach(var item in Order.OrderItems) {
-				if(!item.OriginalDiscountMoney.HasValue) {
+				if(!item.OriginalDiscountMoney.HasValue || !item.OriginalDiscount.HasValue) {
 					item.OriginalDiscountMoney = item.DiscountMoney > 0 ? (decimal?)item.DiscountMoney : null;
-					item.OriginalDiscountReason = item.DiscountMoney > 0 ? item.DiscountReason : null;
+					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
+					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
 				}
 				item.ActualCount = 0;
 			}
@@ -556,12 +557,13 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void RestoreOrder()
 		{
 			foreach(var item in Order.OrderItems) {
-				if(item.OriginalDiscountMoney.HasValue) {
-					item.IsDiscountInMoney = true;
+				if(item.OriginalDiscountMoney.HasValue || item.OriginalDiscount.HasValue) {
 					item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
 					item.DiscountReason = item.OriginalDiscountReason;
+					item.Discount = item.OriginalDiscount ?? 0;
 					item.OriginalDiscountMoney = null;
 					item.OriginalDiscountReason = null;
+					item.OriginalDiscount = null;
 				}
 				item.ActualCount = item.Count;
 			}
