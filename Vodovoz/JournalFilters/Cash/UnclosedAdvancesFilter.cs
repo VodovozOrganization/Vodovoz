@@ -13,8 +13,6 @@ namespace Vodovoz
 		{
 			repEntryAccountable.RepresentationModel = new ViewModel.EmployeesVM();
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery();
-			yAdvancePeriod.StartDateOrNull = new DateTime(DateTime.Today.Year-1, 1, 1);
-			yAdvancePeriod.EndDateOrNull = DateTime.Today;
 		}
 
 		public UnclosedAdvancesFilter(IUnitOfWork uow) : this()
