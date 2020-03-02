@@ -361,7 +361,6 @@ namespace Vodovoz.Additions.Logistic
 			get {
 				switch(type) {
 					case RouteListPrintableDocuments.RouteList:
-						return 2;
 					case RouteListPrintableDocuments.RouteMap:
 					case RouteListPrintableDocuments.DailyList:
 					case RouteListPrintableDocuments.TimeList:
