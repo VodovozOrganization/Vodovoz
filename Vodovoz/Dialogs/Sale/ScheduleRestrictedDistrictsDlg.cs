@@ -15,6 +15,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.EntityRepositories;
 using QS.Project.Services;
+using QS.Utilities.Text;
 using QS.Validation;
 using QSOrmProject;
 using QSProjectsLib;
@@ -265,7 +266,7 @@ namespace Vodovoz.Dialogs.Logistic
 		IList<ScheduleRestrictedDistrict> GetAllDistricts()
 		{
 			var srdQuery = uow.Session.QueryOver<ScheduleRestrictedDistrict>()
-							  .List<ScheduleRestrictedDistrict>();
+				.List<ScheduleRestrictedDistrict>().OrderBy(x => x.TariffZone.Name, new NaturalStringComparer()).ThenBy(x => x.DistrictName).ToList();
 
 			return srdQuery;
 		}
