@@ -25,6 +25,12 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			set => SetField(ref filterType, value);
 		}
 
+		private GenericObservableList<SelectableParameter> outputParameters = new GenericObservableList<SelectableParameter>();
+		public virtual GenericObservableList<SelectableParameter> OutputParameters {
+			get => outputParameters;
+			set => SetField(ref outputParameters, value, () => OutputParameters);
+		}
+
 		private GenericObservableList<SelectableParameter> parameters;
 		public GenericObservableList<SelectableParameter> Parameters {
 			get {
@@ -48,6 +54,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 					foreach(SelectableParameter parameter in Parameters) {
 						parameter.AnySelectedChanged += Parameter_AnySelectedChanged;
 					}
+					UpdateOutputParameters();
 				}
 			}
 		}
@@ -89,10 +96,25 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			SelectionChanged?.Invoke(this, EventArgs.Empty);
 		}
 
+		private string searchValue;
+		public void FilterParameters(string searchValue)
+		{
+			this.searchValue = searchValue;
+			UpdateOutputParameters();
+		}
+
+		private void UpdateOutputParameters()
+		{
+			foreach(SelectableParameter sp in Parameters) {
+				sp.FilterChilds(searchValue);
+			}
+			OutputParameters = new GenericObservableList<SelectableParameter>(Parameters.Where(x => x.Children.Any() || x.Title.ToLower().Contains(searchValue.ToLower())).ToList());
+		}
+
 		public void SelectAll()
 		{
 			suppressSelectionChangedEvent = true;
-			foreach(SelectableParameter value in Parameters) {
+			foreach(SelectableParameter value in OutputParameters) {
 				value.Selected = true;
 			}
 			suppressSelectionChangedEvent = false;
@@ -102,7 +124,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 		public void UnselectAll()
 		{
 			suppressSelectionChangedEvent = true;
-			foreach(SelectableParameter value in Parameters) {
+			foreach(SelectableParameter value in OutputParameters) {
 				value.Selected = false;
 			}
 			suppressSelectionChangedEvent = false;
@@ -111,7 +133,7 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		public IEnumerable<object> GetSelectedValues()
 		{
-			var selectedValues = Parameters.SelectMany(x => x.GetAllSelected().Select(y => y.Value));
+			var selectedValues = OutputParameters.SelectMany(x => x.GetAllSelected().Select(y => y.Value));
 			return selectedValues;
 		}
 
