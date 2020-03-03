@@ -35,7 +35,13 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 
 		public virtual SelectableParameter Parent { get; set; }
 
-		public virtual GenericObservableList<SelectableParameter> Children { get; private set; } = new GenericObservableList<SelectableParameter>();
+		private GenericObservableList<SelectableParameter> sourceChildren = new GenericObservableList<SelectableParameter>();
+
+		private GenericObservableList<SelectableParameter> children = new GenericObservableList<SelectableParameter>();
+		public virtual GenericObservableList<SelectableParameter> Children {
+			get => children;
+			private set => SetField(ref children, value);
+		}
 
 		protected SelectableParameter()
 		{
@@ -86,9 +92,39 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			}
 		}
 
+		private string searchValue;
+
+		public void FilterChilds(string searchValue)
+		{
+			this.searchValue = searchValue;
+			foreach(SelectableParameter child in Children) {
+				child.FilterChilds(searchValue);
+			}
+			UpdateChilds();
+		}
+
+		private void UpdateChilds()
+		{
+			if(string.IsNullOrWhiteSpace(searchValue)) {
+				Children = sourceChildren;
+			} else {
+				//выбираем все дочерние элементы
+				var filtered = sourceChildren.Where(x =>
+					//коротые удовлетворяют поисковому критерию
+					x.Title.ToLower().Contains(searchValue.ToLower())
+					//или имеют любые дочерние элементы
+					//(Это сделано для того чтобы, не отфильтровать родителя 
+					//который не удовлетворяет поисковому критерию, но имеет 
+					//гдето глубже в структуре дочерние элементы которые удовлетворяют)
+					|| x.Children.Any());
+
+				Children = new GenericObservableList<SelectableParameter>(filtered.ToList());
+			}
+		}
+
 		public void SetChilds(IList<SelectableParameter> childs)
 		{
-			foreach(SelectableParameter oldChild in Children) {
+			foreach(SelectableParameter oldChild in sourceChildren) {
 				oldChild.AnySelectedChanged -= OnChildAnySelectedChanged;
 			}
 
@@ -96,7 +132,8 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 				child.AnySelectedChanged += OnChildAnySelectedChanged;
 			}
 
-			Children = new GenericObservableList<SelectableParameter>(childs.ToList());
+			sourceChildren = new GenericObservableList<SelectableParameter>(childs.ToList());
+			UpdateChilds();
 		}
 
 		void OnChildAnySelectedChanged(object sender, EventArgs e)
