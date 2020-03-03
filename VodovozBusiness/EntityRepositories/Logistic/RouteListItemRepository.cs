@@ -59,5 +59,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 					  .Take(1)
 					  .SingleOrDefault();
 		}
+
+		public RouteListItemStatus[] GetUndeliveryStatuses()
+		{
+			return new RouteListItemStatus[]
+				{
+					RouteListItemStatus.Canceled,
+					RouteListItemStatus.Overdue
+				};
+		}
 	}
 }

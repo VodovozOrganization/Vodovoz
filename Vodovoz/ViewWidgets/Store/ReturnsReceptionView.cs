@@ -4,7 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gtk;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -38,9 +40,11 @@ namespace Vodovoz
 				.AddColumn("№ Кулера").AddTextRenderer(node => node.Redhead)
 					.AddSetter((cell, node) => cell.Editable = node.NomenclatureCategory == NomenclatureCategory.additional)
 				.AddColumn("Кол-во")
-				.AddNumericRenderer(node => node.Amount, false)
-				.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
-				.AddSetter((cell, node) => cell.Editable = node.EquipmentId == 0)
+					.AddNumericRenderer(node => node.Amount, false)
+					.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 100, 0))
+					.AddSetter((cell, node) => cell.Editable = node.EquipmentId == 0)
+				.AddColumn("Ожидаемое кол-во")
+					.AddNumericRenderer(node => node.ExpectedAmount, false)
 				.AddColumn("Цена закупки").AddNumericRenderer(node => node.PrimeCost).Digits(2).Editing()
 					.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0))
 					.AddTextRenderer(i => CurrencyWorks.CurrencyShortName, false)
@@ -105,21 +109,30 @@ namespace Vodovoz
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Warehouse warehouseAlias = null;
+			RouteListItem routeListItemAlias = null;
 
-			var returnableItems = UoW.Session.QueryOver<RouteListItem>().Where(r => r.RouteList.Id == RouteList.Id)
+			var returnableItems = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
+			.Where(r => r.RouteList.Id == RouteList.Id)
 				.JoinAlias(rli => rli.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
 				.JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
+				.Left.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.Where(Restrictions.Or(
 					Restrictions.On(() => warehouseAlias.Id).IsNull,
 					Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
 				))
 				.Where(() => nomenclatureAlias.Category != NomenclatureCategory.deposit)
 				.SelectList(list => list
-				   .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-				   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-				   .Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+					.Select(Projections.SqlFunction(
+					   new SQLFunctionTemplate(NHibernateUtil.Int32, "SUM(IF(?1 = 'Canceled' OR ?1 = 'Overdue', ?2, 0))"),
+					   NHibernateUtil.Int32,
+					   Projections.Property(() => routeListItemAlias.Status),
+					   Projections.Property(() => orderItemsAlias.Count))
+				   ).WithAlias(() => resultAlias.ExpectedAmount)
 				)
 				.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
 				.List<ReceptionItemNode>();
@@ -184,10 +197,15 @@ namespace Vodovoz
 		public string Name { get; set; }
 
 		int amount;
-
 		public virtual int Amount {
 			get => amount;
 			set => SetField(ref amount, value, () => Amount);
+		}
+
+		int expectedAmount;
+		public virtual int ExpectedAmount {
+			get => expectedAmount;
+			set => SetField(ref expectedAmount, value, () => ExpectedAmount);
 		}
 
 		int equipmentId;
