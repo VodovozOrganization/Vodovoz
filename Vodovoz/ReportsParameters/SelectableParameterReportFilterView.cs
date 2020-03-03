@@ -150,10 +150,9 @@ namespace Vodovoz.ReportsParameters
 			if(viewModel?.CurrentParameterSet?.Parameters == null) {
 				return new List<SelectableParameter>();
 			}
-			if(!string.IsNullOrWhiteSpace(search.Text)) {
-				return viewModel.CurrentParameterSet.Parameters.Where(x => x.Title.ToLower().Contains(search.Text.ToLower())).ToList();
-			}
-			return viewModel.CurrentParameterSet.Parameters;
+
+			viewModel.CurrentParameterSet.FilterParameters(search.Text);
+			return viewModel.CurrentParameterSet.OutputParameters;
 		}
 
 	}
