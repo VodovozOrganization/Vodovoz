@@ -8,13 +8,12 @@ using Gtk;
 using NLog;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QSProjectsLib;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
 using QS.Dialog.GtkUI;
-using Vodovoz.Domain.Client;
+using QS.Project.Services;
 
 namespace Vodovoz
 {
@@ -51,10 +50,8 @@ namespace Vodovoz
 			}
 		}
 
-		private decimal bottleDepositPrice;
 		public IUnitOfWork UoW { get; set; }
-
-		private decimal equipmentDepositPrice;
+		public bool CanChangeDriverSurcharge = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_driver_surcharge");
 
 		Gdk.Pixbuf transferFromIcon;
 
@@ -199,7 +196,7 @@ namespace Vodovoz
 				.AddColumn (" доплата\nводителя").HeaderAlignment (0.5f)
 					.AddNumericRenderer (node => node.DriverWageSurcharge)
 						.Adjustment (new Adjustment (0, -100000, 100000, 10, 100, 10))
-						.AddSetter ((cell, node) => cell.Editable = node.IsDelivered ())
+						.AddSetter ((cell, node) => cell.Editable = node.IsDelivered() && CanChangeDriverSurcharge)
 				.AddColumn("    З/П\nэкспедитора").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ForwarderWage)
 				.AddColumn("Доп. оборудование\n     клиенту").HeaderAlignment(0.5f)

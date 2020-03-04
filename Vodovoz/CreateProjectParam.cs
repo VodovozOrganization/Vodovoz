@@ -154,6 +154,7 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_manage_users", new PresetUserPermissionSource("can_manage_users", "Изменение существующего и создание нового пользователей в диалоге сотрудника", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_change_undelivery_problem_source", new PresetUserPermissionSource("can_change_undelivery_problem_source", "Изменение источника проблемы в недовозах", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_add_online_store_nomenclatures_to_order", new PresetUserPermissionSource("can_add_online_store_nomenclatures_to_order", "Добавление номенклатур интернет магазина в заказ", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_change_driver_surcharge", new PresetUserPermissionSource("can_change_driver_surcharge", "Изменение доплаты водителя", string.Empty));
 
 			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {

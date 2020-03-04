@@ -238,7 +238,6 @@ namespace Vodovoz.Domain.Logistic
 
 		decimal driverWage;
 		[Display(Name = "ЗП водителя")]
-		//Зарплана с уже включенной надбавкой DriverWageSurcharge
 		public virtual decimal DriverWage {
 			get => driverWage;
 			set => SetField(ref driverWage, value, () => DriverWage);
