@@ -148,36 +148,48 @@ LIMIT 1
     <DataSet Name="Equipment">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
+        <CommandText>#OrderItems
+SELECT 
 	n.official_name,
-	SUM(eq.count) AS count,
-	eq.order_id AS order_id
-FROM(
-	SELECT
-		nomenclature_id,
-		e.order_id,
-		count
-	FROM order_equipment e
-	LEFT JOIN route_list_addresses a ON e.order_id = a.order_id
-	WHERE a.route_list_id = @id 
-		AND direction = 'Deliver'
-		AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
-	UNION ALL
-	SELECT
-		nomenclature_id,
-		i.order_id,
-		count
-	FROM order_items i
-	LEFT JOIN route_list_addresses a ON i.order_id = a.order_id
-	WHERE a.route_list_id = @id
-	AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
-) AS eq
-LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
+	SUM(oi.count) as count,
+	oi.order_id
+FROM
+	order_items oi
+LEFT JOIN nomenclature n ON n.id = oi.nomenclature_id
+LEFT JOIN route_list_addresses rla ON rla.order_id = oi.order_id
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
-WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
-AND IF(n.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
-GROUP BY eq.nomenclature_id
-;
+WHERE
+	rla.route_list_id = @id
+	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
+	AND IF(n.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
+GROUP BY n.id
+#Equipment
+UNION ALL
+SELECT
+	CASE oe.own_type
+		WHEN 'None'  THEN n.official_name
+		WHEN 'Client'THEN CONCAT(n.official_name, ' (Клиент)')
+		WHEN 'Duty'	 THEN CONCAT(n.official_name, ' (Дежурный)')
+		WHEN 'Rent'	 THEN CONCAT(n.official_name, ' (Аренда)')
+		ELSE n.official_name
+	END as official_name,
+	SUM(oe.count) as count,
+	oe.order_id
+FROM
+	order_equipment oe
+LEFT JOIN nomenclature n ON n.id = oe.nomenclature_id
+LEFT JOIN route_list_addresses rla ON rla.order_id = oe.order_id
+LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
+WHERE
+	rla.route_list_id = @id
+	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
+	AND IF(n.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
+	AND oe.direction = 'Deliver'
+	AND (rla.was_transfered = true AND rla.need_to_reload = true OR rla.was_transfered = false)
+GROUP BY oe.own_type, n.id
+
+
+
 </CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
@@ -201,7 +213,7 @@ GROUP BY eq.nomenclature_id
       </Fields>
     </DataSet>
     <DataSet Name="EquipmentOnlineStore">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	n.official_name,
@@ -240,7 +252,7 @@ GROUP BY eq.nomenclature_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="official_name">
           <DataField>official_name</DataField>
           <TypeName>System.String</TypeName>
