@@ -85,6 +85,7 @@ using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
+using Vodovoz.FilterViewModels.Warehouses;
 
 namespace Vodovoz
 {
@@ -162,7 +163,9 @@ namespace Vodovoz
 			};
 
 			UserDialog.PermissionViewsCreator = () => {
-				return new List<IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
+				var permissionMatrix = new PermissionMatrix<WarehousePermissions, Warehouse>();
+				permissionMatrix.SetFilterFunctions(x => x.IsArchive == false);
+				return new List<IPermissionsView> { new PermissionMatrixView(permissionMatrix, "Доступ к складам", "warehouse_access") };
 			};
 
 			WarehousePermissionService.WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
@@ -225,6 +228,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<AdvancedWageParametersViewModel, AdvancedWageParametersView>()
 				.RegisterWidgetForWidgetViewModel<AddFixPriceActionViewModel, AddFixPriceActionView>()
 				.RegisterWidgetForWidgetViewModel<CarJournalFilterViewModel, CarFilterView>()
+				.RegisterWidgetForWidgetViewModel<WarehouseJournalFilterViewModel, WarehouseFilterView>()
 				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
 				;
 

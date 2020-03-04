@@ -1387,6 +1387,12 @@
     <Compile Include="JournalViewModels\OrderForMovDocJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\OrderForMovDocFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderForMovDocFilterView.cs" />
+    <Compile Include="JournalFilters\WarehouseFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.WarehouseFilter.cs" />
+    <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
+    <Compile Include="Filters\ViewModels\WarehouseJournalFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\WarehouseFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
