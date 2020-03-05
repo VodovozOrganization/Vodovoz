@@ -47,6 +47,9 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		void ConfigureDlg()
 		{
+			ySpecCmbDeliveryPointFrom.SetSizeRequest(250, 30);
+			ySpecCmbDeliveryPointTo.SetSizeRequest(250, 30);
+
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			datepickerDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 
