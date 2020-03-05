@@ -125,7 +125,8 @@ namespace Vodovoz
 
 			buttonMadeCall.Sensitive = allEditing;
 
-			buttonRetriveEnRoute.Sensitive = Entity.Status == RouteListStatus.OnClosing && isUserLogist;
+			buttonRetriveEnRoute.Sensitive = Entity.Status == RouteListStatus.OnClosing && isUserLogist
+				&& ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_retrieve_routelist_en_route");
 
 			buttonNewFine.Sensitive = allEditing;
 
