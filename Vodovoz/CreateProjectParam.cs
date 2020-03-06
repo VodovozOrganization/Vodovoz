@@ -385,6 +385,11 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
+			OrmMain.AddObjectDescription<Post>()
+				   .DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.Name)
+				   .End();
 			#endregion
 
 			#region неПростые справочники
@@ -436,10 +441,6 @@ namespace Vodovoz
 				   .SearchColumn("Номер", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
-			OrmMain.AddObjectDescription<TariffZone>().DefaultTableView()
-				   .SearchColumn("Номер", x => x.Id.ToString())
-				   .SearchColumn("Название", x => x.Name)
-				   .End();
 			OrmMain.AddObjectDescription<DeliveryPointCategory>().Dialog<DeliveryPointCategoryDlg>().DefaultTableView()
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
@@ -456,12 +457,7 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.DistrictName)
 				   .End();
-			OrmMain.AddObjectDescription<Post>()
-				   .Dialog<Post>()
-				   .DefaultTableView()
-				   .SearchColumn("Код", x => x.Id.ToString())
-				   .SearchColumn("Название", x => x.Name)
-				   .End();
+
 			#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
