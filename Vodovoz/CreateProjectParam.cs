@@ -86,6 +86,7 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.FilterViewModels.Warehouses;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz
 {
@@ -454,6 +455,12 @@ namespace Vodovoz
 				   .DefaultTableView()
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.DistrictName)
+				   .End();
+			OrmMain.AddObjectDescription<Post>()
+				   .Dialog<Post>()
+				   .DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.Name)
 				   .End();
 			#endregion
 
