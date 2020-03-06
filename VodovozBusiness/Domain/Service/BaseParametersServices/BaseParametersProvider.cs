@@ -2,6 +2,7 @@
 using Vodovoz.Services;
 using System.Globalization;
 using Vodovoz.Parameters;
+using QSSupportLib;
 
 namespace Vodovoz.Core.DataService
 {
@@ -17,8 +18,25 @@ namespace Vodovoz.Core.DataService
 		ISalesReceiptsServiceSettings,
 		IEmailServiceSettings,
 		IContactsParameters,
-		IDriverServiceParametersProvider
+		IDriverServiceParametersProvider,
+		IErrorSendParameterProvider
 	{
+		public string GetDefaultBaseForErrorSend()
+		{
+			if(!MainSupport.BaseParameters.All.ContainsKey("base_for_error_send")) {
+				throw new InvalidProgramException("В параметрах базы не настроена база для отправки сообщений об ошибку (base_for_error_send).");
+			}
+			return MainSupport.BaseParameters.All["base_for_error_send"];
+		}
+
+		public int GetRowCountForErrorLog()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("row_count_for_error_log")) {
+				throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
+			}
+			return int.Parse(ParametersProvider.Instance.GetParameterValue("row_count_for_error_log"));
+		}
+
 		public int GetForfeitId()
 		{
 			if(!ParametersProvider.Instance.ContainsParameter("forfeit_nomenclature_id")) {

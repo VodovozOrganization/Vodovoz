@@ -1397,6 +1397,9 @@
     <Compile Include="JournalViewModels\DeliveryPointJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\DeliveryPointJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.cs" />
+    <Compile Include="Infrastructure\ErrorReportSettings.cs" />
+    <Compile Include="Infrastructure\ApplicationInfo.cs" />
+    <Compile Include="Infrastructure\DBInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
