@@ -56,6 +56,7 @@ namespace Vodovoz.Dialogs
 		public void ConfigureDlg()
 		{
 			undeliveryView.ConfigureDlg(UoW, UndeliveredOrder);
+			undeliveryView.isSaved += () => Save(false);
 			SetAccessibilities();
 			if(UndeliveredOrder.Id > 0) {//если недовоз новый, то не можем оставлять комментарии
 				IUnitOfWork UoWForComments = UnitOfWorkFactory.CreateWithoutRoot();
@@ -72,7 +73,7 @@ namespace Vodovoz.Dialogs
 			unOrderCmntView.Visible = UndeliveredOrder.Id > 0;
 		}
 
-		public virtual bool Save()
+		public virtual bool Save(bool needClose = true)
 		{
 			var valid = new QSValidator<UndeliveredOrder>(UndeliveredOrder);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
@@ -90,7 +91,8 @@ namespace Vodovoz.Dialogs
 			}
 
 			UoW.Save(UndeliveredOrder);
-			this.OnCloseTab(false);
+			if(needClose)
+				this.OnCloseTab(false);
 			return true;
 		}
 

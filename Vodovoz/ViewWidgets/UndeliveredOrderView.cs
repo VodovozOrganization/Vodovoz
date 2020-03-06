@@ -9,7 +9,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Services;
 using QSProjectsLib;
@@ -35,9 +34,9 @@ namespace Vodovoz.ViewWidgets
 		ICommonServices commonServices = ServicesConfig.CommonServices;
 		bool CanChangeProblemSource = false;
 
+		public Func<bool> isSaved;
 		public IUnitOfWork UoW { get; set; }
 		public UndeliveredOrderView() => this.Build();
-
 
 		public void OnTabAdded()
 		{
@@ -409,7 +408,18 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnButtonAddFineClicked(object sender, EventArgs e)
 		{
-			FineDlg fineDlg = new FineDlg(UoW.GetById<UndeliveredOrder>(undelivery.Id));
+			if(undelivery.Id == 0) {
+				if(QSOrmProject.CommonDialogs.SaveBeforeCreateSlaveEntity(undelivery.GetType(), typeof(Fine))) {
+					var saved = isSaved?.Invoke();
+					if(!saved.HasValue || !saved.Value)
+						return;
+				} else
+					return;
+			}
+			FineDlg fineDlg;
+			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				fineDlg = new FineDlg(uow.GetById<UndeliveredOrder>(undelivery.Id));
+			}
 			MyTab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Fine>(undelivery.Id),
 				() => fineDlg
