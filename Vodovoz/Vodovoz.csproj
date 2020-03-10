@@ -1393,6 +1393,10 @@
     <Compile Include="Filters\ViewModels\WarehouseJournalFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\WarehouseFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseFilterView.cs" />
+    <Compile Include="Filters\ViewModels\DeliveryPointJournalFilterViewModel.cs" />
+    <Compile Include="JournalViewModels\DeliveryPointJournalViewModel.cs" />
+    <Compile Include="Filters\GtkViews\DeliveryPointJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

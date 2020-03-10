@@ -644,14 +644,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		Buttons mode = Buttons.Edit;
-		if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint"))
-			mode |= Buttons.Delete;
-
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<DeliveryPointsVM>(),
-			() => new PermissionControlledRepresentationJournal(new DeliveryPointsVM(), mode)
-		);
+		DeliveryPointJournalFilterViewModel filter = new DeliveryPointJournalFilterViewModel();
+		var deliveryPointJournal = new DeliveryPointJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(deliveryPointJournal);
 	}
 
 	protected void OnPropertiesActionActivated(object sender, EventArgs e)
