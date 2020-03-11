@@ -492,7 +492,10 @@ namespace Vodovoz.Views.Logistic
 						Tag = order
 					};
 
-					string ttText = order.DeliveryPoint.ShortAddress;
+					string ttText = null;
+					if(order.ActualTotalSum > 20000 && order.PaymentType == Domain.Client.PaymentType.cash)
+						ttText += string.Format("Сумма заказа: {0}", order.ActualTotalSum);
+					ttText += "\n" + order.DeliveryPoint.ShortAddress;
 					if(order.Total19LBottlesToDeliver > 0)
 						ttText += string.Format("\nБутылей 19л: {0}", order.Total19LBottlesToDeliver);
 					if(order.Total6LBottlesToDeliver > 0)

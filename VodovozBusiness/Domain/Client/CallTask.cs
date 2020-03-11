@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using QS.Report;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Client
 {
@@ -16,6 +17,7 @@ namespace Vodovoz.Domain.Client
 		Nominative = "Задача по обзвону"
 	)]
 	[EntityPermission]
+	[HistoryTrace]
 	public class CallTask : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual string Title {

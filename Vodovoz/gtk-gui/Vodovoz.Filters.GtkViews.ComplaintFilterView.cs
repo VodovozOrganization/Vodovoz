@@ -38,7 +38,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Vodovoz.Views.Complaints.GuiltyItemView guiltyItemView;
 
-		private global::Gtk.Label GtkLabel4;
+		private global::Gtk.Label GtkLabel7;
 
 		private global::Gtk.VSeparator vseparator2;
 
@@ -73,7 +73,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.table4 = new global::Gtk.Table(((uint)(2)), ((uint)(3)), false);
+			this.table4 = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
 			this.table4.Name = "table4";
 			this.table4.RowSpacing = ((uint)(6));
 			this.table4.ColumnSpacing = ((uint)(6));
@@ -127,8 +127,10 @@ namespace Vodovoz.Filters.GtkViews
 			w4.Fill = false;
 			this.table4.Add(this.hbox3);
 			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table4[this.hbox3]));
-			w5.LeftAttach = ((uint)(2));
+			w5.TopAttach = ((uint)(2));
+			w5.BottomAttach = ((uint)(3));
 			w5.RightAttach = ((uint)(3));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
 			this.hbox5 = new global::Gtk.HBox();
@@ -142,7 +144,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.ybuttonMyComplaint.Label = global::Mono.Unix.Catalog.GetString("Мои жалобы");
 			this.hbox5.Add(this.ybuttonMyComplaint);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ybuttonMyComplaint]));
-			w6.Position = 1;
+			w6.Position = 0;
 			w6.Expand = false;
 			w6.Fill = false;
 			this.table4.Add(this.hbox5);
@@ -152,6 +154,7 @@ namespace Vodovoz.Filters.GtkViews
 			w7.LeftAttach = ((uint)(2));
 			w7.RightAttach = ((uint)(3));
 			w7.XPadding = ((uint)(3));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
@@ -208,11 +211,11 @@ namespace Vodovoz.Filters.GtkViews
 			this.guiltyItemView.Name = "guiltyItemView";
 			this.GtkAlignment3.Add(this.guiltyItemView);
 			this.frmGuilty.Add(this.GtkAlignment3);
-			this.GtkLabel4 = new global::Gtk.Label();
-			this.GtkLabel4.Name = "GtkLabel4";
-			this.GtkLabel4.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Виновный:</b>");
-			this.GtkLabel4.UseMarkup = true;
-			this.frmGuilty.LabelWidget = this.GtkLabel4;
+			this.GtkLabel7 = new global::Gtk.Label();
+			this.GtkLabel7.Name = "GtkLabel7";
+			this.GtkLabel7.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Виновный:</b>");
+			this.GtkLabel7.UseMarkup = true;
+			this.frmGuilty.LabelWidget = this.GtkLabel7;
 			this.hbox1.Add(this.frmGuilty);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.frmGuilty]));
 			w15.Position = 2;
@@ -228,6 +231,7 @@ namespace Vodovoz.Filters.GtkViews
 			w16.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild

@@ -71,13 +71,14 @@ namespace Vodovoz.Domain.Contacts
 
 		public virtual Phone Init(IContactsParameters contactsParameters)
 		{
-			if(String.IsNullOrWhiteSpace(contactsParameters.DefaultCityCode))
-				Number = String.Empty;
-			else
-				Number = String.Format("({0})", contactsParameters.DefaultCityCode);
+			//I-2566 Отключено за ненадобностью
+			//if(String.IsNullOrWhiteSpace(contactsParameters.DefaultCityCode))
+			//	Number = String.Empty;
+			//else
+			//Number = String.Format("({0})", contactsParameters.DefaultCityCode);
 
+			Number = String.Empty;
 			Additional = String.Empty;
-
 			return this;
 		}
 

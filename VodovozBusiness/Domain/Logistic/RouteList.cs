@@ -1647,7 +1647,7 @@ namespace Vodovoz.Domain.Logistic
 				//Если все заказы не выполнены, то нет зарплаты
 				return DriverWageCalculationSrc.HasAnyCompletedAddress ? FixedDriverWage : 0;
 			}
-			return Addresses.Sum(item => item.DriverWage);
+			return Addresses.Sum(item => (item.DriverWage + item.DriverWageSurcharge));
 		}
 
 		/// <summary>

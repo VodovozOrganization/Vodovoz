@@ -1746,7 +1746,7 @@ namespace Vodovoz.Domain.Orders
 			} else if(wsa.HasFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == infuentialNomenclature?.Id)) {
 				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == infuentialNomenclature?.Id).Price;
 			} else {
-				price = nomenclature.GetPrice(proSet == null ? GetTotalWater19LCount() : count);
+				price = nomenclature.GetPrice(proSet == null ? GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : count);
 			}
 
 			var oi = new OrderItem {
@@ -2107,25 +2107,61 @@ namespace Vodovoz.Domain.Orders
 				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
 
 			foreach(OrderItem orderItem in order.OrderItems) {
+
+				decimal discMoney;
+				if(orderItem.DiscountMoney == 0) {
+					if(orderItem.OriginalDiscountMoney == null)
+						discMoney = 0;
+					else
+						discMoney = orderItem.OriginalDiscountMoney.Value;
+				} else {
+					discMoney = orderItem.DiscountMoney;
+				}
+
+				decimal disc;
+				if(orderItem.Discount == 0) {
+					if(orderItem.OriginalDiscount == null)
+						disc = 0;
+					else
+						disc = orderItem.OriginalDiscount.Value;
+				} else {
+					disc = orderItem.Discount;
+				}
+
 				ObservableOrderItems.Add(
 					new OrderItem {
 						Order = this,
 						AdditionalAgreement = orderItem.AdditionalAgreement,
 						Nomenclature = orderItem.Nomenclature,
 						Equipment = orderItem.Equipment,
+						PromoSet = orderItem.PromoSet,
 						Price = orderItem.Price,
 						IsUserPrice = orderItem.IsUserPrice,
 						Count = orderItem.Count,
 						IncludeNDS = orderItem.IncludeNDS,
 						IsDiscountInMoney = orderItem.IsDiscountInMoney,
-						Discount = orderItem.Discount,
-						DiscountMoney = orderItem.DiscountMoney,
-						DiscountReason = orderItem.DiscountReason,
+						DiscountMoney = discMoney,
+						Discount = disc,
+						DiscountReason = orderItem.DiscountReason ?? orderItem.OriginalDiscountReason,
 						FreeRentEquipment = orderItem.FreeRentEquipment,
 						PaidRentEquipment = orderItem.PaidRentEquipment
 					}
 				);
 			}
+			RecalculateItemsPrice();
+		}
+
+		/// <summary>
+		/// Наполнение списка промо-наборов нового заказа элементами списка другого заказа.
+		/// </summary>
+		/// <param name="order">Заказ, из которого будет производится копирование оборудования</param>
+		public virtual void CopyPromotionalSetsFrom(Order order)
+		{
+			if(Id > 0)
+				throw new InvalidOperationException("Копирование списка товаров из другого заказа недопустимо, если этот заказ не новый.");
+
+			foreach(var proSet in order.PromotionalSets)
+				ObservablePromotionalSets.Add(proSet);
 		}
 
 		/// <summary>

@@ -85,6 +85,8 @@ using Vodovoz.ViewModels.Permissions;
 using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
+using Vodovoz.FilterViewModels.Warehouses;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz
 {
@@ -153,6 +155,8 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_manage_users", new PresetUserPermissionSource("can_manage_users", "Изменение существующего и создание нового пользователей в диалоге сотрудника", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_change_undelivery_problem_source", new PresetUserPermissionSource("can_change_undelivery_problem_source", "Изменение источника проблемы в недовозах", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_add_online_store_nomenclatures_to_order", new PresetUserPermissionSource("can_add_online_store_nomenclatures_to_order", "Добавление номенклатур интернет магазина в заказ", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_change_driver_surcharge", new PresetUserPermissionSource("can_change_driver_surcharge", "Изменение доплаты водителя", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_retrieve_routelist_en_route", new PresetUserPermissionSource("can_retrieve_routelist_en_route", "Возможность вернуть статус МЛ в путь", string.Empty));
 
 			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {
@@ -162,7 +166,9 @@ namespace Vodovoz
 			};
 
 			UserDialog.PermissionViewsCreator = () => {
-				return new List<IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
+				var permissionMatrix = new PermissionMatrix<WarehousePermissions, Warehouse>();
+				permissionMatrix.SetFilterFunctions(x => x.IsArchive == false);
+				return new List<IPermissionsView> { new PermissionMatrixView(permissionMatrix, "Доступ к складам", "warehouse_access") };
 			};
 
 			WarehousePermissionService.WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
@@ -219,12 +225,15 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<NomenclatureFilterViewModel, NomenclaturesFilterView>()
 				.RegisterWidgetForWidgetViewModel<RequestsToSuppliersFilterViewModel, RequestsToSuppliersFilterView>()
 				.RegisterWidgetForWidgetViewModel<NomenclatureStockFilterViewModel, NomenclatureStockFilterView>()
+				.RegisterWidgetForWidgetViewModel<OrderForMovDocJournalFilterViewModel, OrderForMovDocFilterView>()
 				.RegisterWidgetForWidgetViewModel<BottlesCountAdvancedWageParameterViewModel, BottlesCountAdvancedWageParameterWidget>()
 				.RegisterWidgetForWidgetViewModel<DeliveryTimeAdvancedWageParameterViewModel, DeliveryTimeAdvancedWagePrameterView>()
 				.RegisterWidgetForWidgetViewModel<AdvancedWageParametersViewModel, AdvancedWageParametersView>()
 				.RegisterWidgetForWidgetViewModel<AddFixPriceActionViewModel, AddFixPriceActionView>()
 				.RegisterWidgetForWidgetViewModel<CarJournalFilterViewModel, CarFilterView>()
+				.RegisterWidgetForWidgetViewModel<WarehouseJournalFilterViewModel, WarehouseFilterView>()
 				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
+				.RegisterWidgetForWidgetViewModel<DeliveryPointJournalFilterViewModel, DeliveryPointJournalFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
@@ -377,6 +386,11 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
+			OrmMain.AddObjectDescription<Post>()
+				   .DefaultTableView()
+				   .SearchColumn("Код", x => x.Id.ToString())
+				   .SearchColumn("Название", x => x.Name)
+				   .End();
 			#endregion
 
 			#region неПростые справочники
@@ -428,10 +442,6 @@ namespace Vodovoz
 				   .SearchColumn("Номер", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
-			OrmMain.AddObjectDescription<TariffZone>().DefaultTableView()
-				   .SearchColumn("Номер", x => x.Id.ToString())
-				   .SearchColumn("Название", x => x.Name)
-				   .End();
 			OrmMain.AddObjectDescription<DeliveryPointCategory>().Dialog<DeliveryPointCategoryDlg>().DefaultTableView()
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
@@ -448,6 +458,7 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.DistrictName)
 				   .End();
+
 			#endregion
 
 			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());

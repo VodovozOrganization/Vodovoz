@@ -170,6 +170,8 @@
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\SelectableParameter.cs" />
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\ParametersEnumFactory.cs" />
     <Compile Include="ViewModels\ExportImportNomenclatureCatalogViewModel.cs" />
+    <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
+    <Compile Include="JournalNodes\OrderForMovDocJournalNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />

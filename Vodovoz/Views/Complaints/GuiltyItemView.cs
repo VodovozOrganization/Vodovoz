@@ -38,6 +38,7 @@ namespace Vodovoz.Views.Complaints
 			yCmbSubdivision.Binding.AddBinding(ViewModel, s => s.AllDepartments, w => w.ItemsList).InitializeFromSource();
 			yCmbSubdivision.Binding.AddBinding(ViewModel.Entity, s => s.Subdivision, w => w.SelectedItem).InitializeFromSource();
 			yCmbSubdivision.Binding.AddBinding(ViewModel, vm => vm.CanChooseSubdivision, w => w.Visible).InitializeFromSource();
+			yCmbSubdivision.SetSizeRequest(250, 30);
 
 			this.Shown += (s, ea) => {
 				entVmEmployee.Visible = ViewModel.CanChooseEmployee;

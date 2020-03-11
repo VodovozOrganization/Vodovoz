@@ -64,16 +64,26 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<TransferOperationVMNode>.Create()
-										.AddColumn("ID").AddTextRenderer(node => String.Format("Перенос №{0}", node.Id)).SearchHighlight()
-										.AddColumn("Дата").SetDataProperty(node => node.DateString)
-										.AddColumn("От клиента").SetDataProperty(node => node.FromCounterparty)
-										.AddColumn("Откуда").SetDataProperty(node => node.FromDeliveryPoint)
-										.AddColumn("К клиенту").SetDataProperty(node => node.ToCounterparty)
-										.AddColumn("Куда").SetDataProperty(node => node.ToDeliveryPoint)
-										.AddColumn("Автор").SetDataProperty(node => node.Author)
-										.AddColumn("Автор последней правки").SetDataProperty(node => node.LastEditor)
-										.AddColumn("Коментарий").SetDataProperty(node => node.Comment)
-										.Finish();
+			.AddColumn("ID").AddTextRenderer(node => String.Format("Перенос №{0}", node.Id)).SearchHighlight()
+			.AddColumn("Дата").SetDataProperty(node => node.DateString)
+			.AddColumn("От клиента").AddTextRenderer(node => node.FromCounterparty)
+				.WrapMode(Pango.WrapMode.WordChar)
+				.WrapWidth(500)
+			.AddColumn("Откуда").AddTextRenderer(node => node.FromDeliveryPoint)
+				.WrapMode(Pango.WrapMode.WordChar)
+				.WrapWidth(500)
+			.AddColumn("К клиенту").AddTextRenderer(node => node.ToCounterparty)
+				.WrapMode(Pango.WrapMode.WordChar)
+				.WrapWidth(500)
+			.AddColumn("Куда").AddTextRenderer(node => node.ToDeliveryPoint)
+				.WrapMode(Pango.WrapMode.WordChar)
+				.WrapWidth(500)
+			.AddColumn("Автор").SetDataProperty(node => node.Author)
+			.AddColumn("Автор последней правки").SetDataProperty(node => node.LastEditor)
+			.AddColumn("Коментарий").AddTextRenderer(node => node.Comment)
+				.WrapMode(Pango.WrapMode.WordChar)
+				.WrapWidth(500)
+			.Finish();
 
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
 

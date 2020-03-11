@@ -4,6 +4,7 @@ using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.Domain.Store;
+using Vodovoz.JournalFilters;
 using Vodovoz.Representations;
 
 namespace Vodovoz.JournalViewers
@@ -21,7 +22,16 @@ namespace Vodovoz.JournalViewers
 
 		void ConfigureWidget()
 		{
-			var vm = new WarehousesVM();
+			WarehouseFilter warehouseFilter = new WarehouseFilter();
+			warehouseFilter.RestrictArchive = true;
+			hboxFilter.Add(warehouseFilter);
+			warehouseFilter.ShowAll();
+			var vm = new WarehousesVM(warehouseFilter);
+			warehouseFilter.Refiltered += (sender, e) => { 
+				vm.UpdateNodes();
+				tableWarehouses.YTreeModel = vm.TreeModel; 
+				tableWarehouses.ExpandAll(); 
+			};
 			tableWarehouses.ColumnsConfig = vm.ColumnsConfig;
 			vm.UpdateNodes();
 			tableWarehouses.YTreeModel = vm.TreeModel;
@@ -29,6 +39,7 @@ namespace Vodovoz.JournalViewers
 			tableWarehouses.Selection.Changed += OnSelectionChanged;
 			tableWarehouses.ExpandAll();
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
+			buttonFilter.Toggled += (sender, e) => { hboxFilter.Visible = !hboxFilter.Visible; };
 		}
 
 		void OnSelectionChanged(object sender, EventArgs e)

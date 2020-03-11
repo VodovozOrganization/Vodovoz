@@ -68,7 +68,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yLabel lblTareReturnedBefore;
 
-		private global::Vodovoz.ReturnsReceptionView returnsreceptionview1;
+		private global::Vodovoz.ReturnsReceptionView returnsreceptionview;
 
 		protected virtual void Build()
 		{
@@ -380,11 +380,11 @@ namespace Vodovoz
 			w32.Expand = false;
 			w32.Fill = false;
 			// Container child vbox7.Gtk.Box+BoxChild
-			this.returnsreceptionview1 = new global::Vodovoz.ReturnsReceptionView();
-			this.returnsreceptionview1.Events = ((global::Gdk.EventMask)(256));
-			this.returnsreceptionview1.Name = "returnsreceptionview1";
-			this.vbox7.Add(this.returnsreceptionview1);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.returnsreceptionview1]));
+			this.returnsreceptionview = new global::Vodovoz.ReturnsReceptionView();
+			this.returnsreceptionview.Events = ((global::Gdk.EventMask)(256));
+			this.returnsreceptionview.Name = "returnsreceptionview";
+			this.vbox7.Add(this.returnsreceptionview);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox7[this.returnsreceptionview]));
 			w33.Position = 2;
 			this.hbox4.Add(this.vbox7);
 			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vbox7]));

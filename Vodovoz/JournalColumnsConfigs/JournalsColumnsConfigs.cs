@@ -5,6 +5,7 @@ using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
+using Vodovoz.Domain.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Employees;
@@ -12,6 +13,7 @@ using Vodovoz.JournalViewModels.Logistic;
 using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.JournalViewModels.WageCalculation;
+using Vodovoz.JournalViewModels.Warehouses;
 using Vodovoz.Representations;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -46,6 +48,25 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Номер звонка").AddTextRenderer(node => node.DriverCallId.ToString())
 					.AddColumn("OnLine заказ №").AddTextRenderer(node => node.OnLineNumber)
 					.AddColumn("Номер заказа интернет-магазина").AddTextRenderer(node => node.EShopNumber)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
+			//OrderForMovDocJournalViewModel
+			TreeViewColumnsConfigFactory.Register<OrderForMovDocJournalViewModel>(
+				() => FluentColumnsConfig<OrderForMovDocJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
+					.AddColumn("Статус").AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
+					.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
+					.AddColumn("Клиент")
+						.AddTextRenderer(node => node.Counterparty)
+						.WrapMode(Pango.WrapMode.WordChar)
+						.WrapWidth(400)
+					.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
+					.AddColumn("OnLine заказ №").AddTextRenderer(node => node.OnLineNumber)
+					.AddColumn("Номер заказа ИМ").AddTextRenderer(node => node.EShopNumber)
+					.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
@@ -402,6 +423,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
+			//WarehouseJournalViewModel
+			TreeViewColumnsConfigFactory.Register<WarehouseJournalViewModel>(
+				() => FluentColumnsConfig<WarehouseJournalNode>.Create()
+					.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(x => x.Title).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("В архиве?").AddTextRenderer(x => x.IsArchiveString)
+					.Finish()
+			);
+
 			//PhoneTypeJournalViewModel
 			TreeViewColumnsConfigFactory.Register<PhoneTypeJournalViewModel>(
 				() => FluentColumnsConfig<PhoneTypeJournalNode>.Create()
@@ -431,6 +461,22 @@ namespace Vodovoz.JournalColumnsConfigs
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.EmailPurpose.GetEnumTitle())
 					.AddColumn("")
+					.Finish()
+			);
+
+			//DeliveryPointJournalViewModel
+			TreeViewColumnsConfigFactory.Register<DeliveryPointJournalViewModel>(
+				() => FluentColumnsConfig<DeliveryPointJournalNode>.Create()
+					.AddColumn("OSM").AddTextRenderer(x => x.FoundOnOsm ? "Да" : "")
+					.AddColumn("Испр.").AddTextRenderer(x => x.FixedInOsm ? "Да" : "")
+					.AddColumn("Адрес")
+						.AddTextRenderer(node => node.CompiledAddress)
+						.WrapMode(Pango.WrapMode.WordChar)
+						.WrapWidth(1000)
+					.AddColumn("Адрес из 1с").AddTextRenderer(x => x.Address1c)
+					.AddColumn("Клиент").AddTextRenderer(x => x.Counterparty)
+					.AddColumn("Номер").AddTextRenderer(x => x.IdString)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
 		}

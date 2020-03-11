@@ -1382,6 +1382,21 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrdersCreationTimeReport.cs" />
     <Compile Include="Views\ExportImportNomenclatureCatalogView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.ExportImportNomenclatureCatalogView.cs" />
+    <Compile Include="TempAdapters\OrderSelectorFactory.cs" />
+    <Compile Include="Filters\ViewModels\OrderForMovDocJournalFilterViewModel.cs" />
+    <Compile Include="JournalViewModels\OrderForMovDocJournalViewModel.cs" />
+    <Compile Include="Filters\GtkViews\OrderForMovDocFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OrderForMovDocFilterView.cs" />
+    <Compile Include="JournalFilters\WarehouseFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.WarehouseFilter.cs" />
+    <Compile Include="JournalViewModels\WarehouseJournalViewModel.cs" />
+    <Compile Include="Filters\ViewModels\WarehouseJournalFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\WarehouseFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.WarehouseFilterView.cs" />
+    <Compile Include="Filters\ViewModels\DeliveryPointJournalFilterViewModel.cs" />
+    <Compile Include="JournalViewModels\DeliveryPointJournalViewModel.cs" />
+    <Compile Include="Filters\GtkViews\DeliveryPointJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -12,7 +12,6 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -98,13 +97,13 @@ namespace Vodovoz
 			editing &= Entity.RouteList?.Status != RouteListStatus.Closed || hasPermitionToEditDocWithClosedRL;
 			Entity.InitializeDefaultValues(UoW, new NomenclatureRepository());
 			yentryrefRouteList.IsEditable = ySpecCmbWarehouses.Sensitive = ytextviewCommnet.Editable = editing;
-			returnsreceptionview1.Sensitive =
+			returnsreceptionview.Sensitive =
 				hbxTareToReturn.Sensitive =
 					nonserialequipmentreceptionview1.Sensitive =
 						defectiveitemsreceptionview1.Sensitive = editing;
 
 			defectiveitemsreceptionview1.UoW =
-				returnsreceptionview1.UoW = UoW;
+				returnsreceptionview.UoW = UoW;
 
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			ySpecCmbWarehouses.ItemsList = StoreDocumentHelper.GetRestrictedWarehousesList(UoW, WarehousePermissions.CarUnloadEdit);
@@ -121,7 +120,7 @@ namespace Vodovoz
 			lblTareReturnedBefore.Binding.AddFuncBinding(Entity, e => e.ReturnedTareBeforeText, w => w.Text).InitializeFromSource();
 			spnTareToReturn.Binding.AddBinding(Entity, e => e.TareToReturn, w => w.ValueAsInt).InitializeFromSource();
 
-			defectiveitemsreceptionview1.Warehouse = returnsreceptionview1.Warehouse = Entity.Warehouse;
+			defectiveitemsreceptionview1.Warehouse = returnsreceptionview.Warehouse = Entity.Warehouse;
 
 			UpdateWidgetsVisible();
 			buttonSave.Sensitive = editing;
@@ -140,7 +139,7 @@ namespace Vodovoz
 				spnTareToReturn.Binding.AddFuncBinding(Entity, e => e.CanEdit, w => w.Sensitive).InitializeFromSource();
 				defectiveitemsreceptionview1.Sensitive = false;
 				nonserialequipmentreceptionview1.Sensitive = false;
-				returnsreceptionview1.Sensitive = false;
+				returnsreceptionview.Sensitive = false;
 
 				buttonSave.Sensitive = false;
 			} else {
@@ -199,7 +198,7 @@ namespace Vodovoz
 		void UpdateAlreadyUnloaded()
 		{
 			alreadyUnloadedEquipment = Repository.EquipmentRepository.GetEquipmentUnloadedTo(UoW, Entity.RouteList);
-			returnsreceptionview1.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
+			returnsreceptionview.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
 		}
 
 		void FillOtherReturnsTable()
@@ -231,7 +230,7 @@ namespace Vodovoz
 			}
 			nonserialequipmentreceptionview1.RouteList =
 				defectiveitemsreceptionview1.RouteList =
-					returnsreceptionview1.RouteList = Entity.RouteList;
+					returnsreceptionview.RouteList = Entity.RouteList;
 		}
 
 		private void UpdateWidgetsVisible()
@@ -251,8 +250,8 @@ namespace Vodovoz
 					continue;
 
 				var returned = item.MovementOperation.Equipment != null
-					? returnsreceptionview1.Items.FirstOrDefault(x => x.EquipmentId == item.MovementOperation.Equipment.Id)
-					: returnsreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+					? returnsreceptionview.Items.FirstOrDefault(x => x.EquipmentId == item.MovementOperation.Equipment.Id)
+					: returnsreceptionview.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
 				if(returned != null) {
 					returned.Amount = (int)item.MovementOperation.Amount;
 					returned.Redhead = item.Redhead;
@@ -302,7 +301,7 @@ namespace Vodovoz
 				if(item.MovementOperation.Equipment != null) {
 					newItem.EquipmentId = item.MovementOperation.Equipment.Id;
 				}
-				returnsreceptionview1.AddItem(newItem);
+				returnsreceptionview.AddItem(newItem);
 			}
 		}
 
@@ -337,7 +336,7 @@ namespace Vodovoz
 					defectiveItemsList.Add(item);
 			}
 
-			foreach(var node in returnsreceptionview1.Items) {
+			foreach(var node in returnsreceptionview.Items) {
 				if(node.Amount == 0)
 					continue;
 
@@ -460,7 +459,7 @@ namespace Vodovoz
 		protected void OnWarehouseChanged()
 		{
 			UpdateWidgetsVisible();
-			returnsreceptionview1.Warehouse = Entity.Warehouse;
+			returnsreceptionview.Warehouse = Entity.Warehouse;
 			FillOtherReturnsTable();
 		}
 

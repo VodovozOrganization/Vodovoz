@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Report;
-using QSOrmProject;
+using QSOrmProject.RepresentationModel;
 using QSReport;
 using Vodovoz.Domain.Store;
+using Vodovoz.FilterViewModels.Warehouses;
+using Vodovoz.JournalViewModels.Warehouses;
 
 namespace Vodovoz.Reports
 {
@@ -15,21 +19,16 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			yentryrefWarehouse.SubjectType = typeof(Warehouse);
-			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-				yentryrefWarehouse.Subject =  CurrentUserSettings.Settings.DefaultWarehouse;
+			entityVMentryWarehouse.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Warehouse, WarehouseJournalViewModel, WarehouseJournalFilterViewModel>(ServicesConfig.CommonServices));
+			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
+				entityVMentryWarehouse.Subject = CurrentUserSettings.Settings.DefaultWarehouse;
 			dateperiodpicker1.StartDate = dateperiodpicker1.EndDate = DateTime.Today;
 		}
 
 		#region IParametersWidget implementation
 
-		public string Title
-		{
-			get
-			{
-				return "Складские движения";
-			}
-		}
+		public string Title => "Складские движения";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
@@ -51,7 +50,7 @@ namespace Vodovoz.Reports
 		private ReportInfo GetReportInfo()
 		{
 			string reportId;
-			var warehouse = yentryrefWarehouse.Subject as Warehouse;
+			var warehouse = entityVMentryWarehouse.Subject as Warehouse;
 			if(warehouse == null)
 				reportId = "Store.StockWaterMovements";
 			else if(warehouse.TypeOfUse == WarehouseUsing.Shipment)

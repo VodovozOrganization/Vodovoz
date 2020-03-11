@@ -176,13 +176,12 @@ namespace Vodovoz
 			Entity.Trifle = templateOrder.Trifle;
 			Entity.IsService = templateOrder.IsService;
 			Entity.Contract = templateOrder.Contract;
+			Entity.CopyPromotionalSetsFrom(templateOrder);
 			Entity.CopyItemsFrom(templateOrder);
 			Entity.CopyDocumentsFrom(templateOrder);
 			Entity.CopyEquipmentFrom(templateOrder);
 			Entity.CopyDepositItemsFrom(templateOrder);
 			Entity.UpdateDocuments();
-
-			ConfigureDlg();
 		}
 
 		public void ConfigureDlg()
@@ -461,7 +460,7 @@ namespace Vodovoz
 								return;
 							}
 							AdditionalAgreement aa = node.AdditionalAgreement.Self;
-							if(aa is WaterSalesAgreement wsa && wsa.HasFixedPrice) {
+							if(aa is WaterSalesAgreement wsa && wsa.HasFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == node.Nomenclature.Id)) {
 								c.ForegroundGdk = colorGreen;
 							} else if(node.IsUserPrice && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category)) {
 								c.ForegroundGdk = colorBlue;
@@ -476,6 +475,11 @@ namespace Vodovoz
 				.AddColumn("Сумма")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.ActualSum))
+					.AddSetter((c, n) => {
+						if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
+							c.Text = CurrencyWorks.GetShortCurrencyString(n.OriginalSum);
+						}
+					)
 				.AddColumn("Скидка")
 					.HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ManualChangingDiscount)
@@ -485,6 +489,11 @@ namespace Vodovoz
 									? new Adjustment(0, 0, (double)n.Price * n.CurrentCount, 1, 100, 1)
 									: new Adjustment(0, 0, 100, 1, 100, 1)
 					)
+					.AddSetter((c, n) => {
+						if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
+							c.Text = n.ManualChangingOriginalDiscount.ToString();
+							}
+					) 
 					.Digits(2)
 					.WidthChars(10)
 					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
@@ -501,6 +510,11 @@ namespace Vodovoz
 						(c, n) => c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
 						? colorLightRed
 						: colorWhite
+					)
+					.AddSetter((c, n) => {
+						if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
+							c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
+						}
 					)
 				.AddColumn("Доп. соглашение")
 					.HeaderAlignment(0.5f)
