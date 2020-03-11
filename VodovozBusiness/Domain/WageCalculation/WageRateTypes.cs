@@ -23,6 +23,8 @@ namespace Vodovoz.Domain.WageCalculation
 		Bottle6L,
 		[Display(Name = "За упаковку в 36 бутылей объёмом 0.6л")]//пока 1 уп = 36 бут.
 		PackOfBottles600ml,
+		[Display(Name = "За бутыль 1.5л")]
+		Bottle1500ml,
 		[Display(Name = "За наличие оборудования или единицу оборудования")]
 		Equipment,
 		[Display(Name = "За 1 адрес")]
