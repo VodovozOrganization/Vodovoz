@@ -30,10 +30,11 @@ using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-	public class RouteListsOnDayViewModel : DialogTabViewModelBase
+	public class RouteListsOnDayViewModel : TabViewModelBase
 	{
 		readonly IRouteListRepository routeListRepository;
 		readonly ISubdivisionRepository subdivisionRepository;
@@ -42,6 +43,8 @@ namespace Vodovoz.ViewModels.Logistic
 		readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener;
 		readonly ICarRepository carRepository;
 		readonly ICommonServices commonServices;
+
+		public IUnitOfWork UoW;
 
 		public RouteListsOnDayViewModel(
 			ICommonServices commonServices,
@@ -52,7 +55,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IAtWorkRepository atWorkRepository,
 			ICarRepository carRepository,
 			INavigationManager navigationManager
-		) : base(QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices.InteractiveService, navigationManager)
+		) : base(commonServices.InteractiveService, navigationManager)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
@@ -137,9 +140,9 @@ namespace Vodovoz.ViewModels.Logistic
 					route.RemoveAddress(i);
 					if(!CheckRouteListWasChanged(route))
 						return;
-					if(IsAutoroutingModeActive)
+					if(IsAutoroutingModeActive) {
 						UoW.Save(route);
-					else
+					} else
 						SaveRouteList(route);
 					route.RecalculatePlanTime(DistanceCalculator);
 					route.RecalculatePlanedDistance(DistanceCalculator);
@@ -165,8 +168,8 @@ namespace Vodovoz.ViewModels.Logistic
 					if(obj is RouteList rl) {
 						if(HasChanges) {
 							if(AskQuestion("Сохранить маршрутный лист перед открытием?")) {
-								if(!Save())
-									return;
+								UoW.Save(rl);
+								SaveRouteList(rl);
 							} else
 								return;
 						}
@@ -385,7 +388,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public bool IsForwarderSelected => SelectedForwarder != null;
 
-		public override bool HasChanges => !HasNoChanges;
+		public bool HasChanges => !HasNoChanges;
 
 		bool hasNoChanges = true;
 		public bool HasNoChanges {
