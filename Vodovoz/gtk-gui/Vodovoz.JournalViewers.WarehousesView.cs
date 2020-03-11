@@ -114,7 +114,6 @@ namespace Vodovoz.JournalViewers
 			w10.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxFilter = new global::Gtk.HBox();
-			this.hboxFilter.HeightRequest = 30;
 			this.hboxFilter.Name = "hboxFilter";
 			this.hboxFilter.Spacing = 6;
 			this.vbox1.Add(this.hboxFilter);
@@ -138,6 +137,7 @@ namespace Vodovoz.JournalViewers
 			{
 				this.Child.ShowAll();
 			}
+			this.hboxFilter.Hide();
 			this.Hide();
 			this.btnAdd.Clicked += new global::System.EventHandler(this.OnBtnAddClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler(this.OnButtonEditClicked);

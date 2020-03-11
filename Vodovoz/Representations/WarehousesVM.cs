@@ -7,28 +7,17 @@ using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Store;
 using Gamma.Binding;
-using Vodovoz.JournalFilters;
 
 namespace Vodovoz.Representations
 {
 	public class WarehousesVM : RepresentationModelEntityBase<Warehouse, SubdivisionWithWarehousesVMNode>
 	{
-		public WarehousesVM(WarehouseFilter filter) : this(filter, UnitOfWorkFactory.CreateWithoutRoot()) { }
-
-		public WarehousesVM(WarehouseFilter filter, IUnitOfWork uow) : base()
-		{
-			this.UoW = uow;
-			this.filter = filter;
-		}
-		public WarehousesVM(WarehouseFilter filter, IUnitOfWork uow, Warehouse parent) : this(filter, uow)
-		{
-			parentId = parent.Id;
-		}
+		public WarehousesVM(IUnitOfWork uow) : base() => this.UoW = uow;
+		public WarehousesVM(IUnitOfWork uow, Warehouse parent) : this(uow) => parentId = parent.Id;
+		public WarehousesVM() : this(UnitOfWorkFactory.CreateWithoutRoot()) { }
 
 		public IList<SubdivisionWithWarehousesVMNode> Result { get; set; }
 		public IyTreeModel TreeModel { get; set; }
-
-		WarehouseFilter filter;
 		int? parentId;
 
 		public override void UpdateNodes()
@@ -63,13 +52,9 @@ namespace Vodovoz.Representations
 				foreach(var n in whGroup.Select(g => g.WarehouseId)) {
 					if(n.HasValue) {
 						var wh = UoW.GetById<Warehouse>(n.Value);
-
-						if(filter == null || !filter.RestrictArchive || !wh.IsArchive)
-							w.Warehouses.Add(wh);
-						else
-							continue;
-
+						w.Warehouses.Add(wh);
 						w.WarehouseId = null;
+
 						w.Children.Add(
 							new SubdivisionWithWarehousesVMNode {
 								ParentId = w.SubdivisionId,

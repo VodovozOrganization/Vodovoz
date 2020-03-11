@@ -13,7 +13,6 @@ using Vodovoz.JournalViewModels.Logistic;
 using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.JournalViewModels.WageCalculation;
-using Vodovoz.JournalViewModels.Warehouses;
 using Vodovoz.Representations;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -420,15 +419,6 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Модель").AddTextRenderer(x => x.Model).WrapWidth(300).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Гос. номер").AddTextRenderer(x => x.RegistrationNumber)
 					.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
-					.Finish()
-			);
-
-			//WarehouseJournalViewModel
-			TreeViewColumnsConfigFactory.Register<WarehouseJournalViewModel>(
-				() => FluentColumnsConfig<WarehouseJournalNode>.Create()
-					.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
-					.AddColumn("Название").AddTextRenderer(x => x.Title).WrapWidth(400).WrapMode(Pango.WrapMode.WordChar)
-					.AddColumn("В архиве?").AddTextRenderer(x => x.IsArchiveString)
 					.Finish()
 			);
 
