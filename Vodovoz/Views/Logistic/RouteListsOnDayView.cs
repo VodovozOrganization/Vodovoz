@@ -204,7 +204,7 @@ namespace Vodovoz.Views.Logistic
 			Refresh();
 			buttonRemoveAddress.Clicked+= (sender, e) => {
 				ViewModel.RemoveRLItemCommand.Execute(ytreeRoutes.GetSelectedObject<RouteListItem>());
-				RoutesWasUpdated();
+				ytreeRoutes.YTreeModel.EmitModelChanged();
 				UpdateAddressesOnMap();
 			};
 			checkShowCompleted.Toggled += (sender, e) => FillDialogAtDay();
@@ -482,8 +482,11 @@ namespace Vodovoz.Views.Logistic
 									type = PointMarkerType.green_stripes;
 							}
 						}
-					} else if(route != null)
+					}
+					 
+					if(route != null) {
 						type = ViewModel.GetAddressMarker(ViewModel.RoutesOnDay.IndexOf(route));
+					}
 
 					if(selectedMarkers.FirstOrDefault(m => ((Order)m.Tag).Id == order.Id) != null)
 						type = PointMarkerType.white;
@@ -607,7 +610,7 @@ namespace Vodovoz.Views.Logistic
 			}
 			if(ordersAdded) {
 				UpdateAddressesOnMap();
-				RoutesWasUpdated();
+				ytreeRoutes.YTreeModel.EmitModelChanged();
 			}
 		}
 
