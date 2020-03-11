@@ -14,6 +14,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
@@ -186,10 +187,9 @@ namespace Vodovoz
 					.AddTextRenderer (node => node.CashierComment).EditedEvent (CommentCellEdited).Editable()
 				// Комментарий менеджера ответственного за водительский телефон
 				.AddColumn("Вод. телефон").HeaderAlignment(0.5f)
-					.AddTextRenderer()
+					.SetTag("DriverNumber")
 					.AddTextRenderer(node => node.Order.CommentManager)
 				.AddColumn("Комментарий к заказу").HeaderAlignment(0.5f)
-					.AddTextRenderer()
 					.AddTextRenderer(node => node.Order.Comment)
 				.AddColumn("  З/П\nводителя").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.DriverWage)						
@@ -431,23 +431,40 @@ namespace Vodovoz
 			ytreeviewItems.EnableGridLines = TreeViewGridLines.Both;
 		}
 
+		Dictionary<PopupMenuAction, MenuItem> menuItems;
+		string textToCopy;
+
 		public void ConfigureMenu()
 		{
+			menuItems = new Dictionary<PopupMenuAction, MenuItem>();
 			menu = new Menu();
 
-			var openReturns = new MenuItem("Открыть недовозы");
-			openReturns.Activated += (s, args) => OnClosingItemActivated(this,null);
-			menu.Append(openReturns);
-			openReturns.Show();
+			Clipboard clipboard = Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 
-			var openOrder = new MenuItem("Открыть заказ");
+			var copy = new MenuItem(PopupMenuAction.CopyCell.GetEnumTitle());
+			menuItems.Add(PopupMenuAction.CopyCell, copy);
+			copy.Activated += (s, args) => {
+				if(!String.IsNullOrWhiteSpace(textToCopy))
+					clipboard.Text = textToCopy;
+			};
+			copy.Visible = false;
+
+			var openReturns = new MenuItem(PopupMenuAction.OpenUndeliveries.GetEnumTitle());
+			openReturns.Activated += (s, args) => OnClosingItemActivated(this,null);
+			menuItems.Add(PopupMenuAction.OpenUndeliveries, openReturns);
+
+			var openOrder = new MenuItem(PopupMenuAction.OpenOrder.GetEnumTitle());
 			openOrder.Activated += (s, args) => {
 				var dlg = new OrderDlg(GetSelectedRouteListItem().Order);
 				dlg.Show();
 				MyTab.TabParent.AddTab(dlg, MyTab);
 			};
-			menu.Append(openOrder);
-			openOrder.Show();
+			menuItems.Add(PopupMenuAction.OpenOrder, openOrder);
+
+			foreach(var item in menuItems) {
+				menu.Append(item.Value);
+				item.Value.Show();
+			}
 		}
 
 		void OnYtreeviewItemsRowActivated(object sender, RowActivatedArgs args)
@@ -465,20 +482,41 @@ namespace Vodovoz
 
 		public RouteListItem GetSelectedRouteListItem()
 		{
-			return (ytreeviewItems.GetSelectedObject() as RouteListItem);
+			return ytreeviewItems.GetSelectedObject() as RouteListItem;
 		}
 
 		[GLib.ConnectBefore]
-		protected void OnYtreeviewItemsButtonPressEvent (object o, ButtonPressEventArgs buttonPressArgs)
+		protected void OnYtreeviewItemsButtonPressEvent(object o, ButtonPressEventArgs buttonPressArgs)
 		{
 			if (buttonPressArgs.Event.Button == 3)
 			{
+				int x = (int)buttonPressArgs.Event.X;
+				int y = (int)buttonPressArgs.Event.Y;
+				ytreeviewItems.GetPathAtPos(x, y, out TreePath path, out TreeViewColumn column);
+				ytreeviewItems.Model.GetIter(out TreeIter iter, path);
+				var driverCol = ytreeviewItems.ColumnsConfig.GetColumnsByTag("DriverNumber").Where(c => c == column).ToArray();
+
+				menuItems[PopupMenuAction.CopyCell].Visible = false;
+				if(driverCol.Any() && ytreeviewItems.YTreeModel.NodeFromIter(iter) is RouteListItem node) {
+					textToCopy = node.Order.CommentManager;
+					menuItems[PopupMenuAction.CopyCell].Visible = true;
+				}
 				var selectedItem = GetSelectedRouteListItem();
 				if (selectedItem != null)
 				{
 					menu.Popup();
 				}
 			}
+		}
+
+		public enum PopupMenuAction
+		{
+			[Display(Name = "Копировать ячейку")]
+			CopyCell,
+			[Display(Name = "Открыть недовозы")]
+			OpenUndeliveries,
+			[Display(Name = "Открыть заказ")]
+			OpenOrder
 		}
 	}		
 }
