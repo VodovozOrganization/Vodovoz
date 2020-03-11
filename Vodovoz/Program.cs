@@ -15,6 +15,10 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using InstantSmsService;
 using QS.Project.Services;
+using Vodovoz.Core.DataService;
+using QS.ErrorReporting.GtkUI;
+using QS.ErrorReporting;
+using Vodovoz.Infrastructure;
 
 namespace Vodovoz
 {
@@ -28,9 +32,14 @@ namespace Vodovoz
 		public static void Main (string[] args)
 		{
 			Application.Init ();
-			QSMain.SubscribeToUnhadledExceptions();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
-			MainSupport.SendErrorRequestEmail = false;
+			UnhandledExceptionHandler.SubscribeToUnhadledExceptions();
+			UnhandledExceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
+			//UnhandledExceptionHandler.ApplicationInfo = new ApplicationVersionInfo();
+			//Настройка обычных обработчиков ошибок.
+			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
+			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
+			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
 
 			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
@@ -176,6 +185,13 @@ namespace Vodovoz
 				}
 			}
 			CreateTempDir();
+
+			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				UnhandledExceptionHandler.User = ServicesConfig.UserService.GetCurrentUser(uow);
+			}
+
+			UnhandledExceptionHandler.ApplicationInfo = new ApplicationInfo(loginDialogName);
+			UnhandledExceptionHandler.ErrorReportingSettings = new Infrastructure.ErrorReportSettings(new BaseParametersProvider(), loginDialogName);
 
 			//Запускаем программу
 			MainWin = new MainWindow();

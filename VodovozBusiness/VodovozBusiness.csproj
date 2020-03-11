@@ -832,6 +832,7 @@
     <Compile Include="Services\IDriverServiceParametersProvider.cs" />
     <Compile Include="EntityRepositories\Delivery\IDeliveryRepository.cs" />
     <Compile Include="EntityRepositories\Delivery\DeliveryRepository.cs" />
+    <Compile Include="Services\IErrorSendParameterProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
