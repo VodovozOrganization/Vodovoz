@@ -4,8 +4,6 @@ using NLog;
 using QSProjectsLib;
 using Vodovoz.Parameters;
 using Vodovoz.Additions;
-using Vodovoz.DriverTerminal;
-using QS.Project.Repositories;
 using EmailService;
 using QS.Project.Dialogs.GtkUI;
 using QS.Utilities.Text;
@@ -16,7 +14,6 @@ using Vodovoz.Domain.Employees;
 using InstantSmsService;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
-using QS.ErrorReporting.GtkUI;
 using QS.ErrorReporting;
 using Vodovoz.Infrastructure;
 
@@ -33,13 +30,6 @@ namespace Vodovoz
 		{
 			Application.Init ();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
-			UnhandledExceptionHandler.SubscribeToUnhadledExceptions();
-			UnhandledExceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
-			//UnhandledExceptionHandler.ApplicationInfo = new ApplicationVersionInfo();
-			//Настройка обычных обработчиков ошибок.
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
 
 			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
@@ -67,6 +57,14 @@ namespace Vodovoz
 			LoginDialog.Destroy ();
 
 			QSProjectsLib.PerformanceHelper.StartMeasurement ("Замер запуска приложения");
+
+			UnhandledExceptionHandler.SubscribeToUnhadledExceptions(new Infrastructure.ErrorReportSettings(new BaseParametersProvider(), LoginDialog.BaseName));
+			UnhandledExceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
+			//Настройка обычных обработчиков ошибок.
+			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
+			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
+			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
+			UnhandledExceptionHandler.ApplicationInfo = new ApplicationInfo(LoginDialog.BaseName);
 
 			MainSupport.HandleStaleObjectStateException = EntityChangedExceptionHelper.ShowExceptionMessage;
 
@@ -189,9 +187,6 @@ namespace Vodovoz
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				UnhandledExceptionHandler.User = ServicesConfig.UserService.GetCurrentUser(uow);
 			}
-
-			UnhandledExceptionHandler.ApplicationInfo = new ApplicationInfo(loginDialogName);
-			UnhandledExceptionHandler.ErrorReportingSettings = new Infrastructure.ErrorReportSettings(new BaseParametersProvider(), loginDialogName);
 
 			//Запускаем программу
 			MainWin = new MainWindow();
