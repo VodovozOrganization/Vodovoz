@@ -1,6 +1,4 @@
-﻿using System;
-using QS.ErrorReporting.GtkUI;
-using QSSupportLib;
+﻿using QS.ErrorReporting;
 using Vodovoz.Services;
 
 namespace Vodovoz.Infrastructure
