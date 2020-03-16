@@ -54,6 +54,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		private decimal GetRateValue(IRouteListItemWageCalculationSource src, WageRate rate)
 		{
+			if(rate == null)
+				return 0;
 			switch(wageCalculationSource.EmployeeCategory) {
 				case EmployeeCategory.driver:
 					return src.WasVisitedByForwarder ? rate.WageForDriverWithForwarder(src): rate.WageForDriverWithoutForwarder(src);
