@@ -58,16 +58,6 @@ namespace Vodovoz
 
 			QSProjectsLib.PerformanceHelper.StartMeasurement ("Замер запуска приложения");
 
-			UnhandledExceptionHandler.SubscribeToUnhadledExceptions(new Infrastructure.ErrorReportSettings(new BaseParametersProvider(), LoginDialog.BaseName));
-			UnhandledExceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
-			//Настройка обычных обработчиков ошибок.
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
-			UnhandledExceptionHandler.ApplicationInfo = new ApplicationInfo(LoginDialog.BaseName);
-
-			MainSupport.HandleStaleObjectStateException = EntityChangedExceptionHelper.ShowExceptionMessage;
-
 			//Настройка базы
 			CreateBaseConfig ();
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
@@ -75,6 +65,29 @@ namespace Vodovoz
 
 			MainSupport.LoadBaseParameters();
 			ParametersProvider.Instance.RefreshParameters();
+
+			#region Настройка обработки ошибок
+			SingletonErrorReporter.Initialize(ReportWorker.GetReportService(),
+				new ApplicationInfo(), 
+				new DatabaseInfo(LoginDialog.BaseName),
+				new LogService()
+			);
+			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
+				var baseParameters = new BaseParametersProvider();
+				UnhandledExceptionHandler.SubscribeToUnhadledExceptions(
+					new Tools.ErrorReportSettings(baseParameters, null, uow, ServicesConfig.UserService, LoginDialog.BaseName),
+					new DefaultErrorDialogSettings(),
+					SingletonErrorReporter.Instance
+				);
+			}
+			UnhandledExceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
+			//Настройка обычных обработчиков ошибок.
+			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
+			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
+			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
+
+			MainSupport.HandleStaleObjectStateException = EntityChangedExceptionHelper.ShowExceptionMessage;
+			#endregion
 
 			//Настройка карты
 			GMap.NET.MapProviders.GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
@@ -114,13 +127,6 @@ namespace Vodovoz
 				usersDlg.Run();
 				usersDlg.Destroy();
 				return;
-				// Пока неактуально + ломает работу для пользователей с админскими правами
-				//} else if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("driver_terminal")) {
-				//DriverTerminalWindow driverTerminal = new DriverTerminalWindow();
-				//progressBarWin = driverTerminal;
-				//driverTerminal.Title = "Печать документов МЛ";
-				//QSMain.ErrorDlgParrent = driverTerminal;
-				//driverTerminal.Show();
 			} else {
 				if(ChangePassword(LoginDialog.BaseName))
 					StartMainWindow(LoginDialog.BaseName);
@@ -171,7 +177,7 @@ namespace Vodovoz
 			//Настрока удаления
 			Configure.ConfigureDeletion();
 			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
-
+			//Настройка сервисов
 			if(ParametersProvider.Instance.ContainsParameter("email_send_enabled_database") && ParametersProvider.Instance.ContainsParameter("email_service_address")) {
 				if(ParametersProvider.Instance.GetParameterValue("email_send_enabled_database") == loginDialogName) {
 					EmailServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("email_service_address"));
@@ -182,11 +188,8 @@ namespace Vodovoz
 					InstantSmsServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("sms_service_address"));
 				}
 			}
-			CreateTempDir();
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				UnhandledExceptionHandler.User = ServicesConfig.UserService.GetCurrentUser(uow);
-			}
+			CreateTempDir();
 
 			//Запускаем программу
 			MainWin = new MainWindow();

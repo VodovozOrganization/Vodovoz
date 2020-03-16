@@ -833,6 +833,7 @@
     <Compile Include="EntityRepositories\Delivery\IDeliveryRepository.cs" />
     <Compile Include="EntityRepositories\Delivery\DeliveryRepository.cs" />
     <Compile Include="Services\IErrorSendParameterProvider.cs" />
+    <Compile Include="Tools\ErrorReportSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
