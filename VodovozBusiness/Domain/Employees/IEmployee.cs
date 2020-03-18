@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Employees
 		string AndroidPassword { get; set; }
 		string AndroidSessionKey { get; set; }
 		string AndroidToken { get; set; }
-		bool IsFired { get; set; }
+		EmployeeStatus Status { get; set; }
 		User User { get; set; }
 		Subdivision Subdivision { get; set; }
 		DateTime? FirstWorkDay { get; set; }

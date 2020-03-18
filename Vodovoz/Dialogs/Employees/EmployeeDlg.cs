@@ -7,7 +7,6 @@ using NLog;
 using QS.Banks.Domain;
 using Vodovoz.Domain.Contacts;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity.PresetPermissions;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Repositories;
@@ -30,9 +29,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.EntityRepositories.Employees;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Project.Services.GtkUI;
-using QS.EntityRepositories;
 using Vodovoz.Domain.Sms;
-using System.Threading.Tasks;
 using InstantSmsService;
 using Vodovoz.Services;
 using Vodovoz.Domain.Service.BaseParametersServices;
@@ -56,7 +53,7 @@ namespace Vodovoz
 		}
 		private MySQLUserRepository mySQLUserRepository;
 		private EmployeeCategory[] hiddenCategory;
-		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence };
+		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence, EmployeeDocumentType.ForeignCitizenPassport };
 		private readonly EmployeeDocumentType[] hiddenForForeignCitizen = { EmployeeDocumentType.MilitaryID, EmployeeDocumentType.NavyPassport, EmployeeDocumentType.OfficerCertificate };
 
 		public EmployeeDlg()
@@ -104,8 +101,9 @@ namespace Vodovoz
 			wageParametersRepository = WageSingletonRepository.GetInstance();
 			subdivisionService = SubdivisionParametersProvider.Instance;
 
-			checkIsFired.Binding.AddBinding(Entity, e => e.IsFired, w => w.Active).InitializeFromSource();
-			checkVisitingMaster.Binding.AddBinding(Entity, e => e.VisitingMaster, w => w.Active).InitializeFromSource();
+			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
+			yenumcomboStatus.Binding.AddBinding(Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
+
 			chkDriverForOneDay.Binding.AddBinding(Entity, e => e.IsDriverForOneDay, w => w.Active).InitializeFromSource();
 			cmbDriverOf.ItemsEnum = typeof(CarTypeOfUse);
 			cmbDriverOf.Binding.AddBinding(Entity, e => e.DriverOf, w => w.SelectedItemOrNull).InitializeFromSource();
@@ -125,8 +123,8 @@ namespace Vodovoz
 
 			var filterDefaultForwarder = new EmployeeFilterViewModel();
 			filterDefaultForwarder.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.forwarder,
-				x => x.ShowFired = false
+				x => x.Category = EmployeeCategory.forwarder,
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			repEntDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			repEntDefaultForwarder.Binding.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
@@ -156,6 +154,9 @@ namespace Vodovoz
 			yenumcombobox13.Binding.AddBinding(Entity, e => e.Registration, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			ydatepicker1.Binding.AddBinding(Entity, e => e.BirthdayDate, w => w.DateOrNull).InitializeFromSource();
+			dateFired.Binding.AddBinding(Entity, e => e.DateFired, w => w.DateOrNull).InitializeFromSource();
+			dateHired.Binding.AddBinding(Entity, e => e.DateHired, w => w.DateOrNull).InitializeFromSource();
+			dateCalculated.Binding.AddBinding(Entity, e => e.DateCalculated, w => w.DateOrNull).InitializeFromSource();
 
 			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;

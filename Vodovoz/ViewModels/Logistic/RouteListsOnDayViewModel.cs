@@ -192,7 +192,7 @@ namespace Vodovoz.ViewModels.Logistic
 					var drvFilter = new EmployeeFilterViewModel();
 					drvFilter.SetAndRefilterAtOnce(
 						x => x.RestrictCategory = EmployeeCategory.driver,
-						x => x.ShowFired = false
+						x => x.Status = EmployeeStatus.IsWorking
 					);
 					var drvJournalViewModel = new EmployeesJournalViewModel(
 						drvFilter,
@@ -258,7 +258,7 @@ namespace Vodovoz.ViewModels.Logistic
 					var fwdFilter = new EmployeeFilterViewModel();
 					fwdFilter.SetAndRefilterAtOnce(
 						x => x.RestrictCategory = EmployeeCategory.forwarder,
-						x => x.ShowFired = false
+						x => x.Status = EmployeeStatus.IsWorking
 					);
 					var fwdJournalViewModel = new EmployeesJournalViewModel(
 						fwdFilter,

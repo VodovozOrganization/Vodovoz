@@ -100,7 +100,7 @@ namespace Vodovoz.Domain.Logistic
 				if(SetField(ref car, value, () => Car)) {
 					ChangeFuelDocumentsChangeCar(oldCar);
 
-					if(value?.Driver != null && value?.Driver.IsFired == false)
+					if(value?.Driver != null && value?.Driver.Status != EmployeeStatus.IsFired)
 						Driver = value.Driver;
 
 					if(Id == 0) {
@@ -504,11 +504,12 @@ namespace Vodovoz.Domain.Logistic
 		/// <param name="driver">Водитель</param>
 		Employee GetDefaultForwarder(Employee driver)
 		{
-			if(driver?.DefaultForwarder?.IsFired == false)
-				return driver.DefaultForwarder;
-			//если больше не с нами,то не нужно его держать умолчальным в водителе
-			if(driver?.DefaultForwarder != null)
+			if(driver?.DefaultForwarder?.Status == EmployeeStatus.IsFired) {
+				//если больше не с нами,то не нужно его держать умолчальным в водителе
 				driver.DefaultForwarder = null;
+			} else if(driver != null && driver.DefaultForwarder != null) {
+				return driver.DefaultForwarder;
+			}
 			return null;
 		}
 

@@ -131,7 +131,7 @@ namespace Vodovoz.Dialogs.Fuel
 				if(driversVM == null) {
 					var filterDriver = new EmployeeFilterViewModel();
 					filterDriver.SetAndRefilterAtOnce(
-						x => x.ShowFired = false
+						x => x.Status = EmployeeStatus.IsWorking
 					);
 					driversVM = new EmployeesVM(filterDriver);
 				}

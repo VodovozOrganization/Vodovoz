@@ -36,7 +36,7 @@ namespace Vodovoz.Reports
 
 			var filterCasher = new EmployeeFilterViewModel();
 			filterCasher.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
-			filterCasher.ShowFired = false;
+			filterCasher.Status = EmployeeStatus.IsWorking;
 			yentryrefCasher.RepresentationModel = new EmployeesVM(filterCasher);
 
 			yentryrefEmployee.RepresentationModel = new EmployeesVM();

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
-using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
@@ -26,6 +23,7 @@ namespace Vodovoz.JournalViewModels
 			commonServices
 		)
 		{
+			this.TabName = "Журнал сотрудников";
 			UpdateOnChanges(typeof(Employee));
 		}
 
@@ -35,13 +33,13 @@ namespace Vodovoz.JournalViewModels
 
 			var query = uow.Session.QueryOver(() => employeeAlias);
 
-			if(!FilterViewModel.ShowFired)
-				query.Where(e => !e.IsFired);
+			if(FilterViewModel?.Status != null)
+				query.Where(e => e.Status == FilterViewModel.Status);
 
-			if(FilterViewModel.Category != null)
+			if(FilterViewModel?.Category != null)
 				query.Where(e => e.Category == FilterViewModel.Category);
 
-			if(FilterViewModel.RestrictWageType.HasValue) {
+			if(FilterViewModel?.RestrictWageType != null) {
 				var subquery = QueryOver.Of<WageParameter>()
 										.Where(p => p.WageParameterType == FilterViewModel.RestrictWageType.Value)
 										.Where(p => p.EndDate == null || p.EndDate >= DateTime.Today)
@@ -59,7 +57,7 @@ namespace Vodovoz.JournalViewModels
 			var result = query
 				.SelectList(list => list
 				   .Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
-				   .Select(() => employeeAlias.IsFired).WithAlias(() => resultAlias.IsFired)
+				   .Select(() => employeeAlias.Status).WithAlias(() => resultAlias.Status)
 				   .Select(() => employeeAlias.Name).WithAlias(() => resultAlias.EmpFirstName)
 				   .Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmpLastName)
 				   .Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmpMiddleName)

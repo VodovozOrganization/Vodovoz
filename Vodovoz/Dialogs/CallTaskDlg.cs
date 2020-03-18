@@ -81,8 +81,8 @@ namespace Vodovoz.Dialogs
 
 
 			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel();
+			employeeFilterViewModel.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
-			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
 			EmployeeyEntryreferencevm.RepresentationModel = employeeVM;
 
 			EmployeeyEntryreferencevm.Binding.AddBinding(Entity, s => s.AssignedEmployee, w => w.Subject).InitializeFromSource();

@@ -25,7 +25,7 @@ namespace Vodovoz
 			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			yentryrefDriver.RepresentationModel = new EmployeesVM(filter);
 			dateperiodDocs.StartDate = DateTime.Today.AddDays(-7);

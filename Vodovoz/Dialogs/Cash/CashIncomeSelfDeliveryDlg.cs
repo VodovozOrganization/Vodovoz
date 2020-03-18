@@ -102,7 +102,7 @@ namespace Vodovoz.Dialogs.Cash
 			Entity.TypeOperation = IncomeType.Payment;
 
 			var filterCasher = new EmployeeFilterViewModel();
-			filterCasher.ShowFired = false;
+			filterCasher.Status = Domain.Employees.EmployeeStatus.IsWorking;
 			yentryCasher.RepresentationModel = new EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 			yentryCasher.Sensitive = false;

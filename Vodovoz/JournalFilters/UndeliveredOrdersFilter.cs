@@ -33,7 +33,7 @@ namespace Vodovoz.JournalFilters
 			var driversFilter = new EmployeeFilterViewModel();
 			driversFilter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			refDriver.RepresentationModel = new EmployeesVM(driversFilter);
 
@@ -43,7 +43,7 @@ namespace Vodovoz.JournalFilters
 			var authorsFilter = new EmployeeFilterViewModel();
 			authorsFilter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			refOldOrderAuthor.RepresentationModel = refUndeliveryAuthor.RepresentationModel = new EmployeesVM(authorsFilter);
 

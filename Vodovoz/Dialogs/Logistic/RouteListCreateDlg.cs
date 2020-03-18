@@ -106,7 +106,7 @@ namespace Vodovoz
 			entityviewmodelentryCar.CompletionPopupSetWidth(false);
 			entityviewmodelentryCar.ChangedByUser += (sender, e) => {
 				if(Entity.Car != null) {
-					Entity.Driver = (Entity.Car.Driver != null && !Entity.Car.Driver.IsFired) ? Entity.Car.Driver : null;
+					Entity.Driver = (Entity.Car.Driver != null && Entity.Car.Driver.Status != EmployeeStatus.IsFired) ? Entity.Car.Driver : null;
 					referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyCar;
 					//Водители на Авто компании катаются без экспедитора
 					Entity.Forwarder = Entity.Car.IsCompanyCar ? null : Entity.Forwarder;
@@ -117,7 +117,8 @@ namespace Vodovoz
 			var filterDriver = new EmployeeFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.CanChangeStatus = false
 			);
 			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
@@ -125,7 +126,8 @@ namespace Vodovoz
 			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking,
+				x => x.CanChangeStatus = false
 			);
 			referenceForwarder.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			referenceForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();

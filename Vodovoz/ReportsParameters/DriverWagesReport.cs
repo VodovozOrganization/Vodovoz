@@ -22,7 +22,7 @@ namespace Vodovoz.Reports
 			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 		}

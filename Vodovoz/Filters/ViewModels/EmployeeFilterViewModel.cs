@@ -32,14 +32,16 @@ namespace Vodovoz.Filters.ViewModels
 
 		public bool IsCategoryNotRestricted => !RestrictCategory.HasValue;
 
-		private bool showFired;
-		public virtual bool ShowFired {
-			get => showFired;
-			set {
-				if(SetField(ref showFired, value, () => ShowFired)) {
-					Update();
-				}
-			}
+		EmployeeStatus? status;
+		public virtual EmployeeStatus? Status {
+			get => status;
+			set => UpdateFilterField(ref status, value, () => Status);
+		}
+
+		private bool canChangeStatus = true;
+		public bool CanChangeStatus {
+			get => canChangeStatus; 
+			set => UpdateFilterField(ref canChangeStatus, value, () => CanChangeStatus); 
 		}
 
 		WageParameterTypes? restrictWageType;

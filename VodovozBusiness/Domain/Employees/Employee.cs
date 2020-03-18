@@ -84,12 +84,12 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref androidToken, value, () => AndroidToken); }
 		}
 
-		bool isFired;
+		EmployeeStatus status;
 
-		[Display(Name = "Сотрудник уволен")]
-		public virtual bool IsFired {
-			get { return isFired; }
-			set { SetField(ref isFired, value, () => IsFired); }
+		[Display(Name = "Статус сотрудника")]
+		public virtual EmployeeStatus Status {
+			get { return status; }
+			set { SetField(ref status, value, () => Status); }
 		}
 
 		User user;
@@ -109,11 +109,31 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		private DateTime? firstWorkDay;
-
 		[Display(Name = "Первый день работы")]
 		public virtual DateTime? FirstWorkDay {
 			get { return firstWorkDay; }
 			set { SetField(ref firstWorkDay, value, () => FirstWorkDay); }
+		}
+
+		private DateTime? dateHired;
+		[Display(Name = "Дата приема")]
+		public virtual DateTime? DateHired {
+			get { return dateHired; }
+			set { SetField(ref dateHired, value, () => DateHired); }
+		}
+
+		private DateTime? dateFired;
+		[Display(Name = "Дата увольнения")]
+		public virtual DateTime? DateFired {
+			get { return dateFired; }
+			set { SetField(ref dateFired, value, () => DateFired); }
+		}
+
+		private DateTime? dateCalculated;
+		[Display(Name = "Дата расчета")]
+		public virtual DateTime? DateCalculated {
+			get { return dateCalculated; }
+			set { SetField(ref dateCalculated, value, () => DateCalculated); }
 		}
 
 		IList<EmployeeContract> contracts = new List<EmployeeContract>();
@@ -300,6 +320,10 @@ namespace Vodovoz.Domain.Employees
 			if(!String.IsNullOrEmpty(LoginForNewUser) && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users")) {
 			yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+			}
+			if(Status == EmployeeStatus.IsFired && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_fire_employees")) {
+				yield return new ValidationResult($"Недостаточно прав для увольнения сотрудников",
+						new[] { this.GetPropertyName(x => x.Status) });
 			}
 			if(!String.IsNullOrEmpty(LoginForNewUser)) {
 				string exist = GetPhoneForSmsNotification();
@@ -498,6 +522,18 @@ namespace Vodovoz.Domain.Employees
 		Trainee
 	}
 
+	public enum EmployeeStatus
+	{
+		[Display(Name = "Работает")]
+		IsWorking,
+		[Display(Name = "На расчете")]
+		OnCalculation,
+		[Display(Name = "В декрете")]
+		OnMaternityLeave,
+		[Display(Name = "Уволен")]
+		IsFired
+	}
+
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType
 	{
 		public EmployeeCategoryStringType() : base(typeof(EmployeeCategory))
@@ -515,6 +551,13 @@ namespace Vodovoz.Domain.Employees
 	public class EmployeeTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public EmployeeTypeStringType() : base(typeof(EmployeeType))
+		{
+		}
+	}
+
+	public class EmployeeStatusStringType : NHibernate.Type.EnumStringType
+	{
+		public EmployeeStatusStringType() : base(typeof(EmployeeStatus))
 		{
 		}
 	}
