@@ -1113,7 +1113,7 @@ namespace Vodovoz
 			this.ycheckContactlessDelivery = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckContactlessDelivery.CanFocus = true;
 			this.ycheckContactlessDelivery.Name = "ycheckContactlessDelivery";
-			this.ycheckContactlessDelivery.Label = global::Mono.Unix.Catalog.GetString("Безконтактая доставка");
+			this.ycheckContactlessDelivery.Label = global::Mono.Unix.Catalog.GetString("Бесконтактная доставка");
 			this.ycheckContactlessDelivery.DrawIndicator = true;
 			this.ycheckContactlessDelivery.UseUnderline = true;
 			this.table1.Add(this.ycheckContactlessDelivery);

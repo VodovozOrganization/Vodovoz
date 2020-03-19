@@ -2182,10 +2182,10 @@ Iif({self_delivery}, "САМОВЫВОЗ",
         <Top>22.2pt</Top>
       </Table>
       <Image Name="Image1">
-        <Height>87.29pt</Height>
-        <Width>112.10pt</Width>
-        <Left>466.7pt</Left>
-        <Top>86.2pt</Top>
+        <Height>77.53pt</Height>
+        <Width>110.60pt</Width>
+        <Left>466.70pt</Left>
+        <Top>95.96pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
