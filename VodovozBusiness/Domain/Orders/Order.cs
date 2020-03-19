@@ -656,7 +656,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		bool contactlessDelivery;
-		[Display(Name = "Безконтакная доставка")]
+		[Display(Name = "Бесконтактная доставка")]
 		public virtual bool ContactlessDelivery {
 			get => contactlessDelivery;
 			set => SetField(ref contactlessDelivery, value, () => ContactlessDelivery);
