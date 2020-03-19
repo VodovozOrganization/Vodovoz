@@ -664,7 +664,7 @@ GROUP BY name</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Image">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>/*
 SET @id1 = 3; #VodovozLogo
@@ -675,6 +675,7 @@ SET @id5 = 7; #рекламный баннер
 SET @id6 = 8; #телефон
 SET @id7 = 9; #VIP
 SET @id8 = 10; #Договор оферты
+SET @id9 = 13; #Безконтактная доставка
 */
 
 SELECT
@@ -701,7 +702,10 @@ R7.id as ID7 ,
 R7.binary_file as IM7 ,
 
 R8.id as ID8 ,
-R8.binary_file as IM8 
+R8.binary_file as IM8 ,
+
+R9.id as ID9 ,
+R9.binary_file as IM9 
 
 FROM stored_resource
 
@@ -768,6 +772,15 @@ LEFT JOIN
     WHERE stored_resource.id = @id8
 ) as R8 ON R8.id = @id8
 
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id9
+) as R9 ON R9.id = @id9
+
 WHERE stored_resource.id = @id1</CommandText>
         <QueryParameters>
           <QueryParameter Name="id1">
@@ -794,9 +807,12 @@ WHERE stored_resource.id = @id1</CommandText>
           <QueryParameter Name="id8">
             <Value>10</Value>
           </QueryParameter>
+          <QueryParameter Name="id9">
+            <Value>13</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="IM1">
           <DataField>IM1</DataField>
           <TypeName>System.String</TypeName>
@@ -827,6 +843,10 @@ WHERE stored_resource.id = @id1</CommandText>
         </Field>
         <Field Name="IM8">
           <DataField>IM8</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM9">
+          <DataField>IM9</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -3113,6 +3133,21 @@ WHERE stored_resource.id = @id1</CommandText>
         <Left>17.9pt</Left>
         <Top>429.1pt</Top>
       </Table>
+      <Image Name="Image6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>89.05pt</Height>
+        <Width>89.93pt</Width>
+        <Left>354.1pt</Left>
+        <Top>54.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Database</Source>
+        <Value>=iif({?contactless_delivery}, First( {IM9}, "Image" ), NULL)</Value>
+        <Sizing>FitProportional</Sizing>
+        <MIMEType>image/jpeg</MIMEType>
+      </Image>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -3520,7 +3555,16 @@ WHERE stored_resource.id = @id1</CommandText>
             End Select
         End If
     End Function</Code>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -3560,14 +3604,13 @@ WHERE stored_resource.id = @id1</CommandText>
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="contactless_delivery">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod-srv.qsolution.ru;SslMode=none;</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

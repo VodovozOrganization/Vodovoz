@@ -21,7 +21,8 @@ namespace Vodovoz.Domain.Orders.Documents
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
 					{ "without_advertising",  WithoutAdvertising },
-					{ "hide_signature", HideSignature }
+					{ "hide_signature", HideSignature },
+					{ "contactless_delivery", Order.ContactlessDelivery}
 				}
 			};
 		}
