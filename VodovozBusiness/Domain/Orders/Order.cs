@@ -655,6 +655,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref addCertificates, value, () => AddCertificates);
 		}
 
+		bool contactlessDelivery;
+		[Display(Name = "Безконтакная доставка")]
+		public virtual bool ContactlessDelivery {
+			get => contactlessDelivery;
+			set => SetField(ref contactlessDelivery, value, () => ContactlessDelivery);
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()

@@ -393,6 +393,7 @@ namespace Vodovoz
 				Entity.RecalculateStockBottles(standartDiscountsService);
 				ControlsActionBottleAccessibility();
 			};
+			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
 		}
@@ -2384,6 +2385,7 @@ namespace Vodovoz
 			pickerDeliveryDate.Sensitive = val;
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
+			ycheckContactlessDelivery.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;
