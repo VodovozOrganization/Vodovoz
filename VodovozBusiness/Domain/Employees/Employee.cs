@@ -19,6 +19,8 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using System.Text.RegularExpressions;
 using QS.Project.Services;
+using MySql.Data.MySqlClient;
+using NHibernate;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -313,10 +315,27 @@ namespace Vodovoz.Domain.Employees
 					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует в базе",
 						new[] { this.GetPropertyName(x => x.LoginForNewUser) });
 			}
-			if(!String.IsNullOrEmpty(LoginForNewUser) && UserSingletonRepository.GetInstance().MySQLUserWithLoginExists(UoW, LoginForNewUser)) {
+
+			if(!String.IsNullOrEmpty(LoginForNewUser)) {
+				string mes = null;
+				bool userExists = false;
+
+				try {
+					userExists = UserSingletonRepository.GetInstance().MySQLUserWithLoginExists(UoW, LoginForNewUser);
+				} catch(HibernateException ex) {
+					if(ex.InnerException is MySqlException mysqlEx && mysqlEx.Number == 1142)
+						mes = $"У вас недостаточно прав для создания нового пользователя";
+					else 
+						throw;
+				}
+				if(!String.IsNullOrWhiteSpace(mes)) {
+					yield return new ValidationResult(mes, new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+				} else if(userExists) {
 					yield return new ValidationResult($"Пользователь с логином {LoginForNewUser} уже существует на сервере",
 						new[] { this.GetPropertyName(x => x.LoginForNewUser) });
+				}
 			}
+
 			if(!String.IsNullOrEmpty(LoginForNewUser) && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users")) {
 			yield return new ValidationResult($"Недостаточно прав для создания нового пользователя",
 					new[] { this.GetPropertyName(x => x.LoginForNewUser) });

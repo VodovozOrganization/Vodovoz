@@ -256,7 +256,6 @@ namespace Vodovoz
 			UoWGeneric.Save(Entity);
 
 			#region Попытка сохранить логин для нового юзера
-
 			if(!String.IsNullOrEmpty(Entity.LoginForNewUser) && InstantSmsServiceSetting.SendingAllowed) {
 				var user = new User {
 					Login = Entity.LoginForNewUser,
