@@ -133,7 +133,7 @@ namespace Vodovoz
 		{
 			var validationContext = new Dictionary<object, object> {
 				{ "NewStatus", RouteListStatus.Closed },
-				{ typeof(IRouteListItemRepository).ToString(), new EntityRepositories.Logistic.RouteListItemRepository() }
+				{ nameof(IRouteListItemRepository), new EntityRepositories.Logistic.RouteListItemRepository() }
 			};
 			var valid = new QSValidator<RouteList>(Entity, validationContext);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {

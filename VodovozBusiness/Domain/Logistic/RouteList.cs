@@ -930,8 +930,8 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-			if(validationContext.Items.ContainsKey(typeof(IRouteListItemRepository))) {
-				IRouteListItemRepository rliRepository = (IRouteListItemRepository)validationContext.Items[typeof(IRouteListItemRepository)];
+			if(validationContext.Items.ContainsKey(nameof(IRouteListItemRepository))) {
+				IRouteListItemRepository rliRepository = (IRouteListItemRepository)validationContext.Items[nameof(IRouteListItemRepository)];
 				foreach(var item in Addresses) {
 					if(rliRepository.AnotherRouteListItemForOrderExist(UoW, item))
 						yield return new ValidationResult($"Один из адрессов({item.Order.DeliveryPoint}), находится в другом МЛ");
