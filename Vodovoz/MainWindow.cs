@@ -14,7 +14,6 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi.Gtk;
@@ -84,7 +83,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		Build();
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
-		Gtk.Settings.Default.SetLongProperty("gtk-button-images", 1, "");
 		this.BuildToolbarActions();
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;

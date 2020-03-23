@@ -833,7 +833,15 @@
     <Compile Include="EntityRepositories\Delivery\IDeliveryRepository.cs" />
     <Compile Include="EntityRepositories\Delivery\DeliveryRepository.cs" />
     <Compile Include="Services\IErrorSendParameterProvider.cs" />
-    <Compile Include="Tools\ErrorReportSettings.cs" />
+    <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModel.cs" />
+    <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModelFactory.cs" />
+    <Compile Include="Tools\ErrorReporting\SingletonErrorReporter.cs" />
+    <Compile Include="Tools\ErrorReporting\ILogService.cs" />
+    <Compile Include="Tools\ErrorReporting\LogService.cs" />
+    <Compile Include="Tools\ErrorReporting\IErrorReporter.cs" />
+    <Compile Include="Tools\ErrorReporting\IErrorMessageModelFactory.cs" />
+    <Compile Include="Tools\ErrorReporting\ErrorMessageModelBase.cs" />
+    <Compile Include="Tools\ErrorReporting\ErrorMessageViewModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -913,6 +921,7 @@
     <Folder Include="EntityRepositories\Contacts\" />
     <Folder Include="EntityRepositories\Permissions\" />
     <Folder Include="EntityRepositories\Delivery\" />
+    <Folder Include="Tools\ErrorReporting\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

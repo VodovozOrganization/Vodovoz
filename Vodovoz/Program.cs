@@ -16,6 +16,7 @@ using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using QS.ErrorReporting;
 using Vodovoz.Infrastructure;
+using Vodovoz.Tools;
 
 namespace Vodovoz
 {
@@ -30,6 +31,17 @@ namespace Vodovoz
 		{
 			Application.Init ();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
+			var appInfo = new ApplicationInfo();
+
+			#region Первоначальная настройка обработки ошибок
+			SingletonErrorReporter.Initialize(ReportWorker.GetReportService(), appInfo, new LogService(), null, false, null);
+			var errorMessageModelFactory = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, null, null);
+			var exceptionHandler = new DefaultUnhandledExceptionHandler(errorMessageModelFactory, appInfo);
+
+			exceptionHandler.SubscribeToUnhandledExceptions();
+			exceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
+			MainSupport.HandleStaleObjectStateException = EntityChangedExceptionHelper.ShowExceptionMessage;
+			#endregion
 
 			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
@@ -41,6 +53,7 @@ namespace Vodovoz
 			QSMain.SetupFromArgs(args);
 			QS.Project.Search.GtkUI.SearchView.QueryDelay = 1500;
 
+			Gtk.Settings.Default.SetLongProperty("gtk-button-images", 1, "");
 			// Создаем окно входа
 			Login LoginDialog = new Login ();
 			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png");
@@ -56,39 +69,34 @@ namespace Vodovoz
 
 			LoginDialog.Destroy ();
 
-			QSProjectsLib.PerformanceHelper.StartMeasurement ("Замер запуска приложения");
+			PerformanceHelper.StartMeasurement ("Замер запуска приложения");
 
 			//Настройка базы
 			CreateBaseConfig ();
-			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
+			PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
 
 			MainSupport.LoadBaseParameters();
 			ParametersProvider.Instance.RefreshParameters();
 
-			#region Настройка обработки ошибок
-			SingletonErrorReporter.Initialize(ReportWorker.GetReportService(),
-				new ApplicationInfo(), 
-				new DatabaseInfo(LoginDialog.BaseName),
-				new LogService()
+			#region Настройка обработки ошибок c параметрами из базы и сервисами
+			var baseParameters = new BaseParametersProvider();
+			SingletonErrorReporter.Initialize(
+				ReportWorker.GetReportService(),
+				appInfo,
+				new LogService(), 
+				LoginDialog.BaseName, 
+				LoginDialog.BaseName == baseParameters.GetDefaultBaseForErrorSend(),
+				baseParameters.GetRowCountForErrorLog()
 			);
-			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var baseParameters = new BaseParametersProvider();
-				UnhandledExceptionHandler.SubscribeToUnhadledExceptions(
-					new Tools.ErrorReportSettings(baseParameters, null, uow, ServicesConfig.UserService, LoginDialog.BaseName),
-					new DefaultErrorDialogSettings(),
-					SingletonErrorReporter.Instance
-				);
-			}
-			UnhandledExceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
+
+			var errorMessageModelFactory2 = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
+			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactory2;
 			//Настройка обычных обработчиков ошибок.
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
-
-			MainSupport.HandleStaleObjectStateException = EntityChangedExceptionHelper.ShowExceptionMessage;
+			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
+			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
+			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
 			#endregion
-
 			//Настройка карты
 			GMap.NET.MapProviders.GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
 				QSSupportLib.MainSupport.ProjectVerion.Product,

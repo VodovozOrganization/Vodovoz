@@ -1391,7 +1391,9 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.cs" />
     <Compile Include="Infrastructure\ApplicationInfo.cs" />
     <Compile Include="Infrastructure\DatabaseInfo.cs" />
-    <Compile Include="Infrastructure\DefaultErrorDialogSettings.cs" />
+    <Compile Include="Infrastructure\DefaultUnhandledExceptionHandler.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ErrorMessageView.cs" />
+    <Compile Include="Views\ErrorReporting\ErrorMessageView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1640,6 +1642,7 @@
     <Folder Include="Views\Contacts\" />
     <Folder Include="Views\Users\" />
     <Folder Include="ViewWidgets\Permissions\" />
+    <Folder Include="Views\ErrorReporting\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
