@@ -8,14 +8,14 @@ using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz
 {
-	public partial class ExportTo1cDialog : QS.Dialog.Gtk.TdiTabBase
+	public partial class OldExportTo1cDialog : QS.Dialog.Gtk.TdiTabBase
 	{
 		bool exportInProgress;
 
-		public ExportTo1cDialog()
+		public OldExportTo1cDialog()
 		{
 			this.Build();
-			this.TabName="Выгрузка в 1с 8.3";
+			this.TabName="Выгрузка в 1с 8.2";
 		}
 
 		private ExportData exportData;
