@@ -29,6 +29,7 @@ namespace Vodovoz.Views
 
 			ybuttonSendReport.Clicked += (sender, e) => ViewModel.SendReportCommand.Execute(ErrorReportType.User);
 			ybuttonSendReport.Binding.AddBinding(ViewModel, vm => vm.CanSendErrorReportManually, w => w.Sensitive).InitializeFromSource();
+			ybuttonSendReport.Binding.AddFuncBinding(ViewModel, vm => (vm as ErrorMessageViewModel).CanSendManuallyText, w => w.TooltipText).InitializeFromSource();
 
 			ybuttonCopy.Clicked += YbuttonCopy_Clicked;
 			ybuttonOK.Clicked += (sender, e) => this.Destroy();

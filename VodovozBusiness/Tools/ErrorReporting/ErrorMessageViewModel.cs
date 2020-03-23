@@ -25,6 +25,7 @@ namespace Vodovoz.Tools
 		public string ErrorData => errorMessageModel.ErrorData;
 		public string ExceptionText => errorMessageModel.ExceptionText;
 		public bool CanSendErrorReportManually => errorMessageModel.CanSendErrorReportManually;
+		public string CanSendManuallyText => errorMessageModel.CanSendManuallyText;
 		public bool IsEmailValid => errorMessageModel.IsEmailValid;
 		public bool ReportSent { get; protected set; }
 

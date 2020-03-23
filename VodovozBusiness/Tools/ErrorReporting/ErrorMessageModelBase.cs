@@ -23,6 +23,10 @@ namespace Vodovoz.Tools
 
 		public virtual bool ReportSent { get; protected set; } = false;
 		public virtual bool IsEmailValid { get; } = true;
+		/// <summary>
+		/// Причина запрета ручной отправки
+		/// </summary>
+		public virtual string CanSendManuallyText { get; } = "";
 
 		private string email;
 		public virtual string Email {

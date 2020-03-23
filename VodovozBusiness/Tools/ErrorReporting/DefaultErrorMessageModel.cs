@@ -24,6 +24,7 @@ namespace Vodovoz.Tools
 
 		public override bool CanSendErrorReportManually => !String.IsNullOrWhiteSpace(Description);
 		public override bool CanSendErrorReportAutomatically => errorReporter.CanSendAutomatically;
+		public override string CanSendManuallyText => "Для отправки необходимо ввести описание";
 		public override bool IsEmailValid => new Regex(@"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$").IsMatch(Email ?? "");
 
 		public override string ExceptionText =>

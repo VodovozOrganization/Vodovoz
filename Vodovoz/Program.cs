@@ -97,6 +97,7 @@ namespace Vodovoz
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
 			#endregion
+
 			//Настройка карты
 			GMap.NET.MapProviders.GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
 				QSSupportLib.MainSupport.ProjectVerion.Product,
