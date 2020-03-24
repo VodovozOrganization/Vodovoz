@@ -27,7 +27,7 @@ namespace Vodovoz.Views
 			textviewError.Binding.AddFuncBinding(ViewModel, vm => (vm as ErrorMessageViewModel).ExceptionText, w => w.Buffer.Text).InitializeFromSource();
 			textviewDescription.Binding.AddBinding(ViewModel, vm => vm.Description, w => w.Buffer.Text).InitializeFromSource();
 
-			ybuttonSendReport.Clicked += (sender, e) => ViewModel.SendReportCommand.Execute(ErrorReportType.User);
+			ybuttonSendReport.Clicked += YbuttonSendReport_Clicked;
 			ybuttonSendReport.Binding.AddBinding(ViewModel, vm => vm.CanSendErrorReportManually, w => w.Sensitive).InitializeFromSource();
 			ybuttonSendReport.Binding.AddFuncBinding(ViewModel, vm => (vm as ErrorMessageViewModel).CanSendManuallyText, w => w.TooltipText).InitializeFromSource();
 
@@ -43,6 +43,12 @@ namespace Vodovoz.Views
 				else
 					entryEmail.ModifyText(StateType.Normal, new Gdk.Color(255, 0, 0));
 			}
+		}
+
+		void YbuttonSendReport_Clicked(object sender, EventArgs e)
+		{
+			ViewModel.SendReportCommand.Execute(ErrorReportType.User); 
+			this.Destroy();
 		}
 
 		void YbuttonCopy_Clicked(object sender, EventArgs e)
