@@ -200,6 +200,8 @@ namespace Vodovoz.Views
 			this.textviewError = new global::Gamma.GtkWidgets.yTextView();
 			this.textviewError.CanFocus = true;
 			this.textviewError.Name = "textviewError";
+			this.textviewError.Editable = false;
+			this.textviewError.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindow.Add(this.textviewError);
 			this.expander1.Add(this.GtkScrolledWindow);
 			this.GtkLabel2 = new global::Gtk.Label();
