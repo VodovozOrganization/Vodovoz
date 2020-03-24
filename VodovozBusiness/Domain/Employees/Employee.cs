@@ -157,20 +157,18 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		private DeliveryDaySchedule defaultDaySheldule;
-
-		[Display(Name = "График работы по молчанию")]
-		public virtual DeliveryDaySchedule DefaultDaySheldule {
-			get { return defaultDaySheldule; }
-			set { SetField(ref defaultDaySheldule, value, () => DefaultDaySheldule); }
-		}
-
 		private Employee defaultForwarder;
 
 		[Display(Name = "Экспедитор по умолчанию")]
 		public virtual Employee DefaultForwarder {
 			get { return defaultForwarder; }
 			set { SetField(ref defaultForwarder, value, () => DefaultForwarder); }
+		}
+
+		private DriverType? driverType;
+		public virtual DriverType? DriverType {
+			get => driverType;
+			set => SetField(ref driverType, value);
 		}
 
 		private bool largusDriver;
@@ -206,6 +204,22 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref tripPriority, value, () => TripPriority); }
 		}
 
+		int minRouteAddresses;
+
+		[Display(Name = "Минимум адресов")]
+		public virtual int MinRouteAddresses {
+			get { return minRouteAddresses; }
+			set { SetField(ref minRouteAddresses, value, () => MinRouteAddresses); }
+		}
+
+		int maxRouteAddresses;
+
+		[Display(Name = "Максимум адресов")]
+		public virtual int MaxRouteAddresses {
+			get { return maxRouteAddresses; }
+			set { SetField(ref maxRouteAddresses, value, () => MaxRouteAddresses); }
+		}
+
 		private IList<DriverDistrictPriority> districts = new List<DriverDistrictPriority>();
 
 		[Display(Name = "Районы")]
@@ -224,6 +238,24 @@ namespace Vodovoz.Domain.Employees
 					observableDistricts.ElementRemoved += ObservableDistricts_ElementRemoved;
 				}
 				return observableDistricts;
+			}
+		}
+
+		private IList<DriverWorkSchedule> workDays = new List<DriverWorkSchedule>();
+
+		[Display(Name = "График работы водителя")]
+		public virtual IList<DriverWorkSchedule> WorkDays {
+			get => workDays;
+			set => SetField(ref workDays, value, () => WorkDays);
+		}
+
+		GenericObservableList<DriverWorkSchedule> observableWorkDays;
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DriverWorkSchedule> ObservableWorkDays {
+			get {
+				if(observableWorkDays == null)
+					observableWorkDays = new GenericObservableList<DriverWorkSchedule>(WorkDays);
+				return observableWorkDays;
 			}
 		}
 
@@ -525,6 +557,16 @@ namespace Vodovoz.Domain.Employees
 		forwarder
 	}
 
+	public enum DriverType
+	{
+		[Display(Name = "Наш")]
+		companydriver,
+		[Display(Name = "Раскат")]
+		raskat,
+		[Display(Name = "Частник")]
+		hireddriver
+	}
+
 	public enum RegistrationType
 	{
 		[Display(Name = "ТК РФ")]
@@ -577,6 +619,13 @@ namespace Vodovoz.Domain.Employees
 	public class EmployeeStatusStringType : NHibernate.Type.EnumStringType
 	{
 		public EmployeeStatusStringType() : base(typeof(EmployeeStatus))
+		{
+		}
+	}	
+
+	public class DriverTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DriverTypeStringType() : base(typeof(DriverType))
 		{
 		}
 	}

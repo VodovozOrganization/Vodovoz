@@ -16,6 +16,7 @@ using QS.Dialog;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz
 {
@@ -131,7 +132,8 @@ namespace Vodovoz
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
 			var validationContext = new Dictionary<object, object> {
-				{ "NewStatus", RouteListStatus.Closed }
+				{ "NewStatus", RouteListStatus.Closed },
+				{ nameof(IRouteListItemRepository), new EntityRepositories.Logistic.RouteListItemRepository() }
 			};
 			var valid = new QSValidator<RouteList>(Entity, validationContext);
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {

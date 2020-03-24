@@ -607,7 +607,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<RouteList>(Entity);
+			var valid = new QSValidator<RouteList>(Entity,new Dictionary<object, object>() { { nameof(IRouteListItemRepository).ToString(), new RouteListItemRepository() } });
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 

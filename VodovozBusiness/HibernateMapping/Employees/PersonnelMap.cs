@@ -55,16 +55,20 @@ namespace Vodovoz.HibernateMapping.Employees
 				Map(x => x.IsDriverForOneDay)		 .Column("is_driver_for_one_day");
 				Map(x => x.DriverOf)				 .Column("driver_of").CustomType<CarTypeOfUseStringType>();
 				Map(x => x.Registration)			 .Column("registration_type").CustomType<RegistrationTypeStringType>();
+				Map(x => x.MinRouteAddresses).Column("min_route_addresses");
+				Map(x => x.MaxRouteAddresses).Column("max_route_addresses");
+				Map(x => x.DriverType).Column("driver_type").CustomType<DriverTypeStringType>();
 
-				References(x => x.Subdivision)		 .Column("subdivision_id");
-				References(x => x.User)				 .Column("user_id");
-				References(x => x.DefaultDaySheldule).Column("default_delivery_day_schedule_id");
-				References(x => x.DefaultForwarder)	 .Column("default_forwarder_id");
+				References(x => x.Subdivision).Column("subdivision_id");
+				References(x => x.User).Column("user_id");
+				References(x => x.DefaultForwarder).Column("default_forwarder_id");
 
 				HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse()
 										 .KeyColumn("driver_id")
 										 .AsList(x => x.Column("priority"));
+
 				HasMany(x => x.Contracts).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
+				HasMany(x => x.WorkDays).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 				HasMany(x => x.WageParameters).Cascade.AllDeleteOrphan().LazyLoad().Inverse().KeyColumn("employee_id");
 			}
 		}

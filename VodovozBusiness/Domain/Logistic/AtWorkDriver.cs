@@ -93,20 +93,21 @@ namespace Vodovoz.Domain.Logistic
 
 		protected AtWorkDriver() { }
 
-		public AtWorkDriver(Employee driver, DateTime date, Car car)
+		public AtWorkDriver(Employee driver, DateTime date, Car car, DeliveryDaySchedule daySchedule = null)
 		{
 			Date = date;
 			Employee = driver;
 			priorityAtDay = driver.TripPriority;
 			this.car = car;
-			daySchedule = driver.DefaultDaySheldule;
+			DaySchedule = daySchedule;
+
 			districts = new List<AtWorkDriverDistrictPriority>(driver.Districts.Select(x => x.CreateAtDay(this)));
 			if(car?.GeographicGroups.Count() == 1)
 				this.GeographicGroup = car.GeographicGroups[0];
 		}
 
-		#region Функции 
-		
+		#region Функции
+
 		private void CheckDistrictsPriorities()
 		{
 			for(int i = 0; i < Districts.Count; i++) {
@@ -132,6 +133,5 @@ namespace Vodovoz.Domain.Logistic
 		{
 			CheckDistrictsPriorities();
 		}
-
 	}
 }

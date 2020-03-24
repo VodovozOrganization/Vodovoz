@@ -31,6 +31,10 @@ using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using QS.DomainModel.UoW;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Dialogs.Logistic;
+using Vodovoz.Core.DataService;
+using Vodovoz.Services;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -64,7 +68,8 @@ namespace Vodovoz.ViewModels.Logistic
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+
+			CreateUoW();
 
 			Employee currentEmployee = VodovozGtkServicesConfig.EmployeeService.GetEmployeeForUser(UoW, ServicesConfig.UserService.CurrentUserId);
 			if(currentEmployee == null) {
@@ -196,23 +201,45 @@ namespace Vodovoz.ViewModels.Logistic
 					);
 					var drvJournalViewModel = new EmployeesJournalViewModel(
 						drvFilter,
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+						UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					) {
-						SelectionMode = JournalSelectionMode.Multiple
+						SelectionMode = JournalSelectionMode.Multiple,
+						TabName = "Водители"
 					};
 					drvJournalViewModel.OnEntitySelectedResult += (sender, e) => {
 						var selectedNodes = e.SelectedNodes;
 						var onlyNew = selectedNodes.Where(x => ObservableDriversOnDay.All(y => y.Employee.Id != x.Id)).ToList();
 						var allCars = carRepository.GetCarsByDrivers(UoW, onlyNew.Select(x => x.Id).ToArray());
+
 						foreach(var n in selectedNodes) {
-							ObservableDriversOnDay.Add(
-								new AtWorkDriver(
-									UoW.GetById<Employee>(n.Id),
+							var drv = UoW.GetById<Employee>(n.Id);
+
+							if(ObservableDriversOnDay.Any(x => x.Employee.Id == n.Id)) {
+								logger.Warn($"Водитель {drv.ShortName} уже добавлен. Пропускаем...");
+								continue;
+							}
+
+							var daySchedule = GetDriverWorkDaySchedule(drv, new BaseParametersProvider());
+
+							var driver = new AtWorkDriver(
+									drv,
 									DateForRouting,
-									allCars.FirstOrDefault(x => x.Driver.Id == n.Id)
-								)
-							);
+									allCars.FirstOrDefault(x => x.Driver.Id == n.Id),
+									daySchedule
+								);
+
+							if(driver.Employee.DefaultForwarder != null) {
+								var forwarder = observableForwardersOnDay.FirstOrDefault(x => x.Employee.Id == driver.Employee.DefaultForwarder.Id);
+
+								if(forwarder == null) {
+									forwarder = new AtWorkForwarder(driver.Employee.DefaultForwarder, DateForRouting);
+									driver.WithForwarder = forwarder;
+									ObservableForwardersOnDay.Add(forwarder);
+								}
+							}
+
+							ObservableDriversOnDay.Add(driver);
 						}
 					};
 					TabParent.AddSlaveTab(this, drvJournalViewModel);
@@ -262,7 +289,7 @@ namespace Vodovoz.ViewModels.Logistic
 					);
 					var fwdJournalViewModel = new EmployeesJournalViewModel(
 						fwdFilter,
-						QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory,
+						UnitOfWorkFactory.GetDefaultFactory,
 						commonServices
 					) {
 						SelectionMode = JournalSelectionMode.Multiple
@@ -360,6 +387,12 @@ namespace Vodovoz.ViewModels.Logistic
 		public GenericObservableList<GeographicGroupNode> GeographicGroupNodes { get; private set; }
 
 		public RouteGeometryCalculator DistanceCalculator { get; } = new RouteGeometryCalculator(DistanceProvider.Osrm);
+
+		Employee driverFromRouteList;
+		public virtual Employee DriverFromRouteList {
+			get => driverFromRouteList;
+			set => SetField(ref driverFromRouteList, value);
+		}
 
 		AtWorkDriver[] selectedDrivers;
 		[PropertyChangedAlso(nameof(AreDriversSelected))]
@@ -468,10 +501,22 @@ namespace Vodovoz.ViewModels.Logistic
 			set => SetField(ref showCompleted, value);
 		}
 
+		bool showOnlyDriverOrders;
+		public virtual bool ShowOnlyDriverOrders {
+			get => showOnlyDriverOrders;
+			set => SetField(ref showOnlyDriverOrders, value);
+		}
+
 		int minBottles19L;
 		public virtual int MinBottles19L {
 			get => minBottles19L;
 			set => SetField(ref minBottles19L, value);
+		}
+
+		string canTake;
+		public virtual string CanTake {
+			get => canTake;
+			set => SetField(ref canTake, value);
 		}
 
 		TimeSpan deliveryFromTime = TimeSpan.Parse("00:00:00");
@@ -486,6 +531,18 @@ namespace Vodovoz.ViewModels.Logistic
 			set => SetField(ref deliveryToTime, value);
 		}
 
+		TimeSpan driverStartTime = TimeSpan.Parse("00:00:00");
+		public virtual TimeSpan DriverStartTime {
+			get => driverStartTime;
+			set => SetField(ref driverStartTime, value);
+		}
+
+		TimeSpan driverEndTime = TimeSpan.Parse("23:59:59");
+		public virtual TimeSpan DriverEndTime {
+			get => driverEndTime;
+			set => SetField(ref driverEndTime, value);
+		}
+
 		DeliveryScheduleFilterType deliveryScheduleType = DeliveryScheduleFilterType.DeliveryStart;
 		public virtual DeliveryScheduleFilterType DeliveryScheduleType {
 			get => deliveryScheduleType;
@@ -495,6 +552,10 @@ namespace Vodovoz.ViewModels.Logistic
 		public virtual GenericObservableList<Subdivision> ObservableSubdivisions { get; set; }
 
 		#endregion
+
+		public void DisposeUoW() => UoW.Dispose();
+
+		public void CreateUoW() => UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 		public string GenerateToolTip(RouteList routeList)
 		{
@@ -526,7 +587,7 @@ namespace Vodovoz.ViewModels.Logistic
 		public string GetRowTime(object row)
 		{
 			if(row is RouteList rl)
-				return FormatOccupancy(rl.Addresses.Count, rl.Car.MinRouteAddresses, rl.Car.MaxRouteAddresses);
+				return FormatOccupancy(rl.Addresses.Count, rl.Driver.MinRouteAddresses, rl.Driver.MaxRouteAddresses);
 			return (row as RouteListItem)?.Order.DeliverySchedule.Name;
 		}
 
@@ -819,6 +880,29 @@ namespace Vodovoz.ViewModels.Logistic
 			return string.Join("\n", text);
 		}
 
+		public void GetWorkDriversInfo()
+		{
+			int totalBottles = 0;
+			int totalAddresses = 0;
+
+			var drivers = EmployeeSingletonRepository.GetInstance().GetWorkingDriversAtDay(UoW, DateForRouting);
+
+			if(drivers.Count > 0) {
+				foreach(var driver in drivers) {
+					var car = carRepository.GetCarByDriver(UoW, driver);
+
+					if(car != null)
+						totalBottles += car.MaxBottles;
+
+					totalAddresses += driver.MaxRouteAddresses;
+				}
+			}
+
+			var text = new List<string> { "Можем вывезти:", $"Бутылей - {totalBottles}", $"Адресов - {totalAddresses}" };
+
+			CanTake = string.Join("\n", text);
+		}
+
 		public bool CheckAlreadyAddedAddress(Order order)
 		{
 			var routeList = routeListRepository.GetRouteListByOrder(UoW, order);
@@ -1046,6 +1130,8 @@ namespace Vodovoz.ViewModels.Logistic
 				.Fetch(SelectMode.Undefined, x => x.Addresses)
 				.Future();
 
+			GetWorkDriversInfo();
+
 			RoutesOnDay = routesQuery.ToList();
 			RoutesOnDay.ToList().ForEach(rl => rl.UoW = UoW);
 			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
@@ -1094,7 +1180,7 @@ namespace Vodovoz.ViewModels.Logistic
 			Optimizer.Drivers = DriversOnDay;
 			Optimizer.Forwarders = ForwardersOnDay;
 			Optimizer.StatisticsTxtAction = statisticsUpdateAction;
-			Optimizer.CreateRoutes();
+			Optimizer.CreateRoutes(driverStartTime, driverEndTime);
 
 			if(optimizer.ProposedRoutes.Any()) {
 				//Удаляем корректно адреса из уже имеющихся МЛ. Чтобы они встали в правильный статус.
@@ -1150,6 +1236,19 @@ namespace Vodovoz.ViewModels.Logistic
 				DriversOnDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => { x.Car = null; x.GeographicGroup = null; });
 				driver.Car = car;
 			}
+		}
+
+		private DeliveryDaySchedule GetDriverWorkDaySchedule(Employee driver, IDefaultDeliveryDaySchedule defaultDelDaySchedule)
+		{
+			DeliveryDaySchedule daySchedule;
+			var drvDaySchedule = driver.ObservableWorkDays.SingleOrDefault(x => (int)x.WeekDay == (int)DateForRouting.DayOfWeek);
+
+			if(drvDaySchedule == null)
+				daySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDelDaySchedule.GetDefaultDeliveryDayScheduleId());
+			else
+				daySchedule = drvDaySchedule.DaySchedule;
+
+			return daySchedule;
 		}
 	}
 }

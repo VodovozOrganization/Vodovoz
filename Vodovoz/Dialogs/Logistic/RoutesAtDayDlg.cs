@@ -461,7 +461,7 @@ namespace Vodovoz
 		string GetRowTime(object row)
 		{
 			if(row is RouteList rl)
-				return FormatOccupancy(rl.Addresses.Count, rl.Car.MinRouteAddresses, rl.Car.MaxRouteAddresses);
+				return FormatOccupancy(rl.Addresses.Count, rl.Driver.MinRouteAddresses, rl.Driver.MaxRouteAddresses);
 			return (row as RouteListItem)?.Order.DeliverySchedule.Name;
 		}
 
@@ -1325,7 +1325,7 @@ namespace Vodovoz
 			optimizer.Drivers = driversAtDay;
 			optimizer.Forwarders = forwardersAtDay;
 			optimizer.StatisticsTxtAction = txt => textOrdersInfo.Buffer.Text = txt;
-			optimizer.CreateRoutes();
+			//optimizer.CreateRoutes();
 
 			if(optimizer.ProposedRoutes.Any()) {
 				//Удаляем корректно адреса из уже имеющихся МЛ. Чтобы они встали в правильный статус.

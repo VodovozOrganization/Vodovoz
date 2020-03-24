@@ -8,13 +8,20 @@ using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
+using QS.Project.Services;
 using QS.Tdi;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Services;
+using Vodovoz.Core.DataService;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -45,7 +52,6 @@ namespace Vodovoz.Dialogs.Logistic
 			get => driversAtDay;
 		}
 
-
 		private IList<AtWorkForwarder> ForwardersAtDay {
 			set {
 				forwardersAtDay = value;
@@ -75,7 +81,7 @@ namespace Vodovoz.Dialogs.Logistic
 			ytreeviewAtWorkDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
 				.AddColumn("Приоритет")
 					.AddNumericRenderer(x => x.PriorityAtDay)
-						.Editing(new Gtk.Adjustment(6, 1, 10, 1, 1, 1))
+					.Editing(new Gtk.Adjustment(6, 1, 10, 1, 1, 1))
 				.AddColumn("Водитель")
 					.AddTextRenderer(x => x.Employee.ShortName)
 				.AddColumn("Скор.")
@@ -179,21 +185,85 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public bool HasChanges => UoW.HasChanges;
 
-		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
+		protected void OnButtonAddWorkingDriversClicked(object sender, EventArgs e)
 		{
-			var SelectDrivers = new OrmReference(
-				UoW,
-				EmployeeRepository.ActiveDriversOrderedQuery()
-			) {
-				Mode = OrmReferenceMode.MultiSelect
-			};
-			SelectDrivers.ObjectSelected += SelectDrivers_ObjectSelected;
-			TabParent.AddSlaveTab(this, SelectDrivers);
+			var workDriversAtDay = EmployeeSingletonRepository.GetInstance().GetWorkingDriversAtDay(UoW, DialogAtDate);
+
+			if(workDriversAtDay.Count > 0) {
+				foreach(var driver in workDriversAtDay) {
+					if(driversAtDay.Any(x => x.Employee.Id == driver.Id)) {
+						logger.Warn($"Водитель {driver.ShortName} уже добавлен. Пропускаем...");
+						continue;
+					}
+
+					var car = CarRepository.GetCarByDriver(UoW, driver);
+					var daySchedule = GetDriverWorkDaySchedule(driver, new BaseParametersProvider());
+
+					var atwork = new AtWorkDriver(driver, DialogAtDate, car, daySchedule);
+					GetDefaultForwarder(driver, atwork);
+
+					observableDriversAtDay.Add(atwork);
+				}
+			}
+			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 		}
 
-		void SelectDrivers_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		private DeliveryDaySchedule GetDriverWorkDaySchedule(Employee driver, IDefaultDeliveryDaySchedule defaultDelDaySchedule)
 		{
-			var addDrivers = e.GetEntities<Employee>().ToList();
+			DeliveryDaySchedule daySchedule;
+			var drvDaySchedule = driver.ObservableWorkDays.SingleOrDefault(x => (int)x.WeekDay == (int)DialogAtDate.DayOfWeek);
+
+			if(drvDaySchedule == null)
+				daySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDelDaySchedule.GetDefaultDeliveryDayScheduleId());
+			else
+				daySchedule = drvDaySchedule.DaySchedule;
+
+			return daySchedule;
+		}
+
+		private void GetDefaultForwarder(Employee driver, AtWorkDriver atwork)
+		{
+			if(driver.DefaultForwarder != null) {
+				var forwarder = ForwardersAtDay.FirstOrDefault(x => x.Employee.Id == driver.DefaultForwarder.Id);
+
+				if(forwarder == null) {
+					if(MessageDialogHelper.RunQuestionDialog($"Водитель {driver.ShortName} обычно ездит с экспедитором {driver.DefaultForwarder.ShortName}. Он отсутствует в списке экспедиторов. Добавить его в список?")) {
+						forwarder = new AtWorkForwarder(driver.DefaultForwarder, DialogAtDate);
+						observableForwardersAtDay.Add(forwarder);
+					}
+				}
+
+				if(forwarder != null && DriversAtDay.All(x => x.WithForwarder != forwarder)) {
+					atwork.WithForwarder = forwarder;
+				}
+			}
+		}
+
+		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
+		{
+			var drvFilter = new EmployeeFilterViewModel();
+			drvFilter.SetAndRefilterAtOnce(
+				x => x.RestrictCategory = EmployeeCategory.driver,
+				x => x.Status = EmployeeStatus.IsWorking 
+			);
+
+			var selectDrivers = new EmployeesJournalViewModel(
+				drvFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			) {
+				SelectionMode = JournalSelectionMode.Multiple,
+				TabName = "Водители"
+			};
+			var list = selectDrivers.Items;
+			selectDrivers.OnEntitySelectedResult += SelectDrivers_OnEntitySelectedResult;
+			TabParent.AddSlaveTab(this, selectDrivers);
+		}
+	
+
+		void SelectDrivers_OnEntitySelectedResult(object sender, JournalSelectedNodesEventArgs e)
+		{
+			var addDrivers = e.SelectedNodes;
 			logger.Info("Получаем авто для водителей...");
 			MainClass.progressBarWin.ProgressStart(2);
 			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
@@ -201,25 +271,18 @@ namespace Vodovoz.Dialogs.Logistic
 			MainClass.progressBarWin.ProgressAdd();
 
 			foreach(var driver in addDrivers) {
+				var drv = UoW.GetById<Employee>(driver.Id);
+
 				if(driversAtDay.Any(x => x.Employee.Id == driver.Id)) {
-					logger.Warn("Водитель {0} уже добавлен. Пропускаем...", driver.ShortName);
+					logger.Warn($"Водитель {drv.ShortName} уже добавлен. Пропускаем...");
 					continue;
 				}
-				var atwork = new AtWorkDriver(driver, DialogAtDate,
-												  allCars.FirstOrDefault(x => x.Driver.Id == driver.Id)
-												 );
-				if(driver.DefaultForwarder != null) {
-					var forwarder = ForwardersAtDay.FirstOrDefault(x => x.Employee.Id == driver.DefaultForwarder.Id);
-					if(forwarder == null) {
-						if(MessageDialogHelper.RunQuestionDialog($"Водитель {driver.ShortName} обычно ездить с экспедитором {driver.DefaultForwarder.ShortName}. Он отсутствует в списке экспедиторов. Добавить его в список?")) {
-							forwarder = new AtWorkForwarder(driver.DefaultForwarder, DialogAtDate);
-							observableForwardersAtDay.Add(forwarder);
-						}
-					}
-					if(forwarder != null && DriversAtDay.All(x => x.WithForwarder != forwarder)) {
-						atwork.WithForwarder = forwarder;
-					}
-				}
+
+				var daySchedule = GetDriverWorkDaySchedule(drv, new BaseParametersProvider());
+				var atwork = new AtWorkDriver(drv, DialogAtDate, allCars.FirstOrDefault(x => x.Driver.Id == driver.Id), daySchedule);
+
+				GetDefaultForwarder(drv, atwork);
+
 				driversAtDay.Add(atwork);
 			}
 			MainClass.progressBarWin.ProgressAdd();
