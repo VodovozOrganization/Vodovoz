@@ -112,7 +112,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				var filterDriver = new EmployeeFilterViewModel();
 				filterDriver.SetAndRefilterAtOnce(
 					x => x.RestrictCategory = EmployeeCategory.driver,
-					x => x.ShowFired = false
+					x => x.Status = EmployeeStatus.IsWorking
 				);
 				employeeJournal = new EmployeesVM(filterDriver);
 

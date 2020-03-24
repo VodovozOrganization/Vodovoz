@@ -16,6 +16,7 @@ using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using QS.ErrorReporting;
 using Vodovoz.Infrastructure;
+using Vodovoz.Tools;
 
 namespace Vodovoz
 {
@@ -30,6 +31,17 @@ namespace Vodovoz
 		{
 			Application.Init ();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
+			var appInfo = new ApplicationInfo();
+
+			#region Первоначальная настройка обработки ошибок
+			SingletonErrorReporter.Initialize(ReportWorker.GetReportService(), appInfo, new LogService(), null, false, null);
+			var errorMessageModelFactory = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, null, null);
+			var exceptionHandler = new DefaultUnhandledExceptionHandler(errorMessageModelFactory, appInfo);
+
+			exceptionHandler.SubscribeToUnhandledExceptions();
+			exceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
+			MainSupport.HandleStaleObjectStateException = EntityChangedExceptionHelper.ShowExceptionMessage;
+			#endregion
 
 			//FIXME Удалить после того как будет удалена зависимость от библиотеки QSProjectLib
 			QSMain.ProjectPermission = new System.Collections.Generic.Dictionary<string, UserPermission>();
@@ -41,6 +53,7 @@ namespace Vodovoz
 			QSMain.SetupFromArgs(args);
 			QS.Project.Search.GtkUI.SearchView.QueryDelay = 1500;
 
+			Gtk.Settings.Default.SetLongProperty("gtk-button-images", 1, "");
 			// Создаем окно входа
 			Login LoginDialog = new Login ();
 			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png");
@@ -56,25 +69,34 @@ namespace Vodovoz
 
 			LoginDialog.Destroy ();
 
-			QSProjectsLib.PerformanceHelper.StartMeasurement ("Замер запуска приложения");
-
-			UnhandledExceptionHandler.SubscribeToUnhadledExceptions(new Infrastructure.ErrorReportSettings(new BaseParametersProvider(), LoginDialog.BaseName));
-			UnhandledExceptionHandler.GuiThread = System.Threading.Thread.CurrentThread;
-			//Настройка обычных обработчиков ошибок.
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
-			UnhandledExceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
-			UnhandledExceptionHandler.ApplicationInfo = new ApplicationInfo(LoginDialog.BaseName);
-
-			MainSupport.HandleStaleObjectStateException = EntityChangedExceptionHelper.ShowExceptionMessage;
+			PerformanceHelper.StartMeasurement ("Замер запуска приложения");
 
 			//Настройка базы
 			CreateBaseConfig ();
-			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
+			PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 			VodovozGtkServicesConfig.CreateVodovozDefaultServices();
 
 			MainSupport.LoadBaseParameters();
 			ParametersProvider.Instance.RefreshParameters();
+
+			#region Настройка обработки ошибок c параметрами из базы и сервисами
+			var baseParameters = new BaseParametersProvider();
+			SingletonErrorReporter.Initialize(
+				ReportWorker.GetReportService(),
+				appInfo,
+				new LogService(), 
+				LoginDialog.BaseName, 
+				LoginDialog.BaseName == baseParameters.GetDefaultBaseForErrorSend(),
+				baseParameters.GetRowCountForErrorLog()
+			);
+
+			var errorMessageModelFactory2 = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
+			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactory2;
+			//Настройка обычных обработчиков ошибок.
+			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
+			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
+			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
+			#endregion
 
 			//Настройка карты
 			GMap.NET.MapProviders.GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
@@ -114,13 +136,6 @@ namespace Vodovoz
 				usersDlg.Run();
 				usersDlg.Destroy();
 				return;
-				// Пока неактуально + ломает работу для пользователей с админскими правами
-				//} else if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("driver_terminal")) {
-				//DriverTerminalWindow driverTerminal = new DriverTerminalWindow();
-				//progressBarWin = driverTerminal;
-				//driverTerminal.Title = "Печать документов МЛ";
-				//QSMain.ErrorDlgParrent = driverTerminal;
-				//driverTerminal.Show();
 			} else {
 				if(ChangePassword(LoginDialog.BaseName))
 					StartMainWindow(LoginDialog.BaseName);
@@ -171,7 +186,7 @@ namespace Vodovoz
 			//Настрока удаления
 			Configure.ConfigureDeletion();
 			PerformanceHelper.AddTimePoint(logger, "Закончена настройка удаления");
-
+			//Настройка сервисов
 			if(ParametersProvider.Instance.ContainsParameter("email_send_enabled_database") && ParametersProvider.Instance.ContainsParameter("email_service_address")) {
 				if(ParametersProvider.Instance.GetParameterValue("email_send_enabled_database") == loginDialogName) {
 					EmailServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("email_service_address"));
@@ -182,11 +197,8 @@ namespace Vodovoz
 					InstantSmsServiceSetting.Init(ParametersProvider.Instance.GetParameterValue("sms_service_address"));
 				}
 			}
-			CreateTempDir();
 
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				UnhandledExceptionHandler.User = ServicesConfig.UserService.GetCurrentUser(uow);
-			}
+			CreateTempDir();
 
 			//Запускаем программу
 			MainWin = new MainWindow();

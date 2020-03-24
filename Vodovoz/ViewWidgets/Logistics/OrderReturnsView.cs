@@ -404,7 +404,7 @@ namespace Vodovoz
 				//доставки будет пустая
 				routeListItem.Order.DeliveryPoint = orderNode.DeliveryPoint;
 				routeListItem.Order.Client = orderNode.Client;
-				routeListItem.Order.UpdateBottleMovementOperation(UoW, new BaseParametersProvider(),routeListItem.BottlesReturned);
+				routeListItem.Order.UpdateBottleMovementOperation(UoW, new BaseParametersProvider(), routeListItem.BottlesReturned);
 			}
 		}
 
@@ -412,6 +412,24 @@ namespace Vodovoz
 		{
 			ConfigureDeliveryPointRefference(orderNode.Client);
 			referenceDeliveryPoint.OpenSelectDialog();
+		}
+
+		protected void OnReferenceClientChanged(object sender, EventArgs e)
+		{
+			PaymentType? previousPaymentType = yenumcomboOrderPayment.SelectedItem as PaymentType?;
+			Enum[] hideEnums = { PaymentType.cashless };
+			PersonType personType = (referenceClient.Subject as Counterparty).PersonType;
+			if(personType == PersonType.natural)
+				yenumcomboOrderPayment.AddEnumToHideList(hideEnums);
+			else
+				yenumcomboOrderPayment.ClearEnumHideList();
+
+			if(previousPaymentType.HasValue) {
+				if(personType == PersonType.natural && hideEnums.Contains(previousPaymentType.Value))
+					yenumcomboOrderPayment.SelectedItem = PaymentType.cash;
+				else
+					yenumcomboOrderPayment.SelectedItem = previousPaymentType;
+			}
 		}
 
 		protected void OnReferenceDeliveryPointChangedByUser(object sender, EventArgs e)

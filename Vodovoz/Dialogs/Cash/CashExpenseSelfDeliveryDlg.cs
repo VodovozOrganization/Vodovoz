@@ -98,7 +98,7 @@ namespace Vodovoz.Dialogs.Cash
 			yentryOrder.Binding.AddBinding(Entity, x => x.Order, x => x.Subject).InitializeFromSource();
 
 			var filterCasher = new EmployeeFilterViewModel();
-			filterCasher.ShowFired = false;
+			filterCasher.Status = Domain.Employees.EmployeeStatus.IsWorking;
 			yentryCasher.RepresentationModel = new EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 			yentryCasher.Sensitive = false;

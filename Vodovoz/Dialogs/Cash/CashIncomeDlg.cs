@@ -110,12 +110,12 @@ namespace Vodovoz
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
 			var filterCasher = new EmployeeFilterViewModel();
-			filterCasher.ShowFired = false;
+			filterCasher.Status = Domain.Employees.EmployeeStatus.IsWorking;
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, s => s.Casher, w => w.Subject).InitializeFromSource();
 
 			var filter = new EmployeeFilterViewModel();
-			filter.ShowFired = false;
+			filter.Status = Domain.Employees.EmployeeStatus.IsWorking;
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filter);
 			yentryEmployee.Binding.AddBinding(Entity, s => s.Employee, w => w.Subject).InitializeFromSource();
 

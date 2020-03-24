@@ -5,7 +5,6 @@ using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
-using Vodovoz.Domain.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Employees;
@@ -70,6 +69,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
+			//DebtorsJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DebtorsJournalViewModel>(
 				() => FluentColumnsConfig<Representations.DebtorJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(x => x.AddressId > 0 ? x.AddressId.ToString() : x.ClientId.ToString())
@@ -366,9 +366,14 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Ф.И.О.")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.FullName)
+						.WrapMode(Pango.WrapMode.WordChar)
+						.WrapWidth(600)
 					.AddColumn("Категория")
+						.MinWidth(200)
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.EmpCatEnum.GetEnumTitle())
+					.AddColumn("Статус")
+						.AddEnumRenderer(n => n.Status)
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()

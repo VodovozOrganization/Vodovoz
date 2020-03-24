@@ -93,20 +93,26 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				fromExistRoute = true;
 			}
 
+			// малотоннажник
+			bool isLightTonnage = Trip.Car.MaxBottles <= 55;
+
 			//Это адрес в приоритете для ларгусов.
-			bool addressForLargus = Nodes[second_index - 1].Bootles <= RouteOptimizer.MaxBottlesInOrderForLargus;
+			bool addressForLargus = isLightTonnage && 
+									Nodes[second_index - 1].Bottles >= Trip.Car.MinBottlesFromAddress &&
+									Nodes[second_index - 1].Bottles <= Trip.Car.MaxBottlesFromAddress;
+
 			long distance = 0;
 
-			//Если у нас ларгус, а адрес большой, ларгусу вкатываем оромный штраф.
-			if(Trip.Car.TypeOfUse == CarTypeOfUse.CompanyLargus && !addressForLargus) {
+			//Если у нас малотоннажник, а адрес большой, то вкатываем оромный штраф.
+			if(isLightTonnage && !addressForLargus) {
 #if DEBUG
 				SLargusPenality[Trip]++;
 #endif
 				return RouteOptimizer.LargusMaxBottlePenalty;
 			}
 
-			//Если адрес для ларгуса, то обычным водителям добавляем штраф.
-			if(Trip.Car.TypeOfUse != CarTypeOfUse.CompanyLargus && addressForLargus)
+			//Если адрес для малотоннажника, то остальным водителям добавляем штраф.
+			if(!isLightTonnage && addressForLargus)
 				distance += RouteOptimizer.SmallOrderNotLargusPenalty;
 
 			var area = Nodes[second_index - 1].District;
@@ -116,7 +122,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(!fromExistRoute) {
 				if(priorites.ContainsKey(area))
 					distance += priorites[area] * RouteOptimizer.DistrictPriorityPenalty;
-				else {
+				else 
+				{
 #if DEBUG
 					SUnlikeDistrictPenality[Trip]++;
 #endif

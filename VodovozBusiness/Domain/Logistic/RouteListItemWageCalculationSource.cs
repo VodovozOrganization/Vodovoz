@@ -32,6 +32,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public int Bottle600mlCount => item.Order.OrderItems.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol600ml)
 													   		.Sum(i => i.ActualCount ?? 0);
+		public int Bottle1500mlCount => item.Order.OrderItems.Where(i => i.Nomenclature.TareVolume == TareVolume.Vol1500ml)
+															.Sum(i => i.ActualCount ?? 0);
 
 		public bool ContractCancelation => false;
 

@@ -43,6 +43,8 @@ namespace Vodovoz.Filters.GtkViews
 			ycomboboxReason.Binding.AddBinding(ViewModel, x => x.DiscountReason, x => x.SelectedItem).InitializeFromSource();
 			ydateperiodpickerLastOrder.Binding.AddBinding(ViewModel, x => x.StartDate, x => x.StartDateOrNull).InitializeFromSource();
 			ydateperiodpickerLastOrder.Binding.AddBinding(ViewModel, x => x.EndDate, x => x.EndDateOrNull).InitializeFromSource();
+			ycheckbuttonHideActive.Binding.AddBinding(ViewModel, x => x.HideActiveCounterparty, x => x.Active).InitializeFromSource();
+			ycheckbuttonHideActive.Binding.AddBinding(ViewModel, x => x.ShowHideActiveCheck, x => x.Visible).InitializeFromSource();
 		}
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)

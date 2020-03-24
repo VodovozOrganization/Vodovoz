@@ -14,7 +14,6 @@ using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi.Gtk;
@@ -84,7 +83,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 	{
 		Build();
 		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
-		Gtk.Settings.Default.SetLongProperty("gtk-button-images", 1, "");
 		this.BuildToolbarActions();
 		tdiMain.WidgetResolver = ViewModelWidgetResolver.Instance;
 		TDIMain.MainNotebook = tdiMain;
@@ -335,18 +333,16 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 	protected void OnActionEmployeeActivated(object sender, EventArgs e)
 	{
-		EmployeeFilterViewModel employeeFilter = new EmployeeFilterViewModel();
-		tdiMain.OpenTab(
-			PermissionControlledRepresentationJournal.GenerateHashName<EmployeesVM>(),
-			() => new PermissionControlledRepresentationJournal(new EmployeesVM(employeeFilter))
-		);
+		var employeeFilter = new EmployeeFilterViewModel();
+		employeeFilter.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
+		var employeesJournal = new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+		tdiMain.AddTab(employeesJournal);
 	}
 
 	protected void OnActionCarsActivated(object sender, EventArgs e)
 	{
 		CarJournalFilterViewModel filter = new CarJournalFilterViewModel();
 		var carJournal = new CarJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
-
 		tdiMain.AddTab(carJournal);
 	}
 

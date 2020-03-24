@@ -90,13 +90,13 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox7;
 
-		private global::Gtk.Label minAddressesLabel;
+		private global::Gtk.Label label11;
 
-		private global::Gamma.GtkWidgets.ySpinButton minAddressesSpin;
+		private global::Gamma.GtkWidgets.ySpinButton minBottlesFromAddressSpin;
 
-		private global::Gtk.Label maxAddressesLabel;
+		private global::Gtk.Label label24;
 
-		private global::Gamma.GtkWidgets.ySpinButton maxAddressesSpin;
+		private global::Gamma.GtkWidgets.ySpinButton maxBottlesFromAddressSpin;
 
 		private global::Gtk.HBox hbox8;
 
@@ -644,47 +644,51 @@ namespace Vodovoz
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.minAddressesLabel = new global::Gtk.Label();
-			this.minAddressesLabel.Name = "minAddressesLabel";
-			this.minAddressesLabel.LabelProp = global::Mono.Unix.Catalog.GetString("адресов от");
-			this.hbox7.Add(this.minAddressesLabel);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.minAddressesLabel]));
+			this.label11 = new global::Gtk.Label();
+			this.label11.Name = "label11";
+			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString("Бутылей с адреса от:");
+			this.hbox7.Add(this.label11);
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.label11]));
 			w42.Position = 0;
 			w42.Expand = false;
 			w42.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.minAddressesSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
-			this.minAddressesSpin.CanFocus = true;
-			this.minAddressesSpin.Name = "minAddressesSpin";
-			this.minAddressesSpin.Adjustment.PageIncrement = 10D;
-			this.minAddressesSpin.ClimbRate = 1D;
-			this.minAddressesSpin.Numeric = true;
-			this.minAddressesSpin.ValueAsDecimal = 0m;
-			this.minAddressesSpin.ValueAsInt = 0;
-			this.hbox7.Add(this.minAddressesSpin);
-			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.minAddressesSpin]));
+			this.minBottlesFromAddressSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
+			this.minBottlesFromAddressSpin.CanFocus = true;
+			this.minBottlesFromAddressSpin.Name = "minBottlesFromAddressSpin";
+			this.minBottlesFromAddressSpin.Adjustment.PageIncrement = 10D;
+			this.minBottlesFromAddressSpin.ClimbRate = 1D;
+			this.minBottlesFromAddressSpin.Numeric = true;
+			this.minBottlesFromAddressSpin.ValueAsDecimal = 0m;
+			this.minBottlesFromAddressSpin.ValueAsInt = 0;
+			this.hbox7.Add(this.minBottlesFromAddressSpin);
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.minBottlesFromAddressSpin]));
 			w43.Position = 1;
+			w43.Expand = false;
+			w43.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.maxAddressesLabel = new global::Gtk.Label();
-			this.maxAddressesLabel.Name = "maxAddressesLabel";
-			this.maxAddressesLabel.LabelProp = global::Mono.Unix.Catalog.GetString("до");
-			this.hbox7.Add(this.maxAddressesLabel);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.maxAddressesLabel]));
+			this.label24 = new global::Gtk.Label();
+			this.label24.Name = "label24";
+			this.label24.LabelProp = global::Mono.Unix.Catalog.GetString("до:");
+			this.hbox7.Add(this.label24);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.label24]));
 			w44.Position = 2;
 			w44.Expand = false;
 			w44.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.maxAddressesSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 999D, 1D);
-			this.maxAddressesSpin.CanFocus = true;
-			this.maxAddressesSpin.Name = "maxAddressesSpin";
-			this.maxAddressesSpin.Adjustment.PageIncrement = 10D;
-			this.maxAddressesSpin.ClimbRate = 1D;
-			this.maxAddressesSpin.Numeric = true;
-			this.maxAddressesSpin.ValueAsDecimal = 0m;
-			this.maxAddressesSpin.ValueAsInt = 0;
-			this.hbox7.Add(this.maxAddressesSpin);
-			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.maxAddressesSpin]));
+			this.maxBottlesFromAddressSpin = new global::Gamma.GtkWidgets.ySpinButton(0D, 10000D, 1D);
+			this.maxBottlesFromAddressSpin.CanFocus = true;
+			this.maxBottlesFromAddressSpin.Name = "maxBottlesFromAddressSpin";
+			this.maxBottlesFromAddressSpin.Adjustment.PageIncrement = 10D;
+			this.maxBottlesFromAddressSpin.ClimbRate = 1D;
+			this.maxBottlesFromAddressSpin.Numeric = true;
+			this.maxBottlesFromAddressSpin.ValueAsDecimal = 0m;
+			this.maxBottlesFromAddressSpin.ValueAsInt = 0;
+			this.hbox7.Add(this.maxBottlesFromAddressSpin);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.maxBottlesFromAddressSpin]));
 			w45.Position = 3;
+			w45.Expand = false;
+			w45.Fill = false;
 			this.tableCarData.Add(this.hbox7);
 			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.hbox7]));
 			w46.TopAttach = ((uint)(4));

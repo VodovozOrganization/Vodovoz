@@ -15,8 +15,6 @@ using Vodovoz.Dialogs.Phones;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Tools.CallTasks;
-using Vodovoz.Services;
-using Vodovoz.Core.DataService;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 
@@ -81,8 +79,8 @@ namespace Vodovoz.Dialogs
 
 
 			EmployeeFilterViewModel employeeFilterViewModel = new EmployeeFilterViewModel();
+			employeeFilterViewModel.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.office);
 			EmployeesVM employeeVM = new EmployeesVM(employeeFilterViewModel);
-			employeeVM.Filter.RestrictCategory = EmployeeCategory.office;
 			EmployeeyEntryreferencevm.RepresentationModel = employeeVM;
 
 			EmployeeyEntryreferencevm.Binding.AddBinding(Entity, s => s.AssignedEmployee, w => w.Subject).InitializeFromSource();
@@ -198,7 +196,7 @@ namespace Vodovoz.Dialogs
 			orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
 			orderDlg.Entity.UpdateClientDefaultParam();
 			orderDlg.Entity.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(Entity.DeliveryPoint.Id);
-			orderDlg.Entity.CallTaskAutoFactory.TaskCreationInteractive = new GtkTaskCreationInteractive();
+			orderDlg.Entity.CallTaskWorker.TaskCreationInteractive = new GtkTaskCreationInteractive();
 			TabParent.AddTab(orderDlg , this);
 		}
 

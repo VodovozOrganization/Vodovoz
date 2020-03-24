@@ -10,10 +10,11 @@ namespace Vodovoz.Core.DataService
 		IStandartNomenclatures, 
 		IImageProvider, 
 		IStandartDiscountsService, 
-		IPersonProvider ,
+		IPersonProvider,
 		ICommonParametersProvider, 
 		ISmsNotifierParametersProvider,
 		IWageParametersProvider,
+		IDefaultDeliveryDaySchedule,
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
 		IEmailServiceSettings,
@@ -276,6 +277,18 @@ namespace Vodovoz.Core.DataService
 
 				return result;
 			}
+		}
+
+		#endregion
+
+		#region IDefaultDeliveryDaySchedule
+
+		public int GetDefaultDeliveryDayScheduleId()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("default_delivery_day_schedule_id")) {
+				throw new InvalidProgramException("В параметрах базы не настроена смена работы по умолчанию (default_delivery_day_schedule_id).");
+			}
+			return int.Parse(ParametersProvider.Instance.GetParameterValue("default_delivery_day_schedule_id"));
 		}
 
 		#endregion

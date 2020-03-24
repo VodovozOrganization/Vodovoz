@@ -56,7 +56,7 @@ namespace Vodovoz
 
 		private global::Vodovoz.RouteListCreateItemsView createroutelistitemsview1;
 
-		private global::Gtk.HBox hbox8;
+		private global::Gtk.HBox hbox9;
 
 		private global::QS.Widgets.EnumMenuButton enumPrint;
 
@@ -152,7 +152,7 @@ namespace Vodovoz
 			w7.Fill = false;
 			this.dataRouteList.Add(this.hbox7);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.dataRouteList[this.hbox7]));
-			w8.RightAttach = ((uint)(3));
+			w8.RightAttach = ((uint)(2));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
 			this.hboxCash = new global::Gtk.HBox();
@@ -181,7 +181,7 @@ namespace Vodovoz
 			w10.Fill = false;
 			this.dataRouteList.Add(this.hboxCash);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.dataRouteList[this.hboxCash]));
-			w11.LeftAttach = ((uint)(3));
+			w11.LeftAttach = ((uint)(2));
 			w11.RightAttach = ((uint)(4));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -293,6 +293,7 @@ namespace Vodovoz
 			// Container child dataRouteList.Gtk.Table+TableChild
 			this.labelStatus = new global::Gamma.GtkWidgets.yLabel();
 			this.labelStatus.Name = "labelStatus";
+			this.labelStatus.Xalign = 0F;
 			this.labelStatus.LabelProp = global::Mono.Unix.Catalog.GetString("--");
 			this.dataRouteList.Add(this.labelStatus);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.dataRouteList[this.labelStatus]));
@@ -346,6 +347,7 @@ namespace Vodovoz
 			w25.BottomAttach = ((uint)(4));
 			w25.LeftAttach = ((uint)(3));
 			w25.RightAttach = ((uint)(4));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.dataRouteList);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.dataRouteList]));
@@ -362,10 +364,10 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.createroutelistitemsview1]));
 			w27.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox8 = new global::Gtk.HBox();
-			this.hbox8.Name = "hbox8";
-			this.hbox8.Spacing = 6;
-			// Container child hbox8.Gtk.Box+BoxChild
+			this.hbox9 = new global::Gtk.HBox();
+			this.hbox9.Name = "hbox9";
+			this.hbox9.Spacing = 6;
+			// Container child hbox9.Gtk.Box+BoxChild
 			this.enumPrint = new global::QS.Widgets.EnumMenuButton();
 			this.enumPrint.CanFocus = true;
 			this.enumPrint.Name = "enumPrint";
@@ -376,13 +378,13 @@ namespace Vodovoz
 			global::Gtk.Image w28 = new global::Gtk.Image();
 			w28.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
 			this.enumPrint.Image = w28;
-			this.hbox8.Add(this.enumPrint);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.enumPrint]));
+			this.hbox9.Add(this.enumPrint);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.enumPrint]));
 			w29.PackType = ((global::Gtk.PackType)(1));
 			w29.Position = 1;
 			w29.Expand = false;
 			w29.Fill = false;
-			// Container child hbox8.Gtk.Box+BoxChild
+			// Container child hbox9.Gtk.Box+BoxChild
 			this.buttonAccept = new global::Gtk.Button();
 			this.buttonAccept.CanFocus = true;
 			this.buttonAccept.Name = "buttonAccept";
@@ -391,14 +393,14 @@ namespace Vodovoz
 			global::Gtk.Image w30 = new global::Gtk.Image();
 			w30.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
 			this.buttonAccept.Image = w30;
-			this.hbox8.Add(this.buttonAccept);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonAccept]));
+			this.hbox9.Add(this.buttonAccept);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.buttonAccept]));
 			w31.PackType = ((global::Gtk.PackType)(1));
 			w31.Position = 2;
 			w31.Expand = false;
 			w31.Fill = false;
-			this.vbox1.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
+			this.vbox1.Add(this.hbox9);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox9]));
 			w32.Position = 2;
 			w32.Expand = false;
 			w32.Fill = false;

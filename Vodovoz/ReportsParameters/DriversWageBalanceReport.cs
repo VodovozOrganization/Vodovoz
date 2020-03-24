@@ -93,7 +93,7 @@ namespace Vodovoz.Reports
 
 			driversList = UoW.Session.QueryOver<Employee>(() => employeeAlias)
 			                 .Where(
-				                 () => !employeeAlias.IsFired
+				                 () => employeeAlias.Status != EmployeeStatus.IsFired
 				                 && (employeeAlias.Category == EmployeeCategory.driver || employeeAlias.Category == EmployeeCategory.forwarder)
 				                 && !employeeAlias.VisitingMaster
 				                )

@@ -481,10 +481,12 @@ namespace Vodovoz.Domain.Orders
 
 	public enum TransferType
 	{
-		[Display(Name = "Автоперенос")]
-		Auto,
-		[Display(Name = "Согласован")]
-		Confirmed
+		[Display(Name = "Автоперенос согласован")]
+		AutoTransferApproved,
+		[Display(Name = "Автоперенос н/согл")]
+		AutoTransferNotApproved,
+		[Display(Name = "Перенос клиентом")]
+		TransferredByCounterparty
 	}
 
 	public class UndeliveredOrderTransferTypeStringType : NHibernate.Type.EnumStringType

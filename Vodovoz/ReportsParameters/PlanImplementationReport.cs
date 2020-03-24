@@ -51,7 +51,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
-				x => x.ShowFired = false,
+				x => x.Status = EmployeeStatus.IsWorking,
 				x => x.RestrictWageType = lstCmbPlanType.SelectedItem as WageParameterTypes?
 			);
 		}

@@ -20,7 +20,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			yEntRefEmployee.RepresentationModel = new EmployeesVM(filter);
 		}

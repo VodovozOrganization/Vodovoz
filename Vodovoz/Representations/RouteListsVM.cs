@@ -13,7 +13,6 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.RepresentationModel.GtkUI;
 using QS.Tdi;
-using QS.Tdi.Gtk;
 using QS.Utilities.Text;
 using QSOrmProject;
 using Vodovoz.Dialogs.Logistic;
@@ -24,7 +23,6 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModels.FuelDocuments;
 
 namespace Vodovoz.ViewModel
@@ -95,10 +93,10 @@ namespace Vodovoz.ViewModel
 
 			#region для ускорения редактора
 			var result = query
-				.JoinAlias(o => o.Shift, () => shiftAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(o => o.Car, () => carAlias)
-				.JoinAlias(o => o.Driver, () => driverAlias)
-				.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
+				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
+				.Left.JoinAlias(o => o.Car, () => carAlias)
+				.Left.JoinAlias(o => o.Driver, () => driverAlias)
+				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
 				.SelectList(list => list
 				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)

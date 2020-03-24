@@ -67,7 +67,7 @@ namespace Vodovoz
 			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			dataentryreferenceDriver.RepresentationModel = new EmployeesVM(filter);
 			dataentryreferenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
@@ -81,8 +81,8 @@ namespace Vodovoz
 			maxVolumeSpin.Binding.AddBinding(Entity, e => e.MaxVolume, w => w.Value).InitializeFromSource();
 			minBottlesSpin.Binding.AddBinding(Entity, e => e.MinBottles, w => w.ValueAsInt).InitializeFromSource();
 			maxBottlesSpin.Binding.AddBinding(Entity, e => e.MaxBottles, w => w.ValueAsInt).InitializeFromSource();
-			minAddressesSpin.Binding.AddBinding(Entity, e => e.MinRouteAddresses, w => w.ValueAsInt).InitializeFromSource();
-			maxAddressesSpin.Binding.AddBinding(Entity, e => e.MaxRouteAddresses, w => w.ValueAsInt).InitializeFromSource();
+			minBottlesFromAddressSpin.Binding.AddBinding(Entity, e => e.MinBottlesFromAddress, w => w.ValueAsInt).InitializeFromSource();
+			maxBottlesFromAddressSpin.Binding.AddBinding(Entity, e => e.MaxBottlesFromAddress, w => w.ValueAsInt).InitializeFromSource();
 
 			photoviewCar.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewCar.GetSaveFileName = () => String.Format("{0}({1})", Entity.Model, Entity.RegistrationNumber);
@@ -100,6 +100,7 @@ namespace Vodovoz
 
 			int currentUserId = ServicesConfig.CommonServices.UserService.CurrentUserId;
 			bool canChangeVolumeWeightConsumption = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_volume_weight_consumption", currentUserId) || Entity.Id == 0 || !Entity.IsCompanyCar;
+			bool canChangeBottlesFromAddress = ServicesConfig.CommonServices.PermissionService.ValidateUserPresetPermission("can_change_cars_bottles_from_address", currentUserId);
 
 			dataspinbutton1.Sensitive = canChangeVolumeWeightConsumption;
 			maxVolumeSpin.Sensitive = canChangeVolumeWeightConsumption;
@@ -107,6 +108,9 @@ namespace Vodovoz
 
 			checkIsRaskat.Sensitive = CarTypeIsEditable();
 			comboTypeOfUse.Sensitive = CarTypeIsEditable();
+
+			minBottlesFromAddressSpin.Sensitive = canChangeBottlesFromAddress;
+			maxBottlesFromAddressSpin.Sensitive = canChangeBottlesFromAddress;
 
 			yTreeGeographicGroups.Selection.Mode = Gtk.SelectionMode.Single;
 			yTreeGeographicGroups.ColumnsConfig = FluentColumnsConfig<GeographicGroup>.Create()

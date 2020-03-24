@@ -133,6 +133,7 @@ namespace Vodovoz.Domain.WageCalculation
 					case WageRateTypes.EmptyBottle19L:
 					case WageRateTypes.Bottle6L:
 					case WageRateTypes.PackOfBottles600ml:
+					case WageRateTypes.Bottle1500ml:
 					case WageRateTypes.Equipment:
 					case WageRateTypes.Address:
 					case WageRateTypes.Bottle19LInBigOrder:
@@ -155,6 +156,7 @@ namespace Vodovoz.Domain.WageCalculation
 					case WageRateTypes.EmptyBottle19L:
 					case WageRateTypes.Bottle6L:
 					case WageRateTypes.PackOfBottles600ml:
+					case WageRateTypes.Bottle1500ml:
 					case WageRateTypes.Equipment:
 					case WageRateTypes.Address:
 					case WageRateTypes.Bottle19LInBigOrder:
@@ -177,6 +179,7 @@ namespace Vodovoz.Domain.WageCalculation
 					case WageRateTypes.EmptyBottle19L:
 					case WageRateTypes.Bottle6L:
 					case WageRateTypes.PackOfBottles600ml:
+					case WageRateTypes.Bottle1500ml:
 					case WageRateTypes.Equipment:
 					case WageRateTypes.Address:
 					case WageRateTypes.Bottle19LInBigOrder:
@@ -199,6 +202,7 @@ namespace Vodovoz.Domain.WageCalculation
 					case WageRateTypes.EmptyBottle19L:
 					case WageRateTypes.Bottle6L:
 					case WageRateTypes.PackOfBottles600ml:
+					case WageRateTypes.Bottle1500ml:
 					case WageRateTypes.Equipment:
 					case WageRateTypes.Address:
 					case WageRateTypes.Bottle19LInBigOrder:

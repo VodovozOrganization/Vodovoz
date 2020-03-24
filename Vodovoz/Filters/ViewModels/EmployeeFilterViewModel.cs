@@ -32,13 +32,42 @@ namespace Vodovoz.Filters.ViewModels
 
 		public bool IsCategoryNotRestricted => !RestrictCategory.HasValue;
 
-		private bool showFired;
-		public virtual bool ShowFired {
-			get => showFired;
+		EmployeeStatus? status;
+		public virtual EmployeeStatus? Status {
+			get => status;
+			set => UpdateFilterField(ref status, value, () => Status);
+		}
+
+		private bool canChangeStatus = true;
+		public bool CanChangeStatus {
+			get => canChangeStatus; 
+			set => UpdateFilterField(ref canChangeStatus, value, () => CanChangeStatus); 
+		}
+
+		private DateTime? weekDay;
+		public virtual DateTime? WeekDay {
+			get => weekDay;
 			set {
-				if(SetField(ref showFired, value, () => ShowFired)) {
+				if(SetField(ref weekDay, value))
 					Update();
-				}
+			}
+		}
+
+		private TimeSpan? drvStartTime;
+		public virtual TimeSpan? DrvStartTime {
+			get => drvStartTime;
+			set {
+				if(SetField(ref drvStartTime, value))
+					Update();
+			}
+		}
+
+		private TimeSpan? drvEndTime;
+		public virtual TimeSpan? DrvEndTime {
+			get => drvEndTime;
+			set {
+				if(SetField(ref drvEndTime, value))
+					Update();
 			}
 		}
 

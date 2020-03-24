@@ -26,7 +26,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				return 0;
 			}
 
-			return (long)Nodes[first_index - 1].Bootles;
+			return (long)Nodes[first_index - 1].Bottles;
 		}
 	}
 }

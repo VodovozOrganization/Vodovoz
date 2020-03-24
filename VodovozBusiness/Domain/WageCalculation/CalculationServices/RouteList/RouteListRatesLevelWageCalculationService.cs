@@ -44,6 +44,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			resultSum += CalculateWageForEmpty19LBottles(src);
 			resultSum += CalculateWageFor600mlBottles(src);
 			resultSum += CalculateWageFor6LBottles(src);
+			resultSum += CalculateWageFor1500mlBottles(src);
 
 			return new RouteListItemWageResult(
 				resultSum,
@@ -53,6 +54,8 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		private decimal GetRateValue(IRouteListItemWageCalculationSource src, WageRate rate)
 		{
+			if(rate == null)
+				return 0;
 			switch(wageCalculationSource.EmployeeCategory) {
 				case EmployeeCategory.driver:
 					return src.WasVisitedByForwarder ? rate.WageForDriverWithForwarder(src): rate.WageForDriverWithoutForwarder(src);
@@ -162,6 +165,20 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 			decimal paymentForOne = GetRateValue(src, rate);
 
 			return paymentForOne * src.Bottle6LCount;
+		}
+
+		/// <summary>
+		/// Оплата доставки 1,5л бутылей
+		/// </summary>
+		decimal CalculateWageFor1500mlBottles(IRouteListItemWageCalculationSource src)
+		{
+			WageDistrictLevelRate wageCalcMethodic = GetCurrentWageDistrictLevelRate(src);
+
+			var rate = wageCalcMethodic.WageRates.FirstOrDefault(r => r.WageRateType == WageRateTypes.Bottle1500ml);
+
+			decimal paymentForOne = GetRateValue(src, rate);
+
+			return paymentForOne * src.Bottle1500mlCount;
 		}
 
 		/// <summary>

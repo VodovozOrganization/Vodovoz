@@ -100,7 +100,7 @@ namespace Vodovoz.Domain.Logistic
 				if(SetField(ref car, value, () => Car)) {
 					ChangeFuelDocumentsChangeCar(oldCar);
 
-					if(value?.Driver != null && value?.Driver.IsFired == false)
+					if(value?.Driver != null && value?.Driver.Status != EmployeeStatus.IsFired)
 						Driver = value.Driver;
 
 					if(Id == 0) {
@@ -504,11 +504,12 @@ namespace Vodovoz.Domain.Logistic
 		/// <param name="driver">Водитель</param>
 		Employee GetDefaultForwarder(Employee driver)
 		{
-			if(driver?.DefaultForwarder?.IsFired == false)
-				return driver.DefaultForwarder;
-			//если больше не с нами,то не нужно его держать умолчальным в водителе
-			if(driver?.DefaultForwarder != null)
+			if(driver?.DefaultForwarder?.Status == EmployeeStatus.IsFired) {
+				//если больше не с нами,то не нужно его держать умолчальным в водителе
 				driver.DefaultForwarder = null;
+			} else if(driver != null && driver.DefaultForwarder != null) {
+				return driver.DefaultForwarder;
+			}
 			return null;
 		}
 
@@ -929,6 +930,17 @@ namespace Vodovoz.Domain.Logistic
 					case RouteListStatus.OnClosing: break;
 				}
 			}
+
+			if(validationContext.Items.ContainsKey(nameof(IRouteListItemRepository))) {
+				IRouteListItemRepository rliRepository = (IRouteListItemRepository)validationContext.Items[nameof(IRouteListItemRepository)];
+				foreach(var item in Addresses) {
+					if(rliRepository.AnotherRouteListItemForOrderExist(UoW, item))
+						yield return new ValidationResult($"Один из адрессов({item.Order.DeliveryPoint}), находится в другом МЛ");
+				}
+			} else {
+				throw new ArgumentException($"Для валидации МЛ должен быть доступен {typeof(IRouteListRepository)}");
+			}
+
 
 			if(!GeographicGroups.Any())
 				yield return new ValidationResult(

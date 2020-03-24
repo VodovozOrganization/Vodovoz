@@ -187,32 +187,30 @@ namespace Vodovoz.Domain.Logistic
 
 		[Display(Name = "Минимум бутылей")]
 		public virtual int MinBottles {
-			get { return minBottles; }
-			set { SetField(ref minBottles, value, () => MinBottles); }
+			get => minBottles;
+			set => SetField(ref minBottles, value);
 		}
 
 		int maxBottles;
 
 		[Display(Name = "Максимум бутылей")]
 		public virtual int MaxBottles {
-			get { return maxBottles; }
-			set { SetField(ref maxBottles, value, () => MaxBottles); }
+			get => maxBottles;
+			set => SetField(ref maxBottles, value);
 		}
 
-		int minRouteAddresses;
-
-		[Display(Name = "Минимум адресов")]
-		public virtual int MinRouteAddresses {
-			get { return minRouteAddresses; }
-			set { SetField(ref minRouteAddresses, value, () => MinRouteAddresses); }
+		int minBottlesFromAddress;
+		[Display(Name = "Минимальное количество бутылей для перевозки с адреса")]
+		public virtual int MinBottlesFromAddress {
+			get => minBottlesFromAddress;
+			set => SetField(ref minBottlesFromAddress, value);
 		}
 
-		int maxRouteAddresses;
-
-		[Display(Name = "Максимум адресов")]
-		public virtual int MaxRouteAddresses {
-			get { return maxRouteAddresses; }
-			set { SetField(ref maxRouteAddresses, value, () => MaxRouteAddresses); }
+		int maxBottlesFromAddress;
+		[Display(Name = "Максимальное количество бутылей для перевозки с адреса")]
+		public virtual int MaxBottlesFromAddress {
+			get => maxBottlesFromAddress;
+			set => SetField(ref maxBottlesFromAddress, value);
 		}
 
 		byte[] photo;
@@ -292,7 +290,7 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult("Автомобиль уже существует", new[] { "Duplication" });
 				
 			if(Driver != null) {
-				var driversCar = UoW.Session.QueryOver<Car>().Where(x => x.Driver.Id == Driver.Id).SingleOrDefault<Car>();
+				var driversCar = UoW.Session.QueryOver<Car>().Where(x => x.Driver.Id == Driver.Id).List().FirstOrDefault(x => x.Id != this.Id);
 				if(driversCar != null) {
 					yield return new ValidationResult($"У водителя уже есть автомобиль\nГос. номер: {driversCar.RegistrationNumber}\n" +
 						"Отправьте его в архив, а затем повторите закрепление еще раз.", new[] { nameof(Car) });

@@ -699,8 +699,8 @@
     <Compile Include="Repositories\Orders\PromotionalSetRepository.cs" />
     <Compile Include="EntityRepositories\Orders\IOrderRepository.cs" />
     <Compile Include="Tools\CallTasks\ICallTaskFactory.cs" />
-    <Compile Include="Tools\CallTasks\AutoCallTaskFactory.cs" />
-    <Compile Include="Tools\CallTasks\IAutoCallTaskFactory.cs" />
+    <Compile Include="Tools\CallTasks\CallTaskWorker.cs" />
+    <Compile Include="Tools\CallTasks\ICallTaskWorker.cs" />
     <Compile Include="Tools\CallTasks\ITaskCreationInteractive.cs" />
     <Compile Include="Domain\Subdivisions\Subdivision.cs" />
     <Compile Include="HibernateMapping\Subdivisions\SubdivisionMap.cs" />
@@ -833,6 +833,18 @@
     <Compile Include="EntityRepositories\Delivery\IDeliveryRepository.cs" />
     <Compile Include="EntityRepositories\Delivery\DeliveryRepository.cs" />
     <Compile Include="Services\IErrorSendParameterProvider.cs" />
+    <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModel.cs" />
+    <Compile Include="Tools\ErrorReporting\DefaultErrorMessageModelFactory.cs" />
+    <Compile Include="Tools\ErrorReporting\SingletonErrorReporter.cs" />
+    <Compile Include="Tools\ErrorReporting\ILogService.cs" />
+    <Compile Include="Tools\ErrorReporting\LogService.cs" />
+    <Compile Include="Tools\ErrorReporting\IErrorReporter.cs" />
+    <Compile Include="Tools\ErrorReporting\IErrorMessageModelFactory.cs" />
+    <Compile Include="Tools\ErrorReporting\ErrorMessageModelBase.cs" />
+    <Compile Include="Tools\ErrorReporting\ErrorMessageViewModel.cs" />
+    <Compile Include="Domain\Logistic\DriverWorkSchedule.cs" />
+    <Compile Include="HibernateMapping\Logistic\DriverWorkScheduleMap.cs" />
+    <Compile Include="Services\IDefaultDeliveryDaySchedule.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -912,6 +924,7 @@
     <Folder Include="EntityRepositories\Contacts\" />
     <Folder Include="EntityRepositories\Permissions\" />
     <Folder Include="EntityRepositories\Delivery\" />
+    <Folder Include="Tools\ErrorReporting\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

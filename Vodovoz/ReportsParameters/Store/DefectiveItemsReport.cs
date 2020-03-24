@@ -25,7 +25,7 @@ namespace Vodovoz.ReportsParameters.Store
 
 			var driversFilter = new EmployeeFilterViewModel();
 			driversFilter.RestrictCategory = EmployeeCategory.driver;
-			driversFilter.ShowFired = false;
+			driversFilter.Status = EmployeeStatus.IsWorking;
 			yEntryRefDriver.RepresentationModel = new EmployeesVM(driversFilter);
 
 			datePeriod.StartDate = datePeriod.EndDate = DateTime.Today;

@@ -7,7 +7,6 @@ using NLog;
 using QS.Banks.Domain;
 using Vodovoz.Domain.Contacts;
 using QS.Dialog.GtkUI;
-using QS.DomainModel.Entity.PresetPermissions;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using QS.Project.Repositories;
@@ -30,14 +29,13 @@ using Vodovoz.Infrastructure;
 using Vodovoz.EntityRepositories.Employees;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Project.Services.GtkUI;
-using QS.EntityRepositories;
 using Vodovoz.Domain.Sms;
-using System.Threading.Tasks;
 using InstantSmsService;
 using Vodovoz.Services;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -55,8 +53,11 @@ namespace Vodovoz
 			set => base.HasChanges = value;
 		}
 		private MySQLUserRepository mySQLUserRepository;
+
+		private GenericObservableList<DriverWorkScheduleNode> driverWorkDays;
+
 		private EmployeeCategory[] hiddenCategory;
-		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence };
+		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence, EmployeeDocumentType.ForeignCitizenPassport };
 		private readonly EmployeeDocumentType[] hiddenForForeignCitizen = { EmployeeDocumentType.MilitaryID, EmployeeDocumentType.NavyPassport, EmployeeDocumentType.OfficerCertificate };
 
 		public EmployeeDlg()
@@ -104,8 +105,9 @@ namespace Vodovoz
 			wageParametersRepository = WageSingletonRepository.GetInstance();
 			subdivisionService = SubdivisionParametersProvider.Instance;
 
-			checkIsFired.Binding.AddBinding(Entity, e => e.IsFired, w => w.Active).InitializeFromSource();
-			checkVisitingMaster.Binding.AddBinding(Entity, e => e.VisitingMaster, w => w.Active).InitializeFromSource();
+			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
+			yenumcomboStatus.Binding.AddBinding(Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
+
 			chkDriverForOneDay.Binding.AddBinding(Entity, e => e.IsDriverForOneDay, w => w.Active).InitializeFromSource();
 			cmbDriverOf.ItemsEnum = typeof(CarTypeOfUse);
 			cmbDriverOf.Binding.AddBinding(Entity, e => e.DriverOf, w => w.SelectedItemOrNull).InitializeFromSource();
@@ -120,13 +122,11 @@ namespace Vodovoz
 
 			dataentryAndroidLogin.Binding.AddBinding(Entity, e => e.AndroidLogin, w => w.Text).InitializeFromSource();
 			dataentryAndroidPassword.Binding.AddBinding(Entity, e => e.AndroidPassword, w => w.Text).InitializeFromSource();
-			yentryDeliveryDaySchedule.SubjectType = typeof(DeliveryDaySchedule);
-			yentryDeliveryDaySchedule.Binding.AddBinding(Entity, e => e.DefaultDaySheldule, w => w.Subject).InitializeFromSource();
 
 			var filterDefaultForwarder = new EmployeeFilterViewModel();
 			filterDefaultForwarder.SetAndRefilterAtOnce(
-				x => x.RestrictCategory = EmployeeCategory.forwarder,
-				x => x.ShowFired = false
+				x => x.Category = EmployeeCategory.forwarder,
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			repEntDefaultForwarder.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			repEntDefaultForwarder.Binding.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
@@ -155,7 +155,13 @@ namespace Vodovoz
 			yenumcombobox13.ItemsEnum = typeof(RegistrationType);
 			yenumcombobox13.Binding.AddBinding(Entity, e => e.Registration, w => w.SelectedItemOrNull).InitializeFromSource();
 
+			comboDriverType.ItemsEnum = typeof(DriverType);
+			comboDriverType.Binding.AddBinding(Entity, e => e.DriverType, w => w.SelectedItemOrNull).InitializeFromSource();
+
 			ydatepicker1.Binding.AddBinding(Entity, e => e.BirthdayDate, w => w.DateOrNull).InitializeFromSource();
+			dateFired.Binding.AddBinding(Entity, e => e.DateFired, w => w.DateOrNull).InitializeFromSource();
+			dateHired.Binding.AddBinding(Entity, e => e.DateHired, w => w.DateOrNull).InitializeFromSource();
+			dateCalculated.Binding.AddBinding(Entity, e => e.DateCalculated, w => w.DateOrNull).InitializeFromSource();
 
 			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
@@ -174,6 +180,8 @@ namespace Vodovoz
 			ydateFirstWorkDay.Binding.AddBinding(Entity, e => e.FirstWorkDay, w => w.DateOrNull).InitializeFromSource();
 			yspinTripsPriority.Binding.AddBinding(Entity, e => e.TripPriority, w => w.ValueAsShort).InitializeFromSource();
 			yspinDriverSpeed.Binding.AddBinding(Entity, e => e.DriverSpeed, w => w.Value, new MultiplierToPercentConverter()).InitializeFromSource();
+			minAddressesSpin.Binding.AddBinding(Entity, e => e.MinRouteAddresses, w => w.ValueAsInt).InitializeFromSource();
+			maxAddressesSpin.Binding.AddBinding(Entity, e => e.MaxRouteAddresses, w => w.ValueAsInt).InitializeFromSource();
 			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
 
 			ylblUserLogin.TooltipText = "При сохранении сотрудника создаёт нового пользователя с введённым логином и отправляет сотруднику SMS с сгенерированным паролем";
@@ -187,6 +195,21 @@ namespace Vodovoz
 				.Finish();
 			ytreeviewDistricts.Reorderable = true;
 			ytreeviewDistricts.SetItemsSource(Entity.ObservableDistricts);
+
+			FillDriverWorkSchedule(new BaseParametersProvider());
+
+			driverWorkDays.PropertyOfElementChanged += DriverWorkDays_PropertyOfElementChanged;
+
+			ytreeviewDriverSchedule.ColumnsConfig = FluentColumnsConfig<DriverWorkScheduleNode>.Create()
+				.AddColumn("").AddToggleRenderer(x => x.AtWork)
+				.AddColumn("День").AddTextRenderer(x => x.WeekDay.GetEnumTitle())
+				.AddColumn("Ходки")
+					.AddComboRenderer(x => x.DaySchedule)
+					.SetDisplayFunc(x => x.Name)
+					.FillItems(UoW.GetAll<DeliveryDaySchedule>().ToList())
+					.Editing()
+				.Finish();
+			ytreeviewDriverSchedule.SetItemsSource(driverWorkDays);
 
 			ytreeviewEmployeeDocument.ColumnsConfig = FluentColumnsConfig<EmployeeDocument>.Create()
 				.AddColumn("Документ").AddTextRenderer(x => x.Document.GetEnumTitle())
@@ -217,6 +240,67 @@ namespace Vodovoz
 		}
 
 		bool CanCreateNewUser => Entity.User == null && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
+
+		private void FillDriverWorkSchedule(IDefaultDeliveryDaySchedule defaultDelDaySchedule)
+		{
+			driverWorkDays = new GenericObservableList<DriverWorkScheduleNode> {
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.monday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.tuesday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.wednesday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.thursday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.friday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.saturday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.sunday}
+			};
+
+			var daySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDelDaySchedule.GetDefaultDeliveryDayScheduleId());
+
+			foreach(DriverWorkScheduleNode workDay in driverWorkDays) {
+				workDay.DaySchedule = daySchedule;
+
+				if(Entity.ObservableWorkDays.Count > 0) {
+					var day = Entity.ObservableWorkDays.SingleOrDefault(d => d.WeekDay == workDay.WeekDay);
+					if(day != null) {
+						workDay.AtWork = day.AtWork;
+						workDay.DaySchedule = day.DaySchedule;
+						workDay.DrvWorkSchedule = day;
+					}
+				}
+			}
+		}
+
+		void DriverWorkDays_PropertyOfElementChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			//Пребираем строки с графиком работы
+			foreach(DriverWorkScheduleNode workDay in driverWorkDays) {
+				//Если день отмечен как рабочий и нет записи в БД
+				if(workDay.AtWork && workDay.DrvWorkSchedule == null) {
+					//Создаем рабочий день
+					var newWorkDay = new DriverWorkSchedule {
+						AtWork = true,
+						DaySchedule = workDay.DaySchedule,
+						WeekDay = workDay.WeekDay,
+						Employee = Entity
+					};
+					workDay.DrvWorkSchedule = newWorkDay;
+					Entity.ObservableWorkDays.Add(newWorkDay);
+				} else { //Иначе смотрим в базе нужный день
+					var day = Entity.ObservableWorkDays.SingleOrDefault(d => d.WeekDay == workDay.WeekDay
+																			 && d.DaySchedule != workDay.DaySchedule);
+					//Если запись есть меняем в ней график
+					if(day != null)
+						day.DaySchedule = workDay.DaySchedule;
+				}
+
+				//Если сняли рабочий день и запись в базе присутствует
+				if(!workDay.AtWork && workDay.DrvWorkSchedule != null) {
+					//находим запись и удаляем
+					var day = Entity.ObservableWorkDays.SingleOrDefault(d => d.WeekDay == workDay.WeekDay);
+					Entity.ObservableWorkDays.Remove(day);
+					workDay.DrvWorkSchedule = null;
+				}
+			}
+		}
 
 		void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
@@ -255,7 +339,6 @@ namespace Vodovoz
 			UoWGeneric.Save(Entity);
 
 			#region Попытка сохранить логин для нового юзера
-
 			if(!String.IsNullOrEmpty(Entity.LoginForNewUser) && InstantSmsServiceSetting.SendingAllowed) {
 				var user = new User {
 					Login = Entity.LoginForNewUser,

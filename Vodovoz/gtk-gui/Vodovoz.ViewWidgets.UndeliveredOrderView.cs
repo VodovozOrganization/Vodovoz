@@ -303,7 +303,7 @@ namespace Vodovoz.ViewWidgets
 			this.yenumcomboboxTransferType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboboxTransferType.Name = "yenumcomboboxTransferType";
 			this.yenumcomboboxTransferType.ShowSpecialStateAll = false;
-			this.yenumcomboboxTransferType.ShowSpecialStateNot = true;
+			this.yenumcomboboxTransferType.ShowSpecialStateNot = false;
 			this.yenumcomboboxTransferType.UseShortTitle = false;
 			this.yenumcomboboxTransferType.DefaultFirst = false;
 			this.hbxForNewOrder.Add(this.yenumcomboboxTransferType);
