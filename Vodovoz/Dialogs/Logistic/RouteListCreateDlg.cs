@@ -314,7 +314,8 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.New) {
 				var valid = new QSValidator<RouteList>(Entity,
 								new Dictionary<object, object> {
-						{ "NewStatus", RouteListStatus.Confirmed }
+						{ "NewStatus", RouteListStatus.Confirmed },
+						{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
 					});
 				if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
 					SetSensetivity(true);
