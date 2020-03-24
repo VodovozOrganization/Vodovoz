@@ -292,7 +292,7 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult("Автомобиль уже существует", new[] { "Duplication" });
 				
 			if(Driver != null) {
-				var driversCar = UoW.Session.QueryOver<Car>().Where(x => x.Driver.Id == Driver.Id).SingleOrDefault<Car>();
+				var driversCar = UoW.Session.QueryOver<Car>().Where(x => x.Driver.Id == Driver.Id).List().FirstOrDefault(x => x.Id != this.Id);
 				if(driversCar != null) {
 					yield return new ValidationResult($"У водителя уже есть автомобиль\nГос. номер: {driversCar.RegistrationNumber}\n" +
 						"Отправьте его в архив, а затем повторите закрепление еще раз.", new[] { nameof(Car) });
