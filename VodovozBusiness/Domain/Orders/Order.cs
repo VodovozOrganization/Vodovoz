@@ -37,6 +37,8 @@ using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -63,7 +65,23 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IInteractiveService InteractiveService { get; set; }
 
-		public virtual CallTaskWorker CallTaskWorker { get; set; }
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						orderRepository,
+						employeeRepository,
+						new BaseParametersProvider(),
+						ServicesConfig.CommonServices.UserService,
+						SingletonErrorReporter.Instance);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
+		}
 
 		DateTime version;
 		[Display(Name = "Версия")]
@@ -2868,7 +2886,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 
-			CallTaskWorker?.CreateTasks(this);
+			CallTaskWorker.CreateTasks(this);
 
 			if(Id == 0
 			   || newStatus == OrderStatus.Canceled
