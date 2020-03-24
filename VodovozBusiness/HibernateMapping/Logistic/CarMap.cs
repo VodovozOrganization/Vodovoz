@@ -21,8 +21,8 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.MaxWeight)			.Column ("max_weight");
 			Map(x => x.MinBottles)			.Column ("min_bottles");
 			Map(x => x.MaxBottles)			.Column ("max_bottles");
-			Map(x => x.MinRouteAddresses)	.Column ("min_route_addresses");
-			Map(x => x.MaxRouteAddresses)	.Column ("max_route_addresses");
+			Map(x => x.MinBottlesFromAddress).Column("min_bottles_from_address");
+			Map(x => x.MaxBottlesFromAddress).Column("max_bottles_from_address");
 			Map(x => x.IsRaskat)			.Column ("is_raskat");
 			Map(x => x.VIN)					.Column ("VIN");
 			Map(x => x.ManufactureYear)		.Column ("manufacture_year");

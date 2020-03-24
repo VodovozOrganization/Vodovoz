@@ -5,7 +5,6 @@ using NHibernate.Criterion;
 using NHibernate.Util;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
@@ -25,7 +24,7 @@ namespace Vodovoz.EntityRepositories.Logistic
 		{
 			return uow.Session.QueryOver<RouteListItem>()
 					  .Where(x => x.Order.Id == order.Id)
-					  .Select(NHibernate.Criterion.Projections.Count<RouteListItem>(x => x.Id))
+					  .Select(Projections.Count<RouteListItem>(x => x.Id))
 					  .SingleOrDefault<int>() > 0;
 		}
 

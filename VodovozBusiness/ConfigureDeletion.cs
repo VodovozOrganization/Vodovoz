@@ -624,8 +624,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<DriverDistrictPriority>();
 
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryDaySchedule>()
-				.AddDeleteDependence<AtWorkDriver>(x => x.DaySchedule)
-				.AddClearDependence<Employee>(x => x.DefaultDaySheldule);
+				.AddDeleteDependence<AtWorkDriver>(x => x.DaySchedule);
+				//.AddClearDependence<Employee>(x => x.DefaultDaySheldule);
 
 			#endregion
 

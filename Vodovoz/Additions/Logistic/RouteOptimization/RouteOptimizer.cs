@@ -43,11 +43,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// <summary>
 		/// Штраф за каждый шаг приоритета к каждому адресу, в менее приоритеном районе.
 		/// </summary>
-		public static long DistrictPriorityPenalty = 1000;
+		public static long DistrictPriorityPenalty = 5000;
 		/// <summary>
 		/// Штраф каждому менее приоритетному водителю, за единицу приоритета, при выходе на маршрут.
 		/// </summary>
-		public static long DriverPriorityPenalty = 10000;
+		public static long DriverPriorityPenalty = 20000;
 		/// <summary>
 		/// Штраф каждому менее приоритетному водителю на единицу приоритета, на каждом адресе.
 		/// </summary>
@@ -59,7 +59,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// <summary>
 		/// Максимальное количество бутелей в заказе для ларгусов.
 		/// </summary>
-		public static int MaxBottlesInOrderForLargus = 42;
+		public static int MaxBottlesInOrderForLargus = 4;
 		/// <summary>
 		/// Штраф за добавление в лагрус большего количества бутелей. Сейчас установлено больше чем стоимость недоставки заказа.
 		/// То есть такого проиходить не может.
@@ -70,11 +70,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// </summary>
 		public static long SmallOrderNotLargusPenalty = 25000;
 		/// <summary>
-		/// Штраф за каждый адрес в маршруте меньше минимального позволенного в настройках машины <see cref="Car.MinRouteAddresses"/>.
+		/// Штраф за каждый адрес в маршруте меньше минимального позволенного в настройках машины <see cref="Employee.MinRouteAddresses"/>.
 		/// </summary>
 		public static long MinAddressesInRoutePenalty = 50000;
 		/// <summary>
-		/// Штраф за каждую бутыль в маршруте меньше минимального позволенного в настройках машины <see cref="Car.MinRouteAddresses"/>.
+		/// Штраф за каждую бутыль в маршруте меньше минимального позволенного в настройках машины <see cref="Employee.MinRouteAddresses"/>.
 		/// </summary>
 		public static long MinBottlesInRoutePenalty = 10000;
 		/// <summary>
@@ -114,7 +114,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// Метод создаем маршруты на день основываясь на данных всесенных в поля <c>Routes</c>, <c>Orders</c>,
 		/// <c>Drivers</c> и <c>Forwarders</c>.
 		/// </summary>
-		public void CreateRoutes()
+		public void CreateRoutes(TimeSpan drvStartTime, TimeSpan drvEndTime)
 		{
 			WarningMessages.Clear();
 			ProposedRoutes.Clear(); //Очищаем сразу, так как можем выйти из метода ранее.
@@ -127,9 +127,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			/// и создаем поездки для них, в зависимости от выбранного режима работы.
 			var trips = Drivers.Where(x => x.Car != null)
 							   .OrderBy(x => x.PriorityAtDay)
-									.SelectMany(drv => drv.DaySchedule != null
-												? drv.DaySchedule.Shifts.Select(shift => new PossibleTrip(drv, shift))
-												: new[] { new PossibleTrip(drv, null) }
+							   .SelectMany(drv => drv.DaySchedule != null
+												? drv.DaySchedule.Shifts.Where(s => s.StartTime >= drvStartTime && s.StartTime < drvEndTime)
+																		.Select(shift => new PossibleTrip(drv, shift))
+																		: new[] { new PossibleTrip(drv, null) }
 											   )
 							   .ToList();
 
@@ -198,12 +199,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Info("Создаем модель...");
 			RoutingModel routing = new RoutingModel(Nodes.Length + 1, possibleRoutes.Length, 0);
 
-			/// Создаем измерение со временем на маршруте. 
+			/// Создаем измерение со временем на маршруте.
 			/// <c>horizon</c> - ограничивает максимально допустимое значение диапазона, чтобы не уйти за границы суток;
 			/// <c>maxWaitTime</c> - Максимальное время ожидания водителя. То есть водитель закончил разгрузку следующий
-			/// адрес в маршруте у него не должен быть позже чем на 3 часа ожидания.
+			/// адрес в маршруте у него не должен быть позже чем на 4 часа ожидания.
 			int horizon = 24 * 3600;
-			int maxWaitTime = 6 * 3600;
+			int maxWaitTime = 4 * 3600;
 			var timeEvaluators = possibleRoutes.Select(x => new CallbackTime(Nodes, x, distanceCalculator)).ToArray();
 			routing.AddDimensionWithVehicleTransits(timeEvaluators, maxWaitTime, horizon, false, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
@@ -218,28 +219,32 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Car.MaxVolume * 1000)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackVolume(Nodes), 0, volumeCapacity, true, "Volume");
 
-			var addressCapacity = possibleRoutes.Select(x => (long)(x.Car.MaxRouteAddresses)).ToArray();
+			var addressCapacity = possibleRoutes.Select(x => (long)(x.Driver.MaxRouteAddresses)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(Nodes.Length), 0, addressCapacity, true, "AddressCount");
 
 			var bottlesDimension = routing.GetDimensionOrDie("Bottles");
 			var addressDimension = routing.GetDimensionOrDie("AddressCount");
 
 			for(int ix = 0; ix < possibleRoutes.Length; ix++) {
-				/// Устанавливаем функцию получения стоимости маршрута.
+				// Устанавливаем функцию получения стоимости маршрута.
 				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, possibleRoutes[ix], distanceCalculator), ix);
-				/// Добавляем фиксированный штраф за приоритет водителя.
-				routing.SetFixedCostOfVehicle((possibleRoutes[ix].DriverPriority - 1) * DriverPriorityPenalty, ix);
+
+				// Добавляем фиксированный штраф за принадлежность водителя.
+				if(possibleRoutes[ix].Driver.DriverType.HasValue)
+					routing.SetFixedCostOfVehicle(((int)possibleRoutes[ix].Driver.DriverType) * DriverPriorityPenalty, ix);
+				else
+					routing.SetFixedCostOfVehicle(DriverPriorityPenalty * 3, ix);
 
 				var cumulTimeOnEnd = routing.CumulVar(routing.End(ix), "Time");
 				var cumulTimeOnBegin = routing.CumulVar(routing.Start(ix), "Time");
 
 				/// Устанавливаем минимальные(мягкие) границы для измерений. При значениях меньше минимальных, маршрут все таки принимается,
 				/// но вносятся некоторые штрафные очки на последнюю точку маршрута.
-				bottlesDimension.SetEndCumulVarSoftLowerBound(ix, possibleRoutes[ix].Car.MinBottles, MinBottlesInRoutePenalty);
-				addressDimension.SetEndCumulVarSoftLowerBound(ix, possibleRoutes[ix].Car.MinRouteAddresses, MinAddressesInRoutePenalty);
+				//bottlesDimension.SetEndCumulVarSoftLowerBound(ix, possibleRoutes[ix].Car.MinBottles, MinBottlesInRoutePenalty);
+				//addressDimension.SetEndCumulVarSoftLowerBound(ix, possibleRoutes[ix].Driver.MinRouteAddresses, MinAddressesInRoutePenalty);
 
-				/// Устанавливаем диапазон времени для движения по маршруту в зависимости от выбраной смены,
-				/// день, вечер и с учетом досрочного завершения водителем работы.
+				// Устанавливаем диапазон времени для движения по маршруту в зависимости от выбраной смены,
+				// день, вечер и с учетом досрочного завершения водителем работы.
 				if(possibleRoutes[ix].Shift != null) {
 					var shift = possibleRoutes[ix].Shift;
 					var endTime = possibleRoutes[ix].EarlyEnd.HasValue
@@ -247,7 +252,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 													: shift.EndTime.TotalSeconds;
 					cumulTimeOnEnd.SetMax((long)endTime);
 					cumulTimeOnBegin.SetMin((long)shift.StartTime.TotalSeconds);
-				} else if(possibleRoutes[ix].EarlyEnd.HasValue) //Устанавливаем время окончания рабочего дня у водителя.
+				} 
+				else if(possibleRoutes[ix].EarlyEnd.HasValue) //Устанавливаем время окончания рабочего дня у водителя.
 					cumulTimeOnEnd.SetMax((long)possibleRoutes[ix].EarlyEnd.Value.TotalSeconds);
 			}
 
@@ -596,10 +602,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// </summary>
 		private void TestCars(PossibleTrip[] trips)
 		{
-			var addressProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxRouteAddresses < 1).ToList();
+			var addressProblems = trips.Select(x => x.Driver).Distinct().Where(x => x.MaxRouteAddresses < 1).ToList();
 			if(addressProblems.Count > 1)
-				AddWarning("Автомобилям {0} не будут назначены заказы, так как максимальное количество адресов у них меньше 1.",
-						   string.Join(", ", addressProblems.Select(x => x.RegistrationNumber)));
+				AddWarning("Водителям {0} не будут назначены заказы, так как максимальное количество адресов у них меньше 1.",
+						   string.Join(", ", addressProblems.Select(x => x.ShortName)));
 
 			var bottlesProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxBottles < 1).ToList();
 			if(bottlesProblems.Count > 1)

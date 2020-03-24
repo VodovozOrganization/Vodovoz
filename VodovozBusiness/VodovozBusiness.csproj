@@ -842,6 +842,9 @@
     <Compile Include="Tools\ErrorReporting\IErrorMessageModelFactory.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageModelBase.cs" />
     <Compile Include="Tools\ErrorReporting\ErrorMessageViewModel.cs" />
+    <Compile Include="Domain\Logistic\DriverWorkSchedule.cs" />
+    <Compile Include="HibernateMapping\Logistic\DriverWorkScheduleMap.cs" />
+    <Compile Include="Services\IDefaultDeliveryDaySchedule.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

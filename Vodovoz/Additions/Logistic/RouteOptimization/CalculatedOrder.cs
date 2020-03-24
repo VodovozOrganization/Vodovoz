@@ -21,7 +21,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		/// </summary>
 		public RouteList ExistRoute { get; set; }
 
-		public int Bootles { get; set; }
+		public int Bottles { get; set; }
 		public double Weight { get; set; }
 		public double Volume { get; set; }
 
@@ -42,7 +42,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(notCalculate)
 				return;
 
-			Bootles = order.OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
+			Bottles = order.OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water
+																			&& x.Nomenclature.IsWater19L).Sum(x => x.Count);
+
 			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * x.Count)
 						  + order.OrderEquipments.Where(x => x.Direction == Direction.Deliver).Sum(x => x.Nomenclature.Weight * x.Count);
 

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.EntityRepositories.Employees
 {
@@ -56,6 +58,25 @@ namespace Vodovoz.EntityRepositories.Employees
 				.JoinAlias(e => e.User, () => userAlias)
 				.Where(() => userAlias.Id == userId)
 				.List();
+		}
+
+		public IList<Employee> GetWorkingDriversAtDay(IUnitOfWork uow, DateTime date)
+		{
+			Employee employeeAlias = null;
+			DriverWorkSchedule drvWorkScheduleAlias = null;
+			DeliveryDaySchedule dlvDayScheduleAlias = null;
+			DeliveryShift shiftAlias = null;
+
+			var query = uow.Session.QueryOver(() => employeeAlias)
+							  .JoinAlias(() => employeeAlias.WorkDays, () => drvWorkScheduleAlias)
+							  .JoinAlias(() => drvWorkScheduleAlias.DaySchedule, () => dlvDayScheduleAlias)
+					 		  .JoinAlias(() => dlvDayScheduleAlias.Shifts, () => shiftAlias)
+					 		  .Where(() => employeeAlias.Status == EmployeeStatus.IsWorking
+											&& (int)drvWorkScheduleAlias.WeekDay == (int)date.DayOfWeek)
+							  .TransformUsing(Transformers.DistinctRootEntity)
+							  .List<Employee>();
+
+			return query;
 		}
 
 		public Employee GetEmployeeByINNAndAccount(IUnitOfWork uow, string inn, string account)
