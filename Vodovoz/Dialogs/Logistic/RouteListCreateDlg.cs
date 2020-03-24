@@ -10,7 +10,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Additions.Logistic;
@@ -21,11 +20,13 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Store;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
 
@@ -34,6 +35,9 @@ namespace Vodovoz
 	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
+		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
 
 		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
@@ -53,7 +57,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList>();
-			Entity.Logistican = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Logistican = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Logistican == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				FailInitialize = true;
@@ -79,7 +83,7 @@ namespace Vodovoz
 
 		private bool ConfigSubdivisionCombo()
 		{
-			var subdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
+			var subdivisions = subdivisionRepository.GetSubdivisionsForDocumentTypes(UoW, new Type[] { typeof(Income) });
 			if(!subdivisions.Any()) {
 				MessageDialogHelper.RunErrorDialog("Не правильно сконфигурированы подразделения кассы, невозможно будет указать подразделение в которое будут сдаваться маршрутные листы");
 				FailInitialize = true;
@@ -271,8 +275,21 @@ namespace Vodovoz
 			}
 		}
 
+		private void SetSensetivity(bool isSensetive)
+		{
+			buttonSave.Sensitive = isSensetive;
+			buttonCancel.Sensitive = isSensetive;
+			buttonAccept.Sensitive = isSensetive;
+		}
+
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
+			SetSensetivity(false);
+			if(Entity.Car == null) {
+				MessageDialogHelper.RunWarningDialog("Не заполнен автомобиль");
+				SetSensetivity(true);
+				return;
+			}
 			StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}':", Entity.Car.Title));
 			if(Entity.HasOverweight())
 				warningMsg.Append(string.Format("\n\t- перегружен на {0} кг", Entity.Overweight()));
@@ -282,11 +299,14 @@ namespace Vodovoz
 			if(buttonAccept.Label == "Подтвердить" && (Entity.HasOverweight() || Entity.HasVolumeExecess())) {
 				if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_routelist_with_overweight")) {
 					warningMsg.AppendLine("\nВы уверены что хотите подтвердить маршрутный лист?");
-					if(!MessageDialogHelper.RunQuestionDialog(warningMsg.ToString()))
+					if(!MessageDialogHelper.RunQuestionDialog(warningMsg.ToString())) {
+						SetSensetivity(true);
 						return;
+					}
 				} else {
 					warningMsg.AppendLine("\nПодтвердить маршрутный лист нельзя.");
 					MessageDialogHelper.RunWarningDialog(warningMsg.ToString());
+					SetSensetivity(true);
 					return;
 				}
 			}
@@ -296,8 +316,10 @@ namespace Vodovoz
 								new Dictionary<object, object> {
 						{ "NewStatus", RouteListStatus.Confirmed }
 					});
-				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+				if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
+					SetSensetivity(true);
 					return;
+				}
 
 				Entity.ChangeStatus(RouteListStatus.Confirmed);
 				//Строим маршрут для МЛ.
@@ -328,7 +350,7 @@ namespace Vodovoz
 					}
 				} else {
 					//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
-					var forShipment = Repository.Store.WarehouseRepository.WarehouseForShipment(UoW, Entity.Id);
+					var forShipment = warehouseRepository.WarehouseForShipment(UoW, Entity.Id);
 					if(!forShipment.Any()) {
 						if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
 							valid = new QSValidator<RouteList>(
@@ -345,6 +367,7 @@ namespace Vodovoz
 					}
 				}
 				Save();
+				SetSensetivity(true);
 				UpdateButtonStatus();
 				return;
 			}
@@ -354,6 +377,7 @@ namespace Vodovoz
 				} else {
 					Entity.ChangeStatus(RouteListStatus.New);
 				}
+				SetSensetivity(true);
 				UpdateButtonStatus();
 				return;
 			}
