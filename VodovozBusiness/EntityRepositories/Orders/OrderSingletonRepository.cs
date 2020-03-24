@@ -317,7 +317,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return stockBottleOrder != null;
 		}
 
-		public double GetAvgRandeBetwenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, out int? orderCount, DateTime? startDate = null, DateTime? endDate = null)
+		public double GetAvgRangeBetweenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, out int? orderCount, DateTime? startDate = null, DateTime? endDate = null)
 		{
 			VodovozOrder orderAlias = null;
 
@@ -354,7 +354,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public double GetAvgRandeBetwenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, DateTime? startDate = null, DateTime? endDate = null)
 		{
-			return GetAvgRandeBetwenOrders(uow, deliveryPoint, out int? orderCount, startDate, endDate);
+			return GetAvgRangeBetweenOrders(uow, deliveryPoint, out int? orderCount, startDate, endDate);
 		}
 
 		public OrderStatus[] GetOnClosingOrderStatuses()

@@ -12,6 +12,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
 using Vodovoz.FilterViewModels.Goods;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -30,7 +31,8 @@ namespace Vodovoz.Filters.ViewModels
 				x => x.LastOrderBottlesFrom,
 				x => x.LastOrderBottlesTo,
 				x => x.LastOrderNomenclature,
-				x => x.DiscountReason
+				x => x.DiscountReason,
+				x => x.HideActiveCounterparty
 			);
 		}
 
@@ -59,9 +61,18 @@ namespace Vodovoz.Filters.ViewModels
 		}
 
 		private DateTime? endDate;
+		[PropertyChangedAlso(nameof(ShowHideActiveCheck))]
 		public DateTime? EndDate {
 			get => endDate;
 			set => SetField(ref endDate, value, () => EndDate);
+		}
+
+		public bool ShowHideActiveCheck { get { return EndDate != null; } }
+
+		private bool hideActiveCounterparty;
+		public bool HideActiveCounterparty {
+			get => hideActiveCounterparty;
+			set => SetField(ref hideActiveCounterparty, value, () => HideActiveCounterparty);
 		}
 
 		private int? debtBottlesFrom;

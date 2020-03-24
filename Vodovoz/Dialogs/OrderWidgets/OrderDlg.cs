@@ -65,6 +65,8 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.EntityRepositories.CallTasks;
 
 namespace Vodovoz
 {
@@ -186,6 +188,8 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
+			CreateCallTaskWorker();
+
 			ConfigureTrees();
 			ConfigureButtonActions();
 
@@ -291,8 +295,8 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.Binding.AddBinding(Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
-			var filterAuthor = new EmployeeFilterViewModel() {
-				ShowFired = false
+			var filterAuthor = new EmployeeFilterViewModel {
+				Status = EmployeeStatus.IsWorking
 			};
 			referenceAuthor.RepresentationModel = new ViewModel.EmployeesVM(filterAuthor);
 			referenceAuthor.Binding.AddBinding(Entity, s => s.Author, w => w.Subject).InitializeFromSource();
@@ -393,8 +397,22 @@ namespace Vodovoz
 				Entity.RecalculateStockBottles(standartDiscountsService);
 				ControlsActionBottleAccessibility();
 			};
+			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
+		}
+
+		private void CreateCallTaskWorker()
+		{
+			Entity.CallTaskWorker = new CallTaskWorker(
+				CallTaskSingletonFactory.GetInstance(),
+				new CallTaskRepository(),
+				orderRepository,
+				employeeRepository,
+				new BaseParametersProvider(),
+				ServicesConfig.CommonServices.UserService,
+				SingletonErrorReporter.Instance
+			);
 		}
 
 		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)
@@ -2384,6 +2402,7 @@ namespace Vodovoz
 			pickerDeliveryDate.Sensitive = val;
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
+			ycheckContactlessDelivery.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;

@@ -702,8 +702,9 @@ FROM
 			WHEN 'Closed' THEN 'Закрыт'
 		END AS status,
         CASE un.transfer_type
-			WHEN 'Auto' THEN 'Автоперенос'
-			WHEN 'Confirmed' THEN 'Согласован'
+			WHEN 'AutoTransferApproved' THEN 'Автоперенос согласован'
+			WHEN 'AutoTransferNotApproved' THEN 'Автоперенос н/согл'
+            WHEN 'TransferredByCounterparty' THEN 'Перенос клиентом'
 		END AS transfer_type,
         
 	GROUP_CONCAT(CONCAT_WS(': ',fine_employee.last_name, fines_items.money) SEPARATOR '\n') AS fines,

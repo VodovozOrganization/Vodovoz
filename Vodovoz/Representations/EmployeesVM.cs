@@ -27,13 +27,13 @@ namespace Vodovoz.ViewModel
 
 			var query = UoW.Session.QueryOver<Employee>(() => employeeAlias);
 
-			if(!Filter.ShowFired)
-				query.Where(e => !e.IsFired);
+			if(Filter?.Status != null)
+				query.Where(e => e.Status == Filter.Status);
 
-			if(Filter.Category != null)
+			if(Filter?.Category != null)
 				query.Where(e => e.Category == Filter.Category);
 
-			if(Filter.RestrictWageType.HasValue) {
+			if(Filter?.RestrictWageType != null) {
 				var subquery = QueryOver.Of<WageParameter>()
 										.Where(p => p.WageParameterType == Filter.RestrictWageType.Value)
 										.Where(p => p.EndDate == null || p.EndDate >= DateTime.Today)
@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModel
 			var result = query
 				.SelectList(list => list
 				   .Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
-				   .Select(() => employeeAlias.IsFired).WithAlias(() => resultAlias.IsFired)
+				   .Select(() => employeeAlias.Status).WithAlias(() => resultAlias.Status)
 				   .Select(() => employeeAlias.Name).WithAlias(() => resultAlias.EmpFirstName)
 				   .Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.EmpLastName)
 				   .Select(() => employeeAlias.Patronymic).WithAlias(() => resultAlias.EmpMiddleName)
@@ -64,6 +64,8 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Код").SetDataProperty(node => node.Id.ToString())
 			.AddColumn("Ф.И.О.").SetDataProperty(node => node.FullName)
 			.AddColumn("Категория").SetDataProperty(node => node.EmpCatEnum.GetEnumTitle())
+				.MinWidth(200)
+			.AddColumn("Статус").AddEnumRenderer(node => node.Status)
 			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 			.Finish();
 
@@ -92,12 +94,12 @@ namespace Vodovoz.ViewModel
 
 		public EmployeesVM()
 		{
-			CreateRepresentationFilter = () => new EmployeeFilterViewModel() { ShowFired = false };
+			CreateRepresentationFilter = () => new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking };
 		}
 
 		public EmployeesVM(IUnitOfWork uow)
 		{
-			CreateRepresentationFilter = () => new EmployeeFilterViewModel() { ShowFired = false };
+			CreateRepresentationFilter = () => new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking };
 			this.UoW = uow;
 		}
 	}
@@ -118,9 +120,9 @@ namespace Vodovoz.ViewModel
 
 		public EmployeeCategory EmpCatEnum { get; set; }
 
-		public bool IsFired { get; set; }
+		public EmployeeStatus Status { get; set; }
 
-		public string RowColor => IsFired ? "grey" : "black";
+		public string RowColor => Status == EmployeeStatus.IsFired ? "grey" : "black";
 
 		public string EntityTitle => FullName;
 	}

@@ -18,7 +18,8 @@ namespace Vodovoz.Domain.Orders.Documents
 				Title = String.Format("Талон водителю {0} от {1:d}", Order.Id, Order.DeliveryDate),
 				Identifier = "Documents.DriverTicket",
 				Parameters = new Dictionary<string, object> {
-					{ "order_id", Order.Id }
+					{ "order_id", Order.Id },
+					{ "contactless_delivery", Order.ContactlessDelivery}
 				}
 			};
 		}

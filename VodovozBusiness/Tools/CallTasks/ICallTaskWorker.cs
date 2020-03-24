@@ -2,9 +2,9 @@
 
 namespace Vodovoz.Tools.CallTasks
 {
-	public interface IAutoCallTaskFactory
+	public interface ICallTaskWorker
 	{
-		Order Order { get; set; }
 		ITaskCreationInteractive TaskCreationInteractive { get; set; }
+		void CreateTasks(Order order);
 	}
 }

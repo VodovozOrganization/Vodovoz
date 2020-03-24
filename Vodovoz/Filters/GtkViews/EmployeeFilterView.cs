@@ -21,7 +21,10 @@ namespace Vodovoz.Filters.GtkViews
 
 			enumcomboCategory.Binding.AddBinding(ViewModel, vm => vm.Category, w => w.SelectedItemOrNull).InitializeFromSource();
 			enumcomboCategory.Binding.AddFuncBinding(ViewModel, vm => vm.IsCategoryNotRestricted, w => w.Sensitive).InitializeFromSource();
-			checkFired.Binding.AddBinding(ViewModel, vm => vm.ShowFired, w => w.Active).InitializeFromSource();
+
+			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
+			yenumcomboStatus.Binding.AddBinding(ViewModel, vm => vm.Status, w => w.SelectedItemOrNull).InitializeFromSource();
+			yenumcomboStatus.Binding.AddFuncBinding(ViewModel, vm => vm.CanChangeStatus, w => w.Sensitive).InitializeFromSource();
 		}
 	}
 }

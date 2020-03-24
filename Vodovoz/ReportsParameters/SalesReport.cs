@@ -190,7 +190,7 @@ namespace Vodovoz.Reports
 				new ParametersFactory(UoW, (filters) => {
 					SelectableEntityParameter<Employee> resultAlias = null;
 					var query = UoW.Session.QueryOver<Employee>()
-						.Where(x => !x.IsFired);
+						.Where(x => x.Status != EmployeeStatus.IsFired);
 
 					if(filters != null && filters.Any()) {
 						foreach(var f in filters) {

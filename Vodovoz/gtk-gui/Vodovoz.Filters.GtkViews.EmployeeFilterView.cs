@@ -10,7 +10,9 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.Widgets.yEnumComboBox enumcomboCategory;
 
-		private global::Gamma.GtkWidgets.yCheckButton checkFired;
+		private global::Gamma.GtkWidgets.yLabel ylabelStatus;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboStatus;
 
 		protected virtual void Build()
 		{
@@ -25,7 +27,7 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.labelCategory = new global::Gtk.Label();
 			this.labelCategory.Name = "labelCategory";
-			this.labelCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Тип:");
+			this.labelCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категория:");
 			this.hbox1.Add(this.labelCategory);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelCategory]));
 			w1.Position = 0;
@@ -44,17 +46,26 @@ namespace Vodovoz.Filters.GtkViews
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.checkFired = new global::Gamma.GtkWidgets.yCheckButton();
-			this.checkFired.CanFocus = true;
-			this.checkFired.Name = "checkFired";
-			this.checkFired.Label = global::Mono.Unix.Catalog.GetString("Показывать уволенных");
-			this.checkFired.DrawIndicator = true;
-			this.checkFired.UseUnderline = true;
-			this.hbox1.Add(this.checkFired);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.checkFired]));
+			this.ylabelStatus = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelStatus.Name = "ylabelStatus";
+			this.ylabelStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус:");
+			this.hbox1.Add(this.ylabelStatus);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabelStatus]));
 			w3.Position = 2;
 			w3.Expand = false;
 			w3.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.yenumcomboStatus = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboStatus.Name = "yenumcomboStatus";
+			this.yenumcomboStatus.ShowSpecialStateAll = true;
+			this.yenumcomboStatus.ShowSpecialStateNot = false;
+			this.yenumcomboStatus.UseShortTitle = false;
+			this.yenumcomboStatus.DefaultFirst = false;
+			this.hbox1.Add(this.yenumcomboStatus);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yenumcomboStatus]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{

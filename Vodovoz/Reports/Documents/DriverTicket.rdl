@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -119,7 +119,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -565,6 +565,194 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="Image">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>/*
+SET @id1 = 3; #VodovozLogo
+SET @id2 = 4; #VISA 
+SET @id3 = 5; #MasterCard
+SET @id4 = 6; #Пожалуйся директору
+SET @id5 = 7; #рекламный баннер
+SET @id6 = 8; #телефон
+SET @id7 = 9; #VIP
+SET @id8 = 10; #Договор оферты
+SET @id9 = 13; #Безконтактная доставка
+*/
+
+SELECT
+
+stored_resource.id AS ID1,
+stored_resource.binary_file AS IM1 ,
+
+R2.id as ID2 ,
+R2.binary_file as IM2 ,
+
+R3.id as ID3 ,
+R3.binary_file as IM3 ,
+
+R4.id as ID4 ,
+R4.binary_file as IM4 ,
+
+R5.id as ID5 ,
+R5.binary_file as IM5 ,
+
+R6.id as ID6 ,
+R6.binary_file as IM6 ,
+
+R7.id as ID7 ,
+R7.binary_file as IM7 ,
+
+R8.id as ID8 ,
+R8.binary_file as IM8 ,
+
+R9.id as ID9 ,
+R9.binary_file as IM9 
+
+FROM stored_resource
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id2
+) as R2 ON R2.id = @id2
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id3
+) as R3 ON R3.id = @id3
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id4
+) as R4 ON R4.id = @id4
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id5
+) as R5 ON R5.id = @id5
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id6
+) as R6 ON R6.id = @id6
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id7
+) as R7 ON R7.id = @id7
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id8
+) as R8 ON R8.id = @id8
+
+LEFT JOIN 
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource 
+    WHERE stored_resource.id = @id9
+) as R9 ON R9.id = @id9
+
+WHERE stored_resource.id = @id1</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id1">
+            <Value>3</Value>
+          </QueryParameter>
+          <QueryParameter Name="id2">
+            <Value>4</Value>
+          </QueryParameter>
+          <QueryParameter Name="id3">
+            <Value>5</Value>
+          </QueryParameter>
+          <QueryParameter Name="id4">
+            <Value>6</Value>
+          </QueryParameter>
+          <QueryParameter Name="id5">
+            <Value>7</Value>
+          </QueryParameter>
+          <QueryParameter Name="id6">
+            <Value>8</Value>
+          </QueryParameter>
+          <QueryParameter Name="id7">
+            <Value>9</Value>
+          </QueryParameter>
+          <QueryParameter Name="id8">
+            <Value>10</Value>
+          </QueryParameter>
+          <QueryParameter Name="id9">
+            <Value>13</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="IM1">
+          <DataField>IM1</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM2">
+          <DataField>IM2</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM3">
+          <DataField>IM3</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM4">
+          <DataField>IM4</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM5">
+          <DataField>IM5</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM6">
+          <DataField>IM6</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM7">
+          <DataField>IM7</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM8">
+          <DataField>IM8</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM9">
+          <DataField>IM9</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -818,8 +1006,8 @@ WHERE
             </TableRow>
           </TableRows>
         </Details>
-        <Left>52.9pt</Left>
-        <Top>163.8pt</Top>
+        <Left>52.1pt</Left>
+        <Top>177.1pt</Top>
         <Visibility>
           <Hidden>=Iif(First({ord_cnt}, "Orders_count")&gt;0, 'false', 'true')</Hidden>
         </Visibility>
@@ -829,8 +1017,8 @@ WHERE
         <Width>67.02pt</Width>
         <Value>=Format(Sum({total}, 'Goods'), "N2")</Value>
         <ZIndex>1</ZIndex>
-        <Left>485.8pt</Left>
-        <Top>190.3pt</Top>
+        <Left>485.0pt</Left>
+        <Top>203.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -844,7 +1032,7 @@ WHERE
         <Height>11.26pt</Height>
         <Width>598.34pt</Width>
         <Left>0.0pt</Left>
-        <Top>223.9pt</Top>
+        <Top>237.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -863,8 +1051,8 @@ WHERE
         <Width>66.27pt</Width>
         <Value>=Format(Sum(Iif({count}&gt;0,{include_nds},0), 'Goods'), "N2")</Value>
         <ZIndex>1</ZIndex>
-        <Left>485.6pt</Left>
-        <Top>204.0pt</Top>
+        <Left>484.8pt</Left>
+        <Top>217.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -886,8 +1074,8 @@ WHERE
             <Value>Оборудование
 к клиенту: </Value>
             <ZIndex>1</ZIndex>
-            <Left>2.4pt</Left>
-            <Top>1.5pt</Top>
+            <Left>1.6pt</Left>
+            <Top>14.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -903,8 +1091,8 @@ WHERE
             <Width>180.23pt</Width>
             <Value>=Fields!equipment_to.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>81.0pt</Left>
-            <Top>2.0pt</Top>
+            <Left>80.2pt</Left>
+            <Top>15.3pt</Top>
             <CanGrow>true</CanGrow>
             <Style>
               <BorderStyle />
@@ -922,8 +1110,8 @@ WHERE
             <Value>Оборудование
  от клиента:</Value>
             <ZIndex>1</ZIndex>
-            <Left>262.4pt</Left>
-            <Top>1.8pt</Top>
+            <Left>261.6pt</Left>
+            <Top>15.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -939,8 +1127,8 @@ WHERE
             <Width>187.47pt</Width>
             <Value>=Fields!equipment_from.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>337.00pt</Left>
-            <Top>1.90pt</Top>
+            <Left>336.2pt</Left>
+            <Top>15.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -969,8 +1157,8 @@ WHERE
         <Width>53.52pt</Width>
         <Value>Итого:</Value>
         <ZIndex>1</ZIndex>
-        <Left>430.6pt</Left>
-        <Top>189.5pt</Top>
+        <Left>429.8pt</Left>
+        <Top>202.8pt</Top>
         <Style>
           <TextAlign>Right</TextAlign>
         </Style>
@@ -980,8 +1168,8 @@ WHERE
         <Width>93.27pt</Width>
         <Value>В том числе НДС:</Value>
         <ZIndex>1</ZIndex>
-        <Left>390.7pt</Left>
-        <Top>203.3pt</Top>
+        <Left>389.9pt</Left>
+        <Top>216.6pt</Top>
         <Style>
           <TextAlign>Right</TextAlign>
         </Style>
@@ -996,8 +1184,8 @@ WHERE
     ''
 )</Value>
         <ZIndex>1</ZIndex>
-        <Left>31.5pt</Left>
-        <Top>281.2pt</Top>
+        <Left>30.7pt</Left>
+        <Top>294.5pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
           <BorderStyle />
@@ -1012,8 +1200,8 @@ WHERE
         <Width>533.24pt</Width>
         <Value>='Предполагаемое количеcтво возвратной тары: ' + Iif(First({bottles_return}, "Order")&gt;0,First({bottles_return}, "Order"),0) + ' бутылей'</Value>
         <ZIndex>1</ZIndex>
-        <Left>31.3pt</Left>
-        <Top>258.6pt</Top>
+        <Left>30.5pt</Left>
+        <Top>271.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1027,8 +1215,8 @@ WHERE
         <Width>347.52pt</Width>
         <Value>=Code.SummaString_Val(Convert.ToString(First({total}, "Order")))</Value>
         <ZIndex>1</ZIndex>
-        <Left>32.2pt</Left>
-        <Top>238.6pt</Top>
+        <Left>31.4pt</Left>
+        <Top>251.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1041,8 +1229,8 @@ WHERE
         <Width>145.77pt</Width>
         <Value>='Всего: ' + First({total}, "Order")</Value>
         <ZIndex>1</ZIndex>
-        <Left>384.1pt</Left>
-        <Top>238.6pt</Top>
+        <Left>383.3pt</Left>
+        <Top>251.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1056,8 +1244,8 @@ WHERE
         <Width>77.15pt</Width>
         <Value>Доверенности:</Value>
         <ZIndex>1</ZIndex>
-        <Left>31.6pt</Left>
-        <Top>302.4pt</Top>
+        <Left>30.8pt</Left>
+        <Top>315.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1139,8 +1327,8 @@ WHERE
             </TableRow>
           </TableRows>
         </Details>
-        <Left>108.0pt</Left>
-        <Top>303.3pt</Top>
+        <Left>107.2pt</Left>
+        <Top>316.6pt</Top>
         <Visibility>
           <Hidden>=Count({proxyNumber},"Proxies")  = 0</Hidden>
         </Visibility>
@@ -1993,6 +2181,21 @@ Iif({self_delivery}, "САМОВЫВОЗ",
         <Left>184.3pt</Left>
         <Top>22.2pt</Top>
       </Table>
+      <Image Name="Image1">
+        <Height>77.53pt</Height>
+        <Width>110.60pt</Width>
+        <Left>466.70pt</Left>
+        <Top>95.96pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <MIMEType>image/jpeg</MIMEType>
+        <Source>Database</Source>
+        <Value>=iif({?contactless_delivery}, First( {IM9}, "Image" ), NULL)</Value>
+        <Sizing>FitProportional</Sizing>
+      </Image>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -2400,6 +2603,15 @@ Iif({self_delivery}, "САМОВЫВОЗ",
             End Select
         End If
     End Function</Code>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
@@ -2414,14 +2626,13 @@ Iif({self_delivery}, "САМОВЫВОЗ",
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="contactless_delivery">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

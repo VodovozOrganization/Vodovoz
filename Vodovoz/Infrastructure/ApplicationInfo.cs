@@ -8,11 +8,6 @@ namespace Vodovoz.Infrastructure
 	{
 		private AppVersion appVersion = new AppVersion();
 
-		public ApplicationInfo(string dbName)
-		{
-			DBName = dbName;
-		}
-
 		public string ProductName => appVersion.Product;
 
 		public string Edition => appVersion.Edition;
@@ -20,7 +15,5 @@ namespace Vodovoz.Infrastructure
 		public Version Version => appVersion.Version;
 
 		public string SerialNumber => String.Empty;
-
-		public string DBName { get; }
 	}
 }

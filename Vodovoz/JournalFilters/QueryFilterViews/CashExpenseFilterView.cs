@@ -27,7 +27,7 @@ namespace Vodovoz.JournalFilters.QueryFilterViews
 			ydateperiodPicker.PeriodChanged += (sender, e) => Refilter();
 
 			var employeeFilter = new EmployeeFilterViewModel();
-			employeeFilter.ShowFired = false;
+			employeeFilter.Status = Domain.Employees.EmployeeStatus.IsWorking;
 			entryEmployee.RepresentationModel = new EmployeesVM(employeeFilter);
 			entryEmployee.Binding.AddBinding(Filter, x => x.Employee, w => w.Subject).InitializeFromSource();
 			entryEmployee.ChangedByUser += (sender, e) => Refilter();

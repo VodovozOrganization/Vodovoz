@@ -118,6 +118,12 @@ namespace Vodovoz.Domain.Employees
 		RefugeeId,
 		[Display(Name = "Временное удостоверение")]
 		TemporaryId,
+		[Display(Name = "СНИЛС")]
+		InsuranceNumber,
+		[Display(Name = "ИНН")]
+		INN,
+		[Display(Name = "Паспорт иностранного гражданина")]
+		ForeignCitizenPassport,
 		[Display(Name = "Другое")]
 		Other
 	}

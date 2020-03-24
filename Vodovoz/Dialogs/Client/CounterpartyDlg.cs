@@ -148,19 +148,19 @@ namespace Vodovoz
 			var filterAccountant = new EmployeeFilterViewModel();
 			filterAccountant.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceAccountant.RepresentationModel = new EmployeesVM(filterAccountant);
 			var filterSalesManager = new EmployeeFilterViewModel();
 			filterSalesManager.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceSalesManager.RepresentationModel = new EmployeesVM(filterSalesManager);
 			var filterBottleManager = new EmployeeFilterViewModel();
 			filterBottleManager.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceBottleManager.RepresentationModel = new EmployeesVM(filterBottleManager);
 			proxiesview1.CounterpartyUoW = UoWGeneric;

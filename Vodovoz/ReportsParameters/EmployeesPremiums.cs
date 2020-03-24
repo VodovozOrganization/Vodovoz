@@ -7,6 +7,7 @@ using QSReport;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 using QS.Dialog.GtkUI;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -87,7 +88,7 @@ namespace Vodovoz.ReportsParameters
 
 		protected void OnRadioCatAllToggled(object sender, EventArgs e)
 		{
-			var filter = new EmployeeFilter(UoW);
+			var filter = new EmployeeFilterViewModel();
 			if(radioCatDriver.Active) {
 				filter.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			}

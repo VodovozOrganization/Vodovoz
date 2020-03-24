@@ -127,7 +127,7 @@ namespace Vodovoz
 			var filterDriver = new EmployeeFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
@@ -136,14 +136,14 @@ namespace Vodovoz
 			var filterForwarder = new EmployeeFilterViewModel();
 			filterForwarder.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.forwarder,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			referenceForwarder.RepresentationModel = new EmployeesVM(filterForwarder);
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.Changed += ReferenceForwarder_Changed;
 
 			var filterLogistican = new EmployeeFilterViewModel();
-			filterLogistican.SetAndRefilterAtOnce(x => x.ShowFired = false);
+			filterLogistican.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 

@@ -484,7 +484,6 @@
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointView.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.EmployeeFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.FreeRentPackagesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
@@ -553,7 +552,6 @@
     <Compile Include="JournalViewers\WarehouseDocumentsView.cs" />
     <Compile Include="JournalViewers\ReadyForShipmentView.cs" />
     <Compile Include="JournalViewers\ServiceClaimsView.cs" />
-    <Compile Include="JournalFilters\EmployeeFilter.cs" />
     <Compile Include="JournalFilters\EquipmentFilter.cs" />
     <Compile Include="JournalFilters\NomenclatureFilter.cs" />
     <Compile Include="JournalFilters\StockBalanceFilter.cs" />
@@ -1391,9 +1389,11 @@
     <Compile Include="JournalViewModels\DeliveryPointJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\DeliveryPointJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DeliveryPointJournalFilterView.cs" />
-    <Compile Include="Infrastructure\ErrorReportSettings.cs" />
     <Compile Include="Infrastructure\ApplicationInfo.cs" />
-    <Compile Include="Infrastructure\DBInfo.cs" />
+    <Compile Include="Infrastructure\DatabaseInfo.cs" />
+    <Compile Include="Infrastructure\DefaultUnhandledExceptionHandler.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ErrorMessageView.cs" />
+    <Compile Include="Views\ErrorReporting\ErrorMessageView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1642,6 +1642,7 @@
     <Folder Include="Views\Contacts\" />
     <Folder Include="Views\Users\" />
     <Folder Include="ViewWidgets\Permissions\" />
+    <Folder Include="Views\ErrorReporting\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

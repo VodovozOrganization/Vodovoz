@@ -57,7 +57,7 @@ namespace Vodovoz.Dialogs.Employees
 			};
 
 			var filterDefaultForwarder = new EmployeeFilterViewModel();
-			filterDefaultForwarder.ShowFired = false;
+			filterDefaultForwarder.Status = EmployeeStatus.IsWorking;
 			filterDefaultForwarder.SetAndRefilterAtOnce(x => x.RestrictCategory = EmployeeCategory.driver);
 			yentryDriver.RepresentationModel = new EmployeesVM(filterDefaultForwarder);
 			yentryDriver.Binding.AddBinding(Entity, x => x.Driver, x => x.Subject).InitializeFromSource();

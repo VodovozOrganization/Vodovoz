@@ -133,12 +133,12 @@ namespace Vodovoz
 			}
 
 			var filterEmployee = new EmployeeFilterViewModel();
-			filterEmployee.ShowFired = false;
+			filterEmployee.Status = EmployeeStatus.IsWorking;
 			yentryEmployee.RepresentationModel = new ViewModel.EmployeesVM(filterEmployee);
 			yentryEmployee.Binding.AddBinding(Entity, e => e.Accountable, w => w.Subject).InitializeFromSource();
 
 			var filterCasher = new EmployeeFilterViewModel();
-			filterCasher.ShowFired = false;
+			filterCasher.Status = EmployeeStatus.IsWorking;
 			yentryCasher.RepresentationModel = new ViewModel.EmployeesVM(filterCasher);
 			yentryCasher.Binding.AddBinding(Entity, e => e.Casher, w => w.Subject).InitializeFromSource();
 

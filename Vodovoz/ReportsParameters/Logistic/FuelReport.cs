@@ -25,7 +25,7 @@ namespace Vodovoz.Reports
 			var filterDriver = new EmployeeFilterViewModel();
 			filterDriver.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.driver,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			yentryreferenceDriver.RepresentationModel = new EmployeesVM(filterDriver);
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
@@ -35,7 +35,7 @@ namespace Vodovoz.Reports
 			var filter = new EmployeeFilterViewModel();
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
-				x => x.ShowFired = false
+				x => x.Status = EmployeeStatus.IsWorking
 			);
 			yentryAuthor.RepresentationModel = new EmployeesVM(filter);
 		}

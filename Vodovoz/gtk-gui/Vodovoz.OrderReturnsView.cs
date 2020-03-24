@@ -471,6 +471,7 @@ namespace Vodovoz
 			this.Hide();
 			this.referenceDeliveryPoint.ChangedByUser += new global::System.EventHandler(this.OnReferenceDeliveryPointChangedByUser);
 			this.referenceClient.ChangedByUser += new global::System.EventHandler(this.OnReferenceClientChangedByUser);
+			this.referenceClient.Changed += new global::System.EventHandler(this.OnReferenceClientChanged);
 			this.buttonDelivered.Clicked += new global::System.EventHandler(this.OnButtonDeliveredClicked);
 			this.buttonNotDelivered.Clicked += new global::System.EventHandler(this.OnButtonNotDeliveredClicked);
 			this.buttonDeliveryCanceled.Clicked += new global::System.EventHandler(this.OnButtonDeliveryCanseledClicked);

@@ -12,9 +12,7 @@ using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QS.EntityRepositories;
 using QS.HistoryLog;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Core.DataService;
@@ -26,7 +24,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
-using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
@@ -43,7 +40,6 @@ using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.Domain.Orders
 {
-
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "заказы",
 		Nominative = "заказ",
@@ -61,23 +57,13 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IInteractiveQuestion TaskCreationQuestion { get; set; }
 
-		private IAutoCallTaskFactory callTaskFactory;
-		public virtual IAutoCallTaskFactory CallTaskAutoFactory {
-			get { return callTaskFactory; }
-			set {
-				callTaskFactory = value;
-				if(callTaskFactory != null)
-					callTaskFactory.Order = this;
-			}
-		}
-
-		public virtual event Action<OrderStatus> OnOrderStatusChanged;
-
 		#region Cвойства
 
 		public virtual int Id { get; set; }
 
 		public virtual IInteractiveService InteractiveService { get; set; }
+
+		public virtual CallTaskWorker CallTaskWorker { get; set; }
 
 		DateTime version;
 		[Display(Name = "Версия")]
@@ -259,7 +245,6 @@ namespace Vodovoz.Domain.Orders
 			get => loadAllowedBy;
 			set => SetField(ref loadAllowedBy, value, () => LoadAllowedBy);
 		}
-
 
 		Order previousOrder;
 
@@ -615,7 +600,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref eShopOrder, value);
 		}
 
-
 		private bool isContractCloser;
 
 		[Display(Name = "Заказ - закрывашка по контракту?")]
@@ -653,6 +637,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool AddCertificates {
 			get => addCertificates;
 			set => SetField(ref addCertificates, value, () => AddCertificates);
+		}
+
+		bool contactlessDelivery;
+		[Display(Name = "Бесконтактная доставка")]
+		public virtual bool ContactlessDelivery {
+			get => contactlessDelivery;
+			set => SetField(ref contactlessDelivery, value, () => ContactlessDelivery);
 		}
 
 		#endregion
@@ -802,7 +793,6 @@ namespace Vodovoz.Domain.Orders
 			OrderStatus = OrderStatus.NewOrder;
 			SumDifferenceReason = string.Empty;
 			ClientPhone = string.Empty;
-			CallTaskAutoFactory = new AutoCallTaskFactory(CallTaskSingletonFactory.GetInstance(), new CallTaskRepository(), orderRepository, employeeRepository, new BaseParametersProvider()); //FIXME: До перехода на MVVM
 		}
 
 		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author)
@@ -2878,7 +2868,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 
-			OnOrderStatusChanged?.Invoke(OrderStatus);
+			CallTaskWorker?.CreateTasks(this);
 
 			if(Id == 0
 			   || newStatus == OrderStatus.Canceled

@@ -17,7 +17,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			this.Build();
 			unitOfWork = uow;
-			if(hiddenDocument!=null)
+			if(hiddenDocument != null)
 				comboCategory.AddEnumToHideList(hiddenDocument.Cast<object>().ToArray());
 			Entity = new EmployeeDocument();
 			TabName = "Новый документ";
@@ -31,7 +31,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			this.Build();
 			unitOfWork = uow;
-			Entity=(EmployeeDocument)unitOfWork.GetById(typeof(EmployeeDocument), id);
+			Entity = (EmployeeDocument)unitOfWork.GetById(typeof(EmployeeDocument), id);
 			TabName = Entity.Document.GetEnumTitle();
 			ConfigureDlg();
 		}
@@ -77,20 +77,17 @@ namespace Vodovoz.Dialogs.Employees
 			if(Entity.MainDocument==true && docType==EmployeeDocumentType.Passport) 
 			{
 				ycheckMainDoc.Visible = true;
-				label6.Visible = true;
 				return;
 			}
 
 			if(docType== EmployeeDocumentType.Passport) 
 			{
 				ycheckMainDoc.Visible = true;
-				label6.Visible = true;
 			} 
 			else 
 			{
 				ycheckMainDoc.Active = false;
 				ycheckMainDoc.Visible = false;
-				label6.Visible = false;
 			}
 		}
 
