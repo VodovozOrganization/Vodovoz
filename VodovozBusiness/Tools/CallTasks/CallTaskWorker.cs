@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NLog;
 using QS.DomainModel.UoW;
-using QS.ErrorReporting;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -55,7 +53,6 @@ namespace Vodovoz.Tools.CallTasks
 
 		public void CreateTasks(Order order)
 		{
-			bool isNewOrder = order.Id == 0;
 			bool isNewCounterparty = order.Client.Id == 0;
 			//Выполняется синхронно, т.к может выводить окно TaskCreationInteractive
 			if(order.OrderStatus == OrderStatus.Accepted)
@@ -67,7 +64,7 @@ namespace Vodovoz.Tools.CallTasks
 				try {
 					switch(order.OrderStatus) {
 						case OrderStatus.Accepted:
-							if(isNewOrder && !isNewCounterparty)
+							if(!isNewCounterparty)
 								CreateTaskIfCounterpartyRelocated(order);
 							break;
 						case OrderStatus.Shipped:
@@ -96,6 +93,8 @@ namespace Vodovoz.Tools.CallTasks
 				|| order.SelfDelivery || order.DeliveryPoint == null
 				//Нет заказов на указанную точку доставки
 				|| UoW.Session.QueryOver<Order>().Where(x => x.DeliveryPoint == order.DeliveryPoint).List().Any(x => x.Id != order.Id)
+				//Нет созданных CallTask на указанную точку доставки
+				|| UoW.Session.QueryOver<CallTask>().Where(x => x.DeliveryPoint == order.DeliveryPoint).List().Any()
 				//Есть заказы на другую точку доставки
 				|| !UoW.Session.QueryOver<Order>()
 						.Where(x => x.Client == order.Client)
