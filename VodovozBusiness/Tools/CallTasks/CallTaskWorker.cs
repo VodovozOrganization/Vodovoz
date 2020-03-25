@@ -56,6 +56,8 @@ namespace Vodovoz.Tools.CallTasks
 			//Выполняется синхронно, т.к может выводить окно TaskCreationInteractive
 			if(order.OrderStatus == OrderStatus.Accepted)
 				UpdateCallTask(order);
+			if(order.OrderStatus == OrderStatus.Shipped)
+				UpdateDepositReturnTask(order);
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -64,9 +66,6 @@ namespace Vodovoz.Tools.CallTasks
 					switch(order.OrderStatus) {
 						case OrderStatus.Accepted:
 								CreateTaskIfCounterpartyRelocated(order);
-							break;
-						case OrderStatus.Shipped:
-							UpdateDepositReturnTask(order);
 							break;
 						case OrderStatus.DeliveryCanceled:
 							TryDeleteTask(order);
@@ -182,16 +181,16 @@ namespace Vodovoz.Tools.CallTasks
 			CallTask activeTask;
 
 			if(order.SelfDelivery)
-				activeTask = callTaskRepository.GetActiveSelfDeliveryTaskByCounterparty(UoW, order.Client, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
+				activeTask = callTaskRepository.GetActiveSelfDeliveryTaskByCounterparty(order.UoW, order.Client, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
 			else
-				activeTask = callTaskRepository.GetActiveTaskByDeliveryPoint(UoW, order.DeliveryPoint, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
+				activeTask = callTaskRepository.GetActiveTaskByDeliveryPoint(order.UoW, order.DeliveryPoint, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
 
 			if(activeTask != null)
 				return false;
 
 			var newTask = new CallTask();
-			callTaskFactory.FillNewTask(UoW, newTask, employeeRepository);
-			newTask.AssignedEmployee = UoW.GetById<Employee>(personProvider.GetDefaultEmployeeForDepositReturnTask());
+			callTaskFactory.FillNewTask(order.UoW, newTask, employeeRepository);
+			newTask.AssignedEmployee = order.UoW.GetById<Employee>(personProvider.GetDefaultEmployeeForDepositReturnTask());
 			newTask.TaskState = CallTaskStatus.DepositReturn;
 			newTask.DeliveryPoint = order.DeliveryPoint;
 			newTask.Counterparty = order.Client;

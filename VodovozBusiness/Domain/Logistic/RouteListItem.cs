@@ -555,27 +555,21 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RestoreOrder()
 		{
-			lock(Order.OrderItems) {
-				foreach(var item in Order.OrderItems) {
-					if(item.OriginalDiscountMoney.HasValue || item.OriginalDiscount.HasValue) {
-						item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
-						item.DiscountReason = item.OriginalDiscountReason;
-						item.Discount = item.OriginalDiscount ?? 0;
-						item.OriginalDiscountMoney = null;
-						item.OriginalDiscountReason = null;
-						item.OriginalDiscount = null;
-					}
-					item.ActualCount = item.Count;
+			foreach(var item in Order.OrderItems) {
+				if(item.OriginalDiscountMoney.HasValue || item.OriginalDiscount.HasValue) {
+					item.DiscountMoney = item.OriginalDiscountMoney ?? 0;
+					item.DiscountReason = item.OriginalDiscountReason;
+					item.Discount = item.OriginalDiscount ?? 0;
+					item.OriginalDiscountMoney = null;
+					item.OriginalDiscountReason = null;
+					item.OriginalDiscount = null;
 				}
+				item.ActualCount = item.Count;
 			}
-			lock(Order.OrderEquipments) {
-				foreach(var equip in Order.OrderEquipments)
-					equip.ActualCount = equip.Count;
-			}
-			lock(Order.OrderDepositItems) {
-				foreach(var deposit in Order.OrderDepositItems)
-					deposit.ActualCount = deposit.Count;
-			}
+			foreach(var equip in Order.OrderEquipments)
+				equip.ActualCount = equip.Count;
+			foreach(var deposit in Order.OrderDepositItems)
+				deposit.ActualCount = deposit.Count;
 		}
 
 		private Dictionary<int, int> goodsByRouteColumns;
