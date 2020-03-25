@@ -566,10 +566,8 @@ namespace Vodovoz.Domain.Logistic
 				}
 				item.ActualCount = item.Count;
 			}
-
 			foreach(var equip in Order.OrderEquipments)
 				equip.ActualCount = equip.Count;
-
 			foreach(var deposit in Order.OrderDepositItems)
 				deposit.ActualCount = deposit.Count;
 		}

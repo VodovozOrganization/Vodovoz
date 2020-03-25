@@ -53,10 +53,11 @@ namespace Vodovoz.Tools.CallTasks
 
 		public void CreateTasks(Order order)
 		{
-			bool isNewCounterparty = order.Client.Id == 0;
 			//Выполняется синхронно, т.к может выводить окно TaskCreationInteractive
 			if(order.OrderStatus == OrderStatus.Accepted)
 				UpdateCallTask(order);
+			if(order.OrderStatus == OrderStatus.Shipped)
+				UpdateDepositReturnTask(order);
 
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -64,11 +65,7 @@ namespace Vodovoz.Tools.CallTasks
 				try {
 					switch(order.OrderStatus) {
 						case OrderStatus.Accepted:
-							if(!isNewCounterparty)
 								CreateTaskIfCounterpartyRelocated(order);
-							break;
-						case OrderStatus.Shipped:
-							UpdateDepositReturnTask(order);
 							break;
 						case OrderStatus.DeliveryCanceled:
 							TryDeleteTask(order);
@@ -85,9 +82,7 @@ namespace Vodovoz.Tools.CallTasks
 		//Создаёт задачу если клиент переехал
 		private void CreateTaskIfCounterpartyRelocated(Order order)
 		{
-			if
-			(
-				//Есть тара на возврат
+			if( //Есть тара на возврат
 				!order.BottlesReturn.HasValue || order.BottlesReturn.Value == 0
 				//Указана точка доставки
 				|| order.SelfDelivery || order.DeliveryPoint == null
@@ -162,7 +157,7 @@ namespace Vodovoz.Tools.CallTasks
 					else
 						comment = $"Ручной перенос задачи на {dateTime?.ToString("dd/MM/yyyy")}";
 
-					task.AddComment(UoW, comment);
+					task.AddComment(order.UoW, comment);
 					order.UoW.Save(task);
 				}
 			}
@@ -175,8 +170,8 @@ namespace Vodovoz.Tools.CallTasks
 			var equipmentToClient = order.OrderEquipments.Where(x => x.Direction == Direction.Deliver);
 			var equipmentFromClient = order.OrderEquipments.Where(x => x.Direction == Direction.PickUp);
 
-			foreach(var item in equipmentFromClient) {
-				if(!equipmentToClient.Any(x => x.Nomenclature.Id == item.Nomenclature.Id))
+			foreach(var item in equipmentFromClient.ToList()) {
+				if(!equipmentToClient.ToList().Any(x => x.Nomenclature.Id == item.Nomenclature.Id))
 					createTask = true;
 			}
 
@@ -186,23 +181,23 @@ namespace Vodovoz.Tools.CallTasks
 			CallTask activeTask;
 
 			if(order.SelfDelivery)
-				activeTask = callTaskRepository.GetActiveSelfDeliveryTaskByCounterparty(UoW, order.Client, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
+				activeTask = callTaskRepository.GetActiveSelfDeliveryTaskByCounterparty(order.UoW, order.Client, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
 			else
-				activeTask = callTaskRepository.GetActiveTaskByDeliveryPoint(UoW, order.DeliveryPoint, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
+				activeTask = callTaskRepository.GetActiveTaskByDeliveryPoint(order.UoW, order.DeliveryPoint, CallTaskStatus.DepositReturn, 1)?.FirstOrDefault();
 
 			if(activeTask != null)
 				return false;
 
 			var newTask = new CallTask();
-			callTaskFactory.FillNewTask(UoW, newTask, employeeRepository);
-			newTask.AssignedEmployee = UoW.GetById<Employee>(personProvider.GetDefaultEmployeeForDepositReturnTask());
+			callTaskFactory.FillNewTask(order.UoW, newTask, employeeRepository);
+			newTask.AssignedEmployee = order.UoW.GetById<Employee>(personProvider.GetDefaultEmployeeForDepositReturnTask());
 			newTask.TaskState = CallTaskStatus.DepositReturn;
 			newTask.DeliveryPoint = order.DeliveryPoint;
 			newTask.Counterparty = order.Client;
 			newTask.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59);
 			newTask.SourceDocumentId = order.Id;
 			newTask.Source = TaskSource.AutoFromOrder;
-			UoW.Save(newTask);
+			order.UoW.Save(newTask);
 
 			return true;
 		}

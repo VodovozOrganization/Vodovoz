@@ -14,6 +14,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.EntityRepositories;
+using NHibernate.Criterion;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -53,13 +54,16 @@ namespace Vodovoz.ViewWidgets
 
 		private void UpdateEmails()
 		{
-			DateTime lastSendDate;
 			List<StoredEmail> storedEmails;
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				storedEmails = uow.Session.QueryOver<StoredEmail>()
-				                  .Where(x => x.Order.Id == document.Order.Id)
-				                  .Where(x => x.DocumentType == document.Type)
-				                  .List().ToList();
+					.Where(Restrictions.Eq(
+						Projections.Property<StoredEmail>(x => x.Order.Id),
+						document.Order.Id))
+					.And(Restrictions.Eq(
+						Projections.Property<StoredEmail>(x => x.DocumentType),
+						document.Type))
+					.List().ToList();
 			}
 			ytreeviewStoredEmails.ItemsDataSource = storedEmails;
 			buttonSendEmail.Sensitive = document.Type == OrderDocumentType.Bill && emailRepository.CanSendByTimeout(yvalidatedentryEmail.Text, document.Order.Id) && document.Order.Id > 0;

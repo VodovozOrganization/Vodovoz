@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
@@ -11,6 +12,7 @@ using QS.Project.Services;
 using QS.Validation;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -37,7 +39,7 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public override bool Save()
 		{
-			var valid = new QSValidator<RouteList>(UoWGeneric.Root);
+			var valid = new QSValidator<RouteList>(UoWGeneric.Root, new Dictionary<object, object>(){ { nameof(IRouteListItemRepository), new RouteListItemRepository() } });
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 

@@ -65,8 +65,6 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.EntityRepositories.CallTasks;
 
 namespace Vodovoz
 {
@@ -188,8 +186,6 @@ namespace Vodovoz
 
 		public void ConfigureDlg()
 		{
-			CreateCallTaskWorker();
-
 			ConfigureTrees();
 			ConfigureButtonActions();
 
@@ -400,19 +396,6 @@ namespace Vodovoz
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
-		}
-
-		private void CreateCallTaskWorker()
-		{
-			Entity.CallTaskWorker = new CallTaskWorker(
-				CallTaskSingletonFactory.GetInstance(),
-				new CallTaskRepository(),
-				orderRepository,
-				employeeRepository,
-				new BaseParametersProvider(),
-				ServicesConfig.CommonServices.UserService,
-				SingletonErrorReporter.Instance
-			);
 		}
 
 		public ListStore GetListStoreSumDifferenceReasons(IUnitOfWork uow)

@@ -62,11 +62,19 @@ namespace Vodovoz.EntityRepositories.Logistic
 
 		public bool AnotherRouteListItemForOrderExist(IUnitOfWork uow, RouteListItem routeListItem)
 		{
+			if(routeListItem.Status == RouteListItemStatus.Transfered)
+				return false;
+			RouteListItemStatus[] undeliveryStatus = GetUndeliveryStatuses();
+			foreach(var status in undeliveryStatus) {
+				if(routeListItem.Status == status)
+					return false;
+			}
+
 			var anotherRouteListItem = uow.Session.QueryOver<RouteListItem>()
 					.Where(x => x.Order.Id == routeListItem.Order.Id)
 					.And(x => x.Id != routeListItem.Id)
 					.And(x => x.Status != RouteListItemStatus.Transfered)
-					.And(!Restrictions.In(Projections.Property<RouteListItem>(x => x.Status), GetUndeliveryStatuses()))
+					.And(!Restrictions.In(Projections.Property<RouteListItem>(x => x.Status), undeliveryStatus))
 					.Take(1).List().FirstOrDefault();
 			return anotherRouteListItem != null;
 		}
