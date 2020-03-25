@@ -11,6 +11,7 @@ using QS.DomainModel.UoW;
 using QS.Print;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using QS.Tdi;
 using QS.Validation;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
@@ -32,7 +33,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
+	public partial class RouteListCreateDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private IWarehouseRepository warehouseRepository = new WarehouseRepository();
@@ -275,8 +276,17 @@ namespace Vodovoz
 			}
 		}
 
+		private bool canClose = true;
+		public bool CanClose()
+		{
+			if(!canClose)
+				MessageDialogHelper.RunInfoDialog("Дождитесь завершения работы задачи");
+			return canClose;
+		}
+
 		private void SetSensetivity(bool isSensetive)
 		{
+			canClose = isSensetive;
 			buttonSave.Sensitive = isSensetive;
 			buttonCancel.Sensitive = isSensetive;
 			buttonAccept.Sensitive = isSensetive;
@@ -284,103 +294,103 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
-			SetSensetivity(false);
-			if(Entity.Car == null) {
-				MessageDialogHelper.RunWarningDialog("Не заполнен автомобиль");
-				SetSensetivity(true);
-				return;
-			}
-			StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}':", Entity.Car.Title));
-			if(Entity.HasOverweight())
-				warningMsg.Append(string.Format("\n\t- перегружен на {0} кг", Entity.Overweight()));
-			if(Entity.HasVolumeExecess())
-				warningMsg.Append(string.Format("\n\t- объём груза превышен на {0} м<sup>3</sup>", Entity.VolumeExecess()));
+			try {
+				SetSensetivity(false);
+				if(Entity.Car == null) {
+					MessageDialogHelper.RunWarningDialog("Не заполнен автомобиль");
+					return;
+				}
+				StringBuilder warningMsg = new StringBuilder(string.Format("Автомобиль '{0}':", Entity.Car.Title));
+				if(Entity.HasOverweight())
+					warningMsg.Append(string.Format("\n\t- перегружен на {0} кг", Entity.Overweight()));
+				if(Entity.HasVolumeExecess())
+					warningMsg.Append(string.Format("\n\t- объём груза превышен на {0} м<sup>3</sup>", Entity.VolumeExecess()));
 
-			if(buttonAccept.Label == "Подтвердить" && (Entity.HasOverweight() || Entity.HasVolumeExecess())) {
-				if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_routelist_with_overweight")) {
-					warningMsg.AppendLine("\nВы уверены что хотите подтвердить маршрутный лист?");
-					if(!MessageDialogHelper.RunQuestionDialog(warningMsg.ToString())) {
-						SetSensetivity(true);
+				if(buttonAccept.Label == "Подтвердить" && (Entity.HasOverweight() || Entity.HasVolumeExecess())) {
+					if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_confirm_routelist_with_overweight")) {
+						warningMsg.AppendLine("\nВы уверены что хотите подтвердить маршрутный лист?");
+						if(!MessageDialogHelper.RunQuestionDialog(warningMsg.ToString())) {
+							return;
+						}
+					} else {
+						warningMsg.AppendLine("\nПодтвердить маршрутный лист нельзя.");
+						MessageDialogHelper.RunWarningDialog(warningMsg.ToString());
 						return;
 					}
-				} else {
-					warningMsg.AppendLine("\nПодтвердить маршрутный лист нельзя.");
-					MessageDialogHelper.RunWarningDialog(warningMsg.ToString());
-					SetSensetivity(true);
-					return;
 				}
-			}
 
-			if(Entity.Status == RouteListStatus.New) {
-				var valid = new QSValidator<RouteList>(Entity,
-								new Dictionary<object, object> {
+				if(Entity.Status == RouteListStatus.New) {
+					var valid = new QSValidator<RouteList>(Entity,
+									new Dictionary<object, object> {
 						{ "NewStatus", RouteListStatus.Confirmed },
 						{ nameof(IRouteListItemRepository), new RouteListItemRepository() }
-					});
-				if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
-					SetSensetivity(true);
+						});
+					if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
+						return;
+					}
+
+					Entity.ChangeStatus(RouteListStatus.Confirmed);
+					//Строим маршрут для МЛ.
+					if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
+						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
+						var newRoute = optimizer.RebuidOneRoute(Entity);
+						if(newRoute != null) {
+							createroutelistitemsview1.DisableColumnsUpdate = true;
+							newRoute.UpdateAddressOrderInRealRoute(Entity);
+							//Рассчитываем расстояние
+							using(var calc = new RouteGeometryCalculator(DistanceProvider.Osrm)) {
+								Entity.RecalculatePlanedDistance(calc);
+							}
+							createroutelistitemsview1.DisableColumnsUpdate = false;
+							var noPlan = Entity.Addresses.Count(x => !x.PlanTimeStart.HasValue);
+							if(noPlan > 0)
+								MessageDialogHelper.RunWarningDialog($"Для маршрута незапланировано {noPlan} адресов.");
+						} else {
+							MessageDialogHelper.RunWarningDialog($"Маршрут не был перестроен.");
+						}
+					}
+
+					Save();
+
+					if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck) {
+						if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
+							Entity.CompleteRoute(wageCalculationServiceFactory);
+						}
+					} else {
+						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
+						var forShipment = warehouseRepository.WarehouseForShipment(UoW, Entity.Id);
+						if(!forShipment.Any()) {
+							if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
+								valid = new QSValidator<RouteList>(
+									Entity,
+									new Dictionary<object, object> {
+									{ "NewStatus", RouteListStatus.EnRoute }
+									}
+								);
+
+								Entity.ChangeStatus(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute);
+							} else {
+								Entity.ChangeStatus(RouteListStatus.New);
+							}
+						}
+					}
+					Save();
+					UpdateButtonStatus();
 					return;
 				}
-
-				Entity.ChangeStatus(RouteListStatus.Confirmed);
-				//Строим маршрут для МЛ.
-				if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
-					RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
-					var newRoute = optimizer.RebuidOneRoute(Entity);
-					if(newRoute != null) {
-						createroutelistitemsview1.DisableColumnsUpdate = true;
-						newRoute.UpdateAddressOrderInRealRoute(Entity);
-						//Рассчитываем расстояние
-						using(var calc = new RouteGeometryCalculator(DistanceProvider.Osrm)) {
-							Entity.RecalculatePlanedDistance(calc);
-						}
-						createroutelistitemsview1.DisableColumnsUpdate = false;
-						var noPlan = Entity.Addresses.Count(x => !x.PlanTimeStart.HasValue);
-						if(noPlan > 0)
-							MessageDialogHelper.RunWarningDialog($"Для маршрута незапланировано {noPlan} адресов.");
+				if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
+					if(new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any()) {
+						MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
 					} else {
-						MessageDialogHelper.RunWarningDialog($"Маршрут не был перестроен.");
+						Entity.ChangeStatus(RouteListStatus.New);
 					}
+					UpdateButtonStatus();
+					return;
 				}
-
-				Save();
-
-				if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck) {
-					if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
-						Entity.CompleteRoute(wageCalculationServiceFactory);
-					}
-				} else {
-					//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
-					var forShipment = warehouseRepository.WarehouseForShipment(UoW, Entity.Id);
-					if(!forShipment.Any()) {
-						if(MessageDialogHelper.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
-							valid = new QSValidator<RouteList>(
-								Entity,
-								new Dictionary<object, object> {
-									{ "NewStatus", RouteListStatus.EnRoute }
-								}
-							);
-
-							Entity.ChangeStatus(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute);
-						} else {
-							Entity.ChangeStatus(RouteListStatus.New);
-						}
-					}
-				}
-				Save();
+			} catch {
+				throw;
+			} finally {
 				SetSensetivity(true);
-				UpdateButtonStatus();
-				return;
-			}
-			if(Entity.Status == RouteListStatus.InLoading || Entity.Status == RouteListStatus.Confirmed) {
-				if(new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any()) {
-					MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
-				} else {
-					Entity.ChangeStatus(RouteListStatus.New);
-				}
-				SetSensetivity(true);
-				UpdateButtonStatus();
-				return;
 			}
 		}
 
