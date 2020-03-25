@@ -225,5 +225,80 @@ namespace VodovozBusinessTests.Domain.Orders
 			// assert
 			Assert.That(orderItem.DiscountMoney, Is.EqualTo(result));
 		}
+
+
+		[Test(Description = "Проверка установки скидки в деньгах если не было указано количество")]
+		public void ManualChangingDiscountInMoney_WhenCountIsZero_ThenResultDiscountSetToZero()
+		{
+			// arrange
+			decimal discount = 200;
+
+			OrderItem orderItem = new OrderItem {
+				Count = 0,
+				Price = 5000,
+				IsDiscountInMoney = true
+			};
+
+			// act
+			orderItem.ManualChangingDiscount = discount;
+
+			// assert
+			Assert.That(orderItem.DiscountMoney, Is.EqualTo(0));
+		}
+
+		[Test(Description = "Проверка установки скидки в процентах если не была указана цена")]
+		public void ManualChangingDiscountInPercent_WhenPriceIsZero_ThenResultDiscountSetToZero()
+		{
+			// arrange
+			decimal discount = 200;
+
+			OrderItem orderItem = new OrderItem {
+				Count = 0,
+				Price = 5000
+			};
+
+			// act
+			orderItem.ManualChangingDiscount = discount;
+
+			// assert
+			Assert.That(orderItem.Discount, Is.EqualTo(0));
+		}
+
+		[Test(Description = "Проверка установки скидки в деньгах если не была указана цена")]
+		public void ManualChangingDiscountInMoney_WhenPriceIsZero_ThenResultDiscountSetToZero()
+		{
+			// arrange
+			decimal discount = 200;
+
+			OrderItem orderItem = new OrderItem {
+				Count = 30,
+				Price = 0,
+				IsDiscountInMoney = true
+			};
+
+			// act
+			orderItem.ManualChangingDiscount = discount;
+
+			// assert
+			Assert.That(orderItem.DiscountMoney, Is.EqualTo(0));
+		}
+
+		[Test(Description = "Проверка установки скидки в процентах если не было указано количество")]
+		public void ManualChangingDiscountInPercent_WhenCountIsZero_ThenResultDiscountSetToZero()
+		{
+			// arrange
+			decimal discount = 200;
+
+			OrderItem orderItem = new OrderItem {
+				Count = 30,
+				Price = 0
+			};
+
+			// act
+			orderItem.ManualChangingDiscount = discount;
+
+			// assert
+			Assert.That(orderItem.Discount, Is.EqualTo(0));
+		}
 	}
 }
