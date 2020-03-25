@@ -364,10 +364,11 @@ namespace Vodovoz
 								valid = new QSValidator<RouteList>(
 									Entity,
 									new Dictionary<object, object> {
-									{ "NewStatus", RouteListStatus.EnRoute }
-									}
-								);
-
+										{ "NewStatus", RouteListStatus.EnRoute },
+										{ nameof(IRouteListItemRepository), new RouteListItemRepository()}
+									});
+								if(!valid.IsValid)
+									return;
 								Entity.ChangeStatus(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute);
 							} else {
 								Entity.ChangeStatus(RouteListStatus.New);

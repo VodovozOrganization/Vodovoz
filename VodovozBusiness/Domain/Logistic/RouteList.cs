@@ -935,7 +935,7 @@ namespace Vodovoz.Domain.Logistic
 				IRouteListItemRepository rliRepository = (IRouteListItemRepository)validationContext.Items[nameof(IRouteListItemRepository)];
 				foreach(var item in Addresses) {
 					if(rliRepository.AnotherRouteListItemForOrderExist(UoW, item))
-						yield return new ValidationResult($"Один из адрессов({item.Order.DeliveryPoint}), находится в другом МЛ");
+						yield return new ValidationResult($"Один из адрессов, находится в другом МЛ");
 				}
 			} else {
 				throw new ArgumentException($"Для валидации МЛ должен быть доступен {typeof(IRouteListRepository)}");
