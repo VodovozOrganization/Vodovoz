@@ -233,6 +233,7 @@ namespace Vodovoz.Representations
 			OrderItem orderItemAlias = null;
 			DiscountReason discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			Order orderFromAnotherDPAlias = null;
 
 			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
 
@@ -271,6 +272,16 @@ namespace Vodovoz.Representations
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 				.And(() => FilterViewModel.DiscountReason.Id == discountReasonAlias.Id);
 
+			var orderFromAnotherDP = QueryOver.Of(() => orderFromAnotherDPAlias)
+				.Select(Projections.Property(() => orderFromAnotherDPAlias.Id))
+				.Where(() => orderFromAnotherDPAlias.Client.Id == counterpartyAlias.Id)
+				.And(() => orderFromAnotherDPAlias.OrderStatus == OrderStatus.Closed)
+				.And(() => orderFromAnotherDPAlias.DeliveryDate >= orderAlias.DeliveryDate)
+				.And(new Disjunction().Add(() => orderFromAnotherDPAlias.DeliveryPoint.Id != deliveryPointAlias.Id)
+						.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
+						.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
+	);
+
 			#endregion LastOrder
 
 			ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
@@ -292,6 +303,8 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate >= FilterViewModel.StartDate.Value);
 				if(FilterViewModel.EndDate != null)
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= FilterViewModel.EndDate.Value);
+				if(FilterViewModel.EndDate != null && FilterViewModel.HideActiveCounterparty)
+					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromAnotherDP);
 				if(FilterViewModel.LastOrderNomenclature != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderNomenclatures);
 				if(FilterViewModel.DiscountReason != null)
