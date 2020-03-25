@@ -462,9 +462,9 @@ WHERE orders.id = @order_id
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >3</ColSpan>
+                  <ColSpan>3</ColSpan>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox19">
                       <Value>=Sum({items_count})</Value>
@@ -681,7 +681,7 @@ WHERE orders.id = @order_id
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
-                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -702,8 +702,8 @@ WHERE orders.id = @order_id
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
                         <TextAlign>Left</TextAlign>
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingLeft >30pt</PaddingLeft>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingLeft>30pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -838,7 +838,7 @@ WHERE orders.id = @order_id
             <Width>64.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>112.8pt</Width>
+            <Width>104.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -946,13 +946,13 @@ WHERE orders.id = @order_id
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
-                        <FontSize >15pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <FontSize>15pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>false</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1039,7 +1039,7 @@ WHERE orders.id = @order_id
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox1" >
+                    <Textbox Name="Textbox1">
                       <Value>="№ доставки " + First({order_id}, "order_info")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
@@ -1151,7 +1151,7 @@ WHERE orders.id = @order_id
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5" >
+                    <Textbox Name="Textbox5">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1285,13 +1285,13 @@ WHERE orders.id = @order_id
                         <PaddingRight>2pt</PaddingRight>
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
-                        <FontSize >16pt</FontSize>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <FontSize>16pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1368,7 +1368,7 @@ WHERE orders.id = @order_id
                         <PaddingTop>2pt</PaddingTop>
                         <PaddingBottom>2pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1656,7 +1656,7 @@ WHERE orders.id = @order_id
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
+        <Left>3.2pt</Left>
         <Top>219.9pt</Top>
         <Footer>
           <TableRows>
@@ -1714,7 +1714,7 @@ WHERE orders.id = @order_id
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
                         <VerticalAlign>Bottom</VerticalAlign>
-                        <FontSize >11pt</FontSize>
+                        <FontSize>11pt</FontSize>
                       </Style>
                       <Value>Оплатить при получении:</Value>
                     </Textbox>
