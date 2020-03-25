@@ -17,6 +17,9 @@ using Vodovoz.Core.DataService;
 using QS.ErrorReporting;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools;
+using NHibernate;
+using QS.Project.DB;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz
 {
@@ -91,11 +94,13 @@ namespace Vodovoz
 			);
 
 			var errorMessageModelFactory2 = new DefaultErrorMessageModelFactory(SingletonErrorReporter.Instance, ServicesConfig.UserService, UnitOfWorkFactory.GetDefaultFactory);
+			exceptionHandler.InteractiveService = ServicesConfig.InteractiveService;
 			exceptionHandler.ErrorMessageModelFactory = errorMessageModelFactory2;
 			//Настройка обычных обработчиков ошибок.
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1055OnlyFullGroupBy);
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.MySqlException1366IncorrectStringValue);
 			exceptionHandler.CustomErrorHandlers.Add(CommonErrorHandlers.NHibernateFlushAfterException);
+			exceptionHandler.CustomErrorHandlers.Add(ErrorHandlers.NHibernateStaleObjectStateExceptionException);
 			#endregion
 
 			//Настройка карты
