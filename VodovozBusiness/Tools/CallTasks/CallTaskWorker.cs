@@ -157,7 +157,7 @@ namespace Vodovoz.Tools.CallTasks
 					else
 						comment = $"Ручной перенос задачи на {dateTime?.ToString("dd/MM/yyyy")}";
 
-					task.AddComment(UoW, comment);
+					task.AddComment(order.UoW, comment);
 					order.UoW.Save(task);
 				}
 			}
@@ -197,7 +197,7 @@ namespace Vodovoz.Tools.CallTasks
 			newTask.EndActivePeriod = DateTime.Now.Date.AddHours(23).AddMinutes(59);
 			newTask.SourceDocumentId = order.Id;
 			newTask.Source = TaskSource.AutoFromOrder;
-			UoW.Save(newTask);
+			order.UoW.Save(newTask);
 
 			return true;
 		}
