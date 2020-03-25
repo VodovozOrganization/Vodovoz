@@ -53,7 +53,6 @@ namespace Vodovoz.Tools.CallTasks
 
 		public void CreateTasks(Order order)
 		{
-			bool isNewCounterparty = order.Client.Id == 0;
 			//Выполняется синхронно, т.к может выводить окно TaskCreationInteractive
 			if(order.OrderStatus == OrderStatus.Accepted)
 				UpdateCallTask(order);
@@ -64,7 +63,6 @@ namespace Vodovoz.Tools.CallTasks
 				try {
 					switch(order.OrderStatus) {
 						case OrderStatus.Accepted:
-							if(!isNewCounterparty)
 								CreateTaskIfCounterpartyRelocated(order);
 							break;
 						case OrderStatus.Shipped:
@@ -85,9 +83,7 @@ namespace Vodovoz.Tools.CallTasks
 		//Создаёт задачу если клиент переехал
 		private void CreateTaskIfCounterpartyRelocated(Order order)
 		{
-			if
-			(
-				//Есть тара на возврат
+			if( //Есть тара на возврат
 				!order.BottlesReturn.HasValue || order.BottlesReturn.Value == 0
 				//Указана точка доставки
 				|| order.SelfDelivery || order.DeliveryPoint == null
