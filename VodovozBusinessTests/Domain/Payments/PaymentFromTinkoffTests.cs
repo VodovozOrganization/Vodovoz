@@ -11,7 +11,7 @@ namespace VodovozBusinessTests.Domain.Payments
 		static IEnumerable StringArraysAndResultPayment()
 		{
 			yield return new object[] {
-				new string[] { "NEW", "2018-11-20 23:15:15", "22512", "630.0", "jenetajardon@gmail.com", "79998298933", "vodovoz-spb" },
+				new string[] { "22512", "2018-11-20 23:15:15", "vodovoz-spb",  "630.0", "NEW", "", "jenetajardon@gmail.com", "79998298933" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.NEW,
 					DateAndTime = new DateTime(2018,11,20,23,15,15),
@@ -23,7 +23,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "CANCELED", "2019-01-20 03:15:15", "29512", "1130.0", "jeon@gmail.com", "70008298933", "vodovoz-ololo" },
+				new string[] { "29512",  "2019-01-20 03:15:15", "vodovoz-ololo",  "1130.0", "CANCELED", "", "jeon@gmail.com", "70008298933" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.CANCELED,
 					DateAndTime = new DateTime(2019,01,20,03,15,15),
@@ -35,7 +35,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "FORMSHOWED", "2020-12-22 22:22:15", "22222", "220.0", "j2n@gmail.com", "79998222933", "vodovoz-spb" },
+				new string[] { "22222", "2020-12-22 22:22:15", "vodovoz-spb",  "220.0", "FORMSHOWED", "", "j2n@gmail.com", "79998222933" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.FORMSHOWED,
 					DateAndTime = new DateTime(2020,12,22,22,22,15),
@@ -47,7 +47,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "DEADLINE_EXPIRED", "2118-11-20 23:15:15", "11512", "631.1", "111@gmail.com", "79998298913", "vodovoz-spb1" },
+				new string[] { "11512",  "2118-11-20 23:15:15", "vodovoz-spb1", "631.1", "DEADLINE_EXPIRED", "", "111@gmail.com", "79998298913" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.DEADLINE_EXPIRED,
 					DateAndTime = new DateTime(2118,11,20,23,15,15),
@@ -59,7 +59,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "AUTHORIZING", "2011-11-20 23:15:15", "12512", "130.0", "jenetajardon@1.com", "19998298933", "1-spb" },
+				new string[] { "12512", "2011-11-20 23:15:15", "1-spb",  "130.0", "AUTHORIZING", "", "jenetajardon@1.com", "19998298933" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.AUTHORIZING,
 					DateAndTime = new DateTime(2011,11,20,23,15,15),
@@ -71,7 +71,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "3DS_CHECKING", "2038-11-23 23:33:15", "333", "633.0", "sd@gmail.com", "73338298933", "3vodovoz-spb" },
+				new string[] { "333", "2038-11-23 23:33:15", "3vodovoz-spb", "633.0", "3DS_CHECKING", "", "sd@gmail.com", "73338298933" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.CHECKING,
 					DateAndTime = new DateTime(2038,11,23,23,33,15),
@@ -83,7 +83,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "3DS_CHECKED", "2218-11-20 23:15:22", "221512", "130.0", "", "719998298933", "vodovoz-m" },
+				new string[] { "221512", "2218-11-20 23:15:22", "vodovoz-m", "130.0", "3DS_CHECKED", "", "", "719998298933" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.CHECKED,
 					DateAndTime = new DateTime(2218,11,20,23,15,22),
@@ -95,7 +95,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "AUTH_FAIL", "2018-11-20 11:15:15", "55512", "5555.5", "555@gmail.com", "", "5vodovoz-spb" },
+				new string[] { "55512", "2018-11-20 11:15:15", "5vodovoz-spb", "5555.5", "AUTH_FAIL", "", "555@gmail.com", "" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.AUTH_FAIL,
 					DateAndTime = new DateTime(2018,11,20,11,15,15),
@@ -107,7 +107,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "AUTHORIZED", "2008-11-20 03:10:05", "00512", "030.0", "jenetajardon11@gmail.com", "71118298933", "" },
+				new string[] { "00512", "2008-11-20 03:10:05", "",  "030.0", "AUTHORIZED", "", "jenetajardon11@gmail.com", "71118298933" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.AUTHORIZED,
 					DateAndTime = new DateTime(2008,11,20,3,10,5),
@@ -119,7 +119,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "REVERSING", "2011-11-20 11:15:15", "1", "1.0", "1@gmail.com", "11111", "vodovoz-1" },
+				new string[] { "1", "2011-11-20 11:15:15", "vodovoz-1", "1.0", "REVERSING", "", "1@gmail.com", "11111" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.REVERSING,
 					DateAndTime = new DateTime(2011,11,20,11,15,15),
@@ -131,7 +131,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "REVERSED", "2012-02-20 23:22:22", "22", "630.2", "jenetajardon@2.com", "79998298922", "222-spb" },
+				new string[] { "22", "2012-02-20 23:22:22", "222-spb", "630.2", "REVERSED", "", "jenetajardon@2.com", "79998298922" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.REVERSED,
 					DateAndTime = new DateTime(2012,2,20,23,22,22),
@@ -143,7 +143,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "CONFIRMING", "2218-11-20 23:15:15", "22212", "6322.0", "jenetajardon@2gmail.com", "", "" },
+				new string[] { "22212", "2218-11-20 23:15:15", "", "6322.0", "CONFIRMING", "", "jenetajardon@2gmail.com", "" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.CONFIRMING,
 					DateAndTime = new DateTime(2218,11,20,23,15,15),
@@ -155,7 +155,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "CONFIRMED", "2018-01-20 03:15:15", "225121", "6310.0", "1jenetajardon@gmail.com", "71998298933", "vodovoz111spb" },
+				new string[] { "225121", "2018-01-20 03:15:15", "vodovoz111spb",  "6310.0", "CONFIRMED", "", "1jenetajardon@gmail.com", "71998298933" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.CONFIRMED,
 					DateAndTime = new DateTime(2018,1,20,3,15,15),
@@ -167,7 +167,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "REFUNDING", "2010-11-20 23:15:15", "202512", "0630.0", "0@gmail.com", "719998298933", "1111" },
+				new string[] { "202512", "2010-11-20 23:15:15", "1111", "0630.0", "REFUNDING", "", "0@gmail.com", "719998298933" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.REFUNDING,
 					DateAndTime = new DateTime(2010,11,20,23,15,15),
@@ -179,7 +179,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "PARTIAL_REFUNDED", "2018-08-20 23:15:15", "225112", "111.0", "111@gmail.com", "11111", "11-spb" },
+				new string[] { "225112", "2018-08-20 23:15:15", "11-spb", "111.0", "PARTIAL_REFUNDED", "", "111@gmail.com", "11111" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.PARTIAL_REFUNDED,
 					DateAndTime = new DateTime(2018,8,20,23,15,15),
@@ -191,7 +191,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "REFUNDED", "2018-12-12 12:15:15", "12", "12.0", "12@gmail.com", "12", "12-12" },
+				new string[] { "12", "2018-12-12 12:15:15", "12-12",  "12.0", "REFUNDED", "", "12@gmail.com", "12" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.REFUNDED,
 					DateAndTime = new DateTime(2018,12,12,12,15,15),
@@ -203,7 +203,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "REJECTED", "2000-11-20 23:15:15", "221512", "6310.0", "jenetajardon@1gmail.com", "79998298911", "vodovoz111spb" },
+				new string[] { "221512", "2000-11-20 23:15:15", "vodovoz111spb", "6310.0", "REJECTED", "", "jenetajardon@1gmail.com", "79998298911" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.REJECTED,
 					DateAndTime = new DateTime(2000,11,20,23,15,15),
@@ -215,7 +215,7 @@ namespace VodovozBusinessTests.Domain.Payments
 				}
 			};
 			yield return new object[] {
-				new string[] { "WRONG_STATUS", "2018-01-20 23:15:15", "225172", "630.7", "jenetajardon@11.com", "79998298933", "vodovoz-spb" },
+				new string[] { "225172", "2018-01-20 23:15:15", "vodovoz-spb", "630.7", "WRONG_STATUS", "", "jenetajardon@11.com", "79998298933" },
 				new PaymentFromTinkoff{
 					PaymentStatus = PaymentStatus.Unacceptable,
 					DateAndTime = new DateTime(2018,1,20,23,15,15),
