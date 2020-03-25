@@ -27,6 +27,11 @@ using QS.Project.Repositories;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Services;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Tools;
 
 namespace Vodovoz
 {
@@ -94,6 +99,24 @@ namespace Vodovoz
 		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
 		public event PropertyChangedEventHandler PropertyChanged;
+
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						OrderSingletonRepository.GetInstance(),
+						EmployeeSingletonRepository.GetInstance(),
+						new BaseParametersProvider(),
+						ServicesConfig.CommonServices.UserService,
+						SingletonErrorReporter.Instance);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
+		}
 
 		public OrderReturnsView(RouteListItem routeListItem, IUnitOfWork uow)
 		{
@@ -344,7 +367,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) => {
-				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Overdue);
+				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Overdue, CallTaskWorker);
 				routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
 				this.OnCloseTab(false);
@@ -356,7 +379,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(routeListItem.Order, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (s, ea) => {
-				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Canceled);
+				routeListItem.UpdateStatus(UoW, RouteListItemStatus.Canceled, CallTaskWorker);
 				routeListItem.FillCountsOnCanceled();
 				UpdateButtonsState();
 				this.OnCloseTab(false);
@@ -365,7 +388,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed);
+			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed, CallTaskWorker);
 			routeListItem.RestoreOrder();
 			routeListItem.FirstFillClosing(UoW, wageCalculationServiceFactory);
 			UpdateListsSentivity();

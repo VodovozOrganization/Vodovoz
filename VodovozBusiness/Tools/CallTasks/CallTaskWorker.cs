@@ -46,8 +46,8 @@ namespace Vodovoz.Tools.CallTasks
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			this.personProvider = personProvider ?? throw new ArgumentNullException(nameof(personProvider));
-			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
-			this.errorReporter = errorReporter ?? throw new ArgumentNullException(nameof(errorReporter));
+			this.userService = userService;
+			this.errorReporter = errorReporter;
 			TaskCreationInteractive = taskCreationInteractive;
 		}
 
@@ -73,8 +73,8 @@ namespace Vodovoz.Tools.CallTasks
 					}
 					UoW.Commit();
 				} catch(Exception ex) {
-					var currUser = userService.GetCurrentUser(UoW);
-					errorReporter.SendErrorReport(new Exception[] { ex }, description: $"Ошибка в {nameof(CallTaskWorker)}", user: currUser);
+					var currUser = userService?.GetCurrentUser(UoW);
+					errorReporter?.SendErrorReport(new Exception[] { ex }, description: $"Ошибка в {nameof(CallTaskWorker)}", user: currUser);
 				}
 			});
 		}

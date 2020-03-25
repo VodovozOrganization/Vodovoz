@@ -6,6 +6,12 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Repositories.Permissions;
 using QS.Dialog.GtkUI;
 using QS.Project.Services;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Tools;
 
 namespace Vodovoz
 {
@@ -103,12 +109,21 @@ namespace Vodovoz
 
 		private void MenuItemRouteList_Activated(object sender, EventArgs e)
 		{
+			var callTaskWorker = new CallTaskWorker(
+				CallTaskSingletonFactory.GetInstance(),
+				new CallTaskRepository(),
+				OrderSingletonRepository.GetInstance(),
+				EmployeeSingletonRepository.GetInstance(),
+				new BaseParametersProvider(),
+				ServicesConfig.CommonServices.UserService,
+				SingletonErrorReporter.Instance);
+
 			if(ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("routelist_unclosing")) {
 				RouteList rl = UoW.GetById<RouteList>(selectedNode.Id);
 				if(rl == null) {
 					return;
 				}
-				rl.ChangeStatus(RouteListStatus.OnClosing);
+				rl.ChangeStatus(RouteListStatus.OnClosing, callTaskWorker);
 				UoW.Save(rl);
 				UoW.Commit();
 			}

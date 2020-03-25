@@ -21,13 +21,17 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModel;
 
@@ -296,6 +300,15 @@ namespace Vodovoz
 		{
 			try {
 				SetSensetivity(false);
+				var callTaskWorker = new CallTaskWorker(
+					CallTaskSingletonFactory.GetInstance(),
+					new CallTaskRepository(),
+					OrderSingletonRepository.GetInstance(),
+					EmployeeSingletonRepository.GetInstance(),
+					new BaseParametersProvider(),
+					ServicesConfig.CommonServices.UserService,
+					SingletonErrorReporter.Instance);
+
 				if(Entity.Car == null) {
 					MessageDialogHelper.RunWarningDialog("Не заполнен автомобиль");
 					return;
@@ -329,7 +342,7 @@ namespace Vodovoz
 						return;
 					}
 
-					Entity.ChangeStatus(RouteListStatus.Confirmed);
+					Entity.ChangeStatus(RouteListStatus.Confirmed, callTaskWorker);
 					//Строим маршрут для МЛ.
 					if(!Entity.Printed || MessageDialogHelper.RunQuestionWithTitleDialog("Перестроить маршрут?", "Этот маршрутный лист уже был когда-то напечатан. При новом построении маршрута порядок адресов может быть другой. При продолжении обязательно перепечатайте этот МЛ.\nПерестроить маршрут?")) {
 						RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
@@ -354,7 +367,7 @@ namespace Vodovoz
 
 					if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck) {
 						if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
-							Entity.CompleteRoute(wageCalculationServiceFactory);
+							Entity.CompleteRoute(wageCalculationServiceFactory, callTaskWorker);
 						}
 					} else {
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
@@ -369,9 +382,9 @@ namespace Vodovoz
 									});
 								if(!valid.IsValid)
 									return;
-								Entity.ChangeStatus(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute);
+								Entity.ChangeStatus(valid.RunDlgIfNotValid((Window)this.Toplevel) ? RouteListStatus.New : RouteListStatus.EnRoute, callTaskWorker);
 							} else {
-								Entity.ChangeStatus(RouteListStatus.New);
+								Entity.ChangeStatus(RouteListStatus.New, callTaskWorker);
 							}
 						}
 					}
@@ -383,7 +396,7 @@ namespace Vodovoz
 					if(new RouteListRepository().GetCarLoadDocuments(UoW, Entity.Id).Any()) {
 						MessageDialogHelper.RunErrorDialog("Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.");
 					} else {
-						Entity.ChangeStatus(RouteListStatus.New);
+						Entity.ChangeStatus(RouteListStatus.New, callTaskWorker);
 					}
 					UpdateButtonStatus();
 					return;

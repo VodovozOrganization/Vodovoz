@@ -15,14 +15,19 @@ using QS.RepresentationModel.GtkUI;
 using QS.Tdi;
 using QS.Utilities.Text;
 using QSOrmProject;
+using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.FuelDocuments;
 
 namespace Vodovoz.ViewModel
@@ -216,8 +221,16 @@ namespace Vodovoz.ViewModel
 
 		public override IEnumerable<IJournalPopupItem> PopupItems {
 			get {
-				var result = new List<IJournalPopupItem>();
+				var callTaskWorker = new CallTaskWorker(
+					CallTaskSingletonFactory.GetInstance(),
+					new CallTaskRepository(),
+					OrderSingletonRepository.GetInstance(),
+					EmployeeSingletonRepository.GetInstance(),
+					new BaseParametersProvider(),
+					ServicesConfig.CommonServices.UserService,
+					SingletonErrorReporter.Instance);
 
+				var result = new List<IJournalPopupItem>();
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysSensitiveAndVisible("Открыть трек",
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
@@ -273,10 +286,10 @@ namespace Vodovoz.ViewModel
 
 							foreach(var address in routeList.Addresses) {
 								if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
-									address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading);
+									address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading, callTaskWorker);
 							}
 
-							routeList.ChangeStatus(RouteListStatus.InLoading);
+							routeList.ChangeStatus(RouteListStatus.InLoading, callTaskWorker);
 							UoW.Save(routeList);
 						});
 

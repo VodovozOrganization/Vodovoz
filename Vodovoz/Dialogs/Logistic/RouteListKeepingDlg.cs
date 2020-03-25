@@ -21,11 +21,16 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz
@@ -72,6 +77,24 @@ namespace Vodovoz
 					return true; //Хак, чтобы вылезало уведомление о закрытии маршрутного листа, даже если ничего не меняли.
 				return base.HasChanges;
 			}
+		}
+
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						OrderSingletonRepository.GetInstance(),
+						EmployeeSingletonRepository.GetInstance(),
+						new BaseParametersProvider(),
+						ServicesConfig.CommonServices.UserService,
+						SingletonErrorReporter.Instance);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
 		}
 
 		Dictionary<RouteListItemStatus, Gdk.Pixbuf> statusIcons = new Dictionary<RouteListItemStatus, Gdk.Pixbuf>();
@@ -284,10 +307,10 @@ namespace Vodovoz
 				if(newStatus == RouteListItemStatus.Canceled || newStatus == RouteListItemStatus.Overdue) {
 					UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(rli.RouteListItem.Order, rli.RouteListItem.RouteList.UoW);
 					TabParent.AddSlaveTab(this, dlg);
-					dlg.DlgSaved += (s, ea) => rli.UpdateStatus(newStatus);
+					dlg.DlgSaved += (s, ea) => rli.UpdateStatus(newStatus, CallTaskWorker);
 					return;
 				}
-				rli.UpdateStatus(newStatus);
+				rli.UpdateStatus(newStatus, CallTaskWorker);
 			}
 		}
 
@@ -317,7 +340,7 @@ namespace Vodovoz
 		{
 			if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute)) {
 				if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?")) {
-					Entity.CompleteRoute(wageCalculationServiceFactory);
+					Entity.CompleteRoute(wageCalculationServiceFactory, CallTaskWorker);
 				}
 			}
 
@@ -400,7 +423,7 @@ namespace Vodovoz
 			foreach(RouteListKeepingItemNode item in selectedObjects) {
 				if(item.Status == RouteListItemStatus.Transfered)
 					continue;
-				item.RouteListItem.UpdateStatus(UoW, RouteListItemStatus.Completed);
+				item.RouteListItem.UpdateStatus(UoW, RouteListItemStatus.Completed, CallTaskWorker);
 			}
 		}
 
@@ -487,10 +510,10 @@ namespace Vodovoz
 			}
 		}
 
-		public void UpdateStatus(RouteListItemStatus value)
+		public void UpdateStatus(RouteListItemStatus value, CallTaskWorker callTaskWorker)
 		{
 			var uow = RouteListItem.RouteList.UoW;
-			RouteListItem.UpdateStatus(uow, value);
+			RouteListItem.UpdateStatus(uow, value, callTaskWorker);
 			HasChanged = true;
 			OnPropertyChanged<RouteListItemStatus>(() => Status);
 		}

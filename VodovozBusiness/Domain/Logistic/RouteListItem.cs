@@ -12,6 +12,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
@@ -449,7 +450,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		public virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status)
+		public virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status, CallTaskWorker callTaskWorker)
 		{
 			if(Status == status)
 				return;
@@ -459,22 +460,22 @@ namespace Vodovoz.Domain.Logistic
 
 			switch(Status) {
 				case RouteListItemStatus.Canceled:
-					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
+					Order.ChangeStatus(OrderStatus.DeliveryCanceled, callTaskWorker);
 					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
-					Order.ChangeStatus(OrderStatus.Shipped);
+					Order.ChangeStatus(OrderStatus.Shipped, callTaskWorker);
 					Order.TimeDelivered = DateTime.Now;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.EnRoute:
-					Order.ChangeStatus(OrderStatus.OnTheWay);
+					Order.ChangeStatus(OrderStatus.OnTheWay, callTaskWorker);
 					Order.TimeDelivered = null;
 					RestoreOrder();
 					break;
 				case RouteListItemStatus.Overdue:
-					Order.ChangeStatus(OrderStatus.NotDelivered);
+					Order.ChangeStatus(OrderStatus.NotDelivered, callTaskWorker);
 					Order.TimeDelivered = null;
 					FillCountsOnCanceled();
 					break;

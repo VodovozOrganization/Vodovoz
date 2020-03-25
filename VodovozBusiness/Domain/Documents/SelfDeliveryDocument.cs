@@ -17,6 +17,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -277,10 +278,10 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public virtual bool FullyShiped(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository)
+		public virtual bool FullyShiped(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker)
 		{
 			//Проверка текущего документа
-			return Order.TryCloseSelfDeliveryOrder(uow, standartNomenclatures, routeListItemRepository, selfDeliveryRepository, cashRepository, this);
+			return Order.TryCloseSelfDeliveryOrder(uow, standartNomenclatures, routeListItemRepository, selfDeliveryRepository, cashRepository, callTaskWorker, this);
 		}
 
 		#endregion

@@ -65,6 +65,8 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.EntityRepositories.CallTasks;
 
 namespace Vodovoz
 {
@@ -113,6 +115,24 @@ namespace Vodovoz
 		public Order Order => Entity;
 
 		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? emailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
+
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						orderRepository,
+						employeeRepository,
+						new BaseParametersProvider(),
+						ServicesConfig.CommonServices.UserService,
+						SingletonErrorReporter.Instance);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
+		}
 
 		#endregion
 
@@ -705,7 +725,7 @@ namespace Vodovoz
 			if(!Entity.CanSetOrderAsEditable) {
 				return;
 			}
-			Entity.EditOrder();
+			Entity.EditOrder(CallTaskWorker);
 			UpdateUIState();
 		}
 
@@ -731,7 +751,7 @@ namespace Vodovoz
 					Entity.CreateDefaultContract();
 			}
 
-			Entity.AcceptOrder(employeeRepository.GetEmployeeForCurrentUser(UoW));
+			Entity.AcceptOrder(employeeRepository.GetEmployeeForCurrentUser(UoW), CallTaskWorker);
 
 			treeItems.Selection.UnselectAll();
 			Save();
@@ -788,7 +808,7 @@ namespace Vodovoz
 				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository(), new CashRepository());
 				Entity.UpdateDepositOperations(UoW);
 
-				Entity.ChangeStatus(OrderStatus.Closed);
+				Entity.ChangeStatus(OrderStatus.Closed, CallTaskWorker);
 				foreach(OrderItem i in Entity.ObservableOrderItems) {
 					i.ActualCount = i.Count;
 				}
@@ -804,7 +824,7 @@ namespace Vodovoz
 				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите вернуть заказ в статус \"Принят\"?")) {
 					return;
 				}
-				Entity.ChangeStatus(OrderStatus.Accepted);
+				Entity.ChangeStatus(OrderStatus.Accepted, CallTaskWorker);
 			}
 			UpdateUIState();
 		}
@@ -815,7 +835,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonSelfDeliveryToLoadingClicked(object sender, EventArgs e)
 		{
-			Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService);
+			Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService, CallTaskWorker);
 			UpdateUIState();
 		}
 
@@ -824,7 +844,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonSelfDeliveryAcceptPaidClicked(object sender, EventArgs e)
 		{
-			Entity.SelfDeliveryAcceptCashlessPaid();
+			Entity.SelfDeliveryAcceptCashlessPaid(CallTaskWorker);
 			UpdateUIState();
 		}
 
@@ -2033,7 +2053,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (sender, e) => {
-				Entity.SetUndeliveredStatus(UoW, new BaseParametersProvider());
+				Entity.SetUndeliveredStatus(UoW, new BaseParametersProvider(), CallTaskWorker);
 				UpdateUIState();
 
 				var routeListItem = routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
@@ -2071,7 +2091,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
 
-			Entity.ChangeStatus(OrderStatus.WaitForPayment);
+			Entity.ChangeStatus(OrderStatus.WaitForPayment, CallTaskWorker);
 			UpdateUIState();
 		}
 

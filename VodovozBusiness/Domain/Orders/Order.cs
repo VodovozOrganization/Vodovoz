@@ -65,24 +65,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual IInteractiveService InteractiveService { get; set; }
 
-		private CallTaskWorker callTaskWorker;
-		public virtual CallTaskWorker CallTaskWorker {
-			get {
-				if(callTaskWorker == null) {
-					callTaskWorker = new CallTaskWorker(
-						CallTaskSingletonFactory.GetInstance(),
-						new CallTaskRepository(),
-						orderRepository,
-						employeeRepository,
-						new BaseParametersProvider(),
-						ServicesConfig.CommonServices.UserService,
-						SingletonErrorReporter.Instance);
-				}
-				return callTaskWorker;
-			}
-			set { callTaskWorker = value; }
-		}
-
 		DateTime version;
 		[Display(Name = "Версия")]
 		public virtual DateTime Version {
@@ -2819,7 +2801,7 @@ namespace Vodovoz.Domain.Orders
 		/// Присвоение текущему заказу статуса недовоза
 		/// </summary>
 		/// <param name="guilty">Виновный в недовезении заказа</param>
-		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, GuiltyTypes? guilty = GuiltyTypes.Client)
+		public virtual void SetUndeliveredStatus(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, CallTaskWorker callTaskWorker, GuiltyTypes? guilty = GuiltyTypes.Client)
 		{
 			var routeListItem = new RouteListItemRepository().GetRouteListItemForOrder(UoW, this);
 
@@ -2829,7 +2811,7 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.Accepted:
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnLoading:
-					ChangeStatus(OrderStatus.Canceled);
+					ChangeStatus(OrderStatus.Canceled, callTaskWorker);
 					routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Overdue);
 					break;
 				case OrderStatus.OnTheWay:
@@ -2839,10 +2821,10 @@ namespace Vodovoz.Domain.Orders
 				case OrderStatus.NotDelivered:
 				case OrderStatus.Closed:
 					if(guilty == GuiltyTypes.Client) {
-						ChangeStatus(OrderStatus.DeliveryCanceled);
+						ChangeStatus(OrderStatus.DeliveryCanceled, callTaskWorker);
 						routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Canceled);
 					} else {
-						ChangeStatus(OrderStatus.NotDelivered);
+						ChangeStatus(OrderStatus.NotDelivered, callTaskWorker);
 						routeListItem?.SetStatusWithoutOrderChange(RouteListItemStatus.Overdue);
 					}
 					break;
@@ -2850,7 +2832,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateBottleMovementOperation(uow, standartNomenclatures, 0);
 		}
 
-		public virtual void ChangeStatus(OrderStatus newStatus)
+		public virtual void ChangeStatus(OrderStatus newStatus, CallTaskWorker callTaskWorker)
 		{
 			var initialStatus = OrderStatus;
 			OrderStatus = newStatus;
@@ -2886,7 +2868,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 
-			CallTaskWorker.CreateTasks(this);
+			callTaskWorker.CreateTasks(this);
 
 			if(Id == 0
 			   || newStatus == OrderStatus.Canceled
@@ -2937,13 +2919,13 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Отправка самовывоза на погрузку
 		/// </summary>
-		public virtual void SelfDeliveryToLoading(ICurrentPermissionService permissionService)
+		public virtual void SelfDeliveryToLoading(ICurrentPermissionService permissionService, CallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery) {
 				return;
 			}
 			if(OrderStatus == OrderStatus.Accepted && permissionService.ValidatePresetPermission("allow_load_selfdelivery")) {
-				ChangeStatus(OrderStatus.OnLoading);
+				ChangeStatus(OrderStatus.OnLoading, callTaskWorker);
 				LoadAllowedBy = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			}
 		}
@@ -2963,7 +2945,7 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Принятие оплаты самовывоза по безналичному расчету
 		/// </summary>
-		public virtual void SelfDeliveryAcceptCashlessPaid()
+		public virtual void SelfDeliveryAcceptCashlessPaid(CallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery)
 				return;
@@ -2974,7 +2956,7 @@ namespace Vodovoz.Domain.Orders
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("accept_cashless_paid_selfdelivery"))
 				return;
 
-			ChangeStatus(PayAfterShipment ? OrderStatus.Closed : OrderStatus.Accepted);
+			ChangeStatus(PayAfterShipment ? OrderStatus.Closed : OrderStatus.Accepted, callTaskWorker);
 		}
 
 		/// <summary>
@@ -2982,25 +2964,25 @@ namespace Vodovoz.Domain.Orders
 		/// Проверяется соответствие суммы заказа с суммой оплаченной в кассе.
 		/// Если проверка пройдена заказ закрывается или переводится на погрузку.
 		/// </summary>
-		public virtual void SelfDeliveryAcceptCashPaid()
+		public virtual void SelfDeliveryAcceptCashPaid(CallTaskWorker callTaskWorker)
 		{
 			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
 			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
-			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn);
+			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn, callTaskWorker);
 		}
 
-		public virtual void AcceptSelfDeliveryIncomeCash(decimal incomeCash, int? incomeExcludedDoc = null)
+		public virtual void AcceptSelfDeliveryIncomeCash(decimal incomeCash, CallTaskWorker callTaskWorker, int? incomeExcludedDoc = null)
 		{
 			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id, incomeExcludedDoc) + incomeCash;
 			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id);
-			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn);
+			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn, callTaskWorker);
 		}
 
-		public virtual void AcceptSelfDeliveryExpenseCash(decimal expenseCash, int? expenseExcludedDoc = null)
+		public virtual void AcceptSelfDeliveryExpenseCash(decimal expenseCash, CallTaskWorker callTaskWorker, int? expenseExcludedDoc = null)
 		{
 			decimal totalCashPaid = new CashRepository().GetIncomePaidSumForOrder(UoW, Id);
 			decimal totalCashReturn = new CashRepository().GetExpenseReturnSumForOrder(UoW, Id, expenseExcludedDoc) + expenseCash;
-			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn);
+			SelfDeliveryAcceptCashPaid(totalCashPaid, totalCashReturn, callTaskWorker);
 		}
 
 		/// <summary>
@@ -3010,7 +2992,7 @@ namespace Vodovoz.Domain.Orders
 		/// <paramref name="expenseCash">Сумма по открытому расходному ордеру, добавляемая к ранее сохранным расходным ордерам</paramref>
 		/// <paramref name="incomeCash">Сумма по открытому приходному ордеру, добавляемая к ранее сохранным приходным ордерам</paramref>
 		/// </summary>
-		private void SelfDeliveryAcceptCashPaid(decimal incomeCash, decimal expenseCash)
+		private void SelfDeliveryAcceptCashPaid(decimal incomeCash, decimal expenseCash, CallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery)
 				return;
@@ -3023,16 +3005,16 @@ namespace Vodovoz.Domain.Orders
 
 			if(OrderStatus == OrderStatus.WaitForPayment) {
 				if(isFullyLoad) {
-					ChangeStatus(OrderStatus.Closed);
+					ChangeStatus(OrderStatus.Closed, callTaskWorker);
 					UpdateBottlesMovementOperationWithoutDelivery(UoW, new BaseParametersProvider(), new RouteListItemRepository(), new CashRepository(), incomeCash, expenseCash);
 				} else
-					ChangeStatus(OrderStatus.OnLoading);
+					ChangeStatus(OrderStatus.OnLoading, callTaskWorker);
 
 				return;
 			}
 
 			if(OrderStatus == OrderStatus.OnLoading && isFullyLoad)
-				ChangeStatus(OrderStatus.Closed);
+				ChangeStatus(OrderStatus.Closed, callTaskWorker);
 		}
 
 		/// <summary>
@@ -3082,15 +3064,15 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Принятие заказа с самовывозом
 		/// </summary>
-		private void AcceptSelfDeliveryOrder()
+		private void AcceptSelfDeliveryOrder(CallTaskWorker callTaskWorker)
 		{
 			if(!SelfDelivery || OrderStatus != OrderStatus.NewOrder)
 				return;
 
 			if(PayAfterShipment || OrderTotalSum == 0)
-				ChangeStatus(OrderStatus.Accepted);
+				ChangeStatus(OrderStatus.Accepted, callTaskWorker);
 			else
-				ChangeStatus(OrderStatus.WaitForPayment);
+				ChangeStatus(OrderStatus.WaitForPayment, callTaskWorker);
 		}
 
 		/// <summary>
@@ -3105,12 +3087,12 @@ namespace Vodovoz.Domain.Orders
 					oi.ActualCount = oi.Count > 0 ? oi.Count : (oi.ActualCount ?? 0);
 		}
 
-		public virtual void AcceptOrder(Employee currentEmployee)
+		public virtual void AcceptOrder(Employee currentEmployee, CallTaskWorker callTaskWorker)
 		{
 			if(SelfDelivery)
-				AcceptSelfDeliveryOrder();
+				AcceptSelfDeliveryOrder(callTaskWorker);
 			else if(CanSetOrderAsAccepted)
-				ChangeStatus(OrderStatus.Accepted);
+				ChangeStatus(OrderStatus.Accepted, callTaskWorker);
 
 			AcceptedOrderEmployee = currentEmployee;
 		}
@@ -3155,14 +3137,14 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanSetOrderAsAccepted => EditableOrderStatuses.Contains(OrderStatus);
 
-		public virtual void EditOrder()
+		public virtual void EditOrder(CallTaskWorker callTaskWorker)
 		{
 			//Нельзя редактировать заказ с самовывозом
 			if(SelfDelivery)
 				return;
 
 			if(CanSetOrderAsEditable)
-				ChangeStatus(OrderStatus.NewOrder);
+				ChangeStatus(OrderStatus.NewOrder, callTaskWorker);
 		}
 
 		/// <summary>
@@ -3325,7 +3307,7 @@ namespace Vodovoz.Domain.Orders
 		/// Закрывает заказ с самовывозом если по всем документам самовывоза со
 		/// склада все отгружено, и произведена оплата
 		/// </summary>
-		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, SelfDeliveryDocument closingDocument = null)
+		public virtual bool TryCloseSelfDeliveryOrder(IUnitOfWork uow, IStandartNomenclatures standartNomenclatures, IRouteListItemRepository routeListItemRepository, ISelfDeliveryRepository selfDeliveryRepository, ICashRepository cashRepository, CallTaskWorker callTaskWorker, SelfDeliveryDocument closingDocument = null)
 		{
 			if(routeListItemRepository == null)
 				throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -3349,15 +3331,15 @@ namespace Vodovoz.Domain.Orders
 			switch(PaymentType) {
 				case PaymentType.cash:
 				case PaymentType.BeveragesWorld:
-					ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment);
+					ChangeStatus(isFullyPaid ? OrderStatus.Closed : OrderStatus.WaitForPayment, callTaskWorker);
 					break;
 				case PaymentType.cashless:
 				case PaymentType.ByCard:
-					ChangeStatus(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed);
+					ChangeStatus(PayAfterShipment ? OrderStatus.WaitForPayment : OrderStatus.Closed, callTaskWorker);
 					break;
 				case PaymentType.barter:
 				case PaymentType.ContractDoc:
-					ChangeStatus(OrderStatus.Closed);
+					ChangeStatus(OrderStatus.Closed, callTaskWorker);
 					break;
 			}
 			//обновление актуальных кол-в из документов самовывоза, включая не сохранённый
