@@ -8,6 +8,7 @@ using QS.Project.VersionControl;
 using QS.ErrorReporting;
 using Vodovoz.Views;
 using Vodovoz.Tools;
+using QS.Services;
 
 namespace Vodovoz.Infrastructure
 {
@@ -17,7 +18,7 @@ namespace Vodovoz.Infrastructure
 	/// и ее больше не надо передавать вниз по списку зарегистированных обработчиков,
 	/// вплодь до стандартного диалога отправки отчета об ошибке.
 	/// </summary>
-	public delegate bool CustomErrorHandler(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage);
+	public delegate bool CustomErrorHandler(Exception exception, IApplicationInfo application, UserBase user, IInteractiveService interactiveMessage);
 	/// <summary>
 	/// Класс помогает сформировать отправку отчета о падении программы.
 	/// Для работы необходимо предварительно сконфигурировать модуль
@@ -35,21 +36,21 @@ namespace Vodovoz.Infrastructure
 		public DefaultUnhandledExceptionHandler(
 			IErrorMessageModelFactory errorMessageModelFactory,
 			IApplicationInfo applicationInfo, 
-			IInteractiveMessage interactiveMessage = null
+			IInteractiveService interactiveService = null
 		){
 			ErrorMessageModelFactory = errorMessageModelFactory ?? throw new ArgumentNullException(nameof(errorMessageModelFactory));
 			ApplicationInfo = applicationInfo ?? throw new ArgumentNullException(nameof(applicationInfo));
-			InteractiveMessage = interactiveMessage;
+			InteractiveService = interactiveService;
 		}
 
 		#region Внешние настройки модуля
 
-		public Thread GuiThread;
-		public IApplicationInfo ApplicationInfo;
-		public IDataBaseInfo DataBaseInfo;
-		public IInteractiveMessage InteractiveMessage;
-		public IErrorMessageModelFactory ErrorMessageModelFactory;
-		public UserBase User;
+		public Thread GuiThread { get; set; }
+		public IApplicationInfo ApplicationInfo { get; set; }
+		public IDataBaseInfo DataBaseInfo { get; set; }
+		public IInteractiveService InteractiveService { get; set; }
+		public IErrorMessageModelFactory ErrorMessageModelFactory { get; set; }
+		public UserBase User { get; set; }
 
 		/// <summary>
 		/// В список можно добавить собственные обработчики ошибкок. Внимание! Порядок добавления обрабочиков важен,
@@ -82,9 +83,9 @@ namespace Vodovoz.Infrastructure
 		private ErrorMessageViewModel errorMessageViewModel;
 		private void RealErrorMessage(Exception exception)
 		{
-			if(InteractiveMessage != null) {
+			if(InteractiveService != null) {
 				foreach(var handler in CustomErrorHandlers) {
-					if(handler(exception, ApplicationInfo, User, InteractiveMessage))
+					if(handler(exception, ApplicationInfo, User, InteractiveService))
 						return;
 				}
 			}
@@ -93,7 +94,7 @@ namespace Vodovoz.Infrastructure
 				errorMessageViewModel.AddException(exception);
 			} else {
 				logger.Debug("Создание окна отправки отчета о падении.");
-				errorMessageViewModel = new ErrorMessageViewModel(ErrorMessageModelFactory.GetModel(), InteractiveMessage);
+				errorMessageViewModel = new ErrorMessageViewModel(ErrorMessageModelFactory.GetModel(), InteractiveService);
 				errorMessageViewModel.AddException(exception);
 
 				var errView = new ErrorMessageView(errorMessageViewModel);
