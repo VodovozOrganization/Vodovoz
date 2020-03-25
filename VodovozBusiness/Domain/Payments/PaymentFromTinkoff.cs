@@ -32,11 +32,7 @@ namespace Vodovoz.Domain.Payments
 			if(!int.TryParse(data[0], out paymentNr))
 				paymentNr = 0;
 
-			DateAndTime = DateTime.ParseExact(
-				data[1],
-				"yyyy-MM-dd HH:mm:ss",
-				null
-			);
+			DateAndTime = ParseDate(data[1]);
 
 			Shop = data[2];
 
@@ -59,6 +55,19 @@ namespace Vodovoz.Domain.Payments
 			Email = data[6];
 
 			Phone = data[7];
+		}
+
+		private DateTime ParseDate(string dateStr)
+		{
+			if(DateTime.TryParseExact(dateStr, "yyyy-MM-dd HH:mm:ss", null, DateTimeStyles.None, out DateTime result)) {
+				return result;
+			}
+
+			if(DateTime.TryParseExact(dateStr, "dd.MM.yyyy HH:mm", null, DateTimeStyles.None, out result)) {
+				return result;
+			}
+
+			throw new FormatException("Не правильный формат выгрузки");
 		}
 
 		#endregion
