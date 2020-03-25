@@ -371,6 +371,11 @@ namespace Vodovoz.Domain.Orders
 
 		private void CalculateAndSetDiscount(decimal value)
 		{
+			if((Price * CurrentCount) == 0) {
+				DiscountMoney = 0;
+				Discount = 0;
+				return;
+			}
 			if(IsDiscountInMoney) {
 				DiscountMoney = value > Price * CurrentCount ? Price * CurrentCount : (value < 0 ? 0 : value);
 				Discount = (100 * DiscountMoney) / (Price * CurrentCount);
