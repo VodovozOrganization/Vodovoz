@@ -38,7 +38,7 @@ namespace Vodovoz.ReportsParameters
 			LstCmbPlanType_Changed(this, new EventArgs());
 			yEntRefEmployee.RepresentationModel = new EmployeesVM(filter);
 			yEntRefEmployee.ChangedByUser += (sender, e) => {
-				var actualWageParameter = (yEntRefEmployee.Subject as Employee).GetActualWageParameter(DateTime.Now);
+				var actualWageParameter = (yEntRefEmployee.Subject as Employee)?.GetActualWageParameter(DateTime.Now);
 				if(actualWageParameter == null || actualWageParameter.WageParameterType != WageParameterTypes.SalesPlan) {
 					return;
 				}
