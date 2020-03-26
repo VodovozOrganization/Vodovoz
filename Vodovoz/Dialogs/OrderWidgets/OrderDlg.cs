@@ -2578,6 +2578,10 @@ namespace Vodovoz
 
 		private void SendBillByEmail(Vodovoz.Domain.Contacts.Email emailAddressForBill)
 		{
+			if(emailAddressForBill == null) {
+				throw new ArgumentNullException(nameof(emailAddressForBill));
+			}
+
 			if(!EmailServiceSetting.SendingAllowed || emailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
 				return;
 			}
