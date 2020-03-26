@@ -46,6 +46,8 @@ namespace Vodovoz.Filters.GtkViews
 			ycheckHideServices.Binding.AddBinding(ViewModel, vm => vm.RestrictHideService, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
 			ycheckOnlyWithoutCoordinates.Binding.AddBinding(ViewModel, vm => vm.RestrictOnlyWithoutCoodinates, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
 			ycheckLessThreeHours.Binding.AddBinding(ViewModel, vm => vm.RestrictLessThreeHours, w => w.Active, new NullableBooleanToBooleanConverter()).InitializeFromSource();
+			yenumcomboboxPaymentOrder.ItemsEnum = typeof(PaymentOrder);
+			yenumcomboboxPaymentOrder.Binding.AddBinding(ViewModel, vm => vm.PaymentOrder, w => w.SelectedItemOrNull).InitializeFromSource();
 		}
 
 		void InitializeRestrictions()
