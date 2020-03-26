@@ -5,9 +5,9 @@ using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Domain.Complaints;
 using System.Diagnostics;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.ViewModels.Complaints
 {
@@ -83,7 +83,7 @@ namespace Vodovoz.ViewModels.Complaints
 			OpenItemCommand = new DelegateCommand<ComplaintFile>(
 				(file) => {
 
-					var vodUserTempDir = UserRepository.GetTempDirForCurrentUser(UoW);
+					var vodUserTempDir = UserSingletonRepository.GetInstance().GetTempDirForCurrentUser(UoW);
 
 					if(string.IsNullOrWhiteSpace(vodUserTempDir))
 						return;

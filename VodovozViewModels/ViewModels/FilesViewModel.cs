@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
+﻿using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using QS.Commands;
-using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using System.Diagnostics;
-using Vodovoz.Repositories.HumanResources;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.ViewModels
 {
@@ -70,7 +68,7 @@ namespace Vodovoz.ViewModels
 			OpenItemCommand = new DelegateCommand<ComplaintFile>(
 				(file) => {
 
-					var vodUserTempDir = UserRepository.GetTempDirForCurrentUser(UoW);
+					var vodUserTempDir = UserSingletonRepository.GetInstance().GetTempDirForCurrentUser(UoW);
 
 					if(string.IsNullOrWhiteSpace(vodUserTempDir))
 						return;
