@@ -91,6 +91,11 @@ namespace Vodovoz.Representations
 			if(FilterViewModel.RestrictEndDate != null)
 				query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 
+			if(FilterViewModel.PaymentOrder != null) {
+				bool paymentAfterShipment = false || FilterViewModel.PaymentOrder == PaymentOrder.AfterShipment;
+				query.Where(o => o.PayAfterShipment == paymentAfterShipment);
+			}
+
 			query
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)

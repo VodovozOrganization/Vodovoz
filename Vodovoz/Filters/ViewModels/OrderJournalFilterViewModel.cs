@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using QS.Project.Filter;
 using QS.RepresentationModel.GtkUI;
 using QS.Services;
@@ -194,6 +195,17 @@ namespace Vodovoz.Filters.ViewModels
 		}
 		public bool CanChangeWithoutSelfDelivery { get; private set; } = true;
 
+
+		private PaymentOrder? paymentOrder;
+		public PaymentOrder? PaymentOrder{
+			get => paymentOrder;
+			set { 
+				SetField(ref paymentOrder, value, () => PaymentOrder); 
+				Update(); 
+			}
+		}
+
+
 		#endregion
 
 		#region Services
@@ -244,5 +256,13 @@ namespace Vodovoz.Filters.ViewModels
 			}
 			DeliveryPointRepresentationModel = new ClientDeliveryPointsVM(UoW, RestrictCounterparty);
 		}
+	}
+
+	public enum PaymentOrder
+	{
+		[Display(Name = "Оплата после отгрузки")]
+		AfterShipment,
+		[Display(Name = "Оплата до отгрузки")]
+		BeforeShipment
 	}
 }
