@@ -189,7 +189,7 @@ WHERE orders.id = @order_id
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>595.9pt</Height>
+    <Height>501.1pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Table Name="Table3">
@@ -213,7 +213,7 @@ WHERE orders.id = @order_id
             <Width>56.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>231.6pt</Width>
+            <Width>221.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -319,7 +319,7 @@ WHERE orders.id = @order_id
                   <ReportItems>
                     <Textbox Name="Textbox22">
                       <Value>=Fields!name.Value</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -501,7 +501,7 @@ WHERE orders.id = @order_id
             <Width>132.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>175.9pt</Width>
+            <Width>163.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -829,16 +829,16 @@ WHERE orders.id = @order_id
             <Width>102.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>163.8pt</Width>
+            <Width>161.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.5pt</Width>
+            <Width>69.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>64.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>104.1pt</Width>
+            <Width>102.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1744,7 +1744,7 @@ WHERE orders.id = @order_id
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>50.3pt</Height>
+              <Height>44.7pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1771,7 +1771,7 @@ WHERE orders.id = @order_id
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>22.8pt</Height>
+              <Height>16.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
