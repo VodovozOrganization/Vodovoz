@@ -27,8 +27,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -64,7 +64,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -81,7 +81,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -98,7 +98,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -115,7 +115,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -254,7 +254,7 @@
         </Details>
         <Left>2.1pt</Left>
         <Top>6.4pt</Top>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -337,7 +337,7 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT    
+        <CommandText>SELECT
     counterparty.name,
     IFNULL(delivery_points.compiled_address, 'Самовывоз') AS delivery_point,
     IFNULL(
@@ -349,15 +349,15 @@
         WHERE counterparty_id = orders.client_id)
     ) AS phones,
     (
-		SELECT 
-			SUM(CAST(bm.delivered AS SIGNED) - CAST(bm.returned AS SIGNED)) AS sum
-		FROM 
-			bottles_movement_operations AS bm
-		WHERE 
-			bm.counterparty_id = counterparty.id 
-			AND (delivery_points.id = bm.delivery_point_id 
-				OR (delivery_points.id IS NULL AND bm.delivery_point_id IS NULL AND bm.order_id IS NOT NULL)
-				)  
+        SELECT 
+            SUM(CAST(bm.delivered AS SIGNED) - CAST(bm.returned AS SIGNED)) AS sum
+        FROM 
+            bottles_movement_operations AS bm
+        WHERE 
+            bm.counterparty_id = counterparty.id 
+            AND (delivery_points.id = bm.delivery_point_id 
+                OR (delivery_points.id IS NULL AND bm.delivery_point_id IS NULL AND bm.order_id IS NOT NULL)
+                )  
     ) as bottle_debt
 FROM
     orders 
@@ -407,30 +407,46 @@ WHERE
     AND (@OrderBottlesTo = '' OR bottles_movement_operations.delivered &lt;= @OrderBottlesTo)
     AND (@StartDate = '' OR orders.delivery_date &gt;= DATE(@StartDate))
     AND (@EndDate = '' OR orders.delivery_date &lt;= DATE(@EndDate))
+    AND (@EndDate = '' OR @HideActiveCounterparty = '' OR NOT EXISTS 
+    (
+        SELECT
+            *
+        FROM
+            orders AS order_from_another_dp
+        WHERE
+            order_from_another_dp.client_id = counterparty.id
+            AND order_from_another_dp.order_status = 'Closed'
+            AND order_from_another_dp.delivery_date &gt;= orders.delivery_date
+            AND (
+                (order_from_another_dp.self_delivery AND !orders.self_delivery)
+                OR (!order_from_another_dp.self_delivery AND orders.self_delivery)
+                OR  (order_from_another_dp.delivery_point_id != orders.delivery_point_id)
+            )
+    ))
     AND (@DebtBottlesFrom = '' OR EXISTS 
     (
-		SELECT 
-			SUM(CAST(bm.delivered AS SIGNED) - CAST(bm.returned AS SIGNED)) AS sum
-		FROM 
-			bottles_movement_operations AS bm
-		WHERE 
-			bm.counterparty_id = counterparty.id 
-			AND (delivery_points.id = bm.delivery_point_id 
-					OR (delivery_points.id IS NULL AND bm.delivery_point_id IS NULL AND bm.order_id IS NOT NULL)
-				)
+        SELECT 
+            SUM(CAST(bm.delivered AS SIGNED) - CAST(bm.returned AS SIGNED)) AS sum
+        FROM 
+            bottles_movement_operations AS bm
+        WHERE 
+            bm.counterparty_id = counterparty.id 
+            AND (delivery_points.id = bm.delivery_point_id 
+                    OR (delivery_points.id IS NULL AND bm.delivery_point_id IS NULL AND bm.order_id IS NOT NULL)
+                )
         HAVING sum &gt;= @DebtBottlesFrom         
     ))
     AND (@DebtBottlesTo = '' OR EXISTS 
     (
-		SELECT 
-			SUM(CAST(bm.delivered AS SIGNED) - CAST(bm.returned AS SIGNED)) AS sum
-		FROM 
-			bottles_movement_operations AS bm
-		WHERE 
-			bm.counterparty_id = counterparty.id 
-			AND (delivery_points.id = bm.delivery_point_id 
-					OR (delivery_points.id IS NULL AND bm.delivery_point_id IS NULL AND bm.order_id IS NOT NULL)
-				)
+        SELECT 
+            SUM(CAST(bm.delivered AS SIGNED) - CAST(bm.returned AS SIGNED)) AS sum
+        FROM 
+            bottles_movement_operations AS bm
+        WHERE 
+            bm.counterparty_id = counterparty.id 
+            AND (delivery_points.id = bm.delivery_point_id 
+                    OR (delivery_points.id IS NULL AND bm.delivery_point_id IS NULL AND bm.order_id IS NOT NULL)
+                )
         HAVING sum &lt;= @DebtBottlesTo         
     ))
     AND orders.id = 
@@ -454,11 +470,7 @@ WHERE
     ) 
 GROUP BY
     delivery_points.id,
-    counterparty.id
-
-
-
-</CommandText>
+    counterparty.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="CounterpartyId">
             <Value>={?CounterpartyId}</Value>
@@ -493,6 +505,9 @@ GROUP BY
           <QueryParameter Name="DebtBottlesTo">
             <Value>={?DebtBottlesTo}</Value>
           </QueryParameter>
+          <QueryParameter Name="HideActiveCounterparty">
+            <Value>={?HideActiveCounterparty}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
@@ -511,7 +526,7 @@ GROUP BY
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="discount_reason_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -619,6 +634,13 @@ GROUP BY
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="HideActiveCounterparty">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
