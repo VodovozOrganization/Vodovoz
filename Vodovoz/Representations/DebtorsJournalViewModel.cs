@@ -412,7 +412,8 @@ namespace Vodovoz.Representations
 					{ "CounterpartyId", FilterViewModel?.Client?.Id ?? 0},
 					{ "OPF", FilterViewModel?.OPF?.ToString() ?? String.Empty},
 					{ "DebtBottlesFrom", FilterViewModel.DebtBottlesFrom != null ? FilterViewModel?.DebtBottlesFrom.Value.ToString() : int.MinValue.ToString()},
-					{ "DebtBottlesTo", FilterViewModel.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : int.MaxValue.ToString()}
+					{ "DebtBottlesTo", FilterViewModel.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : int.MaxValue.ToString()},
+					{ "HideActiveCounterparty", FilterViewModel.HideActiveCounterparty ? "true" : ""}
 				}
 			};
 			var dlg = new ReportViewDlg(reportInfo);
