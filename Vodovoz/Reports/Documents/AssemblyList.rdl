@@ -213,7 +213,7 @@ WHERE orders.id = @order_id
             <Width>56.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>221.2pt</Width>
+            <Width>206.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -501,7 +501,7 @@ WHERE orders.id = @order_id
             <Width>132.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>163.2pt</Width>
+            <Width>153.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -751,10 +751,10 @@ WHERE orders.id = @order_id
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>445.5pt</Width>
+            <Width>436.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>121.2pt</Width>
+            <Width>122.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -808,8 +808,8 @@ WHERE orders.id = @order_id
             </TableRow>
           </TableRows>
         </Details>
-        <Left>12.7pt</Left>
-        <Top>10.4pt</Top>
+        <Left>4.8pt</Left>
+        <Top>6.4pt</Top>
       </fyi:Grid>
       <Table Name="Table1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Nomenclature</DataSetName>
@@ -829,7 +829,7 @@ WHERE orders.id = @order_id
             <Width>102.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>161.4pt</Width>
+            <Width>158.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>69.9pt</Width>
@@ -838,7 +838,7 @@ WHERE orders.id = @order_id
             <Width>64.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>102.3pt</Width>
+            <Width>92.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
