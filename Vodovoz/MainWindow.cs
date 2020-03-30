@@ -1564,4 +1564,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new OrdersCreationTimeReport())
 		);
 	}
+
+	protected void OnAction65Activated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PotentialFreePromosetsReport>(),
+			() => new QSReport.ReportViewDlg(new PotentialFreePromosetsReport())
+		);
+	}
 }

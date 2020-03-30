@@ -1396,6 +1396,8 @@
     <Compile Include="Views\ErrorReporting\ErrorMessageView.cs" />
     <Compile Include="Dialogs\Employees\DriverWorkScheduleNode.cs" />
     <Compile Include="ErrorHandlers.cs" />
+    <Compile Include="ReportsParameters\PotentialFreePromosetsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PotentialFreePromosetsReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2107,6 +2109,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\OrdersCreationTime.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Client\PotentialFreePromosets.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
