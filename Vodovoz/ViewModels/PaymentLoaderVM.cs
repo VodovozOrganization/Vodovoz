@@ -137,7 +137,7 @@ namespace Vodovoz.ViewModels
 				UpdateProgress?.Invoke($"Обработан платеж {count} из {payments.Count}", progress);
 			}
 
-			UpdateProgress?.Invoke($"Обработка файла выгрузки завершена. Не загружено дублей: {countDuplicates}", progress);
+			UpdateProgress?.Invoke($"Загрузка завершена. Обработано платежей {count} из них не загружено дублей: {countDuplicates}", progress);
 
 			ObservablePayments = new GenericObservableList<Payment>(list.OrderBy(p => p.Status)
 																	.ThenBy(p => p.CounterpartyName)

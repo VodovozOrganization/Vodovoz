@@ -113,9 +113,6 @@ namespace Vodovoz
 			GMap.NET.MapProviders.GMapProvider.Language = GMap.NET.LanguageType.Russian;
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
 
-			DatePicker.DefaultWidthRequest = 400;
-			DateRangePicker.DefaultWidthRequest = 800;
-
 			QSOsm.OsmWorker.ServiceHost = "osm.vod.qsolution.ru";
 			QSOsm.OsmWorker.ServicePort = 7073;
 
