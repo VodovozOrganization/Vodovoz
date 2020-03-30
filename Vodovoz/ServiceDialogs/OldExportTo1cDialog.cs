@@ -3,7 +3,7 @@ using System.Linq;
 using System.Xml;
 using Gtk;
 using QSProjectsLib;
-using Vodovoz.ExportTo1c;
+using Vodovoz.OldExportTo1c;
 using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz

@@ -647,7 +647,6 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
     <Compile Include="ServiceDialogs\ExportTo1cDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ExportTo1cDialog.cs" />
-    <Compile Include="ServiceDialogs\ExportOperation.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\AccountCatalog.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\BankCatalog.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\ContractCatalog.cs" />
@@ -1398,6 +1397,36 @@
     <Compile Include="ErrorHandlers.cs" />
     <Compile Include="ServiceDialogs\OldExportTo1cDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.OldExportTo1cDialog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Common1cTypes.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportCounterpariesData.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportData.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Catalogs\AccountCatalog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Catalogs\BankCatalog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Catalogs\ContractCatalog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Catalogs\CounterpartyCatalog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Catalogs\CurrencyCatalog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Catalogs\GenericCatalog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Catalogs\MeasurementUnitsCatalog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Catalogs\NomenclatureCatalog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Catalogs\NomenclatureGroupCatalog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Catalogs\OrganizationCatalog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\Catalogs\WarehouseCatalog.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportDefaults\Currency.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportDefaults\Warehouse1c.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\CatalogObjectNode.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\ComissionNode.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\InvoiceDocumentNode.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\ObjectNode.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\PropertyNode.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\PropertyNullNode.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\PropertyValueNode.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\ReferenceNode.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\RulesNode.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\SalesDocumentNode.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\TableNode.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportNodes\TableRecordNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportOperation.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1c\ExportOperation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1648,6 +1677,9 @@
     <Folder Include="ViewWidgets\Permissions\" />
     <Folder Include="Views\ErrorReporting\" />
     <Folder Include="ServiceDialogs\OldExportTo1c\" />
+    <Folder Include="ServiceDialogs\OldExportTo1c\Catalogs\" />
+    <Folder Include="ServiceDialogs\OldExportTo1c\ExportDefaults\" />
+    <Folder Include="ServiceDialogs\OldExportTo1c\ExportNodes\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
