@@ -1396,6 +1396,8 @@
     <Compile Include="Views\ErrorReporting\ErrorMessageView.cs" />
     <Compile Include="Dialogs\Employees\DriverWorkScheduleNode.cs" />
     <Compile Include="ErrorHandlers.cs" />
+    <Compile Include="ServiceDialogs\OldExportTo1cDialog.cs" />
+    <Compile Include="gtk-gui\Vodovoz.OldExportTo1cDialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1645,6 +1647,7 @@
     <Folder Include="Views\Users\" />
     <Folder Include="ViewWidgets\Permissions\" />
     <Folder Include="Views\ErrorReporting\" />
+    <Folder Include="ServiceDialogs\OldExportTo1c\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
