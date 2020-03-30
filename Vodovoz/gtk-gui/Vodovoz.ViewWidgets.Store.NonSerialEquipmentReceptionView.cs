@@ -78,7 +78,8 @@ namespace Vodovoz.ViewWidgets.Store
 			this.GtkLabel4.UseMarkup = true;
 			this.frameEquipment.LabelWidget = this.GtkLabel4;
 			this.Add(this.frameEquipment);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

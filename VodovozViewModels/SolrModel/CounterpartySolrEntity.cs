@@ -29,15 +29,10 @@ namespace Vodovoz.SolrModel
 			if(hightlightedContent == null) {
 				throw new ArgumentNullException(nameof(hightlightedContent));
 			}
-
-			if(!hightlightedContent.TryGetValue(nameof(Id), out string id)) {
-				id = Id.ToString();
-			}
-
 			if(!hightlightedContent.TryGetValue(nameof(FullName), out string fullName)){
 				fullName = FullName;
 			}
-			return $"{id} {fullName}";
+			return $"{fullName}";
 		}
 	}
 }

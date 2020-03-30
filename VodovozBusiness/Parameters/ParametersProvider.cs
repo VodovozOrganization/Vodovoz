@@ -82,7 +82,5 @@ namespace Vodovoz.Parameters
 				}
 			}
 		}
-
-
 	}
 }

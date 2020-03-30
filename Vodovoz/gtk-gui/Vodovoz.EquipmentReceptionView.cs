@@ -81,6 +81,7 @@ namespace Vodovoz
 			this.buttonSelectSerial.Name = "buttonSelectSerial";
 			this.buttonSelectSerial.UseUnderline = true;
 			this.buttonSelectSerial.UseMarkup = false;
+			this.buttonSelectSerial.LabelXAlign = 0F;
 			this.buttonSelectSerial.Label = global::Mono.Unix.Catalog.GetString("Вписать серийный номер");
 			this.hbox1.Add(this.buttonSelectSerial);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonSelectSerial]));
@@ -103,7 +104,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameEquipment]));
 			w8.Position = 0;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

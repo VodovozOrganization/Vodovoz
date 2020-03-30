@@ -2,15 +2,26 @@
 using System.Collections.Generic;
 namespace SolrSearch
 {
-	public class SolrSearchResult
+	public class SolrSearchResults
 	{
-		public SolrEntityBase Entity { get; }
-		public IDictionary<string, string> Highlights { get; }
+		/// <summary>
+		/// Найдено записей
+		/// </summary>
+		public int FoundCount { get; set; }
+		public int LoadCount { get; set; }
 
-		public SolrSearchResult(SolrEntityBase entity, IDictionary<string, string> highlights = null)
+		public IEnumerable<SolrSearchResult> Results { get; set; }
+
+		public SolrSearchResults(int foundCount, int loadCount, IEnumerable<SolrSearchResult> results)
 		{
-			Entity = entity ?? throw new ArgumentNullException(nameof(entity));
-			Highlights = highlights ?? new Dictionary<string, string>();
+			FoundCount = foundCount;
+			LoadCount = loadCount;
+			Results = results ?? throw new ArgumentNullException(nameof(results));
+		}
+
+		public SolrSearchResults()
+		{
+			Results = new SolrSearchResult[0];
 		}
 	}
 }

@@ -1360,12 +1360,17 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.CarFilterView.cs" />
     <Compile Include="NhibernateMappingInfoProvider.cs" />
     <Compile Include="SolrMapping.cs" />
-    <Compile Include="Views\Search\SolrSingleEntrySearchView1.cs" />
     <Compile Include="Views\Search\SolrSearchCompletionWindow.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Search.SolrSearchCompletionWindow.cs" />
     <Compile Include="Views\Search\SolrSearchResultNode.cs" />
     <Compile Include="Views\Search\SolrSingleEntrySearchView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Search.SolrSingleEntrySearchView.cs" />
+    <Compile Include="Views\Search\GtkTable.cs" />
+    <Compile Include="Core\OnHibernateEventSolrImporter.cs" />
+    <Compile Include="Views\Search\SolrSearchView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Search.SolrSearchView.cs" />
+    <Compile Include="Views\Search\SolrSearchHelpWindow.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Search.SolrSearchHelpWindow.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1520,6 +1525,10 @@
     <ProjectReference Include="..\SolrSearch\SolrSearch.csproj">
       <Project>{DD07B37B-69B9-411D-9C63-04FC75385B9F}</Project>
       <Name>SolrSearch</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\VodovozService\VodovozSolrService\SolrService\SolrImportService.csproj">
+      <Project>{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}</Project>
+      <Name>SolrImportService</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

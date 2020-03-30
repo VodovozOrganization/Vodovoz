@@ -175,9 +175,9 @@ namespace SolrSearch.Mapping
 		/// <returns>Имя Solr поля</returns>
 		/// <typeparam name="TEntity">Сущность, может быть как Solr сущность, 
 		/// так и Orm сущность которая была использована в маппинге для Solr</typeparam>
-		public string GetSolrField<TEntity>(string propertyName)
+		public string GetSolrFieldName<TEntity>(string propertyName)
 		{
-			return GetSolrField(typeof(TEntity), propertyName);
+			return GetSolrFieldName(typeof(TEntity), propertyName);
 		}
 
 		/// <summary>
@@ -187,21 +187,26 @@ namespace SolrSearch.Mapping
 		/// <param name="entityType">Сущность, может быть как Solr сущность, 
 		/// так и Orm сущность которая была использована в маппинге для Solr</param>
 		/// <param name="propertyName">Property name.</param>
-		public string GetSolrField(Type entityType, string propertyName)
+		public string GetSolrFieldName(Type entityType, string propertyName)
+		{
+			return GetSolrField(entityType, propertyName).FieldName;
+		}
+
+		public SolrFieldModel GetSolrField(Type entityType, string propertyName)
 		{
 			if(solrEntityMappings.ContainsKey(entityType)) {
 				var fieldsMappings = solrEntityMappings[entityType];
 				if(!fieldsMappings.ContainsKey(propertyName)) {
 					throw new InvalidOperationException($"Для свойства {propertyName} не настроен Solr маппинг");
 				}
-				return fieldsMappings[propertyName].FieldName;
+				return fieldsMappings[propertyName];
 			}
 			if(ormEntityMappings.ContainsKey(entityType)) {
 				var fieldsMappings = ormEntityMappings[entityType];
 				if(!fieldsMappings.ContainsKey(propertyName)) {
 					throw new InvalidOperationException($"Для свойства {propertyName} не настроен Solr маппинг");
 				}
-				return fieldsMappings[propertyName].FieldName;
+				return fieldsMappings[propertyName];
 			}
 
 			throw new InvalidOperationException($"Для типа {entityType.FullName} не настроен Solr маппинг");
@@ -245,6 +250,11 @@ namespace SolrSearch.Mapping
 		public ICollection<Type> GetRegisteredTypes()
 		{
 			return solrEntityMappings.Keys;
+		}
+
+		public ICollection<Type> GetRegisteredOrmTypes()
+		{
+			return ormEntityMappings.Keys;
 		}
 
 		public SolrFieldModel GetUniqueKey(Type type)

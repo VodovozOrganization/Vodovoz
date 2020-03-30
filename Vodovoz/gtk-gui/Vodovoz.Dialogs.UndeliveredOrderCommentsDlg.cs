@@ -88,7 +88,6 @@ namespace Vodovoz.Dialogs
 			this.lblValOfField = new global::Gtk.Label();
 			this.lblValOfField.Name = "lblValOfField";
 			this.lblValOfField.Xalign = 0F;
-			this.lblValOfField.LabelProp = global::Mono.Unix.Catalog.GetString("label1");
 			this.hbox2.Add(this.lblValOfField);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.lblValOfField]));
 			w4.Position = 2;

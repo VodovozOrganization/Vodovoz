@@ -82,11 +82,11 @@ namespace Vodovoz
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.yspinbuttonCost = new global::Gamma.GtkWidgets.ySpinButton(0, 1000, 1);
+			this.yspinbuttonCost = new global::Gamma.GtkWidgets.ySpinButton(0D, 1000D, 1D);
 			this.yspinbuttonCost.CanFocus = true;
 			this.yspinbuttonCost.Name = "yspinbuttonCost";
-			this.yspinbuttonCost.Adjustment.PageIncrement = 1;
-			this.yspinbuttonCost.ClimbRate = 1;
+			this.yspinbuttonCost.Adjustment.PageIncrement = 1D;
+			this.yspinbuttonCost.ClimbRate = 1D;
 			this.yspinbuttonCost.Digits = ((uint)(2));
 			this.yspinbuttonCost.Numeric = true;
 			this.yspinbuttonCost.ValueAsDecimal = 0m;
@@ -139,7 +139,8 @@ namespace Vodovoz
 			w11.Expand = false;
 			w11.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

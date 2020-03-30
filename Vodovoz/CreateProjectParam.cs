@@ -82,7 +82,6 @@ using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewWidgets.PromoSetAction;
 using QS.Views.Resolve;
 using Vodovoz.SearchViewModels;
-using QS.Project.Search.GtkUI;
 using Vodovoz.Views.Search;
 
 namespace Vodovoz
@@ -173,7 +172,7 @@ namespace Vodovoz
 
 			//Регистрация вкладок
 			widgetResolver
-				.RegisterViewForViewModel<SingleEntrySolrCriterionSearchViewModel, SolrSingleEntrySearchView>()
+				.RegisterViewForViewModel<SingleEntrySolrCriterionSearchViewModel, SolrSearchView>()
 				.RegisterViewForViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
 				.RegisterViewForViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>()
 				.RegisterViewForViewModel<ClientCameFromViewModel, ClientCameFromView>()

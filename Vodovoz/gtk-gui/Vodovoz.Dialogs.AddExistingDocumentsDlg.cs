@@ -71,7 +71,8 @@ namespace Vodovoz.Dialogs
 			w6.Expand = false;
 			w6.Fill = false;
 			this.Add(this.vboxMain);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

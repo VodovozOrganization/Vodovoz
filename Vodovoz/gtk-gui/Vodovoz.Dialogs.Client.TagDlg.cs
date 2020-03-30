@@ -125,7 +125,8 @@ namespace Vodovoz.Dialogs.Client
 			w10.Expand = false;
 			w10.Fill = false;
 			this.Add(this.datavbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

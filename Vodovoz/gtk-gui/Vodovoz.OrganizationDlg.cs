@@ -145,6 +145,7 @@ namespace Vodovoz
 			this.radioTabInfo = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Основное"));
 			this.radioTabInfo.CanFocus = true;
 			this.radioTabInfo.Name = "radioTabInfo";
+			this.radioTabInfo.Active = true;
 			this.radioTabInfo.DrawIndicator = false;
 			this.radioTabInfo.UseUnderline = true;
 			this.radioTabInfo.Group = new global::GLib.SList(global::System.IntPtr.Zero);
@@ -534,6 +535,7 @@ namespace Vodovoz
 			this.accountsview1 = new global::QSBanks.AccountsView();
 			this.accountsview1.Events = ((global::Gdk.EventMask)(256));
 			this.accountsview1.Name = "accountsview1";
+			this.accountsview1.CanEdit = false;
 			this.notebookMain.Add(this.accountsview1);
 			global::Gtk.Notebook.NotebookChild w43 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.accountsview1]));
 			w43.Position = 1;

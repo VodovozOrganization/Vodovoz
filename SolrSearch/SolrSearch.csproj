@@ -62,6 +62,7 @@
     <Compile Include="SolrEntityCreator.cs" />
     <Compile Include="Mapping\EntityMappingInfo.cs" />
     <Compile Include="EntityContentProvider.cs" />
+    <Compile Include="SolrSearchResult.cs" />
     <Compile Include="SolrSearchResults.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -5,8 +5,6 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Contacts;
 using QS.DomainModel.UoW;
-using QS.Project.Journal.Search;
-using QS.Project.Journal.Search.Criterion;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -39,10 +37,11 @@ namespace Vodovoz.JournalViewModels
 			CriterionSearchModel.AddSolrSearchBy<Counterparty>(x => x.Name);
 			CriterionSearchModel.AddSolrSearchBy<Counterparty>(x => x.FullName);
 			CriterionSearchModel.AddSolrSearchBy<Counterparty>(x => x.INN);
-			CriterionSearchModel.AddSolrSearchBy<Employee>(x => x.Id);
-			CriterionSearchModel.AddSolrSearchBy<Employee>(x => x.Name);
-			CriterionSearchModel.AddSolrSearchBy<Employee>(x => x.LastName);
-
+			CriterionSearchModel.AddSolrSearchBy<DeliveryPoint>(x => x.Id);
+			CriterionSearchModel.AddSolrSearchBy<DeliveryPoint>(x => x.CompiledAddress);
+			CriterionSearchModel.AddSolrSearchBy<Phone>(x => x.Id);
+			CriterionSearchModel.AddSolrSearchBy<Phone>(x => x.Number);
+			CriterionSearchModel.AddSolrSearchBy<Phone>(x => x.DigitsNumber);
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<Counterparty>> ItemsSourceQueryFunction => (uow) => {
@@ -106,8 +105,10 @@ namespace Vodovoz.JournalViewModels
 				.AddSearchBy(() => counterpartyAlias.Id)
 				.AddSearchBy(() => counterpartyAlias.Name)
 				.AddSearchBy(() => counterpartyAlias.INN)
-				//.AddSearchBy(() => phoneAlias.DigitsNumber)
-				//.AddSearchBy(() => deliveryPointAlias.CompiledAddress)
+				.AddSearchBy(() => phoneAlias.Id)
+				.AddSearchBy(() => phoneAlias.DigitsNumber)
+				.AddSearchBy(() => deliveryPointAlias.Id)
+				.AddSearchBy(() => deliveryPointAlias.CompiledAddress)
 				.GetSearchCriterion()
 			);
 

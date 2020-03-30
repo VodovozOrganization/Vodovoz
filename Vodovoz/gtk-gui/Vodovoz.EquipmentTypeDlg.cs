@@ -127,7 +127,8 @@ namespace Vodovoz
 			w10.PackType = ((global::Gtk.PackType)(1));
 			w10.Position = 1;
 			this.Add(this.vbox2);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

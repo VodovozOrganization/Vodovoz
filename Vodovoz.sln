@@ -97,6 +97,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Contacts", "..\QSProject
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolrSearch", "SolrSearch\SolrSearch.csproj", "{DD07B37B-69B9-411D-9C63-04FC75385B9F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolrImportService", "..\VodovozService\VodovozSolrService\SolrService\SolrImportService.csproj", "{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -866,6 +868,24 @@ Global
 		{DD07B37B-69B9-411D-9C63-04FC75385B9F}.DebugShortWin|x86.Build.0 = Debug|Any CPU
 		{DD07B37B-69B9-411D-9C63-04FC75385B9F}.DebugWin|x86.ActiveCfg = Release|Any CPU
 		{DD07B37B-69B9-411D-9C63-04FC75385B9F}.DebugWin|x86.Build.0 = Release|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.Debug|x86.Build.0 = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.Release|x86.ActiveCfg = Release|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.Release|x86.Build.0 = Release|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.Debug|x64.Build.0 = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.Release|x64.ActiveCfg = Release|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.Release|x64.Build.0 = Release|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.v4.0-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.v4.0-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.v4.0-Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.v4.0-Release|Any CPU.Build.0 = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.Debug-short|x86.ActiveCfg = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.Debug-short|x86.Build.0 = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.DebugShortWin|x86.ActiveCfg = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.DebugShortWin|x86.Build.0 = Debug|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.DebugWin|x86.ActiveCfg = Release|Any CPU
+		{B6A0CC98-15B6-4743-8D6D-DA57D7DD7789}.DebugWin|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2} = {2B971ED3-E5E1-4CE7-B142-4393EC61DA67}

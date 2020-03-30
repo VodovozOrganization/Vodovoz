@@ -9,10 +9,10 @@ namespace Vodovoz.SolrMapping
 	{
 		public CounterpartySolrMap()
 		{
-			Map(se => se.Id, e => e.Id);
-			Map(se => se.Name, e => e.Name);
-			Map(se => se.FullName, e => e.FullName);
-			Map(se => se.Inn, e => e.INN);
+			Map(se => se.Id, e => e.Id, 999999);
+			Map(se => se.Name, e => e.Name, 1);
+			Map(se => se.FullName, e => e.FullName, 2);
+			Map(se => se.Inn, e => e.INN, 10);
 		}
 	}
 

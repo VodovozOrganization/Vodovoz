@@ -23,6 +23,11 @@ using Vodovoz.Domain.Orders;
 using SolrSearch.Mapping;
 using Vodovoz.SolrModel;
 using System.Collections.Generic;
+using Vodovoz.Core;
+using QS.DomainModel.NotifyChange;
+using SolrImportService;
+using Vodovoz.Services;
+using Vodovoz.Core.DataService;
 
 namespace Vodovoz
 {
@@ -31,6 +36,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		public static MainWindow MainWin;
 		public static IProgressBarDisplayable progressBarWin;
+		public static OnHibernateEventSolrImporter solrImporter;
 
 		[STAThread]
 		public static void Main (string[] args)
@@ -143,6 +149,11 @@ namespace Vodovoz
 				MainWin.Show();
 			}
 
+			ISolrImporterSettings solrImporterSettings = new BaseParametersProvider();
+			SolrImportServiceChannelFactory serviceChannelFactory = new SolrImportServiceChannelFactory(solrImporterSettings.ServerAddress, solrImporterSettings.ServerPort);
+			solrImporter = new OnHibernateEventSolrImporter(NotifyConfiguration.Instance, serviceChannelFactory, SolrMapping.OrmMapping);
+			solrImporter.Start();
+
 			PerformanceHelper.EndPointsGroup ();
 
 			PerformanceHelper.AddTimePoint (logger, "Закончен старт SAAS. Конец загрузки.");
@@ -153,15 +164,18 @@ namespace Vodovoz
 			QSProjectsLib.PerformanceHelper.Main.PrintAllPoints (logger);
 
 			Application.Run ();
+
+			solrImporter.Dispose();
+
 			QSSaaS.Session.StopSessionRefresh ();
 			ClearTempDir();
 		}
 
 		private static void SolrCompositionRoot()
 		{
-			string solrCoreAddress = @"http://localhost:8983/solr/Vodovoz_test";
+			string solrCoreAddress = @"http://solr.vod.qsolution.ru:8983/solr/Vodovoz";
 			Utils.Register<Dictionary<string, object>>(solrCoreAddress);
-			Utils.Register<CounterpartySolrEntity>(solrCoreAddress);
+			//Utils.Register<CounterpartySolrEntity>(solrCoreAddress);
 		}
 	}
 }

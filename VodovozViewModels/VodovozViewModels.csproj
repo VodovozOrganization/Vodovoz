@@ -56,6 +56,23 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
+    <Reference Include="CommonServiceLocator">
+      <HintPath>..\packages\CommonServiceLocator.2.0.2\lib\net45\CommonServiceLocator.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="SolrNet">
+      <HintPath>..\packages\SolrNet.Core.1.0.19\lib\net46\SolrNet.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="CommonServiceLocator.SolrNet">
+      <HintPath>..\packages\SolrNet.1.0.19\lib\net46\CommonServiceLocator.SolrNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -147,6 +164,10 @@
     <Compile Include="SearchViewModels\SolrSearchCompletionViewModel.cs" />
     <Compile Include="SolrMapping\EmployeeSolrMap.cs" />
     <Compile Include="SolrModel\EmployeeSolrEntity.cs" />
+    <Compile Include="SolrModel\DeliveryPointSolrEntity.cs" />
+    <Compile Include="SolrMapping\DeliveryPointSolrMap.cs" />
+    <Compile Include="SolrModel\PhoneSolrEntity.cs" />
+    <Compile Include="SolrMapping\PhoneSolrMap.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -212,6 +233,10 @@
     <ProjectReference Include="..\SolrSearch\SolrSearch.csproj">
       <Project>{DD07B37B-69B9-411D-9C63-04FC75385B9F}</Project>
       <Name>SolrSearch</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj">
+      <Project>{B1DD034B-EC88-400C-9C6B-83CE68AB3541}</Project>
+      <Name>QS.Contacts</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

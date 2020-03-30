@@ -42,11 +42,12 @@ namespace Vodovoz
 			w2.Expand = false;
 			w2.Fill = false;
 			this.Add(this.hbox3);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.yspeccomboWarehouse.ItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnYspeccomboWarehouseItemSelected);
+			this.yspeccomboWarehouse.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYspeccomboWarehouseItemSelected);
 		}
 	}
 }

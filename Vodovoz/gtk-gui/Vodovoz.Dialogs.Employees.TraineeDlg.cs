@@ -525,6 +525,7 @@ namespace Vodovoz.Dialogs.Employees
 			this.accountsView = new global::QSBanks.AccountsView();
 			this.accountsView.Events = ((global::Gdk.EventMask)(256));
 			this.accountsView.Name = "accountsView";
+			this.accountsView.CanEdit = false;
 			this.vbox5.Add(this.accountsView);
 			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.accountsView]));
 			w39.Position = 1;

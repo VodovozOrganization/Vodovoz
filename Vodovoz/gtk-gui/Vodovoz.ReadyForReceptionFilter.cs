@@ -54,11 +54,12 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.checkWithoutUnload]));
 			w3.Position = 2;
 			this.Add(this.hbox3);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.yspeccomboWarehouse.ItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnYspeccomboWarehouseItemSelected);
+			this.yspeccomboWarehouse.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYspeccomboWarehouseItemSelected);
 			this.checkWithoutUnload.Toggled += new global::System.EventHandler(this.OnCheckWithoutUnloadToggled);
 		}
 	}

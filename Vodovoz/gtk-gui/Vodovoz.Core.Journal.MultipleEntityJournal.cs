@@ -236,7 +236,6 @@ namespace Vodovoz.Core.Journal
 			this.labelSum.Name = "labelSum";
 			this.labelSum.Xpad = 6;
 			this.labelSum.Xalign = 1F;
-			this.labelSum.LabelProp = global::Mono.Unix.Catalog.GetString("label2");
 			this.labelSum.SingleLineMode = true;
 			this.vbox1.Add(this.labelSum);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelSum]));

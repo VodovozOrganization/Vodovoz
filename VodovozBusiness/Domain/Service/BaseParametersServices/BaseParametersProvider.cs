@@ -18,7 +18,8 @@ namespace Vodovoz.Core.DataService
 		IWageParametersProvider,
 		ISmsNotificationServiceSettings,
 		ISalesReceiptsServiceSettings,
-		IEmailServiceSettings
+		IEmailServiceSettings,
+		ISolrImporterSettings
 	{
 		public int GetForfeitId()
 		{
@@ -208,6 +209,37 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IEmailServiceSettings implementation
+
+		#region ISolrImporterSettings implementation
+
+		public string WorkDatabaseName {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("work_database_name_for_solr_service")) {
+					throw new InvalidProgramException("В параметрах базы не настроено название базы данных с которой возможно обращение к SolrImporterService (work_database_name_for_solr_service).");
+				}
+				return ParametersProvider.Instance.GetParameterValue("work_database_name_for_solr_service");
+			}
+		}
+
+		public string ServerAddress {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("solr_importer_service_address")) {
+					throw new InvalidProgramException("В параметрах базы не настроен адрес для SolrImporterService (solr_importer_service_address).");
+				}
+				return ParametersProvider.Instance.GetParameterValue("solr_importer_service_address");
+			}
+		}
+
+		public string ServerPort {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("solr_importer_service_port")) {
+					throw new InvalidProgramException("В параметрах базы не настроен порт для SolrImporterService (solr_importer_service_port).");
+				}
+				return ParametersProvider.Instance.GetParameterValue("solr_importer_service_port");
+			}
+		}
+
+		#endregion ISolrImporterSettings implementation
 
 	}
 }

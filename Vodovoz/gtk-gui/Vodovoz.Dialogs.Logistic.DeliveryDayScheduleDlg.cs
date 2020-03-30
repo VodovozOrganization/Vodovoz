@@ -167,7 +167,8 @@ namespace Vodovoz.Dialogs.Logistic
 			w16.Expand = false;
 			w16.Fill = false;
 			this.Add(this.vbox3);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

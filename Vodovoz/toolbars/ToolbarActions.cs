@@ -43,6 +43,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Core;
 using Vodovoz.SearchViewModels;
 using QS.Project.Journal.Search.Criterion;
+using Vodovoz.Domain.Client;
 
 public partial class MainWindow : Window
 {

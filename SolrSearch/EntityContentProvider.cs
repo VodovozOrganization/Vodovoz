@@ -38,7 +38,7 @@ namespace SolrSearch
 		public object GetPropertyContent(string propertyName)
 		{
 			if(!propertyToSolrFieldMap.TryGetValue(propertyName, out string fieldName)) {
-				fieldName = solrOrmSourceMapping.GetSolrField(entityType, propertyName);
+				fieldName = solrOrmSourceMapping.GetSolrFieldName(entityType, propertyName);
 				propertyToSolrFieldMap.Add(propertyName, fieldName);
 			}
 			if(entityContent.TryGetValue(fieldName, out object result)) {

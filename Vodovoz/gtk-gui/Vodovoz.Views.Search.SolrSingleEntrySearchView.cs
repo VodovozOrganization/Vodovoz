@@ -4,15 +4,27 @@ namespace Vodovoz.Views.Search
 {
 	public partial class SolrSingleEntrySearchView
 	{
-		private global::Gtk.Table tableMain;
+		private global::Gtk.HBox hbox2;
 
-		private global::Gtk.Button buttonSearchClear;
-
-		private global::Gamma.GtkWidgets.yEntry entrySearch;
+		private global::Gtk.VBox vbox4;
 
 		private global::Gtk.Label label1;
 
+		private global::Gtk.VBox vbox5;
+
+		private global::Gamma.GtkWidgets.yEntry entrySearch;
+
 		private global::Gamma.GtkWidgets.yLabel searchResult;
+
+		private global::Gamma.GtkWidgets.yLabel labelWarning;
+
+		private global::Gtk.VBox vbox6;
+
+		private global::Gtk.HBox hbox3;
+
+		private global::Gtk.Button buttonSearchClear;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonHelp;
 
 		protected virtual void Build()
 		{
@@ -21,58 +33,108 @@ namespace Vodovoz.Views.Search
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Search.SolrSingleEntrySearchView";
 			// Container child Vodovoz.Views.Search.SolrSingleEntrySearchView.Gtk.Container+ContainerChild
-			this.tableMain = new global::Gtk.Table(((uint)(2)), ((uint)(3)), false);
-			this.tableMain.Name = "tableMain";
-			this.tableMain.RowSpacing = ((uint)(6));
-			this.tableMain.ColumnSpacing = ((uint)(6));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.buttonSearchClear = new global::Gtk.Button();
-			this.buttonSearchClear.TooltipMarkup = "Очистить";
-			this.buttonSearchClear.CanFocus = true;
-			this.buttonSearchClear.Name = "buttonSearchClear";
-			this.buttonSearchClear.UseUnderline = true;
-			global::Gtk.Image w1 = new global::Gtk.Image();
-			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-clear", global::Gtk.IconSize.Menu);
-			this.buttonSearchClear.Image = w1;
-			this.tableMain.Add(this.buttonSearchClear);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.tableMain[this.buttonSearchClear]));
-			w2.LeftAttach = ((uint)(2));
-			w2.RightAttach = ((uint)(3));
-			w2.XOptions = ((global::Gtk.AttachOptions)(4));
-			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.vbox4 = new global::Gtk.VBox();
+			this.vbox4.Name = "vbox4";
+			this.vbox4.Spacing = 6;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.label1 = new global::Gtk.Label();
+			this.label1.HeightRequest = 25;
+			this.label1.Name = "label1";
+			this.label1.Xalign = 1F;
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Поиск:");
+			this.vbox4.Add(this.label1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.label1]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			this.hbox2.Add(this.vbox4);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox4]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.vbox5 = new global::Gtk.VBox();
+			this.vbox5.Name = "vbox5";
+			this.vbox5.Spacing = 6;
+			// Container child vbox5.Gtk.Box+BoxChild
 			this.entrySearch = new global::Gamma.GtkWidgets.yEntry();
 			this.entrySearch.CanFocus = true;
 			this.entrySearch.Name = "entrySearch";
 			this.entrySearch.IsEditable = true;
 			this.entrySearch.InvisibleChar = '●';
-			this.tableMain.Add(this.entrySearch);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.tableMain[this.entrySearch]));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
-			this.label1 = new global::Gtk.Label();
-			this.label1.Name = "label1";
-			this.label1.Xalign = 1F;
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Поиск:");
-			this.tableMain.Add(this.label1);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.tableMain[this.label1]));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableMain.Gtk.Table+TableChild
+			this.vbox5.Add(this.entrySearch);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.entrySearch]));
+			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child vbox5.Gtk.Box+BoxChild
 			this.searchResult = new global::Gamma.GtkWidgets.yLabel();
 			this.searchResult.Name = "searchResult";
 			this.searchResult.Xalign = 0F;
-			this.tableMain.Add(this.searchResult);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.tableMain[this.searchResult]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.Add(this.tableMain);
+			this.vbox5.Add(this.searchResult);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.searchResult]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child vbox5.Gtk.Box+BoxChild
+			this.labelWarning = new global::Gamma.GtkWidgets.yLabel();
+			this.labelWarning.Name = "labelWarning";
+			this.labelWarning.Xalign = 0F;
+			this.labelWarning.UseMarkup = true;
+			this.vbox5.Add(this.labelWarning);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.labelWarning]));
+			w5.Position = 2;
+			w5.Expand = false;
+			w5.Fill = false;
+			this.hbox2.Add(this.vbox5);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox5]));
+			w6.Position = 1;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.vbox6 = new global::Gtk.VBox();
+			this.vbox6.Name = "vbox6";
+			this.vbox6.Spacing = 6;
+			// Container child vbox6.Gtk.Box+BoxChild
+			this.hbox3 = new global::Gtk.HBox();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.buttonSearchClear = new global::Gtk.Button();
+			this.buttonSearchClear.TooltipMarkup = "Очистить";
+			this.buttonSearchClear.CanFocus = true;
+			this.buttonSearchClear.Name = "buttonSearchClear";
+			this.buttonSearchClear.UseUnderline = true;
+			global::Gtk.Image w7 = new global::Gtk.Image();
+			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-clear", global::Gtk.IconSize.Menu);
+			this.buttonSearchClear.Image = w7;
+			this.hbox3.Add(this.buttonSearchClear);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonSearchClear]));
+			w8.Position = 0;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.ybuttonHelp = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonHelp.CanFocus = true;
+			this.ybuttonHelp.Name = "ybuttonHelp";
+			this.ybuttonHelp.UseUnderline = true;
+			global::Gtk.Image w9 = new global::Gtk.Image();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-about", global::Gtk.IconSize.Menu);
+			this.ybuttonHelp.Image = w9;
+			this.hbox3.Add(this.ybuttonHelp);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ybuttonHelp]));
+			w10.Position = 1;
+			this.vbox6.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox6[this.hbox3]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
+			this.hbox2.Add(this.vbox6);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox6]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
+			this.Add(this.hbox2);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

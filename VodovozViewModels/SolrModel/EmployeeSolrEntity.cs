@@ -30,10 +30,6 @@ namespace Vodovoz.SolrModel
 				throw new ArgumentNullException(nameof(hightlightedContent));
 			}
 
-			if(!hightlightedContent.TryGetValue(nameof(Id), out string id)) {
-				id = Id.ToString();
-			}
-
 			if(!hightlightedContent.TryGetValue(nameof(LastName), out string lastName)) {
 				lastName = LastName;
 			}
@@ -46,7 +42,7 @@ namespace Vodovoz.SolrModel
 				patronymic = Patronymic;
 			}
 
-			return $"{id} {lastName} {name} {patronymic}";
+			return $"{lastName} {name} {patronymic}";
 		}
 	}
 }

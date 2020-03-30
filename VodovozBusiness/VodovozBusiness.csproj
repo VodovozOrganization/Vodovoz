@@ -779,6 +779,7 @@
     <Compile Include="Domain\Order\PromotionalSetActionBase.cs" />
     <Compile Include="HibernateMapping\Order\PromotionalSetActionBaseMap.cs" />
     <Compile Include="Domain\Order\PromotionalSetActionFixPrice.cs" />
+    <Compile Include="Services\ISolrImporterSettings.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -107,11 +107,11 @@ namespace Vodovoz
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinbuttonFineMoney = new global::Gamma.GtkWidgets.ySpinButton(0, 100000, 1);
+			this.yspinbuttonFineMoney = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
 			this.yspinbuttonFineMoney.CanFocus = true;
 			this.yspinbuttonFineMoney.Name = "yspinbuttonFineMoney";
-			this.yspinbuttonFineMoney.Adjustment.PageIncrement = 10;
-			this.yspinbuttonFineMoney.ClimbRate = 1;
+			this.yspinbuttonFineMoney.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonFineMoney.ClimbRate = 1D;
 			this.yspinbuttonFineMoney.Numeric = true;
 			this.yspinbuttonFineMoney.ValueAsDecimal = 0m;
 			this.yspinbuttonFineMoney.ValueAsInt = 0;
@@ -128,7 +128,8 @@ namespace Vodovoz
 			w10.Expand = false;
 			w10.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

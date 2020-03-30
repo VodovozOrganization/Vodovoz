@@ -107,11 +107,11 @@ namespace Vodovoz.Dialogs.Employees
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinbuttonPremiumMoney = new global::Gamma.GtkWidgets.ySpinButton(0, 100000, 1);
+			this.yspinbuttonPremiumMoney = new global::Gamma.GtkWidgets.ySpinButton(0D, 100000D, 1D);
 			this.yspinbuttonPremiumMoney.CanFocus = true;
 			this.yspinbuttonPremiumMoney.Name = "yspinbuttonPremiumMoney";
-			this.yspinbuttonPremiumMoney.Adjustment.PageIncrement = 10;
-			this.yspinbuttonPremiumMoney.ClimbRate = 1;
+			this.yspinbuttonPremiumMoney.Adjustment.PageIncrement = 10D;
+			this.yspinbuttonPremiumMoney.ClimbRate = 1D;
 			this.yspinbuttonPremiumMoney.Numeric = true;
 			this.yspinbuttonPremiumMoney.ValueAsDecimal = 0m;
 			this.yspinbuttonPremiumMoney.ValueAsInt = 0;

@@ -63,7 +63,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.comboStatus]));
 			w4.Position = 3;
 			this.Add(this.hbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

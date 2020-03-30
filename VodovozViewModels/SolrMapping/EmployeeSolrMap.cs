@@ -10,10 +10,10 @@ namespace Vodovoz.SolrMapping
 	{
 		public EmployeeSolrMap()
 		{
-			Map(se => se.Id, e => e.Id);
-			Map(se => se.Name, e => e.Name);
-			Map(se => se.LastName, e => e.LastName);
-			Map(se => se.Patronymic, e => e.Patronymic);
+			Map(se => se.Id, e => e.Id, 999999);
+			Map(se => se.Name, e => e.Name, 2);
+			Map(se => se.LastName, e => e.LastName, 3);
+			Map(se => se.Patronymic, e => e.Patronymic, 1);
 		}
 	}
 
