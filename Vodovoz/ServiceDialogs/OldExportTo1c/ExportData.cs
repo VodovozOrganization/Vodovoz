@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
+using Vodovoz.Attributes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;

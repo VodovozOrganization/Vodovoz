@@ -145,8 +145,8 @@ public partial class MainWindow : Window
 
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
-		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.2", null, "table");
-		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.3", null, "table");
+		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.3", null, "table");
+		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.2", null, "table");
 		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
 		ActionImportFromTinkoff = new Action("ActionImportFromTinkoff", "Загрузка выписки из ЛК Тинькофф", null, "table");
 		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
