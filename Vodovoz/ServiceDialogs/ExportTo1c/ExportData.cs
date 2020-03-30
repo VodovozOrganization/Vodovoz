@@ -379,7 +379,9 @@ namespace Vodovoz.ExportTo1c
 						  new XAttribute("Комментарий", Comment)
 					  );
 			xml.Add(ExchangeRules.ToXml());
-			Objects.ForEach(obj => xml.Add(obj.ToXml()));
+			foreach(var obj in Objects.OrderBy(x => x.Id)) {
+				xml.Add(obj.ToXml());
+			}
 			return xml;
 		}
 	}
