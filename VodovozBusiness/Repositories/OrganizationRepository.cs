@@ -8,6 +8,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Parameters;
 using Vodovoz.Repository.Client;
+using Vodovoz.Services;
 
 namespace Vodovoz.Repository
 {
@@ -73,6 +74,11 @@ namespace Vodovoz.Repository
 				return uow.GetById<Organization>(int.Parse(ParametersProvider.Instance.GetParameterValue(CashlessOrganization)));
 			}
 			return null;
+		}
+
+		public static Organization GetMainOrganization(IUnitOfWork uow, int id)
+		{
+			return uow.GetById<Organization>(id);
 		}
 	}
 }

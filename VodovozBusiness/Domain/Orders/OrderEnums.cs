@@ -45,6 +45,23 @@ namespace Vodovoz.Domain.Orders
 		}
 	}
 
+	public enum OrderPaymentStatus
+	{
+		[Display(Name = "Оплачен")]
+		Paid,
+		[Display(Name = "Частично оплачен")]
+		PartiallyPaid,
+		[Display(Name = "Не оплачен")]
+		UnPaid
+	}
+
+	public class OrderPaymentStatusStringType : NHibernate.Type.EnumStringType
+	{
+		public OrderPaymentStatusStringType() : base(typeof(OrderPaymentStatus))
+		{
+		}
+	}
+
 	public enum OrderSignatureType
 	{
 		[Display (Name = "По печати")]

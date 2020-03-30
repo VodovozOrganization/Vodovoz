@@ -5,6 +5,7 @@ using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
+using Vodovoz.Domain.Payments;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Employees;
@@ -23,6 +24,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		static Gdk.Color colorPink = new Gdk.Color(0xff, 0xc0, 0xc0);
 		static Gdk.Color colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 		static Gdk.Color colorDarkGrey = new Gdk.Color(0x80, 0x80, 0x80);
+		static Color colorLightGreen = new Color(0xc0, 0xff, 0xc0);
 
 		public static void RegisterColumns()
 		{
@@ -472,6 +474,34 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Клиент").AddTextRenderer(x => x.Counterparty)
 					.AddColumn("Номер").AddTextRenderer(x => x.IdString)
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
+			//PaymentJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PaymentsJournalViewModel>(
+				() => FluentColumnsConfig<PaymentJournalNode>.Create()
+					.AddColumn("№").AddTextRenderer(x => x.PaymentNum.ToString())
+					.AddColumn("Дата").AddTextRenderer(x => x.Date.ToShortDateString())
+					.AddColumn("Cумма").AddTextRenderer(x => x.Total.ToString())
+					.AddColumn("Заказы").AddTextRenderer(x => x.Orders)
+					.AddColumn("Плательщик").AddTextRenderer(x => x.Counterparty)
+						.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Получатель").AddTextRenderer(x => x.Organization)
+					.AddColumn("Назначение платежа").AddTextRenderer(x => x.PaymentPurpose)
+						.WrapWidth(600).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Категория дохода/расхода")
+						.AddTextRenderer(x => x.ProfitCategory).XAlign(0.5f)
+						//.SetDisplayFunc(x => x.Name)
+						//.FillItems(UoW.GetAll<CategoryProfit>().ToList())
+						//.Editing()
+					.AddColumn("")
+					.RowCells().AddSetter<CellRenderer>(
+						(c, n) => {
+							var color = colorLightGreen;
+							if(n.Status == PaymentState.undistributed)
+								color = colorPink;
+							c.CellBackgroundGdk = color;
+						})
 					.Finish()
 			);
 		}

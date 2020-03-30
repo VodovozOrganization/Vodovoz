@@ -63,6 +63,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.DocumentType)					.Column("document_type").CustomType<DefaultDocumentTypeStringType> ();
 			Map(x => x.DriverCallType)					.Column("driver_call_type").CustomType<DriverCallTypeStringType>();
 			Map(x => x.OrderSource)						.Column("order_source").CustomType<OrderSourceStringType>();
+			Map(x => x.OrderPaymentStatus)				.Column("order_payment_status").CustomType<OrderPaymentStatusStringType>();
 
 			References(x => x.Client)					.Column("client_id");
 			References(x => x.Contract)					.Column("counterparty_contract_id");
@@ -88,6 +89,11 @@ namespace Vodovoz.HibernateMapping
 			HasManyToMany(x => x.PromotionalSets).Table("promotional_sets_to_orders")
 								.ParentKeyColumn("order_id")
 								.ChildKeyColumn("promotional_set_id")
+								.LazyLoad();
+
+			HasManyToMany(x => x.Payments).Table("payments_to_orders")
+								.ParentKeyColumn("order_id")
+								.ChildKeyColumn("payment_from_bank_client_id")
 								.LazyLoad();
 		}
 	}

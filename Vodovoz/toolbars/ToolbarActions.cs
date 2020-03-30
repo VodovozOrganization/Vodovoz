@@ -42,6 +42,7 @@ using QS.Project.Journal;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.Views;
 
 public partial class MainWindow : Window
 {
@@ -86,6 +87,7 @@ public partial class MainWindow : Window
 	Action ActionReportDebtorsBottles;
 	Action ActionExportImportNomenclatureCatalog;
 	Action ActionTransferBankDocs;
+	Action ActionPaymentFromBank;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
 	Action ActionExportTo1c;
@@ -144,6 +146,7 @@ public partial class MainWindow : Window
 
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
+		ActionPaymentFromBank = new Action("ActionPaymentFromBank", "Загрузка выписки из банк-клиента (новое)", null, "table");
 		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с", null, "table");
 		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
 		ActionImportFromTinkoff = new Action("ActionImportFromTinkoff", "Загрузка выписки из ЛК Тинькофф", null, "table");
@@ -209,6 +212,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionRevisionBottlesAndDeposits, null);
 		w1.Add(ActionReportDebtorsBottles, null);
 		w1.Add(ActionTransferBankDocs, null);
+		w1.Add(ActionPaymentFromBank, null);
 		w1.Add(ActionAccountingTable, null);
 		w1.Add(ActionAccountFlow, null);
 		w1.Add(ActionExportTo1c, null);
@@ -268,6 +272,7 @@ public partial class MainWindow : Window
 		ActionRevisionBottlesAndDeposits.Activated += ActionRevisionBottlesAndDeposits_Activated;
 		ActionReportDebtorsBottles.Activated += ActionReportDebtorsBottles_Activated;
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
+		ActionPaymentFromBank.Activated += ActionPaymentFromBank_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
@@ -450,6 +455,25 @@ public partial class MainWindow : Window
 			() => new LoadBankTransferDocumentDlg()
 		);
 	}
+
+	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
+	{
+		/*tdiMain.OpenTab(
+			"PaymentFromBank",
+			() => new PaymentLoaderVM(ServicesConfig.CommonServices, NavigationManagerProvider.NavigationManager)
+		);*/
+		var filter = new PaymentsJournalFilterViewModel();
+
+		var paymentsJournalViewModel = new PaymentsJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			NavigationManagerProvider.NavigationManager
+		);
+
+		tdiMain.AddTab(paymentsJournalViewModel);
+	}
+
 
 	void ActionCashFlow_Activated(object sender, System.EventArgs e)
 	{

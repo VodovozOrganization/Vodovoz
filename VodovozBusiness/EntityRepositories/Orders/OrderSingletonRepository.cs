@@ -89,6 +89,15 @@ namespace Vodovoz.EntityRepositories.Orders
 				.List();
 		}
 
+		public IList<VodovozOrder> GetCounterpartyOrders(IUnitOfWork UoW, Counterparty counterparty)
+		{
+			VodovozOrder orderAlias = null;
+			return UoW.Session.QueryOver(() => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterparty.Id)
+				//.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.paid)
+				.List();
+		}
+
 		public IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork UoW, Export1cMode mode, DateTime startDate, DateTime endDate)
 		{
 			VodovozOrder orderAlias = null;

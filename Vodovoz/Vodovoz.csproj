@@ -1396,6 +1396,20 @@
     <Compile Include="Views\ErrorReporting\ErrorMessageView.cs" />
     <Compile Include="Dialogs\Employees\DriverWorkScheduleNode.cs" />
     <Compile Include="ErrorHandlers.cs" />
+    <Compile Include="ViewModels\TransferDocument.cs" />
+    <Compile Include="ViewModels\TransferDocumentsFromBankParser.cs" />
+    <Compile Include="Views\PaymentLoaderView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.PaymentLoaderView.cs" />
+    <Compile Include="ViewModels\PaymentLoaderVM.cs" />
+    <Compile Include="ViewModels\AutoPaymentMatching.cs" />
+    <Compile Include="JournalViewModels\PaymentsJournalViewModel.cs" />
+    <Compile Include="JournalNodes\PaymentJournalNode.cs" />
+    <Compile Include="Views\ManualPaymentMatchingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ManualPaymentMatchingView.cs" />
+    <Compile Include="ViewModels\ManualPaymentMatchingVM.cs" />
+    <Compile Include="Filters\ViewModels\PaymentsJournalFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\PaymentsFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PaymentsFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

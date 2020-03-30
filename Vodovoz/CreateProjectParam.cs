@@ -207,6 +207,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PhoneTypeViewModel, PhoneTypeView>()
 				.RegisterWidgetForTabViewModel<EmailTypeViewModel, EmailTypeView>()
 				.RegisterWidgetForTabViewModel<UserSettingsViewModel, UserSettingsView>()
+				.RegisterWidgetForTabViewModel<PaymentLoaderVM, PaymentLoaderView>()
+				.RegisterWidgetForTabViewModel<ManualPaymentMatchingVM, ManualPaymentMatchingView>()
 				;
 
 			//Регистрация виджетов
@@ -232,6 +234,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CarJournalFilterViewModel, CarFilterView>()
 				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryPointJournalFilterViewModel, DeliveryPointJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<PaymentsJournalFilterViewModel, PaymentsFilterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

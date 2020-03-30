@@ -39,6 +39,7 @@ using Vodovoz.Tools.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Tools;
+using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -92,6 +93,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual OrderStatus OrderStatus {
 			get => orderStatus;
 			set => SetField(ref orderStatus, value, () => OrderStatus);
+		}
+
+		OrderPaymentStatus orderPaymentStatus;
+		[Display(Name = "Статус оплаты заказа")]
+		public virtual OrderPaymentStatus OrderPaymentStatus {
+			get => orderPaymentStatus;
+			set => SetField(ref orderPaymentStatus, value);
 		}
 
 		Employee author;
@@ -787,10 +795,29 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		IList<Payment> payments = new List<Payment>();
+
+		[Display(Name = "Список платежей")]
+		public virtual IList<Payment> Payments {
+			get => payments;
+			set => SetField(ref payments, value);
+		}
+
+		GenericObservableList<Payment> observablePayments;
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Payment> ObservablePayments {
+			get {
+				if(observablePayments == null)
+					observablePayments = new GenericObservableList<Payment>(Payments);
+				return observablePayments;
+			}
+		}
+
 		public Order()
 		{
 			Comment = string.Empty;
 			OrderStatus = OrderStatus.NewOrder;
+			OrderPaymentStatus = OrderPaymentStatus.UnPaid;
 			SumDifferenceReason = string.Empty;
 			ClientPhone = string.Empty;
 		}

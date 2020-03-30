@@ -1,0 +1,42 @@
+﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Payments;
+
+namespace Vodovoz.HibernateMapping.Accounting
+{
+	public class PaymentMap : ClassMap<Payment>
+	{
+		public PaymentMap()
+		{
+			Table("payments_from_bank_client");
+
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			Map(x => x.Date).Column("payment_date");
+			Map(x => x.PaymentNum).Column("payment_num");
+			Map(x => x.Total).Column("total_sum");
+			Map(x => x.PaymentPurpose).Column("payment_purpose");
+			Map(x => x.CounterpartyName).Column("counterparty_name");
+			Map(x => x.CounterpartyInn).Column("counterparty_inn");
+			Map(x => x.CounterpartyKpp).Column("counterparty_kpp");
+			Map(x => x.CounterpartyBank).Column("counterparty_bank");
+			Map(x => x.CounterpartyAcc).Column("counterpaty_account");
+			Map(x => x.CounterpartyCurrentAcc).Column("counterparty_cur_account");
+			Map(x => x.CounterpartyCorrespondentAcc).Column("counterparty_correspondent_account");
+			Map(x => x.CounterpartyBik).Column("counterparty_bik");
+			Map(x => x.Status).Column("status").CustomType<PaymentStateStringType>();
+
+			References(x => x.Counterparty).Column("counterparty_id");
+			References(x => x.CounterpartyAccount).Column("counterparty_account_id");
+			References(x => x.Organization).Column("organization_id");
+			References(x => x.OrganizationAccount).Column("organization_account_id");
+			References(x => x.ProfitCategory).Column("profit_category_id");
+			//References(x => x.ExpenseCategory).Column("expense_category_id");
+
+			HasMany(x => x.CashlessIncomeOperations).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("payment_id");
+
+			HasManyToMany(x => x.Orders).Table("payments_to_orders")
+								.ParentKeyColumn("payment_from_bank_client_id")
+								.ChildKeyColumn("order_id")
+								.LazyLoad();
+		}
+	}
+}

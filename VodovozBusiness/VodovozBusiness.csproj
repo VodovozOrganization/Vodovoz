@@ -845,6 +845,17 @@
     <Compile Include="Domain\Logistic\DriverWorkSchedule.cs" />
     <Compile Include="HibernateMapping\Logistic\DriverWorkScheduleMap.cs" />
     <Compile Include="Services\IDefaultDeliveryDaySchedule.cs" />
+    <Compile Include="Domain\Payments\Payment.cs" />
+    <Compile Include="Domain\Payments\CategoryProfit.cs" />
+    <Compile Include="Domain\Payments\CategoryExpense.cs" />
+    <Compile Include="Services\IOrganizationProvider.cs" />
+    <Compile Include="HibernateMapping\Accounting\CategoryProfitMap.cs" />
+    <Compile Include="HibernateMapping\Accounting\PaymentMap.cs" />
+    <Compile Include="Services\IProfitCategoryProvider.cs" />
+    <Compile Include="Domain\Operations\CashlessIncomeOperation.cs" />
+    <Compile Include="HibernateMapping\Operations\CashlessIncomeOperationMap.cs" />
+    <Compile Include="HibernateMapping\Operations\CashlessExpenseOperationMap.cs" />
+    <Compile Include="Domain\Operations\CashlessExpenseOperation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
