@@ -31,7 +31,7 @@ namespace Vodovoz.Views.Warehouse
 
 			yentryrefWagon.SubjectType = typeof(MovementWagon);
 			yentryrefWagon.Binding.AddBinding(ViewModel.Entity, e => e.MovementWagon, w => w.Subject).InitializeFromSource();
-			yentryrefWagon.Binding.AddBinding(ViewModel, vm => vm.CanEditNewDocument, w => w.Sensitive).InitializeFromSource();
+			yentryrefWagon.Binding.AddBinding(ViewModel, vm => vm.CanChangeWagon, w => w.Sensitive).InitializeFromSource();
 			ylabelWagon.Binding.AddBinding(ViewModel, vm => vm.CanVisibleWagon, w => w.Visible).InitializeFromSource();
 			yentryrefWagon.Binding.AddBinding(ViewModel, vm => vm.CanVisibleWagon, w => w.Visible).InitializeFromSource();
 
