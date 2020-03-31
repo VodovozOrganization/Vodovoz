@@ -64,7 +64,7 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(() => paymentAlias.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(() => paymentAlias.Organization, () => organizationAlias)
 				.Left.JoinAlias(() => paymentAlias.ProfitCategory, () => categoryProfitAlias)
-				.Left.JoinAlias(() => paymentAlias.Orders, () => orderAlias);
+				.Left.JoinAlias(() => paymentAlias.PaymentItems, () => orderAlias);
 
 			if(FilterViewModel != null) 
 			{

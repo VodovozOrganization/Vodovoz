@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels
 							return false;
 						else {
 							order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-							payment.Orders.Add(order);
+							payment.AddOrder(order);
 							UoW.Save(order);
 							sb.AppendLine(order.Id.ToString());
 						}

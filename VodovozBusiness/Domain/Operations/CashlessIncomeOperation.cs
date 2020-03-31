@@ -1,6 +1,6 @@
-﻿using Vodovoz.Domain.Client;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using Vodovoz.Domain.Payments;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Operations
 {
@@ -9,25 +9,32 @@ namespace Vodovoz.Domain.Operations
 		Nominative = "передвижение безнала")]
 	public class CashlessIncomeOperation : OperationBase
 	{
-		Counterparty counterparty;
-
-		public virtual Counterparty Counterparty {
-			get => counterparty;
-			set => SetField(ref counterparty, value);
+		PaymentItem paymentItem;
+		[Display(Name = "Строка платежа")]
+		public virtual PaymentItem PaymentItem {
+			get => paymentItem;
+			set => SetField(ref paymentItem, value);
 		}
 
 		Payment payment;
-
+		[Display(Name = "Платеж")]
 		public virtual Payment Payment {
 			get => payment;
 			set => SetField(ref payment, value);
 		}
 
-		decimal sum;
+		decimal income;
+		[Display(Name = "Приход")]
+		public virtual decimal Income {
+			get => income;
+			set => SetField(ref income, value);
+		}
 
-		public virtual decimal Sum {
-			get => sum;
-			set => SetField(ref sum, value);
+		decimal expense;
+		[Display(Name = "Расход")]
+		public virtual decimal Expense {
+			get => expense;
+			set => SetField(ref expense, value);
 		}
 
 		public CashlessIncomeOperation()

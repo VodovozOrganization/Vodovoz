@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Client;
 using QS.Banks.Domain;
 using System.Linq;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Payments
 {
@@ -42,19 +42,19 @@ namespace Vodovoz.Domain.Payments
 			set => SetField(ref total, value);
 		}
 
-		IList<Order> orders = new List<Order>();
-		[Display(Name = "Заказы")]
-		public virtual IList<Order> Orders {
-			get => orders;
-			set => SetField(ref orders, value);
+		IList<PaymentItem> paymentItems = new List<PaymentItem>();
+		[Display(Name = "Строки заказа")]
+		public virtual IList<PaymentItem> PaymentItems {
+			get => paymentItems;
+			set => SetField(ref paymentItems, value);
 		}
 
-		GenericObservableList<Order> observableOrders;
+		GenericObservableList<PaymentItem> observableItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Order> ObservableOrders {
+		public virtual GenericObservableList<PaymentItem> ObservableItems {
 			get {
-				observableOrders = observableOrders ?? new GenericObservableList<Order>(Orders);
-				return observableOrders;
+				observableItems = observableItems ?? new GenericObservableList<PaymentItem>(PaymentItems);
+				return observableItems;
 			}
 		}
 
@@ -120,6 +120,13 @@ namespace Vodovoz.Domain.Payments
 		public virtual CategoryProfit ProfitCategory {
 			get => profitCategory;
 			set => SetField(ref profitCategory, value);
+		}
+
+		string comment;
+		[Display(Name = "Комментарий")]
+		public virtual string Comment {
+			get => comment;
+			set => SetField(ref comment, value);
 		}
 
 		private string counterpartyAcc;
@@ -204,6 +211,24 @@ namespace Vodovoz.Domain.Payments
 			}
 		}
 
+		public virtual void AddOrder(Order order)
+		{
+			var paymentItem = new PaymentItem { Order = order, Payment = this, Sum = order.ActualTotalSum };
+
+			ObservableItems.Add(paymentItem);
+		}
+
+		public virtual void CreateOperation()
+		{
+			var incomeOperation = new CashlessIncomeOperation { Payment = this, Income = Total };
+
+			foreach(PaymentItem item in ObservableItems) {
+
+				var expenseOperation = new CashlessIncomeOperation { PaymentItem = item, Expense = item.Sum };
+				item.CashlessIncomeOperation = expenseOperation;
+			}
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Counterparty == null)
@@ -212,6 +237,8 @@ namespace Vodovoz.Domain.Payments
 			if(CounterpartyAccount == null)
 				yield return new ValidationResult("Расчетный счет не распознан.", new[] { nameof(CounterpartyAccount) });
 		}
+
+
 	}
 
 	public enum PaymentState

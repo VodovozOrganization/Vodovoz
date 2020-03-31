@@ -795,21 +795,20 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		IList<Payment> payments = new List<Payment>();
-
-		[Display(Name = "Список платежей")]
-		public virtual IList<Payment> Payments {
-			get => payments;
-			set => SetField(ref payments, value);
+		IList<PaymentItem> paymentItems = new List<PaymentItem>();
+		[Display(Name = "Список строк платежа")]
+		public virtual IList<PaymentItem> PaymentItems {
+			get => paymentItems;
+			set => SetField(ref paymentItems, value);
 		}
 
-		GenericObservableList<Payment> observablePayments;
+		GenericObservableList<PaymentItem> observablePaymentItems;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Payment> ObservablePayments {
+		public virtual GenericObservableList<PaymentItem> ObservablePaymentItems {
 			get {
-				if(observablePayments == null)
-					observablePayments = new GenericObservableList<Payment>(Payments);
-				return observablePayments;
+				if(observablePaymentItems == null)
+					observablePaymentItems = new GenericObservableList<PaymentItem>(PaymentItems);
+				return observablePaymentItems;
 			}
 		}
 

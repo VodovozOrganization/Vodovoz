@@ -106,8 +106,9 @@ namespace Vodovoz.ViewModels
 															   	payment.PayerInn,
 															   	payment.PayerCurrentAccount)) {
 
-					UpdateProgress?.Invoke(string.Empty, progress);
+					count++;
 					countDuplicates++;
+					UpdateProgress?.Invoke($"Обработан платеж {count} из {payments.Count}", progress);
 					continue;
 				}
 
@@ -131,7 +132,7 @@ namespace Vodovoz.ViewModels
 				UoW.Save(curPayment);
 
 				if(curPayment.Status == PaymentState.distributed)
-					CreateOperations(curPayment);
+					//CreateOperations(curPayment);
 
 				logger.Debug($"Добавлен платеж {curPayment.PaymentNum}");
 				UpdateProgress?.Invoke($"Обработан платеж {count} из {payments.Count}", progress);
@@ -158,8 +159,7 @@ namespace Vodovoz.ViewModels
 			var operationIncome = new CashlessIncomeOperation {
 				Payment = payment,
 				OperationTime = DateTime.Now,
-				Sum = payment.Total,
-				Counterparty = payment.Counterparty
+				Income = payment.Total
 			};
 
 			UoW.Save(operationIncome);
@@ -167,13 +167,13 @@ namespace Vodovoz.ViewModels
 
 		private void CreateExpenseOperation(Payment payment)
 		{
-			foreach(var order in payment.Orders) 
+			foreach(var item in payment.PaymentItems) 
 			{
 				var operationExpense = new CashlessExpenseOperation {
-					Order = order,
+					Order = item.Order,
 					Payment = payment,
 					OperationTime = DateTime.Now,
-					Sum = order.ActualTotalSum,
+					Sum = item.Sum,
 					Counterparty = payment.Counterparty
 				};
 

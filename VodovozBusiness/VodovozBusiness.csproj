@@ -856,6 +856,8 @@
     <Compile Include="HibernateMapping\Operations\CashlessIncomeOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\CashlessExpenseOperationMap.cs" />
     <Compile Include="Domain\Operations\CashlessExpenseOperation.cs" />
+    <Compile Include="Domain\Payments\PaymentItem.cs" />
+    <Compile Include="HibernateMapping\Payments\PaymentItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

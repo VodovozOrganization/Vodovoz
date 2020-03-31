@@ -216,8 +216,7 @@ namespace Vodovoz.ViewModels
 			var operationIncome = new CashlessIncomeOperation {
 				Payment = Entity,
 				OperationTime = DateTime.Now,
-				Sum = Entity.Total,
-				Counterparty = Entity.Counterparty
+				Income = Entity.Total
 			};
 
 			UoW.Save(operationIncome);
@@ -225,7 +224,7 @@ namespace Vodovoz.ViewModels
 
 		private void CreateExpenseOperation(IEnumerable<ManualPaymentMatchingVMNode> nodes)
 		{
-			foreach(var node in nodes) {
+			/*foreach(var node in nodes) {
 				var order = UoW.GetById<VodOrder>(node.Id);
 
 				var operationExpense = new CashlessExpenseOperation {
@@ -236,11 +235,11 @@ namespace Vodovoz.ViewModels
 					Counterparty = Entity.Counterparty
 				};
 
-				if(!Entity.Orders.Contains(order))
-					Entity.Orders.Add(order);
+				if(!Entity.PaymentItems.Contains(order))
+					Entity.PaymentItems.Add(order);
 
-				UoW.Save(operationExpense);
-			}
+				UoW.Save(operationExpense);			}*/
+
 		}
 
 		public void ClearProperties()

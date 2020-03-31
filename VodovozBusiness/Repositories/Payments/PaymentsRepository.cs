@@ -47,7 +47,7 @@ namespace Vodovoz.Repositories.Payments
 
 			var income = uow.Session.QueryOver(() => incomeOperationAlias)
 									.Where(() => incomeOperationAlias.Counterparty.Id == counterpartyId)
-									.Select(Projections.Sum(() => incomeOperationAlias.Sum))
+									.Select(Projections.Sum(() => incomeOperationAlias.Income))
 									.SingleOrDefault<decimal>();
 
 			var expense = uow.Session.QueryOver(() => expenseOperationAlias)

@@ -6,7 +6,7 @@ namespace Vodovoz.HibernateMapping.Operations
 	{
 		public CashlessExpenseOperationMap()
 		{
-			Table("cashless_expense_operations");
+			/*Table("cashless_expense_operations");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			Map(x => x.OperationTime).Column("operation_time");
@@ -14,7 +14,7 @@ namespace Vodovoz.HibernateMapping.Operations
 
 			References(x => x.Order).Column("order_id");
 			References(x => x.Counterparty).Column("counterparty_id");
-			References(x => x.Payment).Column("payment_id");
+			References(x => x.Payment).Column("payment_id");*/
 		}
 	}
 }
