@@ -852,10 +852,8 @@
     <Compile Include="HibernateMapping\Accounting\CategoryProfitMap.cs" />
     <Compile Include="HibernateMapping\Accounting\PaymentMap.cs" />
     <Compile Include="Services\IProfitCategoryProvider.cs" />
-    <Compile Include="Domain\Operations\CashlessIncomeOperation.cs" />
-    <Compile Include="HibernateMapping\Operations\CashlessIncomeOperationMap.cs" />
-    <Compile Include="HibernateMapping\Operations\CashlessExpenseOperationMap.cs" />
-    <Compile Include="Domain\Operations\CashlessExpenseOperation.cs" />
+    <Compile Include="Domain\Operations\CashlessMovementOperation.cs" />
+    <Compile Include="HibernateMapping\Operations\CashlessMovementOperationMap.cs" />
     <Compile Include="Domain\Payments\PaymentItem.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentItemMap.cs" />
   </ItemGroup>

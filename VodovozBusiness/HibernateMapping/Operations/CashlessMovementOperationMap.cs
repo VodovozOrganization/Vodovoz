@@ -2,9 +2,9 @@
 using Vodovoz.Domain.Operations;
 namespace Vodovoz.HibernateMapping.Operations
 {
-	public class CashlessIncomeOperationMap : ClassMap<CashlessIncomeOperation>
+	public class CashlessMovementOperationMap : ClassMap<CashlessMovementOperation>
 	{
-		public CashlessIncomeOperationMap()
+		public CashlessMovementOperationMap()
 		{
 			Table("cashless_movement_operations");
 

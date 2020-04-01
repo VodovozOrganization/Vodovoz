@@ -205,41 +205,19 @@ namespace Vodovoz.ViewModels
 
 		private void CreateOperations()
 		{
-			CreateIncomeOperation();
-
 			var list = listNodes.Where(x => x.CurrentPayment > 0);
-			CreateExpenseOperation(list);
+			AllocateOrders(list);
+
+			Entity.CreateOperation();
 		}
 
-		private void CreateIncomeOperation()
+		private void AllocateOrders(IEnumerable<ManualPaymentMatchingVMNode> nodes)
 		{
-			var operationIncome = new CashlessIncomeOperation {
-				Payment = Entity,
-				OperationTime = DateTime.Now,
-				Income = Entity.Total
-			};
+			foreach(var node in nodes) {
 
-			UoW.Save(operationIncome);
-		}
-
-		private void CreateExpenseOperation(IEnumerable<ManualPaymentMatchingVMNode> nodes)
-		{
-			/*foreach(var node in nodes) {
 				var order = UoW.GetById<VodOrder>(node.Id);
-
-				var operationExpense = new CashlessExpenseOperation {
-					Order = order,
-					Payment = Entity,
-					OperationTime = DateTime.Now,
-					Sum = node.CurrentPayment,
-					Counterparty = Entity.Counterparty
-				};
-
-				if(!Entity.PaymentItems.Contains(order))
-					Entity.PaymentItems.Add(order);
-
-				UoW.Save(operationExpense);			}*/
-
+				Entity.ObservableItems.Add(new PaymentItem { Order = order, Payment = Entity, Sum = node.CurrentPayment});
+			}
 		}
 
 		public void ClearProperties()
@@ -253,13 +231,11 @@ namespace Vodovoz.ViewModels
 			ManualPaymentMatchingVMNode resultAlias = null;
 			VodOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
-			Payment paymentAlias = null;
-			Counterparty counterpartyAlias = null;
-			CashlessExpenseOperation expenseOperationAlias = null;
+			PaymentItem paymentItemAlias = null;
+			CashlessMovementOperation cashlessOperationAlias = null;
 
 			var incomePaymentQuery = UoW.Session.QueryOver(() => orderAlias)
 					.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-					.Left.JoinAlias(() => orderAlias.Payments, () => paymentAlias)
 					.Where(x => x.Client.Id == Entity.Counterparty.Id)
 					.Where(x => x.PaymentType == PaymentType.cashless);
 
@@ -272,11 +248,10 @@ namespace Vodovoz.ViewModels
 			if(OrderPaymentStatusVM != null)
 				incomePaymentQuery.Where(x => x.OrderPaymentStatus == OrderPaymentStatusVM);
 
-			var lastPayment = QueryOver.Of(() => expenseOperationAlias)
-					.Left.JoinAlias(() => expenseOperationAlias.Counterparty, () => counterpartyAlias)
-					.Where(() => counterpartyAlias.Id == Entity.Counterparty.Id)
-					.And(() => expenseOperationAlias.Order.Id == orderAlias.Id)
-					.Select(Projections.Sum(() => expenseOperationAlias.Sum));
+			var lastPayment = QueryOver.Of(() => cashlessOperationAlias)
+					.Left.JoinAlias(() => cashlessOperationAlias.PaymentItem, () => paymentItemAlias)
+					.Where(() => paymentItemAlias.Order.Id == orderAlias.Id)
+					.Select(Projections.Sum(() => cashlessOperationAlias.Expense));
 
 			var totalSum = QueryOver.Of(() => orderItemAlias)
 					.Where(x => x.Order.Id == orderAlias.Id)

@@ -58,19 +58,19 @@ namespace Vodovoz.Domain.Payments
 			}
 		}
 
-		IList<CashlessIncomeOperation> cashlessIncomeOperations = new List<CashlessIncomeOperation>();
+		IList<CashlessMovementOperation> cashlessMovementOperations = new List<CashlessMovementOperation>();
 		[Display(Name = "Операция передвижения безнала")]
-		public virtual IList<CashlessIncomeOperation> CashlessIncomeOperations {
-			get => cashlessIncomeOperations;
-			set => SetField(ref cashlessIncomeOperations, value);
+		public virtual IList<CashlessMovementOperation> CashlessMovementOperations {
+			get => cashlessMovementOperations;
+			set => SetField(ref cashlessMovementOperations, value);
 		}
 
-		GenericObservableList<CashlessIncomeOperation> observableCashlessOperations;
+		GenericObservableList<CashlessMovementOperation> observableCashlessOperations;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<CashlessIncomeOperation> ObservableCashlessOperations {
+		public virtual GenericObservableList<CashlessMovementOperation> ObservableCashlessOperations {
 			get {
 				observableCashlessOperations = observableCashlessOperations ?? 
-					new GenericObservableList<CashlessIncomeOperation>(CashlessIncomeOperations);
+					new GenericObservableList<CashlessMovementOperation>(CashlessMovementOperations);
 
 				return observableCashlessOperations;
 			}
@@ -220,12 +220,15 @@ namespace Vodovoz.Domain.Payments
 
 		public virtual void CreateOperation()
 		{
-			var incomeOperation = new CashlessIncomeOperation { Payment = this, Income = Total };
+			var incomeOperation = new CashlessMovementOperation { Payment = this, Income = Total, OperationTime = DateTime.Now };
+
+			ObservableCashlessOperations.Add(incomeOperation);
 
 			foreach(PaymentItem item in ObservableItems) {
 
-				var expenseOperation = new CashlessIncomeOperation { PaymentItem = item, Expense = item.Sum };
-				item.CashlessIncomeOperation = expenseOperation;
+				var expenseOperation = new CashlessMovementOperation { PaymentItem = item, Expense = item.Sum, OperationTime = DateTime.Now };
+				item.CashlessMovementOperation = expenseOperation;
+				ObservableCashlessOperations.Add(expenseOperation);
 			}
 		}
 

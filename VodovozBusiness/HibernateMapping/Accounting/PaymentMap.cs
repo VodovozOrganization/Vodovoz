@@ -31,7 +31,7 @@ namespace Vodovoz.HibernateMapping.Accounting
 			References(x => x.OrganizationAccount).Column("organization_account_id");
 			References(x => x.ProfitCategory).Column("profit_category_id");
 
-			HasMany(x => x.CashlessIncomeOperations).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("payment_id");
+			HasMany(x => x.CashlessMovementOperations).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("payment_id");
 			HasMany(x => x.PaymentItems).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("payment_id");
 		}
 	}

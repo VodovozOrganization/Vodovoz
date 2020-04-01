@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Operations
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "передвижения безнала",
 		Nominative = "передвижение безнала")]
-	public class CashlessIncomeOperation : OperationBase
+	public class CashlessMovementOperation : OperationBase
 	{
 		PaymentItem paymentItem;
 		[Display(Name = "Строка платежа")]
@@ -37,7 +37,7 @@ namespace Vodovoz.Domain.Operations
 			set => SetField(ref expense, value);
 		}
 
-		public CashlessIncomeOperation()
+		public CashlessMovementOperation()
 		{
 		}
 	}

@@ -129,10 +129,11 @@ namespace Vodovoz.ViewModels
 				curPayment.ProfitCategory = defaultProfitCategory;
 
 				list.Add(curPayment);
-				UoW.Save(curPayment);
 
 				if(curPayment.Status == PaymentState.distributed)
-					//CreateOperations(curPayment);
+					curPayment.CreateOperation();
+
+				UoW.Save(curPayment);
 
 				logger.Debug($"Добавлен платеж {curPayment.PaymentNum}");
 				UpdateProgress?.Invoke($"Обработан платеж {count} из {payments.Count}", progress);
@@ -146,39 +147,6 @@ namespace Vodovoz.ViewModels
 																	.ToList());
 			
 			IsNotAutoMatchingMode = true;
-		}
-
-		private void CreateOperations(Payment payment)
-		{
-			CreateIncomeOperation(payment);
-			CreateExpenseOperation(payment);
-		}
-
-		private void CreateIncomeOperation(Payment payment)
-		{
-			var operationIncome = new CashlessIncomeOperation {
-				Payment = payment,
-				OperationTime = DateTime.Now,
-				Income = payment.Total
-			};
-
-			UoW.Save(operationIncome);
-		}
-
-		private void CreateExpenseOperation(Payment payment)
-		{
-			foreach(var item in payment.PaymentItems) 
-			{
-				var operationExpense = new CashlessExpenseOperation {
-					Order = item.Order,
-					Payment = payment,
-					OperationTime = DateTime.Now,
-					Sum = item.Sum,
-					Counterparty = payment.Counterparty
-				};
-
-				UoW.Save(operationExpense);
-			}
 		}
 	}
 }

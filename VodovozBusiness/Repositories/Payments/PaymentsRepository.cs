@@ -4,7 +4,6 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Operations;
 using NHibernate.Criterion;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Repositories.Payments
 {
@@ -42,17 +41,23 @@ namespace Vodovoz.Repositories.Payments
 
 		public static decimal GetCounterpartyLastBalance(IUnitOfWork uow, int counterpartyId)
 		{
-			CashlessIncomeOperation incomeOperationAlias = null;
-			CashlessExpenseOperation expenseOperationAlias = null;
+			CashlessMovementOperation cashlessOperationAlias = null;
+			Payment paymentAlias = null;
 
-			var income = uow.Session.QueryOver(() => incomeOperationAlias)
-									.Where(() => incomeOperationAlias.Counterparty.Id == counterpartyId)
-									.Select(Projections.Sum(() => incomeOperationAlias.Income))
+			var income = uow.Session.QueryOver(() => paymentAlias)
+									.Left.JoinAlias(() => paymentAlias.CashlessMovementOperations, () => cashlessOperationAlias)
+									.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
+									.Select(Projections.Sum(() => cashlessOperationAlias.Income))
 									.SingleOrDefault<decimal>();
 
-			var expense = uow.Session.QueryOver(() => expenseOperationAlias)
-									.Where(() => expenseOperationAlias.Counterparty.Id == counterpartyId)
-									.Select(Projections.Sum(() => expenseOperationAlias.Sum))
+			var expense = uow.Session.QueryOver(() => cashlessOperationAlias)
+									.WithSubquery
+									.WhereProperty(o => o.PaymentItem.Id)
+									.In(QueryOver.Of<PaymentItem>()
+									.Left.JoinAlias(p => p.Payment, () => paymentAlias)
+									.Where(() => paymentAlias.Counterparty.Id == counterpartyId)
+									.Select(p => p.Id))
+									.Select(Projections.Sum(() => cashlessOperationAlias.Expense))
 									.SingleOrDefault<decimal>();
 
 			return income - expense;

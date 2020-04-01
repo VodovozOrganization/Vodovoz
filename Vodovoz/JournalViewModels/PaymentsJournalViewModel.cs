@@ -57,14 +57,14 @@ namespace Vodovoz.JournalViewModels
 			Payment paymentAlias = null;
 			Counterparty counterpartyAlias = null;
 			BaseOrg organizationAlias = null;
-			VodOrder orderAlias = null;
+			PaymentItem paymentItemAlias = null;
 			CategoryProfit categoryProfitAlias = null;
 
 			var paymentQuery = uow.Session.QueryOver(() => paymentAlias)
 				.Left.JoinAlias(() => paymentAlias.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(() => paymentAlias.Organization, () => organizationAlias)
 				.Left.JoinAlias(() => paymentAlias.ProfitCategory, () => categoryProfitAlias)
-				.Left.JoinAlias(() => paymentAlias.PaymentItems, () => orderAlias);
+				.Left.JoinAlias(() => paymentAlias.PaymentItems, () => paymentItemAlias);
 
 			if(FilterViewModel != null) 
 			{
@@ -91,7 +91,7 @@ namespace Vodovoz.JournalViewModels
 			var numOrders = Projections.SqlFunction(
 							new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
 							NHibernateUtil.String,
-							Projections.Property(() => orderAlias.Id),
+							Projections.Property(() => paymentItemAlias.Order.Id),
 							Projections.Constant("\n"));
 
 			var resultQuery = paymentQuery

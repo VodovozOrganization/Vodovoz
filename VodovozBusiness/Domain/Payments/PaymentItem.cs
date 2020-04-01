@@ -24,11 +24,11 @@ namespace Vodovoz.Domain.Payments
 			set => SetField(ref payment, value);
 		}
 
-		CashlessIncomeOperation cashlessIncomeOperation;
+		CashlessMovementOperation cashlessMovementOperation;
 
-		public virtual CashlessIncomeOperation CashlessIncomeOperation {
-			get => cashlessIncomeOperation;
-			set => SetField(ref cashlessIncomeOperation, value);
+		public virtual CashlessMovementOperation CashlessMovementOperation {
+			get => cashlessMovementOperation;
+			set => SetField(ref cashlessMovementOperation, value);
 		}
 
 		decimal sum;
