@@ -284,7 +284,7 @@ namespace Vodovoz
 		public bool CanClose()
 		{
 			if(!canClose)
-				MessageDialogHelper.RunInfoDialog("Дождитесь завершения работы задачи");
+				MessageDialogHelper.RunInfoDialog("Дождитесь завершения работы задачи и повторите");
 			return canClose;
 		}
 
@@ -401,8 +401,6 @@ namespace Vodovoz
 					UpdateButtonStatus();
 					return;
 				}
-			} catch {
-				throw;
 			} finally {
 				SetSensetivity(true);
 			}
