@@ -28,7 +28,7 @@ namespace Vodovoz
 			PermissionsSettings.ConfigureEntityPermissionFinder(new Vodovoz.Domain.Permissions.EntitiesWithPermissionFinder());
 
 			//пространство имен специально прописано чтобы при изменениях не было случайного совпадения с валидатором из QS
-			var entityPermissionValidator = new Vodovoz.Domain.Permissions.EntityPermissionValidator();
+			var entityPermissionValidator = new Vodovoz.Domain.Permissions.EntityPermissionValidator(EmployeeSingletonRepository.GetInstance(), new PermissionRepository());
 			var presetPermissionValidator = new Vodovoz.Domain.Permissions.HierarchicalPresetPermissionValidator(EmployeeSingletonRepository.GetInstance(), new PermissionRepository());
 			var permissionService = new PermissionService(entityPermissionValidator, presetPermissionValidator);
 			PermissionsSettings.PermissionService = permissionService;
