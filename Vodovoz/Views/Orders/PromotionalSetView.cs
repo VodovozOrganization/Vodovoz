@@ -31,6 +31,9 @@ namespace Vodovoz.Views.Orders
 			ycheckbCanEditNomCount.Binding.AddBinding(ViewModel.Entity, e => e.CanEditNomenclatureCount, w => w.Active).InitializeFromSource();
 			ycheckbCanEditNomCount.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
 
+			ycheckCanBeAddedWithOtherPromoSets.Binding.AddBinding(ViewModel.Entity, e => e.CanBeAddedWithOtherPromoSets, w => w.Active).InitializeFromSource();
+			ycheckCanBeAddedWithOtherPromoSets.Binding.AddBinding(ViewModel, vm => vm.CanUpdate, w => w.Sensitive).InitializeFromSource();
+
 			widgetcontainerview.Binding.AddBinding(ViewModel, vm => vm.SelectedActionViewModel, w => w.WidgetViewModel);
 
 			ybtnAddNomenclature.Clicked += (sender, e) => { ViewModel.AddNomenclatureCommand.Execute(); };
