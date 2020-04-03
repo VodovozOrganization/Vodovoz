@@ -1480,11 +1480,14 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
-                      <Value>="Погрузка на складе с " + Format({on_load_start}, "hh\:mm") + " по " + Format({on_load_end}, "hh\\:mm")
-
+                      <Value>=
+Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "", 
+"Погрузка на складе с " + Format({on_load_start}, "hh\:mm") + " по " + Format({on_load_end}, "hh\\:mm")
++ ". "
+)
 +
 
-". Планируемое растояние: " + Format({plan_distance}, "N2") + " км."</Value>
+"Планируемое растояние: " + Format({plan_distance}, "N2") + " км."</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
