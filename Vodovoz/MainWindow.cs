@@ -1565,7 +1565,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void OnAction65Activated(object sender, EventArgs e)
+	protected void OnAction66Activated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PotentialFreePromosetsReport>(),
