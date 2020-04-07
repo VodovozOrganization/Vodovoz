@@ -1,5 +1,4 @@
 ﻿using QS.DomainModel.Entity;
-using Vodovoz.Domain.Payments;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Operations
@@ -9,20 +8,6 @@ namespace Vodovoz.Domain.Operations
 		Nominative = "передвижение безнала")]
 	public class CashlessMovementOperation : OperationBase
 	{
-		PaymentItem paymentItem;
-		[Display(Name = "Строка платежа")]
-		public virtual PaymentItem PaymentItem {
-			get => paymentItem;
-			set => SetField(ref paymentItem, value);
-		}
-
-		Payment payment;
-		[Display(Name = "Платеж")]
-		public virtual Payment Payment {
-			get => payment;
-			set => SetField(ref payment, value);
-		}
-
 		decimal income;
 		[Display(Name = "Приход")]
 		public virtual decimal Income {

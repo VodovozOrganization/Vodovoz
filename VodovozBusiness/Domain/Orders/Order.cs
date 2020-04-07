@@ -795,23 +795,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		IList<PaymentItem> paymentItems = new List<PaymentItem>();
-		[Display(Name = "Список строк платежа")]
-		public virtual IList<PaymentItem> PaymentItems {
-			get => paymentItems;
-			set => SetField(ref paymentItems, value);
-		}
-
-		GenericObservableList<PaymentItem> observablePaymentItems;
-		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<PaymentItem> ObservablePaymentItems {
-			get {
-				if(observablePaymentItems == null)
-					observablePaymentItems = new GenericObservableList<PaymentItem>(PaymentItems);
-				return observablePaymentItems;
-			}
-		}
-
 		public Order()
 		{
 			Comment = string.Empty;

@@ -1,17 +1,17 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels;
-using Vodovoz.JournalNodes;
 using Gtk;
 using Vodovoz.Domain.Orders;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Client;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
-using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Infrastructure.Converters;
+using QS.Project.Search.GtkUI;
+using QS.Project.Search;
 
 namespace Vodovoz.Views
 {
@@ -34,16 +34,17 @@ namespace Vodovoz.Views
 			btnSave.Clicked += OnBtnSave_Clicked;
 			btnCancel.Clicked += OnBtnCancel_Clicked;
 			buttonComplete.Clicked += (sender, e) => ViewModel.CompleteAllocation.Execute();
+			button1.Clicked += (sender, e) => ViewModel.AddCounterpatyCommand.Execute(ViewModel.Entity);
 
 			daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
 			daterangepicker1.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
-			daterangepicker1.PeriodChangedByUser += (sender, e) => UpdateNodes();
+			daterangepicker1.PeriodChangedByUser += (sender, e) => UpdateNodes(this, EventArgs.Empty);
 			yenumcomboOrderStatus.ItemsEnum = typeof(OrderStatus);
 			yenumcomboOrderStatus.Binding.AddBinding(ViewModel, vm => vm.OrderStatusVM, w => w.SelectedItemOrNull).InitializeFromSource();
-			yenumcomboOrderStatus.ChangedByUser += (sender, e) => UpdateNodes();
+			yenumcomboOrderStatus.ChangedByUser += (sender, e) => UpdateNodes(this, EventArgs.Empty);
 			yenumcomboOrderPaymentStatus.ItemsEnum = typeof(OrderPaymentStatus);
 			yenumcomboOrderPaymentStatus.Binding.AddBinding(ViewModel, vm => vm.OrderPaymentStatusVM, w => w.SelectedItemOrNull).InitializeFromSource();
-			yenumcomboOrderPaymentStatus.ChangedByUser += (sender, e) => UpdateNodes();
+			yenumcomboOrderPaymentStatus.ChangedByUser += (sender, e) => UpdateNodes(this, EventArgs.Empty);
 
 			labelTotalSum.Text = ViewModel.Entity.Total.ToString();
 			labelLastBalance.Text = ViewModel.LastBalance.ToString();
@@ -59,14 +60,23 @@ namespace Vodovoz.Views
 			var text = ViewModel.Entity.PaymentPurpose + ViewModel.Entity.PaymentPurpose + ViewModel.Entity.PaymentPurpose;
 			//ytextviewPaymentPurpose.Binding.AddBinding(ViewModel.Entity, vm => vm.PaymentPurpose, v => v.Buffer.Text).InitializeFromSource();
 			ytextviewPaymentPurpose.Buffer.Text = ViewModel.Entity.PaymentPurpose;
+			ytextviewComments.Binding.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text).InitializeFromSource();
 
 			entryCounterparty.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
-			//entryCounterparty.Binding.AddBinding(ViewModel, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
-			entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
-			entryCounterparty.Sensitive = ViewModel.Entity.Counterparty == null;
-			entryCounterparty.CanEditReference = ViewModel.Entity.Counterparty != null;
 
+			entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
+
+			//entryCounterparty.Sensitive = ViewModel.Entity.Counterparty == null;
+			//entryCounterparty.CanEditReference = ViewModel.Entity.Counterparty != null;
+
+			//searchentity1.TextChanged += Searchentity1_TextChanged;
+
+			var searchView = new SearchView((SearchViewModel)ViewModel.Search);
+			hboxSearch.Add(searchView);
+			searchView.Show();
+
+			ViewModel.Search.OnSearch += UpdateNodes;
 
 			ytreeviewOrdersAllocate.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingVMNode>.Create()
 				.AddColumn("№ заказа").AddTextRenderer(node => node.Id.ToString()).XAlign(0.5f)
@@ -82,8 +92,7 @@ namespace Vodovoz.Views
 
 			ytreeviewOrdersAllocate.ButtonReleaseEvent += YtreeviewOrdersAllocate_ButtonReleaseEvent;
 
-			UpdateNodes();
-
+			UpdateNodes(this, EventArgs.Empty);
 		}
 
 		void TreeViewCurentPaymentEdited(object o, EditedArgs args) 
@@ -149,7 +158,7 @@ namespace Vodovoz.Views
 
 		void OnBtnSave_Clicked(object sender, System.EventArgs e)
 		{
-
+			ViewModel.SaveViewModel();
 		}
 
 		void OnBtnCancel_Clicked(object sender, System.EventArgs e)
@@ -157,12 +166,11 @@ namespace Vodovoz.Views
 			ViewModel.Close(false);
 		}
 
-		void UpdateNodes()
+		void UpdateNodes(object sender, EventArgs e)
 		{
 			ViewModel.ClearProperties();
 
-			if(ViewModel.Entity.Counterparty != null)
-				ytreeviewOrdersAllocate.ItemsDataSource = ViewModel.UpdateNodes();
+			ytreeviewOrdersAllocate.ItemsDataSource = ViewModel.UpdateNodes();
 		}
 	}
 }

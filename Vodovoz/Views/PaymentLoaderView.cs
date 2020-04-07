@@ -40,12 +40,13 @@ namespace Vodovoz.Views
 
 			btnUpload.Clicked += (sender, e) => ViewModel.SaveCommand.Execute(ViewModel.ObservablePayments);
 			btnUpload.Binding.AddBinding(ViewModel, v => v.IsNotAutoMatchingMode, w => w.Sensitive).InitializeFromSource();
-			btnCancel.Clicked += BtnCancel_Clicked;
+			btnCancel.Clicked += (sender, e) => ViewModel.CloseViewModelCommand.Execute();
+			btnCancel.Binding.AddBinding(ViewModel, v => v.IsNotAutoMatchingMode, w => w.Sensitive).InitializeFromSource();
 
 			ViewModel.UpdateProgress += UpdateProgress;
 
-			btnReadFile.Clicked += (sender, e) => { ViewModel.Init(fileChooserBtn.Filename);};
-			btnReadFile.Sensitive = !string.IsNullOrWhiteSpace(fileChooserBtn.Filename);
+			btnReadFile.Clicked += (sender, e) => ViewModel.ParseCommand.Execute(fileChooserBtn.Filename);
+			btnReadFile.Binding.AddBinding(ViewModel, vm => vm.IsNotAutoMatchingMode, v => v.Sensitive).InitializeFromSource();
 
 			treeDocuments.ColumnsConfig = FluentColumnsConfig<Payment>.Create()
 				.AddColumn("№").AddTextRenderer(x => x.PaymentNum.ToString())
@@ -62,7 +63,7 @@ namespace Vodovoz.Views
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(UoW.GetAll<CategoryProfit>().ToList())
 					.Editing()
-				//.AddColumn("")
+				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>(
 					(c, n) => {
 						var color = colorLightGreen;
@@ -72,12 +73,6 @@ namespace Vodovoz.Views
 				.Finish();
 
 			treeDocuments.Binding.AddBinding(ViewModel, vm => vm.ObservablePayments, w => w.ItemsDataSource).InitializeFromSource();
-			ViewModel.ObservablePayments.ListChanged += (aList) => treeDocuments.YTreeModel.EmitModelChanged();
-		}
-
-		protected void OnFilechooserSelectionChanged(object sender, EventArgs e)
-		{
-			btnReadFile.Sensitive = !string.IsNullOrWhiteSpace(fileChooserBtn.Filename);
 		}
 
 		private void UpdateProgress(string msg, double progress)
@@ -88,11 +83,6 @@ namespace Vodovoz.Views
 			progressbar1.Fraction += progress;
 			progressbar1.Text = msg;
 			QSMain.WaitRedraw();
-		}
-
-		void BtnCancel_Clicked(object sender, EventArgs e)
-		{
-			ViewModel.Close(false);
 		}
 	}
 }

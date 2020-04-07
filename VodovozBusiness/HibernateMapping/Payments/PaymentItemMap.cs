@@ -14,6 +14,7 @@ namespace Vodovoz.HibernateMapping.Payments
 
 			References(x => x.Order).Column("order_id");
 			References(x => x.Payment).Column("payment_id");
+			References(x => x.CashlessMovementOperation).Column("cashless_movement_operation_id");
 		}
 	}
 }

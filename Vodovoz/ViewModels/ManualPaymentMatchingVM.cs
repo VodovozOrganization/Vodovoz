@@ -1,11 +1,9 @@
 ﻿using System;
-using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Payments;
-using Vodovoz.JournalNodes;
 using Vodovoz.Domain.Client;
 using NHibernate.Transform;
 using QS.Project.Journal;
@@ -16,10 +14,16 @@ using Vodovoz.Domain.Orders;
 using NHibernate.Dialect.Function;
 using NHibernate;
 using QS.Commands;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Repositories.Payments;
 using System.Linq;
 using QS.Validation;
+using QS.Banks.Domain;
+using QSBanks.Repositories;
+using QSProjectsLib;
+using System.Text.RegularExpressions;
+using QS.Project.Search;
+using QS.Project.Journal.Search;
+using System.Linq.Expressions;
 
 namespace Vodovoz.ViewModels
 {
@@ -65,9 +69,12 @@ namespace Vodovoz.ViewModels
 
 		public decimal LastBalance { get; set; }
 
-		private IList<ManualPaymentMatchingVMNode> listNodes { get; set; }
+		public IJournalSearch Search { get; set; }
+
+		private IList<ManualPaymentMatchingVMNode> listNodes { get; set; } = new List<ManualPaymentMatchingVMNode>();
 
 		readonly ICommonServices commonServices;
+		readonly SearchHelper searchHelper;
 
 		public ManualPaymentMatchingVM(
 			IEntityUoWBuilder uowBuilder,
@@ -79,6 +86,10 @@ namespace Vodovoz.ViewModels
 			if(uowBuilder.IsNewEntity) {
 				AbortOpening("Невозможно создать новую загрузку выписки из текущего диалога, необходимо использовать диалоги создания");
 			}
+
+			//Поиск
+			Search = new SearchViewModel();
+			searchHelper = new SearchHelper(Search);
 
 			GetLastBalance();
 
@@ -102,8 +113,7 @@ namespace Vodovoz.ViewModels
 			if(CurrentBalance <= 0)
 				return;
 
-			var order = UoW.GetById<VodOrder>(node.Id);
-			var tempSum = AllocatedSum + node.ActualOrderSum - node.LastPayments;
+			var tempSum = AllocatedSum + node.ActualOrderSum - node.LastPayments - node.CurrentPayment;
 
 			if(tempSum <= SumToAllocate) {
 				AllocatedSum += node.ActualOrderSum - node.LastPayments - node.CurrentPayment;
@@ -122,7 +132,6 @@ namespace Vodovoz.ViewModels
 			if(node.CurrentPayment == 0)
 				return;
 
-			var order = UoW.GetById<VodOrder>(node.Id);
 			AllocatedSum -= node.CurrentPayment;
 
 			node.OldCurrentPayment = 0;
@@ -138,7 +147,17 @@ namespace Vodovoz.ViewModels
 				return;
 			}
 
-			var order = UoW.GetById<VodOrder>(node.Id);
+			var difference = node.ActualOrderSum - node.LastPayments;
+
+			if(difference == 0) {
+				node.CurrentPayment = difference;
+				return;
+			}
+
+			if(node.CurrentPayment > difference) {
+				node.CurrentPayment = difference;
+			}
+
 			AllocatedSum += node.CurrentPayment - node.OldCurrentPayment;
 
 			node.OldCurrentPayment = node.CurrentPayment;
@@ -148,6 +167,7 @@ namespace Vodovoz.ViewModels
 		public void CreateCommands()
 		{
 			CreateOpenOrderCommand();
+			CreateAddCounterpatyCommand();
 			CreateCompleteAllocation();
 		}
 
@@ -168,6 +188,76 @@ namespace Vodovoz.ViewModels
 			);
 		}
 
+		public DelegateCommand<Payment> AddCounterpatyCommand { get; private set; }
+
+		void CreateAddCounterpatyCommand()
+		{
+			AddCounterpatyCommand = new DelegateCommand<Payment>(
+				payment => {
+
+					var client = new Counterparty();
+					client.Name = payment.CounterpartyName;
+					client.FullName = payment.CounterpartyName;
+					client.INN = payment.CounterpartyInn;
+					client.KPP = payment.CounterpartyKpp ?? string.Empty;
+					client.PaymentMethod = PaymentType.cashless;
+					client.TypeOfOwnership = TryGetOrganizationType(payment.CounterpartyName);
+					if(client.TypeOfOwnership != null)
+						client.PersonType = PersonType.legal;
+					else {
+						if(AskQuestion($"Не удалось определить тип контрагента. Контрагент \"{payment.CounterpartyName}\" является юридическим лицом?"))
+							client.PersonType = PersonType.legal;
+						else
+							client.PersonType = PersonType.natural;
+					}
+
+					Bank bank = FillBank(payment);
+
+					client.AddAccount(new Account {
+						Number = payment.CounterpartyCurrentAcc,
+						InBank = bank
+					});
+
+					UoW.Save(client);
+
+					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(client.Id, UoW), UnitOfWorkFactory);
+					//var dlg = new CounterpartyDlg(client);
+					//dlg.HasChanges = false;
+					TabParent.AddSlaveTab(this, dlg);
+					dlg.EntitySaved += NewCounterpartySaved;
+				},
+				payment => payment.Counterparty == null
+			);
+		}
+
+		private Bank FillBank(Payment payment)
+		{
+			var bank = BankRepository.GetBankByBik(UoW, payment.CounterpartyBik);
+
+			if(bank == null) {
+
+				bank = new Bank {
+					Bik = payment.CounterpartyBik,
+					Name = payment.CounterpartyBank
+				};
+				var corAcc = new CorAccount { CorAccountNumber = payment.CounterpartyCorrespondentAcc };
+				bank.CorAccounts.Add(corAcc);
+				bank.DefaultCorAccount = corAcc;
+				UoW.Save(bank);
+			}
+
+			return bank;
+		}
+
+		void NewCounterpartySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
+		{
+			var client = e.Entity as Counterparty;
+
+			Entity.Counterparty = client;
+			Entity.CounterpartyAccount = client.DefaultAccount;
+		}
+
+
 		public DelegateCommand CompleteAllocation { get; private set; }
 
 		void CreateCompleteAllocation()
@@ -176,9 +266,8 @@ namespace Vodovoz.ViewModels
 				() => {
 
 					var valid = new QSValidator<Payment>(UoWGeneric.Root);
-					if(valid.RunDlgIfNotValid()) 
+					if(valid.RunDlgIfNotValid())
 						return;
-					
 
 					if(CurrentBalance < 0) {
 						ShowWarningMessage("Остаток не может быть отрицательным!");
@@ -194,10 +283,14 @@ namespace Vodovoz.ViewModels
 							return;
 					}
 
+					AllocateOrders();
 					CreateOperations();
 					Entity.Status = PaymentState.completed;
-					base.Save();
-					UoW.Commit();
+
+					if(Save()) { 
+						UoW.Commit();
+						Close(false);
+					}
 				},
 				() => true
 			);
@@ -205,18 +298,32 @@ namespace Vodovoz.ViewModels
 
 		private void CreateOperations()
 		{
-			var list = listNodes.Where(x => x.CurrentPayment > 0);
-			AllocateOrders(list);
+			Entity.CreateIncomeOperation();
+			UoW.Save(Entity.CashlessMovementOperation);
 
-			Entity.CreateOperation();
+			foreach(PaymentItem item in Entity.ObservableItems) {
+
+				item.CreateExpenseOperation();
+				UoW.Save(item.CashlessMovementOperation);
+			}
 		}
 
-		private void AllocateOrders(IEnumerable<ManualPaymentMatchingVMNode> nodes)
+		private void AllocateOrders()
 		{
-			foreach(var node in nodes) {
+			var list = listNodes.Where(x => x.CurrentPayment > 0);
+
+			foreach(var node in list) {
 
 				var order = UoW.GetById<VodOrder>(node.Id);
-				Entity.ObservableItems.Add(new PaymentItem { Order = order, Payment = Entity, Sum = node.CurrentPayment});
+				var sum = node.CurrentPayment + node.LastPayments;
+				Entity.AddPaymentItem(order, node.CurrentPayment);
+
+				if(order.ActualTotalSum > sum)
+					order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+				else
+					order.OrderPaymentStatus = OrderPaymentStatus.Paid;
+
+				UoW.Save(order);
 			}
 		}
 
@@ -226,17 +333,28 @@ namespace Vodovoz.ViewModels
 			CurrentBalance = SumToAllocate;
 		}
 
+		public void SaveViewModel()
+		{
+			AllocateOrders();
+
+			if(Save()) {
+				UoW.Commit();
+				Close(false);
+			}
+		}
+
 		public IList<ManualPaymentMatchingVMNode> UpdateNodes()
 		{
 			ManualPaymentMatchingVMNode resultAlias = null;
 			VodOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			PaymentItem paymentItemAlias = null;
-			CashlessMovementOperation cashlessOperationAlias = null;
 
 			var incomePaymentQuery = UoW.Session.QueryOver(() => orderAlias)
 					.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
-					.Where(x => x.Client.Id == Entity.Counterparty.Id)
+					.Where(x => x.OrderStatus != OrderStatus.Canceled)
+					.And(x => x.OrderStatus != OrderStatus.DeliveryCanceled)
+					.And(x => x.OrderStatus != OrderStatus.NotDelivered)
 					.Where(x => x.PaymentType == PaymentType.cashless);
 
 			if(StartDate.HasValue && EndDate.HasValue)
@@ -248,10 +366,9 @@ namespace Vodovoz.ViewModels
 			if(OrderPaymentStatusVM != null)
 				incomePaymentQuery.Where(x => x.OrderPaymentStatus == OrderPaymentStatusVM);
 
-			var lastPayment = QueryOver.Of(() => cashlessOperationAlias)
-					.Left.JoinAlias(() => cashlessOperationAlias.PaymentItem, () => paymentItemAlias)
+			var lastPayment = QueryOver.Of(() => paymentItemAlias)
 					.Where(() => paymentItemAlias.Order.Id == orderAlias.Id)
-					.Select(Projections.Sum(() => cashlessOperationAlias.Expense));
+					.Select(Projections.Sum(() => paymentItemAlias.Sum));
 
 			var totalSum = QueryOver.Of(() => orderItemAlias)
 					.Where(x => x.Order.Id == orderAlias.Id)
@@ -262,8 +379,15 @@ namespace Vodovoz.ViewModels
 							Projections.Property(() => orderItemAlias.Price),
 							Projections.Property(() => orderItemAlias.ActualCount),
 							Projections.Property(() => orderItemAlias.Count),
-							Projections.Property(() => orderItemAlias.DiscountMoney)}
-						)));
+							Projections.Property(() => orderItemAlias.DiscountMoney)})
+						)
+					);
+
+			incomePaymentQuery.Where(
+					GetSearchCriterion(
+					() => orderAlias.Id
+				)
+			);
 
 			var resultQuery = incomePaymentQuery
 					.SelectList(list => list
@@ -281,16 +405,29 @@ namespace Vodovoz.ViewModels
 			return resultQuery;
 		}
 
-		private void CheckProblems(Payment payment)
+		private string TryGetOrganizationType(string name)
 		{
-			if(payment.Counterparty == null)
-				ShowWarningMessage("Заполните поле контрагент!");
+			foreach(var pair in InformationHandbook.OrganizationTypes) {
+				string pattern = string.Format(@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Key);
+				string fullPattern = string.Format(@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Value);
+				Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
 
-			if(payment.CounterpartyAccount == null)
-				ShowWarningMessage("Расчетный счет с которого поступил платеж не обнаружен. " +
-					"Добавьте информацию о счете с которого поступил платеж!");
+				if(regex.IsMatch(name))
+					return pair.Key;
+
+				regex = new Regex(fullPattern, RegexOptions.IgnoreCase);
+
+				if(regex.IsMatch(name))
+					return pair.Key;
+			}
+			return null;
 		}
 
+		private ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr) => 
+			searchHelper.GetSearchCriterion(aliasPropertiesExpr);
+
+		private ICriterion GetSearchCriterion<TRootEntity>(params Expression<Func<TRootEntity, object>>[] propertiesExpr) => 
+			searchHelper.GetSearchCriterion(propertiesExpr);
 	}
 
 	public class ManualPaymentMatchingVMNode : JournalEntityNodeBase<VodOrder>

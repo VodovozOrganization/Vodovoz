@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Data.Bindings;
-using QS.DomainModel.Entity;
 
-namespace Vodovoz.ViewModels
+namespace Vodovoz.Domain.Payments
 {
 	public class TransferDocument
 	{

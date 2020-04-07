@@ -8,7 +8,6 @@ using QS.Services;
 using QS.Navigation;
 using NHibernate;
 using NHibernate.Transform;
-using Vodovoz.Domain.Client;
 using BaseOrg = Vodovoz.Domain.Organization;
 using NHibernate.Dialect.Function;
 using VodOrder = Vodovoz.Domain.Orders.Order;
@@ -16,6 +15,9 @@ using NHibernate.Criterion;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using Vodovoz.Repositories.Payments;
+using System.Linq;
+using Vodovoz.Core.DataService;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -55,16 +57,16 @@ namespace Vodovoz.JournalViewModels
 		{
 			PaymentJournalNode resultAlias = null;
 			Payment paymentAlias = null;
-			Counterparty counterpartyAlias = null;
 			BaseOrg organizationAlias = null;
 			PaymentItem paymentItemAlias = null;
 			CategoryProfit categoryProfitAlias = null;
 
 			var paymentQuery = uow.Session.QueryOver(() => paymentAlias)
-				.Left.JoinAlias(() => paymentAlias.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(() => paymentAlias.Organization, () => organizationAlias)
 				.Left.JoinAlias(() => paymentAlias.ProfitCategory, () => categoryProfitAlias)
 				.Left.JoinAlias(() => paymentAlias.PaymentItems, () => paymentItemAlias);
+
+			#region filter
 
 			if(FilterViewModel != null) 
 			{
@@ -80,6 +82,8 @@ namespace Vodovoz.JournalViewModels
 				if(FilterViewModel.PaymentState.HasValue)
 					paymentQuery.Where(x => x.Status == FilterViewModel.PaymentState);
 			}
+
+			#endregion filter
 
 			paymentQuery.Where(GetSearchCriterion(
 				() => paymentAlias.PaymentNum,
@@ -101,14 +105,14 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => paymentAlias.Date).WithAlias(() => resultAlias.Date)
 				   .Select(() => paymentAlias.Total).WithAlias(() => resultAlias.Total)
 				   .Select(numOrders).WithAlias(() => resultAlias.Orders)
-				   .Select(() => counterpartyAlias.FullName).WithAlias(() => resultAlias.Counterparty)
+				   .Select(() => paymentAlias.CounterpartyName).WithAlias(() => resultAlias.Counterparty)
 				   .Select(() => organizationAlias.FullName).WithAlias(() => resultAlias.Organization)
 				   .Select(() => paymentAlias.PaymentPurpose).WithAlias(() => resultAlias.PaymentPurpose)
 				   .Select(() => categoryProfitAlias.Name).WithAlias(() => resultAlias.ProfitCategory)
 				   .Select(() => paymentAlias.Status).WithAlias(() => resultAlias.Status)
 				)
 				.OrderBy(() => paymentAlias.Status).Asc
-				.OrderBy(() => counterpartyAlias.FullName).Asc
+				.OrderBy(() => paymentAlias.CounterpartyName).Asc
 				.OrderBy(() => paymentAlias.Total).Asc
 				.TransformUsing(Transformers.AliasToBean<PaymentJournalNode>());
 			return resultQuery;
@@ -119,6 +123,14 @@ namespace Vodovoz.JournalViewModels
 			NodeActionsList.Clear();
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
+
+			NodeActionsList.Add(new JournalAction(
+				"Завершить распределение", 
+				x => true,
+				x => true,
+				selectedItems => CompleteAllocation()
+				)
+			);
 		}
 
 		private void RegisterPayments()
@@ -148,6 +160,28 @@ namespace Vodovoz.JournalViewModels
 
 			//завершение конфигурации
 			complaintConfig.FinishConfiguration();
+		}
+
+		void CompleteAllocation()
+		{
+			var undistributedPayments = PaymentsRepository.GetAllUndistributedPayments(UoW, new BaseParametersProvider());
+
+			if(undistributedPayments.Any()) {
+				ShowWarningMessage("Имеются нераспределенные платежи, завершение невозможно");
+				return;
+			}
+			
+			var distributedPayments = PaymentsRepository.GetAllDistributedPayments(UoW);
+
+			if(distributedPayments.Any()) {
+				foreach(var payment in distributedPayments) {
+
+					payment.Status = PaymentState.completed;
+					UoW.Save(payment);
+				}
+
+				UoW.Commit();
+			}
 		}
 	}
 }

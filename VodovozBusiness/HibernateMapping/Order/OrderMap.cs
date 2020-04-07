@@ -90,11 +90,6 @@ namespace Vodovoz.HibernateMapping
 								.ParentKeyColumn("order_id")
 								.ChildKeyColumn("promotional_set_id")
 								.LazyLoad();
-
-			/*HasManyToMany(x => x.Payments).Table("payments_to_orders")
-								.ParentKeyColumn("order_id")
-								.ChildKeyColumn("payment_from_bank_client_id")
-								.LazyLoad();*/
 		}
 	}
 }

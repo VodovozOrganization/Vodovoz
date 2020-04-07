@@ -11,13 +11,11 @@ namespace Vodovoz.ViewModels
 {
 	public class AutoPaymentMatching
 	{
-		List<TransferDocument> documents;
-		IUnitOfWork UoW { get; set; }
+		readonly IUnitOfWork UoW;
 
-		public AutoPaymentMatching(List<TransferDocument> docs)
+		public AutoPaymentMatching(IUnitOfWork uow)
 		{
-			documents = docs;
-			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			UoW = uow;
 		}
 
 		public bool IncomePaymentMatch(Payment payment)
@@ -25,7 +23,7 @@ namespace Vodovoz.ViewModels
 			StringBuilder sb = new StringBuilder();
 			List<Order> orders = new List<Order>();
 
-			if(payment.Counterparty == null /*|| payment.PayerAccount == null*/)
+			if(payment.Counterparty == null)
 				return false;
 
 			var str = CheckPaymentPurpose(payment);
@@ -56,7 +54,7 @@ namespace Vodovoz.ViewModels
 							return false;
 						else {
 							order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-							payment.AddOrder(order);
+							payment.AddPaymentItem(order);
 							UoW.Save(order);
 							sb.AppendLine(order.Id.ToString());
 						}

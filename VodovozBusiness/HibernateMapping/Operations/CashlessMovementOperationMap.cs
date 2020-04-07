@@ -12,9 +12,6 @@ namespace Vodovoz.HibernateMapping.Operations
 			Map(x => x.OperationTime).Column("operation_time");
 			Map(x => x.Income).Column("income");
 			Map(x => x.Expense).Column("expense");
-
-			References(x => x.PaymentItem).Column("payment_item_id");
-			References(x => x.Payment).Column("payment_id");
 		}
 	}
 }

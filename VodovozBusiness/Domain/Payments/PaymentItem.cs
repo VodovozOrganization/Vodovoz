@@ -2,6 +2,7 @@
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Operations;
+using System;
 
 namespace Vodovoz.Domain.Payments
 {
@@ -40,6 +41,12 @@ namespace Vodovoz.Domain.Payments
 
 		public PaymentItem()
 		{
+		}
+
+		public virtual void CreateExpenseOperation()
+		{
+			var expenseOperation = new CashlessMovementOperation { Expense = sum, OperationTime = DateTime.Now };
+			cashlessMovementOperation = expenseOperation;
 		}
 	}
 }

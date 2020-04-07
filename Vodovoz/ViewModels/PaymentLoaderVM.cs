@@ -12,9 +12,9 @@ using Vodovoz.Domain.Payments;
 using NLog;
 using System.Collections.Generic;
 using Vodovoz.Repositories.Payments;
-using Vodovoz.Domain.Operations;
 using QS.Commands;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Vodovoz.ViewModels
 {
@@ -22,21 +22,21 @@ namespace Vodovoz.ViewModels
 	{
 		public TransferDocumentsFromBankParser Parser { get; private set; }
 
-		GenericObservableList<Payment> observablePayments;
-		public GenericObservableList<Payment> ObservablePayments { 
-			get => observablePayments;
-			set => SetField(ref observablePayments, value);
-		}
+		public GenericObservableList<Payment> ObservablePayments { get; set; }
 
 		readonly ICommonServices commonServices;
 		private Logger logger = LogManager.GetCurrentClassLogger();
 		double progress;
 
-		private bool isNotAutoMatchingMode;
-		public bool IsNotAutoMatchingMode { 
-			get => isNotAutoMatchingMode; 
-			set => SetField(ref isNotAutoMatchingMode, value); 
+		private bool isNotAutoMatchingMode = true;
+		public bool IsNotAutoMatchingMode {
+			get => isNotAutoMatchingMode;
+			set => SetField(ref isNotAutoMatchingMode, value);
 		}
+
+		public Task Task { get; set; }
+
+		//public CancellationTokenSource Source { get; set; }
 
 		public event Action<string, double> UpdateProgress;
 
@@ -48,12 +48,16 @@ namespace Vodovoz.ViewModels
 
 			ObservablePayments = new GenericObservableList<Payment>();
 
+			//Source = new CancellationTokenSource();
+
 			CreateCommands();
 		}
 
 		private void CreateCommands()
 		{
 			CreateSaveCommand();
+			CreateCloseViewModelCommand();
+			CreateParseCommand();
 		}
 
 		public DelegateCommand<GenericObservableList<Payment>> SaveCommand { get; private set; }
@@ -62,15 +66,45 @@ namespace Vodovoz.ViewModels
 		{
 			SaveCommand = new DelegateCommand<GenericObservableList<Payment>>(
 				payments => {
-					if(IsNotAutoMatchingMode) {
-						UoW.Commit();
+
+					UpdateProgress?.Invoke("Начинаем сохранение...", progress = 0);
+
+					foreach(Payment payment in payments) {
+
+						if(payment.Status == PaymentState.distributed) {
+							CreateOperations(payment);
+						}
+						UoW.Save(payment);
 					}
+
+					UoW.Commit();
 					UpdateProgress?.Invoke("Сохранение закончено...", progress = 0);
+					Close(false);
 				},
 				payments => payments.Count > 0
 			);
 		}
-	
+
+		public DelegateCommand CloseViewModelCommand { get; private set; }
+
+		private void CreateCloseViewModelCommand()
+		{
+			CloseViewModelCommand = new DelegateCommand(
+				() => Close(false),
+				() => true
+			);
+		}
+
+		public DelegateCommand<string> ParseCommand { get; private set; }
+
+		private void CreateParseCommand()
+		{
+			ParseCommand = new DelegateCommand<string>(
+				Init,
+				docPath => !string.IsNullOrEmpty(docPath)
+			);
+		}
+
 		public void Init(string docPath)
 		{
 			IsNotAutoMatchingMode = false;
@@ -87,37 +121,31 @@ namespace Vodovoz.ViewModels
 		{
 			var count = 0;
 			var countDuplicates = 0;
-			var list = new List<Payment>();
 
-			AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(Parser.TransferDocuments);
+			AutoPaymentMatching autoPaymentMatching = new AutoPaymentMatching(UoW);
 			var org = OrganizationRepository.GetMainOrganization(UoW, orgProvider.GetMainOrganization());
 			var defaultProfitCategory = UoW.GetById<CategoryProfit>(profitCategoryProvider.GetDefaultProfitCategory());
-			var payments = Parser.TransferDocuments.Where(x => x.RecipientInn == org.INN).ToList();
+			var parserDocs = Parser.TransferDocuments.Where(x => x.RecipientInn == org.INN).ToList();
 
-			var duplicates = UoW.GetAll<Payment>().ToList();
+			progress = 1d / parserDocs.Count;
 
-			progress = 1d / payments.Count;
-
-			foreach(var payment in payments){
+			foreach(var doc in parserDocs){
 
 				if(PaymentsRepository.PaymentFromBankClientExists(UoW,
-															   	payment.Date.Year,
-															   	int.Parse(payment.DocNum),
-															   	payment.PayerInn,
-															   	payment.PayerCurrentAccount)) {
+															   	doc.Date.Year,
+															   	int.Parse(doc.DocNum),
+															   	doc.PayerInn,
+															   	doc.PayerCurrentAccount)) {
 
 					count++;
 					countDuplicates++;
-					UpdateProgress?.Invoke($"Обработан платеж {count} из {payments.Count}", progress);
+					UpdateProgress?.Invoke($"Обработан платеж {count} из {parserDocs.Count}", progress);
 					continue;
 				}
 
-				var counterparty = CounterpartyRepository.GetCounterpartyByINN(UoW, payment.PayerInn);
+				var counterparty = CounterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
 
-				var curPayment = new Payment(payment.DocNum, payment.Date, payment.Total, payment.PayerName, payment.PayerInn,
-					payment.PayerKpp, payment.PayerBank, payment.PayerAccount, payment.PayerCurrentAccount,
-					payment.PayerCorrespondentAccount, payment.PayerBik, payment.PaymentPurpose, payment.RecipientCurrentAccount,
-					org, counterparty);
+				var curPayment = new Payment(doc, org, counterparty);
 
 				if(!autoPaymentMatching.IncomePaymentMatch(curPayment))
 					curPayment.Status = PaymentState.undistributed;
@@ -128,25 +156,30 @@ namespace Vodovoz.ViewModels
 				count++;
 				curPayment.ProfitCategory = defaultProfitCategory;
 
-				list.Add(curPayment);
+				ObservablePayments.Add(curPayment);
 
-				if(curPayment.Status == PaymentState.distributed)
-					curPayment.CreateOperation();
-
-				UoW.Save(curPayment);
-
-				logger.Debug($"Добавлен платеж {curPayment.PaymentNum}");
-				UpdateProgress?.Invoke($"Обработан платеж {count} из {payments.Count}", progress);
+				UpdateProgress?.Invoke($"Обработан платеж {count} из {parserDocs.Count}", progress);
 			}
 
 			UpdateProgress?.Invoke($"Загрузка завершена. Обработано платежей {count} из них не загружено дублей: {countDuplicates}", progress);
 
-			ObservablePayments = new GenericObservableList<Payment>(list.OrderBy(p => p.Status)
+			/*ObservablePayments = new GenericObservableList<Payment>(list.OrderBy(p => p.Status)
 																	.ThenBy(p => p.CounterpartyName)
 																	.ThenBy(p => p.Total)
-																	.ToList());
+																	.ToList());*/
 			
 			IsNotAutoMatchingMode = true;
+		}
+
+		private void CreateOperations(Payment payment)
+		{
+			payment.CreateIncomeOperation();
+			UoW.Save(payment.CashlessMovementOperation);
+
+			foreach(PaymentItem item in payment.ObservableItems) {
+				item.CreateExpenseOperation();
+				UoW.Save(item.CashlessMovementOperation);
+			}
 		}
 	}
 }

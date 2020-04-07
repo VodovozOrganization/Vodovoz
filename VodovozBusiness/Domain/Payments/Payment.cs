@@ -43,7 +43,7 @@ namespace Vodovoz.Domain.Payments
 		}
 
 		IList<PaymentItem> paymentItems = new List<PaymentItem>();
-		[Display(Name = "Строки заказа")]
+		[Display(Name = "Строки платежа")]
 		public virtual IList<PaymentItem> PaymentItems {
 			get => paymentItems;
 			set => SetField(ref paymentItems, value);
@@ -58,22 +58,11 @@ namespace Vodovoz.Domain.Payments
 			}
 		}
 
-		IList<CashlessMovementOperation> cashlessMovementOperations = new List<CashlessMovementOperation>();
+		CashlessMovementOperation cashlessMovementOperation;
 		[Display(Name = "Операция передвижения безнала")]
-		public virtual IList<CashlessMovementOperation> CashlessMovementOperations {
-			get => cashlessMovementOperations;
-			set => SetField(ref cashlessMovementOperations, value);
-		}
-
-		GenericObservableList<CashlessMovementOperation> observableCashlessOperations;
-		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<CashlessMovementOperation> ObservableCashlessOperations {
-			get {
-				observableCashlessOperations = observableCashlessOperations ?? 
-					new GenericObservableList<CashlessMovementOperation>(CashlessMovementOperations);
-
-				return observableCashlessOperations;
-			}
+		public virtual CashlessMovementOperation CashlessMovementOperation {
+			get => cashlessMovementOperation;
+			set => SetField(ref cashlessMovementOperation, value); 
 		}
 
 		Counterparty counterparty;
@@ -179,69 +168,80 @@ namespace Vodovoz.Domain.Payments
 
 		public virtual string NumOrders { get; set; }
 
-		public virtual bool IsDuplicate { get; set; }
-
 		public Payment() { }
 
-		public Payment(string num, DateTime date, decimal total, string clientName, string clientInn, string clientKpp,
-			string clientBank, string clientAcc, string clientCurAcc, string clientCorrespondentAcc, string clientBik,
-			string paymentPurpose, string orgCurrentAccount, Organization org, Counterparty counterparty) 
+		public Payment(TransferDocument doc, Organization org, Counterparty counterparty)
 		{
-			PaymentNum = int.Parse(num);
-			Date = date;
-			Total = total;
-			CounterpartyInn = clientInn;
-			CounterpartyKpp = clientKpp;
-			CounterpartyName = clientName;
-			PaymentPurpose = paymentPurpose;
-			CounterpartyBank = clientBank;
-			CounterpartyAcc = clientAcc;
-			CounterpartyCurrentAcc = clientCurAcc;
-			CounterpartyCorrespondentAcc = clientCorrespondentAcc;
-			CounterpartyBik = clientBik;
+			PaymentNum = int.Parse(doc.DocNum);
+			Date = doc.Date;
+			Total = doc.Total;
+			CounterpartyInn = doc.PayerInn;
+			CounterpartyKpp = doc.PayerKpp;
+			CounterpartyName = doc.PayerName;
+			PaymentPurpose = doc.PaymentPurpose;
+			CounterpartyBank = doc.PayerBank;
+			CounterpartyAcc = doc.PayerAccount;
+			CounterpartyCurrentAcc = doc.PayerCurrentAccount;
+			CounterpartyCorrespondentAcc = doc.PayerCorrespondentAccount;
+			CounterpartyBik = doc.PayerBik;
 
 			if(org != null) {
 				Organization = org;
-				OrganizationAccount = org.Accounts.FirstOrDefault(acc => acc.Number == orgCurrentAccount);
+				OrganizationAccount = org.Accounts.FirstOrDefault(acc => acc.Number == doc.RecipientCurrentAccount);
 			}
 
 			if(counterparty != null) {
 				Counterparty = counterparty;
-				CounterpartyAccount = counterparty.Accounts.FirstOrDefault(acc => acc.Number == clientCurAcc);
+				CounterpartyAccount = counterparty.Accounts.FirstOrDefault(acc => acc.Number == doc.PayerCurrentAccount);
 			}
 		}
 
-		public virtual void AddOrder(Order order)
+		public virtual void AddPaymentItem(Order order)
 		{
-			var paymentItem = new PaymentItem { Order = order, Payment = this, Sum = order.ActualTotalSum };
+			var paymentItem = new PaymentItem 
+			{
+				Order = order,
+				Payment = this,
+				Sum = order.ActualTotalSum
+			};
 
 			ObservableItems.Add(paymentItem);
 		}
 
-		public virtual void CreateOperation()
+		public virtual void AddPaymentItem(Order order, decimal sum)
 		{
-			var incomeOperation = new CashlessMovementOperation { Payment = this, Income = Total, OperationTime = DateTime.Now };
+			var item = ObservableItems.SingleOrDefault(x => x.Order.Id == order.Id);
 
-			ObservableCashlessOperations.Add(incomeOperation);
+			if(item == null) {
 
-			foreach(PaymentItem item in ObservableItems) {
+				var paymentItem = new PaymentItem {
+					Order = order,
+					Payment = this,
+					Sum = sum
+				};
 
-				var expenseOperation = new CashlessMovementOperation { PaymentItem = item, Expense = item.Sum, OperationTime = DateTime.Now };
-				item.CashlessMovementOperation = expenseOperation;
-				ObservableCashlessOperations.Add(expenseOperation);
+				ObservableItems.Add(paymentItem);
 			}
+			else
+				item.Sum += sum;
+		}
+
+		public virtual void CreateIncomeOperation()
+		{
+			var incomeOperation = new CashlessMovementOperation 
+			{ 
+				Income = Total, 
+				OperationTime = DateTime.Now 
+			};
+
+			cashlessMovementOperation = incomeOperation;
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Counterparty == null)
-				yield return new ValidationResult("Контрагент не найден.", new[] { nameof(Counterparty) });
-
-			if(CounterpartyAccount == null)
-				yield return new ValidationResult("Расчетный счет не распознан.", new[] { nameof(CounterpartyAccount) });
+				yield return new ValidationResult("Заполните контрагента.", new[] { nameof(Counterparty) });
 		}
-
-
 	}
 
 	public enum PaymentState

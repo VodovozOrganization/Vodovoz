@@ -1396,7 +1396,6 @@
     <Compile Include="Views\ErrorReporting\ErrorMessageView.cs" />
     <Compile Include="Dialogs\Employees\DriverWorkScheduleNode.cs" />
     <Compile Include="ErrorHandlers.cs" />
-    <Compile Include="ViewModels\TransferDocument.cs" />
     <Compile Include="ViewModels\TransferDocumentsFromBankParser.cs" />
     <Compile Include="Views\PaymentLoaderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.PaymentLoaderView.cs" />

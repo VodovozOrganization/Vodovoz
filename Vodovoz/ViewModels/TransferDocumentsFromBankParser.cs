@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.ViewModels
 {
