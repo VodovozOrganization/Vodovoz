@@ -67,6 +67,7 @@ using Vodovoz.Tools;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.Core;
 
 namespace Vodovoz
 {
@@ -763,6 +764,16 @@ namespace Vodovoz
 			}
 
 			if(!ValidateAndFormOrder() || !CheckCertificates(canSaveFromHere: true)) {
+				return;
+			}
+
+			PromosetDuplicateFinder promosetDuplicateFinder = new PromosetDuplicateFinder(ServicesConfig.InteractiveService);
+			List<Phone> phones = new List<Phone>();
+			phones.AddRange(Entity.Client.Phones);
+			if(Entity.DeliveryPoint != null) {
+				phones.AddRange(Entity.DeliveryPoint.Phones);
+			}
+			if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones)) {
 				return;
 			}
 
