@@ -56,10 +56,17 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		bool canEditNomenclatureCount;
-		[Display(Name = "Можно менять количество номенклатур?")]
+		[Display(Name = "Можно менять количество номенклатур")]
 		public virtual bool CanEditNomenclatureCount {
 			get => canEditNomenclatureCount;
 			set => SetField(ref canEditNomenclatureCount, value, () => CanEditNomenclatureCount);
+		}
+
+		bool canBeAddedWithOtherPromoSets;
+		[Display(Name = "Может быть добавлен вместе с другими промонаборами")]
+		public virtual bool CanBeAddedWithOtherPromoSets {
+			get => canBeAddedWithOtherPromoSets;
+			set => SetField(ref canBeAddedWithOtherPromoSets, value, () => CanBeAddedWithOtherPromoSets);
 		}
 
 		IList<PromotionalSetItem> promotionalSetItems = new List<PromotionalSetItem>();

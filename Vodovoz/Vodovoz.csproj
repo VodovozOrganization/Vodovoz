@@ -647,7 +647,6 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
     <Compile Include="ServiceDialogs\ExportTo1cDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ExportTo1cDialog.cs" />
-    <Compile Include="ServiceDialogs\ExportOperation.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\AccountCatalog.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\BankCatalog.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\ContractCatalog.cs" />
@@ -1374,6 +1373,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Permissions.PresetPermissionsView.cs" />
     <Compile Include="Views\UndeliveryProblemSourceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.UndeliveryProblemSourceView.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportDefaults\NomenclatureType1c.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\Catalogs\NomenclatureTypeCatalog.cs" />
     <Compile Include="ReportsParameters\SelectableParameterReportFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SelectableParameterReportFilterView.cs" />
     <Compile Include="ReportsParameters\OrdersCreationTimeReport.cs" />
@@ -1680,6 +1681,10 @@
     <Folder Include="Views\Users\" />
     <Folder Include="ViewWidgets\Permissions\" />
     <Folder Include="Views\ErrorReporting\" />
+    <Folder Include="ServiceDialogs\OldExportTo1c\" />
+    <Folder Include="ServiceDialogs\OldExportTo1c\Catalogs\" />
+    <Folder Include="ServiceDialogs\OldExportTo1c\ExportDefaults\" />
+    <Folder Include="ServiceDialogs\OldExportTo1c\ExportNodes\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

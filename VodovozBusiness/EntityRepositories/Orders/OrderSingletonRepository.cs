@@ -342,7 +342,9 @@ namespace Vodovoz.EntityRepositories.Orders
 			VodovozOrder orderAlias = null;
 
 			var orderQuery = uow.Session.QueryOver(() => orderAlias)
-					.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
+					.Where(Restrictions.Eq(
+						Projections.Property<VodovozOrder>(x => x.DeliveryPoint.Id),
+						deliveryPoint?.Id))
 					.And(() => orderAlias.OrderStatus == OrderStatus.Closed);
 
 			if(startDate.HasValue)

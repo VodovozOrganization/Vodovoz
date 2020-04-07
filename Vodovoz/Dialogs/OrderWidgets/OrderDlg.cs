@@ -77,7 +77,8 @@ namespace Vodovoz
 		IContractInfoProvider,
 		ITdiTabAddedNotifier,
 		IEmailsInfoProvider,
-		ICallTaskProvider
+		ICallTaskProvider,
+		ITDICloseControlTab
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -659,45 +660,65 @@ namespace Vodovoz
 			return true;
 		}
 
+		private bool canClose = true;
+		public bool CanClose()
+		{
+			if(!canClose)
+				MessageDialogHelper.RunInfoDialog("Дождитесь завершения сохранения заказа и повторите", "Сохранение...");
+			return canClose;
+		}
+
+		private void SetSensetivity(bool isSensetive)
+		{
+			canClose = isSensetive;
+			buttonSave.Sensitive = isSensetive;
+			buttonCancel.Sensitive = isSensetive;
+		}
+
 		public override bool Save()
 		{
-			Entity.CheckAndSetOrderIsService();
+			try {
+				SetSensetivity(false);
+				Entity.CheckAndSetOrderIsService();
 
-			var valid = new QSValidator<Order>(
-				Entity, new Dictionary<object, object>{
+				var valid = new QSValidator<Order>(
+					Entity, new Dictionary<object, object>{
 					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-				}
-			);
-
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
-				return false;
-
-			if(Entity.OrderStatus == OrderStatus.NewOrder) {
-				if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
-					return false;
-			}
-
-			if(OrderItemEquipmentCountHasChanges) {
-				MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
-			}
-
-			logger.Info("Сохраняем заказ...");
-
-			if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
-				var emailAddressForBill = Entity.GetEmailAddressForBill();
-				if(emailAddressForBill == null) {
-					if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
-						return false;
 					}
+				);
+
+				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+					return false;
+
+				if(Entity.OrderStatus == OrderStatus.NewOrder) {
+					if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
+						return false;
 				}
-				Entity.SaveEntity(UoWGeneric);
-				SendBillByEmail(emailAddressForBill);
-			} else {
-				Entity.SaveEntity(UoWGeneric);
+
+				if(OrderItemEquipmentCountHasChanges) {
+					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
+				}
+
+				logger.Info("Сохраняем заказ...");
+
+				if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
+					var emailAddressForBill = Entity.GetEmailAddressForBill();
+					if(emailAddressForBill == null) {
+						if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
+							return false;
+						}
+					}
+					Entity.SaveEntity(UoWGeneric);
+					SendBillByEmail(emailAddressForBill);
+				} else {
+					Entity.SaveEntity(UoWGeneric);
+				}
+				logger.Info("Ok.");
+				UpdateUIState();
+				return true;
+			} finally {
+				SetSensetivity(true);
 			}
-			logger.Info("Ok.");
-			UpdateUIState();
-			return true;
 		}
 
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
