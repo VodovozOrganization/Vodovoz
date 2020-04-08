@@ -54,6 +54,7 @@ namespace Vodovoz.Views.Complaints
 
 			ViewModel.Entity.ObservableComments.ListContentChanged += (sender, e) => {
 				ytreeviewComments.YTreeModel.EmitModelChanged();
+				ytreeviewComments.ExpandAll();
 			};
 			ytreeviewComments.ExpandAll();
 			ytreeviewComments.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();

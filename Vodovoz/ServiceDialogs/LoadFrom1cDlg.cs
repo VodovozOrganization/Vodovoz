@@ -21,6 +21,13 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.LoadFrom1c;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository.Client;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Core.DataService;
+using QS.Project.Services;
+using Vodovoz.Tools;
 
 namespace Vodovoz
 {
@@ -52,7 +59,7 @@ namespace Vodovoz
 
 		private ChangedItem ordersToClose = new ChangedItem();
 
-		#if SHORT
+#if SHORT
 		List<string> ExcludeNomenclatures = new List<string> {
 			 
 		};
@@ -60,9 +67,28 @@ namespace Vodovoz
 		{
 			"00000969", "24065099", "50453099", "00000344"
 		};
-		#endif
+#endif
 
 		#region Свойства
+
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						OrderSingletonRepository.GetInstance(),
+						EmployeeSingletonRepository.GetInstance(),
+						new BaseParametersProvider(),
+						ServicesConfig.CommonServices.UserService,
+						SingletonErrorReporter.Instance);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
+		}
+
 		private IList<Bank> banks;
 
 		private IList<Bank> Banks {
@@ -807,7 +833,7 @@ namespace Vodovoz
 				equipments.Add(ParseEquipmentToItem(item as XmlNode, order));
 			}
 
-			#if SHORT
+#if SHORT
 			foreach(var item in order.OrderItems)
 			{
 				if (NoDeliveriNomenclatures.Contains(item.Nomenclature.Code1c))
@@ -824,7 +850,7 @@ namespace Vodovoz
 					return;
 				}
 			}
-			#endif
+#endif
 
 			OrdersList.Add(order);
 			ReadedOrders++;
@@ -1133,7 +1159,7 @@ namespace Vodovoz
 
 					if (loaded.DeliveryPoint != null && loaded.DeliverySchedule != null 
 						&& !String.IsNullOrWhiteSpace(loaded.DeliveryPoint.CompiledAddress))
-						loaded.ChangeStatus(OrderStatus.Accepted);
+						loaded.ChangeStatus(OrderStatus.Accepted, CallTaskWorker);
 
 					uow.Save (loaded);
 				}
@@ -1175,7 +1201,7 @@ namespace Vodovoz
 				if((order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.NewOrder) 
 				   && !String.IsNullOrWhiteSpace(order.Code1c))
 				{
-					order.ChangeStatus (OrderStatus.Canceled);
+					order.ChangeStatus (OrderStatus.Canceled, CallTaskWorker);
 					uow.Save (order);
 				}
 			}

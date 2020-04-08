@@ -19,6 +19,11 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories.HumanResources;
 using QS.Project.Services;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Core.DataService;
+using Vodovoz.Tools;
 
 namespace Vodovoz
 {
@@ -28,6 +33,24 @@ namespace Vodovoz
 
 		private IEmployeeRepository EmployeeRepository { get { return EmployeeSingletonRepository.GetInstance(); } }
 		private IUserPermissionRepository UserPermissionRepository { get { return UserPermissionSingletonRepository.GetInstance(); } }
+
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						OrderSingletonRepository.GetInstance(),
+						EmployeeSingletonRepository.GetInstance(),
+						new BaseParametersProvider(),
+						ServicesConfig.CommonServices.UserService,
+						SingletonErrorReporter.Instance);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
+		}
 
 		public CarLoadDocumentDlg()
 		{
@@ -155,7 +178,7 @@ namespace Vodovoz
 			UoWGeneric.Save();
 
 			logger.Info("Меняем статус маршрутного листа...");
-			if(Entity.RouteList.ShipIfCan(UoW))
+			if(Entity.RouteList.ShipIfCan(UoW, CallTaskWorker))
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			UoW.Save(Entity.RouteList);
 			UoW.Commit();

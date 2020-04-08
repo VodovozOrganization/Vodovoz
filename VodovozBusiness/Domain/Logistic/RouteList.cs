@@ -29,6 +29,7 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Permissions;
 using Vodovoz.Repository.Cash;
 using Vodovoz.Services;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
@@ -638,7 +639,7 @@ namespace Vodovoz.Domain.Logistic
 			UoW.Save(this);
 		}
 
-		public virtual bool ShipIfCan(IUnitOfWork uow)
+		public virtual bool ShipIfCan(IUnitOfWork uow, CallTaskWorker callTaskWorker)
 		{
 			var inLoaded = new RouteListRepository().AllGoodsLoaded(uow, this);
 			var goods = new RouteListRepository().GetGoodsAndEquipsInRL(uow, this);
@@ -656,7 +657,7 @@ namespace Vodovoz.Domain.Logistic
 				if(NotFullyLoaded.HasValue)
 					NotFullyLoaded = false;
 				if(new[] { RouteListStatus.Confirmed, RouteListStatus.InLoading }.Contains(Status))
-					ChangeStatus(RouteListStatus.EnRoute);
+					ChangeStatus(RouteListStatus.EnRoute, callTaskWorker);
 			}
 
 			return closed;
@@ -768,7 +769,7 @@ namespace Vodovoz.Domain.Logistic
 			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies) || DifferencesConfirmed;
 		}
 
-		public virtual void ChangeStatus(RouteListStatus newStatus)
+		public virtual void ChangeStatus(RouteListStatus newStatus, CallTaskWorker callTaskWorker)
 		{
 			if(newStatus == Status)
 				return;
@@ -788,7 +789,7 @@ namespace Vodovoz.Domain.Logistic
 						Status = RouteListStatus.Confirmed;
 						foreach(var address in Addresses) {
 							if(address.Order.OrderStatus < OrderStatus.OnLoading)
-								address.Order.ChangeStatus(OrderStatus.OnLoading);
+								address.Order.ChangeStatus(OrderStatus.OnLoading, callTaskWorker);
 						}
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
@@ -799,7 +800,7 @@ namespace Vodovoz.Domain.Logistic
 						Status = RouteListStatus.InLoading;
 						foreach(var item in Addresses) {
 							if(item.Order.OrderStatus != OrderStatus.OnLoading) {
-								item.Order.ChangeStatus(OrderStatus.OnLoading);
+								item.Order.ChangeStatus(OrderStatus.OnLoading, callTaskWorker);
 							}
 						}
 					} else if(Status == RouteListStatus.Confirmed) {
@@ -829,7 +830,7 @@ namespace Vodovoz.Domain.Logistic
 					|| Status == RouteListStatus.Closed) {
 						Status = newStatus;
 						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
-							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
+							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock, callTaskWorker);
 						}
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
@@ -839,7 +840,7 @@ namespace Vodovoz.Domain.Logistic
 					if(Status == RouteListStatus.EnRoute || Status == RouteListStatus.OnClosing) {
 						Status = newStatus;
 						foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed || x.Status == RouteListItemStatus.EnRoute)) {
-							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock);
+							item.Order.ChangeStatus(OrderStatus.UnloadingOnStock, callTaskWorker);
 						}
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
@@ -848,7 +849,7 @@ namespace Vodovoz.Domain.Logistic
 				case RouteListStatus.Closed:
 					if(Status == RouteListStatus.OnClosing || Status == RouteListStatus.MileageCheck) {
 						Status = newStatus;
-						CloseAddresses();
+						CloseAddresses(callTaskWorker);
 					} else {
 						throw new InvalidOperationException(exceptionMessage);
 					}
@@ -871,7 +872,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		private void CloseAddresses()
+		private void CloseAddresses(CallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.Closed) {
 				return;
@@ -880,17 +881,17 @@ namespace Vodovoz.Domain.Logistic
 			foreach(var address in Addresses) {
 				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
 					if(address.Status == RouteListItemStatus.EnRoute) {
-						address.UpdateStatus(UoW, RouteListItemStatus.Completed);
+						address.UpdateStatus(UoW, RouteListItemStatus.Completed, callTaskWorker);
 					}
-					address.Order.ChangeStatus(OrderStatus.Closed);
+					address.Order.ChangeStatus(OrderStatus.Closed, callTaskWorker);
 				}
 
 				if(address.Status == RouteListItemStatus.Canceled) {
-					address.Order.ChangeStatus(OrderStatus.DeliveryCanceled);
+					address.Order.ChangeStatus(OrderStatus.DeliveryCanceled, callTaskWorker);
 				}
 
 				if(address.Status == RouteListItemStatus.Overdue) {
-					address.Order.ChangeStatus(OrderStatus.NotDelivered);
+					address.Order.ChangeStatus(OrderStatus.NotDelivered, callTaskWorker);
 				}
 			}
 		}
@@ -977,16 +978,16 @@ namespace Vodovoz.Domain.Logistic
 				return actualWageParameter == null || actualWageParameter.WageParameterType != WageParameterTypes.RatesLevel;
 			}
 		}
-		public virtual void CompleteRoute(WageCalculationServiceFactory wageCalculationServiceFactory)
+		public virtual void CompleteRoute(WageCalculationServiceFactory wageCalculationServiceFactory, CallTaskWorker callTaskWorker)
 		{
 			if(wageCalculationServiceFactory == null) {
 				throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
 			}
 
 			if(NeedMileageCheck) {
-				ChangeStatus(RouteListStatus.MileageCheck);
+				ChangeStatus(RouteListStatus.MileageCheck, callTaskWorker);
 			} else {
-				ChangeStatus(RouteListStatus.OnClosing);
+				ChangeStatus(RouteListStatus.OnClosing, callTaskWorker);
 			}
 
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
@@ -1164,7 +1165,7 @@ namespace Vodovoz.Domain.Logistic
 			return (message);
 		}
 
-		private void ConfirmAndClose()
+		private void ConfirmAndClose(CallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.OnClosing && Status != RouteListStatus.MileageCheck) {
 				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0} или  {1}", RouteListStatus.OnClosing, RouteListStatus.MileageCheck));
@@ -1182,43 +1183,43 @@ namespace Vodovoz.Domain.Logistic
 
 			switch(Status) {
 				case RouteListStatus.OnClosing:
-					CloseFromOnClosing();
+					CloseFromOnClosing(callTaskWorker);
 					break;
 				case RouteListStatus.MileageCheck:
-					CloseFromOnMileageCheck();
+					CloseFromOnMileageCheck(callTaskWorker);
 					break;
 			}
 		}
 
-		private void CloseFromOnMileageCheck()
+		private void CloseFromOnMileageCheck(CallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.MileageCheck) {
 				return;
 			}
-			ChangeStatus(RouteListStatus.OnClosing);
+			ChangeStatus(RouteListStatus.OnClosing, callTaskWorker);
 		}
 
 		/// <summary>
 		/// Закрывает МЛ, либо переводит в проверку км, при необходимых условиях, из статуса "Сдается" 
 		/// </summary>
-		private void CloseFromOnClosing()
+		private void CloseFromOnClosing(CallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.OnClosing) {
 				return;
 			}
 
 			if((!NeedMileageCheck || (NeedMileageCheck && ConfirmedDistance > 0)) && IsConsistentWithUnloadDocument() && PermissionRepository.HasAccessToClosingRoutelist()) {
-				ChangeStatus(RouteListStatus.Closed);
+				ChangeStatus(RouteListStatus.Closed, callTaskWorker);
 				return;
 			}
 
 			if(NeedMileageCheck && ConfirmedDistance <= 0) {
-				ChangeStatus(RouteListStatus.MileageCheck);
+				ChangeStatus(RouteListStatus.MileageCheck, callTaskWorker);
 				return;
 			}
 		}
 
-		public virtual void AcceptCash()
+		public virtual void AcceptCash(CallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.OnClosing) {
 				return;
@@ -1228,17 +1229,17 @@ namespace Vodovoz.Domain.Logistic
 				throw new InvalidOperationException(String.Format("Должен быть заполнен кассир"));
 			}
 
-			ConfirmAndClose();
+			ConfirmAndClose(callTaskWorker);
 		}
 
-		public virtual void AcceptMileage()
+		public virtual void AcceptMileage(CallTaskWorker callTaskWorker)
 		{
 			if(Status != RouteListStatus.MileageCheck) {
 				return;
 			}
 
 			RecalculateFuelOutlay();
-			ConfirmAndClose();
+			ConfirmAndClose(callTaskWorker);
 		}
 
 		public virtual void UpdateFuelOperation()

@@ -65,6 +65,9 @@ using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.Tools;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.Core;
 
 namespace Vodovoz
 {
@@ -74,7 +77,8 @@ namespace Vodovoz
 		IContractInfoProvider,
 		ITdiTabAddedNotifier,
 		IEmailsInfoProvider,
-		ICallTaskProvider
+		ICallTaskProvider,
+		ITDICloseControlTab
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -113,6 +117,24 @@ namespace Vodovoz
 		public Order Order => Entity;
 
 		public List<StoredEmail> GetEmails() => Entity.Id != 0 ? emailRepository.GetAllEmailsForOrder(UoW, Entity.Id) : null;
+
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						orderRepository,
+						employeeRepository,
+						new BaseParametersProvider(),
+						ServicesConfig.CommonServices.UserService,
+						SingletonErrorReporter.Instance);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
+		}
 
 		#endregion
 
@@ -638,45 +660,65 @@ namespace Vodovoz
 			return true;
 		}
 
+		private bool canClose = true;
+		public bool CanClose()
+		{
+			if(!canClose)
+				MessageDialogHelper.RunInfoDialog("Дождитесь завершения сохранения заказа и повторите", "Сохранение...");
+			return canClose;
+		}
+
+		private void SetSensetivity(bool isSensetive)
+		{
+			canClose = isSensetive;
+			buttonSave.Sensitive = isSensetive;
+			buttonCancel.Sensitive = isSensetive;
+		}
+
 		public override bool Save()
 		{
-			Entity.CheckAndSetOrderIsService();
+			try {
+				SetSensetivity(false);
+				Entity.CheckAndSetOrderIsService();
 
-			var valid = new QSValidator<Order>(
-				Entity, new Dictionary<object, object>{
+				var valid = new QSValidator<Order>(
+					Entity, new Dictionary<object, object>{
 					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-				}
-			);
-
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
-				return false;
-
-			if(Entity.OrderStatus == OrderStatus.NewOrder) {
-				if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
-					return false;
-			}
-
-			if(OrderItemEquipmentCountHasChanges) {
-				MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
-			}
-
-			logger.Info("Сохраняем заказ...");
-
-			if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
-				var emailAddressForBill = Entity.GetEmailAddressForBill();
-				if(emailAddressForBill == null) {
-					if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
-						return false;
 					}
+				);
+
+				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+					return false;
+
+				if(Entity.OrderStatus == OrderStatus.NewOrder) {
+					if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
+						return false;
 				}
-				Entity.SaveEntity(UoWGeneric);
-				SendBillByEmail(emailAddressForBill);
-			} else {
-				Entity.SaveEntity(UoWGeneric);
+
+				if(OrderItemEquipmentCountHasChanges) {
+					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
+				}
+
+				logger.Info("Сохраняем заказ...");
+
+				if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
+					var emailAddressForBill = Entity.GetEmailAddressForBill();
+					if(emailAddressForBill == null) {
+						if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
+							return false;
+						}
+					}
+					Entity.SaveEntity(UoWGeneric);
+					SendBillByEmail(emailAddressForBill);
+				} else {
+					Entity.SaveEntity(UoWGeneric);
+				}
+				logger.Info("Ok.");
+				UpdateUIState();
+				return true;
+			} finally {
+				SetSensetivity(true);
 			}
-			logger.Info("Ok.");
-			UpdateUIState();
-			return true;
 		}
 
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
@@ -705,7 +747,7 @@ namespace Vodovoz
 			if(!Entity.CanSetOrderAsEditable) {
 				return;
 			}
-			Entity.EditOrder();
+			Entity.EditOrder(CallTaskWorker);
 			UpdateUIState();
 		}
 
@@ -725,13 +767,23 @@ namespace Vodovoz
 				return;
 			}
 
+			PromosetDuplicateFinder promosetDuplicateFinder = new PromosetDuplicateFinder(ServicesConfig.InteractiveService);
+			List<Phone> phones = new List<Phone>();
+			phones.AddRange(Entity.Client.Phones);
+			if(Entity.DeliveryPoint != null) {
+				phones.AddRange(Entity.DeliveryPoint.Phones);
+			}
+			if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones)) {
+				return;
+			}
+
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
 				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, Entity.Client, Entity.Client.PersonType, Entity.PaymentType);
 				if(Entity.Contract == null)
 					Entity.CreateDefaultContract();
 			}
 
-			Entity.AcceptOrder(employeeRepository.GetEmployeeForCurrentUser(UoW));
+			Entity.AcceptOrder(employeeRepository.GetEmployeeForCurrentUser(UoW), CallTaskWorker);
 
 			treeItems.Selection.UnselectAll();
 			Save();
@@ -788,7 +840,7 @@ namespace Vodovoz
 				Entity.UpdateBottlesMovementOperationWithoutDelivery(UoW, standartNomenclatures, new EntityRepositories.Logistic.RouteListItemRepository(), new CashRepository());
 				Entity.UpdateDepositOperations(UoW);
 
-				Entity.ChangeStatus(OrderStatus.Closed);
+				Entity.ChangeStatus(OrderStatus.Closed, CallTaskWorker);
 				foreach(OrderItem i in Entity.ObservableOrderItems) {
 					i.ActualCount = i.Count;
 				}
@@ -804,7 +856,7 @@ namespace Vodovoz
 				if(!MessageDialogHelper.RunQuestionDialog("Вы уверены, что хотите вернуть заказ в статус \"Принят\"?")) {
 					return;
 				}
-				Entity.ChangeStatus(OrderStatus.Accepted);
+				Entity.ChangeStatus(OrderStatus.Accepted, CallTaskWorker);
 			}
 			UpdateUIState();
 		}
@@ -815,7 +867,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonSelfDeliveryToLoadingClicked(object sender, EventArgs e)
 		{
-			Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService);
+			Entity.SelfDeliveryToLoading(ServicesConfig.CommonServices.CurrentPermissionService, CallTaskWorker);
 			UpdateUIState();
 		}
 
@@ -824,7 +876,7 @@ namespace Vodovoz
 		/// </summary>
 		protected void OnButtonSelfDeliveryAcceptPaidClicked(object sender, EventArgs e)
 		{
-			Entity.SelfDeliveryAcceptCashlessPaid();
+			Entity.SelfDeliveryAcceptCashlessPaid(CallTaskWorker);
 			UpdateUIState();
 		}
 
@@ -2033,7 +2085,7 @@ namespace Vodovoz
 			UndeliveryOnOrderCloseDlg dlg = new UndeliveryOnOrderCloseDlg(Entity, UoW);
 			TabParent.AddSlaveTab(this, dlg);
 			dlg.DlgSaved += (sender, e) => {
-				Entity.SetUndeliveredStatus(UoW, new BaseParametersProvider());
+				Entity.SetUndeliveredStatus(UoW, new BaseParametersProvider(), CallTaskWorker);
 				UpdateUIState();
 
 				var routeListItem = routeListItemRepository.GetRouteListItemForOrder(UoW, Entity);
@@ -2071,7 +2123,7 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
 
-			Entity.ChangeStatus(OrderStatus.WaitForPayment);
+			Entity.ChangeStatus(OrderStatus.WaitForPayment, CallTaskWorker);
 			UpdateUIState();
 		}
 
@@ -2558,6 +2610,10 @@ namespace Vodovoz
 
 		private void SendBillByEmail(Vodovoz.Domain.Contacts.Email emailAddressForBill)
 		{
+			if(emailAddressForBill == null) {
+				throw new ArgumentNullException(nameof(emailAddressForBill));
+			}
+
 			if(!EmailServiceSetting.SendingAllowed || emailRepository.HaveSendedEmail(Entity.Id, OrderDocumentType.Bill)) {
 				return;
 			}

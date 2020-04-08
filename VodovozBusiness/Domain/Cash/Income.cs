@@ -14,6 +14,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Repository.Cash;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -196,12 +197,12 @@ namespace Vodovoz.Domain.Cash
 
 		#region Функции
 
-		public virtual void AcceptSelfDeliveryPaid()
+		public virtual void AcceptSelfDeliveryPaid(CallTaskWorker callTaskWorker)
 		{
 			if(Id == 0) {
-				Order.AcceptSelfDeliveryIncomeCash(Money);
+				Order.AcceptSelfDeliveryIncomeCash(Money, callTaskWorker);
 			} else {
-				Order.AcceptSelfDeliveryIncomeCash(Money, Id);
+				Order.AcceptSelfDeliveryIncomeCash(Money, callTaskWorker, Id);
 			}
 		}
 

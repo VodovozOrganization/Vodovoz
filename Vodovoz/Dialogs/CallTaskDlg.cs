@@ -196,7 +196,8 @@ namespace Vodovoz.Dialogs
 			orderDlg.Entity.Client = orderDlg.UoW.GetById<Counterparty>(Entity.Counterparty.Id);
 			orderDlg.Entity.UpdateClientDefaultParam();
 			orderDlg.Entity.DeliveryPoint = orderDlg.UoW.GetById<DeliveryPoint>(Entity.DeliveryPoint.Id);
-			orderDlg.Entity.CallTaskWorker.TaskCreationInteractive = new GtkTaskCreationInteractive();
+
+			orderDlg.CallTaskWorker.TaskCreationInteractive = new GtkTaskCreationInteractive();
 			TabParent.AddTab(orderDlg , this);
 		}
 

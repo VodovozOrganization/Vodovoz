@@ -180,6 +180,9 @@ namespace Vodovoz.ViewWidgets
 
 		protected void OnButtonRefreshEmailListClicked(object sender, EventArgs e)
 		{
+			if(document?.Order == null)
+				return;
+
 			UpdateEmails();
 		}
 	}

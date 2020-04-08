@@ -36,6 +36,10 @@ using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Infrastructure;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Tools;
 
 namespace Vodovoz
 {
@@ -57,6 +61,24 @@ namespace Vodovoz
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
 		int defectiveBottlesReturnedToWarehouse;
+
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						OrderSingletonRepository.GetInstance(),
+						EmployeeSingletonRepository.GetInstance(),
+						new BaseParametersProvider(),
+						ServicesConfig.CommonServices.UserService,
+						SingletonErrorReporter.Instance);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
+		}
 
 		enum RouteListActions
 		{
@@ -676,7 +698,7 @@ namespace Vodovoz
 			if(Entity.Total != cash) {
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
 				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && Entity.NeedMileageCheck && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {
-					Entity.ChangeStatus(RouteListStatus.MileageCheck);
+					Entity.ChangeStatus(RouteListStatus.MileageCheck, CallTaskWorker);
 				}
 				return;
 			}
@@ -684,7 +706,7 @@ namespace Vodovoz
 			Entity.UpdateMovementOperations();
 
 			if(Entity.Status == RouteListStatus.OnClosing) {
-				Entity.AcceptCash();
+				Entity.AcceptCash(CallTaskWorker);
 			}
 
 			if(!MessageDialogHelper.RunQuestionDialog("Перед выходом распечатать документ?")) {

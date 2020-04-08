@@ -10,9 +10,15 @@ using QS.DomainModel.UoW;
 using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Validation;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
 
 namespace Vodovoz.Dialogs.Logistic
 {
@@ -21,12 +27,29 @@ namespace Vodovoz.Dialogs.Logistic
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-
 		public GenericObservableList<RouteListControlNotLoadedNode> ObservableNotLoadedList { get; set; }
 			= new GenericObservableList<RouteListControlNotLoadedNode>();
 
 		public GenericObservableList<Nomenclature> ObservableNotAttachedList { get; set; }
 			= new GenericObservableList<Nomenclature>();
+
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						OrderSingletonRepository.GetInstance(),
+						EmployeeSingletonRepository.GetInstance(),
+						new BaseParametersProvider(),
+						ServicesConfig.CommonServices.UserService,
+						SingletonErrorReporter.Instance);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
+		}
 
 		public RouteListControlDlg(RouteList sub) : this(sub.Id) { }
 
@@ -103,7 +126,7 @@ namespace Vodovoz.Dialogs.Logistic
 			#region костыль
 			//FIXME пока не можем найти причину бага с несменой статуса на в пути при полной отгрузке, позволяем логистам отправлять МЛ в путь из этого диалога
 			bool fullyLoaded = false;
-			if(Entity.ShipIfCan(UoW)) {
+			if(Entity.ShipIfCan(UoW, CallTaskWorker)) {
 				fullyLoaded = true;
 				MessageDialogHelper.RunInfoDialog("Маршрутный лист отгружен полностью.");
 			}
@@ -121,7 +144,7 @@ namespace Vodovoz.Dialogs.Logistic
 					)
 				)
 			) {
-				Entity.ChangeStatus(RouteListStatus.EnRoute);
+				Entity.ChangeStatus(RouteListStatus.EnRoute, CallTaskWorker);
 				Entity.NotFullyLoaded = true;
 			} else if(!fullyLoaded && !ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_send_not_loaded_route_lists_en_route")) {
 				MessageDialogHelper.RunWarningDialog(

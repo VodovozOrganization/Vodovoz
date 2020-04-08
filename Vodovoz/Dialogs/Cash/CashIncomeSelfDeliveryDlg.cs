@@ -13,6 +13,13 @@ using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;
 using QS.Services;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Core.DataService;
+using QS.Project.Services;
+using Vodovoz.Tools;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -21,6 +28,24 @@ namespace Vodovoz.Dialogs.Cash
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private bool canEdit = true;
+
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						OrderSingletonRepository.GetInstance(),
+						EmployeeSingletonRepository.GetInstance(),
+						new BaseParametersProvider(),
+						ServicesConfig.CommonServices.UserService,
+						SingletonErrorReporter.Instance);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
+		}
 
 		public CashIncomeSelfDeliveryDlg(IPermissionService permissionService)
 		{
@@ -162,7 +187,7 @@ namespace Vodovoz.Dialogs.Cash
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.AcceptSelfDeliveryPaid();
+			Entity.AcceptSelfDeliveryPaid(CallTaskWorker);
 
 			logger.Info("Сохраняем Приходный ордер самовывоза...");
 			UoWGeneric.Save();

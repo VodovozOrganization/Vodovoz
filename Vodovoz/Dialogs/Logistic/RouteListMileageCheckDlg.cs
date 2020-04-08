@@ -17,6 +17,12 @@ using QS.Project.Journal.EntitySelector;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Tools.CallTasks;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Tools;
 
 namespace Vodovoz
 {
@@ -27,6 +33,24 @@ namespace Vodovoz
 		private bool editing = true;
 
 		List<RouteListKeepingItemNode> items;
+
+		private CallTaskWorker callTaskWorker;
+		public virtual CallTaskWorker CallTaskWorker {
+			get {
+				if(callTaskWorker == null) {
+					callTaskWorker = new CallTaskWorker(
+						CallTaskSingletonFactory.GetInstance(),
+						new CallTaskRepository(),
+						OrderSingletonRepository.GetInstance(),
+						EmployeeSingletonRepository.GetInstance(),
+						new BaseParametersProvider(),
+						ServicesConfig.CommonServices.UserService,
+						SingletonErrorReporter.Instance);
+				}
+				return callTaskWorker;
+			}
+			set { callTaskWorker = value; }
+		}
 
 		#endregion
 
@@ -140,7 +164,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.AcceptMileage();
+			Entity.AcceptMileage(CallTaskWorker);
 
 			UpdateStates();
 
