@@ -50,6 +50,15 @@ namespace Vodovoz.ReportsParameters
 			}
 		}
 
+		private int[] GetSelectedPromotionalSets()
+		{
+			if(promotionalSets.Any(x => x.Active)) {
+				return promotionalSets.Where(x => x.Active).Select(x => x.Id).ToArray();
+			}
+			//если ни один промосет не выбран, необходимо выбрать все
+			return promotionalSets.Select(x => x.Id).ToArray();
+		}
+
 		#endregion
 
 		private ReportInfo GetReportInfo()
@@ -58,7 +67,7 @@ namespace Vodovoz.ReportsParameters
 
 			parameters.Add("start_date", dateperiodpicker.StartDate);
 			parameters.Add("end_date", dateperiodpicker.EndDate);
-			parameters.Add("promosets", promotionalSets.Where(x => x.Active).Select(x => x.Id).ToArray());
+			parameters.Add("promosets", GetSelectedPromotionalSets());
 
 			return new ReportInfo {
 				Identifier = "Client.PotentialFreePromosets",
