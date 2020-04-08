@@ -10,6 +10,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using QS.Services;
 using Vodovoz.EntityRepositories;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -108,7 +109,7 @@ namespace Vodovoz
 			ExpenseType type = (ExpenseType)enumcomboOperation.SelectedItem;
 			ylabelEmployeeWageBalance.Visible = type == ExpenseType.EmployeeAdvance
 											 || type == ExpenseType.Salary
-											 || type == ExpenseType.Advance;
+											 || (type == ExpenseType.Advance && (new EmployeeCategory[] { EmployeeCategory.office }).All(x => x != Entity?.Employee?.Category));
 			UpdateEmployeeBalaceInfo();
 			UpdateSubdivision();
 
@@ -155,14 +156,33 @@ namespace Vodovoz
 		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			UpdateEmployeeBalaceInfo();
+		}
 
-			switch((ExpenseType)e.SelectedItem)
+		private void UpdateEmployeeBalaceInfo()
+		{
+			UpdateEmployeeBalanceVisibility();
+
+			currentEmployeeWage = 0;
+			string labelTemplate = "Текущий баланс сотрудника: {0}";
+			Employee employee = yentryEmployee.Subject as Employee;
+
+			if (employee != null)
 			{
-				case ExpenseType.Advance: 
+				currentEmployeeWage =
+					Repository.Operations.WagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
+			}
+
+			ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, currentEmployeeWage);
+		}
+
+		private void UpdateEmployeeBalanceVisibility()
+		{
+			switch((ExpenseType)enumcomboOperation.SelectedItem) {
+				case ExpenseType.Advance:
 					labelEmployee.LabelProp = "Подотчетное лицо:";
-					ylabelEmployeeWageBalance.Visible = true;
+					ylabelEmployeeWageBalance.Visible = (new EmployeeCategory[] {EmployeeCategory.office}).All(x => x != Entity?.Employee?.Category);
 					break;
-				case ExpenseType.Expense :
+				case ExpenseType.Expense:
 					labelEmployee.LabelProp = "Сотрудник:";
 					ylabelEmployeeWageBalance.Visible = false;
 					break;
@@ -175,21 +195,6 @@ namespace Vodovoz
 					ylabelEmployeeWageBalance.Visible = true;
 					break;
 			}
-		}
-
-		private void UpdateEmployeeBalaceInfo()
-		{
-			currentEmployeeWage = 0;
-			string labelTemplate = "Текущий баланс сотрудника: {0}";
-			Employee employee = yentryEmployee.Subject as Employee;
-
-			if (employee != null)
-			{
-				currentEmployeeWage =
-					Repository.Operations.WagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
-			}
-
-			ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, currentEmployeeWage);
 		}
 
 		protected void OnButtonPrintClicked (object sender, EventArgs e)
