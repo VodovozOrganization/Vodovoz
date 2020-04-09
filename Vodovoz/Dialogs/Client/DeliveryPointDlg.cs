@@ -129,6 +129,9 @@ namespace Vodovoz
 			entryEntrance.Binding.AddBinding(Entity, e => e.Entrance, w => w.Text).InitializeFromSource();
 			spinMinutesToUnload.Binding.AddBinding(Entity, e => e.MinutesToUnload, w => w.ValueAsInt).InitializeFromSource();
 
+			yentryOrganization.Binding.AddBinding(Entity, e => e.Organization, w => w.Text).InitializeFromSource();
+			hboxOrganization.Visible = Entity?.Counterparty?.PersonType == PersonType.natural;
+
 			yentryKPP.Binding.AddBinding(Entity, e => e.KPP, w => w.Text).InitializeFromSource();
 
 			yentryAddition.Binding.AddBinding(Entity, e => e.АddressAddition, w => w.Text).InitializeFromSource();
@@ -284,7 +287,14 @@ namespace Vodovoz
 				UpdateMapPosition();
 				UpdateAddressOnMap();
 			}
-			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+			if(e.PropertyName == Entity.GetPropertyName(x => x.Counterparty) && Entity?.Counterparty != null) {
+				if(Entity.Counterparty.PersonType != PersonType.natural)
+					yentryOrganization.Text = null;
+				hboxOrganization.Visible = Entity.Counterparty.PersonType == PersonType.natural;
+			}
+			//Необходимо разобраться в каких случаях нужно вызывать событие CurrentObjectChanged т.к оно сильно тормозит диалог
+			if(e.PropertyName != Entity.GetPropertyName(x => x.Organization))
+				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 
 			if(e.PropertyName == Entity.GetPropertyName(x => x.HaveResidue))
 				ShowResidue();

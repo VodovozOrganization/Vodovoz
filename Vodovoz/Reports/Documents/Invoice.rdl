@@ -18,6 +18,7 @@
         <CommandText>SELECT 
 	orders.id AS order_id,
 	orders.delivery_date AS order_date,
+	delivery_points.organization as organization,
 	orders.order_status AS order_status,
 	IF(is_bottle_stock, 
 		orders.bottles_by_stock_count,
@@ -231,6 +232,10 @@ WHERE
         </Field>
         <Field Name="order_status">
           <DataField>order_status</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="organization">
+          <DataField>organization</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -664,7 +669,7 @@ GROUP BY name</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Image">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>/*
 SET @id1 = 3; #VodovozLogo
@@ -812,7 +817,7 @@ WHERE stored_resource.id = @id1</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="IM1">
           <DataField>IM1</DataField>
           <TypeName>System.String</TypeName>
@@ -2041,7 +2046,8 @@ WHERE stored_resource.id = @id1</CommandText>
                 ''
             ),
         'САМОВЫВОЗ'
-    )</Value>
+    )
++ ' ' + {organization}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -3564,7 +3570,7 @@ WHERE stored_resource.id = @id1</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>

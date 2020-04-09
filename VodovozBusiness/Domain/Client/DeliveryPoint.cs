@@ -371,6 +371,13 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref code1c, value, () => Code1c);
 		}
 
+		string organization;
+		[Display(Name = "Организация")]
+		public virtual string Organization {
+			get => organization;
+			set => SetField(ref organization, value, () => Organization);
+		}
+
 		int bottleReserv;
 
 		[Display(Name = "Резерв бутылей")]
@@ -712,6 +719,20 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult(
 					string.Format("Длина строки \"КПП\" не должна превышать 45 символов"),
 					new[] { this.GetPropertyName(o => o.KPP) });
+					
+			var notNeedOrganizationRoomTypes = new RoomType[] { RoomType.Apartment, RoomType.Office };
+			if(Counterparty.PersonType == PersonType.natural && !notNeedOrganizationRoomTypes.Contains(RoomType)) {
+				if(String.IsNullOrWhiteSpace(Organization))
+					yield return new ValidationResult(
+						string.Format("Необходимо заполнить поле \"Организация\""),
+						new[] { this.GetPropertyName(o => o.Organization) });
+
+				if(Organization?.Length > 45)
+					yield return new ValidationResult(
+						string.Format("Длина строки \"Организация\" не должна превышать 45 символов"),
+						new[] { this.GetPropertyName(o => o.Organization) });
+			}
+
 		}
 
 		#endregion

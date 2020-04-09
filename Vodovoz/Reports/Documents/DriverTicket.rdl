@@ -13,12 +13,13 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
 	orders.delivery_date AS order_date,
 	orders.self_delivery AS self_delivery,
+	delivery_points.organization AS organization,
 	IF(is_bottle_stock, orders.bottles_by_stock_count, orders.bottles_return) AS bottles_return,
 	orders.sum_to_receive AS total,
 	orders.comment AS order_comment,
@@ -119,7 +120,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -243,6 +244,10 @@ WHERE
         <Field Name="self_delivery">
           <DataField>self_delivery</DataField>
           <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="organization">
+          <DataField>oraganization</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1667,7 +1672,8 @@ Iif({self_delivery}, "САМОВЫВОЗ",
                 '\n' + {delivery_point_comment},
                 ''
             )
-)</Value>
+)
++ ' ' + {organization}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
