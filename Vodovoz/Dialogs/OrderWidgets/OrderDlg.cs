@@ -773,8 +773,10 @@ namespace Vodovoz
 			if(Entity.DeliveryPoint != null) {
 				phones.AddRange(Entity.DeliveryPoint.Phones);
 			}
-			if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones)) {
-				return;
+			if(Entity.OrderItems.Any(x => x.PromoSet != null)) {
+				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones)) {
+					return;
+				}
 			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
