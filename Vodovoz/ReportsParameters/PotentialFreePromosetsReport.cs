@@ -9,6 +9,8 @@ using Vodovoz.Domain.Orders;
 using NHibernate.Transform;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Services;
+using Vodovoz.Core.DataService;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -21,7 +23,9 @@ namespace Vodovoz.ReportsParameters
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+
 			buttonCreateReport.Clicked += (sender, e) => OnUpdate(false);
+			IPotentialFreePromosetsReportDefaultsProvider defaultsValuesProvider = new BaseParametersProvider();
 
 			ytreeview1.ColumnsConfig = FluentColumnsConfig<PromosetReportNode>.Create()
 				.AddColumn("Выбрать").AddToggleRenderer(x => x.Active)
@@ -37,7 +41,17 @@ namespace Vodovoz.ReportsParameters
 				.TransformUsing(Transformers.AliasToBean<PromosetReportNode>())
 				.List<PromosetReportNode>();
 
+			var defaultValues = defaultsValuesProvider.GetDefaultActivePromosets();
+			if(defaultValues.Any()) {
+				foreach(var ps in promotionalSets) {
+					if(defaultValues.Contains(ps.Id)) {
+						ps.Active = true;
+					}
+				}
+			}
+
 			ytreeview1.ItemsDataSource = promotionalSets;
+
 		}
 
 		#region IParametersWidget implementation
