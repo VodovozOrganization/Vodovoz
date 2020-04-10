@@ -577,7 +577,7 @@ FROM (
 	    LEFT JOIN counterparty c ON c.id = additional_promosets_info.client_id
 	    
 	WHERE
-	    (o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= DATE(@end_date))
+	    (o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59'))
 	    AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
 	    AND o.id IN (SELECT order_id FROM order_items WHERE promotional_set_id IN (@promosets))
 	    AND additional_promosets_info.order_id IS NOT NULL
@@ -603,7 +603,7 @@ FROM (
 	    LEFT JOIN delivery_points dp_source ON dp_source.id = o.delivery_point_id
 	    LEFT JOIN counterparty c ON c.id = o.client_id    
 	WHERE
-	    (o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= DATE(@end_date))
+	    (o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59'))
 	    AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
 	    AND o.id IN (SELECT order_id FROM order_items WHERE promotional_set_id IN (@promosets))
 	    AND EXISTS (
@@ -686,7 +686,7 @@ FROM (
 										LEFT JOIN order_items oi ON o.id = oi.order_id
 									WHERE 
 										oi.promotional_set_id IN (@promosets)
-										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= DATE(@end_date)
+										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
 										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
 								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
 							WHERE
@@ -726,7 +726,7 @@ FROM (
 										LEFT JOIN order_items oi ON o.id = oi.order_id
 									WHERE 
 										oi.promotional_set_id IN (@promosets)
-										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= DATE(@end_date)
+										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
 										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
 								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
 							WHERE
@@ -740,7 +740,7 @@ FROM (
 		) additional_promosets_info ON (additional_promosets_info.digit_phone = p.digits_number OR additional_promosets_info.digit_phone = p2.digits_number) AND additional_promosets_info.id != o.id
 	WHERE 
 		oi.promotional_set_id IN (@promosets)
-		AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= DATE(@end_date)
+		AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
 		AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
 		AND additional_promosets_info.id IS NOT NULL
 	GROUP BY o.id	   
@@ -759,8 +759,8 @@ FROM (
 		c.full_name as client_name,
 		o.id as additional_promoset_order_id,
 		o.author_employee_id as additional_promoset_order_author_id,
-		o.delivery_date as additional_promoset_order_delivery_date,
 		o.create_date as additional_promoset_order_creation_date,
+		o.delivery_date as additional_promoset_order_delivery_date,		
 		(SELECT GROUP_CONCAT(DISTINCT sub_p.`number` SEPARATOR ', ') FROM phones sub_p WHERE sub_p.counterparty_id = o.client_id OR sub_p.delivery_point_id = o.delivery_point_id) as additional_promoset_phone
 	FROM 
 		orders o
@@ -771,7 +771,7 @@ FROM (
 		LEFT JOIN phones p2 ON p2.delivery_point_id = o.delivery_point_id
 	WHERE 
 		oi.promotional_set_id IN (@promosets)
-		AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= DATE(@end_date)
+		AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
 		AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
 		AND EXISTS (
 			SELECT
@@ -810,7 +810,7 @@ FROM (
 										LEFT JOIN order_items inner_api_oi ON inner_api_o.id = inner_api_oi.order_id
 									WHERE 
 										inner_api_oi.promotional_set_id IN (@promosets)
-										AND inner_api_o.create_date &gt;= DATE(@start_date) AND inner_api_o.create_date &lt;= DATE(@end_date)
+										AND inner_api_o.create_date &gt;= DATE(@start_date) AND inner_api_o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
 										AND inner_api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
 								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
 							WHERE
@@ -848,7 +848,7 @@ FROM (
 										LEFT JOIN order_items inner_api_oi ON inner_api_o.id = inner_api_oi.order_id
 									WHERE 
 										inner_api_oi.promotional_set_id IN (@promosets)
-										AND inner_api_o.create_date &gt;= DATE(@start_date) AND inner_api_o.create_date &lt;= DATE(@end_date)
+										AND inner_api_o.create_date &gt;= DATE(@start_date) AND inner_api_o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
 										AND inner_api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
 								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
 							WHERE
