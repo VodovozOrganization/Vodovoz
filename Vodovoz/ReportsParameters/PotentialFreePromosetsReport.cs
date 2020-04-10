@@ -46,7 +46,7 @@ namespace Vodovoz.ReportsParameters
 
 		public string Title {
 			get {
-				return "Отчет по выездным мастерам";
+				return "Отчет по потенциальным халявщикам";
 			}
 		}
 
