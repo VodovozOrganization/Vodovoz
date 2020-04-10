@@ -846,6 +846,7 @@
     <Compile Include="HibernateMapping\Logistic\DriverWorkScheduleMap.cs" />
     <Compile Include="Services\IDefaultDeliveryDaySchedule.cs" />
     <Compile Include="Attributes\Value1cType.cs" />
+    <Compile Include="Services\IPotentialFreePromosetsReportDefaultsProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

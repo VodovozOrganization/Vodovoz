@@ -36,7 +36,7 @@ namespace Vodovoz.ReportsParameters
 			this.labelPeriod = new global::Gtk.Label();
 			this.labelPeriod.Name = "labelPeriod";
 			this.labelPeriod.Xalign = 0F;
-			this.labelPeriod.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
+			this.labelPeriod.LabelProp = global::Mono.Unix.Catalog.GetString("Дата создания:");
 			this.hboxPeriod.Add(this.labelPeriod);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hboxPeriod[this.labelPeriod]));
 			w1.Position = 0;
