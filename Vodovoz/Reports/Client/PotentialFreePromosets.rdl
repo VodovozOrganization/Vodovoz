@@ -736,8 +736,7 @@ FROM (
 						AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
 				) as orders_phone_info
 				LEFT JOIN counterparty c ON c.id = orders_phone_info.client_id
-				LEFT JOIN delivery_points dp ON dp.id = orders_phone_info.delivery_point_id
-			GROUP BY orders_phone_info.phone
+				LEFT JOIN delivery_points dp ON dp.id = orders_phone_info.delivery_point_id			
 		) additional_promosets_info ON (additional_promosets_info.digit_phone = p.digits_number OR additional_promosets_info.digit_phone = p2.digits_number) AND additional_promosets_info.id != o.id
 	WHERE 
 		oi.promotional_set_id IN (@promosets)
@@ -861,7 +860,6 @@ FROM (
 				LEFT JOIN counterparty sub_c ON sub_c.id = orders_phone_info.client_id
 				LEFT JOIN delivery_points sub_dp ON sub_dp.id = orders_phone_info.delivery_point_id
 			WHERE (orders_phone_info.digit_phone = p.digits_number OR orders_phone_info.digit_phone = p2.digits_number) AND orders_phone_info.id != o.id
-			GROUP BY orders_phone_info.phone
 		)
 	GROUP BY o.id
 	
