@@ -169,13 +169,13 @@ ORDER BY Category;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>65pt</Width>
+            <Width>62.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>62.4pt</Width>
+            <Width>57.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>125pt</Width>
+            <Width>132.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>243.2pt</Width>
