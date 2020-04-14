@@ -36,6 +36,13 @@ using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
 using System.Data.Bindings.Collections.Generic;
+using NHibernate.Criterion;
+using Gamma.Widgets;
+using QS.Widgets.GtkUI;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -44,6 +51,8 @@ namespace Vodovoz
 		IWageCalculationRepository wageParametersRepository;
 		ISubdivisionService subdivisionService;
 		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private bool canManageDriversAndForwarders;
+		private bool canManageOfficeWorkers;
 
 		public override bool HasChanges {
 			get {
@@ -56,7 +65,7 @@ namespace Vodovoz
 
 		private GenericObservableList<DriverWorkScheduleNode> driverWorkDays;
 
-		private EmployeeCategory[] hiddenCategory;
+		private List<EmployeeCategory> hiddenCategory = new List<EmployeeCategory>();
 		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence, EmployeeDocumentType.ForeignCitizenPassport };
 		private readonly EmployeeDocumentType[] hiddenForForeignCitizen = { EmployeeDocumentType.MilitaryID, EmployeeDocumentType.NavyPassport, EmployeeDocumentType.OfficerCertificate };
 
@@ -87,7 +96,8 @@ namespace Vodovoz
 			this.Build();
 			UoWGeneric = uow;
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_trainee_to_driver")) {
-				hiddenCategory = new EmployeeCategory[] { EmployeeCategory.driver, EmployeeCategory.forwarder };
+				hiddenCategory.Add(EmployeeCategory.driver);
+				hiddenCategory.Add(EmployeeCategory.forwarder);
 			}
 			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
 			ConfigureDlg();
@@ -95,6 +105,11 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			canManageDriversAndForwarders = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_drivers_and_forwarders");
+			canManageOfficeWorkers = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_office_workers");
+
+			ConfigureCategory();
+			ConfigureSubdivision();
 			OnRussianCitizenToggled(null, EventArgs.Empty);
 			dataentryDrivingNumber.MaxLength = 20;
 			dataentryDrivingNumber.Binding.AddBinding(Entity, e => e.DrivingNumber, w => w.Text).InitializeFromSource();
@@ -135,22 +150,11 @@ namespace Vodovoz
 			referenceNationality.Binding.AddBinding(Entity, e => e.Nationality, w => w.Subject).InitializeFromSource();
 			referenceCitizenship.SubjectType = typeof(Citizenship);
 			referenceCitizenship.Binding.AddBinding(Entity, e => e.Citizenship, w => w.Subject).InitializeFromSource();
-			yentrySubdivision.SubjectType = typeof(Subdivision);
-			yentrySubdivision.Binding.AddBinding(Entity, e => e.Subdivision, w => w.Subject).InitializeFromSource();
+
 			referenceUser.SubjectType = typeof(User);
 			referenceUser.CanEditReference = false;
 			referenceUser.Binding.AddBinding(Entity, e => e.User, w => w.Subject).InitializeFromSource();
 			referenceUser.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
-
-			comboCategory.ItemsEnum = typeof(EmployeeCategory);
-			if(hiddenCategory != null && hiddenCategory.Any()) {
-				comboCategory.AddEnumToHideList(hiddenCategory.Cast<object>().ToArray());
-			}
-			comboCategory.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
-			comboCategory.ChangedByUser += (sender, e) => {
-				if(Entity.Category != EmployeeCategory.driver)
-					cmbDriverOf.SelectedItemOrNull = null;
-			};
 
 			yenumcombobox13.ItemsEnum = typeof(RegistrationType);
 			yenumcombobox13.Binding.AddBinding(Entity, e => e.Registration, w => w.SelectedItemOrNull).InitializeFromSource();
@@ -239,6 +243,71 @@ namespace Vodovoz
 			logger.Info("Ok");
 		}
 
+		private void ConfigureCategory() 
+		{
+			comboCategory.ItemsEnum = typeof(EmployeeCategory);
+			comboCategory.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
+
+			if(Entity?.Id != 0) {
+				comboCategory.Sensitive = false;
+				return; 
+			}
+
+			var allCategories = Enum.GetValues(typeof(EmployeeCategory)).Cast<EmployeeCategory>();
+
+			if(!canManageDriversAndForwarders && !canManageOfficeWorkers) {
+				comboCategory.Sensitive = false;
+				return;
+			} else if(canManageDriversAndForwarders && !canManageOfficeWorkers)
+				hiddenCategory.AddRange(allCategories.Except(new EmployeeCategory[] { EmployeeCategory.driver, EmployeeCategory.forwarder }));
+			else if(canManageOfficeWorkers && !canManageDriversAndForwarders)
+				hiddenCategory.AddRange(allCategories.Except(new EmployeeCategory[] { EmployeeCategory.office }));
+
+			if(hiddenCategory != null && hiddenCategory.Any()) {
+				comboCategory.AddEnumToHideList(hiddenCategory.Distinct().Cast<object>().ToArray());
+			}
+			comboCategory.ChangedByUser += (sender, e) => {
+				if(Entity.Category != EmployeeCategory.driver)
+					cmbDriverOf.SelectedItemOrNull = null;
+			};
+		}
+
+		private void ConfigureSubdivision()
+		{
+			if(canManageDriversAndForwarders && !canManageOfficeWorkers) {
+				var entityentrySubdivision = new EntityViewModelEntry();
+				entityentrySubdivision.SetEntityAutocompleteSelectorFactory(
+					new EntityAutocompleteSelectorFactory<SubdivisionsJournalViewModel>(typeof(Subdivision), () => {
+						var filter = new SubdivisionFilterViewModel();
+						filter.SubdivisionType = SubdivisionType.Logistic;
+						IEntityAutocompleteSelectorFactory employeeSelectorFactory =
+							new DefaultEntityAutocompleteSelectorFactory
+							<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices);
+						return new SubdivisionsJournalViewModel(
+							filter,
+							UnitOfWorkFactory.GetDefaultFactory,
+							ServicesConfig.CommonServices,
+							employeeSelectorFactory
+						);
+					})
+				);
+				entityentrySubdivision.Binding.AddBinding(Entity, e => e.Subdivision, w => w.Subject).InitializeFromSource();
+				hboxSubdivision.Add(entityentrySubdivision);
+				hboxSubdivision.ShowAll();
+				return;
+			}
+
+			var entrySubdivision = new yEntryReference();
+			entrySubdivision.SubjectType = typeof(Subdivision);
+			entrySubdivision.Binding.AddBinding(Entity, e => e.Subdivision, w => w.Subject).InitializeFromSource();
+			hboxSubdivision.Add(entrySubdivision);
+			hboxSubdivision.ShowAll();
+
+			if(!canManageOfficeWorkers && !canManageDriversAndForwarders) {
+				entrySubdivision.Sensitive = false;
+			}
+		}
+
 		bool CanCreateNewUser => Entity.User == null && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
 
 		private void FillDriverWorkSchedule(IDefaultDeliveryDaySchedule defaultDelDaySchedule)
@@ -309,6 +378,10 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			if(Entity.Id == 0 && !canManageOfficeWorkers && !canManageDriversAndForwarders) {
+				MessageDialogHelper.RunInfoDialog("У вас недостаточно прав для создания сотрудника");
+				return false;
+			}
 			//Проверяем, чтобы в БД не попала пустая строка
 			if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
 				Entity.AndroidLogin = null;
