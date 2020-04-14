@@ -109,7 +109,7 @@ namespace Vodovoz.JournalViewModels
 				Projections.SubQuery(writeoffSubQuery)
 			);
 
-			var queryStock = UoW.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
+			var queryStock = uow.Session.QueryOver<Nomenclature>(() => nomenclatureAlias)
 				.Left.JoinAlias(() => nomenclatureAlias.Unit, () => measurementUnitsAlias);
 
 			if(FilterViewModel != null) {
