@@ -57,7 +57,6 @@ using Vodovoz.ServiceDialogs;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
-using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.ForAdministrators;
 using Vodovoz.ViewModels.WageCalculation;
@@ -1570,6 +1569,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PotentialFreePromosetsReport>(),
 			() => new QSReport.ReportViewDlg(new PotentialFreePromosetsReport())
+		);
+	}
+
+	protected void OnActionWayBillReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
+			() => new QSReport.ReportViewDlg(new WayBillReport())
 		);
 	}
 }

@@ -1432,6 +1432,8 @@
     <Compile Include="ServiceDialogs\ExportTo1c\ExportOperation.cs" />
     <Compile Include="ServiceDialogs\OldExportTo1c\ExportOperation.cs" />
     <Compile Include="Core\PromosetDuplicateFinder.cs" />
+    <Compile Include="ReportsParameters\WayBillReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2150,6 +2152,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Client\PotentialFreePromosets.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\WayBillReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
