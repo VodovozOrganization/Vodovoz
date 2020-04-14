@@ -702,14 +702,17 @@ namespace Vodovoz
 				logger.Info("Сохраняем заказ...");
 
 				if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
+					bool sendEmail = true;
 					var emailAddressForBill = Entity.GetEmailAddressForBill();
 					if(emailAddressForBill == null) {
+						sendEmail = false;
 						if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
 							return false;
 						}
 					}
 					Entity.SaveEntity(UoWGeneric);
-					SendBillByEmail(emailAddressForBill);
+					if(sendEmail)
+						SendBillByEmail(emailAddressForBill);
 				} else {
 					Entity.SaveEntity(UoWGeneric);
 				}
