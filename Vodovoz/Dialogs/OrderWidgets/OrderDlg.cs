@@ -991,7 +991,11 @@ namespace Vodovoz
 								return dialog;
 							}
 						);
-					else if(doc is OrderM2Proxy)
+					else if(doc is OrderM2Proxy) {
+						if(doc.Id == 0) {
+							MessageDialogHelper.RunInfoDialog("Перед просмотром документа необходимо сохранить заказ");
+							return;
+						}
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<M2ProxyDocument>((doc as OrderM2Proxy).M2Proxy.Id),
 							() => {
@@ -1001,6 +1005,7 @@ namespace Vodovoz
 								return dialog;
 							}
 						);
+					}
 				}
 		}
 

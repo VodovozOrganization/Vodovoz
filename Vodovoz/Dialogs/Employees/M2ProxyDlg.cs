@@ -173,6 +173,9 @@ namespace Vodovoz.Dialogs.Employees
 
 		public override bool Save()
 		{
+			if(UoWOrder == null)
+				return true;
+
 			var valid = new QSValidator<M2ProxyDocument>(Entity);
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
