@@ -506,364 +506,722 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>300</Timeout>
-        <CommandText>SELECT
-	first_base_order_ordering as find_base_order,
-	base_order_id as base_order_id,
-	api_compiled_address_short as address,
-	(SELECT name FROM delivery_point_categories dpc WHERE id = delivery_point_category_id) as dp_object_type,
-	additional_promoset_phone as phone,
-	client_name as client_name,
-	additional_promoset_order_id as additional_promoset_order_id,
-	additional_promoset_order_creation_date as additional_promoset_order_creation_date,
-	additional_promoset_order_delivery_date as additional_promoset_order_delivery_date,
-	(
-    	SELECT 
-    		GROUP_CONCAT(DISTINCT sq_ps.name SEPARATOR ', ')
-    	FROM promotional_sets sq_ps 
-    		LEFT JOIN order_items sq_oi ON sq_oi.promotional_set_id = sq_ps.id 
-    	WHERE sq_oi.order_id = additional_promoset_order_id
-    ) as promoset_name, 
-    (
-    	SELECT GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) 
-		FROM employees e 
-		WHERE e.id = promosets_orders.additional_promoset_order_author_id
-    ) as author    
-FROM (
-
-	# Запрос для поиска заказов с одним и тем же адресом на которые были оформлены несколько промонаборов
-	SELECT
-	    o.id as base_order_id,
-	    1 as query_group_ordering,
-	    2 as first_base_order_ordering,
-	    additional_promosets_info.compiled_address_short as api_compiled_address_short,
-	    additional_promosets_info.delivery_point_id,
-	    additional_promosets_info.delivery_point_category_id,
-	    c.name as client_name,
-	    additional_promosets_info.order_id as additional_promoset_order_id,
-	    additional_promosets_info.author_id as additional_promoset_order_author_id,
-	    additional_promosets_info.create_date as additional_promoset_order_creation_date,
-	    additional_promosets_info.delivery_date as additional_promoset_order_delivery_date,
-	    '' as additional_promoset_phone       
-	FROM
-	    orders o
-	    LEFT JOIN delivery_points dp_source ON dp_source.id = o.delivery_point_id
-	    
-	    LEFT JOIN (
-	        SELECT 
-	            o_api.id as order_id,
-	            o_api.author_employee_id as author_id,
-	            o_api.client_id,
-	            o_api.create_date,
-	            o_api.delivery_date,
-	            dp_api.id as delivery_point_id,
-	            dp_api.delivery_point_category_id as delivery_point_category_id,
-	            dp_api.city,
-	            dp_api.street,
-	            dp_api.building,
-	            dp_api.room,
-	            dp_api.compiled_address_short            
-	        FROM delivery_points dp_api
-	            LEFT JOIN orders o_api ON o_api.delivery_point_id = dp_api.id
-	        WHERE
-	            o_api.id IN (SELECT order_id FROM order_items WHERE promotional_set_id IS NOT NULL)
-	            AND o_api.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-	    ) as additional_promosets_info
-		    ON  additional_promosets_info.city = dp_source.city 
-		    	AND additional_promosets_info.street = dp_source.street
-		        AND additional_promosets_info.building = dp_source.building 
-		        AND additional_promosets_info.room = dp_source.room 
-		        AND additional_promosets_info.order_id != o.id
-		        
-	    LEFT JOIN counterparty c ON c.id = additional_promosets_info.client_id
-	    
-	WHERE
-	    (o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59'))
-	    AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-	    AND o.id IN (SELECT order_id FROM order_items WHERE promotional_set_id IN (@promosets))
-	    AND additional_promosets_info.order_id IS NOT NULL
-	
-	UNION ALL
-	
-	# Запрос для отображения в том же общем списке самого заказа (по точкам доставки) по которому и производился поиск заказов с дополнительными промонаборами 
-	SELECT
-	    o.id as base_order_id,
-	    1 as query_group_ordering,
-	    1 as first_base_order_ordering,
-	    dp_source.compiled_address_short as api_compiled_address_short,
-	    dp_source.id as delivery_point_id,
-	    dp_source.delivery_point_category_id as delivery_point_category_id,
-	    c.full_name as client_name,	    
-		o.id as additional_promoset_order_id,
-		o.author_employee_id as additional_promoset_order_author_id,
-	    o.create_date as additional_promoset_order_creation_date,
-	    o.delivery_date as additional_promoset_order_delivery_date,
-	    '' as additional_promoset_phone
-	FROM
-	    orders o
-	    LEFT JOIN delivery_points dp_source ON dp_source.id = o.delivery_point_id
-	    LEFT JOIN counterparty c ON c.id = o.client_id    
-	WHERE
-	    (o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59'))
-	    AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-	    AND o.id IN (SELECT order_id FROM order_items WHERE promotional_set_id IN (@promosets))
-	    AND EXISTS (
-	    	SELECT
-	            o_api.id
-	        FROM orders o_api
-	            LEFT JOIN delivery_points dp_api ON o_api.delivery_point_id = dp_api.id
-	        WHERE
-	            o_api.id IN (SELECT order_id FROM order_items WHERE promotional_set_id IS NOT NULL)
-	            AND o_api.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-	            AND dp_api.city = dp_source.city
-	            AND dp_api.street = dp_source.street
-	        	AND dp_api.building = dp_source.building
-	        	AND dp_api.room = dp_source.room
-	        	AND o_api.id != o.id
-	    )
-	    
-	UNION ALL
-
-	# Запрос для поиска заказов с одним и тем же номером телефона на которые были оформлены несколько промонаборов
-	SELECT		
-		o.id as base_order_id,
-		2 as query_group_ordering,
-		2 as first_base_order_ordering,
-		additional_promosets_info.compiled_address_short as api_compiled_address_short,
-		additional_promosets_info.delivery_point_id,
-		additional_promosets_info.delivery_point_category_id,
-		additional_promosets_info.name as client_name,
-		additional_promosets_info.id as additional_promoset_order_id,
-		additional_promosets_info.author_employee_id as additional_promoset_order_author_id,
-		additional_promosets_info.create_date as additional_promoset_order_creation_date,
-		additional_promosets_info.delivery_date as additional_promoset_order_delivery_date,
-		(SELECT GROUP_CONCAT(DISTINCT sub_p.`number` SEPARATOR ', ') FROM phones sub_p WHERE sub_p.counterparty_id = o.client_id OR sub_p.delivery_point_id = o.delivery_point_id) as additional_promoset_phone
-		
-	FROM 
-		orders o
-		LEFT JOIN order_items oi ON o.id = oi.order_id
-		LEFT JOIN phones p ON p.counterparty_id = o.client_id
-		LEFT JOIN phones p2 ON p2.delivery_point_id = o.delivery_point_id
-		LEFT JOIN (
-			SELECT
-				orders_phone_info.id,
-				orders_phone_info.create_date,
-				orders_phone_info.delivery_date,
-				c.name,
-				dp.compiled_address_short,
-				dp.id as delivery_point_id,
-				dp.delivery_point_category_id as delivery_point_category_id,
-				orders_phone_info.phone,
-				orders_phone_info.digit_phone,
-				orders_phone_info.author_employee_id
-			FROM
-				(
-					#заказы с телефонами по контрагенту
-					SELECT
-						o.id,
-						o.client_id,
-						o.delivery_point_id,
-						o.create_date,
-						o.delivery_date,
-						o.author_employee_id,
-						p.`number` as phone,
-						p.digits_number as digit_phone
-					FROM orders o
-						LEFT JOIN order_items oi ON oi.order_id = o.id
-						LEFT JOIN phones p ON o.client_id = p.counterparty_id
-					WHERE
-						p.digits_number IN (
-							SELECT
-								DISTINCT pp.digits_number 
-							FROM
-								phones pp
-								LEFT JOIN (
-									SELECT
-										o.id,
-										o.client_id,
-										o.delivery_point_id
-									FROM 
-										orders o
-										LEFT JOIN order_items oi ON o.id = oi.order_id
-									WHERE 
-										oi.promotional_set_id IN (@promosets)
-										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
-										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
-							WHERE
-								oo.id IS NOT NULL
-						)
-						AND oi.promotional_set_id IS NOT NULL
-						AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-			
-				UNION ALL
-				
-					#заказы с телефонами по точке доставки
-					SELECT
-						o.id,
-						o.client_id,
-						o.delivery_point_id,
-						o.create_date,
-						o.delivery_date,
-						o.author_employee_id,
-						p.`number` as phone,
-						p.digits_number as digit_phone
-					FROM orders o
-						LEFT JOIN order_items oi ON oi.order_id = o.id
-						LEFT JOIN phones p ON o.delivery_point_id = p.delivery_point_id
-					WHERE
-						p.digits_number IN (
-							SELECT
-								DISTINCT pp.digits_number 
-							FROM
-								phones pp
-								LEFT JOIN (
-									SELECT
-										o.id,
-										o.client_id,
-										o.delivery_point_id
-									FROM 
-										orders o
-										LEFT JOIN order_items oi ON o.id = oi.order_id
-									WHERE 
-										oi.promotional_set_id IN (@promosets)
-										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
-										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
-							WHERE
-								oo.id IS NOT NULL
-						)
-						AND oi.promotional_set_id IS NOT NULL
-						AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-				) as orders_phone_info
-				LEFT JOIN counterparty c ON c.id = orders_phone_info.client_id
-				LEFT JOIN delivery_points dp ON dp.id = orders_phone_info.delivery_point_id			
-		) additional_promosets_info ON (additional_promosets_info.digit_phone = p.digits_number OR additional_promosets_info.digit_phone = p2.digits_number) AND additional_promosets_info.id != o.id
-	WHERE 
-		oi.promotional_set_id IN (@promosets)
-		AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
-		AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-		AND additional_promosets_info.id IS NOT NULL
-	GROUP BY o.id	   
-	
-	
-	UNION ALL
-	
-	# Запрос для отображения в том же общем списке самого заказа (по телефонам) по которому и производился поиск заказов с дополнительными промонаборами
-	SELECT
-		o.id as base_order_id,
-		2 as query_group_ordering,
-		1 as first_base_order_ordering,
-		dp_source.compiled_address_short as api_compiled_address_short,
-		dp_source.id as delivery_point_id,
-		dp_source.delivery_point_category_id as delivery_point_category_id,
-		c.full_name as client_name,
-		o.id as additional_promoset_order_id,
-		o.author_employee_id as additional_promoset_order_author_id,
-		o.create_date as additional_promoset_order_creation_date,
-		o.delivery_date as additional_promoset_order_delivery_date,		
-		(SELECT GROUP_CONCAT(DISTINCT sub_p.`number` SEPARATOR ', ') FROM phones sub_p WHERE sub_p.counterparty_id = o.client_id OR sub_p.delivery_point_id = o.delivery_point_id) as additional_promoset_phone
-	FROM 
-		orders o
-		LEFT JOIN order_items oi ON o.id = oi.order_id
-		LEFT JOIN delivery_points dp_source ON dp_source.id = o.delivery_point_id
-		LEFT JOIN counterparty c ON c.id = o.client_id  
-		LEFT JOIN phones p ON p.counterparty_id = o.client_id
-		LEFT JOIN phones p2 ON p2.delivery_point_id = o.delivery_point_id
-	WHERE 
-		oi.promotional_set_id IN (@promosets)
-		AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
-		AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-		AND EXISTS (
-			SELECT
-				orders_phone_info.id,
-				orders_phone_info.delivery_date,
-				sub_c.name,
-				sub_dp.compiled_address_short,
-				orders_phone_info.phone,
-				orders_phone_info.digit_phone
-			FROM
-				(
-					#заказы с телефонами по контрагенту
-					SELECT
-						api_o.id,
-						api_o.client_id,
-						api_o.delivery_point_id,
-						api_o.delivery_date,
-						api_p.`number` as phone,
-						api_p.digits_number as digit_phone
-					FROM orders api_o
-						LEFT JOIN order_items api_oi ON api_oi.order_id = api_o.id
-						LEFT JOIN phones api_p ON api_o.client_id = api_p.counterparty_id
-					WHERE
-						api_p.digits_number IN (
-							SELECT
-								DISTINCT pp.digits_number 
-							FROM
-								phones pp
-								LEFT JOIN (
-									SELECT
-										inner_api_o.id,
-										inner_api_o.client_id,
-										inner_api_o.delivery_point_id
-									FROM 
-										orders inner_api_o
-										LEFT JOIN order_items inner_api_oi ON inner_api_o.id = inner_api_oi.order_id
-									WHERE 
-										inner_api_oi.promotional_set_id IN (@promosets)
-										AND inner_api_o.create_date &gt;= DATE(@start_date) AND inner_api_o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
-										AND inner_api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
-							WHERE
-								oo.id IS NOT NULL
-						)
-						AND api_oi.promotional_set_id IS NOT NULL
-						AND api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-			
-				UNION ALL
-				
-					#заказы с телефонами по точке доставки
-					SELECT
-						api_o.id,
-						api_o.client_id,
-						api_o.delivery_point_id,
-						api_o.delivery_date,
-						api_p.`number` as phone,
-						api_p.digits_number as digit_phone
-					FROM orders api_o
-						LEFT JOIN order_items api_oi ON api_oi.order_id = api_o.id
-						LEFT JOIN phones api_p ON api_o.delivery_point_id = api_p.delivery_point_id
-					WHERE
-						api_p.digits_number IN (
-							SELECT
-								DISTINCT pp.digits_number 
-							FROM
-								phones pp
-								LEFT JOIN (
-									SELECT
-										inner_api_o.id,
-										inner_api_o.client_id,
-										inner_api_o.delivery_point_id
-									FROM 
-										orders inner_api_o
-										LEFT JOIN order_items inner_api_oi ON inner_api_o.id = inner_api_oi.order_id
-									WHERE 
-										inner_api_oi.promotional_set_id IN (@promosets)
-										AND inner_api_o.create_date &gt;= DATE(@start_date) AND inner_api_o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
-										AND inner_api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
-							WHERE
-								oo.id IS NOT NULL
-						)
-						AND api_oi.promotional_set_id IS NOT NULL
-						AND api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
-				) as orders_phone_info
-				LEFT JOIN counterparty sub_c ON sub_c.id = orders_phone_info.client_id
-				LEFT JOIN delivery_points sub_dp ON sub_dp.id = orders_phone_info.delivery_point_id
-			WHERE (orders_phone_info.digit_phone = p.digits_number OR orders_phone_info.digit_phone = p2.digits_number) AND orders_phone_info.id != o.id
-		)
-	GROUP BY o.id
-	
-) as promosets_orders
+        <CommandText>SELECT
+
+	first_base_order_ordering as find_base_order,
+
+	base_order_id as base_order_id,
+
+	api_compiled_address_short as address,
+
+	(SELECT name FROM delivery_point_categories dpc WHERE id = delivery_point_category_id) as dp_object_type,
+
+	additional_promoset_phone as phone,
+
+	client_name as client_name,
+
+	additional_promoset_order_id as additional_promoset_order_id,
+
+	additional_promoset_order_creation_date as additional_promoset_order_creation_date,
+
+	additional_promoset_order_delivery_date as additional_promoset_order_delivery_date,
+
+	(
+
+    	SELECT 
+
+    		GROUP_CONCAT(DISTINCT sq_ps.name SEPARATOR ', ')
+
+    	FROM promotional_sets sq_ps 
+
+    		LEFT JOIN order_items sq_oi ON sq_oi.promotional_set_id = sq_ps.id 
+
+    	WHERE sq_oi.order_id = additional_promoset_order_id
+
+    ) as promoset_name, 
+
+    (
+
+    	SELECT GET_PERSON_NAME_WITH_INITIALS(e.last_name, e.name, e.patronymic) 
+
+		FROM employees e 
+
+		WHERE e.id = promosets_orders.additional_promoset_order_author_id
+
+    ) as author    
+
+FROM (
+
+
+
+	# Запрос для поиска заказов с одним и тем же адресом на которые были оформлены несколько промонаборов
+
+	SELECT
+
+	    o.id as base_order_id,
+
+	    1 as query_group_ordering,
+
+	    2 as first_base_order_ordering,
+
+	    additional_promosets_info.compiled_address_short as api_compiled_address_short,
+
+	    additional_promosets_info.delivery_point_id,
+
+	    additional_promosets_info.delivery_point_category_id,
+
+	    c.name as client_name,
+
+	    additional_promosets_info.order_id as additional_promoset_order_id,
+
+	    additional_promosets_info.author_id as additional_promoset_order_author_id,
+
+	    additional_promosets_info.create_date as additional_promoset_order_creation_date,
+
+	    additional_promosets_info.delivery_date as additional_promoset_order_delivery_date,
+
+	    '' as additional_promoset_phone       
+
+	FROM
+
+	    orders o
+
+	    LEFT JOIN delivery_points dp_source ON dp_source.id = o.delivery_point_id
+
+	    
+
+	    LEFT JOIN (
+
+	        SELECT 
+
+	            o_api.id as order_id,
+
+	            o_api.author_employee_id as author_id,
+
+	            o_api.client_id,
+
+	            o_api.create_date,
+
+	            o_api.delivery_date,
+
+	            dp_api.id as delivery_point_id,
+
+	            dp_api.delivery_point_category_id as delivery_point_category_id,
+
+	            dp_api.city,
+
+	            dp_api.street,
+
+	            dp_api.building,
+
+	            dp_api.room,
+
+	            dp_api.compiled_address_short            
+
+	        FROM delivery_points dp_api
+
+	            LEFT JOIN orders o_api ON o_api.delivery_point_id = dp_api.id
+
+	        WHERE
+
+	            o_api.id IN (SELECT order_id FROM order_items WHERE promotional_set_id IS NOT NULL)
+
+	            AND o_api.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+	    ) as additional_promosets_info
+
+		    ON  additional_promosets_info.city = dp_source.city 
+
+		    	AND additional_promosets_info.street = dp_source.street
+
+		        AND additional_promosets_info.building = dp_source.building 
+
+		        AND additional_promosets_info.room = dp_source.room 
+
+		        AND additional_promosets_info.order_id != o.id
+
+		        
+
+	    LEFT JOIN counterparty c ON c.id = additional_promosets_info.client_id
+
+	    
+
+	WHERE
+
+	    (o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59'))
+
+	    AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+	    AND o.id IN (SELECT order_id FROM order_items WHERE promotional_set_id IN (@promosets))
+
+	    AND additional_promosets_info.order_id IS NOT NULL
+
+	
+
+	UNION ALL
+
+	
+
+	# Запрос для отображения в том же общем списке самого заказа (по точкам доставки) по которому и производился поиск заказов с дополнительными промонаборами 
+
+	SELECT
+
+	    o.id as base_order_id,
+
+	    1 as query_group_ordering,
+
+	    1 as first_base_order_ordering,
+
+	    dp_source.compiled_address_short as api_compiled_address_short,
+
+	    dp_source.id as delivery_point_id,
+
+	    dp_source.delivery_point_category_id as delivery_point_category_id,
+
+	    c.full_name as client_name,	    
+
+		o.id as additional_promoset_order_id,
+
+		o.author_employee_id as additional_promoset_order_author_id,
+
+	    o.create_date as additional_promoset_order_creation_date,
+
+	    o.delivery_date as additional_promoset_order_delivery_date,
+
+	    '' as additional_promoset_phone
+
+	FROM
+
+	    orders o
+
+	    LEFT JOIN delivery_points dp_source ON dp_source.id = o.delivery_point_id
+
+	    LEFT JOIN counterparty c ON c.id = o.client_id    
+
+	WHERE
+
+	    (o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59'))
+
+	    AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+	    AND o.id IN (SELECT order_id FROM order_items WHERE promotional_set_id IN (@promosets))
+
+	    AND EXISTS (
+
+	    	SELECT
+
+	            o_api.id
+
+	        FROM orders o_api
+
+	            LEFT JOIN delivery_points dp_api ON o_api.delivery_point_id = dp_api.id
+
+	        WHERE
+
+	            o_api.id IN (SELECT order_id FROM order_items WHERE promotional_set_id IS NOT NULL)
+
+	            AND o_api.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+	            AND dp_api.city = dp_source.city
+
+	            AND dp_api.street = dp_source.street
+
+	        	AND dp_api.building = dp_source.building
+
+	        	AND dp_api.room = dp_source.room
+
+	        	AND o_api.id != o.id
+
+	    )
+
+	    
+
+	UNION ALL
+
+
+
+	# Запрос для поиска заказов с одним и тем же номером телефона на которые были оформлены несколько промонаборов
+
+	SELECT		
+
+		o.id as base_order_id,
+
+		2 as query_group_ordering,
+
+		2 as first_base_order_ordering,
+
+		additional_promosets_info.compiled_address_short as api_compiled_address_short,
+
+		additional_promosets_info.delivery_point_id,
+
+		additional_promosets_info.delivery_point_category_id,
+
+		additional_promosets_info.name as client_name,
+
+		additional_promosets_info.id as additional_promoset_order_id,
+
+		additional_promosets_info.author_employee_id as additional_promoset_order_author_id,
+
+		additional_promosets_info.create_date as additional_promoset_order_creation_date,
+
+		additional_promosets_info.delivery_date as additional_promoset_order_delivery_date,
+
+		(SELECT GROUP_CONCAT(DISTINCT sub_p.`number` SEPARATOR ', ') FROM phones sub_p WHERE sub_p.counterparty_id = o.client_id OR sub_p.delivery_point_id = o.delivery_point_id) as additional_promoset_phone
+
+		
+
+	FROM 
+
+		orders o
+
+		LEFT JOIN order_items oi ON o.id = oi.order_id
+
+		LEFT JOIN phones p ON p.counterparty_id = o.client_id
+
+		LEFT JOIN phones p2 ON p2.delivery_point_id = o.delivery_point_id
+
+		LEFT JOIN (
+
+			SELECT
+
+				orders_phone_info.id,
+
+				orders_phone_info.create_date,
+
+				orders_phone_info.delivery_date,
+
+				c.name,
+
+				dp.compiled_address_short,
+
+				dp.id as delivery_point_id,
+
+				dp.delivery_point_category_id as delivery_point_category_id,
+
+				orders_phone_info.phone,
+
+				orders_phone_info.digit_phone,
+
+				orders_phone_info.author_employee_id
+
+			FROM
+
+				(
+
+					#заказы с телефонами по контрагенту
+
+					SELECT
+
+						o.id,
+
+						o.client_id,
+
+						o.delivery_point_id,
+
+						o.create_date,
+
+						o.delivery_date,
+
+						o.author_employee_id,
+
+						p.`number` as phone,
+
+						p.digits_number as digit_phone
+
+					FROM orders o
+
+						LEFT JOIN order_items oi ON oi.order_id = o.id
+
+						LEFT JOIN phones p ON o.client_id = p.counterparty_id
+
+					WHERE
+
+						p.digits_number IN (
+
+							SELECT
+
+								DISTINCT pp.digits_number 
+
+							FROM
+
+								phones pp
+
+								LEFT JOIN (
+
+									SELECT
+
+										o.id,
+
+										o.client_id,
+
+										o.delivery_point_id
+
+									FROM 
+
+										orders o
+
+										LEFT JOIN order_items oi ON o.id = oi.order_id
+
+									WHERE 
+
+										oi.promotional_set_id IN (@promosets)
+
+										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+
+										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
+
+							WHERE
+
+								oo.id IS NOT NULL
+
+						)
+
+						AND oi.promotional_set_id IS NOT NULL
+
+						AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+			
+
+				UNION ALL
+
+				
+
+					#заказы с телефонами по точке доставки
+
+					SELECT
+
+						o.id,
+
+						o.client_id,
+
+						o.delivery_point_id,
+
+						o.create_date,
+
+						o.delivery_date,
+
+						o.author_employee_id,
+
+						p.`number` as phone,
+
+						p.digits_number as digit_phone
+
+					FROM orders o
+
+						LEFT JOIN order_items oi ON oi.order_id = o.id
+
+						LEFT JOIN phones p ON o.delivery_point_id = p.delivery_point_id
+
+					WHERE
+
+						p.digits_number IN (
+
+							SELECT
+
+								DISTINCT pp.digits_number 
+
+							FROM
+
+								phones pp
+
+								LEFT JOIN (
+
+									SELECT
+
+										o.id,
+
+										o.client_id,
+
+										o.delivery_point_id
+
+									FROM 
+
+										orders o
+
+										LEFT JOIN order_items oi ON o.id = oi.order_id
+
+									WHERE 
+
+										oi.promotional_set_id IN (@promosets)
+
+										AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+
+										AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
+
+							WHERE
+
+								oo.id IS NOT NULL
+
+						)
+
+						AND oi.promotional_set_id IS NOT NULL
+
+						AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+				) as orders_phone_info
+
+				LEFT JOIN counterparty c ON c.id = orders_phone_info.client_id
+
+				LEFT JOIN delivery_points dp ON dp.id = orders_phone_info.delivery_point_id			
+
+		) additional_promosets_info ON (additional_promosets_info.digit_phone = p.digits_number OR additional_promosets_info.digit_phone = p2.digits_number) AND additional_promosets_info.id != o.id
+
+	WHERE 
+
+		oi.promotional_set_id IN (@promosets)
+
+		AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+
+		AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+		AND additional_promosets_info.id IS NOT NULL
+
+	GROUP BY additional_promosets_info.id   
+
+	
+
+	
+
+	UNION ALL
+
+	
+
+	# Запрос для отображения в том же общем списке самого заказа (по телефонам) по которому и производился поиск заказов с дополнительными промонаборами
+
+	SELECT
+
+		o.id as base_order_id,
+
+		2 as query_group_ordering,
+
+		1 as first_base_order_ordering,
+
+		dp_source.compiled_address_short as api_compiled_address_short,
+
+		dp_source.id as delivery_point_id,
+
+		dp_source.delivery_point_category_id as delivery_point_category_id,
+
+		c.full_name as client_name,
+
+		o.id as additional_promoset_order_id,
+
+		o.author_employee_id as additional_promoset_order_author_id,
+
+		o.create_date as additional_promoset_order_creation_date,
+
+		o.delivery_date as additional_promoset_order_delivery_date,		
+
+		(SELECT GROUP_CONCAT(DISTINCT sub_p.`number` SEPARATOR ', ') FROM phones sub_p WHERE sub_p.counterparty_id = o.client_id OR sub_p.delivery_point_id = o.delivery_point_id) as additional_promoset_phone
+
+	FROM 
+
+		orders o
+
+		LEFT JOIN order_items oi ON o.id = oi.order_id
+
+		LEFT JOIN delivery_points dp_source ON dp_source.id = o.delivery_point_id
+
+		LEFT JOIN counterparty c ON c.id = o.client_id  
+
+		LEFT JOIN phones p ON p.counterparty_id = o.client_id
+
+		LEFT JOIN phones p2 ON p2.delivery_point_id = o.delivery_point_id
+
+	WHERE 
+
+		oi.promotional_set_id IN (@promosets)
+
+		AND o.create_date &gt;= DATE(@start_date) AND o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+
+		AND o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+		AND EXISTS (
+
+			SELECT
+
+				orders_phone_info.id,
+
+				orders_phone_info.delivery_date,
+
+				sub_c.name,
+
+				sub_dp.compiled_address_short,
+
+				orders_phone_info.phone,
+
+				orders_phone_info.digit_phone
+
+			FROM
+
+				(
+
+					#заказы с телефонами по контрагенту
+
+					SELECT
+
+						api_o.id,
+
+						api_o.client_id,
+
+						api_o.delivery_point_id,
+
+						api_o.delivery_date,
+
+						api_p.`number` as phone,
+
+						api_p.digits_number as digit_phone
+
+					FROM orders api_o
+
+						LEFT JOIN order_items api_oi ON api_oi.order_id = api_o.id
+
+						LEFT JOIN phones api_p ON api_o.client_id = api_p.counterparty_id
+
+					WHERE
+
+						api_p.digits_number IN (
+
+							SELECT
+
+								DISTINCT pp.digits_number 
+
+							FROM
+
+								phones pp
+
+								LEFT JOIN (
+
+									SELECT
+
+										inner_api_o.id,
+
+										inner_api_o.client_id,
+
+										inner_api_o.delivery_point_id
+
+									FROM 
+
+										orders inner_api_o
+
+										LEFT JOIN order_items inner_api_oi ON inner_api_o.id = inner_api_oi.order_id
+
+									WHERE 
+
+										inner_api_oi.promotional_set_id IN (@promosets)
+
+										AND inner_api_o.create_date &gt;= DATE(@start_date) AND inner_api_o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+
+										AND inner_api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
+
+							WHERE
+
+								oo.id IS NOT NULL
+
+						)
+
+						AND api_oi.promotional_set_id IS NOT NULL
+
+						AND api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+			
+
+				UNION ALL
+
+				
+
+					#заказы с телефонами по точке доставки
+
+					SELECT
+
+						api_o.id,
+
+						api_o.client_id,
+
+						api_o.delivery_point_id,
+
+						api_o.delivery_date,
+
+						api_p.`number` as phone,
+
+						api_p.digits_number as digit_phone
+
+					FROM orders api_o
+
+						LEFT JOIN order_items api_oi ON api_oi.order_id = api_o.id
+
+						LEFT JOIN phones api_p ON api_o.delivery_point_id = api_p.delivery_point_id
+
+					WHERE
+
+						api_p.digits_number IN (
+
+							SELECT
+
+								DISTINCT pp.digits_number 
+
+							FROM
+
+								phones pp
+
+								LEFT JOIN (
+
+									SELECT
+
+										inner_api_o.id,
+
+										inner_api_o.client_id,
+
+										inner_api_o.delivery_point_id
+
+									FROM 
+
+										orders inner_api_o
+
+										LEFT JOIN order_items inner_api_oi ON inner_api_o.id = inner_api_oi.order_id
+
+									WHERE 
+
+										inner_api_oi.promotional_set_id IN (@promosets)
+
+										AND inner_api_o.create_date &gt;= DATE(@start_date) AND inner_api_o.create_date &lt;= CONCAT(DATE(@end_date), ' 23:59:59')
+
+										AND inner_api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+								) as oo ON pp.delivery_point_id = oo.delivery_point_id OR pp.counterparty_id = oo.client_id
+
+							WHERE
+
+								oo.id IS NOT NULL
+
+						)
+
+						AND api_oi.promotional_set_id IS NOT NULL
+
+						AND api_o.order_status NOT IN ('Canceled','NotDelivered','DeliveryCanceled')
+
+				) as orders_phone_info
+
+				LEFT JOIN counterparty sub_c ON sub_c.id = orders_phone_info.client_id
+
+				LEFT JOIN delivery_points sub_dp ON sub_dp.id = orders_phone_info.delivery_point_id
+
+			WHERE (orders_phone_info.digit_phone = p.digits_number OR orders_phone_info.digit_phone = p2.digits_number) AND orders_phone_info.id != o.id
+
+		)
+
+	GROUP BY o.id
+
+	
+
+) as promosets_orders
+
 ORDER BY query_group_ordering, base_order_id, first_base_order_ordering</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
