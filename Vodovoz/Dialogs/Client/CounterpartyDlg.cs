@@ -12,7 +12,6 @@ using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
 using QSOrmProject;
 using QSProjectsLib;
 using QS.Validation;
@@ -28,10 +27,11 @@ using Vodovoz.ViewModel;
 using Gtk;
 using Vodovoz.Domain.Goods;
 using QS.Project.Services;
+using QS.Tdi;
 
 namespace Vodovoz
 {
-	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider
+	public partial class CounterpartyDlg : QS.Dialog.Gtk.EntityDialogBase<Counterparty>, ICounterpartyInfoProvider, ITDICloseControlTab
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
@@ -287,20 +287,40 @@ namespace Vodovoz
 			TabParent.AddTab(OrdersDialog, this, false);
 		}
 
+		private bool canClose = true;
+		public bool CanClose()
+		{
+			if(!canClose)
+				MessageDialogHelper.RunInfoDialog("Дождитесь завершения сохранения и повторите");
+			return canClose;
+		}
+
+		private void SetSensetivity(bool isSensetive)
+		{
+			canClose = isSensetive;
+			buttonSave.Sensitive = isSensetive;
+			buttonCancel.Sensitive = isSensetive;
+		}
+
 		public override bool Save()
 		{
-			if(Entity.PayerSpecialKPP == String.Empty)
-				Entity.PayerSpecialKPP = null;
-			Entity.UoW = UoW;
-			var valid = new QSValidator<Counterparty>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
-				return false;
-			logger.Info("Сохраняем контрагента...");
-			phonesView.RemoveEmpty();
-			emailsView.RemoveEmpty();
-			UoWGeneric.Save();
-			logger.Info("Ok.");
-			return true;
+			try {
+				SetSensetivity(false);
+				if(Entity.PayerSpecialKPP == String.Empty)
+					Entity.PayerSpecialKPP = null;
+				Entity.UoW = UoW;
+				var valid = new QSValidator<Counterparty>(UoWGeneric.Root);
+				if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+					return false;
+				logger.Info("Сохраняем контрагента...");
+				phonesView.RemoveEmpty();
+				emailsView.RemoveEmpty();
+				UoWGeneric.Save();
+				logger.Info("Ok.");
+				return true;
+			} finally{
+				SetSensetivity(true);
+			}
 		}
 
 		/// <summary>
