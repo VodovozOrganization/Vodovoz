@@ -664,7 +664,7 @@ namespace Vodovoz
 		public bool CanClose()
 		{
 			if(!canClose)
-				MessageDialogHelper.RunInfoDialog("Дождитесь завершения сохранения заказа и повторите", "Сохранение...");
+				MessageDialogHelper.RunInfoDialog("Дождитесь завершения задачи и повторите");
 			return canClose;
 		}
 
@@ -1978,28 +1978,33 @@ namespace Vodovoz
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
 		{
-			var allList = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().ToList();
-			if(allList.Count <= 0)
-				return;
+			try {
+				SetSensetivity(false);
+				var allList = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().ToList();
+				if(allList.Count <= 0)
+					return;
 
-			allList.OfType<ITemplateOdtDocument>().ToList().ForEach(x => x.PrepareTemplate(UoW));
+				allList.OfType<ITemplateOdtDocument>().ToList().ForEach(x => x.PrepareTemplate(UoW));
 
-			string whatToPrint = allList.Count > 1
-				? "документов"
-				: "документа \"" + allList.First().Type.GetEnumTitle() + "\"";
-			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
-				UoWGeneric.Save();
+				string whatToPrint = allList.Count > 1
+					? "документов"
+					: "документа \"" + allList.First().Type.GetEnumTitle() + "\"";
+				if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
+					UoWGeneric.Save();
 
-			var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
-				.Where(doc => doc.PrintType == PrinterType.RDL).ToList();
-			if(selectedPrintableRDLDocuments.Any()) {
-				new DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
-			}
+				var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
+					.Where(doc => doc.PrintType == PrinterType.RDL).ToList();
+				if(selectedPrintableRDLDocuments.Any()) {
+					new DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
+				}
 
-			var selectedPrintableODTDocuments = treeDocuments.GetSelectedObjects()
-				.OfType<IPrintableOdtDocument>().ToList();
-			if(selectedPrintableODTDocuments.Any()) {
-				TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
+				var selectedPrintableODTDocuments = treeDocuments.GetSelectedObjects()
+					.OfType<IPrintableOdtDocument>().ToList();
+				if(selectedPrintableODTDocuments.Any()) {
+					TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
+				}
+			} finally {
+				SetSensetivity(true);
 			}
 		}
 
