@@ -153,7 +153,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 			}
 
 			OnWageParameterCreated?.Invoke(this, WageParameter);
-			Close(false);
+			Close(false, CloseSource.Save);
 		}
 	}
 }

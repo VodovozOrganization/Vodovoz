@@ -65,7 +65,7 @@ namespace Vodovoz.Views.Complaints
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
 		}
 
 		void EntryCounterparty_ChangedByUser(object sender, System.EventArgs e)

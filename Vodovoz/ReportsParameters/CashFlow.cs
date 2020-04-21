@@ -53,7 +53,7 @@ namespace Vodovoz.Reports
 
 		void HandleCellLayoutDataFunc (Gtk.CellLayout cell_layout, CellRenderer cell, Gtk.TreeModel tree_model, Gtk.TreeIter iter)
 		{
-			string text = DomainHelper.GetObjectTilte(tree_model.GetValue(iter, 0));
+			string text = DomainHelper.GetTitle(tree_model.GetValue(iter, 0));
 			(cell as CellRendererText).Text = text;
 		}
 
