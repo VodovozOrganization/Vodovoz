@@ -103,7 +103,7 @@ namespace Vodovoz.ViewModels.ForAdministrators
 			get {
 				if(cancelCommand == null) {
 					cancelCommand = new DelegateCommand(
-						() => Close(false),
+						() => Close(false, CloseSource.Cancel),
 						() => true
 					);
 				}
@@ -371,7 +371,7 @@ namespace Vodovoz.ViewModels.ForAdministrators
 			} catch(Exception e) {
 				throw e;
 			} finally {
-				Close(false);
+				Close(false, CloseSource.Save);
 			}
 		}
 

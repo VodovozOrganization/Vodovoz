@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Complaints
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
 
 			chkIsArchive.Binding.AddBinding(ViewModel.Entity, vm => vm.IsArchive, w => w.Active).InitializeFromSource();
 		}

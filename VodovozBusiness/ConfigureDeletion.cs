@@ -29,6 +29,7 @@ using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Contacts;
+using QS.Deletion.Configuration;
 
 namespace Vodovoz
 {
@@ -1156,13 +1157,6 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<StoredResource>();
 
 			#endregion
-
-			//Для тетирования
-#if DEBUG
-			DeleteConfig.IgnoreMissingClass.Add(typeof(TrackPoint));
-
-			DeleteConfig.DeletionCheck();
-#endif
 
 			logger.Info("Ок");
 		}

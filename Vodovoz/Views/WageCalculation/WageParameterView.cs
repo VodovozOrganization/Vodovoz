@@ -29,7 +29,7 @@ namespace Vodovoz.Views.WageCalculation
 			UpdateWageParameterView();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.Save();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
 		}
 
 		private Widget wageParameterView;

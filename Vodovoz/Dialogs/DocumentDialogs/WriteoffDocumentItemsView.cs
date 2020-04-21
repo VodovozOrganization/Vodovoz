@@ -61,7 +61,7 @@ namespace Vodovoz
 					.AddSetter ((c, i) => c.Adjustment = new Adjustment(0, 0, (double)i.AmountOnStock, 1, 100, 0))
 					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
 					.AddColumn ("Причина выбраковки").AddComboRenderer (i => i.CullingCategory)
-					.SetDisplayFunc (DomainHelper.GetObjectTilte).Editing ()
+					.SetDisplayFunc (DomainHelper.GetTitle).Editing ()
 					.FillItems (Repository.CullingCategoryRepository.All (DocumentUoW))
 					.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
 					.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)

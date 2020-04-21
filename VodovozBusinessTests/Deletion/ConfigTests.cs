@@ -2,6 +2,7 @@
 using NHibernate.Mapping;
 using NUnit.Framework;
 using QS.Deletion;
+using QS.Deletion.Configuration;
 using QS.Deletion.Testing;
 
 namespace VodovozBusinessTests.Deletion
