@@ -14,6 +14,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Repositories;
 using QS.Project.Services;
+using QS.Tdi;
 using QSOrmProject;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
@@ -35,7 +36,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class RouteListKeepingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>
+	public partial class RouteListKeepingDlg : QS.Dialog.Gtk.EntityDialogBase<RouteList>, ITDICloseControlTab
 	{
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private bool allEditing = true;
@@ -336,42 +337,63 @@ namespace Vodovoz
 
 		#region implemented abstract members of OrmGtkDialogBase
 
+		private bool canClose = true;
+		public bool CanClose()
+		{
+			if(!canClose)
+				MessageDialogHelper.RunInfoDialog("Дождитесь завершения работы задачи и повторите");
+			return canClose;
+		}
+
+		private void SetSensetivity(bool isSensetive)
+		{
+			canClose = isSensetive;
+			buttonSave.Sensitive = isSensetive;
+			buttonCancel.Sensitive = isSensetive;
+		}
+
 		public override bool Save()
 		{
-			if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute)) {
-				if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?")) {
-					Entity.CompleteRoute(wageCalculationServiceFactory, CallTaskWorker);
+			try {
+				SetSensetivity(false);
+				if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute)) {
+					if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?")) {
+						Entity.CompleteRoute(wageCalculationServiceFactory, CallTaskWorker);
+					}
 				}
-			}
 
-			UoWGeneric.Save();
+				UoWGeneric.Save();
 
-			var changedList = items.Where(item => item.ChangedDeliverySchedule || item.HasChanged).ToList();
-			if(changedList.Count == 0)
+				var changedList = items.Where(item => item.ChangedDeliverySchedule || item.HasChanged).ToList();
+				if(changedList.Count == 0)
+					return true;
+
+				var currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+				if(currentEmployee == null) {
+					MessageDialogHelper.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
+					return true;
+				}
+
+				foreach(var item in changedList) {
+					if(item.HasChanged)
+						GetChatService()
+							.SendOrderStatusNotificationToDriver(
+								currentEmployee.Id,
+								item.RouteListItem.Id
+							);
+					if(item.ChangedDeliverySchedule)
+						GetChatService()
+							.SendDeliveryScheduleNotificationToDriver(
+								currentEmployee.Id,
+								item.RouteListItem.Id
+							);
+				}
 				return true;
-
-			var currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
-			if(currentEmployee == null) {
-				MessageDialogHelper.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
-				return true;
+			} finally {
+				SetSensetivity(true);
 			}
-
-			foreach(var item in changedList) {
-				if(item.HasChanged)
-					GetChatService()
-						.SendOrderStatusNotificationToDriver(
-							currentEmployee.Id,
-							item.RouteListItem.Id
-						);
-				if(item.ChangedDeliverySchedule)
-					GetChatService()
-						.SendDeliveryScheduleNotificationToDriver(
-							currentEmployee.Id,
-							item.RouteListItem.Id
-						);
-			}
-			return true;
 		}
+
 		#endregion
 
 		static IChatService GetChatService()

@@ -49,6 +49,9 @@ namespace Vodovoz.JournalViewModels.Organization
 			if(FilterViewModel?.ExcludedSubdivisions?.Any() ?? false) {
 				query.WhereRestrictionOn(() => subdivisionAlias.Id).Not.IsIn(FilterViewModel.ExcludedSubdivisions);
 			}
+			if(FilterViewModel?.SubdivisionType != null) {
+				query.Where(Restrictions.Eq(Projections.Property<Subdivision>(x => x.SubdivisionType), FilterViewModel.SubdivisionType));
+			}
 
 			var chiefProjection = Projections.SqlFunction(
 				new SQLFunctionTemplate(NHibernateUtil.String, "GET_PERSON_NAME_WITH_INITIALS(?1, ?2, ?3)"),

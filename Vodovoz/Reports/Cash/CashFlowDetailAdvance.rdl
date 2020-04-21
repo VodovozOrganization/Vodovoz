@@ -153,10 +153,10 @@ ORDER BY Category;</CommandText>
             <Width>65pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.0pt</Width>
+            <Width>58.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>125pt</Width>
+            <Width>130.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>241.1pt</Width>
@@ -183,7 +183,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -201,7 +201,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -219,7 +219,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -237,7 +237,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -255,7 +255,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <BackgroundColor>Silver</BackgroundColor>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -282,8 +282,8 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <Format>dd.MM.yyyy</Format>
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -299,8 +299,8 @@ ORDER BY Category;</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
-                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -316,7 +316,7 @@ ORDER BY Category;</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -334,7 +334,7 @@ ORDER BY Category;</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -352,7 +352,7 @@ ORDER BY Category;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -381,7 +381,7 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -399,7 +399,7 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -417,7 +417,7 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -433,7 +433,7 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Right</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>Итого:</Value>
                     </Textbox>
@@ -450,7 +450,7 @@ ORDER BY Category;</CommandText>
                         <BorderWidth />
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=sum(Fields!sum.Value)</Value>
                     </Textbox>

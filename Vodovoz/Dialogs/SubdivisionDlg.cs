@@ -57,6 +57,10 @@ namespace Vodovoz
 			yentryreferenceChief.RepresentationModel = new EmployeesVM();
 			yentryreferenceChief.Binding.AddBinding(Entity, e => e.Chief, w => w.Subject).InitializeFromSource();
 
+			yenumcomboType.ItemsEnum = typeof(SubdivisionType);
+			yenumcomboType.Binding.AddBinding(Entity, e => e.SubdivisionType, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboType.Sensitive = false;
+
 			subdivisionsVM = new SubdivisionsVM(UoW, Entity);
 			repTreeChildSubdivisions.RepresentationModel = subdivisionsVM;
 			repTreeChildSubdivisions.YTreeModel = new RecursiveTreeModel<SubdivisionVMNode>(subdivisionsVM.Result, x => x.Parent, x => x.Children);

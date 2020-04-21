@@ -10,5 +10,11 @@ namespace Vodovoz.FilterViewModels.Organization
 			get => excludedSubdivisions;
 			set => UpdateFilterField(ref excludedSubdivisions, value, () => ExcludedSubdivisions);
 		}
+
+		private SubdivisionType? subdivisionType;
+		public virtual SubdivisionType? SubdivisionType {
+			get => subdivisionType;
+			set => UpdateFilterField(ref subdivisionType, value, () => SubdivisionType);
+		}
 	}
 }

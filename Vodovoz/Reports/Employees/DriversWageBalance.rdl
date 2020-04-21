@@ -49,7 +49,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>28.1pt</Width>
+            <Width>30.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>462.5pt</Width>
@@ -61,7 +61,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>13.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -121,7 +121,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>13.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>

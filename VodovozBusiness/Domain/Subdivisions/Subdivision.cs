@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -99,6 +100,13 @@ namespace Vodovoz
 		public virtual GeographicGroup GeographicGroup {
 			get => geographicGroup;
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
+		}
+
+		SubdivisionType subdivisionType;
+		[Display(Name = "Тип подразделения")]
+		public virtual SubdivisionType SubdivisionType {
+			get => subdivisionType;
+			set => SetField(ref subdivisionType, value, () => SubdivisionType);
 		}
 
 		#endregion
@@ -203,6 +211,21 @@ namespace Vodovoz
 		}
 
 		#endregion
+	}
+
+	public enum SubdivisionType
+	{
+		[Display(Name = "Стандартный")]
+		Default,
+		[Display(Name = "Логистика")]
+		Logistic,
+		[Display(Name = "Офис")]
+		Office
+	}
+
+	public class SubdivisionTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public SubdivisionTypeStringType() : base(typeof(SubdivisionType)) { }
 	}
 }
 
