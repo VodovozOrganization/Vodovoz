@@ -9,6 +9,7 @@ using NHibernate;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Tdi;
 using QSProjectsLib;
 using QSReport;
 using Vodovoz.Additions.Logistic;
@@ -19,7 +20,7 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Dialogs.Logistic
 {
-	public partial class PrintRouteDocumentsDlg : QS.Dialog.Gtk.TdiTabBase
+	public partial class PrintRouteDocumentsDlg : QS.Dialog.Gtk.TdiTabBase, ITDICloseControlTab
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -175,56 +176,75 @@ namespace Vodovoz.Dialogs.Logistic
 			Routes.Where(x => (x.Document as RouteListPrintableDocs).routeList.Status >= RouteListStatus.Confirmed).ToList().ForEach(x => x.Selected = checkSelectAll.Active);
 		}
 
+		private bool canClose = true;
+		public bool CanClose()
+		{
+			if(!canClose)
+				MessageDialogHelper.RunInfoDialog("Дождитесь завершения печати и повторите");
+			return canClose;
+		}
+
+		private void SetSensetivity(bool isSensetive)
+		{
+			canClose = isSensetive;
+			buttonPrint.Sensitive = isSensetive;
+		}
+
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			var routeCount = Routes.Count(x => x.Selected);
-			progressPrint.Adjustment.Upper = routeCount;
-			progressPrint.Adjustment.Value = 0;
+			try {
+				SetSensetivity(false);
+				var routeCount = Routes.Count(x => x.Selected);
+				progressPrint.Adjustment.Upper = routeCount;
+				progressPrint.Adjustment.Value = 0;
 
-			foreach(var item in Routes.Where(x => x.Selected)) {
-				if(item.Document is RouteListPrintableDocs rlPrintableDoc) {
-					progressPrint.Text = String.Format("Печатаем МЛ {0} - {1}", rlPrintableDoc.routeList.Id, rlPrintableDoc.routeList.Driver.ShortName);
-					QSMain.WaitRedraw();
-					var rlDocTypesToPrint = new List<RouteListPrintableDocuments>();
-					OrderDocumentType[] oDocTypesToPrint = null;
+				foreach(var item in Routes.Where(x => x.Selected)) {
+					if(item.Document is RouteListPrintableDocs rlPrintableDoc) {
+						progressPrint.Text = String.Format("Печатаем МЛ {0} - {1}", rlPrintableDoc.routeList.Id, rlPrintableDoc.routeList.Driver.ShortName);
+						QSMain.WaitRedraw();
+						var rlDocTypesToPrint = new List<RouteListPrintableDocuments>();
+						OrderDocumentType[] oDocTypesToPrint = null;
 
-					if(checkRoute.Active)
-						rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteList);
-					if(checkRouteMap.Active)
-						rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteMap);
-					if(chkLoadDocument.Active)
-						rlDocTypesToPrint.Add(RouteListPrintableDocuments.LoadDocument);
-					if(chkDocumentsOfOrders.Active)
-						oDocTypesToPrint = OrderDocTypesToPrint.Where(n => n.Selected)
-															   .Select(n => n.Type)
-															   .ToArray();
+						if(checkRoute.Active)
+							rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteList);
+						if(checkRouteMap.Active)
+							rlDocTypesToPrint.Add(RouteListPrintableDocuments.RouteMap);
+						if(chkLoadDocument.Active)
+							rlDocTypesToPrint.Add(RouteListPrintableDocuments.LoadDocument);
+						if(chkDocumentsOfOrders.Active)
+							oDocTypesToPrint = OrderDocTypesToPrint.Where(n => n.Selected)
+																   .Select(n => n.Type)
+																   .ToArray();
 
-					bool cancelPrinting = false;
-					EntitiyDocumentsPrinter printer = new EntitiyDocumentsPrinter(
-						uow,
-						rlPrintableDoc.routeList,
-						rlDocTypesToPrint.ToArray(),
-						oDocTypesToPrint
-					);
-					printer.PrintingCanceled += (s, ea) => {
-						cancelPrinting = true;
-					};
-					printer.Print();
-					if(!string.IsNullOrEmpty(printer.ODTTemplateNotFoundMessages)) {
-						gtkScrollWndWarnings.Visible = true;
-						warnings.Add(string.Format("МЛ №{0} - {1}:", rlPrintableDoc.routeList.Id, rlPrintableDoc.routeList.Driver.ShortName));
-						warnings.Add(printer.ODTTemplateNotFoundMessages);
+						bool cancelPrinting = false;
+						EntitiyDocumentsPrinter printer = new EntitiyDocumentsPrinter(
+							uow,
+							rlPrintableDoc.routeList,
+							rlDocTypesToPrint.ToArray(),
+							oDocTypesToPrint
+						);
+						printer.PrintingCanceled += (s, ea) => {
+							cancelPrinting = true;
+						};
+						printer.Print();
+						if(!string.IsNullOrEmpty(printer.ODTTemplateNotFoundMessages)) {
+							gtkScrollWndWarnings.Visible = true;
+							warnings.Add(string.Format("МЛ №{0} - {1}:", rlPrintableDoc.routeList.Id, rlPrintableDoc.routeList.Driver.ShortName));
+							warnings.Add(printer.ODTTemplateNotFoundMessages);
+						}
+						if(cancelPrinting) {
+							progressPrint.Text = "Печать отменена";
+							break;
+						}
 					}
-					if(cancelPrinting) {
-						progressPrint.Text = "Печать отменена";
-						break;
-					}
+					progressPrint.Text = "Готово";
+
+					progressPrint.Adjustment.Value++;
 				}
-				progressPrint.Text = "Готово";
-
-				progressPrint.Adjustment.Value++;
+				EntitiyDocumentsPrinter.PrinterSettings = null;
+			} finally {
+				SetSensetivity(true);
 			}
-			EntitiyDocumentsPrinter.PrinterSettings = null;
 		}
 
 		public override void Destroy()

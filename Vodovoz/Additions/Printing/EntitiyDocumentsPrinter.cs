@@ -143,7 +143,7 @@ namespace Vodovoz.Additions.Printing
 						uow.Save(rl);
 						uow.Commit();
 					}
-					uow.Session.Refresh(currentRouteList);
+					uow?.Session?.Refresh(currentRouteList);
 				}
 				DocumentsPrinted?.Invoke(o, args);
 			};
