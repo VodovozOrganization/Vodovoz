@@ -53,7 +53,6 @@ namespace Vodovoz
 		private decimal balanceBeforeOp = default(decimal);
 		private bool editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_cash");
 		private bool canCloseRoutelist = false;
-		private bool fixedWageTrigger = false;
 		private Employee previousForwarder = null;
 		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
 
@@ -709,16 +708,7 @@ namespace Vodovoz
 				Entity.AcceptCash(CallTaskWorker);
 			}
 
-			if(!MessageDialogHelper.RunQuestionDialog("Перед выходом распечатать документ?")) {
-				SaveAndClose();
-			} else {
-				Save();
-
-				PrintRouteList();
-
-				UpdateButtonState();
-				this.OnCloseTab(false);
-			}
+			SaveAndClose();
 		}
 
 		void PrintSelectedDocument(RouteListPrintDocuments choise)
