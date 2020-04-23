@@ -50,7 +50,7 @@
             <Width>88.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>88.5pt</Width>
+            <Width>80.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>80.2pt</Width>
@@ -59,7 +59,7 @@
             <Width>101.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>100.8pt</Width>
+            <Width>92.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>105.4pt</Width>
@@ -276,7 +276,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
+        <Left>6pt</Left>
         <Top>38.9pt</Top>
         <Footer>
           <TableRows>
@@ -413,7 +413,7 @@
             <Width>88.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>283.5pt</Width>
+            <Width>268.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>105.1pt</Width>
@@ -565,7 +565,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
+        <Left>6pt</Left>
         <Top>93.1pt</Top>
         <Footer>
           <TableRows>
@@ -649,10 +649,10 @@
       <Textbox Name="Textbox32">
         <Height>18.03pt</Height>
         <Width>292.84pt</Width>
-        <Value>="Итого:" + Convert.ToString( Sum(Fields!wage.Value, "DriverInfo") + Sum(Fields!money.Value, "DriverPremiums") - Sum(Fields!money.Value, "DriverFines") - Sum(Fields!advance.Value, "Advances"))</Value>
+        <Value>="Итого:  " + Convert.ToString( Sum(Fields!wage.Value, "DriverInfo") + Sum(Fields!money.Value, "DriverPremiums") - Sum(Fields!money.Value, "DriverFines") - Sum(Fields!advance.Value, "Advances"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>2.4pt</Left>
-        <Top>253.5pt</Top>
+        <Left>10pt</Left>
+        <Top>256.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -678,7 +678,7 @@
             <Width>88.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>284.0pt</Width>
+            <Width>269.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -796,7 +796,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
+        <Left>6pt</Left>
         <Top>213.1pt</Top>
         <Footer>
           <TableRows>
@@ -862,6 +862,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -967,7 +969,7 @@
           </TableRows>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
-        <Left>2.4pt</Left>
+        <Left>9.2pt</Left>
         <Top>289.1pt</Top>
       </Table>
       <Table Name="Table5">
@@ -977,6 +979,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -989,7 +993,7 @@
             <Width>184.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>206.5pt</Width>
+            <Width>193.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1130,16 +1134,16 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
+        <Left>6pt</Left>
         <Top>330.3pt</Top>
       </Table>
       <Textbox Name="Textbox52">
-        <Height>13.49pt</Height>
-        <Width>128.72pt</Width>
+        <Height>12.75pt</Height>
+        <Width>121.20pt</Width>
         <Value>Незакрытые авансы:</Value>
         <ZIndex>1</ZIndex>
-        <Left>9.2pt</Left>
-        <Top>314.2pt</Top>
+        <Left>10pt</Left>
+        <Top>316.60pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1147,12 +1151,12 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox53">
-        <Height>13.50pt</Height>
+        <Height>12.75pt</Height>
         <Width>167.86pt</Width>
         <Value>Незакрытые маршрутные листы</Value>
         <ZIndex>1</ZIndex>
-        <Left>11.4pt</Left>
-        <Top>359.2pt</Top>
+        <Left>10pt</Left>
+        <Top>360.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1166,6 +1170,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -1288,7 +1294,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
+        <Left>6pt</Left>
         <Top>374.7pt</Top>
       </Table>
       <Table Name="Table7">
@@ -1337,6 +1343,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Left >10pt</Left>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1344,8 +1351,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>9.0pt</Left>
-        <Top>407.1pt</Top>
+        <Left>4.8pt</Left>
+        <Top>407.9pt</Top>
       </Table>
       <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DriverPremiums</DataSetName>
@@ -1365,7 +1372,7 @@
             <Width>89.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>283.9pt</Width>
+            <Width>269.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1483,7 +1490,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
+        <Left>6pt</Left>
         <Top>152.5pt</Top>
         <Footer>
           <TableRows>
@@ -1549,24 +1556,39 @@
         <Width>1in</Width>
         <Value>Премии:</Value>
         <ZIndex>1</ZIndex>
-        <Left>2.4pt</Left>
+        <Left>10pt</Left>
         <Top>139.4pt</Top>
+        <Style >
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
       </Textbox>
       <Textbox Name="Textbox74">
-        <Height>12pt</Height>
-        <Width>1in</Width>
+        <Height>11.25pt</Height>
+        <Width>72.27pt</Width>
         <Value>Авансы:</Value>
         <ZIndex>1</ZIndex>
-        <Left>2.4pt</Left>
-        <Top>200.0pt</Top>
+        <Left>10.00pt</Left>
+        <Top>200.00pt</Top>
+        <Style >
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
       </Textbox>
       <Textbox Name="Textbox75">
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>Штрафы:</Value>
         <ZIndex>1</ZIndex>
-        <Left>2.4pt</Left>
-        <Top>80.4pt</Top>
+        <Left>10pt</Left>
+        <Top>78.8pt</Top>
+        <Style >
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
       </Textbox>
     </ReportItems>
     <Columns>1</Columns>
