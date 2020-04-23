@@ -980,7 +980,7 @@ FROM (
 
 		AND additional_promosets_info.id IS NOT NULL
 
-	GROUP BY additional_promosets_info.id   
+	GROUP BY o.id, additional_promosets_info.id   
 
 	
 
