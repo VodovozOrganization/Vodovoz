@@ -88,7 +88,7 @@ namespace Vodovoz.Additions.Logistic
 			RdlText = RdlText.Replace("<!--colspan-->", String.Format("<ColSpan>{0}</ColSpan>", RouteColumns.Count));
 
 			//Расширяем таблицу
-			string columnsXml = "<TableColumn><Width>20pt</Width></TableColumn>";
+			string columnsXml = "<TableColumn><Width>18pt</Width></TableColumn>";
 			string columns = String.Empty;
 			for(int i = 0; i < RouteColumns.Count; i++) {
 				columns += columnsXml;
