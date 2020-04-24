@@ -1596,7 +1596,6 @@
     IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 LEFT JOIN cars ON employees.id = cars.driver_id
 LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
 LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
@@ -1604,7 +1603,13 @@ WHERE
 	wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
 	AND employees.category = 'driver'
-	AND w.wage_type != 'Manual'
+	AND EXISTS (
+		SELECT id FROM wage_parameters w
+		WHERE
+			w.employee_id = employees.id
+			AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
+			AND w.wage_type != 'Manual'
+	)
 	AND (employees.driver_of = 'DriverCar' OR driver_of IS NULL)
 	AND (cars.is_raskat = false OR cars.is_raskat IS NULL)
 GROUP BY wages_movement_operations.employee_id
