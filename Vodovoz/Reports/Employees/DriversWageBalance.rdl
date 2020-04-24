@@ -1820,12 +1820,17 @@ ORDER BY driver
 	IFNULL(geographic_groups.name, 'Не указано') as parent_subdivision
 FROM wages_movement_operations
 LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
-LEFT JOIN wage_parameters w ON w.employee_id = employees.id AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
 LEFT JOIN subdivisions on subdivisions.id = employees.subdivision_id
 LEFT JOIN geographic_groups ON geographic_groups.id = subdivisions.geographic_group_id
 WHERE wages_movement_operations.operation_time &lt;= @date
 	AND wages_movement_operations.employee_id IN (@drivers)
-	AND w.wage_type != 'Manual'
+	AND EXISTS (
+		SELECT id FROM wage_parameters w
+		WHERE
+			w.employee_id = employees.id
+			AND IN_DATE_PERIOD(w.start_date, w.end_date, wages_movement_operations.operation_time)
+			AND w.wage_type != 'Manual'
+	)
 GROUP BY parent_subdivision
 HAVING balance &lt;&gt; 0
 ;</CommandText>
