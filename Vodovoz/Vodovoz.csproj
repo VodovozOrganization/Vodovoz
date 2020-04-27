@@ -496,6 +496,7 @@
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
+    <Compile Include="TempAdapters\EquipmentRepositoryForViews.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingInvoiceDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceDlg.cs" />
@@ -1558,14 +1559,6 @@
     <ProjectReference Include="..\..\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
       <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
       <Name>QS.HistoryLog</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSValidation\QSValidation.csproj">
-      <Project>{CE5179E8-3172-4C08-9FE3-9C48C58A3831}</Project>
-      <Name>QSValidation</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QS.Validation\QS.Validation.csproj">
-      <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
-      <Name>QS.Validation</Name>
     </ProjectReference>
     <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
       <Project>{EF73674E-B8D5-461B-A072-AC73231C82B2}</Project>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QSProjectsLib;
+using QS.Utilities.Text;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 
@@ -63,7 +63,7 @@ namespace Vodovoz.Repositories
 			"<span foreground=\"{0}\"><b>{1}\n{2}: </b></span>",
 			Color,
 			Date.ToString("d MMM, HH:mm:ss"),
-			StringWorks.PersonNameWithInitials(LName, FName, MName)
+			PersonHelper.PersonNameWithInitials(LName, FName, MName)
 		);
 		public DateTime Date { get; set; }
 		public string FName { get; set; }
