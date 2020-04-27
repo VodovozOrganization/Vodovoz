@@ -13,7 +13,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Services;
-using QSProjectsLib;
+using QS.Utilities;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -784,7 +784,7 @@ namespace Vodovoz.Domain.Client
 			}
 
 			if(IsDeliveriesClosed && String.IsNullOrWhiteSpace(CloseDeliveryComment))
-				yield return new ValidationResult("Неоходимо заполнить комментарий по закрытию поставок",
+				yield return new ValidationResult("Необходимо заполнить комментарий по закрытию поставок",
 						new[] { this.GetPropertyName(o => o.CloseDeliveryComment) });
 
 			if(IsArchive) {

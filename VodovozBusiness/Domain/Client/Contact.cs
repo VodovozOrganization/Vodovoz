@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSProjectsLib;
+using QS.Utilities.Text;
 using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Domain.Client
@@ -100,7 +100,7 @@ namespace Vodovoz.Domain.Client
 					return String.Empty;
 				if (DeliveryPoints.Count == 1)
 					return DeliveryPoints [0].CompiledAddress;
-				return String.Format ("{0} и еще {1}", DeliveryPoints [0].CompiledAddress, DeliveryPoints.Count);
+				return $"{DeliveryPoints[0].CompiledAddress} и еще {DeliveryPoints.Count}";
 			}
 		}
 
@@ -113,20 +113,9 @@ namespace Vodovoz.Domain.Client
 			IsFired = false;
 		}
 
-		public virtual string FullName { get { return StringWorks.PersonFullName (Surname, Name, Patronymic); } }
+		public virtual string FullName => PersonHelper.PersonFullName (Surname, Name, Patronymic);
 
-		public virtual string Title {get {return FullName;}}
-
-		public virtual string MainPhoneString { 
-			get { 
-				if (Phones.Count > 0 && Phones [0].Number != String.Empty)
-					return String.Format ("{0}{1}", 
-						Phones [0].PhoneType != null ? Phones [0].PhoneType.Name + " " : String.Empty, 
-						Phones [0].Number);
-				else
-					return String.Empty; 
-			} 
-		}
+		public virtual string Title => FullName;
 
 		public override bool Equals (Object obj)
 		{

@@ -20,6 +20,7 @@ using Vodovoz.Tools;
 using NHibernate;
 using QS.Project.DB;
 using QS.DomainModel.Entity;
+using QS.Tools;
 
 namespace Vodovoz
 {
@@ -111,7 +112,7 @@ namespace Vodovoz
 				Environment.OSVersion.VersionString
 			);
 			GMap.NET.MapProviders.GMapProvider.Language = GMap.NET.LanguageType.Russian;
-			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
+			PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
 
 			DatePicker.CalendarFontSize = 16;
 			DateRangePicker.CalendarFontSize = 16;
@@ -154,8 +155,8 @@ namespace Vodovoz
 
 			QSSaaS.Session.StartSessionRefresh ();
 
-			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончен старт SAAS. Конец загрузки.");
-			QSProjectsLib.PerformanceHelper.Main.PrintAllPoints (logger);
+			PerformanceHelper.AddTimePoint (logger, "Закончен старт SAAS. Конец загрузки.");
+			PerformanceHelper.Main.PrintAllPoints (logger);
 
 			Application.Run();
 			QSSaaS.Session.StopSessionRefresh ();

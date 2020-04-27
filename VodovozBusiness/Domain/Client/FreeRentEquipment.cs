@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSProjectsLib;
+using QS.Utilities;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
@@ -91,7 +91,7 @@ namespace Vodovoz.Domain.Client
 
 		public virtual string DepositString { get { return CurrencyWorks.GetShortCurrencyString (Deposit); } }
 
-		public virtual string WaterAmountString { get { return String.Format ("{0} " + RusNumber.Case (WaterAmount, "бутыль", "бутыли", "бутылей"), WaterAmount); } }
+		public virtual string WaterAmountString { get { return String.Format ("{0} " + NumberToTextRus.Case (WaterAmount, "бутыль", "бутыли", "бутылей"), WaterAmount); } }
 
 		public virtual string Title {get { return String.Format("Бесплатная аренда {0}", EquipmentName); }}
 

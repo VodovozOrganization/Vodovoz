@@ -7,6 +7,7 @@ using NetTopologySuite.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Services;
+using QS.Tools;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;

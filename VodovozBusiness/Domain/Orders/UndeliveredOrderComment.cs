@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QSProjectsLib;
+using QS.Utilities.Text;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Orders
@@ -68,7 +68,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual string GetMarkedUpComment(string color){
 			string fullComment = String.Format("<b>{0} {1}:</b> {2} ",
 			                                   commentDate.ToString("d MMM, hh:mm:ss"),
-			                                   StringWorks.PersonNameWithInitials(Employee.LastName, Employee.Name, Employee.Patronymic),
+			                                   PersonHelper.PersonNameWithInitials(Employee.LastName, Employee.Name, Employee.Patronymic),
 			                                   Comment
 			                                  );
 			return String.Format("<span foreground=\"{0}\">{1}</span>", color, fullComment);
