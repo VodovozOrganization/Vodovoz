@@ -1025,9 +1025,10 @@
                         <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <PaddingLeft>5pt</PaddingLeft>
                         <PaddingRight>5pt</PaddingRight>
-                        <PaddingTop>10pt</PaddingTop>
-                        <PaddingBottom>10pt</PaddingBottom>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
                         <Format>0.00</Format>
+                        <VerticalAlign >Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2194,7 +2195,8 @@ route_list_addresses.status AS Status,
 orders.payment_type AS payment_type,
 CASE
     WHEN orders.payment_type IN ('cashless', 'barter', 'ContractDoc') THEN 'б/н'
-    WHEN orders.contactless_delivery THEN 'Без подписи'
+    WHEN orders.contactless_delivery THEN 'Без
+подписи'
     ELSE ''
 END as client_signature_autofill
 
