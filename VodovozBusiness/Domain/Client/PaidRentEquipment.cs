@@ -1,8 +1,7 @@
 ﻿using System;
-using QS.DomainModel.Entity;
-using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QSProjectsLib;
 using Vodovoz.Domain.Goods;
 

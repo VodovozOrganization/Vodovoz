@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.Tools.Logistic
+﻿namespace Vodovoz.Tools.Logistic
 {
 	/// <summary>
 	/// Структура храняшая 2 хеша кординат точки отправления и точки прибытия.

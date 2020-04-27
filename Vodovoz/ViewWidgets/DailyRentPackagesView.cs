@@ -13,7 +13,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.Representations;
 
 namespace Vodovoz
@@ -170,7 +170,7 @@ namespace Vodovoz
 		{
 			var equipmentType = AgreementUoW.GetById<EquipmentType>(args.GetSelectedIds().FirstOrDefault());
 
-			var rentPackage = Repository.RentPackageRepository.GetPaidRentPackage(AgreementUoW, equipmentType);
+			var rentPackage = RentPackageRepository.GetPaidRentPackage(AgreementUoW, equipmentType);
 			if(rentPackage == null) {
 				MessageDialogWorks.RunErrorDialog("Для выбранного типа оборудования нет условий платной аренды.");
 				return;

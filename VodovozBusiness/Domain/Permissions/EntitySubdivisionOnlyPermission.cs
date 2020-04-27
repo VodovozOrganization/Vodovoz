@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.Domain.Permissions
+﻿namespace Vodovoz.Domain.Permissions
 {
 	public class EntitySubdivisionOnlyPermission : EntitySubdivisionPermission
 	{

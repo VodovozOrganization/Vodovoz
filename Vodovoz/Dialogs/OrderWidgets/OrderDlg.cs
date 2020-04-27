@@ -58,7 +58,7 @@ using Vodovoz.JournalFilters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Repositories.Client;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -68,6 +68,7 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Core;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -2637,7 +2638,8 @@ namespace Vodovoz
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. Счет не найден.");
 				return;
 			}
-			var organization = OrganizationRepository.GetCashlessOrganization(UoW);
+
+			var organization = UoW.GetById<Organization>(new BaseParametersProvider().GetCashlessOrganisationId);
 			if(organization == null) {
 				MessageDialogHelper.RunErrorDialog("Невозможно отправить счет по электронной почте. В параметрах базы не определена организация для безналичного расчета");
 				return;

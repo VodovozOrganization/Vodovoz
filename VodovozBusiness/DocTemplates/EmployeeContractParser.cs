@@ -1,5 +1,4 @@
-﻿using System;
-using QSDocTemplates;
+﻿using QSDocTemplates;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.DocTemplates

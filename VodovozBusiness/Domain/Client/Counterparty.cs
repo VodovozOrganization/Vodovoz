@@ -12,7 +12,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
@@ -20,9 +19,9 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repositories;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Client
 {

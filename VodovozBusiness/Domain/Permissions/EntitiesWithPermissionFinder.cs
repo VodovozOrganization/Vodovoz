@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using QS.Banks.Domain;
+using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Project.Domain;
 using Vodovoz.Domain.Orders;
-using QSBanks;
-using QS.BusinessCommon.Domain;
-using QS.Banks.Domain;
 
 namespace Vodovoz.Domain.Permissions
 {

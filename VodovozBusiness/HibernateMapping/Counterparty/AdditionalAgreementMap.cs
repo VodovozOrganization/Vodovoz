@@ -1,7 +1,7 @@
 ﻿﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
+ using Vodovoz.Domain.Client;
 
-namespace Vodovoz.HibernateMapping
+ namespace Vodovoz.HibernateMapping
 {
 	public class AdditionalAgreementMap : ClassMap<AdditionalAgreement>
 	{

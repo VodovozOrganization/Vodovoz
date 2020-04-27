@@ -1,21 +1,21 @@
 ﻿﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NHibernate.Criterion;
-using QS.DomainModel.UoW;
-using Vodovoz.Domain;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Goods;
-using NHibernate.Transform;
-using QSOrmProject.RepresentationModel;
-using QS.BusinessCommon.Domain;
+ using System.Collections.Generic;
+ using System.Linq;
+ using NHibernate.Criterion;
+ using NHibernate.Transform;
+ using QS.BusinessCommon.Domain;
+ using QS.DomainModel.UoW;
+ using QSOrmProject.RepresentationModel;
+ using Vodovoz.Domain;
+ using Vodovoz.Domain.Client;
+ using Vodovoz.Domain.Documents;
+ using Vodovoz.Domain.Goods;
+ using Vodovoz.Domain.Logistic;
+ using Vodovoz.Domain.Operations;
+ using Vodovoz.Domain.Orders;
+ using Vodovoz.Domain.Store;
 
-namespace Vodovoz.Repository
+ namespace Vodovoz.Repositories
 {
 	public static class EquipmentRepository
 	{

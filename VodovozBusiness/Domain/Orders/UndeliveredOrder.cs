@@ -5,7 +5,6 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Gamma.Utilities;
-using NHibernate.Util;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;

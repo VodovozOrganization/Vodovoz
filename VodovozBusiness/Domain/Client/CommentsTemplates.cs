@@ -1,10 +1,7 @@
-﻿using System;
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
 {

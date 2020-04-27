@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using NHibernate.Transform;
-using NHibernate.Util;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
 	public class WageCalculationServiceForOldRouteLists : IRouteListWageCalculationService

@@ -6,7 +6,6 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Dialog.Gtk;
-using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
@@ -16,11 +15,11 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewers;
 using Vodovoz.Repositories;
+using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepository;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels

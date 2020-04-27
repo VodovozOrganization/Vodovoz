@@ -427,6 +427,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="HibernateMapping\Documents\TransferOperationDocumentMap.cs" />
+    <Compile Include="Services\IOrganisationParametersProvider.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\CommentTemplateMap.cs" />
@@ -958,10 +959,6 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QSBusinessCommon\QSBusinessCommon.csproj">
       <Project>{AD329D59-938D-42AC-ABE2-B0F14FDBB7C6}</Project>
       <Name>QSBusinessCommon</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSSupportLib\QSSupportLib.csproj">
-      <Project>{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}</Project>
-      <Name>QSSupportLib</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
       <Project>{D0C39D9D-BED0-418B-9A5E-713176CAF40C}</Project>

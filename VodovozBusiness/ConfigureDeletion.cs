@@ -3,6 +3,7 @@ using QS.Banks;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Deletion;
+using QS.Deletion.Configuration;
 using QS.HistoryLog.Domain;
 using QS.Project.Domain;
 using Vodovoz.Domain;
@@ -11,6 +12,8 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Complaints;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -27,9 +30,6 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.StoredResources;
 using Vodovoz.Domain.Suppliers;
-using Vodovoz.Domain.Complaints;
-using Vodovoz.Domain.Contacts;
-using QS.Deletion.Configuration;
 
 namespace Vodovoz
 {

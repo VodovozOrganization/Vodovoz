@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using QS.DomainModel.UoW;
-using QSSupportLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Parameters;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.Tools.AdditionalAgreements
 {

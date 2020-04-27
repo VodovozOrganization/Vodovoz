@@ -53,7 +53,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var selectOldNomenclature = new OrmReference(Repository.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var selectOldNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			selectOldNomenclature.TabName =	"Выберите номенклатуру на замену";
 			selectOldNomenclature.Mode = OrmReferenceMode.Select;
 			selectOldNomenclature.ObjectSelected += SelectOldNomenclature_ObjectSelected1;
@@ -68,7 +68,7 @@ namespace Vodovoz
 					NomenclatureOld = nomenclature
 				};
 
-			var selectNewNomenclature = new OrmReference(Repository.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var selectNewNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			selectNewNomenclature.Mode = OrmReferenceMode.Select;
 			selectNewNomenclature.TabName = "Выберите новую номенклатуру";
 			selectNewNomenclature.ObjectSelected += SelectNewNomenclature_ObjectSelected;
@@ -84,7 +84,7 @@ namespace Vodovoz
 
 		protected void OnButtonChangeOldClicked(object sender, EventArgs e)
 		{
-			var changeOldNomenclature = new OrmReference(Repository.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var changeOldNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			changeOldNomenclature.TabName =	"Изменить старую номенклатуру";
 			changeOldNomenclature.Mode = OrmReferenceMode.Select;
 			changeOldNomenclature.ObjectSelected += ChangeOldNomenclature_ObjectSelected1;;
@@ -104,7 +104,7 @@ namespace Vodovoz
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
 		{
-			var changeNewNomenclature = new OrmReference(Repository.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var changeNewNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			changeNewNomenclature.Mode = OrmReferenceMode.Select;
 			changeNewNomenclature.TabName = "Изменить новую номенклатуру";
 			changeNewNomenclature.ObjectSelected += ChangeNewNomenclature_ObjectSelected;;

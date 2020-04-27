@@ -197,7 +197,7 @@ namespace Vodovoz
 
 		void UpdateAlreadyUnloaded()
 		{
-			alreadyUnloadedEquipment = Repository.EquipmentRepository.GetEquipmentUnloadedTo(UoW, Entity.RouteList);
+			alreadyUnloadedEquipment = Repositories.EquipmentRepository.GetEquipmentUnloadedTo(UoW, Entity.RouteList);
 			returnsreceptionview.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
 		}
 

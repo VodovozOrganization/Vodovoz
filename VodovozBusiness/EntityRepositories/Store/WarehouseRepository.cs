@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using System.Linq;
-using NHibernate.Dialect.Function;
-using NHibernate;
-using NHibernate.Transform;
-using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.EntityRepositories.Store
 {

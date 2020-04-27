@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
-using QS.Project.Domain;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
-using Vodovoz.Services;
 
 namespace Vodovoz.Repositories.Permissions
 {

@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QS.Banks.Domain;
-using Vodovoz.Domain.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QSBanks;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain

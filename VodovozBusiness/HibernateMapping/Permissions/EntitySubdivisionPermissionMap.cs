@@ -1,7 +1,5 @@
-﻿using System;
-using NHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Permissions;
-using FluentNHibernate.Mapping;
 
 namespace Vodovoz.HibernateMapping.Permissions
 {

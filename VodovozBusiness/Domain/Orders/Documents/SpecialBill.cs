@@ -4,9 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using QS.Print;
 using QS.Report;
-using QSSupportLib;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -25,7 +24,7 @@ namespace Vodovoz.Domain.Orders.Documents
 				Identifier = "Documents.Bill",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
-					{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization]) },
+					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId },
 					{ "hide_signature", HideSignature },
 					{ "special", true }
 				}

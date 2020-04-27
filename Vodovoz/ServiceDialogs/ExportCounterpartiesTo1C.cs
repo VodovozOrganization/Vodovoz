@@ -2,7 +2,7 @@
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.ServiceDialogs.ExportTo1c;
 using System;
 

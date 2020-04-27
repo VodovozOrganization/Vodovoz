@@ -1,7 +1,4 @@
-﻿using System;
-using Vodovoz.Domain.Goods;
-
-namespace Vodovoz.Services
+﻿namespace Vodovoz.Services
 {
 	public interface IStandartNomenclatures
 	{

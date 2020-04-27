@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.ViewModelBased
+﻿namespace Vodovoz.ViewModelBased
 {
 	public class TabViewModelBase : ViewModelBase
 	{

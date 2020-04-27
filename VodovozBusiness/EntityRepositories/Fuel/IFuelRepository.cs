@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
+
 namespace Vodovoz.EntityRepositories.Fuel
 {
 	public interface IFuelRepository

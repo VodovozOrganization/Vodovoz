@@ -1,7 +1,7 @@
 ﻿using System;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
-using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Repository.Operations
 {

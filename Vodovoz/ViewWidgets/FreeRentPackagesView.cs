@@ -12,7 +12,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.Representations;
 
 namespace Vodovoz

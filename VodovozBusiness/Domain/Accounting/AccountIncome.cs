@@ -1,12 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using QSBanks;
+using QS.Banks.Domain;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
-using QS.Banks.Domain;
 
 namespace Vodovoz.Domain.Accounting
 {

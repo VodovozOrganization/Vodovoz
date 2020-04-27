@@ -5,7 +5,6 @@ using QS.Commands;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.Project.Journal.EntitySelector;
 using QS.Report;
 using QS.Services;
 using QS.ViewModels;
@@ -21,7 +20,7 @@ using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalNodes;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Warehouses

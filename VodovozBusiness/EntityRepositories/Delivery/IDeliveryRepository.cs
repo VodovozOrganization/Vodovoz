@@ -1,6 +1,6 @@
-﻿using Vodovoz.Domain.Sale;
+﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using System.Collections.Generic;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.EntityRepositories.Delivery
 {

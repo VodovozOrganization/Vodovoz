@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
-using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 
 namespace Vodovoz.Repositories.Client

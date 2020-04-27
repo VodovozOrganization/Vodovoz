@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Store

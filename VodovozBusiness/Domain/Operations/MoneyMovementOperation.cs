@@ -1,6 +1,5 @@
 ﻿using System;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 

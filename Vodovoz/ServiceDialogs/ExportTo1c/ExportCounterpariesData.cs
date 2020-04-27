@@ -5,7 +5,7 @@ using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using Vodovoz.ExportTo1c;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.ServiceDialogs.ExportTo1c
 {

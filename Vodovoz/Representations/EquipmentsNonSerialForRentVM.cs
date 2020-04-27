@@ -6,7 +6,7 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.JournalFilters;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.Representations
 {

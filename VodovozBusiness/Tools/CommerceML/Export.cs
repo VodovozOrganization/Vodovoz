@@ -5,11 +5,10 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 using QS.DomainModel.UoW;
-using QSSupportLib;
 using RestSharp;
 using RestSharp.Authenticators;
 using Vodovoz.Parameters;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.Tools.CommerceML.Nodes;
 
 namespace Vodovoz.Tools.CommerceML
