@@ -12,7 +12,6 @@ using Gamma.Utilities;
 using Gamma.Widgets;
 using Gtk;
 using NHibernate.Proxy;
-using NHibernate.Util;
 using NLog;
 using QS.Dialog;
 using QS.Dialog.Gtk;
@@ -68,6 +67,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Core;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz
 {
