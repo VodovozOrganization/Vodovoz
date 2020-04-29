@@ -469,7 +469,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>dd.MM.yyyy</Format>
+                        <Format>dd.MM.yy</Format>
                         <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
