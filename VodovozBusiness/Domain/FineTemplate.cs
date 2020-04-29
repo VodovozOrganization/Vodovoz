@@ -1,7 +1,6 @@
 ﻿using System;
-using QS.DomainModel.Entity;
-using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain

@@ -1,11 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
-using QS.Print;
-using QSDocTemplates;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Domain.Employees
 {

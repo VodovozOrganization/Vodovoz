@@ -9,7 +9,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
 
-namespace Vodovoz.Repository
+namespace Vodovoz.Repositories
 {
 	public static class StockRepository
 	{

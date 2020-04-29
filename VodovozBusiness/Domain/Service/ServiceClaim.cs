@@ -4,12 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repositories.HumanResources;
-using QS.DomainModel.Entity.EntityPermissions;
 
 namespace Vodovoz.Domain.Service
 {

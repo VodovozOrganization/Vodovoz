@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using QS.DomainModel.Entity;
 using System.Linq;
-using Vodovoz.Tools;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
+using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
-using QS.HistoryLog;
-using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Tools;
 
 namespace Vodovoz.Domain.Fuel
 {

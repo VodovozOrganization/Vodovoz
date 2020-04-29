@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.Tools.Logistic
+﻿namespace Vodovoz.Tools.Logistic
 {
 	public enum DistanceProvider
 	{

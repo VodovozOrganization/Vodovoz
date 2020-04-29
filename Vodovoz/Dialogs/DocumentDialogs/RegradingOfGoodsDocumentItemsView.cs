@@ -203,7 +203,7 @@ namespace Vodovoz
 		private void LoadStock()
 		{
 			var nomenclatureIds = DocumentUoW.Root.Items.Select(x => x.NomenclatureOld.Id).ToArray();
-			var inStock = Repository.StockRepository.NomenclatureInStock(DocumentUoW, DocumentUoW.Root.Warehouse.Id, 
+			var inStock = Repositories.StockRepository.NomenclatureInStock(DocumentUoW, DocumentUoW.Root.Warehouse.Id, 
 				nomenclatureIds, DocumentUoW.Root.TimeStamp);
 
 			foreach(var item in DocumentUoW.Root.Items)
@@ -242,7 +242,7 @@ namespace Vodovoz
 
 		protected void OnButtonChangeNewClicked(object sender, EventArgs e)
 		{
-			var changeNewNomenclature = new OrmReference(Repository.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var changeNewNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			changeNewNomenclature.Mode = OrmReferenceMode.Select;
 			changeNewNomenclature.TabName = "Изменить новую номенклатуру";
 			changeNewNomenclature.ObjectSelected += ChangeNewNomenclature_ObjectSelected;;

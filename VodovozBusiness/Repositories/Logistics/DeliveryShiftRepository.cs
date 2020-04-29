@@ -1,7 +1,5 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using NHibernate.Criterion;
-using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Repository.Logistics

@@ -2,7 +2,7 @@
 using System.Globalization;
 using Gamma.Binding;
 
-namespace Vodovoz.Tools
+namespace Vodovoz.Infrastructure.Converters
 {
 	public class NullValueToZeroConverter : IValueConverter
 	{

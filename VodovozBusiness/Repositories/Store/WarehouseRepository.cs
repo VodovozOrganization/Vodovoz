@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Store;
-using System;
 
 namespace Vodovoz.Repository.Store
 {

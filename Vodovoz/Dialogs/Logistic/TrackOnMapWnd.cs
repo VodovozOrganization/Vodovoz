@@ -9,14 +9,13 @@ using GMap.NET.MapProviders;
 using Polylines;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOsm;
-using QSOsm.Osrm;
-using QSOsm.Spuntik;
-using Vodovoz;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using QS.Project.Services;
 using QS.Dialog;
+using QS.Osm;
+using QS.Osm.Osrm;
+using QS.Osm.Spuntik;
 
 namespace Dialogs.Logistic
 {

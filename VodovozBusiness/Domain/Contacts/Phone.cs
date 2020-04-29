@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using QS.DomainModel.Entity;
 using Vodovoz.Services;
-using Vodovoz.Core.DataService;
 
 namespace Vodovoz.Domain.Contacts
 {

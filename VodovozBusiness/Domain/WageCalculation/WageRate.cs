@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;

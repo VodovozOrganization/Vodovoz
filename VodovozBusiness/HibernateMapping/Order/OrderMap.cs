@@ -1,8 +1,8 @@
 ﻿﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
+ using Vodovoz.Domain.Client;
+ using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.HibernateMapping
+ namespace Vodovoz.HibernateMapping
 {
 	public class OrderMap : ClassMap<Domain.Orders.Order>
 	{

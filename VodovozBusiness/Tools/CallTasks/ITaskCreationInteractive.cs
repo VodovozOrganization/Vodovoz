@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace Vodovoz.Tools.CallTasks
 {
 	public interface ITaskCreationInteractive

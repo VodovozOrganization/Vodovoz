@@ -970,7 +970,7 @@ namespace Vodovoz
 			progressbar.Text = "Загружаем таблицу существующих контрагентов.";
 			QSMain.WaitRedraw ();
 			var counterpartyCodes1c = CounterpatiesList.Select(c => c.Code1c).ToArray();
-			var ExistCouterpaties = Repository.CounterpartyRepository.GetCounterpartiesByCode1c (uow, counterpartyCodes1c);
+			var ExistCouterpaties = Repositories.CounterpartyRepository.GetCounterpartiesByCode1c (uow, counterpartyCodes1c);
 
 			progressbar.Text = "Сверяем контрагентов...";
 			progressbar.Adjustment.Value = 0;

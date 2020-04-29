@@ -1,11 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
-using QSDocTemplates;
+using QS.DocTemplates;
 using QS.DomainModel.Entity;
-using QSOrmProject;
-using Vodovoz.DocTemplates;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.DocTemplates;
 
 namespace Vodovoz.Domain.Client
 {

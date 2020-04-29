@@ -87,11 +87,11 @@ namespace Vodovoz.Domain.Documents
 
 			if(categories != null && categories.Count > 0)
 				foreach(var category in categories) {
-					foreach(var item in Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, null, category)) {
+					foreach(var item in Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, null, category)) {
 						inStock.Add(item.Key, item.Value);
 					}
 				} else
-				inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id);
+				inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id);
 
 			if(inStock.Count == 0)
 				return;
@@ -117,11 +117,11 @@ namespace Vodovoz.Domain.Documents
 
 			if(categories != null && categories.Count > 0)
 				foreach(var category in categories) {
-					foreach(var item in Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp, category)) {
+					foreach(var item in Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp, category)) {
 						inStock.Add(item.Key, item.Value);
 					}
 				} else
-					inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp);
+					inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp);
 
 			foreach(var itemInStock in inStock) {
 				var item = Items.FirstOrDefault(x => x.Nomenclature.Id == itemInStock.Key);

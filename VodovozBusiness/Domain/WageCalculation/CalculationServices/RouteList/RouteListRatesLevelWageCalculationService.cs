@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Vodovoz.Domain.Employees;
 using Gamma.Utilities;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {

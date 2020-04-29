@@ -3,8 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
-using QSOrmProject;
-using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Employees
@@ -14,7 +12,6 @@ namespace Vodovoz.Domain.Employees
 		Nominative = "доверенность")]
 	public abstract class ProxyDocument : PropertyChangedBase, IDomainObject, IBusinessObject
 	{
-		[UseForSearch]
 		public virtual int Id { get; set; }
 
 		public virtual IUnitOfWork UoW { set; get; }
@@ -62,7 +59,6 @@ namespace Vodovoz.Domain.Employees
 
 		ProxyDocumentType type;
 		[Display(Name = "Тип доверенности")]
-		[UseForSearch]
 		public virtual ProxyDocumentType Type {
 			get { return type; }
 			set { SetField(ref type, value, () => Type); }

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Gamma.Utilities;
 using NLog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Operations;
-using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
-using System.Linq;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Cash.CashTransfer
 {

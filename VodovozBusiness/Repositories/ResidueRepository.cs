@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Repositories

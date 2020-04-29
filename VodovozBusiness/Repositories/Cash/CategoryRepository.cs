@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
-using QSSupportLib;
-using System.Runtime.CompilerServices;
 using Vodovoz.Parameters;
 
 namespace Vodovoz.Repository.Cash
@@ -55,9 +53,9 @@ namespace Vodovoz.Repository.Cash
 
 		public static IncomeCategory DefaultIncomeCategory (IUnitOfWork uow)
 		{
-			if (MainSupport.BaseParameters.All.ContainsKey (defaultIncomeCategory)) {
+			if (ParametersProvider.Instance.ContainsParameter(defaultIncomeCategory)) {
 				int id = -1;
-				id = int.Parse (MainSupport.BaseParameters.All [defaultIncomeCategory]);
+				id = int.Parse (ParametersProvider.Instance.GetParameterValue(defaultIncomeCategory));
 				if (id == -1)
 					return null;
 				return uow.Session.QueryOver<IncomeCategory> ()
@@ -73,7 +71,7 @@ namespace Vodovoz.Repository.Cash
 			if (ParametersProvider.Instance.ContainsParameter(routeListClosingIncomeCategory))
 			{
 				int id = -1;
-				id = int.Parse (MainSupport.BaseParameters.All [routeListClosingIncomeCategory]);
+				id = int.Parse (ParametersProvider.Instance.GetParameterValue(routeListClosingIncomeCategory));
 				if (id == -1)
 					return null;
 				return uow.Session.QueryOver<IncomeCategory> ()
@@ -89,7 +87,7 @@ namespace Vodovoz.Repository.Cash
 			if (ParametersProvider.Instance.ContainsParameter(routeListClosingExpenseCategory))
 			{
 				int id = -1;
-				id = int.Parse (MainSupport.BaseParameters.All [routeListClosingExpenseCategory]);
+				id = int.Parse (ParametersProvider.Instance.GetParameterValue(routeListClosingExpenseCategory));
 				if (id == -1)
 					return null;
 				return uow.Session.QueryOver<ExpenseCategory> ()
@@ -110,7 +108,7 @@ namespace Vodovoz.Repository.Cash
 			if(ParametersProvider.Instance.ContainsParameter(fuelDocumentExpenseCategory))
 			{
 				int id = -1;
-				id = int.Parse (MainSupport.BaseParameters.All [fuelDocumentExpenseCategory]);
+				id = int.Parse (ParametersProvider.Instance.GetParameterValue(fuelDocumentExpenseCategory));
 				if (id == -1)
 					return null;
 				return uow.Session.QueryOver<ExpenseCategory> ()

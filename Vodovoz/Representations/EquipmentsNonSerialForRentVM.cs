@@ -2,18 +2,17 @@
 using System.Collections.Generic;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.JournalFilters;
-using Vodovoz.Repository;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Representations
 {
 	/// <summary>
 	/// Модель отображения в списке количества по каждому оборудованию не посерийного учета.
 	/// </summary>
-	public class EquipmentsNonSerialForRentVM : RepresentationModelWithoutEntityBase<NomenclatureForRentVMNode>
+	public class EquipmentsNonSerialForRentVM : RepresentationModelWithoutEntityBase<EquipmentRepositoryForViews.NomenclatureForRentVMNode>
 	{
 		public NomenclatureEquipTypeFilter Filter {
 			get {
@@ -30,16 +29,16 @@ namespace Vodovoz.Representations
 
 		public override void UpdateNodes()
 		{
-			IList<NomenclatureForRentVMNode> items;
+			IList<EquipmentRepositoryForViews.NomenclatureForRentVMNode> items;
 			if(Filter != null) {
-				items = EquipmentRepository.GetAllNonSerialEquipmentForRent(UoW, Filter.NomenEquipmentType);
+				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW, Filter.NomenEquipmentType);
 			} else if(EquipmentType != null) {
-				items = EquipmentRepository.GetAllNonSerialEquipmentForRent(UoW, EquipmentType);
+				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW, EquipmentType);
 			} else {
-				items = EquipmentRepository.GetAllNonSerialEquipmentForRent(UoW);
+				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW);
 			}
 
-			List<NomenclatureForRentVMNode> forRent = new List<NomenclatureForRentVMNode>();
+			List<EquipmentRepositoryForViews.NomenclatureForRentVMNode> forRent = new List<EquipmentRepositoryForViews.NomenclatureForRentVMNode>();
 			forRent.AddRange(items);
 			forRent.Sort((x, y) => string.Compare(x.Nomenclature.Name, y.Nomenclature.Name, StringComparison.CurrentCulture));
 			SetItemsSource(forRent);
@@ -48,7 +47,7 @@ namespace Vodovoz.Representations
 		static Gdk.Color colorBlack = new Gdk.Color (0, 0, 0);
 		static Gdk.Color colorRed = new Gdk.Color (0xff, 0, 0);
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig <NomenclatureForRentVMNode>
+		IColumnsConfig columnsConfig = FluentColumnsConfig <EquipmentRepositoryForViews.NomenclatureForRentVMNode>
 			.Create()
 			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Оборудование").AddTextRenderer (node => node.Nomenclature.Name)

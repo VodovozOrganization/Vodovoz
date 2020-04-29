@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QSOrmProject;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain
@@ -67,7 +66,7 @@ namespace Vodovoz.Domain
 
 		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var allready = Repository.RentPackageRepository.GetFreeRentPackage(UoW, EquipmentType);
+			var allready = Repositories.RentPackageRepository.GetFreeRentPackage(UoW, EquipmentType);
 			if(allready != null && allready.Id != Id)
 			{
 				yield return new ValidationResult (

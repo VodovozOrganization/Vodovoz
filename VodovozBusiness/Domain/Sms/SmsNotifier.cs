@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Linq;
+using InstantSmsService;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Contacts;
-using System.Linq;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
-using Vodovoz.Domain.Employees;
-using InstantSmsService;
 
 namespace Vodovoz.Domain.Sms
 {

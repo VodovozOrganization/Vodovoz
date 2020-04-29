@@ -5,7 +5,7 @@ using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
-using QSOsm.DTO;
+using QS.Osm.DTO;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.Additions.Logistic;
 

@@ -1,5 +1,4 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.HibernateMapping
 {

@@ -13,7 +13,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using System.Linq;
 
 namespace Vodovoz

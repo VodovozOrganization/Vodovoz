@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Vodovoz.Domain
+﻿namespace Vodovoz.Domain
 {
 	public class BaseParameter
 	{

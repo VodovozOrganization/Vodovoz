@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Service

@@ -1,5 +1,4 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using Vodovoz.Domain.Permissions;
 

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;

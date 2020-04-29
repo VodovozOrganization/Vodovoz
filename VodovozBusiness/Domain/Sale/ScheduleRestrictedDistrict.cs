@@ -8,8 +8,8 @@ using GeoAPI.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using Vodovoz.Tools.Orders;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Domain.Sale
 {

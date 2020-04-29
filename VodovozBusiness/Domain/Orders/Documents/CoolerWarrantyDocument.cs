@@ -4,9 +4,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.Print;
 using QS.Report;
-using QSSupportLib;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
-using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -16,13 +15,13 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Title = String.Format("Гарантийный талон на кулера №{0}", WarrantyFullNumber),
+				Title = $"Гарантийный талон на кулера №{WarrantyFullNumber}",
 				Identifier = "Documents.CoolerWarranty",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
 					{ "agreement_id",  AdditionalAgreement?.Id != null ? AdditionalAgreement.Id : -1 },
 					{ "warranty_full_number", WarrantyFullNumber },
-					{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization])}
+					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId }
 				}
 			};
 		}

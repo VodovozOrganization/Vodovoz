@@ -98,7 +98,7 @@ namespace Vodovoz
 
 		void FillLocation()
 		{
-			var location = Repository.EquipmentRepository.GetLocation(UoW, Entity);
+			var location = Repositories.EquipmentRepository.GetLocation(UoW, Entity);
 			labelWhere.LabelProp = location.Title;
 		}
 	}

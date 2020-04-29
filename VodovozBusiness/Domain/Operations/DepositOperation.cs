@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
-using QSProjectsLib;
+using QS.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 

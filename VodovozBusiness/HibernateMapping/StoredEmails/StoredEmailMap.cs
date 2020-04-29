@@ -1,5 +1,4 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.HibernateMapping.StoredEmails

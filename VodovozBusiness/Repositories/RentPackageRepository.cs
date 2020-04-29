@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Vodovoz.Domain;
-using QS.DomainModel.UoW;
 using System.Linq;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain;
 
-namespace Vodovoz.Repository
+namespace Vodovoz.Repositories
 {
 	public static class RentPackageRepository
 	{

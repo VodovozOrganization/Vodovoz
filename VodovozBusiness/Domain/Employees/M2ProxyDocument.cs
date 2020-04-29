@@ -5,7 +5,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Print;
-using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 

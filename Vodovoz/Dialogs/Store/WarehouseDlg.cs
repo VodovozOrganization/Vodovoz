@@ -8,7 +8,7 @@ using QS.Project.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using QS.Project.Services;
 
 namespace Vodovoz

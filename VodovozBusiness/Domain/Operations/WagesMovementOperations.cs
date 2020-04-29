@@ -1,8 +1,6 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QSOrmProject;
 using Vodovoz.Domain.Employees;
-using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Operations
 {

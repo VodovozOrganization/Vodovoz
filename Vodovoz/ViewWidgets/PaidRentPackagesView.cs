@@ -12,8 +12,9 @@ using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.Representations;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz
 {
@@ -119,7 +120,7 @@ namespace Vodovoz
 
 		void EquipmentSelected (object sender, JournalObjectSelectedEventArgs e)
 		{
-			var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
+			var selectedNode = e.GetNodes<EquipmentRepositoryForViews.NomenclatureForRentVMNode>().FirstOrDefault();
 			if(selectedNode == null) {
 				return;
 			}
@@ -193,7 +194,7 @@ namespace Vodovoz
 
 			var excludeNomenclatures = paidRentEquipments.Select(e => e.Nomenclature.Id).ToArray();
 
-			var selectedNomenclature = EquipmentRepository.GetAvailableNonSerialEquipmentForRent(AgreementUoW, paidRentPackage.EquipmentType, excludeNomenclatures);
+			var selectedNomenclature = EquipmentRepositoryForViews.GetAvailableNonSerialEquipmentForRent(AgreementUoW, paidRentPackage.EquipmentType, excludeNomenclatures);
 			if(selectedNomenclature == null) {
 				if(!MessageDialogWorks.RunQuestionDialog("Не найдено свободного оборудования выбранного типа!\nДобавить принудительно?")) {
 					return;

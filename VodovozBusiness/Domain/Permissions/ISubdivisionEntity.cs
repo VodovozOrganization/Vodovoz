@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.Domain.Permissions
+﻿namespace Vodovoz.Domain.Permissions
 {
 	/// <summary>
 	/// Сущность которая обазательно относится к какому либо подразделению

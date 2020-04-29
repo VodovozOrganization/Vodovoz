@@ -161,7 +161,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var addNewNomenclature = new OrmReference(Repository.NomenclatureRepository.NomenclatureWaterOnlyQuery());
+			var addNewNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureWaterOnlyQuery());
 			addNewNomenclature.Mode = OrmReferenceMode.Select;
 			addNewNomenclature.TabName = "Выберите номенклатуру";
 			addNewNomenclature.ObjectSelected += AddNewNomenclature_ObjectSelected; ;

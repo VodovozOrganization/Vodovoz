@@ -9,6 +9,7 @@ using QS.Project.Dialogs.GtkUI;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalFilters;
 using Vodovoz.Tools;
 using Vodovoz.ViewModel;
