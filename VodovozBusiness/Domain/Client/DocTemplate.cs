@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
+using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QSDocTemplates;
 using Vodovoz.DocTemplates;
 
 namespace Vodovoz.Domain.Client

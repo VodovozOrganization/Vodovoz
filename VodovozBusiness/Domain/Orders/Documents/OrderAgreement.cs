@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using QS.Print;
-using QSDocTemplates;
 using Vodovoz.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repositories.Client;

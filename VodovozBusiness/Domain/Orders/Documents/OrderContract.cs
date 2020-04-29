@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using QS.Print;
-using QSDocTemplates;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders.Documents

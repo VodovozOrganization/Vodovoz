@@ -17,9 +17,7 @@ using Vodovoz.Core.DataService;
 using QS.ErrorReporting;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools;
-using NHibernate;
-using QS.Project.DB;
-using QS.DomainModel.Entity;
+using QS.Osm;
 using QS.Tools;
 
 namespace Vodovoz
@@ -117,10 +115,10 @@ namespace Vodovoz
 			DatePicker.CalendarFontSize = 16;
 			DateRangePicker.CalendarFontSize = 16;
 
-			QSOsm.OsmWorker.ServiceHost = "osm.vod.qsolution.ru";
-			QSOsm.OsmWorker.ServicePort = 7073;
+			OsmWorker.ServiceHost = "osm.vod.qsolution.ru";
+			OsmWorker.ServicePort = 7073;
 
-			QSOsm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
+			QS.Osm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
 			
 			PerformanceHelper.StartPointsGroup ("Главное окно");
 

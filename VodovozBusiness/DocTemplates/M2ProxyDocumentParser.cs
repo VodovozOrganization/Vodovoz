@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QS.DocTemplates;
 using QS.Utilities;
-using QSDocTemplates;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 
