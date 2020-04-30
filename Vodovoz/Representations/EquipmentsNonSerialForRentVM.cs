@@ -12,7 +12,7 @@ namespace Vodovoz.Representations
 	/// <summary>
 	/// Модель отображения в списке количества по каждому оборудованию не посерийного учета.
 	/// </summary>
-	public class EquipmentsNonSerialForRentVM : RepresentationModelWithoutEntityBase<EquipmentRepositoryForViews.NomenclatureForRentVMNode>
+	public class EquipmentsNonSerialForRentVM : RepresentationModelWithoutEntityBase<NomenclatureForRentVMNode>
 	{
 		public NomenclatureEquipTypeFilter Filter {
 			get {
@@ -29,7 +29,7 @@ namespace Vodovoz.Representations
 
 		public override void UpdateNodes()
 		{
-			IList<EquipmentRepositoryForViews.NomenclatureForRentVMNode> items;
+			IList<NomenclatureForRentVMNode> items;
 			if(Filter != null) {
 				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW, Filter.NomenEquipmentType);
 			} else if(EquipmentType != null) {
@@ -38,7 +38,7 @@ namespace Vodovoz.Representations
 				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW);
 			}
 
-			List<EquipmentRepositoryForViews.NomenclatureForRentVMNode> forRent = new List<EquipmentRepositoryForViews.NomenclatureForRentVMNode>();
+			List<NomenclatureForRentVMNode> forRent = new List<NomenclatureForRentVMNode>();
 			forRent.AddRange(items);
 			forRent.Sort((x, y) => string.Compare(x.Nomenclature.Name, y.Nomenclature.Name, StringComparison.CurrentCulture));
 			SetItemsSource(forRent);
@@ -47,7 +47,7 @@ namespace Vodovoz.Representations
 		static Gdk.Color colorBlack = new Gdk.Color (0, 0, 0);
 		static Gdk.Color colorRed = new Gdk.Color (0xff, 0, 0);
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig <EquipmentRepositoryForViews.NomenclatureForRentVMNode>
+		IColumnsConfig columnsConfig = FluentColumnsConfig <NomenclatureForRentVMNode>
 			.Create()
 			.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Оборудование").AddTextRenderer (node => node.Nomenclature.Name)

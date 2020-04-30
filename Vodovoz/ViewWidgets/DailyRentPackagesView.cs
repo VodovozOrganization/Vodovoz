@@ -122,7 +122,7 @@ namespace Vodovoz
 
 		void EquipmentSelected(object sender, JournalObjectSelectedEventArgs e)
 		{
-			var selectedNode = e.GetNodes<EquipmentRepositoryForViews.NomenclatureForRentVMNode>().FirstOrDefault();
+			var selectedNode = e.GetNodes<NomenclatureForRentVMNode>().FirstOrDefault();
 			if(selectedNode == null) {
 				return;
 			}

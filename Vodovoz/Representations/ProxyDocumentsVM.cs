@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
@@ -15,19 +19,52 @@ namespace Vodovoz.ViewModel
 
 		public override void UpdateNodes()
 		{
-			var proxiesList = UoW.Session.QueryOver<ProxyDocument>()
-								 .OrderBy(d => d.Id).Desc
-								 .TransformUsing(Transformers.AliasToBean<ProxyDocumentsVMNode>())
-								 .List<ProxyDocumentsVMNode>();
+			ProxyDocumentsVMNode resultAlias = null;
+			ProxyDocument proxyDocumentAlias = null;
+			
+			var userMetadata = UoW.Session.SessionFactory.GetClassMetadata(typeof(ProxyDocument)) as NHibernate.Persister.Entity.AbstractEntityPersister;
+			var columnName = userMetadata.DiscriminatorColumnName;
 
-			SetItemsSource(proxiesList);
+			var proxyDocumentList = UoW.Session.QueryOver<ProxyDocument>(() => proxyDocumentAlias)
+				.SelectList(list => list
+					.Select(x => x.Id).WithAlias(() => resultAlias.Id)
+					.Select(x => x.Date).WithAlias(() => resultAlias.Date)
+					.Select(x => x.ExpirationDate).WithAlias(() => resultAlias.ExpirationDate)
+					.Select(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(
+								NHibernateUtil.String, $"{columnName}"
+							), NHibernateUtil.String
+						)
+					).WithAlias(() => resultAlias.StringType)
+				
+				).OrderBy(d => d.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<ProxyDocumentsVMNode>())
+				.List<ProxyDocumentsVMNode>();
+
+			//Переделываем string в enum
+			var proxyTypes = new Dictionary<string, ProxyDocumentType>();
+			foreach (ProxyDocumentType proxyType in Enum.GetValues(typeof(ProxyDocumentType)))
+			{
+				proxyTypes.Add(proxyType.ToString(), proxyType);
+			}
+			foreach (var proxyDocument in proxyDocumentList)
+			{
+				proxyDocument.Type = proxyTypes[proxyDocument.StringType];
+			}
+
+			SetItemsSource(proxyDocumentList);
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ProxyDocumentsVMNode>.Create()
-		.AddColumn("Тип и номер").AddTextRenderer(node => String.Format("{0} №{1} от {2:d}", node.Type.GetEnumTitle(), node.Id, node.Date))
-		.AddColumn("Начало действия").AddTextRenderer(node => String.Format("{0:d}", node.Date))
-		.AddColumn("Окончание действия").AddTextRenderer(node => String.Format("{0:d}", node.ExpirationDate))
-		.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = (DateTime.Today > n.ExpirationDate) ? "grey" : "black")
+			.AddColumn("Тип и номер")
+				.AddTextRenderer(node => $"{node.Type.GetEnumTitle()} №{node.Id} от {node.Date:d}")
+			.AddColumn("Начало действия")
+				.AddTextRenderer(node => $"{node.Date:d}")
+			.AddColumn("Окончание действия")
+				.AddTextRenderer(node => $"{node.ExpirationDate:d}")
+			.RowCells()
+				.AddSetter<CellRendererText>((c, n) => c.Foreground = (DateTime.Today > n.ExpirationDate) ? "grey" : "black")
 		.Finish();
 		
 		public override IColumnsConfig ColumnsConfig => columnsConfig;
@@ -63,5 +100,6 @@ namespace Vodovoz.ViewModel
 		public DateTime ExpirationDate { get; set; }
 		[UseForSearch]
 		public ProxyDocumentType Type { get; set; }
+		public string StringType { get; set; }
 	}
 }
