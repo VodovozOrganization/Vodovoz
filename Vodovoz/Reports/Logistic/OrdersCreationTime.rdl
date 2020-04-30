@@ -932,81 +932,87 @@
 FROM
 (
     SELECT
-        delivery_schedules.delivery_interval,
+        order_info.delivery_interval,
         
-        IF(DATE(orders.create_date) &lt; DATE(orders.delivery_date) OR TIME(orders.create_date) &lt; STR_TO_DATE(@creation_time1,'%H:%i'), delivery_points.id, null) as creationTime1_address,
-        IF(DATE(orders.create_date) &lt; DATE(orders.delivery_date) OR TIME(orders.create_date) &lt; STR_TO_DATE(@creation_time1,'%H:%i'), SUM(bottles.bottles_count), 0) as creationTime1_bottles,
+        IF(DATE(order_info.create_date) &lt; DATE(order_info.delivery_date) OR TIME(order_info.create_date) &lt; STR_TO_DATE(@creation_time1,'%H:%i'), order_info.delivery_point_id, null) as creationTime1_address,
+        IF(DATE(order_info.create_date) &lt; DATE(order_info.delivery_date) OR TIME(order_info.create_date) &lt; STR_TO_DATE(@creation_time1,'%H:%i'), order_info.bottles_count, 0) as creationTime1_bottles,
         
-        IF(DATE(orders.create_date) = DATE(orders.delivery_date) AND TIME(orders.create_date) &lt; STR_TO_DATE(@creation_time2,'%H:%i') AND TIME(orders.create_date) &gt;= STR_TO_DATE(@creation_time1,'%H:%i'), delivery_points.id, null) as creationTime2_address,
-        IF(DATE(orders.create_date) = DATE(orders.delivery_date) AND TIME(orders.create_date) &lt; STR_TO_DATE(@creation_time2,'%H:%i') AND TIME(orders.create_date) &gt;= STR_TO_DATE(@creation_time1,'%H:%i'), SUM(bottles.bottles_count), 0) as creationTime2_bottles,
+        IF(DATE(order_info.create_date) = DATE(order_info.delivery_date) AND TIME(order_info.create_date) &lt; STR_TO_DATE(@creation_time2,'%H:%i') AND TIME(order_info.create_date) &gt;= STR_TO_DATE(@creation_time1,'%H:%i'), order_info.delivery_point_id, null) as creationTime2_address,
+        IF(DATE(order_info.create_date) = DATE(order_info.delivery_date) AND TIME(order_info.create_date) &lt; STR_TO_DATE(@creation_time2,'%H:%i') AND TIME(order_info.create_date) &gt;= STR_TO_DATE(@creation_time1,'%H:%i'), order_info.bottles_count, 0) as creationTime2_bottles,
         
-        IF(DATE(orders.create_date) = DATE(orders.delivery_date) AND TIME(orders.create_date) &lt; STR_TO_DATE(@creation_time3,'%H:%i') AND TIME(orders.create_date) &gt;= STR_TO_DATE(@creation_time2,'%H:%i'), delivery_points.id, null) as creationTime3_address,
-        IF(DATE(orders.create_date) = DATE(orders.delivery_date) AND TIME(orders.create_date) &lt; STR_TO_DATE(@creation_time3,'%H:%i') AND TIME(orders.create_date) &gt;= STR_TO_DATE(@creation_time2,'%H:%i'), SUM(bottles.bottles_count), 0) as creationTime3_bottles,
+        IF(DATE(order_info.create_date) = DATE(order_info.delivery_date) AND TIME(order_info.create_date) &lt; STR_TO_DATE(@creation_time3,'%H:%i') AND TIME(order_info.create_date) &gt;= STR_TO_DATE(@creation_time2,'%H:%i'), order_info.delivery_point_id, null) as creationTime3_address,
+        IF(DATE(order_info.create_date) = DATE(order_info.delivery_date) AND TIME(order_info.create_date) &lt; STR_TO_DATE(@creation_time3,'%H:%i') AND TIME(order_info.create_date) &gt;= STR_TO_DATE(@creation_time2,'%H:%i'), order_info.bottles_count, 0) as creationTime3_bottles,
         
-        IF(DATE(orders.create_date) = DATE(orders.delivery_date) AND TIME(orders.create_date) &lt;= STR_TO_DATE('23:59','%H:%i') AND TIME(orders.create_date) &gt;= STR_TO_DATE(@creation_time3,'%H:%i'), delivery_points.id, null) as creationTime4_address,
-        IF(DATE(orders.create_date) = DATE(orders.delivery_date) AND TIME(orders.create_date) &lt;= STR_TO_DATE('23:59','%H:%i') AND TIME(orders.create_date) &gt;= STR_TO_DATE(@creation_time3,'%H:%i'), SUM(bottles.bottles_count), 0) as creationTime4_bottles
+        IF(DATE(order_info.create_date) = DATE(order_info.delivery_date) AND TIME(order_info.create_date) &lt;= STR_TO_DATE('23:59','%H:%i') AND TIME(order_info.create_date) &gt;= STR_TO_DATE(@creation_time3,'%H:%i'), order_info.delivery_point_id, null) as creationTime4_address,
+        IF(DATE(order_info.create_date) = DATE(order_info.delivery_date) AND TIME(order_info.create_date) &lt;= STR_TO_DATE('23:59','%H:%i') AND TIME(order_info.create_date) &gt;= STR_TO_DATE(@creation_time3,'%H:%i'), order_info.bottles_count, 0) as creationTime4_bottles
     FROM
-        orders
-        
-        LEFT JOIN
-            (
-                SELECT 
-                    id, 
-                    to_time,
-                    CASE
-                        WHEN @interval1 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval1,'%H:%i') THEN @interval1
-                        WHEN @interval2 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval2,'%H:%i') THEN @interval2
-                        WHEN @interval3 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval3,'%H:%i') THEN @interval3
-                        WHEN @interval4 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval4,'%H:%i') THEN @interval4
-                        WHEN @interval5 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval5,'%H:%i') THEN @interval5
-                        WHEN @interval6 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval6,'%H:%i') THEN @interval6
-                        WHEN @interval7 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval7,'%H:%i') THEN @interval7
-                        WHEN @interval8 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval8,'%H:%i') THEN @interval8
-                        WHEN @interval9 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval9,'%H:%i') THEN @interval9
-                        WHEN @interval10 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval10,'%H:%i') THEN @interval10
-                        WHEN @interval11 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval11,'%H:%i') THEN @interval11
-                        WHEN @interval12 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval12,'%H:%i') THEN @interval12                        
-                        ELSE '23:59'
-                    END AS delivery_interval
-                FROM delivery_schedule ds
-            ) as delivery_schedules ON orders.delivery_schedule_id = delivery_schedules.id
-            
-        LEFT JOIN delivery_points ON orders.delivery_point_id = delivery_points.id
-        LEFT JOIN schedule_restricted_districts ON delivery_points.schedule_restricted_district_id = schedule_restricted_districts.id
-        LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
-        LEFT JOIN geographic_groups ON geographic_groups.id = geographic_groups_to_entities.geographic_group_id
-        
-        LEFT JOIN
-            (
-                SELECT
-                    order_id,
-                    order_items.count as bottles_count
-                FROM
-                    order_items
-                    LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-                WHERE nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L'
-            ) as bottles ON bottles.order_id = orders.id 
-    WHERE
-        delivery_date = @date
-        AND !orders.is_contract_closer
-        AND !orders.self_delivery
-        AND !orders.service
-        AND delivery_schedules.id IS NOT NULL
-        AND orders.delivery_point_id IS NOT NULL
-        AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
-        AND (
-                ((schedule_restricted_districts.id IN (@districts_include) AND 0 IN (@districts_exclude) )
-                OR
-                (schedule_restricted_districts.id NOT IN (@districts_exclude) AND 0 IN (@districts_include)))
-                OR (0 IN (@districts_include) AND 0 IN (@districts_exclude))
-            )
-        AND (
-            ((geographic_groups.id IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
-            OR
-            (geographic_groups.id NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
-            OR (0 IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude))
-        )
-    GROUP BY orders.id
+    (
+    	SELECT 
+			orders.id,
+			orders.create_date,
+			orders.delivery_date,
+			orders.delivery_point_id ,
+			delivery_schedules.delivery_interval,
+			(
+				SELECT
+		            SUM(sub_oi.count)
+		        FROM
+		            order_items sub_oi
+		            LEFT JOIN nomenclature sub_n ON sub_oi.nomenclature_id = sub_n.id
+		        WHERE sub_n.category = 'water' AND sub_n.tare_volume = 'Vol19L' AND sub_oi.order_id = orders.id
+			) as bottles_count
+		FROM
+	        orders
+	        
+	        LEFT JOIN
+	            (
+	                SELECT 
+	                    id, 
+	                    to_time,
+	                    CASE
+	                        WHEN @interval1 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval1,'%H:%i') THEN @interval1
+	                        WHEN @interval2 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval2,'%H:%i') THEN @interval2
+	                        WHEN @interval3 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval3,'%H:%i') THEN @interval3
+	                        WHEN @interval4 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval4,'%H:%i') THEN @interval4
+	                        WHEN @interval5 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval5,'%H:%i') THEN @interval5
+	                        WHEN @interval6 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval6,'%H:%i') THEN @interval6
+	                        WHEN @interval7 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval7,'%H:%i') THEN @interval7
+	                        WHEN @interval8 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval8,'%H:%i') THEN @interval8
+	                        WHEN @interval9 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval9,'%H:%i') THEN @interval9
+	                        WHEN @interval10 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval10,'%H:%i') THEN @interval10
+	                        WHEN @interval11 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval11,'%H:%i') THEN @interval11
+	                        WHEN @interval12 != '' AND ds.to_time &lt;= STR_TO_DATE(@interval12,'%H:%i') THEN @interval12                        
+	                        ELSE '23:59'
+	                    END AS delivery_interval
+	                FROM delivery_schedule ds
+	            ) as delivery_schedules ON orders.delivery_schedule_id = delivery_schedules.id
+	            
+	        LEFT JOIN delivery_points ON orders.delivery_point_id = delivery_points.id
+	        LEFT JOIN schedule_restricted_districts ON delivery_points.schedule_restricted_district_id = schedule_restricted_districts.id
+	        LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
+	        LEFT JOIN geographic_groups ON geographic_groups.id = geographic_groups_to_entities.geographic_group_id
+	    WHERE
+	        delivery_date = @date
+	        AND !orders.is_contract_closer
+	        AND !orders.self_delivery
+	        AND !orders.service
+	        AND delivery_schedules.id IS NOT NULL
+	        AND orders.delivery_point_id IS NOT NULL
+	        AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
+	        AND (
+	                ((schedule_restricted_districts.id IN (@districts_include) AND 0 IN (@districts_exclude) )
+	                OR
+	                (schedule_restricted_districts.id NOT IN (@districts_exclude) AND 0 IN (@districts_include)))
+	                OR (0 IN (@districts_include) AND 0 IN (@districts_exclude))
+	            )
+	        AND (
+	            ((geographic_groups.id IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude) )
+	            OR
+	            (geographic_groups.id NOT IN (@geographic_groups_exclude) AND 0 IN (@geographic_groups_include)))
+	            OR (0 IN (@geographic_groups_include) AND 0 IN (@geographic_groups_exclude))
+	        )
+	    GROUP BY orders.id
+    ) as order_info
     UNION ALL
     (SELECT
         intervals.*, intervals_null_values.*
