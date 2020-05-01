@@ -40,9 +40,9 @@ namespace Vodovoz.Views.Logistic
 
 		#region Поля
 		private readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
-		private readonly GMapOverlay driverDistrictsOverlay = new GMapOverlay("districts");
+		private readonly GMapOverlay driverDistrictsOverlay = new GMapOverlay("driverDistricts");
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
-		private readonly GMapOverlay driverAddressesOverlay = new GMapOverlay("addresses");
+		private readonly GMapOverlay driverAddressesOverlay = new GMapOverlay("driverAddresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
 		private readonly GMapOverlay routeOverlay = new GMapOverlay("route");
 		private GMapPolygon brokenSelection;
