@@ -1,37 +1,36 @@
 ﻿using System;
 using QS.Project.Journal;
 using QS.Commands;
-using Vodovoz.ViewModels.BusinessTasks;
-using QS.Project.Domain;
-using QS.DomainModel.UoW;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Operations;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.EntityRepositories;
-using QS.Project.Services;
-using Vodovoz.JournalNodes;
-using Vodovoz.Domain.BusinessTasks;
-using System.Collections.Generic;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.BusinessTasks;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Filters.ViewModels;
+using QS.DomainModel.UoW;
+using QS.Project.Services;
+using System.Linq;
+using QS.Tdi;
 
 namespace Vodovoz.ViewModels
 {
 	public class BusinessTasksJournalActionsViewModel : JournalActionsViewModel
 	{
-		readonly IEmployeeRepository employeeRepository;
-		readonly IBottlesRepository bottleRepository;
-		readonly ICallTaskRepository callTaskRepository;
-		readonly IPhoneRepository phoneRepository;
-
-		BusinessTasksJournalViewModel ViewModel { get; set; }
-		public BusinessTaskJournalNode SelectedTask { get; set; }
-		public List<BusinessTaskJournalNode> SelectedTasks { get; set; }
-
 		private bool hBoxChangeTasksVisibility;
 		public bool HBoxChangeTasksVisibility {
 			get => hBoxChangeTasksVisibility;
 			set => SetField(ref hBoxChangeTasksVisibility, value);
+		}
+
+		private BusinessTaskStatus taskStatus;
+		public BusinessTaskStatus TaskStatus {
+			get => taskStatus;
+			set => SetField(ref taskStatus, value);
+		}
+
+		private DateTime deadlineDate;
+		public DateTime DeadlineDate {
+			get => deadlineDate;
+			set => SetField(ref deadlineDate, value);
 		}
 
 		private Employee employee;
@@ -40,98 +39,48 @@ namespace Vodovoz.ViewModels
 			set => SetField(ref employee, value);
 		}
 
+		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; private set; }
+
+		public Action<object[], Employee> ChangeAssignedEmployeeAction;
+		public Action<object[]> CompleteSelectedTasksAction;
+		public Action<object[], BusinessTaskStatus> ChangeTasksStateAction;
+		public Action<object[], DateTime> ChangeDeadlineDateAction;
+
 		public BusinessTasksJournalActionsViewModel()
 		{
 			CreateCommands();
+
+			EmployeeSelectorFactory =
+				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+					() => {
+						var filter = new EmployeeFilterViewModel { Status = EmployeeStatus.IsWorking, RestrictCategory = EmployeeCategory.office };
+						return new EmployeesJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+					});
 		}
 
 		private void CreateCommands()
 		{
-			CreateClientTaskCommand();
-			CreatePaymentTaskCommand();
-			CreateEditTaskCommand();
-			CreateChangeTasksCommand();
+			CreateChangeDeadlineDateCommand();
+			CreateChangeTasksStateCommand();
+			CreateCompleteSelectedTasksCommand();
+			CreateChangeAssignedEmployeeCommand();
 		}
 
-		public DelegateCommand CreateNewClientTaskCommand { get; private set; }
-		private void CreateClientTaskCommand()
+		public DelegateCommand ChangeDeadlineDateCommand { get; private set; }
+		private void CreateChangeDeadlineDateCommand()
 		{
-			CreateNewClientTaskCommand = new DelegateCommand(
-				() => {
-					var clientTaskVM = new ClientTaskViewModel(
-						employeeRepository,
-						bottleRepository,
-						callTaskRepository,
-						phoneRepository,
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices
-					);
-					ViewModel.TabParent.AddTab(clientTaskVM, ViewModel, false);
-				},
-				() => true
+			ChangeDeadlineDateCommand = new DelegateCommand(
+				() => ChangeDeadlineDateAction?.Invoke(SelectedObjs, DeadlineDate),
+				() => SelectedObjs.Any()
 			);
 		}
 
-		public DelegateCommand CreateNewPaymentTaskCommand { get; private set; }
-		private void CreatePaymentTaskCommand()
+		public DelegateCommand ChangeTasksStateCommand { get; private set; }
+		private void CreateChangeTasksStateCommand()
 		{
-			CreateNewPaymentTaskCommand = new DelegateCommand(
-				() => {
-					var paymentTaskVM = new ClientTaskViewModel(
-						employeeRepository,
-						bottleRepository,
-						callTaskRepository,
-						phoneRepository,
-						EntityUoWBuilder.ForCreate(),
-						UnitOfWorkFactory.GetDefaultFactory,
-						ServicesConfig.CommonServices
-					);
-					ViewModel.TabParent.AddTab(paymentTaskVM, ViewModel, false);
-				},
-				() => true
-			);
-		}
-
-		public DelegateCommand EditTaskCommand { get; private set; }
-		private void CreateEditTaskCommand()
-		{
-			EditTaskCommand = new DelegateCommand(
-				() => {
-
-					if(SelectedTask.NodeType == typeof(ClientTask)) {
-						var clientTaskVM = new ClientTaskViewModel(
-								employeeRepository,
-								bottleRepository,
-								callTaskRepository,
-								phoneRepository,
-								EntityUoWBuilder.ForOpen(SelectedTask.Id),
-								UnitOfWorkFactory.GetDefaultFactory,
-								ServicesConfig.CommonServices);
-						ViewModel.TabParent.AddTab(clientTaskVM, ViewModel, false);
-
-					} else if(SelectedTask.NodeType == typeof(PaymentTask)) {
-						var paymentTaskVM = new ClientTaskViewModel(
-								employeeRepository,
-								bottleRepository,
-								callTaskRepository,
-								phoneRepository,
-								EntityUoWBuilder.ForOpen(SelectedTask.Id),
-								UnitOfWorkFactory.GetDefaultFactory,
-								ServicesConfig.CommonServices);
-						ViewModel.TabParent.AddTab(paymentTaskVM, ViewModel, false);
-					}
-				},
-				() => SelectedTask != null
-			);
-		}
-
-		public DelegateCommand ChangeTasksCommand { get; private set; }
-		private void CreateChangeTasksCommand()
-		{
-			ChangeTasksCommand = new DelegateCommand(
-				() => HBoxChangeTasksVisibility = !HBoxChangeTasksVisibility,
-				() => true
+			ChangeTasksStateCommand = new DelegateCommand(
+				() => ChangeTasksStateAction?.Invoke(SelectedObjs, TaskStatus),
+				() => SelectedObjs.Any()
 			);
 		}
 
@@ -139,32 +88,18 @@ namespace Vodovoz.ViewModels
 		private void CreateChangeAssignedEmployeeCommand()
 		{
 			ChangeAssignedEmployeeCommand = new DelegateCommand(
-				() => HBoxChangeTasksVisibility = !HBoxChangeTasksVisibility,
-				() => true
+				() => ChangeAssignedEmployeeAction?.Invoke(SelectedObjs, Employee),
+				() => SelectedObjs.Any()
 			);
 		}
 
-		public DelegateCommand CompleteTaskCommand { get; private set; }
-		private void CreateCompleteTaskCommand()
+		public DelegateCommand CompleteSelectedTasksCommand { get; private set; }
+		private void CreateCompleteSelectedTasksCommand()
 		{
-			CompleteTaskCommand = new DelegateCommand(
-				() => HBoxChangeTasksVisibility = !HBoxChangeTasksVisibility,
-				() => true
+			CompleteSelectedTasksCommand = new DelegateCommand(
+				() => CompleteSelectedTasksAction?.Invoke(SelectedObjs),
+				() => SelectedObjs.Any()
 			);
 		}
-
-		/*private void ChangeEnitity(Action<CallTask> action, CallTaskVMNode[] tasks)
-		{
-			if(action == null)
-				return;
-
-			tasks.ToList().ForEach((taskNode) => {
-				CallTask task = UoW.GetById<CallTask>(taskNode.Id);
-				action(task);
-				UoW.Save(task);
-				UoW.Commit();
-			});
-		}
-		*/
 	}
 }

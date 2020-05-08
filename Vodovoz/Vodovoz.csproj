@@ -1462,6 +1462,8 @@
     <Compile Include="ViewModels\BusinessTasks\PaymentTaskViewModel.cs" />
     <Compile Include="Views\BusinessTasks\PaymentTaskView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.PaymentTaskView.cs" />
+    <Compile Include="Views\BusinessTasksJournalActionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasksJournalActionsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

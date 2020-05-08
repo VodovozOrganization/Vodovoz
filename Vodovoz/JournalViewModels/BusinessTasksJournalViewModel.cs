@@ -23,6 +23,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.JournalNodes;
 using Vodovoz.Footers.ViewModels;
+using Vodovoz.ViewModels;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -38,6 +39,8 @@ namespace Vodovoz.JournalViewModels
 		readonly IBottlesRepository bottleRepository;
 		readonly ICallTaskRepository callTaskRepository;
 		readonly IPhoneRepository phoneRepository;
+
+		public JournalActionsViewModel actionsViewModel { get; set; }
 
 		public BusinessTasksJournalViewModel(
 			CallTaskFilterViewModel filterViewModel,
@@ -58,6 +61,7 @@ namespace Vodovoz.JournalViewModels
 			this.footerViewModel = footerViewModel;
 			//this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
 			Footer = footerViewModel;
 
 			RegisterTasks();
@@ -71,6 +75,19 @@ namespace Vodovoz.JournalViewModels
 				typeof(ClientTask),
 				typeof(PaymentTask)
 			);
+
+			actionsViewModel = new JournalActionsViewModel();
+
+			actionsViewModel.DefaultEditAction += OpenDialog;
+			actionsViewModel.DefaultAddAction += CreateNewEntity;
+			//actionsViewModel.ChangeAssignedEmployeeAction += ChangeAssignedEmployee;
+			//actionsViewModel.CompleteSelectedTasksAction += CompleteSelectedTasks;
+			//actionsViewModel.ChangeDeadlineDateAction += ChangeDeadlineDate;
+			//actionsViewModel.ChangeTasksStateAction += ChangeTasksState;
+			actionsViewModel.DefaultSelectAction += CreateSelectAction;
+
+			RawJournalActions = actionsViewModel;
+			SelectionMode = JournalSelectionMode.Single;
 
 			DataLoader.ItemsListUpdated += (sender, e) => GetStatistics();
 		}
@@ -335,19 +352,6 @@ namespace Vodovoz.JournalViewModels
 			footerViewModel.TareReturn = DataLoader.Items.OfType<BusinessTaskJournalNode>().Sum(x => x.TareReturn);
 		}
 
-		public void ChangeEnitity(Action<ClientTask> action, BusinessTaskJournalNode[] tasks)
-		{
-			if(action == null)
-				return;
-
-			tasks.ToList().ForEach((taskNode) => {
-				ClientTask task = UoW.GetById<ClientTask>(taskNode.Id);
-				action(task);
-				UoW.Save(task);
-				UoW.Commit();
-			});
-		}
-
 		private void RegisterTasks()
 		{
 			var taskConfig = RegisterEntity(GetClientTaskQuery)
@@ -417,23 +421,16 @@ namespace Vodovoz.JournalViewModels
 
 				var task = UoW.GetById(node.NodeType, node.Id);
 
-				/*
-				if(task is ClientTask)
-					return task as ClientTask;
-					*/
 
 				return null;
 			}
 
-			void SaveTask<UTask>(UTask task)
-			{
-
-			}
+			bool HasTask(object[] objs) => GetTask(objs) != null;
 
 			PopupActionsList.Add(
 				new JournalAction(
 					"Отметить как важное",
-					n => true,
+					HasTask,
 					n => true,
 					n => {
 						var task = GetTask(n);
@@ -441,7 +438,7 @@ namespace Vodovoz.JournalViewModels
 						if(task != null) {
 
 							if(task is ClientTask)
-								SaveTask(task as ClientTask);
+								UoW.Save(task as ClientTask);
 							//else
 							//	SaveTask(task as PaymentTask);
 						}
@@ -459,5 +456,77 @@ namespace Vodovoz.JournalViewModels
 
 			//NodeActionsList.Add(new JournalAction("Открыть печатную форму", x => true, x => true, selectedItems => reportViewOpener.OpenReport(this, FilterViewModel.GetReportInfo())));
 		}
+
+		public void ChangeAssignedEmployee(object[] selectedObjs, Employee employee)
+		{
+			var nodes = selectedObjs.OfType<BusinessTaskJournalNode>().ToLookup(key => key.EntityType, val => val.Id);
+
+			foreach(var tasks in nodes) {
+
+				foreach(int task in tasks) {
+					Type type = tasks.Key;
+
+					Type obj = (Type)UoW.GetById(type, task);
+				}
+			}
+
+		}
+
+		public void ChangeTasksState(object[] selectedObjs, BusinessTaskStatus status)
+		{
+			var nodes = selectedObjs.OfType<BusinessTaskJournalNode>().ToLookup(key => key.EntityType, val => val.Id);
+
+			foreach(var tasks in nodes) {
+
+				foreach(int task in tasks) {
+					Type type = tasks.Key;
+
+					var obj = UoW.GetById(type, task);
+				}
+			}
+		}
+
+		public void CompleteSelectedTasks(object[] selectedObjs)
+		{
+			var nodes = selectedObjs.OfType<BusinessTaskJournalNode>().ToLookup(key => key.EntityType, val => val.Id);
+
+			foreach(var tasks in nodes) {
+
+				foreach(int task in tasks) {
+					Type type = tasks.Key;
+
+					var obj = UoW.GetById(type, task);
+				}
+			}
+
+		}
+
+		public void ChangeDeadlineDate(object[] selectedObjs, DateTime date)
+		{
+			var nodes = selectedObjs.OfType<BusinessTaskJournalNode>().ToLookup(key => key.EntityType, val => val.Id);
+
+			foreach(var tasks in nodes) {
+
+				foreach(int task in tasks) {
+					Type type = tasks.Key;
+
+					var obj = UoW.GetById(type, task);
+				}
+			}
+
+		}
+
+
+		/*
+		public void ChangeEnitity(BusinessTaskJournalNode[] tasks)
+		{
+			tasks.ToList().ForEach((taskNode) => {
+				Type task = taskNode.EntityType;
+				action(task);
+				UoW.Save(task);
+				UoW.Commit();
+			});
+		}
+		*/
 	}
 }
