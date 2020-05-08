@@ -91,6 +91,7 @@ public partial class MainWindow : Window
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
 	Action ActionExportTo1c;
+	Action ActionOldExportTo1c;
 	Action ActionExportCounterpartiesTo1c;
 	Action ActionImportFromTinkoff;
 	Action ActionResidue;
@@ -147,7 +148,8 @@ public partial class MainWindow : Window
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionPaymentFromBank = new Action("ActionPaymentFromBank", "Загрузка выписки из банк-клиента (новое)", null, "table");
-		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с", null, "table");
+		ActionExportTo1c = new Action("ActionExportTo1c", "Выгрузка в 1с 8.3", null, "table");
+		ActionOldExportTo1c = new Action("ActionOldExportTo1c", "Выгрузка в 1с 8.2", null, "table");
 		ActionExportCounterpartiesTo1c = new Action("ActionExportCounterpartiesTo1c", "Выгрузка контрагентов в 1с", null, "table");
 		ActionImportFromTinkoff = new Action("ActionImportFromTinkoff", "Загрузка выписки из ЛК Тинькофф", null, "table");
 		ActionAccountingTable = new Action("ActionAccountingTable", "Операции по счету", null, "table");
@@ -216,6 +218,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionAccountingTable, null);
 		w1.Add(ActionAccountFlow, null);
 		w1.Add(ActionExportTo1c, null);
+		w1.Add(ActionOldExportTo1c, null);
 		w1.Add(ActionExportCounterpartiesTo1c, null);
 		w1.Add(ActionImportFromTinkoff, null);
 		w1.Add(ActionResidue, null);
@@ -276,6 +279,7 @@ public partial class MainWindow : Window
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
+		ActionOldExportTo1c.Activated += ActionOldExportTo1c_Activated;
 		ActionExportCounterpartiesTo1c.Activated += ActionExportCounterpartiesTo1c_Activated;
 		ActionImportFromTinkoff.Activated += ActionImportFromTinkoff_Activated;
 		ActionResidue.Activated += ActionResidueActivated;
@@ -590,6 +594,14 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
 			() => new ExportTo1cDialog()
+		);
+	}
+
+	void ActionOldExportTo1c_Activated(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<OldExportTo1cDialog>(),
+			() => new OldExportTo1cDialog()
 		);
 	}
 

@@ -860,6 +860,8 @@
     <Compile Include="HibernateMapping\Comments\DocumentCommentMap.cs" />
     <Compile Include="Domain\Comments\DocumentComment.cs" />
     <Compile Include="Domain\Comments\ICommentedDocument.cs" />
+    <Compile Include="Attributes\Value1cType.cs" />
+    <Compile Include="Services\IPotentialFreePromosetsReportDefaultsProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

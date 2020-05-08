@@ -67,6 +67,7 @@ using Vodovoz.Tools;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.Core;
 
 namespace Vodovoz
 {
@@ -76,7 +77,8 @@ namespace Vodovoz
 		IContractInfoProvider,
 		ITdiTabAddedNotifier,
 		IEmailsInfoProvider,
-		ICallTaskProvider
+		ICallTaskProvider,
+		ITDICloseControlTab
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -658,45 +660,68 @@ namespace Vodovoz
 			return true;
 		}
 
+		private bool canClose = true;
+		public bool CanClose()
+		{
+			if(!canClose)
+				MessageDialogHelper.RunInfoDialog("Дождитесь завершения задачи и повторите");
+			return canClose;
+		}
+
+		private void SetSensetivity(bool isSensetive)
+		{
+			canClose = isSensetive;
+			buttonSave.Sensitive = isSensetive;
+			buttonCancel.Sensitive = isSensetive;
+		}
+
 		public override bool Save()
 		{
-			Entity.CheckAndSetOrderIsService();
+			try {
+				SetSensetivity(false);
+				Entity.CheckAndSetOrderIsService();
 
-			var valid = new QSValidator<Order>(
-				Entity, new Dictionary<object, object>{
+				var valid = new QSValidator<Order>(
+					Entity, new Dictionary<object, object>{
 					{ "IsCopiedFromUndelivery", templateOrder != null } //индикатор того, что заказ - копия, созданная из недовозов
-				}
-			);
-
-			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
-				return false;
-
-			if(Entity.OrderStatus == OrderStatus.NewOrder) {
-				if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
-					return false;
-			}
-
-			if(OrderItemEquipmentCountHasChanges) {
-				MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
-			}
-
-			logger.Info("Сохраняем заказ...");
-
-			if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
-				var emailAddressForBill = Entity.GetEmailAddressForBill();
-				if(emailAddressForBill == null) {
-					if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
-						return false;
 					}
+				);
+
+				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
+					return false;
+
+				if(Entity.OrderStatus == OrderStatus.NewOrder) {
+					if(!MessageDialogHelper.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
+						return false;
 				}
-				Entity.SaveEntity(UoWGeneric);
-				SendBillByEmail(emailAddressForBill);
-			} else {
-				Entity.SaveEntity(UoWGeneric);
+
+				if(OrderItemEquipmentCountHasChanges) {
+					MessageDialogHelper.RunInfoDialog("Было изменено количество оборудования в заказе, оно также будет изменено в дополнительном соглашении");
+				}
+
+				logger.Info("Сохраняем заказ...");
+
+				if(EmailServiceSetting.SendingAllowed && Entity.NeedSendBill(emailRepository)) {
+					bool sendEmail = true;
+					var emailAddressForBill = Entity.GetEmailAddressForBill();
+					if(emailAddressForBill == null) {
+						sendEmail = false;
+						if(!MessageDialogHelper.RunQuestionDialog("Не найден адрес электронной почты для отправки счетов, продолжить сохранение заказа без отправки почты?")) {
+							return false;
+						}
+					}
+					Entity.SaveEntity(UoWGeneric);
+					if(sendEmail)
+						SendBillByEmail(emailAddressForBill);
+				} else {
+					Entity.SaveEntity(UoWGeneric);
+				}
+				logger.Info("Ok.");
+				UpdateUIState();
+				return true;
+			} finally {
+				SetSensetivity(true);
 			}
-			logger.Info("Ok.");
-			UpdateUIState();
-			return true;
 		}
 
 		protected void OnBtnSaveCommentClicked(object sender, EventArgs e)
@@ -743,6 +768,18 @@ namespace Vodovoz
 
 			if(!ValidateAndFormOrder() || !CheckCertificates(canSaveFromHere: true)) {
 				return;
+			}
+
+			PromosetDuplicateFinder promosetDuplicateFinder = new PromosetDuplicateFinder(ServicesConfig.InteractiveService);
+			List<Phone> phones = new List<Phone>();
+			phones.AddRange(Entity.Client.Phones);
+			if(Entity.DeliveryPoint != null) {
+				phones.AddRange(Entity.DeliveryPoint.Phones);
+			}
+			if(Entity.OrderItems.Any(x => x.PromoSet != null)) {
+				if(!promosetDuplicateFinder.RequestDuplicatePromosets(UoW, Entity.DeliveryPoint, phones)) {
+					return;
+				}
 			}
 
 			if(Contract == null && !Entity.IsLoadedFrom1C) {
@@ -954,7 +991,11 @@ namespace Vodovoz
 								return dialog;
 							}
 						);
-					else if(doc is OrderM2Proxy)
+					else if(doc is OrderM2Proxy) {
+						if(doc.Id == 0) {
+							MessageDialogHelper.RunInfoDialog("Перед просмотром документа необходимо сохранить заказ");
+							return;
+						}
 						TabParent.OpenTab(
 							DialogHelper.GenerateDialogHashName<M2ProxyDocument>((doc as OrderM2Proxy).M2Proxy.Id),
 							() => {
@@ -964,6 +1005,7 @@ namespace Vodovoz
 								return dialog;
 							}
 						);
+					}
 				}
 		}
 
@@ -1936,28 +1978,33 @@ namespace Vodovoz
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
 		{
-			var allList = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().ToList();
-			if(allList.Count <= 0)
-				return;
+			try {
+				SetSensetivity(false);
+				var allList = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().ToList();
+				if(allList.Count <= 0)
+					return;
 
-			allList.OfType<ITemplateOdtDocument>().ToList().ForEach(x => x.PrepareTemplate(UoW));
+				allList.OfType<ITemplateOdtDocument>().ToList().ForEach(x => x.PrepareTemplate(UoW));
 
-			string whatToPrint = allList.Count > 1
-				? "документов"
-				: "документа \"" + allList.First().Type.GetEnumTitle() + "\"";
-			if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
-				UoWGeneric.Save();
+				string whatToPrint = allList.Count > 1
+					? "документов"
+					: "документа \"" + allList.First().Type.GetEnumTitle() + "\"";
+				if(UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
+					UoWGeneric.Save();
 
-			var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
-				.Where(doc => doc.PrintType == PrinterType.RDL).ToList();
-			if(selectedPrintableRDLDocuments.Any()) {
-				new DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
-			}
+				var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
+					.Where(doc => doc.PrintType == PrinterType.RDL).ToList();
+				if(selectedPrintableRDLDocuments.Any()) {
+					new DocumentPrinter().PrintAll(selectedPrintableRDLDocuments);
+				}
 
-			var selectedPrintableODTDocuments = treeDocuments.GetSelectedObjects()
-				.OfType<IPrintableOdtDocument>().ToList();
-			if(selectedPrintableODTDocuments.Any()) {
-				TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
+				var selectedPrintableODTDocuments = treeDocuments.GetSelectedObjects()
+					.OfType<IPrintableOdtDocument>().ToList();
+				if(selectedPrintableODTDocuments.Any()) {
+					TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
+				}
+			} finally {
+				SetSensetivity(true);
 			}
 		}
 

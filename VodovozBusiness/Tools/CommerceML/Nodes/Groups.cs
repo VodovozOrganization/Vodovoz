@@ -17,9 +17,10 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 
 			var all = export.UOW.GetAll<ProductGroup>();
 			//Создаем Guid.
-            all.ToList().ForEach(g => g.CreateGuidIfNotExist(export.UOW));
+			var allGroups = all.ToList();
+			allGroups.ForEach(g => g.CreateGuidIfNotExist(export.UOW));
 			//Формируем дерево.
-			treeOfGroups = all.Where(x => x.Parent == null).ToList();
+			treeOfGroups = allGroups.Where(x => x.Parent == null).ToList();
 		}
 
 		Export myExport;

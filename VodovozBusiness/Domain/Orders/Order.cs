@@ -2002,8 +2002,12 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="proSet">Рекламный набор (промо-набор)</param>
 		public virtual bool CanAddPromotionalSet(PromotionalSet proSet)
 		{
-			if(PromotionalSets.Any()) {
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промо-набора");
+			if(PromotionalSets.Any(x => x.Id == proSet.Id)) {
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить два одинаковых промо-набора");
+				return false;
+			}
+			if((PromotionalSets.Count(x => !x.CanBeAddedWithOtherPromoSets) + (proSet.CanBeAddedWithOtherPromoSets ? 0 : 1)) > 1) {
+				InteractiveService.ShowMessage(ImportanceLevel.Warning, "В заказ нельзя добавить больше 1 промо-набора, у которого нет свойства \"Может быть добавлен вместе с другими промонаборами\"");
 				return false;
 			}
 

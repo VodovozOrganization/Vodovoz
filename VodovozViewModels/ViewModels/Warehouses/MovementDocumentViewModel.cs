@@ -267,6 +267,9 @@ namespace Vodovoz.ViewModels.Warehouses
 
 		public bool CanEditNewDocument => CanEdit && (Entity.Status == MovementDocumentStatus.New || Entity.Status == MovementDocumentStatus.Sended);
 
+		public bool CanChangeWagon => CanEditNewDocument || (Entity.Status == MovementDocumentStatus.Accepted && PermissionResult.CanUpdate &&
+			CommonServices.CurrentPermissionService.ValidatePresetPermission("can_change_accepted_movement_doc"));
+
 		public bool CanVisibleWagon => Entity.DocumentType == MovementDocumentType.Transportation;
 
 		#region Commands

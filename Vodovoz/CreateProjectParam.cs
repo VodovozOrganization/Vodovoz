@@ -158,6 +158,9 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_change_driver_surcharge", new PresetUserPermissionSource("can_change_driver_surcharge", "Изменение доплаты водителя", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_retrieve_routelist_en_route", new PresetUserPermissionSource("can_retrieve_routelist_en_route", "Возможность вернуть статус МЛ в путь", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_change_cars_bottles_from_address", new PresetUserPermissionSource("can_change_cars_bottles_from_address", "Изменение в автомобиле количества забираемых бутылей с адреса", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_change_accepted_movement_doc", new PresetUserPermissionSource("can_change_accepted_movement_doc", "Изменение документа перемещения в статусе \"Принят\"", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_manage_drivers_and_forwarders", new PresetUserPermissionSource("can_manage_drivers_and_forwarders", "Создание и изменение водителей и экспедиторов", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_manage_office_workers", new PresetUserPermissionSource("can_manage_office_workers", "Создание и изменение офисных работников", string.Empty));
 
 			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {

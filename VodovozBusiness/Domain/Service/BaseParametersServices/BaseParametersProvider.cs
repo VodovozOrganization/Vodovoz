@@ -3,6 +3,7 @@ using Vodovoz.Services;
 using System.Globalization;
 using Vodovoz.Parameters;
 using QSSupportLib;
+using System.Collections.Generic;
 
 namespace Vodovoz.Core.DataService
 {
@@ -23,6 +24,7 @@ namespace Vodovoz.Core.DataService
 		IErrorSendParameterProvider,
 		IOrganizationProvider,
 		IProfitCategoryProvider
+		IPotentialFreePromosetsReportDefaultsProvider
 	{
 		public string GetDefaultBaseForErrorSend()
 		{
@@ -317,5 +319,31 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IProfitCategoryProvider
+
+		#region IDefaultDeliveryDaySchedule
+
+		public int[] GetDefaultActivePromosets()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("default_active_promosets_in_potential_free_promosets_report")) {
+				return new int[] { };
+			}
+
+			string value = ParametersProvider.Instance.GetParameterValue("default_active_promosets_in_potential_free_promosets_report");
+			if(string.IsNullOrWhiteSpace(value)) {
+				return new int[] { };
+			}
+			var values = value.Split(',');
+
+			List<int> result = new List<int>();
+			foreach(var v in values) {
+				if(!int.TryParse(v.Trim(), out int parseResult)) {
+					continue;
+				}
+				result.Add(parseResult);
+			}
+			return result.ToArray();
+		}
+
+		#endregion IDefaultDeliveryDaySchedule
 	}
 }

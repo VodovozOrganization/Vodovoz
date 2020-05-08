@@ -73,7 +73,7 @@ namespace Vodovoz.JournalViewModels
 			Counterparty counterpartyAlias = null;
 			DeliveryPointJournalNode resultAlias = null;
 
-			var query = UoW.Session.QueryOver<DeliveryPoint>(() => deliveryPointAlias);
+			var query = uow.Session.QueryOver<DeliveryPoint>(() => deliveryPointAlias);
 
 			if(FilterViewModel != null && FilterViewModel.RestrictOnlyActive)
 				query = query.Where(() => deliveryPointAlias.IsActive);

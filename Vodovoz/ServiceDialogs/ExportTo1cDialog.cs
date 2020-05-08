@@ -15,7 +15,7 @@ namespace Vodovoz
 		public ExportTo1cDialog()
 		{
 			this.Build();
-			this.TabName="Выгрузка в 1с";
+			this.TabName="Выгрузка в 1с 8.3";
 		}
 
 		private ExportData exportData;

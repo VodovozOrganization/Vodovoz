@@ -12,7 +12,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
-using QS.Project.Repositories;
 using QSOsm.DTO;
 using QSProjectsLib;
 using QS.Validation;
@@ -27,15 +26,13 @@ using Vodovoz.ViewModel;
 using QS.Tdi;
 using QSOsm.Loaders;
 using QSOsm;
-using Vodovoz.Services;
-using Vodovoz.Core.DataService;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
 using QS.Project.Services;
 
 namespace Vodovoz
 {
-	public partial class DeliveryPointDlg : EntityDialogBase<DeliveryPoint>, IDeliveryPointInfoProvider
+	public partial class DeliveryPointDlg : EntityDialogBase<DeliveryPoint>, IDeliveryPointInfoProvider, ITDICloseControlTab
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
@@ -131,6 +128,9 @@ namespace Vodovoz
 			entryFloor.Binding.AddBinding(Entity, e => e.Floor, w => w.Text).InitializeFromSource();
 			entryEntrance.Binding.AddBinding(Entity, e => e.Entrance, w => w.Text).InitializeFromSource();
 			spinMinutesToUnload.Binding.AddBinding(Entity, e => e.MinutesToUnload, w => w.ValueAsInt).InitializeFromSource();
+
+			yentryOrganization.Binding.AddBinding(Entity, e => e.Organization, w => w.Text).InitializeFromSource();
+			hboxOrganization.Visible = Entity?.Counterparty?.PersonType == PersonType.natural;
 
 			yentryKPP.Binding.AddBinding(Entity, e => e.KPP, w => w.Text).InitializeFromSource();
 
@@ -287,7 +287,14 @@ namespace Vodovoz
 				UpdateMapPosition();
 				UpdateAddressOnMap();
 			}
-			CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
+			if(e.PropertyName == Entity.GetPropertyName(x => x.Counterparty) && Entity?.Counterparty != null) {
+				if(Entity.Counterparty.PersonType != PersonType.natural)
+					yentryOrganization.Text = null;
+				hboxOrganization.Visible = Entity.Counterparty.PersonType == PersonType.natural;
+			}
+			//Необходимо разобраться в каких случаях нужно вызывать событие CurrentObjectChanged т.к оно сильно тормозит диалог
+			if(e.PropertyName != Entity.GetPropertyName(x => x.Organization))
+				CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity));
 
 			if(e.PropertyName == Entity.GetPropertyName(x => x.HaveResidue))
 				ShowResidue();
@@ -387,25 +394,45 @@ namespace Vodovoz
 			}
 		}
 
+		private bool canClose = true;
+		public bool CanClose()
+		{
+			if(!canClose)
+				MessageDialogHelper.RunInfoDialog("Дождитесь завершения сохранения точки доставки и повторите", "Сохранение...");
+			return canClose;
+		}
+
+		private void SetSensetivity(bool isSensetive)
+		{
+			canClose = isSensetive;
+			buttonSave.Sensitive = isSensetive;
+			buttonCancel.Sensitive = isSensetive;
+		}
+
 		public override bool Save()
 		{
-			phonesview1.ViewModel.RemoveEmpty();
+			try {
+				SetSensetivity(false);
+				phonesview1.ViewModel.RemoveEmpty();
 
-			if(!Entity.CoordinatesExist && !MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
-				return false;
+				if(!Entity.CoordinatesExist && !MessageDialogHelper.RunQuestionDialog("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
+					return false;
 
-			var valid = new QSValidator<DeliveryPoint>(UoWGeneric.Root);
-			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
-				return false;
-			if(Entity.District == null && !MessageDialogHelper.RunWarningDialog(
-								"Проверьте координаты!",
-								"Район доставки не найден. Это приведёт к невозможности отображения заказа на эту точку доставки у логистов при составлении маршрутного листа. Укажите правильные координаты.\nПродолжить сохранение точки доставки?",
-								Gtk.ButtonsType.YesNo
-							))
-				return false;
-				
-			UoWGeneric.Save();
-			return true;
+				var valid = new QSValidator<DeliveryPoint>(UoWGeneric.Root);
+				if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+					return false;
+				if(Entity.District == null && !MessageDialogHelper.RunWarningDialog(
+									"Проверьте координаты!",
+									"Район доставки не найден. Это приведёт к невозможности отображения заказа на эту точку доставки у логистов при составлении маршрутного листа. Укажите правильные координаты.\nПродолжить сохранение точки доставки?",
+									Gtk.ButtonsType.YesNo
+								))
+					return false;
+
+				UoWGeneric.Save();
+				return true;
+			} finally {
+				SetSensetivity(true);
+			}
 		}
 
 		protected void OnRadoiInformationToggled(object sender, EventArgs e)

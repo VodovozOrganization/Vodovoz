@@ -4,12 +4,9 @@ using Gamma.GtkWidgets;
 using QS.Project.Domain;
 using QS.Views.GtkUI;
 using QSOrmProject;
-using QSProjectsLib;
 using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.Representations;
 using Vodovoz.ViewModels.Organization;
-using Vodovoz.ViewModels.Permissions;
 
 namespace Vodovoz.Views.Organization
 {
@@ -51,6 +48,10 @@ namespace Vodovoz.Views.Organization
 			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			ySpecCmbGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroupVisible, w => w.Visible).InitializeFromSource();
 			lblGeographicGroup.Binding.AddBinding(ViewModel, vm => vm.GeographicGroupVisible, w => w.Visible).InitializeFromSource();
+
+			yenumcomboType.ItemsEnum = typeof(SubdivisionType);
+			yenumcomboType.Binding.AddBinding(ViewModel.Entity, e => e.SubdivisionType, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboType.Sensitive = false;
 
 			ytreeviewDocuments.ColumnsConfig = ColumnsConfigFactory.Create<TypeOfEntity>()
 				.AddColumn("Документ").AddTextRenderer(x => x.CustomName)
