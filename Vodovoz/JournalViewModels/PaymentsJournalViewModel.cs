@@ -85,18 +85,18 @@ namespace Vodovoz.JournalViewModels
 
 			#endregion filter
 
-			paymentQuery.Where(GetSearchCriterion(
-				() => paymentAlias.PaymentNum,
-				() => paymentAlias.Total,
-				() => paymentAlias.CounterpartyName
-				//() => orderAlias.Id
-			));
-
 			var numOrders = Projections.SqlFunction(
 							new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
 							NHibernateUtil.String,
 							Projections.Property(() => paymentItemAlias.Order.Id),
 							Projections.Constant("\n"));
+
+			paymentQuery.Where(GetSearchCriterion(
+				() => paymentAlias.PaymentNum,
+				() => paymentAlias.Total,
+				() => paymentAlias.CounterpartyName,
+				() => paymentItemAlias.Order.Id
+			));
 
 			var resultQuery = paymentQuery
 				.SelectList(list => list

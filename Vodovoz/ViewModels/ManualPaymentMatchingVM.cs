@@ -357,6 +357,9 @@ namespace Vodovoz.ViewModels
 					.And(x => x.OrderStatus != OrderStatus.NotDelivered)
 					.Where(x => x.PaymentType == PaymentType.cashless);
 
+			if(Entity.Counterparty != null)
+				incomePaymentQuery.Where(x => x.Client == Entity.Counterparty);
+
 			if(StartDate.HasValue && EndDate.HasValue)
 				incomePaymentQuery.Where(x => x.BillDate >= StartDate && x.BillDate <= EndDate);
 

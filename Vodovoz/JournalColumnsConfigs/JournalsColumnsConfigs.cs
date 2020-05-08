@@ -495,9 +495,14 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("")
 					.RowCells().AddSetter<CellRenderer>(
 						(c, n) => {
-							var color = colorLightGreen;
+							var color = colorWhite;
+
 							if(n.Status == PaymentState.undistributed)
 								color = colorPink;
+
+							if(n.Status == PaymentState.distributed)
+								color = colorLightGreen;
+
 							c.CellBackgroundGdk = color;
 						})
 					.Finish()

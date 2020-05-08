@@ -67,6 +67,7 @@ namespace Vodovoz.Views
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
+			entryCounterparty.ChangedByUser += (sender, e) => UpdateNodes(this, EventArgs.Empty);
 
 			var searchView = new SearchView((SearchViewModel)ViewModel.Search);
 			hboxSearch.Add(searchView);
