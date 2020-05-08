@@ -40,6 +40,8 @@ namespace Vodovoz.ViewModels
 
 			using(var reader = new StreamReader(DocPath, Encoding.GetEncoding(1251))) 
 			{
+				int count = 1;
+
 				if(reader.ReadLine() != "1CClientBankExchange")
 					return;
 
@@ -59,8 +61,14 @@ namespace Vodovoz.ViewModels
 						{
 							var data = line.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
 
-							if(data.Length == 2) 
-								documentProperties.Add(data[0], data[1]);
+							if(data.Length == 2) {
+								if(data[0] == "РасчСчет") {
+									documentProperties.Add(data[0] + count, data[1]);
+									count++;
+								} else {
+									documentProperties.Add(data[0], data[1]);
+								}
+							}
 						}
 						line = reader.ReadLine();
 					}
