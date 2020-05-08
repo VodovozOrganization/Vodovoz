@@ -857,6 +857,8 @@
     <Compile Include="Domain\Payments\PaymentItem.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentItemMap.cs" />
     <Compile Include="Domain\Payments\TransferDocument.cs" />
+    <Compile Include="HibernateMapping\Comments\DocumentCommentMap.cs" />
+    <Compile Include="Domain\Comments\DocumentComment.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -937,6 +939,8 @@
     <Folder Include="EntityRepositories\Permissions\" />
     <Folder Include="EntityRepositories\Delivery\" />
     <Folder Include="Tools\ErrorReporting\" />
+    <Folder Include="HibernateMapping\Comments\" />
+    <Folder Include="Domain\Comments\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

@@ -1409,6 +1409,9 @@
     <Compile Include="Filters\ViewModels\PaymentsJournalFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\PaymentsFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PaymentsFilterView.cs" />
+    <Compile Include="ViewModels\Comments\DocumentCommentViewModel.cs" />
+    <Compile Include="Views\Comments\DocumentCommentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Comments.DocumentCommentView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1658,6 +1661,8 @@
     <Folder Include="Views\Users\" />
     <Folder Include="ViewWidgets\Permissions\" />
     <Folder Include="Views\ErrorReporting\" />
+    <Folder Include="Views\Comments\" />
+    <Folder Include="ViewModels\Comments\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
