@@ -4,6 +4,7 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Domain.Employees;
 using Gamma.ColumnConfig;
+using QS.Navigation;
 
 namespace Vodovoz.Views.Employees
 {
@@ -66,7 +67,7 @@ namespace Vodovoz.Views.Employees
 			ytreeviewItems.Binding.AddBinding(ViewModel.Entity, e => e.ObservableItems, w => w.ItemsDataSource).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel); };
 		}
 
 		private FineItem GetSelectedFineItem()

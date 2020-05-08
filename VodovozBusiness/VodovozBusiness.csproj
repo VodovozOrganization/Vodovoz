@@ -862,6 +862,11 @@
     <Compile Include="Domain\Comments\ICommentedDocument.cs" />
     <Compile Include="Attributes\Value1cType.cs" />
     <Compile Include="Services\IPotentialFreePromosetsReportDefaultsProvider.cs" />
+    <Compile Include="Domain\BusinessTasks\BusinessTask.cs" />
+    <Compile Include="Domain\BusinessTasks\ClientTask.cs" />
+    <Compile Include="HibernateMapping\BusinessTasks\ClientTaskMap.cs" />
+    <Compile Include="HibernateMapping\BusinessTasks\PaymentTaskMap.cs" />
+    <Compile Include="Domain\BusinessTasks\PaymentTask.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -944,6 +949,8 @@
     <Folder Include="Tools\ErrorReporting\" />
     <Folder Include="HibernateMapping\Comments\" />
     <Folder Include="Domain\Comments\" />
+    <Folder Include="Domain\BusinessTasks\" />
+    <Folder Include="HibernateMapping\BusinessTasks\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">

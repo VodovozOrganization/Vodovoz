@@ -1,5 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.WageCalculation;
+using QS.Navigation;
 
 namespace Vodovoz.Views.WageCalculation
 {
@@ -15,7 +16,7 @@ namespace Vodovoz.Views.WageCalculation
 		{
 			labelName.Visible = yentryName.Visible = false;
 			btnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			btnCancel.Clicked += (sender, e) => ViewModel.Close(false);
+			btnCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			chkIsArchive.Binding.AddBinding(ViewModel.Entity, s => s.IsArchive, w => w.Active).InitializeFromSource();
 			entryFullBottlesToSell.Binding.AddBinding(ViewModel.Entity, e => e.FullBottleToSell, w => w.ValueAsInt).InitializeFromSource();

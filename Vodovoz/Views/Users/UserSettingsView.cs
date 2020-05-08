@@ -5,6 +5,7 @@ using QS.Views.GtkUI;
 using Vodovoz.Additions.Store;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Users;
+using QS.Navigation;
 
 namespace Vodovoz.Views.Users
 {
@@ -27,7 +28,7 @@ namespace Vodovoz.Views.Users
 			yenumcomboDefaultCategory.Binding.AddBinding(ViewModel.Entity, e => e.DefaultSaleCategory, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel); };
 		}
 	}
 }

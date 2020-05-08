@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels;
+using QS.Navigation;
 
 namespace Vodovoz.Views
 {
@@ -18,7 +19,7 @@ namespace Vodovoz.Views
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
 
 			chkIsArchive.Binding.AddBinding(ViewModel.Entity, vm => vm.IsArchive, w => w.Active).InitializeFromSource();
 		}

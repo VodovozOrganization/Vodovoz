@@ -23,7 +23,7 @@ namespace Vodovoz.Core.DataService
 		IDriverServiceParametersProvider,
 		IErrorSendParameterProvider,
 		IOrganizationProvider,
-		IProfitCategoryProvider
+		IProfitCategoryProvider,
 		IPotentialFreePromosetsReportDefaultsProvider
 	{
 		public string GetDefaultBaseForErrorSend()

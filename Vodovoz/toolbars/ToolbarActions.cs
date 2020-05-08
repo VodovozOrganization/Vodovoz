@@ -7,7 +7,6 @@ using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using Vodovoz;
 using Vodovoz.Core.DataService;
@@ -42,7 +41,9 @@ using QS.Project.Journal;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
-using Vodovoz.Views;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories;
+using Vodovoz.Footers.ViewModels;
 
 public partial class MainWindow : Window
 {
@@ -334,9 +335,26 @@ public partial class MainWindow : Window
 
 	void ActionCallTasks_Activate(object sender, System.EventArgs e)
 	{
+		/*
 		tdiMain.OpenTab(
 			"CRM",
-			() => new TasksView(), null
+			() => new TasksView(EmployeeSingletonRepository.GetInstance(), 
+								new BottlesRepository(),
+								new CallTaskRepository(),
+								new PhoneRepository()), null
+		);
+		*/
+
+		tdiMain.OpenTab(
+			"CRM",
+			() => new BusinessTasksJournalViewModel(new CallTaskFilterViewModel(),
+													new BusinessTasksJournalFooterViewModel(),
+													UnitOfWorkFactory.GetDefaultFactory,
+													ServicesConfig.CommonServices,
+													EmployeeSingletonRepository.GetInstance(),
+													new BottlesRepository(),
+													new CallTaskRepository(),
+													new PhoneRepository()) { SelectionMode = JournalSelectionMode.Multiple}, null
 		);
 	}
 

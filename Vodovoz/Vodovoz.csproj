@@ -1450,6 +1450,14 @@
     <Compile Include="Core\PromosetDuplicateFinder.cs" />
     <Compile Include="ReportsParameters\WayBillReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReport.cs" />
+    <Compile Include="ViewModels\BusinessTasks\ClientTaskViewModel.cs" />
+    <Compile Include="Views\BusinessTasks\ClientTaskView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.ClientTaskView.cs" />
+    <Compile Include="JournalViewModels\BusinessTasksJournalViewModel.cs" />
+    <Compile Include="JournalNodes\BusinessTaskJournalNode.cs" />
+    <Compile Include="Footers\ViewModels\BusinessTasksJournalFooterViewModel.cs" />
+    <Compile Include="Footers\Views\BusinessTasksJournalFooterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Footers.Views.BusinessTasksJournalFooterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1705,6 +1713,11 @@
     <Folder Include="ServiceDialogs\OldExportTo1c\Catalogs\" />
     <Folder Include="ServiceDialogs\OldExportTo1c\ExportDefaults\" />
     <Folder Include="ServiceDialogs\OldExportTo1c\ExportNodes\" />
+    <Folder Include="ViewModels\BusinessTasks\" />
+    <Folder Include="Views\BusinessTasks\" />
+    <Folder Include="Footers\" />
+    <Folder Include="Footers\Views\" />
+    <Folder Include="Footers\ViewModels\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

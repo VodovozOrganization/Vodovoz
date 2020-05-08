@@ -86,6 +86,10 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.ViewModels.BusinessTasks;
+using Vodovoz.Views.BusinessTasks;
+using Vodovoz.Footers.ViewModels;
+using Vodovoz.Footers.Views;
 
 namespace Vodovoz
 {
@@ -212,6 +216,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<UserSettingsViewModel, UserSettingsView>()
 				.RegisterWidgetForTabViewModel<PaymentLoaderVM, PaymentLoaderView>()
 				.RegisterWidgetForTabViewModel<ManualPaymentMatchingVM, ManualPaymentMatchingView>()
+				.RegisterWidgetForTabViewModel<ClientTaskViewModel, ClientTaskView>()
 				;
 
 			//Регистрация виджетов
@@ -238,9 +243,12 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryPointJournalFilterViewModel, DeliveryPointJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<PaymentsJournalFilterViewModel, PaymentsFilterView>()
+				.RegisterWidgetForWidgetViewModel<CallTaskFilterViewModel, CallTaskFilterView>()
+				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalFooterViewModel, BusinessTasksJournalFooterView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
+			DialogHelper.FooterWidgetResolver = ViewModelWidgetResolver.Instance;
 		}
 
 		static void ConfigureJournalColumnsConfigs()

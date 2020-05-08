@@ -2,15 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 using QS.Commands;
 using QS.Project.Filter;
-using QS.Project.Journal;
-using QS.Services;
 using QS.Utilities;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class CallTaskFilterViewModel : FilterViewModelBase<CallTaskFilterViewModel>, IJournalFilter
+	public class CallTaskFilterViewModel : FilterViewModelBase<CallTaskFilterViewModel>
 	{
 		public CallTaskFilterViewModel()
 		{

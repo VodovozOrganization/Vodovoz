@@ -9,6 +9,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels;
+using QS.Navigation;
 
 namespace Vodovoz.Views
 {
@@ -86,7 +87,7 @@ namespace Vodovoz.Views
 			ViewModel.RemoveDepositEquipmentItemCommand.CanExecuteChanged += RemoveDepositEquipmentItemCommand_CanExecuteChanged;
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
 		}
 
 		void RemoveDepositEquipmentItemCommand_CanExecuteChanged(object sender, EventArgs e)

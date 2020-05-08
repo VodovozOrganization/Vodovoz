@@ -4,6 +4,7 @@ using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Orders;
+using QS.Navigation;
 
 namespace Vodovoz.Views.Orders
 {
@@ -44,7 +45,7 @@ namespace Vodovoz.Views.Orders
 
 			ybuttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			ybuttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive).InitializeFromSource();
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel); };
 
 			yEnumButtonAddAction.ItemsEnum = typeof(PromotionalSetActionType);
 			yEnumButtonAddAction.EnumItemClicked += (sender, e) => { ViewModel.AddActionCommand.Execute((PromotionalSetActionType)e.ItemEnum); };

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using Vodovoz.Domain.Payments;
+using System.Linq;
 
 namespace Vodovoz.ViewModels
 {
@@ -17,7 +18,7 @@ namespace Vodovoz.ViewModels
 		private List<Dictionary<string, string>> accounts;
 
 		private string[] tags = { "СекцияРасчСчет", "СекцияДокумент", "КонецДокумента", "КонецФайла" };
-		private readonly decimal curVersion = 1.02M;
+		private readonly decimal[] curVersion = { 1.02M, 1.03M };
 
 		public TransferDocumentsFromBankParser(string docPath)
 		{
@@ -46,7 +47,7 @@ namespace Vodovoz.ViewModels
 
 				decimal version = decimal.Parse(str[1], culture);
 
-				if(version != curVersion)
+				if(!curVersion.Contains(version))
 					throw new Exception("Изменилась версия выписки! Необходимо проверить формат данных.");
 
 				while((line = reader.ReadLine()) != null) 

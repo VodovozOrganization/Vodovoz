@@ -7,6 +7,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Representations;
 using Vodovoz.ViewModels.Organization;
+using QS.Navigation;
 
 namespace Vodovoz.Views.Organization
 {
@@ -74,7 +75,7 @@ namespace Vodovoz.Views.Organization
 			ytreeviewDocuments.Selection.Changed += (sender, e) => buttonDeleteDocument.Sensitive = ViewModel.DeleteDocumentCommand.CanExecute(ytreeviewDocuments.GetSelectedObject() as TypeOfEntity);
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel); };
 
 			ViewModel.OnSavedEntity += () => subdivisionentitypermissionwidget.ViewModel.SavePermissions(subdivisionentitypermissionwidget.UoW);
 

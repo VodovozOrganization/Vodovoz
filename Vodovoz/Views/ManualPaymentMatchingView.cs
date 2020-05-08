@@ -12,6 +12,7 @@ using System;
 using Vodovoz.Infrastructure.Converters;
 using QS.Project.Search.GtkUI;
 using QS.Project.Search;
+using QS.Navigation;
 
 namespace Vodovoz.Views
 {
@@ -57,7 +58,7 @@ namespace Vodovoz.Views
 			labelPaymentNum.Text = ViewModel.Entity.PaymentNum.ToString();
 			labelDate.Text = ViewModel.Entity.Date.ToShortDateString();
 
-			var text = ViewModel.Entity.PaymentPurpose + ViewModel.Entity.PaymentPurpose + ViewModel.Entity.PaymentPurpose;
+			//var text = ViewModel.Entity.PaymentPurpose + ViewModel.Entity.PaymentPurpose + ViewModel.Entity.PaymentPurpose;
 			//ytextviewPaymentPurpose.Binding.AddBinding(ViewModel.Entity, vm => vm.PaymentPurpose, v => v.Buffer.Text).InitializeFromSource();
 			ytextviewPaymentPurpose.Buffer.Text = ViewModel.Entity.PaymentPurpose;
 			ytextviewComments.Binding.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text).InitializeFromSource();
@@ -66,11 +67,6 @@ namespace Vodovoz.Views
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices));
 
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, vm => vm.Counterparty, w => w.Subject).InitializeFromSource();
-
-			//entryCounterparty.Sensitive = ViewModel.Entity.Counterparty == null;
-			//entryCounterparty.CanEditReference = ViewModel.Entity.Counterparty != null;
-
-			//searchentity1.TextChanged += Searchentity1_TextChanged;
 
 			var searchView = new SearchView((SearchViewModel)ViewModel.Search);
 			hboxSearch.Add(searchView);
@@ -163,7 +159,7 @@ namespace Vodovoz.Views
 
 		void OnBtnCancel_Clicked(object sender, System.EventArgs e)
 		{
-			ViewModel.Close(false);
+			ViewModel.Close(false, CloseSource.Cancel);
 		}
 
 		void UpdateNodes(object sender, EventArgs e)

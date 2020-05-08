@@ -2,6 +2,7 @@
 using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels.WageCalculation;
+using QS.Navigation;
 
 namespace Vodovoz.Views.WageCalculation
 {
@@ -42,7 +43,7 @@ namespace Vodovoz.Views.WageCalculation
 			ydatepickerStart.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.Date).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel); };
 
 			UpdateWageParameters();
 		}

@@ -2,6 +2,7 @@
 using QS.Views.GtkUI;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.ViewModels.WageCalculation;
+using QS.Navigation;
 
 namespace Vodovoz.Views.WageCalculation
 {
@@ -29,7 +30,7 @@ namespace Vodovoz.Views.WageCalculation
 			UpdateWageParameterView();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.Save();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
 		}
 
 		private Widget wageParameterView;

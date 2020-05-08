@@ -1,5 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.WageCalculation;
+using QS.Navigation;
 
 namespace Vodovoz.Views.WageCalculation
 {
@@ -18,7 +19,7 @@ namespace Vodovoz.Views.WageCalculation
 			chkIsArchive.Binding.AddBinding(ViewModel.Entity, s => s.IsArchive, w => w.Active).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
 		}
 	}
 }

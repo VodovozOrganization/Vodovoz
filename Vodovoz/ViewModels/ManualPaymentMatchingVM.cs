@@ -289,7 +289,7 @@ namespace Vodovoz.ViewModels
 
 					if(Save()) { 
 						UoW.Commit();
-						Close(false);
+						Close(false, QS.Navigation.CloseSource.Self);
 					}
 				},
 				() => true
@@ -339,7 +339,7 @@ namespace Vodovoz.ViewModels
 
 			if(Save()) {
 				UoW.Commit();
-				Close(false);
+				Close(false, QS.Navigation.CloseSource.Self);
 			}
 		}
 

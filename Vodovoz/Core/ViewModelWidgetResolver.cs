@@ -12,7 +12,7 @@ using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.Core
 {
-	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver
+	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IFooterWidgetResolver, IWidgetResolver
 	{
 		private static ViewModelWidgetResolver instance;
 		public static ViewModelWidgetResolver Instance {
@@ -91,6 +91,21 @@ namespace Vodovoz.Core
 
 			var widgetCtorInfo = viewModelWidgets[filterType].GetConstructor(new[] { filterType });
 			Widget widget = (Widget)widgetCtorInfo.Invoke(new object[] { filter });
+			return widget;
+		}
+
+		public virtual Widget Resolve(ViewModelBase footer)
+		{
+			if(footer == null)
+				return null;
+
+			Type footerType = footer.GetType();
+			if(!viewModelWidgets.ContainsKey(footerType)) {
+				throw new ApplicationException($"Не настроено сопоставление для {footerType.Name}");
+			}
+
+			var widgetCtorInfo = viewModelWidgets[footerType].GetConstructor(new[] { footerType });
+			Widget widget = (Widget)widgetCtorInfo.Invoke(new object[] { footer });
 			return widget;
 		}
 

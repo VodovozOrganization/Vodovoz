@@ -79,7 +79,7 @@ namespace Vodovoz.ViewModels
 
 					UoW.Commit();
 					UpdateProgress?.Invoke("Сохранение закончено...", progress = 0);
-					Close(false);
+					Close(false, CloseSource.Self);
 				},
 				payments => payments.Count > 0
 			);
@@ -90,7 +90,7 @@ namespace Vodovoz.ViewModels
 		private void CreateCloseViewModelCommand()
 		{
 			CloseViewModelCommand = new DelegateCommand(
-				() => Close(false),
+				() => Close(false, CloseSource.Cancel),
 				() => true
 			);
 		}
@@ -131,11 +131,16 @@ namespace Vodovoz.ViewModels
 
 			foreach(var doc in parserDocs){
 
+				var curDoc = ObservablePayments.SingleOrDefault(x => x.Date.Year == doc.Date.Year
+																&& x.PaymentNum == int.Parse(doc.DocNum)
+																&& x.CounterpartyInn == doc.PayerInn
+																&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount);
+
 				if(PaymentsRepository.PaymentFromBankClientExists(UoW,
 															   	doc.Date.Year,
 															   	int.Parse(doc.DocNum),
 															   	doc.PayerInn,
-															   	doc.PayerCurrentAccount)) {
+															   	doc.PayerCurrentAccount) || curDoc != null) {
 
 					count++;
 					countDuplicates++;

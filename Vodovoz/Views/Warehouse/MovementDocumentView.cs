@@ -6,6 +6,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Documents;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using QS.Navigation;
 
 namespace Vodovoz.Views.Warehouse
 {
@@ -99,7 +100,7 @@ namespace Vodovoz.Views.Warehouse
 			ViewModel.PrintCommand.CanExecuteChanged += (sender, e) =>  buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
 			buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();
 
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
 		}
 
 		private MovementDocumentItem GetSelectedItem()

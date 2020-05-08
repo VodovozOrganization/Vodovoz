@@ -1,11 +1,10 @@
 ﻿using System;
 using QS.Project.Filter;
-using QS.Project.Journal;
 using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.Filters.ViewModels
 {
-	public class PaymentsJournalFilterViewModel : FilterViewModelBase<PaymentsJournalFilterViewModel>, IJournalFilter
+	public class PaymentsJournalFilterViewModel : FilterViewModelBase<PaymentsJournalFilterViewModel>
 	{
 		public PaymentsJournalFilterViewModel()
 		{

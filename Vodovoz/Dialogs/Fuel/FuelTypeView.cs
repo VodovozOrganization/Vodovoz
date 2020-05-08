@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.Views.GtkUI;
+using QS.Navigation;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -18,7 +19,7 @@ namespace Vodovoz.Dialogs.Fuel
 			yspinbuttonCost.Binding.AddBinding(ViewModel.Entity, e => e.Cost, w => w.ValueAsDecimal).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel); };
 		}
 	}
 }

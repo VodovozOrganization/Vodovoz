@@ -1,6 +1,7 @@
 ﻿using Vodovoz.Domain.Contacts;
 using QS.Views.GtkUI;
 using Vodovoz.ViewModels;
+using QS.Navigation;
 
 namespace Vodovoz.Views.Contacts
 {
@@ -20,7 +21,7 @@ namespace Vodovoz.Views.Contacts
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanCreateOrUpdate, w => w.Sensitive);
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel); };
 
 			yenumcomboPurpose.ItemsEnum = typeof(PhonePurpose);
 			yenumcomboPurpose.Binding.AddBinding(ViewModel, vm => vm.PhonePurpose, w => w.SelectedItem).InitializeFromSource();

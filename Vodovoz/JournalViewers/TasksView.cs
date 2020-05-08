@@ -13,6 +13,12 @@ using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
 using QS.Project.Services;
+using Vodovoz.ViewModels.BusinessTasks;
+using QS.Project.Domain;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.JournalViewers
 {
@@ -22,9 +28,24 @@ namespace Vodovoz.JournalViewers
 		CallTasksVM callTasksVM;
 		CallTaskFilterView callTaskFilterView;
 
-		public TasksView()
+		readonly IEmployeeRepository employeeRepository;
+		readonly IBottlesRepository bottleRepository;
+		readonly ICallTaskRepository callTaskRepository;
+		readonly IPhoneRepository phoneRepository;
+
+		public TasksView(
+			IEmployeeRepository employeeRepository,
+			IBottlesRepository bottleRepository,
+			ICallTaskRepository callTaskRepository,
+			IPhoneRepository phoneRepository)
 		{
 			this.Build();
+
+			this.employeeRepository = employeeRepository;
+			this.bottleRepository = bottleRepository;
+			this.callTaskRepository = callTaskRepository;
+			this.phoneRepository = phoneRepository;
+
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			this.TabName = "Журнал задач для обзвона";
 			ConfigureDlg();
@@ -75,17 +96,48 @@ namespace Vodovoz.JournalViewers
 		#region BaseJournalHeandler
 		protected void OnAddTaskButtonClicked(object sender, EventArgs e)
 		{
+			/*
 			CallTaskDlg dlg = new CallTaskDlg();
 			TabParent.AddTab(dlg,this);
+			*/
+
+
+			ClientTaskViewModel clientTaskViewModel = new ClientTaskViewModel(employeeRepository,
+																				bottleRepository,
+																				callTaskRepository,
+																				phoneRepository,
+																				EntityUoWBuilder.ForCreate(), 
+																				UnitOfWorkFactory.GetDefaultFactory, 
+																				ServicesConfig.CommonServices);
+			TabParent.AddTab(clientTaskViewModel, this);
+
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
+			/*
 			var selected = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().FirstOrDefault();
 			if(selected == null)
 				return;
 			CallTaskDlg dlg = new CallTaskDlg(selected.Id);
 			OpenSlaveTab(dlg);
+			*/
+
+
+			var selected = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().FirstOrDefault();
+
+			if(selected == null)
+				return;
+
+			ClientTaskViewModel clientTaskViewModel = new ClientTaskViewModel(employeeRepository,
+																				bottleRepository,
+																				callTaskRepository,
+																				phoneRepository,
+																				EntityUoWBuilder.ForOpen(selected.Id),
+																				UnitOfWorkFactory.GetDefaultFactory,
+																				ServicesConfig.CommonServices);
+			OpenSlaveTab(clientTaskViewModel);
+
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)

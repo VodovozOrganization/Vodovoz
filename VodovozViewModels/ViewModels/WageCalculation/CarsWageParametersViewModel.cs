@@ -209,7 +209,7 @@ namespace Vodovoz.ViewModels.WageCalculation
 				UoW.Save(wagePararmeter);
 			}
 			UoW.Commit();
-			Close(false);
+			Close(false, CloseSource.Save);
 			return true;
 		}
 	}

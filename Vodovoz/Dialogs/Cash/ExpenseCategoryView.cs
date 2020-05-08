@@ -1,6 +1,7 @@
 ﻿using System;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Cash;
+using QS.Navigation;
 
 namespace Vodovoz.Dialogs.Cash
 {
@@ -26,7 +27,7 @@ namespace Vodovoz.Dialogs.Cash
 			yenumTypeDocument.Binding.AddBinding(ViewModel.Entity, e => e.ExpenseDocumentType, w => w.SelectedItem).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel); };
 		}
 	}
 }

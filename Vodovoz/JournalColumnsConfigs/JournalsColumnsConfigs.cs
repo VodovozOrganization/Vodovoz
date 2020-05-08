@@ -5,6 +5,7 @@ using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
+using Vodovoz.Domain.BusinessTasks;
 using Vodovoz.Domain.Payments;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
@@ -491,9 +492,6 @@ namespace Vodovoz.JournalColumnsConfigs
 						.WrapWidth(600).WrapMode(Pango.WrapMode.WordChar)
 					.AddColumn("Категория дохода/расхода")
 						.AddTextRenderer(x => x.ProfitCategory).XAlign(0.5f)
-						//.SetDisplayFunc(x => x.Name)
-						//.FillItems(UoW.GetAll<CategoryProfit>().ToList())
-						//.Editing()
 					.AddColumn("")
 					.RowCells().AddSetter<CellRenderer>(
 						(c, n) => {
@@ -502,6 +500,25 @@ namespace Vodovoz.JournalColumnsConfigs
 								color = colorPink;
 							c.CellBackgroundGdk = color;
 						})
+					.Finish()
+			);
+
+			//BusinessTasksJournalViewModel
+			TreeViewColumnsConfigFactory.Register<BusinessTasksJournalViewModel>(
+				() => FluentColumnsConfig<BusinessTaskJournalNode>.Create()
+					.AddColumn("№").AddTextRenderer(node => node.Id.ToString())
+					/*.AddColumn("Срочность").AddPixbufRenderer(node => 
+						node.ImportanceDegree == ImportanceDegreeType.Important && !node.IsTaskComplete ? img : emptyImg)*/
+					.AddColumn("Статус").AddEnumRenderer(node => node.TaskStatus)
+					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName ?? string.Empty)
+					.AddColumn("Адрес").AddTextRenderer(node => node.AddressName ?? "Самовывоз")
+					.AddColumn("Долг по адресу").AddTextRenderer(node => node.DebtByAddress.ToString()).XAlign(0.5f)
+					.AddColumn("Долг по клиенту").AddTextRenderer(node => node.DebtByClient.ToString()).XAlign(0.5f)
+					.AddColumn("Телефоны").AddTextRenderer(node => node.DeliveryPointPhones == "+7" ? string.Empty : node.DeliveryPointPhones)
+						.WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployeeName ?? string.Empty)
+					.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
 		}
