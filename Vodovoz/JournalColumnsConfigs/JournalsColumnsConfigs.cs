@@ -5,6 +5,8 @@ using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
+using Vodovoz.Domain.BusinessTasks;
+using Vodovoz.Domain.Payments;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.JournalViewModels.Employees;
@@ -23,6 +25,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		static Gdk.Color colorPink = new Gdk.Color(0xff, 0xc0, 0xc0);
 		static Gdk.Color colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 		static Gdk.Color colorDarkGrey = new Gdk.Color(0x80, 0x80, 0x80);
+		static Color colorLightGreen = new Color(0xc0, 0xff, 0xc0);
 
 		public static void RegisterColumns()
 		{
@@ -471,6 +474,55 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Адрес из 1с").AddTextRenderer(x => x.Address1c)
 					.AddColumn("Клиент").AddTextRenderer(x => x.Counterparty)
 					.AddColumn("Номер").AddTextRenderer(x => x.IdString)
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+
+			//PaymentJournalViewModel
+			TreeViewColumnsConfigFactory.Register<PaymentsJournalViewModel>(
+				() => FluentColumnsConfig<PaymentJournalNode>.Create()
+					.AddColumn("№").AddTextRenderer(x => x.PaymentNum.ToString())
+					.AddColumn("Дата").AddTextRenderer(x => x.Date.ToShortDateString())
+					.AddColumn("Cумма").AddTextRenderer(x => x.Total.ToString())
+					.AddColumn("Заказы").AddTextRenderer(x => x.Orders)
+					.AddColumn("Плательщик").AddTextRenderer(x => x.Counterparty)
+						.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Получатель").AddTextRenderer(x => x.Organization)
+					.AddColumn("Назначение платежа").AddTextRenderer(x => x.PaymentPurpose)
+						.WrapWidth(600).WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Категория дохода/расхода")
+						.AddTextRenderer(x => x.ProfitCategory).XAlign(0.5f)
+					.AddColumn("")
+					.RowCells().AddSetter<CellRenderer>(
+						(c, n) => {
+							var color = colorWhite;
+
+							if(n.Status == PaymentState.undistributed)
+								color = colorPink;
+
+							if(n.Status == PaymentState.distributed)
+								color = colorLightGreen;
+
+							c.CellBackgroundGdk = color;
+						})
+					.Finish()
+			);
+
+			//BusinessTasksJournalViewModel
+			TreeViewColumnsConfigFactory.Register<BusinessTasksJournalViewModel>(
+				() => FluentColumnsConfig<BusinessTaskJournalNode>.Create()
+					.AddColumn("№").AddTextRenderer(node => node.Id.ToString())
+					/*.AddColumn("Срочность").AddPixbufRenderer(node => 
+						node.ImportanceDegree == ImportanceDegreeType.Important && !node.IsTaskComplete ? img : emptyImg)*/
+					.AddColumn("Статус").AddEnumRenderer(node => node.TaskStatus)
+					.AddColumn("Клиент").AddTextRenderer(node => node.ClientName ?? string.Empty)
+					.AddColumn("Адрес").AddTextRenderer(node => node.AddressName ?? "Самовывоз")
+					.AddColumn("Долг по адресу").AddTextRenderer(node => node.DebtByAddress.ToString()).XAlign(0.5f)
+					.AddColumn("Долг по клиенту").AddTextRenderer(node => node.DebtByClient.ToString()).XAlign(0.5f)
+					.AddColumn("Телефоны").AddTextRenderer(node => node.DeliveryPointPhones == "+7" ? string.Empty : node.DeliveryPointPhones)
+						.WrapMode(Pango.WrapMode.WordChar)
+					.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployeeName ?? string.Empty)
+					.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);

@@ -275,6 +275,12 @@ namespace Vodovoz
 				radioContacts.Active = true;
 		}
 
+		public void ActivateDetailsTab()
+		{
+			if(radioDetails.Sensitive)
+				radioDetails.Active = true;
+		}
+
 		void AllOrders_Activated(object sender, EventArgs e)
 		{
 			var filter = new OrdersFilter(UoW);

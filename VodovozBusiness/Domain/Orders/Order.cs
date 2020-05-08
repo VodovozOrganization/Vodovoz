@@ -91,6 +91,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref orderStatus, value, () => OrderStatus);
 		}
 
+		OrderPaymentStatus orderPaymentStatus;
+		[Display(Name = "Статус оплаты заказа")]
+		public virtual OrderPaymentStatus OrderPaymentStatus {
+			get => orderPaymentStatus;
+			set => SetField(ref orderPaymentStatus, value);
+		}
+
 		Employee author;
 
 		[Display(Name = "Создатель заказа")]
@@ -788,6 +795,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			Comment = string.Empty;
 			OrderStatus = OrderStatus.NewOrder;
+			OrderPaymentStatus = OrderPaymentStatus.UnPaid;
 			SumDifferenceReason = string.Empty;
 			ClientPhone = string.Empty;
 		}

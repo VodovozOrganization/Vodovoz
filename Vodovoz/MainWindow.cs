@@ -1580,4 +1580,20 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new WayBillReport())
 		);
 	}
+
+	protected void OnActionPaymentsReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
+			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientReport())
+		);
+	}
+
+	protected void OnActionPaymentsFinDepartmentReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientFinDepartmentReport>(),
+			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientFinDepartmentReport())
+		);
+	}
 }

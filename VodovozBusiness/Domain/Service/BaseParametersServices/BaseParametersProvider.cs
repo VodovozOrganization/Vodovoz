@@ -21,6 +21,8 @@ namespace Vodovoz.Core.DataService
 		IContactsParameters,
 		IDriverServiceParametersProvider,
 		IErrorSendParameterProvider,
+		IOrganizationProvider,
+		IProfitCategoryProvider,
 		IPotentialFreePromosetsReportDefaultsProvider,
 		IOrganisationParametersProvider
 	{
@@ -294,6 +296,29 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion
+		
+		#region IOrganizationProvider
+		public int GetMainOrganization()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("main_organization_id")) {
+				throw new InvalidProgramException("В параметрах базы не настроена организация по умолчанию (main_organization_id).");
+			}
+			return int.Parse(ParametersProvider.Instance.GetParameterValue("main_organization_id"));
+		}
+
+		#endregion IOrganizationProvider
+
+		#region IProfitCategoryProvider
+
+		public int GetDefaultProfitCategory()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("default_profit_category_id")) {
+				throw new InvalidProgramException("В параметрах базы не настроена организация по умолчанию (default_profit_category_id).");
+			}
+			return int.Parse(ParametersProvider.Instance.GetParameterValue("default_profit_category_id"));
+		}
+
+		#endregion IProfitCategoryProvider
 
 		#region IDefaultDeliveryDaySchedule
 

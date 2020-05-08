@@ -183,7 +183,6 @@ namespace Vodovoz.Domain.Client
 			};
 			return reportInfo;
 		}
-
 	}
 
 	public enum CallTaskStatus

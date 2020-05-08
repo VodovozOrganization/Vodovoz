@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repository.Client;
+using Vodovoz.Services;
 
 namespace Vodovoz.Repositories
 {
@@ -56,6 +57,11 @@ namespace Vodovoz.Repositories
 				.Where (org => accountAlias.Number == accountNumber)
 				.Take (1)
 				.SingleOrDefault ();
+		}
+
+		public static Organization GetMainOrganization(IUnitOfWork uow, int id)
+		{
+			return uow.GetById<Organization>(id);
 		}
 	}
 }

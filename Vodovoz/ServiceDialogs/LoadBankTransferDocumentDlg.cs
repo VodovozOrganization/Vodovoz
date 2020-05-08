@@ -641,12 +641,15 @@ namespace Vodovoz
 		protected string TryGetOrganizationType (string name)
 		{
 			foreach (var pair in InformationHandbook.OrganizationTypes) {
-				string pattern = String.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Key);
-				string fullPattern = String.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Value);
+				string pattern = string.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Key);
+				string fullPattern = string.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Value);
 				Regex regex = new Regex (pattern, RegexOptions.IgnoreCase);
+
 				if (regex.IsMatch (name))
 					return pair.Key;
+
 				regex = new Regex (fullPattern, RegexOptions.IgnoreCase);
+
 				if (regex.IsMatch (name))
 					return pair.Key;
 			}

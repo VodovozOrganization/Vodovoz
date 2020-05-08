@@ -94,6 +94,21 @@ namespace Vodovoz.Core
 			return widget;
 		}
 
+		public virtual Widget Resolve(ViewModelBase footer)
+		{
+			if(footer == null)
+				return null;
+
+			Type footerType = footer.GetType();
+			if(!viewModelWidgets.ContainsKey(footerType)) {
+				throw new ApplicationException($"Не настроено сопоставление для {footerType.Name}");
+			}
+
+			var widgetCtorInfo = viewModelWidgets[footerType].GetConstructor(new[] { footerType });
+			Widget widget = (Widget)widgetCtorInfo.Invoke(new object[] { footer });
+			return widget;
+		}
+
 		public virtual Widget Resolve(WidgetViewModelBase viewModel)
 		{
 			if(viewModel == null)
