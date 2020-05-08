@@ -11,30 +11,36 @@ namespace Vodovoz.ViewModels.Comments
 {
 	public class DocumentCommentViewModel : WidgetViewModelBase
 	{
+		private readonly ICommentedDocument commentedDocument;
+
+		/*
+		private string lastComment;
+		public string LastComment {
+			get => lastComment;
+			set => SetField(ref lastComment, value);
+		}*/
+
+		//public string tempStr { get; set; }
+
+		public DocumentCommentViewModel(ICommentedDocument commentedDocument)
+		{
+			CreateCommands();
+			//FillComment();
+			this.commentedDocument = commentedDocument;
+		}
+
 		private string comment;
 		public string Comment {
 			get => comment;
 			set => SetField(ref comment, value);
 		}
 
-		private string lastComment;
-		public string LastComment {
-			get => lastComment;
-			set => SetField(ref lastComment, value);
-		}
-
-		public string tempStr { get; set; }
-
-		public DocumentCommentViewModel()
-		{
-			CreateCommands();
-			FillComment();
-		}
-
+		/*
 		private void FillComment()
 		{
 
 		}
+		*/
 
 		private void CreateCommands()
 		{
@@ -46,14 +52,21 @@ namespace Vodovoz.ViewModels.Comments
 		private void CreateAddCommentCommand()
 		{
 			AddCommentCommand = new DelegateCommand<string>(
-
 				text => {
+					//Незнаю, возможно тут какиенибудь проверки о возможности добавления комментария
 
-					Comment += LastComment + Environment.NewLine;
+					var sdsds = new DocumentComment();
+					sdsds.Comment = text;
+					sdsds.Author = CurrentEmployee;
+
+					commentedDocument.AddComment(sdsds);
+					/*Comment += LastComment + Environment.NewLine;
 					tempStr = LastComment;
-					LastComment = string.Empty;
+					LastComment = string.Empty;*/
 
 				},
+
+				//А может быть тут какиенибудь проверки о возможности добавления комментария
 				text => !string.IsNullOrEmpty(text)
 			); 
 		}
@@ -64,10 +77,17 @@ namespace Vodovoz.ViewModels.Comments
 			RevertLastCommentCommand = new DelegateCommand(
 
 				() => {
+					//Код получения последнего комментария из документа
+					DocumentComment lastComment = null;
 
-					Comment = Comment.Remove(Comment.Length - tempStr.Length - 1, tempStr.Length + 1);
-					
-					LastComment = string.Empty;
+					//Код проверки возможности удаления комментария для текущего пользователя
+
+					//Код удаления найденного комментария из документа
+					commentedDocument.DeleteComment(lastComment);
+
+
+					//Comment = Comment.Remove(Comment.Length - tempStr.Length - 1, tempStr.Length + 1);
+					//LastComment = string.Empty;
 				},
 				() => true
 			);

@@ -29,6 +29,7 @@ namespace Vodovoz.Domain.Comments
 			set => SetField(ref comment, value);
 		}
 
+		/*
 		private IList<CallTask> callTasks;
 		[Display(Name = "Задачи по обзвону")]
 		public virtual IList<CallTask> CallTasks {
@@ -44,7 +45,7 @@ namespace Vodovoz.Domain.Comments
 					observableComments = new GenericObservableList<CallTask>(CallTasks);
 				return observableComments;
 			}
-		}
+		}*/
 
 		public DocumentComment() { }
 	}

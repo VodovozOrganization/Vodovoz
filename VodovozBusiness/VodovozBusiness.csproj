@@ -859,6 +859,7 @@
     <Compile Include="Domain\Payments\TransferDocument.cs" />
     <Compile Include="HibernateMapping\Comments\DocumentCommentMap.cs" />
     <Compile Include="Domain\Comments\DocumentComment.cs" />
+    <Compile Include="Domain\Comments\ICommentedDocument.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
