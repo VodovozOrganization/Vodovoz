@@ -3,24 +3,23 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Gamma.Utilities;
+using MySql.Data.MySqlClient;
+using NHibernate;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using QS.Project.Services;
+using QS.Services;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Services;
-using QS.Services;
-using QS.Dialog;
-using QS.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories;
-using System.Text.RegularExpressions;
-using QS.Project.Services;
-using MySql.Data.MySqlClient;
-using NHibernate;
 
 namespace Vodovoz.Domain.Employees
 {

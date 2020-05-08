@@ -79,7 +79,7 @@ namespace Vodovoz
 
 			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature),
 				SpecificationUoW,
-				Repository.NomenclatureRepository.NomenclatureForProductMaterialsQuery ()
+				Repositories.NomenclatureRepository.NomenclatureForProductMaterialsQuery ()
 				.GetExecutableQueryOver (SpecificationUoW.Session).RootCriteria
 			);
 			SelectDialog.Mode = OrmReferenceMode.Select;

@@ -1,5 +1,4 @@
-﻿using System;
-using Vodovoz.Domain.Goods;
+﻿using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Logistic
 {

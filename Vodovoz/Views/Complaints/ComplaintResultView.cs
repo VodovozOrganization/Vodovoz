@@ -1,6 +1,5 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.ViewModels.Complaints;
-using QS.Navigation;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -18,7 +17,7 @@ namespace Vodovoz.Views.Complaints
 			yentryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
 		}
 	}
 }

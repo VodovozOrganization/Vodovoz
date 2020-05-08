@@ -477,7 +477,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				() => 
 				{ 
 					if(SaveDocument())
-						Close(false, CloseSource.Self);
+						Close(false, CloseSource.Save);
 				},
 				() => CanEdit
 			);

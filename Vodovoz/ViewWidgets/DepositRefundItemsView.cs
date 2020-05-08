@@ -7,8 +7,9 @@ using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalFilters;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.Tools;
 
 namespace Vodovoz.ViewWidgets

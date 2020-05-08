@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using QSDocTemplates;
+using QS.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 

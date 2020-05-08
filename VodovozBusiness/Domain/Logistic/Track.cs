@@ -5,8 +5,8 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using GMap.NET;
 using QS.DomainModel.Entity;
-using QSOsm;
-using QSOsm.Spuntik;
+using QS.Osm;
+using QS.Osm.Spuntik;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic

@@ -12,6 +12,7 @@ using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repositories;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 

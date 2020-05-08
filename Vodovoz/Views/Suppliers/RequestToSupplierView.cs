@@ -7,7 +7,6 @@ using QS.Utilities;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.ViewModels.Suppliers;
-using QS.Navigation;
 
 namespace Vodovoz.Views.Suppliers
 {
@@ -127,7 +126,7 @@ namespace Vodovoz.Views.Suppliers
 			btnTransfer.Binding.AddBinding(ViewModel, s => s.AreNomenclatureNodesSelected, w => w.Sensitive).InitializeFromSource();
 
 			btnSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			btnCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
+			btnCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
 		}
 
 		void UpdateSensitivitiesOnSelectionChanged(object sender, System.EventArgs e)

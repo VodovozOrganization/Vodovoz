@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
-using Vodovoz.Domain.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Domain.Client
 {

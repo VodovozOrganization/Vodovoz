@@ -6,8 +6,6 @@ using System.Linq;
 using System.Text;
 using Gamma.Utilities;
 using NHibernate.Exceptions;
-using NHibernate.Util;
-using Vodovoz.Domain.Contacts;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -17,6 +15,7 @@ using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -24,6 +23,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Goods;
@@ -36,10 +36,6 @@ using Vodovoz.Repository.Client;
 using Vodovoz.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.CallTasks;
-using Vodovoz.Tools;
-using Vodovoz.Domain.Payments;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -1292,7 +1288,7 @@ namespace Vodovoz.Domain.Orders
 			var oldContract = Contract;
 
 			//Нахождение подходящего существующего договора
-			var actualContract = Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+			var actualContract = Repositories.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 
 			//Нахождение договора созданного в текущем заказе, 
 			//который можно изменить под необходимые параметры
@@ -1325,7 +1321,7 @@ namespace Vodovoz.Domain.Orders
 			) {
 				using(var uowContract = UnitOfWorkFactory.CreateForRoot<CounterpartyContract>(Contract.Id, $"Изменение договора в заказе")) {
 					uowContract.Root.ContractType = DocTemplateRepository.GetContractTypeForPaymentType(Client.PersonType, PaymentType);
-					uowContract.Root.Organization = Repository.OrganizationRepository.GetOrganizationByPaymentType(uowContract, Client.PersonType, PaymentType);
+					uowContract.Root.Organization = Repositories.OrganizationRepository.GetOrganizationByPaymentType(uowContract, Client.PersonType, PaymentType);
 					uowContract.Save();
 				}
 				UoW.Session.Refresh(Contract);
@@ -1567,9 +1563,9 @@ namespace Vodovoz.Domain.Orders
 		//Выбирает договор соответствующий форме оплаты если такой найден
 		public virtual void ChangeContractOnChangePaymentType()
 		{
-			var org = Repository.OrganizationRepository.GetOrganizationByPaymentType(UoW, Client.PersonType, PaymentType);
+			var org = Repositories.OrganizationRepository.GetOrganizationByPaymentType(UoW, Client.PersonType, PaymentType);
 			if((Contract == null || Contract.Organization.Id != org.Id) && Client != null)
-				Contract = Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				Contract = Repositories.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 		}
 
 		public virtual bool HasActualWaterSaleAgreementByDeliveryPoint()
@@ -1617,7 +1613,7 @@ namespace Vodovoz.Domain.Orders
 					Price = nomenclature.GetPrice(1)
 				});
 			} else {
-				Equipment eq = Repository.EquipmentRepository.GetEquipmentForSaleByNomenclature(uow, nomenclature);
+				Equipment eq = Repositories.EquipmentRepository.GetEquipmentForSaleByNomenclature(uow, nomenclature);
 				ObservableOrderItems.AddWithReturn(new OrderItem {
 					Order = this,
 					AdditionalAgreement = agreement,
@@ -2037,7 +2033,7 @@ namespace Vodovoz.Domain.Orders
 		private CounterpartyContract CreateServiceContractAddMasterNomenclature(Nomenclature nomenclature)
 		{
 			if(Contract == null) {
-				Contract = Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				Contract = Repositories.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 				if(Contract == null) {
 					Contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
 					AddContractDocument(Contract);
@@ -2050,7 +2046,7 @@ namespace Vodovoz.Domain.Orders
 		private WaterSalesAgreement CreateWaterSalesAgreement(Nomenclature nom)
 		{
 			if(Contract == null)
-				Contract = Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				Contract = Repositories.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 
 			UoW.Session.Refresh(Contract);
 			WaterSalesAgreement wsa = Contract.GetWaterSalesAgreement(DeliveryPoint, nom);
@@ -2065,7 +2061,7 @@ namespace Vodovoz.Domain.Orders
 		void CreateSalesEquipmentAgreementAndAddEquipment(Nomenclature nom, int count, decimal discount, DiscountReason reason, PromotionalSet proSet, bool discountInMoney = false)
 		{
 			if(Contract == null) {
-				Contract = Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
+				Contract = Repositories.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType);
 				if(Contract == null) {
 					Contract = ClientDocumentsRepository.CreateDefaultContract(UoW, Client, PaymentType, DeliveryDate);
 					AddContractDocument(Contract);
@@ -2089,7 +2085,7 @@ namespace Vodovoz.Domain.Orders
 
 			CreateOrderAgreementDocument(ag);
 			FillItemsFromAgreement(ag, count, discount, discountInMoney, reason, proSet);
-			Repository.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType)
+			Repositories.CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW, Client, Client.PersonType, PaymentType)
 										  .AdditionalAgreements
 										  .Add(ag);
 		}

@@ -12,7 +12,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
-using QS.Navigation;
 
 namespace Vodovoz.Views.Complaints
 {
@@ -119,7 +118,7 @@ namespace Vodovoz.Views.Complaints
 			buttonAttachFine.Binding.AddBinding(ViewModel, vm => vm.CanAttachFine, w => w.Sensitive).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
 		}
 
 		void EntryCounterparty_Changed(object sender, System.EventArgs e)

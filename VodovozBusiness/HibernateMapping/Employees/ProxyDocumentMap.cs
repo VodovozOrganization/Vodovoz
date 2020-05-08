@@ -11,10 +11,12 @@ namespace Vodovoz.HibernateMapping.Employees
 			Not.LazyLoad();
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			DiscriminateSubClassesOnColumn("type");
+			
 			Map(x => x.Date).Column("date");
 			Map(x => x.ExpirationDate).Column("expiration_date");
-			References(x => x.DocumentTemplate).Column("doc_template_id");
 			Map(x => x.ChangedTemplateFile).Column("doc_changed_template").LazyLoad();
+
+			References(x => x.DocumentTemplate).Column("doc_template_id");
 			References(x => x.Organization).Column("organization_id");
 		}
 	}

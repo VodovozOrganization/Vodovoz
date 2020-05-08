@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Vodovoz.Domain.Sms;
+﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Sms;
+
 namespace Vodovoz.EntityRepositories.SmsNotifications
 {
 	public interface ISmsNotificationRepository

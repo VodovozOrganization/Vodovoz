@@ -17,7 +17,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModel;
 using Vodovoz.Domain.Logistic;

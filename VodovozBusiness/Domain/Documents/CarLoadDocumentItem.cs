@@ -100,14 +100,11 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 			
-		public virtual string Title {
-			get{
-				return MovementOperation == null ? Nomenclature.Name : String.Format("[{2}] {0} - {1}",
-					MovementOperation.Nomenclature.Name,
-				                                                                     MovementOperation.Nomenclature.Unit?.MakeAmountShortStr(MovementOperation.Amount) ?? MovementOperation.Amount.ToString(),
-					document.Title);
-			}
-		}
+		public virtual string Title =>
+			MovementOperation == null ? Nomenclature.Name : String.Format("[{2}] {0} - {1}",
+				MovementOperation.Nomenclature.Name,
+				MovementOperation.Nomenclature.Unit?.MakeAmountShortStr(MovementOperation.Amount) ?? MovementOperation.Amount.ToString(),
+				document.Title);
 
 		#endregion
 

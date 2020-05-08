@@ -7,10 +7,10 @@ using System.Linq;
 using System.Reflection;
 using NLog;
 using QS.Banks.Domain;
-using Vodovoz.Domain.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Utilities.Text;
+using Vodovoz.Domain.Contacts;
 
 namespace Vodovoz.Domain.Employees
 {

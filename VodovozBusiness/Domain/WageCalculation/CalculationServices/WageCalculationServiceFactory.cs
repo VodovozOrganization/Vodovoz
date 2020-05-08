@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using QS.DomainModel.UoW;
+using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
-using QS.DomainModel.UoW;
-using System.Linq;
-using System.Collections.Generic;
 using Vodovoz.Services;
-using QS.Services;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {

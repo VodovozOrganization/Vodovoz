@@ -1,5 +1,4 @@
 ﻿using QS.Views.GtkUI;
-using QS.Navigation;
 
 namespace Vodovoz.Dialogs.Client
 {
@@ -16,7 +15,7 @@ namespace Vodovoz.Dialogs.Client
 			entryName.Binding.AddBinding(ViewModel.Entity, x => x.Name, x => x.Text).InitializeFromSource();
 			yChkIsArchive.Binding.AddBinding(ViewModel.Entity, x => x.IsArchive, x => x.Active).InitializeFromSource();
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
 		}
 	}
 }

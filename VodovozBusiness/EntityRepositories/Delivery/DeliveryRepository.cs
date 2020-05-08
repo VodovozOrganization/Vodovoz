@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using NetTopologySuite.Geometries;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Sale;
-using System.Collections.Generic;
-using NetTopologySuite.Geometries;
-using System.Linq;
 
 namespace Vodovoz.EntityRepositories.Delivery
 {

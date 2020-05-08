@@ -1,6 +1,5 @@
 ﻿using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using QSBanks;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Client;
 

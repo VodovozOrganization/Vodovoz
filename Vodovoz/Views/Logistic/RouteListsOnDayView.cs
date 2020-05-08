@@ -40,9 +40,9 @@ namespace Vodovoz.Views.Logistic
 
 		#region Поля
 		private readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
-		private readonly GMapOverlay driverDistrictsOverlay = new GMapOverlay("districts");
+		private readonly GMapOverlay driverDistrictsOverlay = new GMapOverlay("driverDistricts");
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
-		private readonly GMapOverlay driverAddressesOverlay = new GMapOverlay("addresses");
+		private readonly GMapOverlay driverAddressesOverlay = new GMapOverlay("driverAddresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
 		private readonly GMapOverlay routeOverlay = new GMapOverlay("route");
 		private GMapPolygon brokenSelection;
@@ -270,13 +270,16 @@ namespace Vodovoz.Views.Logistic
 				if(args.Event.State.HasFlag(ModifierType.LockMask)) {
 					foreach(var marker in addressesOverlay.Markers) {
 						if(marker.IsMouseOver) {
-							var markerUnderMouse = selectedMarkers.FirstOrDefault(m => ((Order)m.Tag).Id == ((Order)marker.Tag).Id);
+							var markerUnderMouse = selectedMarkers
+													.Where(m => m.Tag is Order)
+													.FirstOrDefault(x => (x.Tag as Order).Id == (marker.Tag as Order)?.Id);
+
 							if(markerUnderMouse == null) {
 								selectedMarkers.Add(marker);
-								logger.Debug("Маркер с заказом №{0} добавлен в список выделенных", ((Order)marker.Tag).Id);
+								logger.Debug("Маркер с заказом №{0} добавлен в список выделенных", (marker.Tag as Order)?.Id);
 							} else {
 								selectedMarkers.Remove(markerUnderMouse);
-								logger.Debug("Маркер с заказом №{0} исключен из списка выделенных", ((Order)marker.Tag).Id);
+								logger.Debug("Маркер с заказом №{0} исключен из списка выделенных", (marker.Tag as Order)?.Id);
 							}
 							markerIsSelect = true;
 						}
@@ -493,7 +496,7 @@ namespace Vodovoz.Views.Logistic
 
 					FillTypeAndShapeMarker(order, route, orderRls, out PointMarkerShape shape, out PointMarkerType type);
 
-					if(selectedMarkers.FirstOrDefault(m => ((Order)m.Tag).Id == order.Id) != null)
+					if(selectedMarkers.FirstOrDefault(m => (m.Tag as Order)?.Id == order.Id) != null)
 						type = PointMarkerType.white;
 
 					var addressMarker = FillAddressMarker(order, type, shape, addressesOverlay, route);

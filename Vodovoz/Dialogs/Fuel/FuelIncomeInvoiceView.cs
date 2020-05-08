@@ -2,7 +2,6 @@
 using Gtk;
 using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
-using QS.Navigation;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -67,7 +66,7 @@ namespace Vodovoz.Dialogs.Fuel
 			ytreeviewItems.Selection.Changed += (sender, e) => { ViewModel.SelectedItem = ytreeviewItems.GetSelectedObject() as FuelIncomeInvoiceItem; };
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);
 
 			ConfigureTreeView();
 		}

@@ -5,6 +5,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 
@@ -29,7 +30,7 @@ namespace Vodovoz.EntityRepositories.Employees
 
 			return uow.Session.QueryOver<Employee>()
 				.JoinAlias(e => e.User, () => userAlias)
-				.Where(() => userAlias.Id == QSProjectsLib.QSMain.User.Id)
+				.Where(() => userAlias.Id == ServicesConfig.UserService.CurrentUserId)
 				.SingleOrDefault();
 		}
 

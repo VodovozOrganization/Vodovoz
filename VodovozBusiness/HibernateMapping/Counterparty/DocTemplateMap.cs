@@ -1,6 +1,4 @@
-﻿using System;
-using FluentNHibernate.Mapping;
-using Vodovoz.Domain;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HibernateMapping

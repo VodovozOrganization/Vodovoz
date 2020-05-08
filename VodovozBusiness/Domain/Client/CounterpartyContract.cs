@@ -158,7 +158,7 @@ namespace Vodovoz.Domain.Client
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(!IsArchive && !OnCancellation) {
-				var contracts = Repository.CounterpartyContractRepository.GetActiveContractsWithOrganization(UnitOfWorkFactory.CreateWithoutRoot("Валидация договора контрагента"), Counterparty, Organization, ContractType);
+				var contracts = Repositories.CounterpartyContractRepository.GetActiveContractsWithOrganization(UnitOfWorkFactory.CreateWithoutRoot("Валидация договора контрагента"), Counterparty, Organization, ContractType);
 				if(contracts.Any(c => c.Id != Id))
 					yield return new ValidationResult(
 						String.Format("У контрагента '{0}' уже есть активный договор с организацией '{1}'", Counterparty.Name, Organization.Name),

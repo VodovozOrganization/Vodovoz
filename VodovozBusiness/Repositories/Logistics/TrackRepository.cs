@@ -1,9 +1,9 @@
 ﻿using System;
-using Vodovoz.Domain.Logistic;
-using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Repository.Logistics
 {

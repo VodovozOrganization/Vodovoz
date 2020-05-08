@@ -11,7 +11,7 @@ using QS.Utilities;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.Repository.Client;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModelBased;

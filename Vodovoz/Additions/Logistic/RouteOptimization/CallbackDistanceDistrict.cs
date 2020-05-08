@@ -96,24 +96,22 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			// малотоннажник
 			bool isLightTonnage = Trip.Car.MaxBottles <= 55;
 
-			//Это адрес в приоритете для ларгусов.
-			bool addressForLargus = isLightTonnage && 
-									Nodes[second_index - 1].Bottles >= Trip.Car.MinBottlesFromAddress &&
+			bool isRightAddress = Nodes[second_index - 1].Bottles >= Trip.Car.MinBottlesFromAddress &&
 									Nodes[second_index - 1].Bottles <= Trip.Car.MaxBottlesFromAddress;
 
 			long distance = 0;
 
 			//Если у нас малотоннажник, а адрес большой, то вкатываем оромный штраф.
-			if(isLightTonnage && !addressForLargus) {
+			if(isLightTonnage && !isRightAddress) {
 #if DEBUG
 				SLargusPenality[Trip]++;
 #endif
 				return RouteOptimizer.LargusMaxBottlePenalty;
 			}
 
-			//Если адрес для малотоннажника, то остальным водителям добавляем штраф.
-			if(!isLightTonnage && addressForLargus)
-				distance += RouteOptimizer.SmallOrderNotLargusPenalty;
+			//Если не малотоннажник и адрес неподходящий, то вкатываем штраф.
+			if(!isLightTonnage && !isRightAddress)
+				return RouteOptimizer.LargusMaxBottlePenalty;
 
 			var area = Nodes[second_index - 1].District;
 

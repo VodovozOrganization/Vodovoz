@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using NHibernate;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Service;
 
-namespace Vodovoz.Repository
+namespace Vodovoz.Repositories
 {
 	public static class ServiceClaimRepository
 	{

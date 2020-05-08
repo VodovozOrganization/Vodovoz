@@ -1,10 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
-using System.Linq;
-using Vodovoz.Domain.Orders;
-using NHibernate.Criterion;
 
 namespace Vodovoz.EntityRepositories.CallTasks
 {

@@ -8,7 +8,6 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Utilities;
 using Vodovoz.Domain.Goods;

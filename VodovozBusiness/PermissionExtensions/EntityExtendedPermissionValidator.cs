@@ -3,10 +3,8 @@ using System.Linq;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using Vodovoz;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Permissions;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.PermissionExtensions

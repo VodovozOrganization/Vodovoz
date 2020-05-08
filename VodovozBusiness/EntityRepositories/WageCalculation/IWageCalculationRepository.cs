@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
-using System;
 
 namespace Vodovoz.EntityRepositories.WageCalculation
 {

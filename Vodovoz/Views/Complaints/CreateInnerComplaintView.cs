@@ -1,7 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.ViewModels.Complaints;
-using QS.Navigation;
 namespace Vodovoz.Views.Complaints
 {
 	[System.ComponentModel.ToolboxItem(true)]
@@ -26,7 +25,7 @@ namespace Vodovoz.Views.Complaints
 			guiltyitemsview.ViewModel = ViewModel.GuiltyItemsViewModel;
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
 		}
 	}
 }

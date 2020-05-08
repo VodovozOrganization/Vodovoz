@@ -246,7 +246,7 @@ WHERE
           <TypeName>System.Boolean</TypeName>
         </Field>
         <Field Name="organization">
-          <DataField>oraganization</DataField>
+          <DataField>organization</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

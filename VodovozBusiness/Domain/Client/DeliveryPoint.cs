@@ -5,21 +5,19 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using NetTopologySuite.Geometries;
-using Vodovoz.Domain.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QSOsm;
-using QSOsm.DTO;
-using QSOsm.Osrm;
+using QS.Osm;
+using QS.Osm.DTO;
+using QS.Osm.Osrm;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.EntityRepositories.Delivery;
-using System.Collections;
 
 namespace Vodovoz.Domain.Client
 {
@@ -720,7 +718,7 @@ namespace Vodovoz.Domain.Client
 					string.Format("Длина строки \"КПП\" не должна превышать 45 символов"),
 					new[] { this.GetPropertyName(o => o.KPP) });
 					
-			var notNeedOrganizationRoomTypes = new RoomType[] { RoomType.Apartment, RoomType.Office };
+			var notNeedOrganizationRoomTypes = new RoomType[] { RoomType.Apartment, RoomType.Chamber };
 			if(Counterparty.PersonType == PersonType.natural && !notNeedOrganizationRoomTypes.Contains(RoomType)) {
 				if(String.IsNullOrWhiteSpace(Organization))
 					yield return new ValidationResult(

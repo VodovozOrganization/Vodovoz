@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.Domain.StoredEmails
+﻿namespace Vodovoz.Domain.StoredEmails
 {
 	public class EmailAttachment
 	{

@@ -66,8 +66,8 @@ namespace Vodovoz.JournalViewers
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
 			if(tableDocuments.GetSelectedObjects().GetLength(0) > 0) {
-				int id = (tableDocuments.GetSelectedObjects()[0] as ProxyDocument).Id;
-				ProxyDocumentType type = (tableDocuments.GetSelectedObjects()[0] as ProxyDocument).Type;
+				int id = (tableDocuments.GetSelectedObjects()[0] as ProxyDocumentsVMNode).Id;
+				ProxyDocumentType type = (tableDocuments.GetSelectedObjects()[0] as ProxyDocumentsVMNode).Type;
 				var dlg = OrmMain.CreateObjectDialog(ProxyDocument.GetProxyDocumentClass(type), id);
 				dlg.EntitySaved += Dlg_EntitySaved;
 				TabParent.AddSlaveTab(this, dlg);
@@ -81,7 +81,7 @@ namespace Vodovoz.JournalViewers
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			var item = tableDocuments.GetSelectedObject<ProxyDocument>();
+			var item = tableDocuments.GetSelectedObject<ProxyDocumentsVMNode>();
 			if(OrmMain.DeleteObject(ProxyDocument.GetProxyDocumentClass(item.Type), item.Id))
 				tableDocuments.RepresentationModel.UpdateNodes();
 		}

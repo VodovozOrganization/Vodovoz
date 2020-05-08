@@ -1077,7 +1077,7 @@ namespace Vodovoz.ViewModels.Logistic
 											 .Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
 											 .Where(x => x.DeliverySchedule.From <= DeliveryToTime)
 											 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-											 .ToList()
+											 .Distinct().ToList()
 											 ;
 					break;
 				case DeliveryScheduleFilterType.DeliveryEnd:
@@ -1085,7 +1085,7 @@ namespace Vodovoz.ViewModels.Logistic
 											 .Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
 											 .Where(x => x.DeliverySchedule.To <= DeliveryToTime)
 											 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-											 .ToList()
+											 .Distinct().ToList()
 											 ;
 					break;
 				case DeliveryScheduleFilterType.DeliveryStartAndEnd:
@@ -1095,7 +1095,7 @@ namespace Vodovoz.ViewModels.Logistic
 											 .Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
 											 .Where(x => x.DeliverySchedule.From <= DeliveryToTime)
 											 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-											 .ToList()
+											 .Distinct().ToList()
 											 ;
 					break;
 			}

@@ -23,7 +23,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.JournalViewers;
 using Vodovoz.Repositories;
-using Vodovoz.Repository;
 
 namespace Vodovoz.ViewModel
 {

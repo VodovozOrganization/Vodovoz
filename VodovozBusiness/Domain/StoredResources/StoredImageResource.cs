@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Drawing;
+﻿using System.ComponentModel.DataAnnotations;
 using System.IO;
 using QS.DomainModel.Entity;
 

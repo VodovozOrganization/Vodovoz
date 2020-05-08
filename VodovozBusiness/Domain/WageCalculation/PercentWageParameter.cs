@@ -4,7 +4,6 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using QS.Utilities;
 
 namespace Vodovoz.Domain.WageCalculation
 {

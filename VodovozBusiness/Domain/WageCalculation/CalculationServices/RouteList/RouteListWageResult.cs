@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
+﻿namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
 	public class RouteListWageResult
 	{

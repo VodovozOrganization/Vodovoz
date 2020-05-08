@@ -13,7 +13,6 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModel;
-using QS.Navigation;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -94,7 +93,7 @@ namespace Vodovoz.Dialogs.Fuel
 			ViewModel.DeleteWriteoffItemCommand.CanExecuteChanged += (sender, e) => { ybuttonDeleteItem.Sensitive = ViewModel.DeleteWriteoffItemCommand.CanExecute(GetSelectedItem()); };
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
-			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, CloseSource.Cancel); };
+			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
 
 			buttonPrint.Clicked += (sender, e) => { ViewModel.PrintCommand.Execute(); };
 			buttonPrint.Sensitive = ViewModel.PrintCommand.CanExecute();

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using QS.DomainModel.Entity;
 using QS.Tdi;
 

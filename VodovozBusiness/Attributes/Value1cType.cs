@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace Vodovoz.Attributes
 {
 	[AttributeUsage(AttributeTargets.Field)]

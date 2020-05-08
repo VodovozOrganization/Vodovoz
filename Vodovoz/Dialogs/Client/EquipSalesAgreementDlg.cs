@@ -114,7 +114,7 @@ namespace Vodovoz.Dialogs.Client
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var addNewNomenclature = new OrmReference(Repository.NomenclatureRepository.NomenclatureEquipOnlyQuery()) {
+			var addNewNomenclature = new OrmReference(Repositories.NomenclatureRepository.NomenclatureEquipOnlyQuery()) {
 				Mode = OrmReferenceMode.Select,
 				TabName = "Выберите номенклатуру"
 			};
