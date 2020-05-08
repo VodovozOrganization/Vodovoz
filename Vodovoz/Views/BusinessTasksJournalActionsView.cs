@@ -15,10 +15,11 @@ namespace Vodovoz.Views
 
 		private void Configure()
 		{
-			btnAdd.Clicked += (sender, e) => ViewModel.AddCommand.Execute();
+			btnAddClientTask.Clicked += (sender, e) => ViewModel.NewClientTaskCommand.Execute();
+			btnAddPaymentTask.Clicked += (sender, e) => ViewModel.NewPaymentTaskCommand.Execute();
 			btnEdit.Clicked += (sender, e) => ViewModel.EditCommand.Execute();
 			btnDelete.Clicked += (sender, e) => ViewModel.DeleteCommand.Execute();
-			btnChangeTasks.Clicked += (sender, e) => { ViewModel.ChangeTasksStateCommand.Execute(); HBoxChangeVisibility(); };
+			btnChangeTasks.Clicked += (sender, e) => { HBoxChangeVisibility(); };
 			btnChangeEmployee.Clicked += (sender, e) => entityVMEmployee.OpenSelectDialog("Ответственный :");
 			btnCompleteSelected.Clicked += (sender, e) => ViewModel.CompleteSelectedTasksCommand.Execute();
 			cmbBoxTaskStatus.ChangedByUser += (sender, e) => ViewModel.ChangeTasksStateCommand.Execute();
@@ -34,9 +35,6 @@ namespace Vodovoz.Views
 			entityVMEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
 		}
 
-		public void HBoxChangeVisibility()
-		{
-			hboxChangeTasks.Visible = ViewModel.HBoxChangeTasksVisibility;
-		}
+		public void HBoxChangeVisibility() => hboxChangeTasks.Visible = ViewModel.HBoxChangeTasksVisibility = !ViewModel.HBoxChangeTasksVisibility;
 	}
 }

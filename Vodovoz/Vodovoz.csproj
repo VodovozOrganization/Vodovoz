@@ -1464,6 +1464,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.PaymentTaskView.cs" />
     <Compile Include="Views\BusinessTasksJournalActionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasksJournalActionsView.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReport.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientFinDepartmentReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientFinDepartmentReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2192,6 +2196,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\WayBillReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Payments\PaymentsFromBankClientAllSubdivisionsReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Payments\PaymentsFromBankClientBySubdivisionReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Payments\PaymentsFromBankClientFinDepartmentReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

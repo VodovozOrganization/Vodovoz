@@ -9,7 +9,6 @@ using Vodovoz.Filters.ViewModels;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using System.Linq;
-using QS.Tdi;
 
 namespace Vodovoz.ViewModels
 {
@@ -41,10 +40,10 @@ namespace Vodovoz.ViewModels
 
 		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; private set; }
 
-		public Action<object[], Employee> ChangeAssignedEmployeeAction;
-		public Action<object[]> CompleteSelectedTasksAction;
-		public Action<object[], BusinessTaskStatus> ChangeTasksStateAction;
-		public Action<object[], DateTime> ChangeDeadlineDateAction;
+		public Action<object[], Employee> ChangeAssignedEmployeeAction { get; set; }
+		public Action<object[]> CompleteSelectedTasksAction { get; set; }
+		public Action<object[], BusinessTaskStatus> ChangeTasksStateAction { get; set; }
+		public Action<object[], DateTime> ChangeDeadlineDateAction { get; set; }
 
 		public BusinessTasksJournalActionsViewModel()
 		{
@@ -60,10 +59,32 @@ namespace Vodovoz.ViewModels
 
 		private void CreateCommands()
 		{
+			CreateNewClientTaskCommand();
+			CreateNewPaymentTaskCommand();
 			CreateChangeDeadlineDateCommand();
 			CreateChangeTasksStateCommand();
 			CreateCompleteSelectedTasksCommand();
 			CreateChangeAssignedEmployeeCommand();
+		}
+
+		public DelegateCommand NewClientTaskCommand { get; private set; }
+		private void CreateNewClientTaskCommand()
+		{
+			/*NewClientTaskCommand = new DelegateCommand(
+				() => JournalActions.SingleOrDefault(x => x.Title == title).ExecuteAction?.Invoke(SelectedObjs),
+				() => true
+			);*/
+		}
+
+		public DelegateCommand NewPaymentTaskCommand { get; private set; }
+		private void CreateNewPaymentTaskCommand()
+		{
+			/*
+			NewPaymentTaskCommand = new DelegateCommand(
+				() => JournalActions.SingleOrDefault(x => x.Title == title).ExecuteAction?.Invoke(SelectedObjs),
+				() => true
+			);
+			*/
 		}
 
 		public DelegateCommand ChangeDeadlineDateCommand { get; private set; }

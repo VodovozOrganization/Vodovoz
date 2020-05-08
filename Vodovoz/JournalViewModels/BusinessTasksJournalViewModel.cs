@@ -40,7 +40,7 @@ namespace Vodovoz.JournalViewModels
 		readonly ICallTaskRepository callTaskRepository;
 		readonly IPhoneRepository phoneRepository;
 
-		public JournalActionsViewModel actionsViewModel { get; set; }
+		public BusinessTasksJournalActionsViewModel actionsViewModel { get; set; }
 
 		public BusinessTasksJournalViewModel(
 			CallTaskFilterViewModel filterViewModel,
@@ -64,8 +64,12 @@ namespace Vodovoz.JournalViewModels
 
 			Footer = footerViewModel;
 
-			RegisterTasks();
+			actionsViewModel = new BusinessTasksJournalActionsViewModel();
+			RawJournalActions = actionsViewModel;
+			RawJournalActions.JAModel = new JournalActionsModel();
 
+			RegisterTasks();
+			
 			var threadLoader = DataLoader as ThreadDataLoader<BusinessTaskJournalNode>;
 			//threadLoader.MergeInOrderBy(x => x.Id, false);
 
@@ -76,18 +80,7 @@ namespace Vodovoz.JournalViewModels
 				typeof(PaymentTask)
 			);
 
-			actionsViewModel = new JournalActionsViewModel();
-
-			actionsViewModel.DefaultEditAction += OpenDialog;
-			actionsViewModel.DefaultAddAction += CreateNewEntity;
-			//actionsViewModel.ChangeAssignedEmployeeAction += ChangeAssignedEmployee;
-			//actionsViewModel.CompleteSelectedTasksAction += CompleteSelectedTasks;
-			//actionsViewModel.ChangeDeadlineDateAction += ChangeDeadlineDate;
-			//actionsViewModel.ChangeTasksStateAction += ChangeTasksState;
-			actionsViewModel.DefaultSelectAction += CreateSelectAction;
-
-			RawJournalActions = actionsViewModel;
-			SelectionMode = JournalSelectionMode.Single;
+			//SelectionMode = JournalSelectionMode.Single;
 
 			DataLoader.ItemsListUpdated += (sender, e) => GetStatistics();
 		}
@@ -367,18 +360,18 @@ namespace Vodovoz.JournalViewModels
 						commonServices
 					),
 					//функция диалога открытия документа
-					(BusinessTaskJournalNode node) => new ClientTaskViewModel(
+					(int Id) => new ClientTaskViewModel(
 						employeeRepository,
 						bottleRepository,
 						callTaskRepository,
 						phoneRepository,
-						EntityUoWBuilder.ForOpen(node.Id),
+						EntityUoWBuilder.ForOpen(Id),
 						UnitOfWorkFactory,
 						commonServices
 					),
 					//функция идентификации документа 
-					(BusinessTaskJournalNode node) => {
-						return node.EntityType == typeof(ClientTask);
+					(Type node) => {
+						return node == typeof(ClientTask);
 					},
 					"Клиентская задача",
 					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true })
@@ -391,15 +384,15 @@ namespace Vodovoz.JournalViewModels
 						commonServices
 					),
 					//функция диалога открытия документа
-					(BusinessTaskJournalNode node) => new PaymentTaskViewModel(
+					(int Id) => new PaymentTaskViewModel(
 						employeeRepository,
-						EntityUoWBuilder.ForOpen(node.Id),
+						EntityUoWBuilder.ForOpen(Id),
 						UnitOfWorkFactory,
 						commonServices
 					),
 					//функция идентификации документа 
-					(BusinessTaskJournalNode node) => {
-						return node.EntityType == typeof(PaymentTask);
+					(Type node) => {
+						return node == typeof(PaymentTask);
 					},
 					"Задача по платежам",
 					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true });
@@ -450,11 +443,9 @@ namespace Vodovoz.JournalViewModels
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
-			CreateDefaultAddActions();
-			CreateDefaultEditAction();
+			CreateDefaultAddActions2();
+			CreateDefaultEditAction2();
 			CreateDefaultDeleteAction();
-
-			//NodeActionsList.Add(new JournalAction("Открыть печатную форму", x => true, x => true, selectedItems => reportViewOpener.OpenReport(this, FilterViewModel.GetReportInfo())));
 		}
 
 		public void ChangeAssignedEmployee(object[] selectedObjs, Employee employee)
@@ -466,7 +457,7 @@ namespace Vodovoz.JournalViewModels
 				foreach(int task in tasks) {
 					Type type = tasks.Key;
 
-					Type obj = (Type)UoW.GetById(type, task);
+					//Type obj = UoW.GetById(type, task);
 				}
 			}
 

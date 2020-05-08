@@ -12,9 +12,6 @@ using Vodovoz.Representations;
 using Vodovoz.ViewModel;
 using Vodovoz.Filters.ViewModels;
 using CallTaskFilterView = Vodovoz.Filters.GtkViews.CallTaskFilterView;
-using QS.Project.Services;
-using Vodovoz.ViewModels.BusinessTasks;
-using QS.Project.Domain;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -96,12 +93,12 @@ namespace Vodovoz.JournalViewers
 		#region BaseJournalHeandler
 		protected void OnAddTaskButtonClicked(object sender, EventArgs e)
 		{
-			/*
+
 			CallTaskDlg dlg = new CallTaskDlg();
 			TabParent.AddTab(dlg,this);
-			*/
 
 
+			/*
 			ClientTaskViewModel clientTaskViewModel = new ClientTaskViewModel(employeeRepository,
 																				bottleRepository,
 																				callTaskRepository,
@@ -110,20 +107,20 @@ namespace Vodovoz.JournalViewers
 																				UnitOfWorkFactory.GetDefaultFactory, 
 																				ServicesConfig.CommonServices);
 			TabParent.AddTab(clientTaskViewModel, this);
-
+			*/
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			/*
+
 			var selected = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().FirstOrDefault();
 			if(selected == null)
 				return;
 			CallTaskDlg dlg = new CallTaskDlg(selected.Id);
 			OpenSlaveTab(dlg);
-			*/
 
 
+			/*
 			var selected = representationtreeviewTask.GetSelectedObjects().OfType<CallTaskVMNode>().FirstOrDefault();
 
 			if(selected == null)
@@ -137,7 +134,7 @@ namespace Vodovoz.JournalViewers
 																				UnitOfWorkFactory.GetDefaultFactory,
 																				ServicesConfig.CommonServices);
 			OpenSlaveTab(clientTaskViewModel);
-
+			*/
 		}
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)

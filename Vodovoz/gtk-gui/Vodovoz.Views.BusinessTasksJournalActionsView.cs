@@ -8,7 +8,9 @@ namespace Vodovoz.Views
 
 		private global::Gtk.HBox hbox1;
 
-		private global::Gamma.GtkWidgets.yButton btnAdd;
+		private global::Gamma.GtkWidgets.yButton btnAddClientTask;
+
+		private global::Gamma.GtkWidgets.yButton btnAddPaymentTask;
 
 		private global::Gamma.GtkWidgets.yButton btnEdit;
 
@@ -43,16 +45,27 @@ namespace Vodovoz.Views
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.btnAdd = new global::Gamma.GtkWidgets.yButton();
-			this.btnAdd.CanFocus = true;
-			this.btnAdd.Name = "btnAdd";
-			this.btnAdd.UseUnderline = true;
-			this.btnAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить");
-			this.hbox1.Add(this.btnAdd);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnAdd]));
+			this.btnAddClientTask = new global::Gamma.GtkWidgets.yButton();
+			this.btnAddClientTask.CanFocus = true;
+			this.btnAddClientTask.Name = "btnAddClientTask";
+			this.btnAddClientTask.UseUnderline = true;
+			this.btnAddClientTask.Label = global::Mono.Unix.Catalog.GetString("Клиентская задача");
+			this.hbox1.Add(this.btnAddClientTask);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnAddClientTask]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.btnAddPaymentTask = new global::Gamma.GtkWidgets.yButton();
+			this.btnAddPaymentTask.CanFocus = true;
+			this.btnAddPaymentTask.Name = "btnAddPaymentTask";
+			this.btnAddPaymentTask.UseUnderline = true;
+			this.btnAddPaymentTask.Label = global::Mono.Unix.Catalog.GetString("Задача по платежам");
+			this.hbox1.Add(this.btnAddPaymentTask);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnAddPaymentTask]));
+			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.btnEdit = new global::Gamma.GtkWidgets.yButton();
 			this.btnEdit.CanFocus = true;
@@ -60,10 +73,10 @@ namespace Vodovoz.Views
 			this.btnEdit.UseUnderline = true;
 			this.btnEdit.Label = global::Mono.Unix.Catalog.GetString("Изменить");
 			this.hbox1.Add(this.btnEdit);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnEdit]));
-			w2.Position = 1;
-			w2.Expand = false;
-			w2.Fill = false;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnEdit]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.btnDelete = new global::Gamma.GtkWidgets.yButton();
 			this.btnDelete.CanFocus = true;
@@ -71,10 +84,10 @@ namespace Vodovoz.Views
 			this.btnDelete.UseUnderline = true;
 			this.btnDelete.Label = global::Mono.Unix.Catalog.GetString("Удалить");
 			this.hbox1.Add(this.btnDelete);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnDelete]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnDelete]));
+			w4.Position = 3;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.btnChangeTasks = new global::Gamma.GtkWidgets.yButton();
 			this.btnChangeTasks.CanFocus = true;
@@ -82,15 +95,15 @@ namespace Vodovoz.Views
 			this.btnChangeTasks.UseUnderline = true;
 			this.btnChangeTasks.Label = global::Mono.Unix.Catalog.GetString("Изменить задачи");
 			this.hbox1.Add(this.btnChangeTasks);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnChangeTasks]));
-			w4.Position = 3;
-			w4.Expand = false;
-			w4.Fill = false;
-			this.vbox2.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
-			w5.Position = 0;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.btnChangeTasks]));
+			w5.Position = 4;
 			w5.Expand = false;
 			w5.Fill = false;
+			this.vbox2.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hboxChangeTasks = new global::Gtk.HBox();
 			this.hboxChangeTasks.Name = "hboxChangeTasks";
@@ -102,10 +115,10 @@ namespace Vodovoz.Views
 			this.btnChangeEmployee.UseUnderline = true;
 			this.btnChangeEmployee.Label = global::Mono.Unix.Catalog.GetString("Ответственный");
 			this.hboxChangeTasks.Add(this.btnChangeEmployee);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxChangeTasks[this.btnChangeEmployee]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxChangeTasks[this.btnChangeEmployee]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hboxChangeTasks.Gtk.Box+BoxChild
 			this.cmbBoxTaskStatus = new global::Gamma.Widgets.yEnumComboBox();
 			this.cmbBoxTaskStatus.Name = "cmbBoxTaskStatus";
@@ -114,24 +127,24 @@ namespace Vodovoz.Views
 			this.cmbBoxTaskStatus.UseShortTitle = false;
 			this.cmbBoxTaskStatus.DefaultFirst = false;
 			this.hboxChangeTasks.Add(this.cmbBoxTaskStatus);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxChangeTasks[this.cmbBoxTaskStatus]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hboxChangeTasks[this.cmbBoxTaskStatus]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child hboxChangeTasks.Gtk.Box+BoxChild
 			this.btnCompleteSelected = new global::Gtk.Button();
 			this.btnCompleteSelected.CanFocus = true;
 			this.btnCompleteSelected.Name = "btnCompleteSelected";
 			this.btnCompleteSelected.UseUnderline = true;
 			this.btnCompleteSelected.Label = global::Mono.Unix.Catalog.GetString("Задачи выполнены");
-			global::Gtk.Image w8 = new global::Gtk.Image();
-			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-ok", global::Gtk.IconSize.Menu);
-			this.btnCompleteSelected.Image = w8;
+			global::Gtk.Image w9 = new global::Gtk.Image();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-ok", global::Gtk.IconSize.Menu);
+			this.btnCompleteSelected.Image = w9;
 			this.hboxChangeTasks.Add(this.btnCompleteSelected);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hboxChangeTasks[this.btnCompleteSelected]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxChangeTasks[this.btnCompleteSelected]));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child hboxChangeTasks.Gtk.Box+BoxChild
 			this.datepickerDeadlineChange = new global::QS.Widgets.GtkUI.DatePicker();
 			this.datepickerDeadlineChange.Events = ((global::Gdk.EventMask)(256));
@@ -142,21 +155,21 @@ namespace Vodovoz.Views
 			this.datepickerDeadlineChange.IsEditable = true;
 			this.datepickerDeadlineChange.AutoSeparation = false;
 			this.hboxChangeTasks.Add(this.datepickerDeadlineChange);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxChangeTasks[this.datepickerDeadlineChange]));
-			w10.Position = 3;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxChangeTasks[this.datepickerDeadlineChange]));
+			w11.Position = 3;
 			// Container child hboxChangeTasks.Gtk.Box+BoxChild
 			this.entityVMEmployee = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entityVMEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEmployee.Name = "entityVMEmployee";
 			this.entityVMEmployee.CanEditReference = false;
 			this.hboxChangeTasks.Add(this.entityVMEmployee);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxChangeTasks[this.entityVMEmployee]));
-			w11.Position = 4;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxChangeTasks[this.entityVMEmployee]));
+			w12.Position = 4;
 			this.vbox2.Add(this.hboxChangeTasks);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxChangeTasks]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxChangeTasks]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

@@ -335,7 +335,7 @@ public partial class MainWindow : Window
 
 	void ActionCallTasks_Activate(object sender, System.EventArgs e)
 	{
-		/*
+
 		tdiMain.OpenTab(
 			"CRM",
 			() => new TasksView(EmployeeSingletonRepository.GetInstance(), 
@@ -343,8 +343,8 @@ public partial class MainWindow : Window
 								new CallTaskRepository(),
 								new PhoneRepository()), null
 		);
-		*/
 
+		/*
 		tdiMain.OpenTab(
 			"CRM",
 			() => new BusinessTasksJournalViewModel(new CallTaskFilterViewModel(),
@@ -356,6 +356,7 @@ public partial class MainWindow : Window
 													new CallTaskRepository(),
 													new PhoneRepository()) { SelectionMode = JournalSelectionMode.Multiple}, null
 		);
+	*/
 	}
 
 	void ActionBottleDebtors_Activate(object sender, System.EventArgs e)
