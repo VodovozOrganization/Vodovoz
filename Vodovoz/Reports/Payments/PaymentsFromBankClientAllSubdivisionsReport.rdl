@@ -12,7 +12,7 @@
   <RightMargin>7mm</RightMargin>
   <BottomMargin>10mm</BottomMargin>
   <PageHeader>
-    <Height>27.7pt</Height>
+    <Height>59.0pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -29,6 +29,18 @@
           <BorderWidth />
           <FontSize>16pt</FontSize>
           <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox23" >
+        <Height>23.21pt</Height>
+        <Width>801.63pt</Width>
+        <Value>В отчет попадают заказы в статусе "Ожидание оплаты" и со статусом оплаты "Оплачен", "Частично оплачен"
+Сортировка: по автору, затем по дате оплаты, потом по дате счета и наконец по номеру заказа</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.40pt</Left>
+        <Top>33.34pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
         </Style>
       </Textbox>
     </ReportItems>
@@ -74,7 +86,7 @@
           <TableColumn>
             <Width>161.8pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>74.2pt</Width>
           </TableColumn>
           <TableColumn>
@@ -242,7 +254,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
                       <Value>Сумма залогов</Value>
@@ -452,7 +464,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
                       <Value>={deposit}</Value>
@@ -465,7 +477,7 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <Format >#,##0.00</Format>
+                        <Format>#,##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -616,7 +628,7 @@ ORDER BY author, payment_date DESC, orderdate DESC, orders.id DESC;</CommandText
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
