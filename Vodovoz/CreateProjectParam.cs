@@ -217,6 +217,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PaymentLoaderVM, PaymentLoaderView>()
 				.RegisterWidgetForTabViewModel<ManualPaymentMatchingVM, ManualPaymentMatchingView>()
 				.RegisterWidgetForTabViewModel<ClientTaskViewModel, ClientTaskView>()
+				.RegisterWidgetForTabViewModel<PaymentTaskViewModel, PaymentTaskView>()
 				;
 
 			//Регистрация виджетов

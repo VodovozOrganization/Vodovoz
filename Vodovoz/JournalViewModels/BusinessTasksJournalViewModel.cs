@@ -193,7 +193,6 @@ namespace Vodovoz.JournalViewModels
 		private IQueryOver<ClientTask> GetPaymenTaskQuery(IUnitOfWork uow)
 		{
 			DeliveryPoint deliveryPointAlias = null;
-			BottlesMovementOperation bottlesMovementAlias = null;
 			ClientTask callTaskAlias = null;
 			BusinessTaskJournalNode<PaymentTask> resultAlias = null;
 			Counterparty counterpartyAlias = null;
@@ -231,26 +230,6 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel.DeliveryPointCategory != null)
 				tasksQuery.Where(() => deliveryPointAlias.Category == FilterViewModel.DeliveryPointCategory);
 
-			var bottleDebtByAddressQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
-			.JoinAlias(() => bottlesMovementAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
-			.And(() => bottlesMovementAlias.DeliveryPoint.Id == deliveryPointAlias.Id || orderAlias.SelfDelivery)
-			.Select(
-				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
-					NHibernateUtil.Int32, new IProjection[] {
-								Projections.Sum(() => bottlesMovementAlias.Returned),
-								Projections.Sum(() => bottlesMovementAlias.Delivered)}
-				));
-
-			var bottleDebtByClientQuery = UoW.Session.QueryOver(() => bottlesMovementAlias)
-			.Where(() => bottlesMovementAlias.Counterparty.Id == counterpartyAlias.Id)
-			.Select(
-				Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Int32, "( ?2 - ?1 )"),
-					NHibernateUtil.Int32, new IProjection[] {
-								Projections.Sum(() => bottlesMovementAlias.Returned),
-								Projections.Sum(() => bottlesMovementAlias.Delivered) }
-				));
-
 			tasksQuery.Where(
 					GetSearchCriterion(
 					() => callTaskAlias.Id,
@@ -277,25 +256,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => callTaskAlias.Id).WithAlias(() => resultAlias.Id)
 				   .Select(() => callTaskAlias.TaskState).WithAlias(() => resultAlias.TaskStatus)
 				   .Select(() => callTaskAlias.ImportanceDegree).WithAlias(() => resultAlias.ImportanceDegree)
-				   .Select(() => callTaskAlias.IsTaskComplete).WithAlias(() => resultAlias.IsTaskComplete)
-				   .Select(() => callTaskAlias.TareReturn).WithAlias(() => resultAlias.TareReturn)
-				   .Select(Projections.SqlFunction(
-					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(?2 , ?1) SEPARATOR ?3 )"),
-					   NHibernateUtil.String,
-					   Projections.Property(() => deliveryPointPhonesAlias.DigitsNumber),
-					   Projections.Constant("+7"),
-					   Projections.Constant("\n"))
-				   ).WithAlias(() => resultAlias.DeliveryPointPhones)
-				   .Select(Projections.SqlFunction(
-					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( CONCAT(?2 , ?1) SEPARATOR ?3 )"),
-					   NHibernateUtil.String,
-					   Projections.Property(() => counterpartyPhonesAlias.DigitsNumber),
-					   Projections.Constant("+7"),
-					   Projections.Constant("\n"))
-				   ).WithAlias(() => resultAlias.CounterpartyPhones)
-				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByAddressQuery).WithAlias(() => resultAlias.DebtByAddress)
-				   .SelectSubQuery((QueryOver<BottlesMovementOperation>)bottleDebtByClientQuery).WithAlias(() => resultAlias.DebtByClient)
-				)
+				   .Select(() => callTaskAlias.IsTaskComplete).WithAlias(() => resultAlias.IsTaskComplete))
 			.TransformUsing(Transformers.AliasToBean<BusinessTaskJournalNode<PaymentTask>>());
 			//.List<BusinessTasksJournalNode>();
 			//taskCount = tasks.Count;
@@ -419,21 +380,15 @@ namespace Vodovoz.JournalViewModels
 					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true })
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() => new ClientTaskViewModel(
+					() => new PaymentTaskViewModel(
 						employeeRepository,
-						bottleRepository,
-						callTaskRepository,
-						phoneRepository,
 						EntityUoWBuilder.ForCreate(),
 						UnitOfWorkFactory,
 						commonServices
 					),
 					//функция диалога открытия документа
-					(BusinessTaskJournalNode node) => new ClientTaskViewModel(
+					(BusinessTaskJournalNode node) => new PaymentTaskViewModel(
 						employeeRepository,
-						bottleRepository,
-						callTaskRepository,
-						phoneRepository,
 						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
 						commonServices

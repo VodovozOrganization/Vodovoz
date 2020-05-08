@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.BusinessTasks
 	)]
 	[EntityPermission]
 	[HistoryTrace]
-	public class ClientTask : BusinessTask, ICommentedDocument
+	public class ClientTask : BusinessTask, ICommentedDocument, IValidatableObject
 	{
 		public virtual string Title => string.Format(" задача по обзвону : {0}", DeliveryPoint?.ShortAddress);
 
@@ -140,6 +140,12 @@ namespace Vodovoz.Domain.BusinessTasks
 				}
 			};
 			return reportInfo;
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Counterparty == null)
+				yield return new ValidationResult("Должен быть выбран контрагент", new[] { "Countrerparty" });
 		}
 	}
 }

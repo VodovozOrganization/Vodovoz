@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Employees;
@@ -7,7 +6,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.BusinessTasks
 {
-	public class BusinessTask : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class BusinessTask : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
@@ -69,12 +68,6 @@ namespace Vodovoz.Domain.BusinessTasks
 				completeDate = isTaskComplete ? DateTime.Now as DateTime? : null;
 			}
 		}
-
-		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			if(Counterparty == null)
-				yield return new ValidationResult("Должен быть выбран контрагент", new[] { "Countrerparty" });
-		}
 	}
 
 	public enum BusinessTaskStatus
@@ -90,7 +83,9 @@ namespace Vodovoz.Domain.BusinessTasks
 		[Display(Name = "Cверка")]
 		Reconciliation,
 		[Display(Name = "Возврат залогов")]
-		DepositReturn
+		DepositReturn,
+		[Display(Name = "Оплата")]
+		Pay
 	}
 
 	public enum TaskSource

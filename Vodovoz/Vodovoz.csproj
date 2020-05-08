@@ -1458,6 +1458,10 @@
     <Compile Include="Footers\ViewModels\BusinessTasksJournalFooterViewModel.cs" />
     <Compile Include="Footers\Views\BusinessTasksJournalFooterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Footers.Views.BusinessTasksJournalFooterView.cs" />
+    <Compile Include="ViewModels\BusinessTasksJournalActionsViewModel.cs" />
+    <Compile Include="ViewModels\BusinessTasks\PaymentTaskViewModel.cs" />
+    <Compile Include="Views\BusinessTasks\PaymentTaskView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.PaymentTaskView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
