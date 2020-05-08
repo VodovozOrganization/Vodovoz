@@ -1,46 +1,51 @@
 ﻿using System;
 using QS.ViewModels;
 using QS.Commands;
-using Vodovoz.Domain.Client;
-using QS.DomainModel.Entity;
-using System.ComponentModel;
 using Vodovoz.Domain.Comments;
-using Vodovoz.Repositories.HumanResources;
+using System.Linq;
+using Vodovoz.EntityRepositories.Employees;
+using QS.DomainModel.UoW;
 
 namespace Vodovoz.ViewModels.Comments
 {
 	public class DocumentCommentViewModel : WidgetViewModelBase
 	{
-		private readonly ICommentedDocument commentedDocument;
-
-		/*
-		private string lastComment;
-		public string LastComment {
-			get => lastComment;
-			set => SetField(ref lastComment, value);
-		}*/
-
-		//public string tempStr { get; set; }
-
-		public DocumentCommentViewModel(ICommentedDocument commentedDocument)
-		{
-			CreateCommands();
-			//FillComment();
-			this.commentedDocument = commentedDocument;
-		}
-
 		private string comment;
 		public string Comment {
 			get => comment;
 			set => SetField(ref comment, value);
 		}
 
-		/*
+		private string curComment;
+		public string CurComment {
+			get => curComment;
+			set => SetField(ref curComment, value);
+		}
+
+		private bool CommentAdded { get; set; }
+
+		readonly ICommentedDocument commentedDocument;
+		readonly IEmployeeRepository employeeRepository;
+		readonly IUnitOfWork uow;
+
+		public DocumentCommentViewModel(ICommentedDocument commentedDocument, IEmployeeRepository employeeRepository, IUnitOfWork uow)
+		{
+			this.commentedDocument = commentedDocument;
+			this.uow = uow;
+			this.employeeRepository = employeeRepository;
+
+			CreateCommands();
+
+			if(commentedDocument.Comments.Any())
+				FillComment();
+		}
+
 		private void FillComment()
 		{
-
+			foreach(DocumentComment item in commentedDocument.Comments) {
+				Comment += item.Comment;
+			}
 		}
-		*/
 
 		private void CreateCommands()
 		{
@@ -53,20 +58,24 @@ namespace Vodovoz.ViewModels.Comments
 		{
 			AddCommentCommand = new DelegateCommand<string>(
 				text => {
-					//Незнаю, возможно тут какиенибудь проверки о возможности добавления комментария
 
-					var sdsds = new DocumentComment();
-					sdsds.Comment = text;
-					sdsds.Author = CurrentEmployee;
+					var employee = employeeRepository.GetEmployeeForCurrentUser(uow);
 
-					commentedDocument.AddComment(sdsds);
-					/*Comment += LastComment + Environment.NewLine;
-					tempStr = LastComment;
-					LastComment = string.Empty;*/
+					var str = $"{employee.ShortName}({employee?.Subdivision?.ShortName ?? employee?.Subdivision?.Name}) " +
+						$"{DateTime.Now.ToString("dd/MM/yyyy HH:mm")}: ";
 
+					var newComment = new DocumentComment {
+						Comment = str + text + Environment.NewLine,
+						Author = employee
+					};
+
+					commentedDocument.AddComment(newComment);
+					Comment += newComment.Comment;
+
+					CommentAdded = true;
+					CurComment = string.Empty;
 				},
 
-				//А может быть тут какиенибудь проверки о возможности добавления комментария
 				text => !string.IsNullOrEmpty(text)
 			); 
 		}
@@ -78,18 +87,19 @@ namespace Vodovoz.ViewModels.Comments
 
 				() => {
 					//Код получения последнего комментария из документа
-					DocumentComment lastComment = null;
+					DocumentComment lastComment = commentedDocument.Comments.LastOrDefault();
 
 					//Код проверки возможности удаления комментария для текущего пользователя
 
-					//Код удаления найденного комментария из документа
-					commentedDocument.DeleteComment(lastComment);
+					if(lastComment != null) {
 
+						commentedDocument.DeleteLastComment(lastComment);
+						Comment = Comment.Remove(Comment.Length - lastComment.Comment.Length, lastComment.Comment.Length);
+					}
 
-					//Comment = Comment.Remove(Comment.Length - tempStr.Length - 1, tempStr.Length + 1);
-					//LastComment = string.Empty;
+					CommentAdded = false;
 				},
-				() => true
+				() => CommentAdded == true
 			);
 		}
 	}

@@ -1,5 +1,4 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Comments;
 
 namespace Vodovoz.HibernateMapping.Comments
@@ -14,11 +13,6 @@ namespace Vodovoz.HibernateMapping.Comments
 			Map(x => x.Comment).Column("comment");
 
 			References(x => x.Author).Column("employee_id");
-
-			/*HasManyToMany(x => x.CallTasks).Table("document_comments_to_call_tasks")
-								.ParentKeyColumn("comment_id")
-								.ChildKeyColumn("call_task_id")
-								.LazyLoad();*/
 		}
 	}
 }
