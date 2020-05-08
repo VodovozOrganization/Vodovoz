@@ -9,11 +9,14 @@ using Vodovoz.Filters.ViewModels;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using System.Linq;
+using QS.ViewModels;
 
 namespace Vodovoz.ViewModels
 {
-	public class BusinessTasksJournalActionsViewModel : JournalActionsViewModel
+	public class BusinessTasksJournalActionsViewModel : WidgetViewModelBase//JournalActionsViewModel
 	{
+		public object[] SelectedObjs;
+
 		private bool hBoxChangeTasksVisibility;
 		public bool HBoxChangeTasksVisibility {
 			get => hBoxChangeTasksVisibility;

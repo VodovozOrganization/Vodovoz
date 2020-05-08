@@ -12,7 +12,7 @@ using Vodovoz.Infrastructure.Services;
 
 namespace Vodovoz.Core
 {
-	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IFooterWidgetResolver, IWidgetResolver
+	public class ViewModelWidgetResolver : ITDIWidgetResolver, IFilterWidgetResolver, IWidgetResolver
 	{
 		private static ViewModelWidgetResolver instance;
 		public static ViewModelWidgetResolver Instance {

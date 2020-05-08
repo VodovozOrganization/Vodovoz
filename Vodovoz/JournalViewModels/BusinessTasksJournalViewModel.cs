@@ -62,11 +62,11 @@ namespace Vodovoz.JournalViewModels
 			//this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 
-			Footer = footerViewModel;
+			//Footer = footerViewModel;
 
 			actionsViewModel = new BusinessTasksJournalActionsViewModel();
-			RawJournalActions = actionsViewModel;
-			RawJournalActions.JAModel = new JournalActionsModel();
+			//RawJournalActions = actionsViewModel;
+			//RawJournalActions.JAModel = new JournalActionsModel();
 
 			RegisterTasks();
 			
@@ -360,18 +360,18 @@ namespace Vodovoz.JournalViewModels
 						commonServices
 					),
 					//функция диалога открытия документа
-					(int Id) => new ClientTaskViewModel(
+					(BusinessTaskJournalNode node) => new ClientTaskViewModel(
 						employeeRepository,
 						bottleRepository,
 						callTaskRepository,
 						phoneRepository,
-						EntityUoWBuilder.ForOpen(Id),
+						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
 						commonServices
 					),
 					//функция идентификации документа 
-					(Type node) => {
-						return node == typeof(ClientTask);
+					(BusinessTaskJournalNode node) => {
+						return node.EntityType == typeof(ClientTask);
 					},
 					"Клиентская задача",
 					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true })
@@ -384,15 +384,15 @@ namespace Vodovoz.JournalViewModels
 						commonServices
 					),
 					//функция диалога открытия документа
-					(int Id) => new PaymentTaskViewModel(
+					(BusinessTaskJournalNode node) => new PaymentTaskViewModel(
 						employeeRepository,
-						EntityUoWBuilder.ForOpen(Id),
+						EntityUoWBuilder.ForOpen(node.Id),
 						UnitOfWorkFactory,
 						commonServices
 					),
 					//функция идентификации документа 
-					(Type node) => {
-						return node == typeof(PaymentTask);
+					(BusinessTaskJournalNode node) => {
+						return node.EntityType == typeof(PaymentTask);
 					},
 					"Задача по платежам",
 					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true });
@@ -443,8 +443,8 @@ namespace Vodovoz.JournalViewModels
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
-			CreateDefaultAddActions2();
-			CreateDefaultEditAction2();
+			//CreateDefaultAddActions2();
+			//CreateDefaultEditAction2();
 			CreateDefaultDeleteAction();
 		}
 

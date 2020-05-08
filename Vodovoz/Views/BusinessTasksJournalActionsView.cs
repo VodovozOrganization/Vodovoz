@@ -17,8 +17,8 @@ namespace Vodovoz.Views
 		{
 			btnAddClientTask.Clicked += (sender, e) => ViewModel.NewClientTaskCommand.Execute();
 			btnAddPaymentTask.Clicked += (sender, e) => ViewModel.NewPaymentTaskCommand.Execute();
-			btnEdit.Clicked += (sender, e) => ViewModel.EditCommand.Execute();
-			btnDelete.Clicked += (sender, e) => ViewModel.DeleteCommand.Execute();
+			//btnEdit.Clicked += (sender, e) => ViewModel.EditCommand.Execute();
+			//btnDelete.Clicked += (sender, e) => ViewModel.DeleteCommand.Execute();
 			btnChangeTasks.Clicked += (sender, e) => { HBoxChangeVisibility(); };
 			btnChangeEmployee.Clicked += (sender, e) => entityVMEmployee.OpenSelectDialog("Ответственный :");
 			btnCompleteSelected.Clicked += (sender, e) => ViewModel.CompleteSelectedTasksCommand.Execute();
@@ -26,8 +26,8 @@ namespace Vodovoz.Views
 			entityVMEmployee.ChangedByUser += (sender, e) => ViewModel.ChangeAssignedEmployeeCommand.Execute();
 			datepickerDeadlineChange.DateChangedByUser += (sender, e) => ViewModel.ChangeDeadlineDateCommand.Execute();
 
-			btnEdit.Binding.AddBinding(ViewModel, vm => vm.EditButtonSensitivity, v => v.Sensitive).InitializeFromSource();
-			btnDelete.Binding.AddBinding(ViewModel, vm => vm.DeleteButtonSensitivity, v => v.Sensitive).InitializeFromSource();
+			//btnEdit.Binding.AddBinding(ViewModel, vm => vm.EditButtonSensitivity, v => v.Sensitive).InitializeFromSource();
+			//btnDelete.Binding.AddBinding(ViewModel, vm => vm.DeleteButtonSensitivity, v => v.Sensitive).InitializeFromSource();
 			cmbBoxTaskStatus.ItemsEnum = typeof(BusinessTaskStatus);
 			cmbBoxTaskStatus.Binding.AddBinding(ViewModel, vm => vm.TaskStatus, v => v.SelectedItem).InitializeFromSource();
 			datepickerDeadlineChange.Binding.AddBinding(ViewModel, vm => vm.DeadlineDate, v => v.Date).InitializeFromSource();

@@ -2,7 +2,6 @@
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Repository;
 using QS.ViewModels;
 using QS.Services;
 using QS.Navigation;
@@ -15,6 +14,7 @@ using Vodovoz.Repositories.Payments;
 using QS.Commands;
 using System.Threading.Tasks;
 using System.Threading;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.ViewModels
 {
