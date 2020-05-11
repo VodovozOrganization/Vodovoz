@@ -3,7 +3,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.Tools.CommerceML.Nodes
 {

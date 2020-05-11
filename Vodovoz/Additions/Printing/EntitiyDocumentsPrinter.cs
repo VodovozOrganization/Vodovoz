@@ -4,9 +4,9 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using Gtk;
+using QS.DocTemplates;
 using QS.DomainModel.UoW;
 using QS.Print;
-using QSDocTemplates;
 using QSReport;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
@@ -143,7 +143,7 @@ namespace Vodovoz.Additions.Printing
 						uow.Save(rl);
 						uow.Commit();
 					}
-					uow.Session.Refresh(currentRouteList);
+					uow?.Session?.Refresh(currentRouteList);
 				}
 				DocumentsPrinted?.Invoke(o, args);
 			};

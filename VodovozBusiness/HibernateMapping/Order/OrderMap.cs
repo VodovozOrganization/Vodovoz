@@ -1,4 +1,4 @@
-﻿﻿using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -63,6 +63,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.DocumentType)					.Column("document_type").CustomType<DefaultDocumentTypeStringType> ();
 			Map(x => x.DriverCallType)					.Column("driver_call_type").CustomType<DriverCallTypeStringType>();
 			Map(x => x.OrderSource)						.Column("order_source").CustomType<OrderSourceStringType>();
+			Map(x => x.OrderPaymentStatus)				.Column("order_payment_status").CustomType<OrderPaymentStatusStringType>();
 
 			References(x => x.Client)					.Column("client_id");
 			References(x => x.Contract)					.Column("counterparty_contract_id");

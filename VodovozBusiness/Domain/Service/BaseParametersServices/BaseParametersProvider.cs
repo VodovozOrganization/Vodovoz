@@ -1,9 +1,8 @@
 ﻿using System;
-using Vodovoz.Services;
+using System.Collections.Generic;
 using System.Globalization;
 using Vodovoz.Parameters;
-using QSSupportLib;
-using System.Collections.Generic;
+using Vodovoz.Services;
 
 namespace Vodovoz.Core.DataService
 {
@@ -22,14 +21,17 @@ namespace Vodovoz.Core.DataService
 		IContactsParameters,
 		IDriverServiceParametersProvider,
 		IErrorSendParameterProvider,
-		IPotentialFreePromosetsReportDefaultsProvider
+		IOrganizationProvider,
+		IProfitCategoryProvider,
+		IPotentialFreePromosetsReportDefaultsProvider,
+		IOrganisationParametersProvider
 	{
 		public string GetDefaultBaseForErrorSend()
 		{
-			if(!MainSupport.BaseParameters.All.ContainsKey("base_for_error_send")) {
+			if(!ParametersProvider.Instance.ContainsParameter("base_for_error_send")) {
 				throw new InvalidProgramException("В параметрах базы не настроена база для отправки сообщений об ошибку (base_for_error_send).");
 			}
-			return MainSupport.BaseParameters.All["base_for_error_send"];
+			return ParametersProvider.Instance.GetParameterValue("base_for_error_send");
 		}
 
 		public int GetRowCountForErrorLog()
@@ -294,6 +296,29 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion
+		
+		#region IOrganizationProvider
+		public int GetMainOrganization()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("main_organization_id")) {
+				throw new InvalidProgramException("В параметрах базы не настроена организация по умолчанию (main_organization_id).");
+			}
+			return int.Parse(ParametersProvider.Instance.GetParameterValue("main_organization_id"));
+		}
+
+		#endregion IOrganizationProvider
+
+		#region IProfitCategoryProvider
+
+		public int GetDefaultProfitCategory()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("default_profit_category_id")) {
+				throw new InvalidProgramException("В параметрах базы не настроена организация по умолчанию (default_profit_category_id).");
+			}
+			return int.Parse(ParametersProvider.Instance.GetParameterValue("default_profit_category_id"));
+		}
+
+		#endregion IProfitCategoryProvider
 
 		#region IDefaultDeliveryDaySchedule
 
@@ -320,5 +345,41 @@ namespace Vodovoz.Core.DataService
 		}
 
 		#endregion IDefaultDeliveryDaySchedule
+
+		public int GetCashlessOrganisationId
+		{
+			get
+			{
+				if(!ParametersProvider.Instance.ContainsParameter("cashless_organization_id")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено значение безнал. организации (cashless_organization_id)");
+				}
+
+				string value = ParametersProvider.Instance.GetParameterValue("cashless_organization_id");
+
+				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено значение безнал. организации (cashless_organization_id)");
+				}
+
+				return result;
+			}
+		}
+
+		public int GetCashOrganisationId
+		{ 
+			get
+			{
+				if(!ParametersProvider.Instance.ContainsParameter("cash_organization_id")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено значение нал. организации (cash_organization_id)");
+				}
+
+				string value = ParametersProvider.Instance.GetParameterValue("cash_organization_id");
+
+				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено значение нал. организации (cash_organization_id)");
+				}
+
+				return result;
+			} 
+		}
 	}
 }

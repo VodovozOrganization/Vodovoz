@@ -1,11 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Service;
-using Vodovoz.Repositories.Orders;
 
 namespace Vodovoz.Domain.Orders
 {

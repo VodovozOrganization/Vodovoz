@@ -1,7 +1,6 @@
-﻿using System;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Operations;
-using NHibernate.Criterion;
 
 namespace Vodovoz.Repository.Operations
 {

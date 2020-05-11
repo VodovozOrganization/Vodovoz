@@ -1,9 +1,8 @@
-﻿using QS.DomainModel.UoW;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Chats;
-using System.Collections.Generic;
-using QS.Project.Repositories;
+﻿using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using QS.Project.Services;
+using Vodovoz.Domain.Chats;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Repository.Chats
 {

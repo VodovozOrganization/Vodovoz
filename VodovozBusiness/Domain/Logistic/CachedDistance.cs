@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using GMap.NET;
-using QSOsm;
+using QS.Osm;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 

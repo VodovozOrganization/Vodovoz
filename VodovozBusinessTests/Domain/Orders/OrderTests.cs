@@ -19,8 +19,8 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Repositories;
 using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository;
 using Vodovoz.Services;
 
 namespace VodovozBusinessTests.Domain.Orders

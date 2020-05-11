@@ -143,12 +143,12 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void FillItemsFromStock(IUnitOfWork uow)
 		{
-			var selectedNomenclature = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, null, NomenclatureCategory, ProductGroup, Nomenclature);
+			var selectedNomenclature = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, null, NomenclatureCategory, ProductGroup, Nomenclature);
 			FillItemsFromStock(uow, selectedNomenclature);
 		}
 
 		public virtual void UpdateItemsFromStock(IUnitOfWork uow){
-			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp, NomenclatureCategory, ProductGroup, Nomenclature);
+			var inStock = Repositories.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp, NomenclatureCategory, ProductGroup, Nomenclature);
 
 			foreach(var itemInStock in inStock)
 			{

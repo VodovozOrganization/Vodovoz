@@ -2,6 +2,7 @@
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.EntityRepositories
@@ -22,7 +23,7 @@ namespace Vodovoz.EntityRepositories
 		public User GetCurrentUser(IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<User>()
-				.Where(u => u.Id == QSProjectsLib.QSMain.User.Id)
+				.Where(u => u.Id == ServicesConfig.UserService.CurrentUserId)
 				.SingleOrDefault();
 		}
 
@@ -41,7 +42,7 @@ namespace Vodovoz.EntityRepositories
 		/// </summary>
 		public UserSettings GetCurrentUserSettings(IUnitOfWork uow)
 		{
-			return GetUserSettings(uow, QSProjectsLib.QSMain.User.Id);
+			return GetUserSettings(uow, ServicesConfig.UserService.CurrentUserId);
 		}
 
 		public UserSettings GetUserSettings(IUnitOfWork uow, int userId)

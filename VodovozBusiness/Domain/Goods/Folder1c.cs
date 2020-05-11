@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
-using QSOrmProject;
 
 namespace Vodovoz.Domain.Goods
 {

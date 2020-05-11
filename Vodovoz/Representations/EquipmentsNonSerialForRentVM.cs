@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using Gamma.ColumnConfig;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.JournalFilters;
-using Vodovoz.Repository;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.Representations
 {
@@ -32,11 +31,11 @@ namespace Vodovoz.Representations
 		{
 			IList<NomenclatureForRentVMNode> items;
 			if(Filter != null) {
-				items = EquipmentRepository.GetAllNonSerialEquipmentForRent(UoW, Filter.NomenEquipmentType);
+				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW, Filter.NomenEquipmentType);
 			} else if(EquipmentType != null) {
-				items = EquipmentRepository.GetAllNonSerialEquipmentForRent(UoW, EquipmentType);
+				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW, EquipmentType);
 			} else {
-				items = EquipmentRepository.GetAllNonSerialEquipmentForRent(UoW);
+				items = EquipmentRepositoryForViews.GetAllNonSerialEquipmentForRent(UoW);
 			}
 
 			List<NomenclatureForRentVMNode> forRent = new List<NomenclatureForRentVMNode>();

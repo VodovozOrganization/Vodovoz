@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Vodovoz.Domain.Documents;
-using System;
+﻿using System;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.PermissionExtensions
 {

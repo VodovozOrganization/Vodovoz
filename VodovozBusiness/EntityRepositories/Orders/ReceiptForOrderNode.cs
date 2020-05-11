@@ -1,6 +1,4 @@
-﻿using QS.DomainModel.UoW;
-using Vodovoz.Domain.Orders;
-namespace Vodovoz.EntityRepositories.Orders
+﻿namespace Vodovoz.EntityRepositories.Orders
 {
 	public class ReceiptForOrderNode
 	{

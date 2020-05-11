@@ -129,7 +129,7 @@ namespace Vodovoz
 			yEntryRouteList.Shown += YEntryRouteList_ValueOrVisibilityChanged;
 			yEntryRouteList.ChangedByUser += YEntryRouteList_ValueOrVisibilityChanged;
 
-			yentryClient.ItemsQuery = Repository.CounterpartyRepository.ActiveClientsQuery ();
+			yentryClient.ItemsQuery = Repositories.CounterpartyRepository.ActiveClientsQuery ();
 			yentryClient.Binding.AddBinding (Entity, s => s.Customer, w => w.Subject).InitializeFromSource ();
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();

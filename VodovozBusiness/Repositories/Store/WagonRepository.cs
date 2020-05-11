@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Repository.Store
 {

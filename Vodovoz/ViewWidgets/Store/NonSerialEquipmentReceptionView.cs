@@ -8,7 +8,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.ViewWidgets.Store
 {

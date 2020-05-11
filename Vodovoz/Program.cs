@@ -17,9 +17,8 @@ using Vodovoz.Core.DataService;
 using QS.ErrorReporting;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools;
-using NHibernate;
-using QS.Project.DB;
-using QS.DomainModel.Entity;
+using QS.Osm;
+using QS.Tools;
 
 namespace Vodovoz
 {
@@ -111,12 +110,15 @@ namespace Vodovoz
 				Environment.OSVersion.VersionString
 			);
 			GMap.NET.MapProviders.GMapProvider.Language = GMap.NET.LanguageType.Russian;
-			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
+			PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
 
-			QSOsm.OsmWorker.ServiceHost = "osm.vod.qsolution.ru";
-			QSOsm.OsmWorker.ServicePort = 7073;
+			DatePicker.CalendarFontSize = 16;
+			DateRangePicker.CalendarFontSize = 16;
 
-			QSOsm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
+			OsmWorker.ServiceHost = "osm.vod.qsolution.ru";
+			OsmWorker.ServicePort = 7073;
+
+			QS.Osm.Osrm.OsrmMain.ServerUrl = "http://osrm.vod.qsolution.ru:5000";
 			
 			PerformanceHelper.StartPointsGroup ("Главное окно");
 
@@ -151,8 +153,8 @@ namespace Vodovoz
 
 			QSSaaS.Session.StartSessionRefresh ();
 
-			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончен старт SAAS. Конец загрузки.");
-			QSProjectsLib.PerformanceHelper.Main.PrintAllPoints (logger);
+			PerformanceHelper.AddTimePoint (logger, "Закончен старт SAAS. Конец загрузки.");
+			PerformanceHelper.Main.PrintAllPoints (logger);
 
 			Application.Run();
 			QSSaaS.Session.StopSessionRefresh ();

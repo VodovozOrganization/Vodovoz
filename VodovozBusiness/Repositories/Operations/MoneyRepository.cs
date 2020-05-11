@@ -4,7 +4,6 @@ using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
-using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Repository.Operations
 {

@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.Services
+﻿namespace Vodovoz.Services
 {
 	public interface IPotentialFreePromosetsReportDefaultsProvider
 	{

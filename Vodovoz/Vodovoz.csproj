@@ -463,6 +463,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
+    <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
+    <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
     <Compile Include="Program.cs" />
@@ -494,6 +496,7 @@
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
+    <Compile Include="TempAdapters\EquipmentRepositoryForViews.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingInvoiceDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceDlg.cs" />
@@ -1397,6 +1400,22 @@
     <Compile Include="Views\ErrorReporting\ErrorMessageView.cs" />
     <Compile Include="Dialogs\Employees\DriverWorkScheduleNode.cs" />
     <Compile Include="ErrorHandlers.cs" />
+    <Compile Include="ViewModels\TransferDocumentsFromBankParser.cs" />
+    <Compile Include="Views\PaymentLoaderView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.PaymentLoaderView.cs" />
+    <Compile Include="ViewModels\PaymentLoaderVM.cs" />
+    <Compile Include="ViewModels\AutoPaymentMatching.cs" />
+    <Compile Include="JournalViewModels\PaymentsJournalViewModel.cs" />
+    <Compile Include="JournalNodes\PaymentJournalNode.cs" />
+    <Compile Include="Views\ManualPaymentMatchingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.ManualPaymentMatchingView.cs" />
+    <Compile Include="ViewModels\ManualPaymentMatchingVM.cs" />
+    <Compile Include="Filters\ViewModels\PaymentsJournalFilterViewModel.cs" />
+    <Compile Include="Filters\GtkViews\PaymentsFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.PaymentsFilterView.cs" />
+    <Compile Include="ViewModels\Comments\DocumentCommentViewModel.cs" />
+    <Compile Include="Views\Comments\DocumentCommentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Comments.DocumentCommentView.cs" />
     <Compile Include="ReportsParameters\PotentialFreePromosetsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PotentialFreePromosetsReport.cs" />
     <Compile Include="ServiceDialogs\OldExportTo1cDialog.cs" />
@@ -1434,9 +1453,35 @@
     <Compile Include="Core\PromosetDuplicateFinder.cs" />
     <Compile Include="ReportsParameters\WayBillReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReport.cs" />
+    <Compile Include="ViewModels\BusinessTasks\ClientTaskViewModel.cs" />
+    <Compile Include="Views\BusinessTasks\ClientTaskView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.ClientTaskView.cs" />
+    <Compile Include="JournalViewModels\BusinessTasksJournalViewModel.cs" />
+    <Compile Include="JournalNodes\BusinessTaskJournalNode.cs" />
+    <Compile Include="Footers\ViewModels\BusinessTasksJournalFooterViewModel.cs" />
+    <Compile Include="Footers\Views\BusinessTasksJournalFooterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Footers.Views.BusinessTasksJournalFooterView.cs" />
+    <Compile Include="ViewModels\BusinessTasksJournalActionsViewModel.cs" />
+    <Compile Include="ViewModels\BusinessTasks\PaymentTaskViewModel.cs" />
+    <Compile Include="Views\BusinessTasks\PaymentTaskView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasks.PaymentTaskView.cs" />
+    <Compile Include="Views\BusinessTasksJournalActionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.BusinessTasksJournalActionsView.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReport.cs" />
+    <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientFinDepartmentReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientFinDepartmentReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <ProjectReference Include="..\..\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj">
+      <Project>{6a9581b0-7278-4f8d-b5ea-8c60bddc55d8}</Project>
+      <Name>QS.DocTemplates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QS.Osm\QS.Osm.csproj">
+      <Project>{72968ef4-2127-45c7-9bfe-2470dacddc3e}</Project>
+      <Name>QS.Osm</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
       <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
       <Name>QSProjectsLib</Name>
@@ -1557,14 +1602,6 @@
       <Project>{3D3D6700-C625-46C5-9702-5F010A8DD035}</Project>
       <Name>QS.HistoryLog</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSValidation\QSValidation.csproj">
-      <Project>{CE5179E8-3172-4C08-9FE3-9C48C58A3831}</Project>
-      <Name>QSValidation</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QS.Validation\QS.Validation.csproj">
-      <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
-      <Name>QS.Validation</Name>
-    </ProjectReference>
     <ProjectReference Include="..\VodovozViewModels\VodovozViewModels.csproj">
       <Project>{EF73674E-B8D5-461B-A072-AC73231C82B2}</Project>
       <Name>VodovozViewModels</Name>
@@ -1683,10 +1720,17 @@
     <Folder Include="Views\Users\" />
     <Folder Include="ViewWidgets\Permissions\" />
     <Folder Include="Views\ErrorReporting\" />
+    <Folder Include="Views\Comments\" />
+    <Folder Include="ViewModels\Comments\" />
     <Folder Include="ServiceDialogs\OldExportTo1c\" />
     <Folder Include="ServiceDialogs\OldExportTo1c\Catalogs\" />
     <Folder Include="ServiceDialogs\OldExportTo1c\ExportDefaults\" />
     <Folder Include="ServiceDialogs\OldExportTo1c\ExportNodes\" />
+    <Folder Include="ViewModels\BusinessTasks\" />
+    <Folder Include="Views\BusinessTasks\" />
+    <Folder Include="Footers\" />
+    <Folder Include="Footers\Views\" />
+    <Folder Include="Footers\ViewModels\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2155,6 +2199,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\WayBillReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Payments\PaymentsFromBankClientAllSubdivisionsReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Payments\PaymentsFromBankClientBySubdivisionReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Payments\PaymentsFromBankClientFinDepartmentReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

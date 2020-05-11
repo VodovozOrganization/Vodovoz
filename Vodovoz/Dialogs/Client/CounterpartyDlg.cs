@@ -20,7 +20,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.ViewModel;
@@ -275,6 +275,12 @@ namespace Vodovoz
 				radioContacts.Active = true;
 		}
 
+		public void ActivateDetailsTab()
+		{
+			if(radioDetails.Sensitive)
+				radioDetails.Active = true;
+		}
+
 		void AllOrders_Activated(object sender, EventArgs e)
 		{
 			var filter = new OrdersFilter(UoW);
@@ -330,7 +336,7 @@ namespace Vodovoz
 		private bool CheckDuplicate()
 		{
 			string INN = UoWGeneric.Root.INN;
-			IList<Counterparty> counterarties = Repository.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
+			IList<Counterparty> counterarties = Repositories.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
 			return counterarties != null && counterarties.Any(x => x.Id != UoWGeneric.Root.Id);
 		}
 
@@ -459,7 +465,7 @@ namespace Vodovoz
 		{
 			if(yentrySignPost.Completion == null) {
 				yentrySignPost.Completion = new Gtk.EntryCompletion();
-				var list = Repository.CounterpartyRepository.GetUniqueSignatoryPosts(UoW);
+				var list = Repositories.CounterpartyRepository.GetUniqueSignatoryPosts(UoW);
 				yentrySignPost.Completion.Model = ListStoreWorks.CreateFromEnumerable(list);
 				yentrySignPost.Completion.TextColumn = 0;
 				yentrySignPost.Completion.Complete();
@@ -470,7 +476,7 @@ namespace Vodovoz
 		{
 			if(yentrySignBaseOf.Completion == null) {
 				yentrySignBaseOf.Completion = new Gtk.EntryCompletion();
-				var list = Repository.CounterpartyRepository.GetUniqueSignatoryBaseOf(UoW);
+				var list = Repositories.CounterpartyRepository.GetUniqueSignatoryBaseOf(UoW);
 				yentrySignBaseOf.Completion.Model = ListStoreWorks.CreateFromEnumerable(list);
 				yentrySignBaseOf.Completion.TextColumn = 0;
 				yentrySignBaseOf.Completion.Complete();

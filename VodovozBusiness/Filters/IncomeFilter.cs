@@ -1,11 +1,11 @@
 ﻿using System;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using QS.DomainModel.Entity;
 using QS.Tools;
 using Vodovoz.Domain.Cash;
-using QS.DomainModel.Entity;
 using Vodovoz.Domain.Employees;
-using NHibernate.Dialect.Function;
-using NHibernate;
 
 namespace Vodovoz.Filters
 {

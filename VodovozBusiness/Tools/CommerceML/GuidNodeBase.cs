@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace Vodovoz.Tools.CommerceML
 {
 	public abstract class GuidNodeBase : IGuidNode

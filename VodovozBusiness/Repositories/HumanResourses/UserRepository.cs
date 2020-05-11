@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Repositories.HumanResources
@@ -11,7 +12,7 @@ namespace Vodovoz.Repositories.HumanResources
 		public static User GetCurrentUser (IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<User> ()
-				.Where (u => u.Id == QSProjectsLib.QSMain.User.Id)
+				.Where (u => u.Id == ServicesConfig.UserService.CurrentUserId)
 				.SingleOrDefault ();
 		}
 
@@ -31,7 +32,7 @@ namespace Vodovoz.Repositories.HumanResources
 		public static UserSettings GetCurrentUserSettings (IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<UserSettings> ()
-				.Where (s => s.User.Id == QSProjectsLib.QSMain.User.Id)
+				.Where (s => s.User.Id == ServicesConfig.UserService.CurrentUserId)
 				.SingleOrDefault ();
 		}
 

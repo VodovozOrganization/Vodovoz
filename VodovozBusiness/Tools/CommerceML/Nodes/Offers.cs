@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 using Vodovoz.Repository.Store;
 
 namespace Vodovoz.Tools.CommerceML.Nodes

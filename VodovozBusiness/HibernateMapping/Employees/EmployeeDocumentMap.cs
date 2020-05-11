@@ -1,8 +1,5 @@
-﻿using System;
-using FluentNHibernate.Mapping;
-using FluentNHibernate.MappingModel;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.HibernateMapping.Employees
 {

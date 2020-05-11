@@ -7,7 +7,7 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
-using QSProjectsLib;
+using QS.Utilities;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Employees
@@ -93,7 +93,7 @@ namespace Vodovoz.Domain.Employees
 				if(Items.Count <= 3)
 					persons = String.Join(", ", Items.Select(x => x.Employee.ShortName));
 				else
-					persons = RusNumber.FormatCase(Items.Count, "{0} сотрудник", "{0} сотрудника", "{0} сотрудников");
+					persons = NumberToTextRus.FormatCase(Items.Count, "{0} сотрудник", "{0} сотрудника", "{0} сотрудников");
 				return String.Format("({0}) = {1}", persons,
 					CurrencyWorks.GetShortCurrencyString(TotalMoney));
 			}

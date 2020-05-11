@@ -4,7 +4,6 @@ using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QSSupportLib;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;

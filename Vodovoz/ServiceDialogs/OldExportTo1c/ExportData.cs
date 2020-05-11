@@ -11,7 +11,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.OldExportTo1c.Catalogs;
 using Vodovoz.Repositories.Orders;
-using Vodovoz.Repository;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.OldExportTo1c
 {

@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Linq;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
-using System.Linq;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 

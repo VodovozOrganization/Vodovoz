@@ -7,7 +7,6 @@ using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
-using QS.Project.Services;
 
 namespace Vodovoz.Domain.Orders
 {

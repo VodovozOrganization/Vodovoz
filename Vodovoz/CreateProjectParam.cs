@@ -86,6 +86,10 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.ViewModels.BusinessTasks;
+using Vodovoz.Views.BusinessTasks;
+using Vodovoz.Footers.ViewModels;
+using Vodovoz.Footers.Views;
 
 namespace Vodovoz
 {
@@ -210,6 +214,10 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PhoneTypeViewModel, PhoneTypeView>()
 				.RegisterWidgetForTabViewModel<EmailTypeViewModel, EmailTypeView>()
 				.RegisterWidgetForTabViewModel<UserSettingsViewModel, UserSettingsView>()
+				.RegisterWidgetForTabViewModel<PaymentLoaderVM, PaymentLoaderView>()
+				.RegisterWidgetForTabViewModel<ManualPaymentMatchingVM, ManualPaymentMatchingView>()
+				.RegisterWidgetForTabViewModel<ClientTaskViewModel, ClientTaskView>()
+				.RegisterWidgetForTabViewModel<PaymentTaskViewModel, PaymentTaskView>()
 				;
 
 			//Регистрация виджетов
@@ -235,6 +243,10 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CarJournalFilterViewModel, CarFilterView>()
 				.RegisterWidgetForWidgetViewModel<PresetSubdivisionPermissionsViewModel, PresetPermissionsView>()
 				.RegisterWidgetForWidgetViewModel<DeliveryPointJournalFilterViewModel, DeliveryPointJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<PaymentsJournalFilterViewModel, PaymentsFilterView>()
+				.RegisterWidgetForWidgetViewModel<CallTaskFilterViewModel, CallTaskFilterView>()
+				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalFooterViewModel, BusinessTasksJournalFooterView>()
+				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalActionsViewModel, BusinessTasksJournalActionsView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

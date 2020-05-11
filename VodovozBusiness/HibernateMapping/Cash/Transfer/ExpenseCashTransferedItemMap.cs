@@ -1,6 +1,6 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Cash.CashTransfer;
+
 namespace Vodovoz.HibernateMapping.Cash.Transfer
 {
 	public class ExpenseCashTransferedItemMap : ClassMap<ExpenseCashTransferedItem>

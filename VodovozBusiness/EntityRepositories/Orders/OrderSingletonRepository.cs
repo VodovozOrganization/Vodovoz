@@ -89,6 +89,15 @@ namespace Vodovoz.EntityRepositories.Orders
 				.List();
 		}
 
+		public IList<VodovozOrder> GetCounterpartyOrders(IUnitOfWork UoW, Counterparty counterparty)
+		{
+			VodovozOrder orderAlias = null;
+			return UoW.Session.QueryOver(() => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterparty.Id)
+				//.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.paid)
+				.List();
+		}
+
 		public IList<VodovozOrder> GetOrdersToExport1c8(IUnitOfWork UoW, Export1cMode mode, DateTime startDate, DateTime endDate)
 		{
 			VodovozOrder orderAlias = null;
@@ -476,20 +485,63 @@ namespace Vodovoz.EntityRepositories.Orders
 				};
 		}
 
-		public ReceiptForOrderNode[] GetShippedOrdersWithReceiptsForDates(IUnitOfWork uow, PaymentType paymentType, DateTime? startDate = null)
+		public ReceiptForOrderNode[] GetShippedOrdersWithReceiptsForDates(IUnitOfWork uow, DateTime? startDate = null)
 		{
 			OrderItem orderItemAlias = null;
 			VodovozOrder orderAlias = null;
 			ReceiptForOrderNode resultAlias = null;
 
+			var orderPaymentTypes = new PaymentType[] { PaymentType.cash, PaymentType.ByCard };
 			var orderStatusesForReceipts = new OrderStatus[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
 			var result = uow.Session.QueryOver<CashReceipt>()
 								 .Right.JoinAlias(r => r.Order, () => orderAlias)
-								 .Where(() => orderAlias.PaymentType == paymentType)
+								 .Where(() => orderAlias.PaymentType.IsIn(orderPaymentTypes))
 								 .Where(() => orderAlias.OrderStatus.IsIn(orderStatusesForReceipts))
-								 .Where(() => !orderAlias.SelfDelivery)
-								 ;
+								 .Where(() => !orderAlias.SelfDelivery);
+
+			if(startDate.HasValue)
+				result.Where(() => orderAlias.DeliveryDate >= startDate.Value);
+
+			result.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+					   .Where(
+							Restrictions.Gt(
+								Projections.Sum(
+									Projections.SqlFunction(
+										new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1 * ?2 - ?3, 0)"),
+										NHibernateUtil.Decimal,
+										Projections.Property(() => orderItemAlias.Count),
+										Projections.Property(() => orderItemAlias.Price),
+										Projections.Property(() => orderItemAlias.DiscountMoney)
+									)
+								),
+								0
+							)
+					   )
+					  .SelectList(
+					   		list => list.Select(r => r.Id).WithAlias(() => resultAlias.ReceiptId)
+										.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+										.Select(r => r.Sent).WithAlias(() => resultAlias.WasSent)
+					  )
+					  .TransformUsing(Transformers.AliasToBean<ReceiptForOrderNode>())
+				  ;
+			return result.List<ReceiptForOrderNode>().ToArray();
+		}
+
+		public ReceiptForOrderNode[] GetClosedSelfDeliveredOrdersWithReceiptsForDates(IUnitOfWork uow, 
+																						PaymentType paymentType, 
+																						OrderStatus orderStatus, 
+																						DateTime? startDate = null)
+		{
+			OrderItem orderItemAlias = null;
+			VodovozOrder orderAlias = null;
+			ReceiptForOrderNode resultAlias = null;
+
+			var result = uow.Session.QueryOver<CashReceipt>()
+								 .Right.JoinAlias(r => r.Order, () => orderAlias)
+								 .Where(() => orderAlias.PaymentType == paymentType)
+								 .Where(() => orderAlias.OrderStatus == orderStatus)
+								 .Where(() => orderAlias.SelfDelivery);
 
 			if(startDate.HasValue)
 				result.Where(() => orderAlias.DeliveryDate >= startDate.Value);

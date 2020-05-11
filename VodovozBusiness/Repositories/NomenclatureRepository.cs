@@ -6,7 +6,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using NewNomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepository;
 
-namespace Vodovoz.Repository
+namespace Vodovoz.Repositories
 {
 	[Obsolete("Используйте одноимённый класс из Vodovoz.EntityRepositories.Goods")]
 	public static class NomenclatureRepository

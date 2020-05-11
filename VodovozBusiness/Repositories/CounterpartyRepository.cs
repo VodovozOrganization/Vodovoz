@@ -5,12 +5,12 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
-using QS.Banks.Domain;
 using Vodovoz.Domain.Contacts;
 
-namespace Vodovoz.Repository
+namespace Vodovoz.Repositories
 {
 	public static class CounterpartyRepository
 	{

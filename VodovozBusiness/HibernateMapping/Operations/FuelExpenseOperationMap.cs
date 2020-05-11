@@ -1,6 +1,6 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Fuel;
+
 namespace Vodovoz.HibernateMapping.Operations
 {
 	public class FuelExpenseOperationMap : ClassMap<FuelExpenseOperation>

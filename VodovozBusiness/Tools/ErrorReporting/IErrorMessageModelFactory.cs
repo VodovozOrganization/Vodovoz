@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.Tools
+﻿namespace Vodovoz.Tools
 {
 	public interface IErrorMessageModelFactory
 	{

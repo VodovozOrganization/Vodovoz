@@ -1,36 +1,73 @@
 ﻿using System;
+using System.Collections.Generic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModel
 {
-	public class ProxyDocumentsVM : RepresentationModelEntityBase<ProxyDocument, ProxyDocument>
+	public class ProxyDocumentsVM : RepresentationModelEntityBase<ProxyDocument, ProxyDocumentsVMNode>
 	{
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes()
 		{
-			var proxiesList = UoW.Session.QueryOver<ProxyDocument>()
-								 .OrderBy(d => d.Id).Desc
-								 .List<ProxyDocument>();
+			ProxyDocumentsVMNode resultAlias = null;
+			ProxyDocument proxyDocumentAlias = null;
+			
+			var userMetadata = UoW.Session.SessionFactory.GetClassMetadata(typeof(ProxyDocument)) as NHibernate.Persister.Entity.AbstractEntityPersister;
+			var columnName = userMetadata.DiscriminatorColumnName;
 
-			SetItemsSource(proxiesList);
+			var proxyDocumentList = UoW.Session.QueryOver<ProxyDocument>(() => proxyDocumentAlias)
+				.SelectList(list => list
+					.Select(x => x.Id).WithAlias(() => resultAlias.Id)
+					.Select(x => x.Date).WithAlias(() => resultAlias.Date)
+					.Select(x => x.ExpirationDate).WithAlias(() => resultAlias.ExpirationDate)
+					.Select(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(
+								NHibernateUtil.String, $"{columnName}"
+							), NHibernateUtil.String
+						)
+					).WithAlias(() => resultAlias.StringType)
+				
+				).OrderBy(d => d.Id).Desc
+				.TransformUsing(Transformers.AliasToBean<ProxyDocumentsVMNode>())
+				.List<ProxyDocumentsVMNode>();
+
+			//Переделываем string в enum
+			var proxyTypes = new Dictionary<string, ProxyDocumentType>();
+			foreach (ProxyDocumentType proxyType in Enum.GetValues(typeof(ProxyDocumentType)))
+			{
+				proxyTypes.Add(proxyType.ToString(), proxyType);
+			}
+			foreach (var proxyDocument in proxyDocumentList)
+			{
+				proxyDocument.Type = proxyTypes[proxyDocument.StringType];
+			}
+
+			SetItemsSource(proxyDocumentList);
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig<ProxyDocument>.Create()
-		.AddColumn("Тип и номер").AddTextRenderer(node => String.Format("{0} №{1} от {2:d}", node.Type.GetEnumTitle(), node.Id, node.Date))
-		.AddColumn("Начало действия").AddTextRenderer(node => String.Format("{0:d}", node.Date))
-		.AddColumn("Окончание действия").AddTextRenderer(node => String.Format("{0:d}", node.ExpirationDate))
-		.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = (DateTime.Today > n.ExpirationDate) ? "grey" : "black")
+		IColumnsConfig columnsConfig = FluentColumnsConfig<ProxyDocumentsVMNode>.Create()
+			.AddColumn("Тип и номер")
+				.AddTextRenderer(node => $"{node.Type.GetEnumTitle()} №{node.Id} от {node.Date:d}")
+			.AddColumn("Начало действия")
+				.AddTextRenderer(node => $"{node.Date:d}")
+			.AddColumn("Окончание действия")
+				.AddTextRenderer(node => $"{node.ExpirationDate:d}")
+			.RowCells()
+				.AddSetter<CellRendererText>((c, n) => c.Foreground = (DateTime.Today > n.ExpirationDate) ? "grey" : "black")
 		.Finish();
 		
-		public override IColumnsConfig ColumnsConfig {
-			get { return columnsConfig; }
-		}
+		public override IColumnsConfig ColumnsConfig => columnsConfig;
 
 		#endregion
 
@@ -57,25 +94,12 @@ namespace Vodovoz.ViewModel
 
 	public class ProxyDocumentsVMNode
 	{
-		public int Id { get; set; }
-
-		public DateTime Date { get; set; }
-
-		public DateTime ExpirationDate { get; set; }
-
 		[UseForSearch]
-		public string Title => String.Format("{0} №{1} от {2:d}", Type.GetEnumTitle(), Id, Date);
-
-		public string Start => String.Format("{0:d}", Date);
-
-		public string End => String.Format("{0:d}", ExpirationDate);
-
-		public string RowColor => (DateTime.Today > ExpirationDate) ? "grey" : "black";
-
+		public int Id { get; set; }
+		public DateTime Date { get; set; }
+		public DateTime ExpirationDate { get; set; }
+		[UseForSearch]
 		public ProxyDocumentType Type { get; set; }
-
-		public String StrType { get; set; }
-
-		public Employee Employee { get; set; }
+		public string StringType { get; set; }
 	}
 }

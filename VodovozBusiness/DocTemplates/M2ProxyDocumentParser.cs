@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QSDocTemplates;
-using QSProjectsLib;
+using QS.DocTemplates;
+using QS.Utilities;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 
@@ -64,7 +64,7 @@ namespace Vodovoz.DocTemplates
 				node.FullNameString = item.FullNameString;
 				node.Units = "шт.";//оборудование только в штуках
 				node.Count = item.Count.ToString();
-				node.CountString = String.Format("{0} ({1})", node.Count, RusNumber.Str(item.Count, true, "", "", "").Trim());
+				node.CountString = String.Format("{0} ({1})", node.Count, NumberToTextRus.Str(item.Count, true, "", "", "").Trim());
 				result.Add(node);
 			}
 

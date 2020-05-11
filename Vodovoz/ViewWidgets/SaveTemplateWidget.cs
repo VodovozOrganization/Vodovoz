@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Gamma.Binding.Core;
+using QS.DocTemplates;
 using QSDocTemplates;
 using QSProjectsLib;
 

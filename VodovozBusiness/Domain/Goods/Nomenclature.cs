@@ -4,18 +4,17 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
+using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using QS.Project.Repositories;
-using QS.BusinessCommon.Domain;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Store;
-using Vodovoz.Repository;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Repositories;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -720,7 +719,7 @@ namespace Vodovoz.Domain.Goods
 
 			//Проверка зависимостей номенклатур #1: если есть зависимые
 			if(DependsOnNomenclature != null) {
-				IList<Nomenclature> dependedNomenclatures = Repository.NomenclatureRepository.GetDependedNomenclatures(UoW, this);
+				IList<Nomenclature> dependedNomenclatures = Repositories.NomenclatureRepository.GetDependedNomenclatures(UoW, this);
 				if(dependedNomenclatures.Any()) {
 					string dependedNomenclaturesText = "Цена данной номенклатуры не может зависеть от другой номенклатуры, т.к. от данной номенклатуры зависят цены следующих номенклатур:\n";
 					foreach(Nomenclature n in dependedNomenclatures)

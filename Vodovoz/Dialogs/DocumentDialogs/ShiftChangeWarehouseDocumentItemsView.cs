@@ -82,7 +82,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			var nomenclatureSelectDlg = new OrmReference(Repository.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
+			var nomenclatureSelectDlg = new OrmReference(Repositories.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery());
 			nomenclatureSelectDlg.Mode = OrmReferenceMode.Select;
 			nomenclatureSelectDlg.ObjectSelected += NomenclatureSelectDlg_ObjectSelected;
 			MyTab.TabParent.AddSlaveTab(MyTab, nomenclatureSelectDlg);

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Domain.Logistic;
-using NHibernate.Criterion;
+using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.EntityRepositories.WageCalculation
 {

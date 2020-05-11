@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using QSDocTemplates;
+using QS.DocTemplates;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 

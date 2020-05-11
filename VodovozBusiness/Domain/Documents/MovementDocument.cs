@@ -6,11 +6,11 @@ using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Employees;
-using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Store;
 
 namespace Vodovoz.Domain.Documents

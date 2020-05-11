@@ -1,8 +1,8 @@
 ﻿using System;
-using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Logistic;
+using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Fuel
 {

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Contacts;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.HistoryLog;
 using QS.Report;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
-using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Client
 {
@@ -183,7 +183,6 @@ namespace Vodovoz.Domain.Client
 			};
 			return reportInfo;
 		}
-
 	}
 
 	public enum CallTaskStatus

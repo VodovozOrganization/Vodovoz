@@ -2,20 +2,15 @@
 using System.Linq;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using QSBanks;
-using QSSupportLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Parameters;
 using Vodovoz.Repository.Client;
+using Vodovoz.Services;
 
-namespace Vodovoz.Repository
+namespace Vodovoz.Repositories
 {
 	public static class OrganizationRepository
 	{
-		public const string CashOrganization = "cash_organization_id";
-		public const string CashlessOrganization = "cashless_organization_id";
-
 		internal static Func<IUnitOfWork, PersonType, PaymentType, Organization> GetOrganizationByPaymentTypeTestGap;
 		public static Organization GetOrganizationByPaymentType(IUnitOfWork uow, PersonType personType, PaymentType paymentType)
 		{
@@ -29,10 +24,7 @@ namespace Vodovoz.Repository
 				   .Where(x => x.TemplateType == TemplateType.Contract)
 				   .Where(x => x.ContractType == contractType)
 				   .List().FirstOrDefault();
-			if(template == null) {
-				return null;
-			}
-			return template.Organization;
+			return template?.Organization;
 		}
 
 		public static Organization GetOrganizationByName (IUnitOfWork uow, string fullName)
@@ -67,12 +59,9 @@ namespace Vodovoz.Repository
 				.SingleOrDefault ();
 		}
 
-		public static Organization GetCashlessOrganization(IUnitOfWork uow)
+		public static Organization GetMainOrganization(IUnitOfWork uow, int id)
 		{
-			if(ParametersProvider.Instance.ContainsParameter(CashlessOrganization)){
-				return uow.GetById<Organization>(int.Parse(ParametersProvider.Instance.GetParameterValue(CashlessOrganization)));
-			}
-			return null;
+			return uow.GetById<Organization>(id);
 		}
 	}
 }

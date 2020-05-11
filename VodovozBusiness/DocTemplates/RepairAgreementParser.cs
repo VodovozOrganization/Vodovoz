@@ -1,5 +1,4 @@
-﻿using System;
-using QSDocTemplates;
+﻿using QS.DocTemplates;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.DocTemplates

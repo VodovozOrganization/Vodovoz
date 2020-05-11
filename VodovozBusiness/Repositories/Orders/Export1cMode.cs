@@ -1,5 +1,4 @@
-﻿using System;
-namespace Vodovoz.Repositories.Orders
+﻿namespace Vodovoz.Repositories.Orders
 {
 	public enum Export1cMode
 	{

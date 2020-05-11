@@ -1,5 +1,4 @@
-﻿using System;
-using QS.DomainModel.Entity.EntityPermissions;
+﻿using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using Vodovoz.Repositories.Permissions;
 

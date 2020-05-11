@@ -12,6 +12,7 @@ using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Repositories;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 
@@ -640,12 +641,15 @@ namespace Vodovoz
 		protected string TryGetOrganizationType (string name)
 		{
 			foreach (var pair in InformationHandbook.OrganizationTypes) {
-				string pattern = String.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Key);
-				string fullPattern = String.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Value);
+				string pattern = string.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Key);
+				string fullPattern = string.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Value);
 				Regex regex = new Regex (pattern, RegexOptions.IgnoreCase);
+
 				if (regex.IsMatch (name))
 					return pair.Key;
+
 				regex = new Regex (fullPattern, RegexOptions.IgnoreCase);
+
 				if (regex.IsMatch (name))
 					return pair.Key;
 			}

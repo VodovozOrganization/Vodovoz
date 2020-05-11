@@ -66,6 +66,7 @@ using QSSupportLib;
 using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using QS.Tdi;
+using QS.Tools;
 using Vodovoz.Infrastructure;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Users;
@@ -1577,6 +1578,22 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<WayBillReport>(),
 			() => new QSReport.ReportViewDlg(new WayBillReport())
+		);
+	}
+
+	protected void OnActionPaymentsReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientReport>(),
+			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientReport())
+		);
+	}
+
+	protected void OnActionPaymentsFinDepartmentReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientFinDepartmentReport>(),
+			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientFinDepartmentReport())
 		);
 	}
 }
