@@ -1,6 +1,6 @@
 ﻿<ui>
 	<toolbar name='toolbarSub'>
-		<toolitem name='ActionTransferBankDocs' action='ActionTransferBankDocs'/>
+		<!-- <toolitem name='ActionTransferBankDocs' action='ActionTransferBankDocs'/> -->
 		<toolitem name='ActionPaymentFromBank' action='ActionPaymentFromBank'/>
 		<toolitem name='ActionAccountingTable' action='ActionAccountingTable'/>
 		<toolitem name='ActionAccountFlow' action='ActionAccountFlow'/>
