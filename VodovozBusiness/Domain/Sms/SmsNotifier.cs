@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq;
-using InstantSmsService;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Services;
 
@@ -103,37 +101,6 @@ namespace Vodovoz.Domain.Sms
 				return null;
 			}
 			return $"+7{stringPhoneNumber}";
-		}
-
-		public SmsMessageResult SendPasswordToEmployee(Employee employee, string password)
-		{
-			if(!smsNotifierParametersProvider.IsSmsNotificationsEnabled) {
-				return new SmsMessageResult { ErrorDescription = "Sms уведомления выключены" };
-			}
-			if(String.IsNullOrWhiteSpace(password)) {
-				return new SmsMessageResult { ErrorDescription = "Был передан неверный пароль" };
-			}
-
-			//формирование номера мобильного телефона
-			string stringPhoneNumber = employee.GetPhoneForSmsNotification();
-			if(stringPhoneNumber == null)
-				return new SmsMessageResult { ErrorDescription = "Не найден подходящий телефон для отправки Sms" };
-
-			string phoneNumber = $"+7{stringPhoneNumber}";
-
-			string messageText = $"Логин: {employee.LoginForNewUser}\nПароль: {password}";
-
-			var smsNotification = new InstantSmsMessage {
-				MessageText = messageText,
-				MobilePhone = phoneNumber,
-				ExpiredTime = DateTime.Now.AddMinutes(10)
-			};
-
-			IInstantSmsService service = InstantSmsServiceSetting.GetInstantSmsService();
-			if(service == null) {
-				return new SmsMessageResult { ErrorDescription = "Сервис отправки Sms не работает" };
-			}
-			return service.SendSms(smsNotification);
 		}
 	}
 }

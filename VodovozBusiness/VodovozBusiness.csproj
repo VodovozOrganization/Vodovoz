@@ -167,6 +167,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Domain\SmsPayment.cs" />
+    <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\Accounting\AccountExpense.cs" />
     <Compile Include="Domain\Accounting\AccountIncome.cs" />
