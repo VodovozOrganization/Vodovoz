@@ -6,6 +6,7 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -569,6 +570,28 @@ namespace Vodovoz.EntityRepositories.Orders
 					  .TransformUsing(Transformers.AliasToBean<ReceiptForOrderNode>())
 				  ;
 			return result.List<ReceiptForOrderNode>().ToArray();
+		}
+
+		public SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId)
+		{
+			SmsPayment smsPaymentAlias = null;
+
+			var orders = uow.Session.QueryOver(() => smsPaymentAlias)
+				.Where(() => smsPaymentAlias.Order.Id == orderId)
+				.List();
+			if(orders.Any(x => x.SmsPaymentStatus == SmsPaymentStatus.Paid)) {
+				return SmsPaymentStatus.Paid;
+			}
+
+			if(orders.Any(x => x.SmsPaymentStatus == SmsPaymentStatus.WaitingForPayment)) {
+				return SmsPaymentStatus.WaitingForPayment;
+			}
+
+			if(orders.Any(x => x.SmsPaymentStatus == SmsPaymentStatus.Cancelled)) {
+				return SmsPaymentStatus.Cancelled;
+			}
+
+			return null;
 		}
 	}
 }
