@@ -210,6 +210,21 @@ namespace Vodovoz.Core.DataService
 				return result;
 			}
 		}
+		
+		public int DefaultSalesReceiptCashierId {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("default_sales_receipt_cashier_id")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено значение Id кассира по умолчанию для службы отправки чеков (default_sales_receipt_cashier_id).");
+				}
+				string value = ParametersProvider.Instance.GetParameterValue("default_sales_receipt_cashier_id");
+
+				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено значение Id кассира по умолчанию для службы отправки чеков (default_sales_receipt_cashier_id)");
+				}
+
+				return result;
+			}
+		}
 
 		#endregion ISalesReceiptsServiceSettings implementation
 
