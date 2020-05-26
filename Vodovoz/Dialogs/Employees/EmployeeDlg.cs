@@ -40,6 +40,7 @@ using NHibernate.Criterion;
 using Gamma.Widgets;
 using QS.Widgets.GtkUI;
 using QS.Project.Journal.EntitySelector;
+using Vodovoz.Additions;
 using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.JournalViewModels;
@@ -490,9 +491,8 @@ namespace Vodovoz
 
 		private bool SendPasswordByPhone(string password)
 		{
-			SmsNotifier smsNotifier = new SmsNotifier(new BaseParametersProvider());
-			SmsMessageResult result;
-			result = smsNotifier.SendPasswordToEmployee(Entity, password);
+			SmsSender sender = new SmsSender();
+			var result = sender.SendPasswordToEmployee(new BaseParametersProvider(), Entity, password);
 			if(result.MessageStatus == SmsMessageStatus.Ok) {
 				MessageDialogHelper.RunInfoDialog("Sms с паролем отправлена успешно");
 				return true;

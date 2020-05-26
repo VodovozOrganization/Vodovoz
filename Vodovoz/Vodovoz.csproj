@@ -462,6 +462,7 @@
     <EmbeddedResource Include="icons\buttons\NullableCheckBox\close-button.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />

@@ -24,7 +24,8 @@ namespace Vodovoz.Core.DataService
 		IOrganizationProvider,
 		IProfitCategoryProvider,
 		IPotentialFreePromosetsReportDefaultsProvider,
-		IOrganisationParametersProvider
+		IOrganisationParametersProvider,
+		ISmsPaymentServiceParametersProvider
 	{
 		public string GetDefaultBaseForErrorSend()
 		{
@@ -376,6 +377,24 @@ namespace Vodovoz.Core.DataService
 
 				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
 					throw new InvalidProgramException("В параметрах базы неверно заполнено значение нал. организации (cash_organization_id)");
+				}
+
+				return result;
+			} 
+		}
+
+		public int GetSmsPaymentByCardFromId
+		{
+			get
+			{
+				if(!ParametersProvider.Instance.ContainsParameter("sms_payment_by_card_from_id")) {
+					throw new InvalidProgramException("В параметрах базы не заполнено значение места, откуда проведена оплата, равное оплате по Sms (sms_payment_by_card_from_id)");
+				}
+
+				string value = ParametersProvider.Instance.GetParameterValue("sms_payment_by_card_from_id");
+
+				if(string.IsNullOrWhiteSpace(value) || !int.TryParse(value, out int result)) {
+					throw new InvalidProgramException("В параметрах базы неверно заполнено значение места, откуда проведена оплата, равное оплате по Sms (sms_payment_by_card_from_id)");
 				}
 
 				return result;

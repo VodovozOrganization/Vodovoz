@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -104,6 +105,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		ReceiptForOrderNode[] GetClosedSelfDeliveredOrdersWithReceiptsForDates(IUnitOfWork uow, PaymentType paymentType, OrderStatus orderStatus, DateTime? startDate = null);
 
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order);
+
+		SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId);
 	}
 
 	public class ClientEquipmentNode

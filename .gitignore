@@ -3,6 +3,10 @@
 *.usertasks
 *~
 
+#Rider
+.idea/
+.directory
+
 #Mono Project Files
 bin/
 obj/

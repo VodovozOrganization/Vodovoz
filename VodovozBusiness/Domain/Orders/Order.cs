@@ -433,7 +433,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		PaymentFrom paymentByCardFrom;
-		[Display(Name = "Причина несдачи тары")]
+		[Display(Name = "Место, откуда проведена оплата")]
 		public virtual PaymentFrom PaymentByCardFrom {
 			get => paymentByCardFrom;
 			set => SetField(ref paymentByCardFrom, value, () => PaymentByCardFrom);
