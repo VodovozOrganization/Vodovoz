@@ -182,7 +182,6 @@ LEFT JOIN route_list_addresses rla ON rla.order_id = oe.order_id
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
 WHERE
 	rla.route_list_id = @id
-	AND n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
 	AND IF(n.group_id IS NOT NULL, ng.is_online_store = FALSE, TRUE)
 	AND oe.direction = 'Deliver'
 	AND (rla.was_transfered = true AND rla.need_to_reload = true OR rla.was_transfered = false)
