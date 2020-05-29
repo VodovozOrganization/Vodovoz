@@ -122,7 +122,7 @@ namespace Vodovoz
 			this.entryOnlineOrder.CanFocus = true;
 			this.entryOnlineOrder.Name = "entryOnlineOrder";
 			this.entryOnlineOrder.IsEditable = true;
-			this.entryOnlineOrder.MaxLength = 8;
+			this.entryOnlineOrder.MaxLength = 9;
 			this.entryOnlineOrder.InvisibleChar = '●';
 			this.hbox3.Add(this.entryOnlineOrder);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.entryOnlineOrder]));
