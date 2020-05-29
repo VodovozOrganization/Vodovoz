@@ -1934,8 +1934,8 @@ namespace Vodovoz.Domain.Orders
 						Count = count,
 						Nomenclature = nomenclature,
 						Price = nomenclature.GetPrice(1),
-						DiscountSetter = discount,
 						IsDiscountInMoney = discountInMoney,
+						DiscountSetter = discount,
 						DiscountReason = discountReason,
 						PromoSet = proSet
 					};
