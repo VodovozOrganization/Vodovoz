@@ -649,6 +649,13 @@ namespace Vodovoz.Domain.Orders
 			get => contactlessDelivery;
 			set => SetField(ref contactlessDelivery, value, () => ContactlessDelivery);
 		}
+		
+		bool paymentBySms;
+		[Display(Name = "Оплата по SMS")]
+		public virtual bool PaymentBySms {
+			get => paymentBySms;
+			set => SetField(ref paymentBySms, value, () => PaymentBySms);
+		}
 
 		#endregion
 

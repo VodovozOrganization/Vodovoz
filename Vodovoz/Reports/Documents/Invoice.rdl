@@ -669,11 +669,11 @@ GROUP BY name</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Image">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>/*
 SET @id1 = 3; #VodovozLogo
-SET @id2 = 4; #VISA 
+SET @id2 = 4; #VISA
 SET @id3 = 5; #MasterCard
 SET @id4 = 6; #Пожалуйся директору
 SET @id5 = 7; #рекламный баннер
@@ -681,6 +681,7 @@ SET @id6 = 8; #телефон
 SET @id7 = 9; #VIP
 SET @id8 = 10; #Договор оферты
 SET @id9 = 13; #Безконтактная доставка
+SET @id10 = 14; #Оплата по SMS
 */
 
 SELECT
@@ -710,81 +711,93 @@ R8.id as ID8 ,
 R8.binary_file as IM8 ,
 
 R9.id as ID9 ,
-R9.binary_file as IM9 
+R9.binary_file as IM9 ,
+
+R10.id as ID10 ,
+R10.binary_file as IM10
 
 FROM stored_resource
 
-LEFT JOIN 
+LEFT JOIN
 (
 	SELECT
     stored_resource.id,
     stored_resource.binary_file
-	FROM stored_resource 
+	FROM stored_resource
     WHERE stored_resource.id = @id2
 ) as R2 ON R2.id = @id2
 
-LEFT JOIN 
+LEFT JOIN
 (
 	SELECT
     stored_resource.id,
     stored_resource.binary_file
-	FROM stored_resource 
+	FROM stored_resource
     WHERE stored_resource.id = @id3
 ) as R3 ON R3.id = @id3
 
-LEFT JOIN 
+LEFT JOIN
 (
 	SELECT
     stored_resource.id,
     stored_resource.binary_file
-	FROM stored_resource 
+	FROM stored_resource
     WHERE stored_resource.id = @id4
 ) as R4 ON R4.id = @id4
 
-LEFT JOIN 
+LEFT JOIN
 (
 	SELECT
     stored_resource.id,
     stored_resource.binary_file
-	FROM stored_resource 
+	FROM stored_resource
     WHERE stored_resource.id = @id5
 ) as R5 ON R5.id = @id5
 
-LEFT JOIN 
+LEFT JOIN
 (
 	SELECT
     stored_resource.id,
     stored_resource.binary_file
-	FROM stored_resource 
+	FROM stored_resource
     WHERE stored_resource.id = @id6
 ) as R6 ON R6.id = @id6
 
-LEFT JOIN 
+LEFT JOIN
 (
 	SELECT
     stored_resource.id,
     stored_resource.binary_file
-	FROM stored_resource 
+	FROM stored_resource
     WHERE stored_resource.id = @id7
 ) as R7 ON R7.id = @id7
 
-LEFT JOIN 
+LEFT JOIN
 (
 	SELECT
     stored_resource.id,
     stored_resource.binary_file
-	FROM stored_resource 
+	FROM stored_resource
     WHERE stored_resource.id = @id8
 ) as R8 ON R8.id = @id8
 
-LEFT JOIN 
+LEFT JOIN
 (
 	SELECT
     stored_resource.id,
     stored_resource.binary_file
-	FROM stored_resource 
+	FROM stored_resource
     WHERE stored_resource.id = @id9
 ) as R9 ON R9.id = @id9
+
+LEFT JOIN
+(
+	SELECT
+    stored_resource.id,
+    stored_resource.binary_file
+	FROM stored_resource
+    WHERE stored_resource.id = @id10
+) as R10 ON R10.id = @id10
 
 WHERE stored_resource.id = @id1</CommandText>
         <QueryParameters>
@@ -815,9 +828,12 @@ WHERE stored_resource.id = @id1</CommandText>
           <QueryParameter Name="id9">
             <Value>13</Value>
           </QueryParameter>
+          <QueryParameter Name="id10">
+            <Value>14</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="IM1">
           <DataField>IM1</DataField>
           <TypeName>System.String</TypeName>
@@ -852,6 +868,10 @@ WHERE stored_resource.id = @id1</CommandText>
         </Field>
         <Field Name="IM9">
           <DataField>IM9</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="IM10">
+          <DataField>IM10</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -2765,10 +2785,10 @@ WHERE stored_resource.id = @id1</CommandText>
           <TableColumn>
             <Width>92.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>13.1pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>89.8pt</Width>
           </TableColumn>
           <TableColumn>
@@ -2937,7 +2957,7 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox85">
                       <Value>
@@ -2959,7 +2979,7 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox94">
                       <Value>
@@ -3101,7 +3121,7 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox86">
                       <Value>
@@ -3124,7 +3144,7 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox96">
                       <Value>(подпись)</Value>
@@ -3267,7 +3287,7 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox92">
                       <Value>
@@ -3289,7 +3309,7 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox98">
                       <Value>
@@ -3425,7 +3445,7 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox93">
                       <Value>
@@ -3449,7 +3469,7 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox100">
                       <Value>(подпись)</Value>
@@ -3560,6 +3580,21 @@ WHERE stored_resource.id = @id1</CommandText>
         </Style>
         <Source>Database</Source>
         <Value>=iif({?contactless_delivery}, First( {IM9}, "Image" ), NULL)</Value>
+        <Sizing>FitProportional</Sizing>
+        <MIMEType>image/jpeg</MIMEType>
+      </Image>
+      <Image Name="Image9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>64.94pt</Height>
+        <Width>95.95pt</Width>
+        <Left>248.9pt</Left>
+        <Top>70.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Database</Source>
+        <Value>=iif({?payment_by_sms}, First( {IM10}, "Image" ), NULL)</Value>
         <Sizing>FitProportional</Sizing>
         <MIMEType>image/jpeg</MIMEType>
       </Image>
@@ -3979,7 +4014,7 @@ WHERE stored_resource.id = @id1</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -4026,6 +4061,13 @@ WHERE stored_resource.id = @id1</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="payment_by_sms">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
