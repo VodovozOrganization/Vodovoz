@@ -422,6 +422,7 @@ namespace Vodovoz
 				ControlsActionBottleAccessibility();
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
+			ycheckPaymentBySms.Binding.AddBinding(Entity, e => e.PaymentBySms, w => w.Active).InitializeFromSource();
 
 			Entity.InteractiveService = ServicesConfig.InteractiveService;
 		}
@@ -2029,6 +2030,14 @@ namespace Vodovoz
 			chkContractCloser.Visible = IsPaymentTypeCashless();
 
 			checkDelivered.Visible = enumDocumentType.Visible = labelDocumentType.Visible = IsPaymentTypeCashless();
+			
+			if (Entity.PaymentType != PaymentType.cash) {
+				ycheckPaymentBySms.Visible = false;
+				ycheckPaymentBySms.Active = false;
+			}
+			else {
+				ycheckPaymentBySms.Visible = true;
+			}
 
 			enumSignatureType.Visible = labelSignatureType.Visible =
 				(Entity.Client != null &&
@@ -2459,6 +2468,7 @@ namespace Vodovoz
 			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
 			ycheckContactlessDelivery.Sensitive = val;
+			ycheckPaymentBySms.Sensitive = val;
 			enumDiscountUnit.Visible = spinDiscount.Visible = labelDiscont.Visible = vseparatorDiscont.Visible = val;
 			ChangeOrderEditable(val);
 			checkPayAfterLoad.Sensitive = checkSelfDelivery.Active && val;

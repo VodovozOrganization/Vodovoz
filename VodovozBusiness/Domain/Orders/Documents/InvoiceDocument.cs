@@ -16,13 +16,14 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Title = String.Format("Накладная №{0} от {1:d}", Order.Id, Order.DeliveryDate),
+				Title = $"Накладная №{Order.Id} от {Order.DeliveryDate:d}",
 				Identifier = "Documents.Invoice",
 				Parameters = new Dictionary<string, object> {
-					{ "order_id",  Order.Id },
-					{ "without_advertising",  WithoutAdvertising },
+					{ "order_id", Order.Id },
+					{ "without_advertising", WithoutAdvertising },
 					{ "hide_signature", HideSignature },
-					{ "contactless_delivery", Order.ContactlessDelivery}
+					{ "contactless_delivery", Order.ContactlessDelivery },
+					{ "payment_by_sms", Order.PaymentBySms }
 				}
 			};
 		}
