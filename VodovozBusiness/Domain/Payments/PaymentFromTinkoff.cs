@@ -67,6 +67,10 @@ namespace Vodovoz.Domain.Payments
 				return result;
 			}
 
+			if(DateTime.TryParseExact(dateStr, "dd.MM.yyyy H:mm", null, DateTimeStyles.None, out result)) {
+				return result;
+			}
+
 			throw new FormatException("Не правильный формат выгрузки");
 		}
 
