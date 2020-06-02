@@ -49,7 +49,7 @@ namespace Vodovoz.ViewModel
 			DeliverySchedule deliveryScheduleAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
-			ScheduleRestrictedDistrict districtAlias = null;
+			District districtAlias = null;
 
 			var query = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias);
 

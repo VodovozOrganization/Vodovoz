@@ -212,12 +212,12 @@ namespace Vodovoz
 			var geoGrpIds = RouteListUoW.Root.GeographicGroups.Select(x => x.Id).ToArray();
 			if(geoGrpIds.Any()) {
 				GeographicGroup geographicGroupAlias = null;
-				var districtIds = RouteListUoW.Session.QueryOver<ScheduleRestrictedDistrict>()
+				var districtIds = RouteListUoW.Session.QueryOver<District>()
 													  .Left.JoinAlias(d => d.GeographicGroups, () => geographicGroupAlias)
 													  .Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
 													  .Select(
 															  Projections.Distinct(
-															  Projections.Property<ScheduleRestrictedDistrict>(x => x.Id)
+															  Projections.Property<District>(x => x.Id)
 														  )
 													  )
 													  .List<int>()
@@ -254,13 +254,13 @@ namespace Vodovoz
 
 		protected void AddOrdersFromRegion()
 		{
-			OrmReference SelectDialog = new OrmReference(typeof(ScheduleRestrictedDistrict), RouteListUoW) {
+			OrmReference SelectDialog = new OrmReference(typeof(District), RouteListUoW) {
 				Mode = OrmReferenceMode.Select,
 				ButtonMode = ReferenceButtonMode.CanEdit
 			};
 			SelectDialog.ObjectSelected += (s, ea) => {
 				if(ea.Subject != null) {
-					foreach(var order in OrderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, ea.Subject as ScheduleRestrictedDistrict))
+					foreach(var order in OrderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, ea.Subject as District))
 						if(!RouteListUoW.Root.ObservableAddresses.Any(a => a.Order.Id == order.Id))
 							RouteListUoW.Root.AddAddressFromOrder(order);
 				}

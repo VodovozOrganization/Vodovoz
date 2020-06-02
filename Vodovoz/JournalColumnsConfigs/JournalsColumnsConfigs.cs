@@ -382,9 +382,9 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-			//ScheduleRestrictedDistrictsJournalViewModel
-			TreeViewColumnsConfigFactory.Register<ScheduleRestrictedDistrictsJournalViewModel>(
-				() => FluentColumnsConfig<ScheduleRestrictedDistrictJournalNode>.Create()
+			//DistrictsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<DistrictsJournalViewModel>(
+				() => FluentColumnsConfig<DistrictJournalNode>.Create()
 					.AddColumn("Код")
 						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Id.ToString())

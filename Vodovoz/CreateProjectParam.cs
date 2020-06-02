@@ -465,8 +465,8 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
-			OrmMain.AddObjectDescription<ScheduleRestrictedDistrict>()
-				   .Dialog<ScheduleRestrictedDistrictDlg>()
+			OrmMain.AddObjectDescription<District>()
+				   .Dialog<CommonDistrictRuleItemsDlg>()
 				   .DefaultTableView()
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.DistrictName)

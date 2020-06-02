@@ -159,8 +159,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			TestCars(possibleRoutes);
 
-			var areas = UoW.GetAll<ScheduleRestrictedDistrict>().ToList();
-			List<ScheduleRestrictedDistrict> unusedDistricts = new List<ScheduleRestrictedDistrict>();
+			var areas = UoW.GetAll<District>().ToList();
+			List<District> unusedDistricts = new List<District>();
 			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
 
 			/// Перебираем все заказы, исключаем те которые без координат, определяем для каждого заказа район

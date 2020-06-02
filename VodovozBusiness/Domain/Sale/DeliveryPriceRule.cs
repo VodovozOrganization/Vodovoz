@@ -59,7 +59,7 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(ScheduleRestrictedDistrictRuleRepository.GetAllDeliveryPriceRules(UoW).Where(r => r.Id != Id).Contains(this))
+			if(DistrictRuleRepository.GetAllDeliveryPriceRules(UoW).Where(r => r.Id != Id).Contains(this))
 				yield return new ValidationResult("Такое правило уже существует и нельзя его создавать");
 		}
 
@@ -73,9 +73,9 @@ namespace Vodovoz.Domain.Sale
 
 			if(Water19LCount > 0) {
 				sb.Append("Если");
-				sb.Append(String.Format(" 19л б. < {0}шт.", Water19LCount));
-				sb.Append(String.Format(" или 6л б. < {0}шт.", water19LCount * EqualsCount6LFor19L));
-				sb.Append(String.Format(" или 600мл б. < {0}шт.", Water19LCount * EqualsCount600mlFor19L));
+				sb.Append($" 19л б. < {Water19LCount}шт.");
+				sb.Append($" или 6л б. < {water19LCount * EqualsCount6LFor19L}шт.");
+				sb.Append($" или 600мл б. < {Water19LCount * EqualsCount600mlFor19L}шт.");
 			}
 
 			return sb.ToString().Trim(new []{' ', ',', 'и'});
@@ -103,9 +103,7 @@ namespace Vodovoz.Domain.Sale
 
 		public override int GetHashCode()
 		{
-			int result = 0;
-			result += 31 * result + this.Water19LCount.GetHashCode();
-			return result;
+			return 31 * Water19LCount.GetHashCode();
 		}
 
 		#endregion

@@ -47,8 +47,8 @@ FROM
 			LEFT JOIN orders ON orders.id = order_items.order_id
 			LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 			LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-			LEFT JOIN schedule_restricted_districts ON schedule_restricted_districts.id = delivery_points.schedule_restricted_district_id
-			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
+			LEFT JOIN districts ON districts.id = delivery_points.schedule_restricted_district_id
+			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = districts.id
 			WHERE 
 				orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
 				AND orders.delivery_date = DATE(@date)
@@ -65,8 +65,8 @@ FROM
          		   	LEFT JOIN orders ON orders.id = order_equipment.order_id
             			LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
             			LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-			LEFT JOIN schedule_restricted_districts ON schedule_restricted_districts.id = delivery_points.schedule_restricted_district_id
-			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
+			LEFT JOIN districts ON districts.id = delivery_points.schedule_restricted_district_id
+			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = districts.id
            			 WHERE
 				orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
                				 AND order_equipment.direction = 'Deliver'
@@ -242,8 +242,8 @@ FROM
 			LEFT JOIN orders ON orders.id = order_items.order_id
 			LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 			LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-			LEFT JOIN schedule_restricted_districts ON schedule_restricted_districts.id = delivery_points.schedule_restricted_district_id
-			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
+			LEFT JOIN districts ON districts.id = delivery_points.schedule_restricted_district_id
+			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = districts.id
 			WHERE 
 				orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
 				AND orders.delivery_date = DATE(@date)
@@ -260,8 +260,8 @@ FROM
          		   	LEFT JOIN orders ON orders.id = order_equipment.order_id
             			LEFT JOIN nomenclature ON nomenclature.id = order_equipment.nomenclature_id
             			LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-			LEFT JOIN schedule_restricted_districts ON schedule_restricted_districts.id = delivery_points.schedule_restricted_district_id
-			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
+			LEFT JOIN districts ON districts.id = delivery_points.schedule_restricted_district_id
+			LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = districts.id
            			 WHERE
 				orders.order_status IN ('Accepted', 'InTravelList', 'OnLoading' )
                				 AND order_equipment.direction = 'Deliver'

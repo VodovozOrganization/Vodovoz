@@ -14,7 +14,7 @@ namespace Vodovoz.Repositories.Sale
 			return GeographicGroupByCoordinates(lat, lon, ScheduleRestrictionRepository.AreasWithGeometry(uow));
 		}
 
-		public static GeographicGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<ScheduleRestrictedDistrict> source)
+		public static GeographicGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source)
 		{
 			GeographicGroup gg = null;
 			if(lat.HasValue && lon.HasValue) {

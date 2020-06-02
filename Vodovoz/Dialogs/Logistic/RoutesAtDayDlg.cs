@@ -55,7 +55,7 @@ namespace Vodovoz
 		IList<RouteList> routesAtDay;
 		IList<AtWorkDriver> driversAtDay;
 		IList<AtWorkForwarder> forwardersAtDay;
-		IList<ScheduleRestrictedDistrict> logisticanDistricts;
+		IList<District> logisticanDistricts;
 		RouteOptimizer optimizer = new RouteOptimizer(ServicesConfig.InteractiveService);
 		RouteGeometryCalculator distanceCalculator = new RouteGeometryCalculator(DistanceProvider.Osrm);
 
@@ -661,7 +661,7 @@ namespace Vodovoz
 			UoW.Session.Clear();
 
 			DeliveryPoint deliveryPointAlias = null;
-			ScheduleRestrictedDistrict scheduleRestrictedDistrictAlias = null;
+			District districtAlias = null;
 			GeographicGroup geographicGroupAlias = null;
 
 			var baseOrderQuery = OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
@@ -670,8 +670,8 @@ namespace Vodovoz
 			if(selectedGeographicGroup.Any()) {
 				baseOrderQuery
 				.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.District, () => scheduleRestrictedDistrictAlias)
-				.Left.JoinAlias(() => scheduleRestrictedDistrictAlias.GeographicGroups, () => geographicGroupAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+				.Left.JoinAlias(() => districtAlias.GeographicGroups, () => geographicGroupAlias)
 				.Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
 			}
 

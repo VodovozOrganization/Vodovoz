@@ -24,7 +24,7 @@ namespace Vodovoz.Repositories.Orders
 			return OrderSingletonRepository.GetInstance().GetOrdersForRLEditingQuery(date, showShipped);
 		}
 
-		public static IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, ScheduleRestrictedDistrict district)
+		public static IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, District district)
 		{
 			return OrderSingletonRepository.GetInstance().GetAcceptedOrdersForRegion(uow, date, district);
 		}

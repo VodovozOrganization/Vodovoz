@@ -13,12 +13,12 @@ namespace Vodovoz.Repositories.Sale
 {
 	public static class ScheduleRestrictionRepository
 	{
-		public static QueryOver<ScheduleRestrictedDistrict> AreaWithGeometryQuery()
+		public static QueryOver<District> AreaWithGeometryQuery()
 		{
-			return QueryOver.Of<ScheduleRestrictedDistrict>().Where(x => x.DistrictBorder != null);
+			return QueryOver.Of<District>().Where(x => x.DistrictBorder != null);
 		}
 
-		public static IList<ScheduleRestrictedDistrict> AreasWithGeometry(IUnitOfWork uow)
+		public static IList<District> AreasWithGeometry(IUnitOfWork uow)
 		{
 			return AreaWithGeometryQuery()
 							.GetExecutableQueryOver(uow.Session)
@@ -32,7 +32,7 @@ namespace Vodovoz.Repositories.Sale
 			OrderItem orderItemsAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 
-			var districtSubquery = QueryOver.Of<ScheduleRestrictedDistrict>()
+			var districtSubquery = QueryOver.Of<District>()
 											.Where(
 												Restrictions.Eq(
 													Projections.SqlFunction(
@@ -43,7 +43,7 @@ namespace Vodovoz.Repositories.Sale
 														NHibernateUtil.Boolean,
 														Projections.Property(() => deliveryPointAlias.Latitude),
 														Projections.Property(() => deliveryPointAlias.Longitude),
-														Projections.Property<ScheduleRestrictedDistrict>(x => x.DistrictBorder)
+														Projections.Property<District>(x => x.DistrictBorder)
 													),
 													true
 												)

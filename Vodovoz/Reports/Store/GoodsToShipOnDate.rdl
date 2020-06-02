@@ -598,7 +598,7 @@ FROM (
 	FROM order_items i
 	JOIN orders o ON o.id = i.order_id
 	LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-	LEFT JOIN schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
+	LEFT JOIN districts distr ON delivery_points.schedule_restricted_district_id = distr.id
 	LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
 	WHERE DATE(o.delivery_date) = @date
 		AND o.order_status IN(
@@ -622,7 +622,7 @@ FROM (
 	FROM order_equipment eq
 	JOIN orders o ON o.id = eq.order_id
 	LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-	LEFT JOIN schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
+	LEFT JOIN districts distr ON delivery_points.schedule_restricted_district_id = distr.id
 	LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
 	WHERE DATE(o.delivery_date) = @date
 		AND eq.direction = 'Deliver'
@@ -726,7 +726,7 @@ FROM orders o
 JOIN order_equipment eq ON eq.order_id = o.id
 JOIN nomenclature n ON n.id = eq.nomenclature_id
 LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-LEFT JOIN schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
+LEFT JOIN districts distr ON delivery_points.schedule_restricted_district_id = distr.id
 LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
 JOIN counterparty c ON c.id = o.client_id 
 WHERE DATE(o.delivery_date) = @date

@@ -314,13 +314,13 @@ namespace Vodovoz
 		private void FillDriverWorkSchedule(IDefaultDeliveryDaySchedule defaultDelDaySchedule)
 		{
 			driverWorkDays = new GenericObservableList<DriverWorkScheduleNode> {
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.monday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.tuesday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.wednesday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.thursday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.friday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.saturday},
-				new DriverWorkScheduleNode {WeekDay = WeekDayName.sunday}
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.Monday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.Tuesday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.Wednesday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.Thursday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.Friday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.Saturday},
+				new DriverWorkScheduleNode {WeekDay = WeekDayName.Sunday}
 			};
 
 			var daySchedule = UoW.GetById<DeliveryDaySchedule>(defaultDelDaySchedule.GetDefaultDeliveryDayScheduleId());
@@ -641,7 +641,7 @@ namespace Vodovoz
 
 		void SelectDistrict_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			var addDistricts = e.GetEntities<ScheduleRestrictedDistrict>();
+			var addDistricts = e.GetEntities<District>();
 			addDistricts.Where(x => Entity.Districts.All(d => d.District.Id != x.Id))
 						.Select(x => new DriverDistrictPriority {
 							Driver = Entity,

@@ -31,10 +31,10 @@
     IF(orders.self_delivery, 'Самовывоз', orders.address_1c) AS address_1c,
     delivery_points.distance_from_center_meters,
     SUM(order_items.count) AS water_count,
-    schedule_restricted_districts.min_bottles,
+    districts.min_bottles,
     SUM(order_items.count * order_items.price) / SUM(order_items.count) AS avg_price,
-    IF(schedule_restricted_districts.price_type = 'FixForDistrict',
-       schedule_restricted_districts.water_price,
+    IF(districts.price_type = 'FixForDistrict',
+       districts.water_price,
     (((delivery_points.distance_from_center_meters / 1000 * 2 / 100) * 20 * fuel.cost) / SUM(order_items.count) + 120)) AS min_price
 FROM
     (SELECT 
@@ -53,16 +53,16 @@ FROM
         LEFT JOIN
     nomenclature ON order_items.nomenclature_id = nomenclature.id
         LEFT JOIN
-    schedule_restricted_districts ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(',
+    districts ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(',
                             delivery_points.latitude,
                             ' ',
                             delivery_points.longitude,
                             ')')),
-            schedule_restricted_districts.district_border)
+            districts.district_border)
 WHERE
     orders.delivery_date = @report_date
         AND nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
-        AND (schedule_restricted_districts.id IS NULL OR schedule_restricted_districts.price_type &lt;&gt; 'Standart')
+        AND (districts.id IS NULL OR districts.price_type &lt;&gt; 'Standart')
 GROUP BY orders.id
 HAVING avg_price &lt; min_price OR (min_bottles IS NOT NULL AND water_count &lt; min_bottles) 
 ORDER BY orders.id;</CommandText>

@@ -609,7 +609,7 @@ namespace Vodovoz
 						.AddDeleteDependence<Subdivision>(x => x.GeographicGroup)
 						.AddRemoveFromDependence<Car>(x => x.GeographicGroups)
 						.AddRemoveFromDependence<RouteList>(x => x.GeographicGroups)
-						.AddRemoveFromDependence<ScheduleRestrictedDistrict>(x => x.GeographicGroups)
+						.AddRemoveFromDependence<District>(x => x.GeographicGroups)
 						;
 
 			#region Формирование МЛ
@@ -633,30 +633,20 @@ namespace Vodovoz
 			#endregion
 
 			#region ScheduleRestriction
+			
 
-			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestriction>()
-				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionToday)
-				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionMonday)
-				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionTuesday)
-				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionWednesday)
-				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionThursday)
-				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionFriday)
-				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionSaturday)
-				.AddClearDependence<ScheduleRestrictedDistrict>(item => item.ScheduleRestrictionSunday)
-				;
-
-			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestrictedDistrict>()
+			DeleteConfig.AddHibernateDeleteInfo<District>()
 				.AddClearDependence<DeliveryPoint>(i => i.District)
-				.AddDeleteDependence<ScheduleRestrictedDistrictRuleItem>(item => item.ScheduleRestrictedDistrict);
+				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.District);
 
 			DeleteConfig.AddHibernateDeleteInfo<TariffZone>()
-				.AddClearDependence<ScheduleRestrictedDistrict>(i => i.TariffZone);
+				.AddClearDependence<District>(i => i.TariffZone);
 
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryPriceRule>()
-						.AddDeleteDependence<ScheduleRestrictedDistrictRuleItem>(item => item.DeliveryPriceRule)
+						.AddDeleteDependence<CommonDistrictRuleItem>(item => item.DeliveryPriceRule)
 						;
 
-			DeleteConfig.AddHibernateDeleteInfo<ScheduleRestrictedDistrictRuleItem>();
+			DeleteConfig.AddHibernateDeleteInfo<CommonDistrictRuleItem>();
 
 			#endregion
 

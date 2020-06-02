@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
@@ -72,7 +73,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		/// <summary>
 		/// Методика расчёта ЗП. Заполняется для исторических МЛ, т.к. районы
-		/// доставки (<see cref="Sale.ScheduleRestrictedDistrict"/>) со временем
+		/// доставки (<see cref="District"/>) со временем
 		/// могут меняться и происходить смена зарплатной группы
 		/// (<see cref="WageDistrict"/>), что недопустимо, ибо произойдёт
 		/// перерасчёт ЗП.

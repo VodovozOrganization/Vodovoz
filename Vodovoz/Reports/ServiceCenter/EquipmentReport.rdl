@@ -479,7 +479,7 @@ FROM
 		) AS equipments ON equipments.order_id = orders.id
 		LEFT JOIN
 	nomenclature ON nomenclature.id = order_items.nomenclature_id
-LEFT JOIN schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
+LEFT JOIN districts distr ON delivery_points.schedule_restricted_district_id = distr.id
 LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
 LEFT JOIN geographic_groups gg ON gge.geographic_group_id = gg.id
 		#LEFT JOIN

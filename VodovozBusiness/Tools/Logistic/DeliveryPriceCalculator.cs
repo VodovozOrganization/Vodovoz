@@ -30,7 +30,7 @@ namespace Vodovoz.Tools.Logistic
 
 		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount)
 		{
-			IList<ScheduleRestrictedDistrict> districts;
+			IList<District> districts;
 
 			DeliveryPriceNode result = new DeliveryPriceNode();
 

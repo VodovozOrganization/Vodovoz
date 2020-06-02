@@ -1,4 +1,4 @@
-﻿using Dialogs.Employees;
+﻿﻿using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -99,7 +99,7 @@ public partial class MainWindow : Window
 	Action ActionEmployeeWorkChart;
 	Action ActionRouteListAddressesTransferring;
 	Action ActionTransferOperationJournal;
-	Action ActionScheduleRestrictedDistricts;
+	Action ActionDistricts;
 	Action ActionCashTransferDocuments;
 	Action ActionFuelTransferDocuments;
 
@@ -166,7 +166,7 @@ public partial class MainWindow : Window
 		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
 		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
 		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Журнал доверенностей", null, "table");
-		ActionScheduleRestrictedDistricts = new Action("ActionScheduleRestrictedDistricts", "Районы с графиками доставки", null, "table");
+		ActionDistricts = new Action("ActionDistricts", "Районы с графиками доставки", null, "table");
 		//Suppliers
 		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
@@ -226,7 +226,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionEmployeeWorkChart, null);
 		w1.Add(ActionRouteListAddressesTransferring, null);
 		w1.Add(ActionTransferOperationJournal, null);
-		w1.Add(ActionScheduleRestrictedDistricts, null);
+		w1.Add(ActionDistricts, null);
 		//Suppliers
 		w1.Add(ActionNewRequestToSupplier, null);
 		w1.Add(ActionJournalOfRequestsToSuppliers, null);
@@ -287,7 +287,7 @@ public partial class MainWindow : Window
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
 		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
-		ActionScheduleRestrictedDistricts.Activated += ActionScheduleRestrictedDistricts_Activated;
+		ActionDistricts.Activated += ActionDistrictsActivated;
 
 		//Suppliers
 		ActionNewRequestToSupplier.Activated += ActionNewRequestToSupplier_Activated;
@@ -830,9 +830,9 @@ public partial class MainWindow : Window
 		);
 	}
 
-	void ActionScheduleRestrictedDistricts_Activated(object sender, System.EventArgs e)
+	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
-		var tab = new ScheduleRestrictedDistrictsDlg(UserPermissionSingletonRepository.GetInstance());
+		var tab = new DistrictsDlg(UserPermissionSingletonRepository.GetInstance());
 		tdiMain.AddTab(tab);
 	}
 }

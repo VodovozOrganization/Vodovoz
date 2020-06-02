@@ -988,8 +988,8 @@ FROM
 	            ) as delivery_schedules ON orders.delivery_schedule_id = delivery_schedules.id
 	            
 	        LEFT JOIN delivery_points ON orders.delivery_point_id = delivery_points.id
-	        LEFT JOIN schedule_restricted_districts ON delivery_points.schedule_restricted_district_id = schedule_restricted_districts.id
-	        LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = schedule_restricted_districts.id
+	        LEFT JOIN districts ON delivery_points.schedule_restricted_district_id = districts.id
+	        LEFT JOIN geographic_groups_to_entities ON geographic_groups_to_entities.district_id = districts.id
 	        LEFT JOIN geographic_groups ON geographic_groups.id = geographic_groups_to_entities.geographic_group_id
 	    WHERE
 	        delivery_date = @date
@@ -1000,9 +1000,9 @@ FROM
 	        AND orders.delivery_point_id IS NOT NULL
 	        AND orders.order_status NOT IN ('Canceled', 'NewOrder', 'WaitForPayment')
 	        AND (
-	                ((schedule_restricted_districts.id IN (@districts_include) AND 0 IN (@districts_exclude) )
+	                ((districts.id IN (@districts_include) AND 0 IN (@districts_exclude) )
 	                OR
-	                (schedule_restricted_districts.id NOT IN (@districts_exclude) AND 0 IN (@districts_include)))
+	                (districts.id NOT IN (@districts_exclude) AND 0 IN (@districts_include)))
 	                OR (0 IN (@districts_include) AND 0 IN (@districts_exclude))
 	            )
 	        AND (
@@ -1239,12 +1239,12 @@ FROM
         #Районы
         IF(
             0 NOT IN (@districts_include),
-            (SELECT CONCAT('Вкл. районы: ', GROUP_CONCAT(srd.district_name SEPARATOR ', ')) FROM schedule_restricted_districts srd WHERE srd.id IN(@districts_include)),
+            (SELECT CONCAT('Вкл. районы: ', GROUP_CONCAT(srd.district_name SEPARATOR ', ')) FROM districts srd WHERE srd.id IN(@districts_include)),
             null
         ) AS included_districts,
         IF(
             0 NOT IN (@districts_exclude),
-            (SELECT CONCAT('Искл. районы: ', GROUP_CONCAT(srd.district_name SEPARATOR ', ')) FROM schedule_restricted_districts srd WHERE srd.id IN(@districts_exclude)),
+            (SELECT CONCAT('Искл. районы: ', GROUP_CONCAT(srd.district_name SEPARATOR ', ')) FROM districts srd WHERE srd.id IN(@districts_exclude)),
             null
         ) AS excluded_districts
 
