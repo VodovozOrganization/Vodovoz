@@ -1472,6 +1472,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientReport.cs" />
     <Compile Include="ReportsParameters\Payments\PaymentsFromBankClientFinDepartmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientFinDepartmentReport.cs" />
+    <Compile Include="ServiceDialogs\LargeMessageDialog.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.LargeMessageDialog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
