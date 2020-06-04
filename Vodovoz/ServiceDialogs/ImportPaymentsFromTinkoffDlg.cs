@@ -274,17 +274,10 @@ namespace Vodovoz.ServiceDialogs
 			UpdateDescription();
 
 			if(errorList.Any()) {
-				string fileName = string.Format("PaymentFromTinkoffErrors_{0}.log", DateTime.Now.ToString("yyyyMMddHHmmss"));
-				File.WriteAllLines(
-					fileName,
-					errorList
-				);
-				MessageDialogHelper.RunWarningDialog(
-					string.Format(
-						"Некоторые платежи не были добавлены. Возможно, они уже есть в нашей базе. Дополнительная информация в файле {0}",
-						fileName
-					)
-				);
+				string caption = "Некоторые платежи не были добавлены. Возможно, они уже есть в нашей базе\n\n";
+				string message = caption + string.Join("\n", errorList);
+				LargeMessageDialog messageDialog = new LargeMessageDialog("Ошибка", message);
+				messageDialog.Show();
 				errorList.Clear();
 			}
 			paymentsFromTinkoff.Clear();
