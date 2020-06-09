@@ -15,8 +15,13 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 'writeoff' as direction, warehouses.name as warehouse, store_movement_wagon.name as wagon, store_movement_document.time_stamp as send_time, store_movement_document.delivered_time,
-GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(warehouse_movement_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
+        <CommandText>SELECT 
+	'writeoff' as direction, 
+	warehouses.name as warehouse, 
+	store_movement_wagon.name as wagon, 
+	store_movement_document.time_stamp as send_time, 
+	store_movement_document.delivered_time,
+	GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(warehouse_movement_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
 FROM warehouse_movement_operations 
 INNER JOIN store_movement_document_items ON store_movement_document_items.writeoff_movement_operation_id = warehouse_movement_operations.id
 LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
@@ -25,14 +30,33 @@ LEFT JOIN store_movement_document ON store_movement_document.id = store_movement
 LEFT JOIN warehouses ON store_movement_document.warehouse_to_id = warehouses.id
 LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
 WHERE
-warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
-AND warehouse_movement_operations.operation_time &gt;= @startDate
-AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-AND store_movement_document.category = 'Transportation'
+	warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+	AND warehouse_movement_operations.operation_time &gt;= @startDate
+	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+	AND store_movement_document.category = 'Transportation'
+	AND
+	(
+		((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
+		OR
+		(nomenclature.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
+		OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+	)
+	AND 
+	(
+		((nomenclature.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
+		OR
+		(nomenclature.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+		OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
+	)
 GROUP BY store_movement_document.id
 UNION 
-SELECT 'income' as direction, warehouses.name as warehouse, store_movement_wagon.name as wagon, store_movement_document.time_stamp as send_time, store_movement_document.delivered_time,
-GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(warehouse_movement_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
+SELECT 
+	'income' as direction, 
+	warehouses.name as warehouse, 
+	store_movement_wagon.name as wagon, 
+	store_movement_document.time_stamp as send_time, 
+	store_movement_document.delivered_time,
+	GROUP_CONCAT(concat(nomenclature.name, ' - ', FORMAT(warehouse_movement_operations.amount, measurement_units.digits), measurement_units.name) SEPARATOR ', ') as cargo
 FROM warehouse_movement_operations 
 INNER JOIN store_movement_document_items ON store_movement_document_items.income_movement_operation_id = warehouse_movement_operations.id
 LEFT JOIN nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
@@ -41,10 +65,24 @@ LEFT JOIN store_movement_document ON store_movement_document.id = store_movement
 LEFT JOIN warehouses ON store_movement_document.warehouse_from_id = warehouses.id
 LEFT JOIN store_movement_wagon ON store_movement_wagon.id = store_movement_document.transportation_wagon_id
 WHERE
-warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
-AND warehouse_movement_operations.operation_time &gt;= @startDate
-AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-AND store_movement_document.category = 'Transportation'
+	warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+	AND warehouse_movement_operations.operation_time &gt;= @startDate
+	AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+	AND store_movement_document.category = 'Transportation'
+	AND
+	(
+		((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
+		OR
+		(nomenclature.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
+		OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+	)
+	AND 
+	(
+		((nomenclature.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
+		OR
+		(nomenclature.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+		OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
+	)
 GROUP BY store_movement_document.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="warehouse_id">
@@ -55,6 +93,18 @@ GROUP BY store_movement_document.id</CommandText>
           </QueryParameter>
           <QueryParameter Name="endDate">
             <Value>=Parameters!endDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_include">
+            <Value>=Parameters!nomenclature_type_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_exclude">
+            <Value>=Parameters!nomenclature_type_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_include">
+            <Value>=Parameters!nomenclature_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_exclude">
+            <Value>=Parameters!nomenclature_exclude</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -113,8 +163,8 @@ GROUP BY store_movement_document.id</CommandText>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -345,6 +395,7 @@ GROUP BY store_movement_document.id</CommandText>
       </Table>
     </ReportItems>
     <Height>30.4pt</Height>
+    <Columns >1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -367,7 +418,18 @@ GROUP BY store_movement_document.id</CommandText>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_temp;user=andrey;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <DataElementName >Report</DataElementName>
+  <DataElementStyle >AttributeNormal</DataElementStyle>
+  <ReportParameters >
     <ReportParameter Name="warehouse_id">
       <DataType>Integer</DataType>
       <DefaultValue>
@@ -407,14 +469,33 @@ GROUP BY store_movement_document.id</CommandText>
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="nomenclature_type_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_type_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_temp;user=andrey;password=123;port=3306;server=vod.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>
