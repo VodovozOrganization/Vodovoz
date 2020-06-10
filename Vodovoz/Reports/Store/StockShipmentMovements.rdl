@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>300</Timeout>
         <CommandText>SELECT 
@@ -92,6 +92,20 @@ LEFT JOIN
 	GROUP BY warehouse_movement_operations.nomenclature_id) movements ON movements.nomenclature_id = nomenclature.id
 LEFT JOIN
 	measurement_units ON measurement_units.id = nomenclature.unit_id
+WHERE 	
+	(
+		((nomenclature.id IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude) )
+		OR
+		(nomenclature.id NOT IN (@nomenclature_exclude) AND 0 IN (@nomenclature_include)))
+		OR (0 IN (@nomenclature_include) AND 0 IN (@nomenclature_exclude))
+	)
+	AND 
+	(
+		((nomenclature.category IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude) )
+		OR
+		(nomenclature.category NOT IN (@nomenclature_type_exclude) AND '0' IN (@nomenclature_type_include)))
+		OR ('0' IN (@nomenclature_type_include) AND '0' IN (@nomenclature_type_exclude))
+	)
 HAVING
 	before_added - before_removed &lt;&gt; 0 OR IFNULL(all_added, 0) &lt;&gt; 0 OR IFNULL(all_removed, 0) &lt;&gt; 0
 ORDER BY
@@ -106,9 +120,21 @@ ORDER BY
           <QueryParameter Name="warehouse_id">
             <Value>=Parameters!warehouse_id</Value>
           </QueryParameter>
+          <QueryParameter Name="nomenclature_type_include">
+            <Value>=Parameters!nomenclature_type_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_type_exclude">
+            <Value>=Parameters!nomenclature_type_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_include">
+            <Value>=Parameters!nomenclature_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_exclude">
+            <Value>=Parameters!nomenclature_exclude</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -1163,8 +1189,8 @@ ORDER BY
       <Subreport Name="Subreport1">
         <Height>22.57pt</Height>
         <Width>755.77pt</Width>
-        <Left>0.0pt</Left>
-        <Top>107.4pt</Top>
+        <Left>0.00pt</Left>
+        <Top>107.40pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1174,14 +1200,26 @@ ORDER BY
         <NoRows>По фурам за период, нет данных.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="warehouse_id">
+          <Parameter Name="warehouse_id" >
             <Value>={?warehouse_id}</Value>
           </Parameter>
-          <Parameter Name="startDate">
+          <Parameter Name="startDate" >
             <Value>={?startDate}</Value>
           </Parameter>
-          <Parameter Name="endDate">
+          <Parameter Name="endDate" >
             <Value>={?endDate}</Value>
+          </Parameter>
+          <Parameter Name="nomenclature_type_include" >
+            <Value>={?nomenclature_type_include}</Value>
+          </Parameter>
+          <Parameter Name="nomenclature_type_exclude" >
+            <Value>={?nomenclature_type_exclude}</Value>
+          </Parameter>
+          <Parameter Name="nomenclature_include" >
+            <Value>={?nomenclature_include}</Value>
+          </Parameter>
+          <Parameter Name="nomenclature_exclude" >
+            <Value>={?nomenclature_exclude}</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -1201,7 +1239,7 @@ ORDER BY
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox23" >
+      <Textbox Name="Textbox23">
         <Height>13.49pt</Height>
         <Width>203.80pt</Width>
         <Value>="Сформировано: " + Format( {?creationDate}, "dd-MM-yyyy HH:mm")</Value>
@@ -1298,6 +1336,34 @@ ORDER BY
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_type_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_type_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
