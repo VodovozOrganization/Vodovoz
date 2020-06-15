@@ -548,6 +548,13 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref counterpartyType, value);
 		}
 
+		private bool isChainStore;
+		[Display(Name = "Сетевой магазин")]
+		public virtual bool IsChainStore {
+			get => isChainStore;
+			set => SetField(ref isChainStore, value);
+		}
+
 		IList<SupplierPriceItem> suplierPriceItems = new List<SupplierPriceItem>();
 		[PropertyChangedAlso(nameof(ObservablePriceNodes))]
 		[Display(Name = "Цены на ТМЦ")]
