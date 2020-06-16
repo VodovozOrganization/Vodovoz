@@ -553,6 +553,12 @@ namespace Vodovoz.ViewModels.Logistic
 
 		#endregion
 
+		public IEnumerable<AddressTypeNode> AddressTypes { get; } = new[] {
+			new AddressTypeNode(AddressType.Delivery),
+			new AddressTypeNode(AddressType.Service),
+			new AddressTypeNode(AddressType.ChainStore)
+		};
+
 		public void DisposeUoW() => UoW.Dispose();
 
 		public void CreateUoW() => UoW = UnitOfWorkFactory.CreateWithoutRoot();
