@@ -319,6 +319,8 @@ namespace Vodovoz.Domain.Sale
 					result.AppendLine(", минимум: " + weekRules.Select(x => x.DeliveryPriceRule.Water19LCount).Min());
 				else if(ObservableCommonDistrictRuleItems.Any())
 					result.AppendLine(", минимум: " + ObservableCommonDistrictRuleItems.Select(x => x.DeliveryPriceRule.Water19LCount).Min());
+				else
+					result.AppendLine();
 
 				var groupedRestrictions = deliveryScheduleRestriction
 					.Where(x => x.AcceptBefore != null)
