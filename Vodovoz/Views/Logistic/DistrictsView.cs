@@ -35,6 +35,8 @@ namespace Vodovoz.Views.Logistic
 		private readonly GMapOverlay newBordersPreviewOverlay = new GMapOverlay("district_preview_borders");
 		private readonly GMapOverlay verticeOverlay = new GMapOverlay("district_vertice");
 
+		private const string acceptBeforeColumnTag = "Прием до";
+
 		private void Configure()
 		{
 			#region TreeViews
@@ -52,8 +54,7 @@ namespace Vodovoz.Views.Logistic
 					.Editable()
 				.AddColumn("Тарифная зона")
 					.HeaderAlignment(0.5f)
-					.MinWidth(250)
-					.AddComboRenderer(x => x.TariffZone)
+				.AddComboRenderer(x => x.TariffZone)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(ViewModel.UoW.GetAll<TariffZone>().ToList(), "Нет")
 					.Editing()
@@ -64,6 +65,8 @@ namespace Vodovoz.Views.Logistic
 							? x.ObservableCommonDistrictRuleItems.Min(c => c.DeliveryPriceRule.Water19LCount).ToString()
 							: "-"
 					)
+					.XAlign(0.5f)
+				.AddColumn("")
 				.Finish();
 			ytreeDistricts.Binding.AddBinding(ViewModel, vm => vm.Districts, w => w.ItemsDataSource).InitializeFromSource();
 			ytreeDistricts.Selection.Changed += (sender, args) => {
@@ -80,6 +83,7 @@ namespace Vodovoz.Views.Logistic
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.DeliverySchedule.Name)
 				.AddColumn("Прием до")
+					.SetTag(acceptBeforeColumnTag)
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.AcceptBeforeTitle)
 					.AddSetter((c, r) => c.BackgroundGdk = r.AcceptBefore == null ? colorRed : colorWhite)
@@ -130,7 +134,7 @@ namespace Vodovoz.Views.Logistic
 
 			#endregion
 
-			btnSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
+			btnSave.Clicked += (sender, args) => ViewModel.Save();
 			btnSave.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			
 			btnCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
@@ -349,6 +353,10 @@ namespace Vodovoz.Views.Logistic
 			ViewModel.PropertyChanged += (sender, args) => {
 				Application.Invoke((o, eventArgs) => {
 					switch (args.PropertyName) {
+						case nameof(ViewModel.SelectedWeekDayName):
+							var column = ytreeScheduleRestrictions.ColumnsConfig.GetColumnsByTag(acceptBeforeColumnTag).First();
+							column.Visible = ViewModel.SelectedWeekDayName == WeekDayName.Today;
+							break;
 						case nameof(ViewModel.SelectedDistrict):
 							if(ViewModel.SelectedDistrict != null)
 								ytreeDistricts.SelectObject(ViewModel.SelectedDistrict);

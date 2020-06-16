@@ -321,27 +321,44 @@ namespace Vodovoz.Domain.Sale
 					result.AppendLine(", минимум: " + ObservableCommonDistrictRuleItems.Select(x => x.DeliveryPriceRule.Water19LCount).Min());
 				else
 					result.AppendLine();
-
-				var groupedRestrictions = deliveryScheduleRestriction
-					.Where(x => x.AcceptBefore != null)
-					.GroupBy(x => x.AcceptBefore.Name)
-					.OrderBy(x => x.Key);
 				
-				foreach (var group in groupedRestrictions) {
-					result.Append(withMarkup ? $"<b>до {group.Key}:</b> " : $"до {group.Key}: ");
-					
+				if(deliveryScheduleRestriction.Key == WeekDayName.Today) {
+					var groupedRestrictions = deliveryScheduleRestriction
+						.Where(x => x.AcceptBefore != null)
+						.GroupBy(x => x.AcceptBefore.Name)
+						.OrderBy(x => x.Key);
+
+					foreach (var group in groupedRestrictions) {
+						result.Append(withMarkup ? $"<b>до {group.Key}:</b> " : $"до {group.Key}: ");
+
+						int i = 1;
+						int maxScheduleCountOnLine = 3;
+						var restrictions = group.OrderBy(x => x.DeliverySchedule.From).ThenBy(x => x.DeliverySchedule.To).ToList();
+						int lastItemId = restrictions.Last().Id;
+						foreach (var restriction in restrictions) {
+							result.Append(restriction.DeliverySchedule.Name);
+							result.Append(restriction.Id == lastItemId ? ";" : ", ");
+							if(i == maxScheduleCountOnLine && restriction.Id != lastItemId) {
+								result.AppendLine();
+								maxScheduleCountOnLine = 4;
+								i = 0;
+							}
+							i++;
+						}
+						result.AppendLine();
+					}
+				}
+				else {
+					var restrictions = deliveryScheduleRestriction.OrderBy(x => x.DeliverySchedule.From).ThenBy(x => x.DeliverySchedule.To).ToList();
+					int maxScheduleCountOnLine = 4;
 					int i = 1;
-					int maxScheduleCountOnLine = 3;
-					var restrictions = group.OrderBy(x => x.DeliverySchedule.From).ThenBy(x => x.DeliverySchedule.To).ToList();
 					int lastItemId = restrictions.Last().Id;
 					foreach (var restriction in restrictions) {
 						result.Append(restriction.DeliverySchedule.Name);
 						result.Append(restriction.Id == lastItemId ? ";" : ", ");
 						if(i == maxScheduleCountOnLine && restriction.Id != lastItemId) {
 							result.AppendLine();
-							maxScheduleCountOnLine = 4;
-							i = 1;
-							continue;
+							i = 0;
 						}
 						i++;
 					}
@@ -417,15 +434,15 @@ namespace Vodovoz.Domain.Sale
 		public virtual decimal GetDeliveryPrice(OrderStateKey orderStateKey)
 		{
 			if(orderStateKey.Order.DeliveryDate.HasValue) {
-				if(orderStateKey.Order.DeliveryDate.Value.Date == DateTime.Today) {
+				if(orderStateKey.Order.DeliveryDate.Value.Date == DateTime.Today && ObservableTodayDistrictRuleItems.Any()) {
 					var todayRules = ObservableTodayDistrictRuleItems.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
-					if(todayRules.Any())
-						return todayRules.Max(x => x.Price);
+					return todayRules.Any() ? todayRules.Max(x => x.Price) : 0m;
 				}
-				var dayOfWeekRules = GetWeekDayRuleItemCollectionByWeekDayName(ConvertDayOfWeekToWeekDayName(DateTime.Now.DayOfWeek))
-					.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
-				if(dayOfWeekRules.Any())
-					return dayOfWeekRules.Max(x => x.Price);
+				var dayOfWeekRules = GetWeekDayRuleItemCollectionByWeekDayName(ConvertDayOfWeekToWeekDayName(DateTime.Now.DayOfWeek));
+				if(dayOfWeekRules.Any()) {
+					var rules = dayOfWeekRules.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
+					return rules.Any() ? dayOfWeekRules.Max(x => x.Price) : 0m;
+				}
 			}
 			var ruleItems = CommonDistrictRuleItems.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
 			return ruleItems.Any() ? ruleItems.Max(x => x.Price) : 0m;
@@ -486,9 +503,9 @@ namespace Vodovoz.Domain.Sale
 					$"Для всех особых правил доставки для района \"{DistrictName}\" должны быть указаны цены"
 				);
 			}
-			if(GetAllDeliveryScheduleRestrictions().Any(i => i.AcceptBefore == null)) {
+			if(ObservableTodayDeliveryScheduleRestrictions.Any(i => i.AcceptBefore == null)) {
 				yield return new ValidationResult(
-					$"Для графиков доставки для района \"{DistrictName}\" должны быть указано время приема до"
+					$"Для графиков доставки для района \"{DistrictName}\" должно быть указано время приема до"
 				);
 			}
 		}
