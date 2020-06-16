@@ -32,7 +32,6 @@ using Order = Vodovoz.Domain.Orders.Order;
 using QS.Navigation;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Core.DataService;
 using Vodovoz.Services;
 
@@ -341,7 +340,6 @@ namespace Vodovoz.ViewModels.Logistic
 				obj => {
 					RouteList route = obj is RouteListItem routeListItem ? routeListItem.RouteList : obj as RouteList;
 
-					//Optimizer.StatisticsTxtAction = textOrdersInfo.Buffer;
 					var newRoute = Optimizer.RebuidOneRoute(route);
 					if(newRoute != null) {
 						newRoute.UpdateAddressOrderInRealRoute(route);
@@ -1105,19 +1103,6 @@ namespace Vodovoz.ViewModels.Logistic
 											 ;
 					break;
 			}
-
-			/*var outLogisticAreas = OrdersOnDay
-				.Where(
-					x => !LogisticanDistricts.Any(
-						a => x.DeliveryPoint.NetTopologyPoint != null && a.DistrictBorder.Contains(x.DeliveryPoint.NetTopologyPoint)
-					)
-				)
-				.ToList();
-			if(outLogisticAreas.Any())
-				ShowWarningMessage(
-					"Обратите внимание, координаты точек доставки для следущих заказов не попадают ни в один логистический район: "
-					+ string.Join(", ", outLogisticAreas.Select(x => x.Id.ToString()))
-				);*/
 
 			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
 			progressBar?.ProgressAdd();

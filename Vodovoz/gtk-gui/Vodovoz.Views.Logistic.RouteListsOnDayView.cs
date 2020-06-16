@@ -873,7 +873,7 @@ namespace Vodovoz.Views.Logistic
 			this.hpaned3.Add(this.vbox2);
 			this.vbox5.Add(this.hpaned3);
 			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hpaned3]));
-			w78.Position = 2;
+			w78.Position = 1;
 			this.Add(this.vbox5);
 			if ((this.Child != null))
 			{
