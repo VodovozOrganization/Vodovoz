@@ -877,7 +877,6 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.CalculateDistanceToPointsDlg.cs" />
     <Compile Include="ReportsParameters\OrderIncorrectPrices.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrderIncorrectPrices.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DistrictsDlg.cs" />
     <Compile Include="ViewWidgets\CounterpartyDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.CounterpartyDocumentsView.cs" />
     <Compile Include="ServiceDialogs\Database\OrdersWithoutBottlesOperationDlg.cs" />
@@ -1023,9 +1022,6 @@
     <Compile Include="Representations\TraineeVM.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureCharacteristicsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Goods.NomenclatureCharacteristicsView.cs" />
-    <Compile Include="Dialogs\Sale\DistrictsDlg.cs" />
-    <Compile Include="Dialogs\Sale\CommonDistrictRuleItemsDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.CommonDistrictRuleItemsDlg.cs" />
     <Compile Include="Dialogs\Sale\DeliveryPriceRuleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Sale.DeliveryPriceRuleDlg.cs" />
     <Compile Include="ServiceDialogs\ImportPaymentsFromTinkoffDlg.cs" />
@@ -1473,6 +1469,10 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientFinDepartmentReport.cs" />
     <Compile Include="ServiceDialogs\LargeMessageDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.LargeMessageDialog.cs" />
+    <Compile Include="Views\Logistic\DistrictsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsView.cs" />
+    <Compile Include="Views\Logistic\AcceptBeforeView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AcceptBeforeView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

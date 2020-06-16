@@ -218,6 +218,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ManualPaymentMatchingVM, ManualPaymentMatchingView>()
 				.RegisterWidgetForTabViewModel<ClientTaskViewModel, ClientTaskView>()
 				.RegisterWidgetForTabViewModel<PaymentTaskViewModel, PaymentTaskView>()
+				.RegisterWidgetForTabViewModel<DistrictsViewModel, DistrictsView>()
+				.RegisterWidgetForTabViewModel<AcceptBeforeViewModel, AcceptBeforeView>()
 				;
 
 			//Регистрация виджетов
@@ -464,12 +466,6 @@ namespace Vodovoz
 			OrmMain.AddObjectDescription<CounterpartyActivityKind>().Dialog<CounterpartyActivityKindDlg>().DefaultTableView()
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
-				   .End();
-			OrmMain.AddObjectDescription<District>()
-				   .Dialog<CommonDistrictRuleItemsDlg>()
-				   .DefaultTableView()
-				   .SearchColumn("Код", x => x.Id.ToString())
-				   .SearchColumn("Название", x => x.DistrictName)
 				   .End();
 
 			#endregion

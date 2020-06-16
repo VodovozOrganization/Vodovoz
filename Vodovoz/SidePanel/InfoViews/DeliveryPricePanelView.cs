@@ -37,7 +37,7 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			var deliveryPrice = DeliveryPriceCalculator.Calculate(DeliveryPoint);
 			labelError.Visible = deliveryPrice.HasError;
-			labelError.Markup = string.Format("<span foreground=\"red\"><b>{0}</b></span>", deliveryPrice.ErrorMessage);
+			labelError.Markup = $"<span foreground=\"red\"><b>{deliveryPrice.ErrorMessage}</b></span>";
 			deliverypriceview.Visible = !deliveryPrice.HasError;
 			deliverypriceview.DeliveryPrice = deliveryPrice;
 		}

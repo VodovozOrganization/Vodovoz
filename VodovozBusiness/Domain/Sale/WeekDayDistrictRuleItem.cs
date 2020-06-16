@@ -10,5 +10,6 @@ namespace Vodovoz.Domain.Sale
             get => weekDay;
             set => SetField(ref weekDay, value, () => WeekDay);
         }
+        
     }
 }

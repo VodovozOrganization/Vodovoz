@@ -167,11 +167,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
+    <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -454,7 +458,6 @@
     <Compile Include="Domain\Client\CommentsGroups.cs" />
     <Compile Include="Domain\Client\CommentsTemplates.cs" />
     <Compile Include="Domain\Sale\District.cs" />
-    <Compile Include="HibernateMapping\Sale\DistrictMap.cs" />
     <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
     <Compile Include="Domain\Orders\DiscountReason.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonMap.cs" />
@@ -540,7 +543,6 @@
     <Compile Include="Domain\Sale\DeliveryPriceRule.cs" />
     <Compile Include="Domain\Sale\IDeliveryPriceRule.cs" />
     <Compile Include="Domain\Sale\CommonDistrictRuleItem.cs" />
-    <Compile Include="HibernateMapping\Sale\DistrictRuleItemBaseMap.cs" />
     <Compile Include="Repositories\Sale\DistrictRuleRepository.cs" />
     <Compile Include="Domain\Payments\PaymentFromTinkoff.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentFromTinkoffMap.cs" />

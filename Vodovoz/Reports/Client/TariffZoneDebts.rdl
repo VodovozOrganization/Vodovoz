@@ -51,7 +51,7 @@ LEFT JOIN
 LEFT JOIN
 	delivery_points ON items.delivery_point_id = delivery_points.id
 LEFT JOIN
-	districts ON districts.id = delivery_points.schedule_restricted_district_id
+	districts ON districts.id = delivery_points.district_id
 WHERE	
 	districts.tariff_zone_id = @tariff_zone_id
 GROUP BY delivery_points.id

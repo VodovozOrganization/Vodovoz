@@ -22,12 +22,12 @@ namespace Vodovoz.Domain.Sale
             set => SetField(ref deliveryPriceRule, value, () => DeliveryPriceRule);
         }
 
-        Decimal deliveryPrice;
+        Decimal price;
         [Display(Name = "Цена доставки")]
-        public virtual Decimal DeliveryPrice {
-            get => deliveryPrice;
-            set => SetField(ref deliveryPrice, value, () => DeliveryPrice);
+        public virtual Decimal Price {
+            get => price;
+            set => SetField(ref price, value, () => Price);
         }
-
+        
     }
 }

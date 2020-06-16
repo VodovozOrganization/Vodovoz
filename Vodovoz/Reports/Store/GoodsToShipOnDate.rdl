@@ -594,20 +594,20 @@ FROM (
 		i.nomenclature_id,
 		NULL AS category,
 		SUM(i.count) AS qty_to_ship,
-		gge.geographic_group_id
+		gg.id
 	FROM order_items i
 	JOIN orders o ON o.id = i.order_id
 	LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-	LEFT JOIN districts distr ON delivery_points.schedule_restricted_district_id = distr.id
-	LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
+	LEFT JOIN districts distr ON delivery_points.district_id = distr.id
+	LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
 	WHERE DATE(o.delivery_date) = @date
 		AND o.order_status IN(
 			'Accepted',
 			'InTravelList',
 			'OnLoading'
 		)
-		AND (@geo_group_id IS NULL OR @geo_group_id = 0 OR gge.geographic_group_id = @geo_group_id)
-	GROUP BY gge.geographic_group_id, i.nomenclature_id
+		AND (@geo_group_id IS NULL OR @geo_group_id = 0 OR gg.id = @geo_group_id)
+	GROUP BY gg.id, i.nomenclature_id
 	UNION ALL
 	SELECT
 		eq.nomenclature_id,
@@ -618,12 +618,12 @@ FROM (
 			ELSE 'Принадлежность не указана'
 		END AS category,
 		SUM(eq.count) AS qty_to_ship,
-		gge.geographic_group_id
+		gg.id
 	FROM order_equipment eq
 	JOIN orders o ON o.id = eq.order_id
 	LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-	LEFT JOIN districts distr ON delivery_points.schedule_restricted_district_id = distr.id
-	LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
+	LEFT JOIN districts distr ON delivery_points.district_id = distr.id
+	LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
 	WHERE DATE(o.delivery_date) = @date
 		AND eq.direction = 'Deliver'
 		AND o.order_status IN(
@@ -631,8 +631,8 @@ FROM (
 			'InTravelList',
 			'OnLoading'
 		)
-		AND (@geo_group_id IS NULL OR @geo_group_id = 0 OR gge.geographic_group_id = @geo_group_id)
-	GROUP BY gge.geographic_group_id, eq.nomenclature_id
+		AND (@geo_group_id IS NULL OR @geo_group_id = 0 OR gg.id = @geo_group_id)
+	GROUP BY gg.id, eq.nomenclature_id
 ) AS items
 JOIN nomenclature n ON n.id = items.nomenclature_id
 LEFT JOIN geographic_groups gg ON items.geographic_group_id = gg.id
@@ -726,8 +726,8 @@ FROM orders o
 JOIN order_equipment eq ON eq.order_id = o.id
 JOIN nomenclature n ON n.id = eq.nomenclature_id
 LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-LEFT JOIN districts distr ON delivery_points.schedule_restricted_district_id = distr.id
-LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
+LEFT JOIN districts distr ON delivery_points.district_id = distr.id
+LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
 JOIN counterparty c ON c.id = o.client_id 
 WHERE DATE(o.delivery_date) = @date
 	AND eq.direction = 'Deliver'
@@ -737,7 +737,7 @@ WHERE DATE(o.delivery_date) = @date
 		'InTravelList',
 		'OnLoading'
 	)
-	AND (@geo_group_id IS NULL OR @geo_group_id = 0 OR gge.geographic_group_id = @geo_group_id)
+	AND (@geo_group_id IS NULL OR @geo_group_id = 0 OR gg.id = @geo_group_id)
 GROUP BY o.id
 ;</CommandText>
         <QueryParameters>

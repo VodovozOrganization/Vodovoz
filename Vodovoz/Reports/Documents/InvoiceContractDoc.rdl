@@ -73,7 +73,7 @@ FROM
 		LEFT JOIN
 	delivery_points ON orders.delivery_point_id = delivery_points.id
 		LEFT JOIN
-	districts ON delivery_points.schedule_restricted_district_id = districts.id
+	districts ON delivery_points.district_id = districts.id
 		LEFT JOIN
 	employees ON employees.id = orders.author_employee_id
 WHERE

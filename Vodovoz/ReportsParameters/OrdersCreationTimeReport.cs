@@ -99,7 +99,7 @@ namespace Vodovoz.ReportsParameters
 					SelectableEntityParameter<District> resultAlias = null;
 
 					var query = UoW.Session.QueryOver<District>(() => districtAlias)
-						.Left.JoinAlias(() => districtAlias.GeographicGroups, () => geoGroupAlias);
+						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geoGroupAlias);
 
 					if(filters != null && filters.Any()) {
 						foreach(var f in filters) {

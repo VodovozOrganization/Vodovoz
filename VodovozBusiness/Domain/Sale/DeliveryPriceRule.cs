@@ -22,8 +22,6 @@ namespace Vodovoz.Domain.Sale
 	[EntityPermission]
 	public class DeliveryPriceRule : BusinessObjectBase<DeliveryPriceRule>, IDomainObject, IDeliveryPriceRule, IValidatableObject
 	{
-		public DeliveryPriceRule(){}
-
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -40,12 +38,13 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
+		private int? equalsCount6LFor19L;
 		[Display(Name = "Количество 6л бутылей на одну 19л бутыль")]
-		public virtual int EqualsCount6LFor19L => int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_6л_на_1бутыль_19л"));
+		public virtual int EqualsCount6LFor19L => equalsCount6LFor19L ?? (equalsCount6LFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_6л_на_1бутыль_19л"))).Value;
 
-		int water600mlCount;
+		private int? equalsCount600mlFor19L;
 		[Display(Name = "Количество 0,6л бутылей на одну 19л бутыль")]
-		public virtual int EqualsCount600mlFor19L => int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_0,6л_на_1бутыль_19л"));
+		public virtual int EqualsCount600mlFor19L => equalsCount600mlFor19L ?? (equalsCount600mlFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_0,6л_на_1бутыль_19л"))).Value;
 
 		[Display(Name = "Количество 6л бутылей в заказе")]
 		public virtual string Water6LCount => (water19LCount * EqualsCount6LFor19L).ToString();

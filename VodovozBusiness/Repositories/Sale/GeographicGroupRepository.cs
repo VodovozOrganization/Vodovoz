@@ -20,8 +20,7 @@ namespace Vodovoz.Repositories.Sale
 			if(lat.HasValue && lon.HasValue) {
 				var point = new Point(lat.Value, lon.Value);
 				gg = source.FirstOrDefault(d => d.DistrictBorder != null && d.DistrictBorder.Contains(point))
-						   .GeographicGroups
-						   .FirstOrDefault();
+				           .GeographicGroup;
 			}
 			return gg;
 		}

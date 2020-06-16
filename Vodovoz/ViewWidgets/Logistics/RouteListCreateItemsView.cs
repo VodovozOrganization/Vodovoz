@@ -213,7 +213,7 @@ namespace Vodovoz
 			if(geoGrpIds.Any()) {
 				GeographicGroup geographicGroupAlias = null;
 				var districtIds = RouteListUoW.Session.QueryOver<District>()
-													  .Left.JoinAlias(d => d.GeographicGroups, () => geographicGroupAlias)
+													  .Left.JoinAlias(d => d.GeographicGroup, () => geographicGroupAlias)
 													  .Where(() => geographicGroupAlias.Id.IsIn(geoGrpIds))
 													  .Select(
 															  Projections.Distinct(

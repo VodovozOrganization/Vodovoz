@@ -29,7 +29,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		GeographicGroup shippingBase;
 		public GeographicGroup ShippingBase {
-			get => shippingBase ?? Order?.DeliveryPoint.District?.GeographicGroups.FirstOrDefault();
+			get => shippingBase ?? Order?.DeliveryPoint.District?.GeographicGroup;
 			set => shippingBase = value;
 		}
 

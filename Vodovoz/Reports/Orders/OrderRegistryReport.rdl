@@ -423,9 +423,8 @@ LEFT JOIN order_items ON order_items.order_id = orders.id
 LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
 LEFT JOIN counterparty ON counterparty.id = orders.client_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-LEFT JOIN districts distr ON delivery_points.schedule_restricted_district_id = distr.id
-LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
-LEFT JOIN geographic_groups gg ON gge.geographic_group_id = gg.id
+LEFT JOIN districts distr ON delivery_points.district_id = distr.id
+LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
 LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
 WHERE
 	orders.delivery_date = DATE(@date)

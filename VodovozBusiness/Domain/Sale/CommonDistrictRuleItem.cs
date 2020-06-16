@@ -7,6 +7,6 @@ namespace Vodovoz.Domain.Sale
 		Nominative = "стоимость доставки")]
 	public class CommonDistrictRuleItem : DistrictRuleItemBase
 	{
-		public virtual string Title => $"{DeliveryPriceRule}, то цена {DeliveryPrice:C0}";
+		public virtual string Title => $"{DeliveryPriceRule}, то цена {Price:C0}";
 	}
 }

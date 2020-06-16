@@ -832,7 +832,6 @@ public partial class MainWindow : Window
 
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
-		var tab = new DistrictsDlg(UserPermissionSingletonRepository.GetInstance());
-		tdiMain.AddTab(tab);
+		tdiMain.OpenTab(() => new DistrictsViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, null));
 	}
 }

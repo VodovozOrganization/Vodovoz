@@ -6,7 +6,7 @@ namespace Vodovoz.Domain.Sale
 {
     public class DeliveryScheduleRestriction : PropertyChangedBase, IDomainObject
     {
-        public virtual int Id { get; }
+        public virtual int Id { get; set; }
 
         private District district;
         [Display(Name = "Район")]
@@ -15,7 +15,7 @@ namespace Vodovoz.Domain.Sale
             set => SetField(ref district, value, () => District);
         }
         
-        WeekDayName weekDay;
+        private WeekDayName weekDay;
         [Display(Name = "День недели")]
         public virtual WeekDayName WeekDay {
             get => weekDay;
@@ -29,5 +29,13 @@ namespace Vodovoz.Domain.Sale
             set => SetField(ref deliverySchedule, value, () => DeliverySchedule);
         }
         
+        private AcceptBefore acceptBefore;
+        [Display(Name = "Прием до")]
+        public virtual AcceptBefore AcceptBefore {
+            get => acceptBefore;
+            set => SetField(ref acceptBefore, value, () => AcceptBefore);
+        }
+
+        public virtual string AcceptBeforeTitle => AcceptBefore?.Name ?? "";
     }
 }

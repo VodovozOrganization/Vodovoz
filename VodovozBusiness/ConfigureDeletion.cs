@@ -609,7 +609,7 @@ namespace Vodovoz
 						.AddDeleteDependence<Subdivision>(x => x.GeographicGroup)
 						.AddRemoveFromDependence<Car>(x => x.GeographicGroups)
 						.AddRemoveFromDependence<RouteList>(x => x.GeographicGroups)
-						.AddRemoveFromDependence<District>(x => x.GeographicGroups)
+						.AddRemoveFromDependence<District>(x => x.GeographicGroup)
 						;
 
 			#region Формирование МЛ

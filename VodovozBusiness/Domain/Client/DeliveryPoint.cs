@@ -609,7 +609,7 @@ namespace Vodovoz.Domain.Client
 
 			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
 				return true;
-			var gg = District.GeographicGroups.FirstOrDefault();
+			var gg = District.GeographicGroup;
 			var route = new List<PointOnEarth>(2) {
 				new PointOnEarth(gg.BaseLatitude.Value, gg.BaseLongitude.Value),
 				new PointOnEarth(Latitude.Value, Longitude.Value)
