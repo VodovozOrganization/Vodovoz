@@ -1360,6 +1360,20 @@ namespace Vodovoz.Domain.Logistic
 				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money}");
 			}
 
+			// Если хотя бы один fuelDocument имеет PayedForFuel то добавить пустую строку разделитель и сообщения о расходных ордерах топлива
+			bool wasEmptyLineAdded = false;
+			foreach(var fuelDocument in fuelDocuments) {
+				if (fuelDocument.PayedForFuel != null && fuelDocument.PayedForFuel != 0) {
+					if(!wasEmptyLineAdded) {
+						messages.Add("\n");
+						wasEmptyLineAdded = true;
+					}
+					messages.Add($"Создан расходный ордер топлива на сумму {fuelDocument.PayedForFuel}");
+				}
+			}
+
+
+
 			if(cashIncome != null) UoW.Save(cashIncome);
 			if(cashExpense != null) UoW.Save(cashExpense);
 
