@@ -51,7 +51,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return query;
 		}
 
-		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, ScheduleRestrictedDistrict district)
+		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, District district)
 		{
 			DeliveryPoint point = null;
 			return uow.Session.QueryOver<VodovozOrder>()

@@ -514,8 +514,8 @@ FROM
 		truncate(IFNULL(order_items.actual_count, order_items.count) * order_items.price - order_items.discount_money, 2) AS total_sum,
 		nomenclature.category,
 		nomenclature.is_disposable_tare,
-		nomenclature.id as nomenclature_id
-		,gge.geographic_group_id
+		nomenclature.id as nomenclature_id,
+		gg.id
 	FROM
 		order_items
 	LEFT JOIN
@@ -533,11 +533,9 @@ FROM
 	LEFT JOIN
 		employees ON orders.author_employee_id = employees.id
 	LEFT JOIN
-		schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
+		districts distr ON delivery_points.district_id = distr.id
 	LEFT JOIN
-		geographic_groups_to_entities gge ON gge.district_id = distr.id
-	LEFT JOIN
-		geographic_groups gg ON gge.geographic_group_id = gg.id
+		geographic_groups gg ON gg.id = distr.geographic_group_id
 	WHERE
 		(order_status = 'Accepted'
 			OR order_status = 'InTravelList'
@@ -594,9 +592,9 @@ FROM
 				OR (0 IN (@order_author_include) AND 0 IN (@order_author_exclude))
 			)
 		AND (
-				((IFNULL(gge.geographic_group_id, 0) IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
+				((IFNULL(gg.id, 0) IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
 				OR
-				(IFNULL(gge.geographic_group_id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
+				(IFNULL(gg.id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
 				OR (0 IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
 			)
 		AND (
@@ -1021,8 +1019,8 @@ FROM
 		LEFT JOIN route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.transfered_to_id IS NULL
 		LEFT JOIN counterparty ON counterparty.id = orders.client_id
 		LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-		LEFT JOIN schedule_restricted_districts distr ON delivery_points.schedule_restricted_district_id = distr.id
-		LEFT JOIN geographic_groups_to_entities gge ON gge.district_id = distr.id
+		LEFT JOIN districts distr ON delivery_points.district_id = distr.id
+		LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
 		LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = counterparty.id
 		LEFT JOIN employees ON employees.id = orders.author_employee_id
 		LEFT JOIN subdivisions ON subdivisions.id = employees.subdivision_id
@@ -1091,9 +1089,9 @@ FROM
 				OR (0 IN (@order_author_include) AND 0 IN (@order_author_exclude))
 			)
 		AND (
-				((IFNULL(gge.geographic_group_id, 0) IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude) )
+				((IFNULL(gg.id, 0) IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude) )
 				OR
-				(IFNULL(gge.geographic_group_id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
+				(IFNULL(gg.id, 0) NOT IN (@geographic_group_exclude) AND 0 IN (@geographic_group_include)))
 				OR (0 IN (@geographic_group_include) AND 0 IN (@geographic_group_exclude))
 			)
 		AND (

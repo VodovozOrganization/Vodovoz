@@ -24,7 +24,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		private CalculatedOrder[] Nodes;
 		PossibleTrip Trip;
-		Dictionary<ScheduleRestrictedDistrict, int> priorites;
+		Dictionary<District, int> priorites;
 		IDistanceCalculator distanceCalculator;
 
 		/// <summary>

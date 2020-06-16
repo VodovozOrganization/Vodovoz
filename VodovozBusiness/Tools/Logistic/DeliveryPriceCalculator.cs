@@ -30,7 +30,7 @@ namespace Vodovoz.Tools.Logistic
 
 		public static DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount)
 		{
-			IList<ScheduleRestrictedDistrict> districts;
+			IList<District> districts;
 
 			DeliveryPriceNode result = new DeliveryPriceNode();
 
@@ -62,22 +62,22 @@ namespace Vodovoz.Tools.Logistic
 						//если не найдена часть города, то расстояние считается до его центра
 						route.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
 					else {
-						result.ErrorMessage = string.Format("В подобранной части города не указаны координаты базы");
+						result.ErrorMessage = "В подобранной части города не указаны координаты базы";
 						return result;
 					}
 					route.Add(new PointOnEarth(latitude.Value, longitude.Value));
 					var osrmResult = OsrmMain.GetRoute(route, false, GeometryOverview.False);
 					if(osrmResult == null) {
-						result.ErrorMessage = string.Format("Ошибка на сервере расчета расстояний, невозможно расчитать расстояние.");
+						result.ErrorMessage = "Ошибка на сервере расчета расстояний, невозможно расчитать расстояние.";
 						return result;
 					}
 					if(osrmResult.Code != "Ok") {
-						result.ErrorMessage = string.Format("Сервер расчета расстояний вернул следующее сообщение: {0}", osrmResult.StatusMessageRus);
+						result.ErrorMessage = $"Сервер расчета расстояний вернул следующее сообщение: {osrmResult.StatusMessageRus}";
 						return result;
 					}
 					distance = osrmResult.Routes[0].TotalDistance / 1000d;
 				} else {
-					distance = (double)(deliveryPoint.DistanceFromBaseMeters ?? 0) / 1000d;
+					distance = (deliveryPoint.DistanceFromBaseMeters ?? 0) / 1000d;
 				}
 				result.Distance = distance.ToString("N1") + " км";
 
@@ -93,32 +93,30 @@ namespace Vodovoz.Tools.Logistic
 				var point = new Point((double)latitude, (double)longitude);
 				var district = districts.FirstOrDefault(x => x.DistrictBorder.Contains(point));
 				result.DistrictName = district?.DistrictName ?? string.Empty;
-				result.GeographicGroups = district != null ? string.Join(", ", district.GeographicGroups.Select(w => w.Name)) : "Неизвестно";
+				result.GeographicGroups = district?.GeographicGroup != null ? district.GeographicGroup.Name : "Неизвестно";
 				result.ByDistance = district == null || district.PriceType == DistrictWaterPrice.ByDistance;
-				result.WithPrice = (
-					(district != null && district.PriceType != DistrictWaterPrice.ByDistance)
-					|| (result.ByDistance && bottlesCount.HasValue)
-				);
+				result.WithPrice = (district != null && district.PriceType != DistrictWaterPrice.ByDistance)
+					|| (result.ByDistance && bottlesCount.HasValue);
 				if(result.ByDistance) {
-					//((а * 2/100)*20*б)/в+110
-					//а - расстояние от границы города минус
-					//б - стоимость литра топлива(есть в справочниках)
-					//в - кол-во бут
 					if(bottlesCount.HasValue) {
 						result.Price = PriceByDistance(bottlesCount.Value).ToString("C2");
 					}
-				} else if(district.PriceType == DistrictWaterPrice.FixForDistrict)
+				} else if(district?.PriceType == DistrictWaterPrice.FixForDistrict)
 					result.Price = district.WaterPrice.ToString("C2");
-				else if(district.PriceType == DistrictWaterPrice.Standart)
+				else if(district?.PriceType == DistrictWaterPrice.Standart)
 					result.Price = "прайс";
 				result.MinBottles = district?.MinBottles.ToString();
 				result.Schedule = district != null && district.HaveRestrictions
-					? string.Join(", ", district.GetSchedulesString())
+					? string.Join(", ", district.GetSchedulesString(true))
 					: "любой день";
 			}
 			return result;
 		}
 
+		//((а * 2/100)*20*б)/в+110
+		//а - расстояние от границы города минус
+		//б - стоимость литра топлива(есть в справочниках)
+		//в - кол-во бут
 		static double PriceByDistance(int bootles) => ((distance * 2 / 100) * 20 * fuelCost) / bootles + 125;
 	}
 

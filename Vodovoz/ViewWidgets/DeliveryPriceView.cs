@@ -1,12 +1,26 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Tools.Logistic;
+using Gamma.Utilities;
 
 namespace Vodovoz.ViewWidgets
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DeliveryPriceView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		DeliveryPriceNode deliveryPrice;
+		public DeliveryPriceView()
+		{
+			this.Build();
+			
+			ytreeviewPrices.CreateFluentColumnsConfig<DeliveryPriceRow>()
+				.AddColumn("Количество").AddNumericRenderer(x => x.Amount)
+				.AddColumn("Цена за бутыль").AddTextRenderer(x => x.Price)
+				.Finish();
+		}
+		
+		private DeliveryPriceNode deliveryPrice;
 		public DeliveryPriceNode DeliveryPrice {
 			get {
 				if(deliveryPrice == null) {
@@ -20,31 +34,14 @@ namespace Vodovoz.ViewWidgets
 			}
 		}
 
-		public event EventHandler<string> OnError;
-
-		void ShowResults(DeliveryPriceNode deliveryPriceNode)
+		private void ShowResults(DeliveryPriceNode deliveryPriceNode)
 		{
-			labelPrice.LabelProp = deliveryPriceNode.Price;
-			labelMinBottles.LabelProp = deliveryPriceNode.MinBottles;
-			ytextviewSchedule.Buffer.Text = deliveryPriceNode.Schedule;
+			ylabelSchedules.Markup = deliveryPriceNode.Schedule;
 			yTxtWarehouses.Buffer.Text = deliveryPriceNode.GeographicGroups;
 			hboxTreeView.Visible = deliveryPriceNode.ByDistance;
-			label2.Visible = labelPrice.Visible = hbox5.Visible = deliveryPriceNode.WithPrice;
-			ytreeviewPrices.SetItemsSource<DeliveryPriceRow>(deliveryPriceNode.Prices);
+			ytreeviewPrices.SetItemsSource(deliveryPriceNode.Prices);
 			lblDistrict.LabelProp = deliveryPriceNode.DistrictName;
 		}
-
-		public DeliveryPriceView()
-		{
-			this.Build();
-
-			ytreeviewPrices.CreateFluentColumnsConfig<DeliveryPriceRow>()
-						   .AddColumn("Количество").AddNumericRenderer(x => x.Amount)
-						   .AddColumn("Цена за бутыль").AddTextRenderer(x => x.Price)
-						   .Finish();
-
-		}
-
 
 	}
 }

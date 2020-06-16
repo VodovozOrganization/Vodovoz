@@ -22,8 +22,6 @@ namespace Vodovoz.Domain.Sale
 	[EntityPermission]
 	public class DeliveryPriceRule : BusinessObjectBase<DeliveryPriceRule>, IDomainObject, IDeliveryPriceRule, IValidatableObject
 	{
-		public DeliveryPriceRule(){}
-
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -40,12 +38,13 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
+		private int? equalsCount6LFor19L;
 		[Display(Name = "Количество 6л бутылей на одну 19л бутыль")]
-		public virtual int EqualsCount6LFor19L => int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_6л_на_1бутыль_19л"));
+		public virtual int EqualsCount6LFor19L => equalsCount6LFor19L ?? (equalsCount6LFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_6л_на_1бутыль_19л"))).Value;
 
-		int water600mlCount;
+		private int? equalsCount600mlFor19L;
 		[Display(Name = "Количество 0,6л бутылей на одну 19л бутыль")]
-		public virtual int EqualsCount600mlFor19L => int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_0,6л_на_1бутыль_19л"));
+		public virtual int EqualsCount600mlFor19L => equalsCount600mlFor19L ?? (equalsCount600mlFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_0,6л_на_1бутыль_19л"))).Value;
 
 		[Display(Name = "Количество 6л бутылей в заказе")]
 		public virtual string Water6LCount => (water19LCount * EqualsCount6LFor19L).ToString();
@@ -59,7 +58,7 @@ namespace Vodovoz.Domain.Sale
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(ScheduleRestrictedDistrictRuleRepository.GetAllDeliveryPriceRules(UoW).Where(r => r.Id != Id).Contains(this))
+			if(DistrictRuleRepository.GetAllDeliveryPriceRules(UoW).Where(r => r.Id != Id).Contains(this))
 				yield return new ValidationResult("Такое правило уже существует и нельзя его создавать");
 		}
 
@@ -73,9 +72,9 @@ namespace Vodovoz.Domain.Sale
 
 			if(Water19LCount > 0) {
 				sb.Append("Если");
-				sb.Append(String.Format(" 19л б. < {0}шт.", Water19LCount));
-				sb.Append(String.Format(" или 6л б. < {0}шт.", water19LCount * EqualsCount6LFor19L));
-				sb.Append(String.Format(" или 600мл б. < {0}шт.", Water19LCount * EqualsCount600mlFor19L));
+				sb.Append($" 19л б. < {Water19LCount}шт.");
+				sb.Append($" или 6л б. < {water19LCount * EqualsCount6LFor19L}шт.");
+				sb.Append($" или 600мл б. < {Water19LCount * EqualsCount600mlFor19L}шт.");
 			}
 
 			return sb.ToString().Trim(new []{' ', ',', 'и'});
@@ -103,9 +102,7 @@ namespace Vodovoz.Domain.Sale
 
 		public override int GetHashCode()
 		{
-			int result = 0;
-			result += 31 * result + this.Water19LCount.GetHashCode();
-			return result;
+			return 31 * Water19LCount.GetHashCode();
 		}
 
 		#endregion

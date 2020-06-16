@@ -77,7 +77,7 @@
 	FROM phones
 	WHERE phones.counterparty_id = orders.client_id) AS client_contact,
 
-	schedule_restricted_districts.district_name AS logistics_area,
+	districts.district_name AS logistics_area,
 	delivery_points.compiled_address AS del_point_address,
 	orders.daily_number_1c AS daily_number,
 	CONCAT_WS('',
@@ -105,7 +105,7 @@ FROM
 		LEFT JOIN
 	delivery_points ON orders.delivery_point_id = delivery_points.id
 		LEFT JOIN
-	schedule_restricted_districts ON delivery_points.schedule_restricted_district_id = schedule_restricted_districts.id
+	districts ON delivery_points.district_id = districts.id
 		LEFT JOIN
 	employees ON employees.id = orders.author_employee_id
 WHERE

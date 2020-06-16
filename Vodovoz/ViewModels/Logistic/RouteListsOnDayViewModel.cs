@@ -479,18 +479,18 @@ namespace Vodovoz.ViewModels.Logistic
 			set => SetField(ref optimizer, value);
 		}
 
-		IList<ScheduleRestrictedDistrict> logisticanDistricts = new List<ScheduleRestrictedDistrict>();
-		public virtual IList<ScheduleRestrictedDistrict> LogisticanDistricts {
+		IList<District> logisticanDistricts = new List<District>();
+		public virtual IList<District> LogisticanDistricts {
 			get => logisticanDistricts;
 			set => SetField(ref logisticanDistricts, value);
 		}
 
-		GenericObservableList<ScheduleRestrictedDistrict> observableLogisticanDistricts;
+		GenericObservableList<District> observableLogisticanDistricts;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ScheduleRestrictedDistrict> ObservableLogisticanDistricts {
+		public virtual GenericObservableList<District> ObservableLogisticanDistricts {
 			get {
 				if(observableLogisticanDistricts == null)
-					observableLogisticanDistricts = new GenericObservableList<ScheduleRestrictedDistrict>(LogisticanDistricts);
+					observableLogisticanDistricts = new GenericObservableList<District>(LogisticanDistricts);
 				return observableLogisticanDistricts;
 			}
 		}
@@ -1047,7 +1047,7 @@ namespace Vodovoz.ViewModels.Logistic
 			UoW.Session.Clear();
 
 			DeliveryPoint deliveryPointAlias = null;
-			ScheduleRestrictedDistrict scheduleRestrictedDistrictAlias = null;
+			District districtAlias = null;
 			GeographicGroup geographicGroupAlias = null;
 
 			var baseOrderQuery = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, ShowCompleted)
@@ -1057,8 +1057,8 @@ namespace Vodovoz.ViewModels.Logistic
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 			if(selectedGeographicGroup.Any()) {
 				baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-							  .Left.JoinAlias(() => deliveryPointAlias.District, () => scheduleRestrictedDistrictAlias)
-							  .Left.JoinAlias(() => scheduleRestrictedDistrictAlias.GeographicGroups, () => geographicGroupAlias)
+							  .Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+							  .Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
 							  .Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
 			}
 

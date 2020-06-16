@@ -17,7 +17,8 @@ namespace Vodovoz.Domain.Orders
 	[HistoryTrace]
 	public class OrderItem : PropertyChangedBase, IDomainObject, IOrderItemWageCalculationSource
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private int? paidDeliveryNomenclatureId;
+		private int PaidDeliveryNomenclatureId => paidDeliveryNomenclatureId ?? (paidDeliveryNomenclatureId = int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id"))).Value;
 
 		#region Свойства
 
@@ -427,9 +428,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanEditAmount {
 			get {
-				bool result = false;
-				if(AdditionalAgreement == null)
-					result = true;
+				bool result = AdditionalAgreement == null;
 
 				if(AdditionalAgreement?.Type == AgreementType.WaterSales)
 					result = true;
@@ -440,7 +439,7 @@ namespace Vodovoz.Domain.Orders
 				if(IsRentRenewal())
 					result = true;
 
-				if(Nomenclature.Id == int.Parse(ParametersProvider.Instance.GetParameterValue("paid_delivery_nomenclature_id")))
+				if(Nomenclature.Id == PaidDeliveryNomenclatureId)
 					result = false;
 
 				if(PromoSet != null && !PromoSet.CanEditNomenclatureCount)

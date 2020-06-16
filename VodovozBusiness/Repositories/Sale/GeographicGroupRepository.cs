@@ -14,14 +14,13 @@ namespace Vodovoz.Repositories.Sale
 			return GeographicGroupByCoordinates(lat, lon, ScheduleRestrictionRepository.AreasWithGeometry(uow));
 		}
 
-		public static GeographicGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<ScheduleRestrictedDistrict> source)
+		public static GeographicGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source)
 		{
 			GeographicGroup gg = null;
 			if(lat.HasValue && lon.HasValue) {
 				var point = new Point(lat.Value, lon.Value);
 				gg = source.FirstOrDefault(d => d.DistrictBorder != null && d.DistrictBorder.Contains(point))
-						   .GeographicGroups
-						   .FirstOrDefault();
+				           .GeographicGroup;
 			}
 			return gg;
 		}

@@ -715,9 +715,8 @@ FROM
     JOIN delivery_points dp ON dp.id = o.delivery_point_id
     LEFT JOIN employees e ON e.id = o.author_employee_id
     LEFT JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
-    LEFT JOIN schedule_restricted_districts schrd ON schrd.id = dp.schedule_restricted_district_id
-    LEFT JOIN geographic_groups_to_entities gg_to_e ON gg_to_e.district_id = schrd.id
-    LEFT JOIN geographic_groups gg ON gg_to_e .geographic_group_id = gg.id
+    LEFT JOIN districts ON districts.id = dp.district_id
+    LEFT JOIN geographic_groups gg ON gg.id = district.geographic_group_id
     LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
     LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
 WHERE 
@@ -808,9 +807,8 @@ FROM
         JOIN delivery_points dp ON dp.id = o.delivery_point_id
         JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
         LEFT JOIN employees e ON e.id = o.author_employee_id
-        LEFT JOIN schedule_restricted_districts schrd ON schrd.id = dp.schedule_restricted_district_id
-        LEFT JOIN geographic_groups_to_entities gg_to_e ON gg_to_e.district_id = schrd.id
-        LEFT JOIN geographic_groups gg ON gg_to_e .geographic_group_id = gg.id
+        LEFT JOIN districts ON districts.id = dp.district_id
+        LEFT JOIN geographic_groups gg ON gg.id = districts.geographic_group_id
         LEFT JOIN phones dp_ph ON dp_ph.delivery_point_id = dp.id
         LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id
     WHERE 

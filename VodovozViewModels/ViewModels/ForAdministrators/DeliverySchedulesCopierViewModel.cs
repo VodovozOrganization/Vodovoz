@@ -34,8 +34,8 @@ namespace Vodovoz.ViewModels.ForAdministrators
 
 		public IUnitOfWork UoW { get; private set; }
 
-		ScheduleRestrictedDistrict sourceDistrict;
-		public virtual ScheduleRestrictedDistrict SourceDistrict {
+		District sourceDistrict;
+		public virtual District SourceDistrict {
 			get => sourceDistrict;
 			set {
 				if(SetField(ref sourceDistrict, value)) {
@@ -45,18 +45,18 @@ namespace Vodovoz.ViewModels.ForAdministrators
 			}
 		}
 
-		IList<ScheduleRestrictedDistrict> districtsToEdit = new List<ScheduleRestrictedDistrict>();
-		public virtual IList<ScheduleRestrictedDistrict> DistrictsToEdit {
+		IList<District> districtsToEdit = new List<District>();
+		public virtual IList<District> DistrictsToEdit {
 			get => districtsToEdit;
 			set => SetField(ref districtsToEdit, value);
 		}
 
-		GenericObservableList<ScheduleRestrictedDistrict> observableDistrictsToEdit;
+		GenericObservableList<District> observableDistrictsToEdit;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<ScheduleRestrictedDistrict> ObservableDistrictsToEdit {
+		public virtual GenericObservableList<District> ObservableDistrictsToEdit {
 			get {
 				if(observableDistrictsToEdit == null)
-					observableDistrictsToEdit = new GenericObservableList<ScheduleRestrictedDistrict>(DistrictsToEdit);
+					observableDistrictsToEdit = new GenericObservableList<District>(DistrictsToEdit);
 				return observableDistrictsToEdit;
 			}
 		}
@@ -117,189 +117,189 @@ namespace Vodovoz.ViewModels.ForAdministrators
 				if(copySchedulesCommand == null) {
 					copySchedulesCommand = new DelegateCommand(
 						() => {
-							#region Monday
-							if(SourceDistrict.ScheduleRestrictionMonday != null) {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									if(distr.ScheduleRestrictionMonday != null)
-										distr.ScheduleRestrictionMonday.ObservableSchedules.Clear();
-									else
-										distr.CreateScheduleRestriction(WeekDayName.monday);
-
-									foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionMonday.ObservableSchedules) {
-										distr.ScheduleRestrictionMonday.ObservableSchedules.Add(schedule);
-									}
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							} else {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									distr.ScheduleRestrictionMonday = null;
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							}
-							#endregion Monday
-
-							#region Tuesday
-							if(SourceDistrict.ScheduleRestrictionTuesday != null) {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									if(distr.ScheduleRestrictionTuesday != null)
-										distr.ScheduleRestrictionTuesday.ObservableSchedules.Clear();
-									else
-										distr.CreateScheduleRestriction(WeekDayName.tuesday);
-
-									foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionTuesday.ObservableSchedules) {
-										distr.ScheduleRestrictionTuesday.ObservableSchedules.Add(schedule);
-									}
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							} else {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									distr.ScheduleRestrictionTuesday = null;
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							}
-							#endregion Tuesday
-
-							#region Wednesday
-							if(SourceDistrict.ScheduleRestrictionWednesday != null) {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									if(distr.ScheduleRestrictionWednesday != null)
-										distr.ScheduleRestrictionWednesday.ObservableSchedules.Clear();
-									else
-										distr.CreateScheduleRestriction(WeekDayName.wednesday);
-
-									foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionWednesday.ObservableSchedules) {
-										distr.ScheduleRestrictionWednesday.ObservableSchedules.Add(schedule);
-									}
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							} else {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									distr.ScheduleRestrictionWednesday = null;
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							}
-							#endregion Wednesday
-
-							#region Thursday
-							if(SourceDistrict.ScheduleRestrictionThursday != null) {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									if(distr.ScheduleRestrictionThursday != null)
-										distr.ScheduleRestrictionThursday.ObservableSchedules.Clear();
-									else
-										distr.CreateScheduleRestriction(WeekDayName.thursday);
-
-									foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionThursday.ObservableSchedules) {
-										distr.ScheduleRestrictionThursday.ObservableSchedules.Add(schedule);
-									}
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							} else {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									distr.ScheduleRestrictionThursday = null;
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							}
-							#endregion Thursday
-
-							#region Friday
-							if(SourceDistrict.ScheduleRestrictionFriday != null) {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									if(distr.ScheduleRestrictionFriday != null)
-										distr.ScheduleRestrictionFriday.ObservableSchedules.Clear();
-									else
-										distr.CreateScheduleRestriction(WeekDayName.friday);
-
-									foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionFriday.ObservableSchedules) {
-										distr.ScheduleRestrictionFriday.ObservableSchedules.Add(schedule);
-									}
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							} else {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									distr.ScheduleRestrictionFriday = null;
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							}
-							#endregion Friday
-
-							#region Saturday
-							if(SourceDistrict.ScheduleRestrictionSaturday != null) {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									if(distr.ScheduleRestrictionSaturday != null)
-										distr.ScheduleRestrictionSaturday.ObservableSchedules.Clear();
-									else
-										distr.CreateScheduleRestriction(WeekDayName.saturday);
-
-									foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionSaturday.ObservableSchedules) {
-										distr.ScheduleRestrictionSaturday.ObservableSchedules.Add(schedule);
-									}
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							} else {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									distr.ScheduleRestrictionSaturday = null;
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							}
-							#endregion Saturday
-
-							#region Sunday
-							if(SourceDistrict.ScheduleRestrictionSunday != null) {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									if(distr.ScheduleRestrictionSunday != null)
-										distr.ScheduleRestrictionSunday.ObservableSchedules.Clear();
-									else
-										distr.CreateScheduleRestriction(WeekDayName.sunday);
-
-									foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionSunday.ObservableSchedules) {
-										distr.ScheduleRestrictionSunday.ObservableSchedules.Add(schedule);
-									}
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							} else {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									distr.ScheduleRestrictionSunday = null;
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							}
-							#endregion Sunday
-
-							#region Today
-							if(SourceDistrict.ScheduleRestrictionToday != null) {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									if(distr.ScheduleRestrictionToday != null)
-										distr.ScheduleRestrictionToday.ObservableSchedules.Clear();
-									else
-										distr.CreateScheduleRestriction(WeekDayName.today);
-
-									foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionToday.ObservableSchedules) {
-										distr.ScheduleRestrictionToday.ObservableSchedules.Add(schedule);
-									}
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							} else {
-								foreach(ScheduleRestrictedDistrict distr in ObservableDistrictsToEdit) {
-									distr.ScheduleRestrictionToday = null;
-									distr.Save(UoW);
-									CanSave = true;
-								}
-							}
-							#endregion Today
+							// #region Monday
+							// if(SourceDistrict.ScheduleRestrictionMonday != null) {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		if(distr.ScheduleRestrictionMonday != null)
+							// 			distr.ScheduleRestrictionMonday.ObservableSchedules.Clear();
+							// 		else
+							// 			distr.CreateScheduleRestriction(WeekDayName.monday);
+							//
+							// 		foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionMonday.ObservableSchedules) {
+							// 			distr.ScheduleRestrictionMonday.ObservableSchedules.Add(schedule);
+							// 		}
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// } else {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		distr.ScheduleRestrictionMonday = null;
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// }
+							// #endregion Monday
+							//
+							// #region Tuesday
+							// if(SourceDistrict.ScheduleRestrictionTuesday != null) {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		if(distr.ScheduleRestrictionTuesday != null)
+							// 			distr.ScheduleRestrictionTuesday.ObservableSchedules.Clear();
+							// 		else
+							// 			distr.CreateScheduleRestriction(WeekDayName.tuesday);
+							//
+							// 		foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionTuesday.ObservableSchedules) {
+							// 			distr.ScheduleRestrictionTuesday.ObservableSchedules.Add(schedule);
+							// 		}
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// } else {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		distr.ScheduleRestrictionTuesday = null;
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// }
+							// #endregion Tuesday
+							//
+							// #region Wednesday
+							// if(SourceDistrict.ScheduleRestrictionWednesday != null) {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		if(distr.ScheduleRestrictionWednesday != null)
+							// 			distr.ScheduleRestrictionWednesday.ObservableSchedules.Clear();
+							// 		else
+							// 			distr.CreateScheduleRestriction(WeekDayName.wednesday);
+							//
+							// 		foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionWednesday.ObservableSchedules) {
+							// 			distr.ScheduleRestrictionWednesday.ObservableSchedules.Add(schedule);
+							// 		}
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// } else {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		distr.ScheduleRestrictionWednesday = null;
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// }
+							// #endregion Wednesday
+							//
+							// #region Thursday
+							// if(SourceDistrict.ScheduleRestrictionThursday != null) {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		if(distr.ScheduleRestrictionThursday != null)
+							// 			distr.ScheduleRestrictionThursday.ObservableSchedules.Clear();
+							// 		else
+							// 			distr.CreateScheduleRestriction(WeekDayName.thursday);
+							//
+							// 		foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionThursday.ObservableSchedules) {
+							// 			distr.ScheduleRestrictionThursday.ObservableSchedules.Add(schedule);
+							// 		}
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// } else {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		distr.ScheduleRestrictionThursday = null;
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// }
+							// #endregion Thursday
+							//
+							// #region Friday
+							// if(SourceDistrict.ScheduleRestrictionFriday != null) {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		if(distr.ScheduleRestrictionFriday != null)
+							// 			distr.ScheduleRestrictionFriday.ObservableSchedules.Clear();
+							// 		else
+							// 			distr.CreateScheduleRestriction(WeekDayName.friday);
+							//
+							// 		foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionFriday.ObservableSchedules) {
+							// 			distr.ScheduleRestrictionFriday.ObservableSchedules.Add(schedule);
+							// 		}
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// } else {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		distr.ScheduleRestrictionFriday = null;
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// }
+							// #endregion Friday
+							//
+							// #region Saturday
+							// if(SourceDistrict.ScheduleRestrictionSaturday != null) {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		if(distr.ScheduleRestrictionSaturday != null)
+							// 			distr.ScheduleRestrictionSaturday.ObservableSchedules.Clear();
+							// 		else
+							// 			distr.CreateScheduleRestriction(WeekDayName.saturday);
+							//
+							// 		foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionSaturday.ObservableSchedules) {
+							// 			distr.ScheduleRestrictionSaturday.ObservableSchedules.Add(schedule);
+							// 		}
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// } else {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		distr.ScheduleRestrictionSaturday = null;
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// }
+							// #endregion Saturday
+							//
+							// #region Sunday
+							// if(SourceDistrict.ScheduleRestrictionSunday != null) {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		if(distr.ScheduleRestrictionSunday != null)
+							// 			distr.ScheduleRestrictionSunday.ObservableSchedules.Clear();
+							// 		else
+							// 			distr.CreateScheduleRestriction(WeekDayName.sunday);
+							//
+							// 		foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionSunday.ObservableSchedules) {
+							// 			distr.ScheduleRestrictionSunday.ObservableSchedules.Add(schedule);
+							// 		}
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// } else {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		distr.ScheduleRestrictionSunday = null;
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// }
+							// #endregion Sunday
+							//
+							// #region Today
+							// if(SourceDistrict.ScheduleRestrictionToday != null) {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		if(distr.ScheduleRestrictionToday != null)
+							// 			distr.ScheduleRestrictionToday.ObservableSchedules.Clear();
+							// 		else
+							// 			distr.CreateScheduleRestriction(WeekDayName.today);
+							//
+							// 		foreach(DeliverySchedule schedule in SourceDistrict.ScheduleRestrictionToday.ObservableSchedules) {
+							// 			distr.ScheduleRestrictionToday.ObservableSchedules.Add(schedule);
+							// 		}
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// } else {
+							// 	foreach(District distr in ObservableDistrictsToEdit) {
+							// 		distr.ScheduleRestrictionToday = null;
+							// 		distr.Save(UoW);
+							// 		CanSave = true;
+							// 	}
+							// }
+							// #endregion Today
 
 							SourceDistrict = null;
 							ObservableDistrictsToEdit.Clear();
@@ -320,7 +320,7 @@ namespace Vodovoz.ViewModels.ForAdministrators
 				if(addDistrictCommand == null) {
 					addDistrictCommand = new DelegateCommand(
 						() => {
-							var districtsJournalViewModel = new ScheduleRestrictedDistrictsJournalViewModel(
+							var districtsJournalViewModel = new DistrictsJournalViewModel(
 								unitOfWorkFactory,
 								commonServices
 							) {
@@ -329,7 +329,7 @@ namespace Vodovoz.ViewModels.ForAdministrators
 							districtsJournalViewModel.SetRestriction(() => Restrictions.Not(Restrictions.IdEq(SourceDistrict.Id)));
 							districtsJournalViewModel.HideCreateAndOpenBtns();
 							districtsJournalViewModel.OnEntitySelectedResult += (sender, e) => {
-								e.SelectedNodes.OrderBy(n => n.Title).ToList().ForEach(n => ObservableDistrictsToEdit.Add(UoW.GetById<ScheduleRestrictedDistrict>(n.Id)));
+								e.SelectedNodes.OrderBy(n => n.Title).ToList().ForEach(n => ObservableDistrictsToEdit.Add(UoW.GetById<District>(n.Id)));
 							};
 							TabParent.AddSlaveTab(this, districtsJournalViewModel);
 						},
@@ -340,11 +340,11 @@ namespace Vodovoz.ViewModels.ForAdministrators
 			}
 		}
 
-		DelegateCommand<ScheduleRestrictedDistrict> removeCommand;
-		public DelegateCommand<ScheduleRestrictedDistrict> RemoveCommand {
+		DelegateCommand<District> removeCommand;
+		public DelegateCommand<District> RemoveCommand {
 			get {
 				if(removeCommand == null) {
-					removeCommand = new DelegateCommand<ScheduleRestrictedDistrict>(
+					removeCommand = new DelegateCommand<District>(
 						d => ObservableDistrictsToEdit.Remove(d),
 						d => d != null && ObservableDistrictsToEdit.Any(x => x.Id == d.Id)
 					);
@@ -353,10 +353,10 @@ namespace Vodovoz.ViewModels.ForAdministrators
 			}
 		}
 
-		public IList<ScheduleRestrictedDistrict> GetAllDistricts()
+		public IList<District> GetAllDistricts()
 		{
-			var lst = UoW.Session.QueryOver<ScheduleRestrictedDistrict>()
-								 .List<ScheduleRestrictedDistrict>()
+			var lst = UoW.Session.QueryOver<District>()
+								 .List<District>()
 								 .OrderBy(d => d.DistrictName)
 								 .ToList()
 								 ;

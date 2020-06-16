@@ -36,11 +36,11 @@ namespace Vodovoz.Dialogs.Sale
 			ylabel600mlBottles.Binding.AddBinding(Entity, e => e.Water600mlCount, w => w.LabelProp).InitializeFromSource();
 			vboxDistricts.Visible = Entity.Id > 0;
 			if(Entity.Id > 0) {
-				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<ScheduleRestrictedDistrict>()
+				treeDistricts.ColumnsConfig = ColumnsConfigFactory.Create<District>()
 					.AddColumn("Правило используется в районах:").AddTextRenderer(d => d.DistrictName)
 					.Finish();
 
-				treeDistricts.ItemsDataSource = ScheduleRestrictedDistrictRuleRepository.GetDistrictsHavingRule(UoW, Entity);
+				treeDistricts.ItemsDataSource = DistrictRuleRepository.GetDistrictsHavingRule(UoW, Entity);
 			}
 		}
 

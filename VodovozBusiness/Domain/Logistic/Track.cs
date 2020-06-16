@@ -130,8 +130,8 @@ namespace Vodovoz.Domain.Logistic
 			if(lastPoint.District == null) {
 				logger.Warn("Для точки доставки не удалось подобрать часть города. Расчёт расстояния до центра СПб");
 				points.Add(new PointOnEarth(Constants.CenterOfCityLatitude, Constants.CenterOfCityLongitude));
-			} else if(lastPoint.District != null && lastPoint.District.GeographicGroups.Any(g => g.BaseCoordinatesExist)) {
-				var gg = lastPoint.District.GeographicGroups.FirstOrDefault(g => g.BaseCoordinatesExist);
+			} else if(lastPoint.District != null && lastPoint.District.GeographicGroup.BaseCoordinatesExist) {
+				var gg = lastPoint.District.GeographicGroup;
 				points.Add(new PointOnEarth((double)gg.BaseLatitude.Value, (double)gg.BaseLongitude.Value));
 			} else {
 				logger.Error("В подобранной части города не указаны координаты базы");

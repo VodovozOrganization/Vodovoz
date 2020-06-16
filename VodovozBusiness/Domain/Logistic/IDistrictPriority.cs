@@ -4,7 +4,7 @@ namespace Vodovoz.Domain.Logistic
 {
 	public interface IDistrictPriority
 	{
-		ScheduleRestrictedDistrict District {get;}
+		District District {get;}
 		int Priority { get; }
 	}
 }

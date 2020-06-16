@@ -41,7 +41,7 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref to, value, () => To); }
 		}
 
-		public virtual string DeliveryTime { get { return String.Format ("с {0:hh\\:mm} до {1:hh\\:mm}", from, to); } }
+		public virtual string DeliveryTime => $"с {from:hh\\:mm} до {to:hh\\:mm}";
 
 		#region IValidatableObject implementation
 
