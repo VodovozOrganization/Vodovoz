@@ -438,7 +438,7 @@ namespace Vodovoz.Domain.Sale
 					var todayRules = ObservableTodayDistrictRuleItems.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
 					return todayRules.Any() ? todayRules.Max(x => x.Price) : 0m;
 				}
-				var dayOfWeekRules = GetWeekDayRuleItemCollectionByWeekDayName(ConvertDayOfWeekToWeekDayName(DateTime.Now.DayOfWeek));
+				var dayOfWeekRules = GetWeekDayRuleItemCollectionByWeekDayName(ConvertDayOfWeekToWeekDayName(orderStateKey.Order.DeliveryDate.Value.DayOfWeek));
 				if(dayOfWeekRules.Any()) {
 					var rules = dayOfWeekRules.Where(x => orderStateKey.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
 					return rules.Any() ? dayOfWeekRules.Max(x => x.Price) : 0m;
