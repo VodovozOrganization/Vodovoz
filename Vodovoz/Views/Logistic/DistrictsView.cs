@@ -147,7 +147,7 @@ namespace Vodovoz.Views.Logistic
 			};
 
 			btnRemoveDistrict.Clicked += (sender, args) => { ViewModel.RemoveDistrictCommand.Execute(); };
-			btnRemoveDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanDelete, w => w.Sensitive).InitializeFromSource();
+			btnRemoveDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanDelete && vm.SelectedDistrict.Id == 0, w => w.Sensitive).InitializeFromSource();
 
 			btnAddCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null, w => w.Sensitive).InitializeFromSource();
 			btnAddCommonRule.Clicked += (sender, args) => {

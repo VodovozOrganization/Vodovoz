@@ -5,6 +5,7 @@ using System.Linq;
 using GeoAPI.Geometries;
 using GMap.NET;
 using NetTopologySuite.Geometries;
+using NLog;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -41,6 +42,8 @@ namespace Vodovoz.ViewModels.Logistic
             NewBorderVertices = new GenericObservableList<PointLatLng>();
         }
 
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        
         private readonly ICommonServices commonServices;
         private readonly GeometryFactory geometryFactory;
 
@@ -342,11 +345,22 @@ namespace Vodovoz.ViewModels.Logistic
             set => base.HasChanges = value;
         }
 
+        public override void Close(bool askSave, CloseSource source)
+        {
+            if(askSave)
+                TabParent?.AskToCloseTab(this, source);
+            else
+                TabParent?.ForceCloseTab(this, source);
+        }
+
         public override bool Save(bool needClose)
         {
+            logger.Info("Сохранение...");
             foreach(District district in Districts) {
-                if(!commonServices.ValidationService.Validate(district))
+                if(!commonServices.ValidationService.Validate(district)) {
+                    logger.Info("Сохранение отменено");
                     return false;
+                }
             }
             foreach(District district in Districts) {
                 UoW.Save(district);
@@ -354,7 +368,14 @@ namespace Vodovoz.ViewModels.Logistic
             UoW.Commit();
             if(needClose)
                 Close(HasChanges, CloseSource.Save);
+            logger.Info("Сохранено");
             return true;
+        }
+
+        public override void Dispose()
+        {
+            UoW?.Dispose();
+            base.Dispose();
         }
     }
 }
