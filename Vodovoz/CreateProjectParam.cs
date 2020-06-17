@@ -406,6 +406,13 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
+			OrmMain.AddObjectDescription<District>()
+				.Dialog<DistrictDlg>()
+				.DefaultTableView()
+				.SearchColumn("Код", x => x.Id.ToString())
+				.SearchColumn("Название", x => x.DistrictName)
+				.End();
+			
 			#endregion
 
 			#region неПростые справочники
