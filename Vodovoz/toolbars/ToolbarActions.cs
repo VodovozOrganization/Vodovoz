@@ -835,6 +835,6 @@ public partial class MainWindow : Window
 
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(() => new DistrictsViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, null));
+		tdiMain.OpenTab(() => new DistrictsSetViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, null));
 	}
 }

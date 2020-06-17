@@ -18,9 +18,9 @@ using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-    public sealed class DistrictsViewModel : DialogTabViewModelBase
+    public sealed class DistrictsSetViewModel : DialogTabViewModelBase
     {
-        public DistrictsViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigation) : base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
+        public DistrictsSetViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigation) : base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
         {
             this.commonServices = commonServices;
             TabName = "Районы с графиками доставки";

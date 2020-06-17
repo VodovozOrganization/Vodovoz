@@ -1461,8 +1461,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientFinDepartmentReport.cs" />
     <Compile Include="ServiceDialogs\LargeMessageDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.LargeMessageDialog.cs" />
-    <Compile Include="Views\Logistic\DistrictsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsView.cs" />
+    <Compile Include="Views\Logistic\DistrictsSetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetView.cs" />
     <Compile Include="Views\Logistic\AcceptBeforeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AcceptBeforeView.cs" />
     <Compile Include="ViewModels\Logistic\AddressType.cs" />

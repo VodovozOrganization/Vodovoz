@@ -23,9 +23,9 @@ using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
 {
-	public partial class DistrictsView : TabViewBase<DistrictsViewModel>
+	public partial class DistrictsSetView : TabViewBase<DistrictsSetViewModel>
 	{
-		public DistrictsView(DistrictsViewModel viewModel) : base(viewModel)
+		public DistrictsSetView(DistrictsSetViewModel setViewModel) : base(setViewModel)
 		{
 			this.Build();
 			Configure();

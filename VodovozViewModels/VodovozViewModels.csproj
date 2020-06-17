@@ -114,7 +114,7 @@
     <Compile Include="Infrastructure\InfoProviders\IInfoProvider.cs" />
     <Compile Include="Infrastructure\InfoProviders\PanelViewType.cs" />
     <Compile Include="ViewModels\Logistic\AcceptBeforeViewModel.cs" />
-    <Compile Include="ViewModels\Logistic\DistrictsViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
