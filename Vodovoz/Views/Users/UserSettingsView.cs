@@ -28,6 +28,10 @@ namespace Vodovoz.Views.Users
 
 			buttonSave.Clicked += (sender, e) => { ViewModel.SaveAndClose(); };
 			buttonCancel.Clicked += (sender, e) => { ViewModel.Close(false, QS.Navigation.CloseSource.Cancel); };
+
+			ycheckbuttonDelivery.Binding.AddBinding(ViewModel.Entity, e => e.LogisticDeliveryOrders, w => w.Active).InitializeFromSource();
+			ycheckbuttonService.Binding.AddBinding(ViewModel.Entity, e => e.LogisticServiceOrders, w => w.Active).InitializeFromSource();
+			ycheckbuttonChainStore.Binding.AddBinding(ViewModel.Entity, e => e.LogisticChainStoreOrders, w => w.Active).InitializeFromSource();
 		}
 	}
 }

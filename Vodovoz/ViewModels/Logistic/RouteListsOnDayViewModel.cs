@@ -34,6 +34,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
 using Vodovoz.Services;
+using Vodovoz.EntityRepositories;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -45,6 +46,7 @@ namespace Vodovoz.ViewModels.Logistic
 		readonly IAtWorkRepository atWorkRepository;
 		readonly IGtkTabsOpenerForRouteListViewAndOrderView gtkTabsOpener;
 		readonly ICarRepository carRepository;
+		private readonly IUserRepository userRepository;
 		readonly ICommonServices commonServices;
 
 		public IUnitOfWork UoW;
@@ -57,11 +59,13 @@ namespace Vodovoz.ViewModels.Logistic
 			IOrderRepository orderRepository,
 			IAtWorkRepository atWorkRepository,
 			ICarRepository carRepository,
-			INavigationManager navigationManager
+			INavigationManager navigationManager,
+			IUserRepository userRepository
 		) : base(commonServices.InteractiveService, navigationManager)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			this.carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
+			this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			this.gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			this.atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -100,6 +104,7 @@ namespace Vodovoz.ViewModels.Logistic
 			Optimizer = new RouteOptimizer(commonServices.InteractiveService);
 
 			CreateCommands();
+			LoadAddressesTypesDefaults();
 		}
 
 		void CreateCommands()
@@ -556,6 +561,24 @@ namespace Vodovoz.ViewModels.Logistic
 			new AddressTypeNode(AddressType.Service),
 			new AddressTypeNode(AddressType.ChainStore)
 		};
+
+		private void LoadAddressesTypesDefaults()
+		{
+			var currentUserSettings = userRepository.GetUserSettings(UoW, commonServices.UserService.CurrentUserId);
+			foreach(var addressTypeNode in AddressTypes) {
+				switch(addressTypeNode.AddressType) {
+					case AddressType.Delivery:
+						addressTypeNode.Selected = currentUserSettings.LogisticDeliveryOrders;
+						break;
+					case AddressType.Service:
+						addressTypeNode.Selected = currentUserSettings.LogisticServiceOrders;
+						break;
+					case AddressType.ChainStore:
+						addressTypeNode.Selected = currentUserSettings.LogisticChainStoreOrders;
+						break;
+				}
+			}
+		}
 
 		public void DisposeUoW() => UoW.Dispose();
 
@@ -1049,14 +1072,16 @@ namespace Vodovoz.ViewModels.Logistic
 		public void InitializeData(IProgressBarDisplayable progressBar = null)
 		{
 			UoW.Session.Clear();
+			if(OrdersOnDay == null) {
+				OrdersOnDay = new List<Order>();
+			} else {
+				OrdersOnDay.Clear();
+			}
 
 			DeliveryPoint deliveryPointAlias = null;
 			District districtAlias = null;
 			GeographicGroup geographicGroupAlias = null;
-
-			var baseOrderQuery = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, ShowCompleted)
-												.GetExecutableQueryOver(UoW.Session)
-												;
+			Counterparty counterpartyAlias = null;
 
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
 			if(selectedGeographicGroup.Any()) {
@@ -1066,43 +1091,97 @@ namespace Vodovoz.ViewModels.Logistic
 							  .Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
 			}
 
-			var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future()
-												.Where(x => x.IsContractCloser == false)
-									 			.Where(x => !orderRepository.IsOrderCloseWithoutDelivery(UoW, x));
+			if(AddressTypes.Any(x => x.Selected)) {
+				var query = QueryOver.Of<Order>().Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
+													.Where(o => o.DeliverySchedule != null)
+													.Where(x => x.DeliveryPoint != null)
+													;
+				if(!ShowCompleted)
+					query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
+				else
+					query.Where(order => order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder && order.OrderStatus != OrderStatus.WaitForPayment);
 
-			orderRepository.GetOrdersForRLEditingQuery(DateForRouting, ShowCompleted)
-						   .GetExecutableQueryOver(UoW.Session)
-						   .Fetch(SelectMode.Fetch, x => x.OrderItems)
-						   .Future();
+				var baseOrderQuery = query.GetExecutableQueryOver(UoW.Session);
 
-			switch(DeliveryScheduleType) {
-				case DeliveryScheduleFilterType.DeliveryStart:
-					OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-											 .Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
-											 .Where(x => x.DeliverySchedule.From <= DeliveryToTime)
-											 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-											 .Distinct().ToList()
-											 ;
-					break;
-				case DeliveryScheduleFilterType.DeliveryEnd:
-					OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-											 .Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
-											 .Where(x => x.DeliverySchedule.To <= DeliveryToTime)
-											 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-											 .Distinct().ToList()
-											 ;
-					break;
-				case DeliveryScheduleFilterType.DeliveryStartAndEnd:
-					OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
-											 .Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
-											 .Where(x => x.DeliverySchedule.To <= DeliveryToTime)
-											 .Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
-											 .Where(x => x.DeliverySchedule.From <= DeliveryToTime)
-											 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
-											 .Distinct().ToList()
-											 ;
-					break;
+				bool deliverySelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Delivery);
+				bool chainStoreSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.ChainStore);
+				bool serviceSelected = AddressTypes.Any(x => x.Selected && x.AddressType == AddressType.Service);
+
+				if(chainStoreSelected && serviceSelected && !deliverySelected) {
+					baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseOrderQuery.Where(Restrictions.Or(
+						Restrictions.Where<Order>(x => x.IsService), 
+						Restrictions.Where(() => counterpartyAlias.IsChainStore)
+					));
+				} else if(chainStoreSelected) {
+					if(deliverySelected) {
+						baseOrderQuery.Where(x => !x.IsService);
+					} else {
+						baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+						baseOrderQuery.Where(() => counterpartyAlias.IsChainStore);
+					}
+				} else if(serviceSelected) {
+					if(deliverySelected) {
+						baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+						baseOrderQuery.Where(() => !counterpartyAlias.IsChainStore);
+					} else {
+						baseOrderQuery.Where(x => x.IsService);
+					}
+				} else {
+					baseOrderQuery.Where(x => !x.IsService);
+					baseOrderQuery.Left.JoinAlias(x => x.Client, () => counterpartyAlias);
+					baseOrderQuery.Where(() => !counterpartyAlias.IsChainStore);
+				}
+
+				if(selectedGeographicGroup.Any()) {
+					baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
+								  .Left.JoinAlias(() => deliveryPointAlias.District, () => scheduleRestrictedDistrictAlias)
+								  .Left.JoinAlias(() => scheduleRestrictedDistrictAlias.GeographicGroups, () => geographicGroupAlias)
+								  .Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
+				}
+
+				var ordersQuery = baseOrderQuery.Fetch(SelectMode.Fetch, x => x.DeliveryPoint).Future()
+													.Where(x => x.IsContractCloser == false)
+													 .Where(x => !orderRepository.IsOrderCloseWithoutDelivery(UoW, x));
+
+				orderRepository.GetOrdersForRLEditingQuery(DateForRouting, ShowCompleted)
+							   .GetExecutableQueryOver(UoW.Session)
+							   .Fetch(SelectMode.Fetch, x => x.OrderItems)
+							   .Future();
+
+
+				switch(DeliveryScheduleType) {
+					case DeliveryScheduleFilterType.DeliveryStart:
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+												 .Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
+												 .Where(x => x.DeliverySchedule.From <= DeliveryToTime)
+												 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+												 .Distinct().ToList()
+												 ;
+						break;
+					case DeliveryScheduleFilterType.DeliveryEnd:
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+												 .Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
+												 .Where(x => x.DeliverySchedule.To <= DeliveryToTime)
+												 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+												 .Distinct().ToList()
+												 ;
+						break;
+					case DeliveryScheduleFilterType.DeliveryStartAndEnd:
+						OrdersOnDay = ordersQuery.Where(x => x.DeliveryPoint.CoordinatesExist)
+												 .Where(x => x.DeliverySchedule.To >= DeliveryFromTime)
+												 .Where(x => x.DeliverySchedule.To <= DeliveryToTime)
+												 .Where(x => x.DeliverySchedule.From >= DeliveryFromTime)
+												 .Where(x => x.DeliverySchedule.From <= DeliveryToTime)
+												 .Where(o => o.Total19LBottlesToDeliver >= MinBottles19L)
+												 .Distinct().ToList()
+												 ;
+						break;
+				}
 			}
+
+
+
 
 			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
 			progressBar?.ProgressAdd();

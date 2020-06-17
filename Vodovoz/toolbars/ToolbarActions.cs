@@ -44,6 +44,7 @@ using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Footers.ViewModels;
+using Vodovoz.Repositories.HumanResources;
 
 public partial class MainWindow : Window
 {
@@ -450,7 +451,8 @@ public partial class MainWindow : Window
 					OrderSingletonRepository.GetInstance(),
 					new AtWorkRepository(),
 					new CarRepository(),
-					NavigationManagerProvider.NavigationManager
+					NavigationManagerProvider.NavigationManager,
+					UserSingletonRepository.GetInstance()
 				)
 			);
 	}

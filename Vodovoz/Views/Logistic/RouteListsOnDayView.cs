@@ -476,7 +476,7 @@ namespace Vodovoz.Views.Logistic
 				addressesOverlay.Markers.Add(FillBaseMarker(b));
 			}
 
-			var ordersOnDay = ViewModel.OrdersOnDay.Where(x => !x.IsService);
+			var ordersOnDay = ViewModel.OrdersOnDay;
 			var ordersRouteLists = OrderSingletonRepository.GetInstance().GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
 			//добавляем маркеры адресов заказов
 			foreach(var order in ordersOnDay) {

@@ -40,7 +40,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped)
 		{
-			var query = QueryOver.Of<VodovozOrder>().Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery && !order.IsService)
+			var query = QueryOver.Of<VodovozOrder>().Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery)
 													.Where(o => o.DeliverySchedule != null)
 													.Where(x => x.DeliveryPoint != null)
 													;
