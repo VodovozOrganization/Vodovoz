@@ -30,8 +30,8 @@ namespace Vodovoz.Views.Logistic
 
 	public partial class RouteListsOnDayView : TabViewBase<RouteListsOnDayViewModel>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		IUnitOfWork UoW => ViewModel.UoW;
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
 		public RouteListsOnDayView(RouteListsOnDayViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
@@ -124,7 +124,7 @@ namespace Vodovoz.Views.Logistic
 					.AddColumn("Автомобиль").AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyCar ? vodovozCarIcon : null)
 						.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 					.AddColumn("База").AddComboRenderer(x => x.GeographicGroup).SetDisplayFunc(x => x.Name)
-						.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW))
+						.FillItems(GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW))
 						.AddSetter(
 							(c, n) => {
 								c.Editable = n.Car != null;
@@ -133,13 +133,18 @@ namespace Vodovoz.Views.Logistic
 									: colorWhite;
 							}
 						)
-				/*	.AddColumn("График работы").AddComboRenderer(x => x.DaySchedule).SetDisplayFunc(x => x.Name)
-						.FillItems(UoW.GetAll<DeliveryDaySchedule>().ToList()).Editing()*/
 					.AddColumn("")
 				.Finish();
 			ytreeviewOnDayDrivers.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewOnDayDrivers.Selection.Changed += (sender, e) => ViewModel.SelectedDrivers = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().ToArray();
 			ytreeviewOnDayDrivers.Binding.AddBinding(ViewModel, vm => vm.ObservableDriversOnDay, w => w.ItemsDataSource).InitializeFromSource();
+
+			ytreeviewAddressesTypes.ColumnsConfig = FluentColumnsConfig<AddressTypeNode>.Create()
+				.AddColumn("").AddToggleRenderer(x => x.Selected)
+				.AddColumn("Тип адресов").AddTextRenderer(x => x.Title)
+				.Finish();
+			ytreeviewAddressesTypes.ItemsDataSource = ViewModel.AddressTypes;
+
 
 			buttonAddDriver.Clicked += (sender, e) => ViewModel.AddDriverCommand.Execute();
 
@@ -266,7 +271,6 @@ namespace Vodovoz.Views.Logistic
 		{
 			if(args.Event.Button == 1) {
 				bool markerIsSelect = false;
-				//if(args.Event.State.HasFlag(ModifierType.Mod1Mask)) {
 				if(args.Event.State.HasFlag(ModifierType.LockMask)) {
 					foreach(var marker in addressesOverlay.Markers) {
 						if(marker.IsMouseOver) {
@@ -284,7 +288,6 @@ namespace Vodovoz.Views.Logistic
 							markerIsSelect = true;
 						}
 					}
-					//Требуется просмотреть код, для возможного улучшения
 					UpdateSelectedInfo(selectedMarkers);
 					UpdateAddressesOnMap();
 					return;
@@ -338,7 +341,6 @@ namespace Vodovoz.Views.Logistic
 					};
 					dlg.SetDlgToReadOnly();
 					Tab.TabParent.AddSlaveTab(Tab, dlg);
-					//OpenSlaveTab(dlg);
 				};
 				popupMenu.Add(item);
 				popupMenu.ShowAll();
@@ -470,12 +472,12 @@ namespace Vodovoz.Views.Logistic
 			addressesOverlay.Clear();
 
 			//добавляем маркеры складов
-			foreach(var b in GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW)) {
+			foreach(var b in GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
 				addressesOverlay.Markers.Add(FillBaseMarker(b));
 			}
 
-			var ordersOnDay = ViewModel.OrdersOnDay.Where(x => !x.IsService);
-			var ordersRouteLists = OrderSingletonRepository.GetInstance().GetAllRouteListsForOrders(UoW, ordersOnDay);
+			var ordersOnDay = ViewModel.OrdersOnDay;
+			var ordersRouteLists = OrderSingletonRepository.GetInstance().GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
 			//добавляем маркеры адресов заказов
 			foreach(var order in ordersOnDay) {
 				totalBottlesCountAtDay += order.Total19LBottlesToDeliver;
@@ -691,7 +693,7 @@ namespace Vodovoz.Views.Logistic
 			orders.AddRange(addressesOverlay.Markers
 				.Where(m => gmapWidget.SelectedArea.Contains(m.Position))
 				.Select(x => x.Tag).OfType<Order>().ToList());
-			//Добавление закзаво через непрямоугольную область
+			//Добавление закзаов через непрямоугольную область
 			GMapOverlay overlay = gmapWidget.Overlays.FirstOrDefault(o => o.Id.Contains(selectionOverlay.Id));
 			GMapPolygon polygons = overlay?.Polygons.FirstOrDefault(p => p.Name.ToLower().Contains("выделение"));
 			if(polygons != null) {
@@ -714,7 +716,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			ViewModel.LogisticanDistricts = ScheduleRestrictionRepository.AreasWithGeometry(UoW);
+			ViewModel.LogisticanDistricts = ScheduleRestrictionRepository.AreasWithGeometry(ViewModel.UoW);
 			foreach(var district in ViewModel.LogisticanDistricts) {
 				var poligon = new GMapPolygon(
 					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),
@@ -775,7 +777,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			driverAddressesOverlay.Clear();
 
-			foreach(var b in GeographicGroupRepository.GeographicGroupsWithCoordinates(UoW)) {
+			foreach(var b in GeographicGroupRepository.GeographicGroupsWithCoordinates(ViewModel.UoW)) {
 				driverAddressesOverlay.Markers.Add(FillBaseMarker(b));
 			}
 
@@ -784,7 +786,7 @@ namespace Vodovoz.Views.Logistic
 
 			var driverDistricts = driver.Districts.Select(d => d.District).ToList();
 			var ordersOnDay = ViewModel.OrdersOnDay.Select(x => x).Where(x => !x.IsService);
-			var ordersRouteLists = OrderSingletonRepository.GetInstance().GetAllRouteListsForOrders(UoW, ordersOnDay);
+			var ordersRouteLists = OrderSingletonRepository.GetInstance().GetAllRouteListsForOrders(ViewModel.UoW, ordersOnDay);
 
 			//добавляем маркеры нераспределенных заказов из районов водителя
 			foreach(var order in ordersOnDay) {
@@ -847,7 +849,7 @@ namespace Vodovoz.Views.Logistic
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
 		{
 			var SelectDriverCar = new OrmReference(
-				UoW,
+				ViewModel.UoW,
 				Repository.Logistics.CarRepository.ActiveCompanyCarsQuery()
 			);
 			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
@@ -896,17 +898,6 @@ namespace Vodovoz.Views.Logistic
 					FillItems();
 				}
 			}
-		}
-
-		protected void OnLabel2WidgetEvent(object o, WidgetEventArgs args)
-		{
-			/*if(args.Event.Type == EventType.ButtonPress && (args.Event as EventButton).Button == 1) {
-				var user = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-				if(user.User.Id != 94)
-					return;
-
-				TabParent.AddSlaveTab(this, new OptimizingParametersDlg());
-			}*/
 		}
 
 		public override void Destroy()

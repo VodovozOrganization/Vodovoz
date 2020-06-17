@@ -464,7 +464,7 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    schedule_restricted_districts.district_name AS district,
+    districts.district_name AS district,
     IFNULL(order_sum.count_group, 4) as count_group_result,
     SUM(order_sum.count) AS bottles,
     COUNT(compiled_address) AS address
@@ -484,7 +484,7 @@ FROM
         LEFT JOIN
     delivery_points ON delivery_point_id = delivery_points.id
         LEFT JOIN
-    schedule_restricted_districts ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), district_border)
+    districts ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), district_border)
         LEFT JOIN
     route_list_addresses ON orders.id = route_list_addresses.order_id
         LEFT JOIN
@@ -497,8 +497,8 @@ WHERE
         AND order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled')
         AND NOT orders.self_delivery
         AND delivery_points.city &lt;&gt; 'Семиозерье'
-GROUP BY schedule_restricted_districts.id, count_group_result 
-ORDER BY schedule_restricted_districts.district_name, count_group_result</CommandText>
+GROUP BY districts.id, count_group_result 
+ORDER BY districts.district_name, count_group_result</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>

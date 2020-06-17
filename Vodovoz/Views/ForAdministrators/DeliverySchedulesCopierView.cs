@@ -17,7 +17,7 @@ namespace Vodovoz.Views.ForAdministrators
 		void Configure()
 		{
 			cmbDistrictSrc.ItemsList = ViewModel.GetAllDistricts();
-			cmbDistrictSrc.SetRenderTextFunc<ScheduleRestrictedDistrict>(x => string.Format("{0}: {1}", x.Id, x.DistrictName));
+			cmbDistrictSrc.SetRenderTextFunc<District>(x => string.Format("{0}: {1}", x.Id, x.DistrictName));
 			cmbDistrictSrc.Binding.AddBinding(ViewModel, vm => vm.SourceDistrict, w => w.SelectedItem).InitializeFromSource();
 
 			buttonSave.Binding.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive).InitializeFromSource();
@@ -28,7 +28,7 @@ namespace Vodovoz.Views.ForAdministrators
 			btnCopy.Clicked += (sender, e) => ViewModel.CopySchedulesCommand.Execute();
 			btnCopy.Binding.AddBinding(ViewModel, vm => vm.CanCopy, w => w.Sensitive).InitializeFromSource();
 
-			treeEditableDistricts.ColumnsConfig = FluentColumnsConfig<ScheduleRestrictedDistrict>.Create()
+			treeEditableDistricts.ColumnsConfig = FluentColumnsConfig<District>.Create()
 				.AddColumn("Код")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Id.ToString())
@@ -50,6 +50,6 @@ namespace Vodovoz.Views.ForAdministrators
 			btnRemove.Clicked += (sender, e) => ViewModel.RemoveCommand.Execute(GetSelectedItem());
 			btnRemove.Binding.AddBinding(ViewModel, vm => vm.ItemSelected, w => w.Sensitive).InitializeFromSource();
 		}
-		ScheduleRestrictedDistrict GetSelectedItem() => treeEditableDistricts.GetSelectedObject<ScheduleRestrictedDistrict>();
+		District GetSelectedItem() => treeEditableDistricts.GetSelectedObject<District>();
 	}
 }

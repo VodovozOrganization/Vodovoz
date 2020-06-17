@@ -52,10 +52,6 @@ namespace Vodovoz.Dialogs.Sale
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 			yenumcomboMapType.ChangedByUser += (sender, e) => MapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)yenumcomboMapType.SelectedItem);
-
-			deliverypriceview.OnError += (sender, e) => {
-				MessageDialogHelper.RunErrorDialog(e);
-			};
 		}
 
 		void EntryBuilding_Changed(object sender, EventArgs e)

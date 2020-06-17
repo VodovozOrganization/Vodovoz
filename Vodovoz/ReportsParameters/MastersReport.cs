@@ -31,11 +31,7 @@ namespace Vodovoz.ReportsParameters
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
-		public string Title {
-			get {
-				return "Отчет по выездным мастерам";
-			}
-		}
+		public string Title => "Отчет по выездным мастерам";
 
 		protected void OnButtonCreateReportEntered(object sender, EventArgs e)
 		{

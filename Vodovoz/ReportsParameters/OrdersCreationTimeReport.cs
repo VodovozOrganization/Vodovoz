@@ -90,16 +90,16 @@ namespace Vodovoz.ReportsParameters
 				})
 			);
 
-			ScheduleRestrictedDistrict districtAlias = null;
+			District districtAlias = null;
 			GeographicGroup geoGroupAlias = null;
 			var districtParameter = filter.CreateParameterSet(
 				"Районы",
 				"districts",
 				new ParametersFactory(UoW, (filters) => {
-					SelectableEntityParameter<ScheduleRestrictedDistrict> resultAlias = null;
+					SelectableEntityParameter<District> resultAlias = null;
 
-					var query = UoW.Session.QueryOver<ScheduleRestrictedDistrict>(() => districtAlias)
-						.Left.JoinAlias(() => districtAlias.GeographicGroups, () => geoGroupAlias);
+					var query = UoW.Session.QueryOver<District>(() => districtAlias)
+						.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geoGroupAlias);
 
 					if(filters != null && filters.Any()) {
 						foreach(var f in filters) {
@@ -114,7 +114,7 @@ namespace Vodovoz.ReportsParameters
 							.Select(() => districtAlias.Id).WithAlias(() => resultAlias.EntityId)
 							.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.EntityTitle)
 						);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<ScheduleRestrictedDistrict>>());
+					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<District>>());
 					return query.List<SelectableParameter>();
 				})
 			);

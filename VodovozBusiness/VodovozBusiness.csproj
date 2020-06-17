@@ -167,7 +167,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Domain\Logistic\AcceptBefore.cs" />
+    <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
+    <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
+    <Compile Include="Domain\Sale\SaleEnums.cs" />
+    <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
+    <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
+    <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\Accounting\AccountExpense.cs" />
@@ -448,10 +457,7 @@
     <Compile Include="Domain\Client\Comments.cs" />
     <Compile Include="Domain\Client\CommentsGroups.cs" />
     <Compile Include="Domain\Client\CommentsTemplates.cs" />
-    <Compile Include="Domain\Sale\ScheduleRestrictedDistrict.cs" />
-    <Compile Include="Domain\Sale\ScheduleRestriction.cs" />
-    <Compile Include="HibernateMapping\Sale\ScheduleRestrictedDistrictMap.cs" />
-    <Compile Include="HibernateMapping\Sale\ScheduleRestrictionMap.cs" />
+    <Compile Include="Domain\Sale\District.cs" />
     <Compile Include="Repositories\Sale\ScheduleRestrictionRepository.cs" />
     <Compile Include="Domain\Orders\DiscountReason.cs" />
     <Compile Include="HibernateMapping\Order\DiscountReasonMap.cs" />
@@ -536,9 +542,8 @@
     <Compile Include="HibernateMapping\Sale\DeliveryPriceRuleMap.cs" />
     <Compile Include="Domain\Sale\DeliveryPriceRule.cs" />
     <Compile Include="Domain\Sale\IDeliveryPriceRule.cs" />
-    <Compile Include="Domain\Sale\ScheduleRestrictedDistrictRuleItem.cs" />
-    <Compile Include="HibernateMapping\Sale\ScheduleRestrictedDistrictRuleItemMap.cs" />
-    <Compile Include="Repositories\Sale\ScheduleRestrictedDistrictRuleRepository.cs" />
+    <Compile Include="Domain\Sale\CommonDistrictRuleItem.cs" />
+    <Compile Include="Repositories\Sale\DistrictRuleRepository.cs" />
     <Compile Include="Domain\Payments\PaymentFromTinkoff.cs" />
     <Compile Include="HibernateMapping\Payments\PaymentFromTinkoffMap.cs" />
     <Compile Include="Repositories\Payments\PaymentsRepository.cs" />

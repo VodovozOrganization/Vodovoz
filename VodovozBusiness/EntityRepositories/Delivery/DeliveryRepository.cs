@@ -11,17 +11,17 @@ namespace Vodovoz.EntityRepositories.Delivery
 	{
 		#region Получение районов по координатам
 
-		public ScheduleRestrictedDistrict GetDistrict(IUnitOfWork uow, decimal latitude, decimal longitude)
+		public District GetDistrict(IUnitOfWork uow, decimal latitude, decimal longitude)
 		{
 			var districts = GetDistricts(uow, latitude, longitude);
 			return districts.FirstOrDefault();
 		}
 
-		public IEnumerable<ScheduleRestrictedDistrict> GetDistricts(IUnitOfWork uow, decimal latitude, decimal longitude)
+		public IEnumerable<District> GetDistricts(IUnitOfWork uow, decimal latitude, decimal longitude)
 		{
 			Point point = new Point((double)latitude, (double)longitude);
 
-			IList<ScheduleRestrictedDistrict> districtsWithBorders = uow.Session.QueryOver<ScheduleRestrictedDistrict>().Where(x => x.DistrictBorder != null).List();
+			IList<District> districtsWithBorders = uow.Session.QueryOver<District>().Where(x => x.DistrictBorder != null).List();
 
 			var districts = districtsWithBorders.Where(x => x.DistrictBorder.Contains(point));
 
@@ -35,7 +35,7 @@ namespace Vodovoz.EntityRepositories.Delivery
 					return districts;
 				}
 			}
-			return new List<ScheduleRestrictedDistrict>();
+			return new List<District>();
 		}
 
 		/// <summary>

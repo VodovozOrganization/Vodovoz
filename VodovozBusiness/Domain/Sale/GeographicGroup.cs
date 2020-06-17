@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Sale
 		NominativePlural = "Части города")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class GeographicGroup : BusinessObjectBase<ScheduleRestrictedDistrict>, IDomainObject, IValidatableObject
+	public class GeographicGroup : BusinessObjectBase<District>, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 

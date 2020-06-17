@@ -31,7 +31,7 @@
 		orders.delivery_point_id = items.delivery_point_id
 		AND order_status &lt;&gt; 'Canceled' AND order_status &lt;&gt; 'DeliveryCanceled'
 		AND category = 'water' AND NOT is_disposable_tare) AS lastorder,
-    schedule_restricted_districts.district_name,
+    districts.district_name,
 	(SELECT
 		SUM(delivered) - SUM(returned)
 	FROM
@@ -51,9 +51,9 @@ LEFT JOIN
 LEFT JOIN
 	delivery_points ON items.delivery_point_id = delivery_points.id
 LEFT JOIN
-	schedule_restricted_districts ON schedule_restricted_districts.id = delivery_points.schedule_restricted_district_id
+	districts ON districts.id = delivery_points.district_id
 WHERE	
-	schedule_restricted_districts.tariff_zone_id = @tariff_zone_id
+	districts.tariff_zone_id = @tariff_zone_id
 GROUP BY delivery_points.id
 HAVING
 	delivery_point_debt &gt; @debt_from AND delivery_point_debt &lt; @debt_to

@@ -195,6 +195,9 @@ namespace Vodovoz
 			yEnumCounterpartyType.ChangedByUser += YEnumCounterpartyType_ChangedByUser;
 			YEnumCounterpartyType_Changed(this, new EventArgs());
 
+			checkIsChainStore.Binding.AddBinding(Entity, e => e.IsChainStore, w => w.Active).InitializeFromSource();
+
+
 			//make actions menu
 			var menu = new Gtk.Menu();
 			var menuItem = new Gtk.MenuItem("Все заказы контрагента");

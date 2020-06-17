@@ -25,15 +25,15 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public double Weight { get; set; }
 		public double Volume { get; set; }
 
-		public ScheduleRestrictedDistrict District { get; set; }
+		public District District { get; set; }
 
 		GeographicGroup shippingBase;
 		public GeographicGroup ShippingBase {
-			get => shippingBase ?? Order?.DeliveryPoint.District?.GeographicGroups.FirstOrDefault();
+			get => shippingBase ?? Order?.DeliveryPoint.District?.GeographicGroup;
 			set => shippingBase = value;
 		}
 
-		public CalculatedOrder(Order order, ScheduleRestrictedDistrict district, bool notCalculate = false, RouteList existRoute = null)
+		public CalculatedOrder(Order order, District district, bool notCalculate = false, RouteList existRoute = null)
 		{
 			Order = order;
 			District = district;

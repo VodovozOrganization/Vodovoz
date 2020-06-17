@@ -15,7 +15,7 @@ namespace Vodovoz.ReportsParameters
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			refDistrict.SubjectType = typeof(ScheduleRestrictedDistrict);
+			refDistrict.SubjectType = typeof(District);
 		}
 
 		#region IParametersWidget implementation
@@ -38,7 +38,7 @@ namespace Vodovoz.ReportsParameters
 				ReportName = "Orders.OrdersByAllDistrict";
 			} else {
 				ReportName = "Orders.OrdersByDistrict";
-				parameters.Add("id_district", ((ScheduleRestrictedDistrict)refDistrict.Subject).Id);
+				parameters.Add("id_district", ((District)refDistrict.Subject).Id);
 			}
 
 			return new ReportInfo {

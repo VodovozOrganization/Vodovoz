@@ -4,13 +4,13 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.JournalNodes
 {
-	public class ScheduleRestrictedDistrictJournalNode : JournalEntityNodeBase
+	public class DistrictJournalNode : JournalEntityNodeBase
 	{
-		protected ScheduleRestrictedDistrictJournalNode() : base(typeof(ScheduleRestrictedDistrict))
+		protected DistrictJournalNode() : base(typeof(District))
 		{
 		}
 
-		protected ScheduleRestrictedDistrictJournalNode(Type entityType) : base(entityType)
+		protected DistrictJournalNode(Type entityType) : base(entityType)
 		{
 		}
 

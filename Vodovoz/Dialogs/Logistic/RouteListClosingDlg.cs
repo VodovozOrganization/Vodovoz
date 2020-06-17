@@ -561,7 +561,7 @@ namespace Vodovoz
 			);
 			labelTotal.Markup = string.Format(
 				"Итого сдано: <b>{0:F2}</b> {1}",
-				Entity.MoneyToReturn - GetCashOrder() - (decimal)advanceSpinbutton.Value,
+				GetCashOrder() - (decimal)advanceSpinbutton.Value,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = string.Format(

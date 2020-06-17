@@ -40,7 +40,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		public QueryOver<VodovozOrder> GetOrdersForRLEditingQuery(DateTime date, bool showShipped)
 		{
-			var query = QueryOver.Of<VodovozOrder>().Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery && !order.IsService)
+			var query = QueryOver.Of<VodovozOrder>().Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery)
 													.Where(o => o.DeliverySchedule != null)
 													.Where(x => x.DeliveryPoint != null)
 													;
@@ -51,7 +51,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return query;
 		}
 
-		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, ScheduleRestrictedDistrict district)
+		public IList<VodovozOrder> GetAcceptedOrdersForRegion(IUnitOfWork uow, DateTime date, District district)
 		{
 			DeliveryPoint point = null;
 			return uow.Session.QueryOver<VodovozOrder>()

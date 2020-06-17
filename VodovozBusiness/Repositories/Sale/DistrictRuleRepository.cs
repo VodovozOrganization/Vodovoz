@@ -6,7 +6,7 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Repositories.Sale
 {
-	public static class ScheduleRestrictedDistrictRuleRepository
+	public static class DistrictRuleRepository
 	{
 		public static QueryOver<DeliveryPriceRule> GetQueryOverWithAllDeliveryPriceRules()
 		{
@@ -20,20 +20,20 @@ namespace Vodovoz.Repositories.Sale
 			return res;
 		}
 
-		public static IList<ScheduleRestrictedDistrictRuleItem> GetScheduleRestrictedDistrictRuleItemsForDistrict(IUnitOfWork uow, ScheduleRestrictedDistrict district)
+		public static IList<CommonDistrictRuleItem> GetScheduleCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, District district)
 		{
-			var res = uow.Session.QueryOver<ScheduleRestrictedDistrictRuleItem>()
-						 .Where(i => i.ScheduleRestrictedDistrict.Id == district.Id)
+			var res = uow.Session.QueryOver<CommonDistrictRuleItem>()
+						 .Where(i => i.District.Id == district.Id)
 						 .List();
 			return res;
 		}
 
-		public static IList<ScheduleRestrictedDistrict> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule)
+		public static IList<District> GetDistrictsHavingRule(IUnitOfWork uow, DeliveryPriceRule rule)
 		{
-			var res = uow.Session.QueryOver<ScheduleRestrictedDistrictRuleItem>()
+			var res = uow.Session.QueryOver<CommonDistrictRuleItem>()
 						 .Where(d => d.DeliveryPriceRule.Id == rule.Id)
 						 .List()
-						 .Select(r => r.ScheduleRestrictedDistrict)
+						 .Select(r => r.District)
 						 .ToList();
 
 			return res;

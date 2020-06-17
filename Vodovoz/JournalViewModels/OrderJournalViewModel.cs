@@ -47,7 +47,7 @@ namespace Vodovoz.JournalViewModels
 			DeliverySchedule deliveryScheduleAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
-			ScheduleRestrictedDistrict districtAlias = null;
+			District districtAlias = null;
 
 			Nomenclature sanitizationNomenclature = new NomenclatureRepository().GetSanitisationNomenclature(uow);
 

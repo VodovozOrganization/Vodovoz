@@ -55,7 +55,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 
 		void SelectDistrict_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			var addDistricts = e.GetEntities<ScheduleRestrictedDistrict>();
+			var addDistricts = e.GetEntities<District>();
 			addDistricts.Where(x => observableDistricts.All(d => d.District.Id != x.Id))
 				.Select(x => new AtWorkDriverDistrictPriority {
 					Driver = ListParent,

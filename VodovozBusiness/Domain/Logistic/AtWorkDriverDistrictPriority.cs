@@ -20,9 +20,9 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref driver, value, () => Driver);
 		}
 
-		ScheduleRestrictedDistrict district;
+		District district;
 		[Display(Name = "Район")]
-		public virtual ScheduleRestrictedDistrict District {
+		public virtual District District {
 			get => district;
 			set => SetField(ref district, value, () => District);
 		}

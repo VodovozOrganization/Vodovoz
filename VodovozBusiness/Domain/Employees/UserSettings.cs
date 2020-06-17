@@ -80,6 +80,42 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref defaultSaleCategory, value, () => DefaultSaleCategory); }
 		}
 
+		private bool logisticDeliveryOrders;
+
+		/// <summary>
+		/// Для установки фильра заказов для обычной доставки
+		/// </summary>
+		[Display(Name = "Доставка")]
+		public virtual bool LogisticDeliveryOrders {
+			get => logisticDeliveryOrders;
+			set => SetField(ref logisticDeliveryOrders, value, () => LogisticDeliveryOrders);
+		}
+
+		private bool logisticServiceOrders;
+
+		/// <summary>
+		/// Для установки фильтра заказов с сервисным обслуживанием (выезд мастеров)
+		/// </summary>
+		[Display(Name = "Сервисное обслуживание")]
+		public virtual bool LogisticServiceOrders {
+			get => logisticServiceOrders;
+			set => SetField(ref logisticServiceOrders, value, () => LogisticServiceOrders);
+		}
+
+		private bool logisticChainStoreOrders;
+
+		/// <summary>
+		/// Для установки фильтра заказов для сетевых магазинов
+		/// </summary>
+		[Display(Name = "Сетевые магазины")]
+		public virtual bool LogisticChainStoreOrders {
+			get => logisticChainStoreOrders;
+			set => SetField(ref logisticChainStoreOrders, value, () => LogisticChainStoreOrders);
+		}
+
+
+
+
 		#endregion
 
 		public UserSettings ()

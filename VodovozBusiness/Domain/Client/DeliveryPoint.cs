@@ -298,9 +298,9 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		ScheduleRestrictedDistrict district;
+		District district;
 		[Display(Name = "Район доставки")]
-		public virtual ScheduleRestrictedDistrict District {
+		public virtual District District {
 			get => district;
 			set => SetField(ref district, value, () => District);
 		}
@@ -547,10 +547,10 @@ namespace Vodovoz.Domain.Client
 		/// </summary>
 		/// <param name="uow">UnitOfWork через который будет получены все районы доставки,
 		/// среди которых будет производится поиск подходящего района</param>
-		public virtual IEnumerable<ScheduleRestrictedDistrict> CalculateDistricts(IUnitOfWork uow)
+		public virtual IEnumerable<District> CalculateDistricts(IUnitOfWork uow)
 		{
 			if(!CoordinatesExist) {
-				return new List<ScheduleRestrictedDistrict>();
+				return new List<District>();
 			}
 			return deliveryRepository.GetDistricts(uow, Latitude.Value, Longitude.Value);
 		}
@@ -566,7 +566,7 @@ namespace Vodovoz.Domain.Client
 				return false;
 			}
 
-			ScheduleRestrictedDistrict foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value);
+			District foundDistrict = deliveryRepository.GetDistrict(uow, Latitude.Value, Longitude.Value);
 			if(foundDistrict == null) {
 				return false;
 			}
@@ -609,7 +609,7 @@ namespace Vodovoz.Domain.Client
 
 			if(Longitude == null || Latitude == null || !FindAndAssociateDistrict(uow))
 				return true;
-			var gg = District.GeographicGroups.FirstOrDefault();
+			var gg = District.GeographicGroup;
 			var route = new List<PointOnEarth>(2) {
 				new PointOnEarth(gg.BaseLatitude.Value, gg.BaseLongitude.Value),
 				new PointOnEarth(Latitude.Value, Longitude.Value)

@@ -35,7 +35,7 @@ LEFT JOIN
 LEFT JOIN
 	nomenclature n ON i.nomenclature_id = n.id
 LEFT JOIN
-	schedule_restricted_districts distr ON ST_CONTAINS(distr.district_border, POINT(dp.latitude, dp.longitude))
+	districts distr ON ST_CONTAINS(distr.district_border, POINT(dp.latitude, dp.longitude))
 LEFT JOIN
 	delivery_schedule dsch ON o.delivery_schedule_id = dsch.id
 WHERE
