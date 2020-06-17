@@ -1084,12 +1084,6 @@ namespace Vodovoz.ViewModels.Logistic
 			Counterparty counterpartyAlias = null;
 
 			var selectedGeographicGroup = GeographicGroupNodes.Where(x => x.Selected).Select(x => x.GeographicGroup);
-			if(selectedGeographicGroup.Any()) {
-				baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-							  .Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
-							  .Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
-							  .Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
-			}
 
 			if(AddressTypes.Any(x => x.Selected)) {
 				var query = QueryOver.Of<Order>().Where(order => order.DeliveryDate == DateForRouting.Date && !order.SelfDelivery)
@@ -1135,8 +1129,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 				if(selectedGeographicGroup.Any()) {
 					baseOrderQuery.Left.JoinAlias(x => x.DeliveryPoint, () => deliveryPointAlias)
-								  .Left.JoinAlias(() => deliveryPointAlias.District, () => scheduleRestrictedDistrictAlias)
-								  .Left.JoinAlias(() => scheduleRestrictedDistrictAlias.GeographicGroups, () => geographicGroupAlias)
+								  .Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+								  .Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicGroupAlias)
 								  .Where(Restrictions.In(Projections.Property(() => geographicGroupAlias.Id), selectedGeographicGroup.Select(x => x.Id).ToArray()));
 				}
 
@@ -1144,11 +1138,7 @@ namespace Vodovoz.ViewModels.Logistic
 													.Where(x => x.IsContractCloser == false)
 													 .Where(x => !orderRepository.IsOrderCloseWithoutDelivery(UoW, x));
 
-				orderRepository.GetOrdersForRLEditingQuery(DateForRouting, ShowCompleted)
-							   .GetExecutableQueryOver(UoW.Session)
-							   .Fetch(SelectMode.Fetch, x => x.OrderItems)
-							   .Future();
-
+				baseOrderQuery.Fetch(SelectMode.Fetch, x => x.OrderItems).Future();
 
 				switch(DeliveryScheduleType) {
 					case DeliveryScheduleFilterType.DeliveryStart:
@@ -1179,9 +1169,6 @@ namespace Vodovoz.ViewModels.Logistic
 						break;
 				}
 			}
-
-
-
 
 			logger.Info("Загружаем МЛ на {0:d}...", DateForRouting);
 			progressBar?.ProgressAdd();
