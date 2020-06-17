@@ -1474,6 +1474,8 @@
     <Compile Include="Views\Logistic\AcceptBeforeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AcceptBeforeView.cs" />
     <Compile Include="ViewModels\Logistic\AddressType.cs" />
+    <Compile Include="Dialogs\Logistic\DistrictDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DistrictDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
