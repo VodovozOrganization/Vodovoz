@@ -146,7 +146,7 @@ LIMIT 1
       </Fields>
     </DataSet>
     <DataSet Name="Equipment">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>#OrderItems
 SELECT 
@@ -196,7 +196,7 @@ GROUP BY oe.own_type, n.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="official_name">
           <DataField>official_name</DataField>
           <TypeName>System.String</TypeName>
@@ -212,7 +212,7 @@ GROUP BY oe.own_type, n.id
       </Fields>
     </DataSet>
     <DataSet Name="EquipmentOnlineStore">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	n.official_name,
@@ -242,7 +242,7 @@ LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
 WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
 AND IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE)
-GROUP BY eq.nomenclature_id
+GROUP BY eq.nomenclature_id, order_id
 ;
 </CommandText>
         <QueryParameters>
@@ -251,7 +251,7 @@ GROUP BY eq.nomenclature_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="official_name">
           <DataField>official_name</DataField>
           <TypeName>System.String</TypeName>
