@@ -23,7 +23,7 @@ namespace Vodovoz.HibernateMapping.Employees
 			Map(x => x.BirthdayDate)		.Column("birthday_date");
 			Map(x => x.AddressCurrent)		.Column("address_current");
 			Map(x => x.INN)					.Column("inn");
-			Map(x => x.IsRussianCitizen)	.Column("is_russian_citizen");
+			Map(x => x.IsRussianCitizen).Column("is_russian_citizen");
 
 			References(x => x.Nationality)	.Column("nationality_id");
 			References(x => x.Citizenship)	.Column("citizenship_id");
@@ -52,16 +52,17 @@ namespace Vodovoz.HibernateMapping.Employees
 				Map(x => x.TripPriority)			 .Column("priority_for_trip");
 				Map(x => x.DriverSpeed)				 .Column("driver_speed");
 				Map(x => x.VisitingMaster)			 .Column("visiting_master");
+				Map(x => x.IsChainStoreDriver)		 .Column("is_chain_store_driver");
 				Map(x => x.IsDriverForOneDay)		 .Column("is_driver_for_one_day");
 				Map(x => x.DriverOf)				 .Column("driver_of").CustomType<CarTypeOfUseStringType>();
 				Map(x => x.Registration)			 .Column("registration_type").CustomType<RegistrationTypeStringType>();
-				Map(x => x.MinRouteAddresses).Column("min_route_addresses");
-				Map(x => x.MaxRouteAddresses).Column("max_route_addresses");
-				Map(x => x.DriverType).Column("driver_type").CustomType<DriverTypeStringType>();
+				Map(x => x.MinRouteAddresses)		 .Column("min_route_addresses");
+				Map(x => x.MaxRouteAddresses)		 .Column("max_route_addresses");
+				Map(x => x.DriverType)				 .Column("driver_type").CustomType<DriverTypeStringType>();
 
-				References(x => x.Subdivision).Column("subdivision_id");
-				References(x => x.User).Column("user_id");
-				References(x => x.DefaultForwarder).Column("default_forwarder_id");
+				References(x => x.Subdivision)		 .Column("subdivision_id");
+				References(x => x.User)				 .Column("user_id");
+				References(x => x.DefaultForwarder)	 .Column("default_forwarder_id");
 
 				HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse()
 										 .KeyColumn("driver_id")
