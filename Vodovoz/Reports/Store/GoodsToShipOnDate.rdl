@@ -448,8 +448,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingTop >3pt</PaddingTop>
-                        <PaddingBottom >3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -467,8 +467,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingTop >3pt</PaddingTop>
-                        <PaddingBottom >3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -486,8 +486,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingTop >3pt</PaddingTop>
-                        <PaddingBottom >3pt</PaddingBottom>
+                        <PaddingTop>3pt</PaddingTop>
+                        <PaddingBottom>3pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -518,7 +518,7 @@
         <Left>4.5pt</Left>
         <Top>125.5pt</Top>
       </Table>
-      <Textbox Name="Textbox22" >
+      <Textbox Name="Textbox22">
         <Height>12pt</Height>
         <Width>210pt</Width>
         <Value>="Сформировано: " + Format( {?creation_date}, "dd-MM-yyyy HH:mm")</Value>
@@ -561,7 +561,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>60</Timeout>
         <CommandText>SELECT
@@ -594,7 +594,7 @@ FROM (
 		i.nomenclature_id,
 		NULL AS category,
 		SUM(i.count) AS qty_to_ship,
-		gg.id
+		gg.id as geographic_group_id
 	FROM order_items i
 	JOIN orders o ON o.id = i.order_id
 	LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
@@ -638,7 +638,7 @@ JOIN nomenclature n ON n.id = items.nomenclature_id
 LEFT JOIN geographic_groups gg ON items.geographic_group_id = gg.id
 #остатки на складах
 LEFT JOIN (
-	SELECT 
+	SELECT
 		qty_tbl.nom_id,
 		SUM(qty_tbl.quantity) AS qty
 	FROM(
@@ -674,7 +674,7 @@ WHERE n.category NOT IN('water','deposit','service','master')
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature_id">
           <DataField>nomenclature_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -784,7 +784,7 @@ GROUP BY o.id
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="date">
       <DataType>DateTime</DataType>
       <DefaultValue>
