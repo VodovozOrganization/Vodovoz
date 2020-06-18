@@ -13,28 +13,29 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT
+    nomenclature.id as nomenclature_id,
     `nomenclature`.`name` AS nomenclature,
     ROUND(amount_in_db) amount_in_db,
     ROUND(amount_in_fact) amount_in_fact,
     ROUND(amount_in_fact - amount_in_db) difference,
     `comment`,
     CASE nomenclature.category
-		WHEN 'rent' THEN 'Аренда кулеров'
-		WHEN 'water' THEN 'Вода в многооборотной таре'
-		WHEN 'deposit' THEN 'Залог'
-		WHEN 'spare_parts' THEN 'Запчасти'
-		WHEN 'equipment' THEN 'Оборудование'
-		WHEN 'additional' THEN 'Товары'
-		WHEN 'service' THEN 'Услуга'
-		WHEN 'bottle' THEN 'Тара'
-		WHEN 'material' THEN 'Сырьё'
-		WHEN 'disposableBottleWater' THEN 'Вода в одноразовой таре'
-		WHEN 'master' THEN 'Выезд мастера'
-		ELSE ''
-	END as category
+        WHEN 'rent' THEN 'Аренда кулеров'
+        WHEN 'water' THEN 'Вода в многооборотной таре'
+        WHEN 'deposit' THEN 'Залог'
+        WHEN 'spare_parts' THEN 'Запчасти'
+        WHEN 'equipment' THEN 'Оборудование'
+        WHEN 'additional' THEN 'Товары'
+        WHEN 'service' THEN 'Услуга'
+        WHEN 'bottle' THEN 'Тара'
+        WHEN 'material' THEN 'Сырьё'
+        WHEN 'disposableBottleWater' THEN 'Вода в одноразовой таре'
+        WHEN 'master' THEN 'Выезд мастера'
+        ELSE ''
+    END as category
 FROM
     store_shiftchange_item
         LEFT JOIN
@@ -42,7 +43,7 @@ FROM
 WHERE
     store_shiftchange_item.store_shiftchange_id = @document_id
     AND
-	((nomenclature.category IN (@categories)) OR ('0' IN (@categories)))</CommandText>
+    ((nomenclature.category IN (@categories)) OR ('0' IN (@categories)));</CommandText>
         <QueryParameters>
           <QueryParameter Name="document_id">
             <Value>=Parameters!document_id</Value>
@@ -52,7 +53,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -76,6 +77,10 @@ WHERE
         <Field Name="category">
           <DataField>category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="nomenclature_id">
+          <DataField>nomenclature_id</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -115,7 +120,7 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Image" >
+    <DataSet Name="Image">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>/*
@@ -305,6 +310,9 @@ WHERE stored_resource.id = @id1</CommandText>
           <TableColumn>
             <Width>26.7pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>37.9pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>164.1pt</Width>
           </TableColumn>
@@ -318,7 +326,7 @@ WHERE stored_resource.id = @id1</CommandText>
             <Width>58.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>197.7pt</Width>
+            <Width>161.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -330,6 +338,22 @@ WHERE stored_resource.id = @id1</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox14">
                       <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Id</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -448,6 +472,22 @@ WHERE stored_resource.id = @id1</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>={nomenclature_id}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <TextAlign >Left</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="nomenclature">
@@ -539,6 +579,19 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox16">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -656,7 +709,7 @@ WHERE stored_resource.id = @id1</CommandText>
                           <Value>={category}</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>6</ColSpan>
+                      <ColSpan>7</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -694,7 +747,7 @@ WHERE stored_resource.id = @id1</CommandText>
         <Source>Database</Source>
         <Value>=First( {IM1} , "Image" )</Value>
         <Sizing>FitProportional</Sizing>
-        <MIMEType >image/jpeg</MIMEType>
+        <MIMEType>image/jpeg</MIMEType>
       </Image>
       <Textbox Name="Textbox12">
         <Height>30.82pt</Height>
