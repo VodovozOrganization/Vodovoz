@@ -59,7 +59,6 @@ namespace Vodovoz
 
 		private ChangedItem ordersToClose = new ChangedItem();
 
-#if SHORT
 		List<string> ExcludeNomenclatures = new List<string> {
 			 
 		};
@@ -67,7 +66,6 @@ namespace Vodovoz
 		{
 			"00000969", "24065099", "50453099", "00000344"
 		};
-#endif
 
 		#region Свойства
 
@@ -742,12 +740,6 @@ namespace Vodovoz
 
 			DeliveryPoint deliveryPoint = DeliveryPointRepository.GetByAddress1c(uow, client, addressCodeNode?.InnerText, addressNode?.InnerText);
 
-#if SHORT
-			//			if (addressNode?.InnerText != null)
-			//				if (addressNode.InnerText.ToLower().Contains("самовывоз"))
-			//					return;
-#endif
-
 			DateTime deliveryDate = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0] ?? "0001-01-01");
 			if(!LoadedOrderDates.Contains(deliveryDate))
 				LoadedOrderDates.Add(deliveryDate);
@@ -833,7 +825,6 @@ namespace Vodovoz
 				equipments.Add(ParseEquipmentToItem(item as XmlNode, order));
 			}
 
-#if SHORT
 			foreach(var item in order.OrderItems)
 			{
 				if (NoDeliveriNomenclatures.Contains(item.Nomenclature.Code1c))
@@ -850,7 +841,6 @@ namespace Vodovoz
 					return;
 				}
 			}
-#endif
 
 			OrdersList.Add(order);
 			ReadedOrders++;
