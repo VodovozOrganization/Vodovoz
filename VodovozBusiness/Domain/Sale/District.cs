@@ -8,6 +8,7 @@ using Gamma.Utilities;
 using GeoAPI.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Tools.Orders;
 
@@ -80,6 +81,13 @@ namespace Vodovoz.Domain.Sale
 		public virtual GeographicGroup GeographicGroup {
 			get => geographicGroup;
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
+		}
+		
+		private DistrictsSet districtsSet;
+		[Display(Name = "Набор районов")]
+		public virtual DistrictsSet DistrictsSet {
+			get => districtsSet;
+			set => SetField(ref districtsSet, value, () => DistrictsSet);
 		}
 		
 		#endregion

@@ -5,7 +5,6 @@ using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
-using Vodovoz.Domain.BusinessTasks;
 using Vodovoz.Domain.Payments;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
@@ -27,10 +26,27 @@ namespace Vodovoz.JournalColumnsConfigs
 		static Gdk.Color colorPink = new Gdk.Color(0xff, 0xc0, 0xc0);
 		static Gdk.Color colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 		static Gdk.Color colorDarkGrey = new Gdk.Color(0x80, 0x80, 0x80);
-		static Color colorLightGreen = new Color(0xc0, 0xff, 0xc0);
+		static Gdk.Color colorLightGreen = new Color(0xc0, 0xff, 0xc0);
 
 		public static void RegisterColumns()
 		{
+			//DistrictsSetJournalViewModel
+			TreeViewColumnsConfigFactory.Register<DistrictsSetJournalViewModel>(
+				() => FluentColumnsConfig<DistrictsSetJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.Finish()
+			);
+			
+			//DistrictsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<DistrictJournalViewModel>(
+				() => FluentColumnsConfig<DistrictJournalNode>.Create()
+					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Зарплатный район").AddTextRenderer(node => node.WageDistrict)
+					.Finish()
+			);
+			
 			//OrderJournalViewModel
 			TreeViewColumnsConfigFactory.Register<OrderJournalViewModel>(
 				() => FluentColumnsConfig<OrderJournalNode>.Create()
@@ -381,22 +397,6 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddEnumRenderer(n => n.Status)
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
-					.Finish()
-			);
-
-			//DistrictsJournalViewModel
-			TreeViewColumnsConfigFactory.Register<DistrictsJournalViewModel>(
-				() => FluentColumnsConfig<DistrictJournalNode>.Create()
-					.AddColumn("Код")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Id.ToString())
-					.AddColumn("Название")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.Name)
-					.AddColumn("Зарплатный район")
-						.HeaderAlignment(0.5f)
-						.AddTextRenderer(n => n.WageDistrict)
-					.AddColumn("")
 					.Finish()
 			);
 

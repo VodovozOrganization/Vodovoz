@@ -86,6 +86,7 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.Views.BusinessTasks;
 using Vodovoz.Footers.ViewModels;
@@ -186,6 +187,7 @@ namespace Vodovoz
 
 			//Регистрация вкладок
 			ViewModelWidgetResolver.Instance
+				.RegisterWidgetForTabViewModel<DistrictViewModel, DistrictView>()
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
 				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>()
 				.RegisterWidgetForTabViewModel<ClientCameFromViewModel, ClientCameFromView>()
@@ -224,6 +226,8 @@ namespace Vodovoz
 
 			//Регистрация виджетов
 			ViewModelWidgetResolver.Instance
+				.RegisterWidgetForWidgetViewModel<DistrictsSetJournalFilterViewModel, DistrictsSetJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<DistrictJournalFilterViewModel, DistrictJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<SelectableParameterReportFilterViewModel, SelectableParameterReportFilterView>()
 				.RegisterWidgetForWidgetViewModel<ComplaintFilterViewModel, ComplaintFilterView>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
@@ -406,13 +410,7 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
-			OrmMain.AddObjectDescription<District>()
-				.Dialog<DistrictDlg>()
-				.DefaultTableView()
-				.SearchColumn("Код", x => x.Id.ToString())
-				.SearchColumn("Название", x => x.DistrictName)
-				.End();
-			
+
 			#endregion
 
 			#region неПростые справочники

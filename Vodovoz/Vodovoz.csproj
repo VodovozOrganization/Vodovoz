@@ -1469,6 +1469,12 @@
     <Compile Include="Dialogs\Logistic\DistrictDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DistrictDlg.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
+    <Compile Include="Filters\GtkViews\DistrictJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictJournalFilterView.cs" />
+    <Compile Include="Views\Logistic\DistrictView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictView.cs" />
+    <Compile Include="Filters\GtkViews\DistrictsSetJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictsSetJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

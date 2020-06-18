@@ -9,6 +9,7 @@ using NLog;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Services;
 using QS.Utilities.Text;
 using QS.ViewModels;
@@ -18,9 +19,10 @@ using Vodovoz.Domain.WageCalculation;
 
 namespace Vodovoz.ViewModels.Logistic
 {
-    public sealed class DistrictsSetViewModel : DialogTabViewModelBase
+    public sealed class DistrictsSetViewModel : EntityTabViewModelBase<DistrictsSet>
     {
-        public DistrictsSetViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigation) : base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
+        public DistrictsSetViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigation = null) 
+            : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
             this.commonServices = commonServices;
             TabName = "Районы с графиками доставки";
@@ -32,8 +34,7 @@ namespace Vodovoz.ViewModels.Logistic
             CanDelete = permissionResult.CanDelete;
             CanCreate = permissionResult.CanCreate;
             
-            Districts = new GenericObservableList<District>(UoW.Session.QueryOver<District>()
-                .List<District>()
+            Districts = new GenericObservableList<District>(Entity.ObservableDistricts
                 .OrderBy(x => x.TariffZone.Name, new NaturalStringComparer())
                 .ThenBy(x => x.DistrictName).ToList());
             
@@ -41,7 +42,7 @@ namespace Vodovoz.ViewModels.Logistic
             SelectedDistrictBorderVertices = new GenericObservableList<PointLatLng>();
             NewBorderVertices = new GenericObservableList<PointLatLng>();
         }
-
+        
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         
         private readonly ICommonServices commonServices;
@@ -377,5 +378,6 @@ namespace Vodovoz.ViewModels.Logistic
             UoW?.Dispose();
             base.Dispose();
         }
+        
     }
 }

@@ -46,6 +46,9 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.JournalViewModels;
+using Vodovoz.FilterViewModels.Logistic;
+using Vodovoz.Footers.ViewModels;
+using Vodovoz.JournalViewModels.Logistic;
 
 public partial class MainWindow : Window
 {
@@ -835,6 +838,7 @@ public partial class MainWindow : Window
 
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(() => new DistrictsSetViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, null));
+		var filter = new DistrictsSetJournalFilterViewModel();
+		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
 	}
 }

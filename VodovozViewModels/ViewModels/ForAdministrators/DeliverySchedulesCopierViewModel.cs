@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Sale;
@@ -316,25 +314,25 @@ namespace Vodovoz.ViewModels.ForAdministrators
 		DelegateCommand addDistrictCommand;
 		public DelegateCommand AddDistrictCommand {
 			get {
-				if(addDistrictCommand == null) {
-					addDistrictCommand = new DelegateCommand(
-						() => {
-							var districtsJournalViewModel = new DistrictsJournalViewModel(
-								unitOfWorkFactory,
-								commonServices
-							) {
-								SelectionMode = JournalSelectionMode.Multiple
-							};
-							districtsJournalViewModel.SetRestriction(() => Restrictions.Not(Restrictions.IdEq(SourceDistrict.Id)));
-							districtsJournalViewModel.HideCreateAndOpenBtns();
-							districtsJournalViewModel.OnEntitySelectedResult += (sender, e) => {
-								e.SelectedNodes.OrderBy(n => n.Title).ToList().ForEach(n => ObservableDistrictsToEdit.Add(UoW.GetById<District>(n.Id)));
-							};
-							TabParent.AddSlaveTab(this, districtsJournalViewModel);
-						},
-						() => CanAddDistricts
-					);
-				}
+				// if(addDistrictCommand == null) {
+				// 	addDistrictCommand = new DelegateCommand(
+				// 		() => {
+				// 			var districtsJournalViewModel = new DistrictsJournalViewModel(
+				// 				unitOfWorkFactory,
+				// 				commonServices
+				// 			) {
+				// 				SelectionMode = JournalSelectionMode.Multiple
+				// 			};
+				// 			districtsJournalViewModel.SetRestriction(() => Restrictions.Not(Restrictions.IdEq(SourceDistrict.Id)));
+				// 			districtsJournalViewModel.HideCreateAndOpenBtns();
+				// 			districtsJournalViewModel.OnEntitySelectedResult += (sender, e) => {
+				// 				e.SelectedNodes.OrderBy(n => n.Title).ToList().ForEach(n => ObservableDistrictsToEdit.Add(UoW.GetById<District>(n.Id)));
+				// 			};
+				// 			TabParent.AddSlaveTab(this, districtsJournalViewModel);
+				// 		},
+				// 		() => CanAddDistricts
+				// 	);
+				// }
 				return addDistrictCommand;
 			}
 		}

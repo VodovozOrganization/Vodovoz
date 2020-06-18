@@ -160,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
+    <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
