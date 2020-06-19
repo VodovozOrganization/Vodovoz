@@ -21,23 +21,49 @@ using Vodovoz.JournalViewers;
 using Vodovoz.Repositories;
 using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepository;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using QS.Project.Journal.DataLoader;
+using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
+using QS.Project.Domain;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class OrderJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel>
+	public class OrderJournalViewModel : FilterableMultipleEntityJournalViewModelBase<OrderJournalNode, OrderJournalFilterViewModel>
 	{
-		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		private readonly ICommonServices commonServices;
+
+
+		public OrderJournalViewModel(
+			OrderJournalFilterViewModel filterViewModel, 
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
 			TabName = "Журнал заказов";
-			SetOrder(x => x.CreateDate, true);
+			//SetOrder(x => x.CreateDate, true);
+
+			RegisterOrders();
+
+			var threadLoader = DataLoader as ThreadDataLoader<OrderJournalNode>;
+			threadLoader.MergeInOrderBy(x => x.Id, true);
+
+			FinishJournalConfiguration();
 
 			UpdateOnChanges(
 				typeof(VodovozOrder),
+				typeof(OrderWithoutShipmentForDebt),
+				typeof(OrderWithoutShipmentForPayment),
+				typeof(OrderWithoutShipmentForAdvancePayment),
+				typeof(OrderWithoutShipmentForDebtItem),
+				typeof(OrderWithoutShipmentForPaymentItem),
+				typeof(OrderWithoutShipmentForAdvancePaymentItem),
 				typeof(OrderItem)
 			);
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
+		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
+		{
 			OrderJournalNode resultAlias = null;
 			VodovozOrder orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -189,14 +215,143 @@ namespace Vodovoz.JournalViewModels
 				.TransformUsing(Transformers.AliasToBean<OrderJournalNode>());
 
 			return resultQuery;
-		};
+		}
 
-		protected override Func<OrderDlg> CreateDialogFunction => () => new OrderDlg();
+		private void RegisterOrders()
+		{
+			var ordersConfig = RegisterEntity<VodovozOrder>(GetOrdersQuery)
+				.AddDocumentConfiguration(
+					//функция диалога создания документа
+					() => new OrderDlg(),
+					//функция диалога открытия документа
+					(OrderJournalNode node) => new OrderDlg(node.Id),
+					//функция идентификации документа 
+					(OrderJournalNode node) => node.EntityType == typeof(VodovozOrder),
+					"Заказы",
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
+				)
+				.AddDocumentConfiguration(
+					//функция диалога создания документа
+					() => new OrderWithoutShipmentForDebtViewModel(
+						EntityUoWBuilder.ForCreate(), 
+						UnitOfWorkFactory, 
+						commonServices
+					),
+					//функция диалога открытия документа
+					(OrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
+						EntityUoWBuilder.ForOpen(node.Id), 
+						UnitOfWorkFactory, 
+						commonServices
+					),
+					//функция идентификации документа 
+					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
+					"Счет без отгрузки на долг",
+					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true }
+				)
+				.AddDocumentConfiguration(
+					//функция диалога создания документа
+					() => new OrderWithoutShipmentForAdvancePaymentViewModel(
+						EntityUoWBuilder.ForCreate(),
+						UnitOfWorkFactory, 
+						commonServices
+					),
+					//функция диалога открытия документа
+					(OrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
+						EntityUoWBuilder.ForOpen(node.Id),
+						UnitOfWorkFactory,
+						commonServices
+					),
+					//функция идентификации документа 
+					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
+					"Счет без отгрузки на предоплату",
+					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true }
+				)
+				.AddDocumentConfiguration(
+					//функция диалога создания документа
+					() => new OrderWithoutShipmentForPaymentViewModel(
+						EntityUoWBuilder.ForCreate(),
+						UnitOfWorkFactory,
+						commonServices
+					),
+					//функция диалога открытия документа
+					(OrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
+						EntityUoWBuilder.ForOpen(node.Id), 
+						UnitOfWorkFactory,
+						commonServices
+					),
+					//функция идентификации документа 
+					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
+					"Счет без отгрузки на постоплату",
+					new JournalParametersForDocument { HideJournalForCreateDialog = true, HideJournalForOpenDialog = true }
+				);
 
-		protected override Func<OrderJournalNode, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
+			//завершение конфигурации
+			ordersConfig.FinishConfiguration();
+		}
+
+		protected override void CreateNodeActions()
+		{
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+			CreateDefaultAddActions();
+			CreateDefaultEditAction();
+			//CreateDefaultDeleteAction();
+
+			CreateOrderWithoutDeliveryActions();
+		}
+
+		private void CreateOrderWithoutDeliveryActions()
+		{
+			var parentNodeAction = new JournalAction("Счета без отгрузки", (selected) => true, (selected) => true, (selected) => { });
+
+			parentNodeAction.ChildActionsList.Add(
+				new JournalAction(
+					"Счет без отгрузки на долг",
+					(selected) => true,
+					(selected) => true,
+					(selected) => {
+						var viewModel = new OrderWithoutShipmentForDebtViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+						TabParent.OpenTab(() => viewModel, this);
+					}
+				)
+			);
+			parentNodeAction.ChildActionsList.Add(
+				new JournalAction(
+					"Счет без отгрузки на предоплату",
+					(selected) => true,
+					(selected) => true,
+					(selected) => {
+						var viewModel = new OrderWithoutShipmentForAdvancePaymentViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+						TabParent.OpenTab(() => viewModel, this);
+					}
+				)
+			);
+			parentNodeAction.ChildActionsList.Add(
+				new JournalAction(
+					"Счет без отгрузки на постоплату",
+					(selected) => true,
+					(selected) => true,
+					(selected) => {
+						var viewModel = new OrderWithoutShipmentForPaymentViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
+						TabParent.OpenTab(() => viewModel, this);
+					}
+				)
+			);
+
+			NodeActionsList.Add(parentNodeAction);
+		}
 
 		protected override void CreatePopupActions()
 		{
+			bool HasOrder(object[] objs) 
+			{
+				var selectedNodes = objs.Cast<OrderJournalNode>();
+				if(selectedNodes.Count() != 1)
+					return false;
+
+				return selectedNodes.FirstOrDefault().EntityType == typeof(VodovozOrder);
+			}
+
 			PopupActionsList.Add(
 				new JournalAction(
 					"Перейти в маршрутный лист",
@@ -360,6 +515,5 @@ namespace Vodovoz.JournalViewModels
 			}
 			return false;
 		}
-
 	}
 }

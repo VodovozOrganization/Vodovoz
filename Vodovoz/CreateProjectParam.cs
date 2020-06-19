@@ -90,6 +90,8 @@ using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.Views.BusinessTasks;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Footers.Views;
+using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
+using Vodovoz.Views.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz
 {
@@ -220,6 +222,9 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PaymentTaskViewModel, PaymentTaskView>()
 				.RegisterWidgetForTabViewModel<DistrictsViewModel, DistrictsView>()
 				.RegisterWidgetForTabViewModel<AcceptBeforeViewModel, AcceptBeforeView>()
+				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForDebtViewModel, OrderWithoutShipmentForDebtView>()
+				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForPaymentViewModel, OrderWithoutShipmentForPaymentView>()
+				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForAdvancePaymentViewModel, OrderWithoutShipmentForAdvancePaymentView>()
 				;
 
 			//Регистрация виджетов

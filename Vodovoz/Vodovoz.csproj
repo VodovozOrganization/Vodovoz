@@ -1469,6 +1469,15 @@
     <Compile Include="Dialogs\Logistic\DistrictDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DistrictDlg.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
+    <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtView.cs" />
+    <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentView.cs" />
+    <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentView.cs" />
+    <Compile Include="ViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtViewModel.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForPaymentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForDebtView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForAdvancePaymentView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1733,6 +1742,8 @@
     <Folder Include="Footers\" />
     <Folder Include="Footers\Views\" />
     <Folder Include="Footers\ViewModels\" />
+    <Folder Include="Views\Orders\OrdersWithoutShipment\" />
+    <Folder Include="ViewModels\Orders\OrdersWithoutShipment\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
