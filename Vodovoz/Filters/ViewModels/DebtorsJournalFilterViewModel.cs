@@ -75,6 +75,12 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref hideActiveCounterparty, value, () => HideActiveCounterparty);
 		}
 
+		private bool hideWithOneOrder;
+		public bool HideWithOneOrder {
+			get => hideWithOneOrder;
+			set => UpdateFilterField(ref hideWithOneOrder, value);
+		}
+
 		private int? debtBottlesFrom;
 		public int? DebtBottlesFrom {
 			get => debtBottlesFrom;

@@ -78,11 +78,13 @@ namespace Vodovoz.Representations
 			CallTask taskAlias = null;
 			Order orderAlias = null;
 			Order lastOrderAlias = null;
+			Order orderCountAlias = null;
 			OrderItem orderItemAlias = null;
+			OrderItem orderItemsSubQueryAlias = null;
 			DiscountReason discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
-
 
 			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
 
@@ -158,6 +160,15 @@ namespace Vodovoz.Representations
 						.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
 				);
 
+			var ordersCountSubQuery = QueryOver.Of(() => orderCountAlias)
+				.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
+				.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
+				.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
+				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+				.SelectList(list => list
+					.SelectGroup(() => orderAlias.Id)
+				);
+
 			#endregion LastOrder
 
 			ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
@@ -181,6 +192,11 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.Where(() => orderAlias.DeliveryDate <= FilterViewModel.EndDate.Value);
 				if(FilterViewModel.EndDate != null && FilterViewModel.HideActiveCounterparty)
 					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromAnotherDP);
+
+				if(FilterViewModel.HideWithOneOrder) {
+					ordersQuery.Where( Restrictions.Not (Restrictions.Eq(Projections.Count(Projections.SubQuery(ordersCountSubQuery)), 1)));
+				}
+
 				if(FilterViewModel.LastOrderNomenclature != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereExists(LastOrderNomenclatures);
 				if(FilterViewModel.DiscountReason != null)
@@ -229,6 +245,7 @@ namespace Vodovoz.Representations
 			BottlesMovementOperation bottleMovementOperationAlias = null;
 			BottlesMovementOperation bottlesMovementAlias = null;
 			Order orderAlias = null;
+			Order orderCountAlias = null;
 			Order lastOrderAlias = null;
 			OrderItem orderItemAlias = null;
 			DiscountReason discountReasonAlias = null;
@@ -281,6 +298,9 @@ namespace Vodovoz.Representations
 						.Add(() => orderFromAnotherDPAlias.SelfDelivery && !orderAlias.SelfDelivery)
 						.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
 	);
+			var ordersCountSubQuery = QueryOver.Of(() => orderCountAlias)
+				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+				.ToRowCountQuery();
 
 			#endregion LastOrder
 
@@ -413,7 +433,8 @@ namespace Vodovoz.Representations
 					{ "OPF", FilterViewModel?.OPF?.ToString() ?? String.Empty},
 					{ "DebtBottlesFrom", FilterViewModel.DebtBottlesFrom != null ? FilterViewModel?.DebtBottlesFrom.Value.ToString() : int.MinValue.ToString()},
 					{ "DebtBottlesTo", FilterViewModel.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : int.MaxValue.ToString()},
-					{ "HideActiveCounterparty", FilterViewModel.HideActiveCounterparty ? "true" : ""}
+					{ "HideActiveCounterparty", FilterViewModel.HideActiveCounterparty ? "true" : ""},
+					{ "HideWithOneOrder", FilterViewModel.HideWithOneOrder ? "true" : ""}
 				}
 			};
 			var dlg = new ReportViewDlg(reportInfo);
