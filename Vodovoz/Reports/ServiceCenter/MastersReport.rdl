@@ -1265,86 +1265,75 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	route_lists.date,
-	CONCAT(employees.last_name, ' ', employees.name) AS driver,
-	wages_movement_operations.money AS wage_from_operations,
-	entries.*
-	,cash_expense.money AS expense_advance
-	,cash_expense.description AS expense_advance_desc
+    route_lists.date,
+    CONCAT(employees.last_name, ' ', employees.name) AS driver,
+    wages_movement_operations.money AS wage_from_operations,
+    entries.*
+    ,cash_expense.money AS expense_advance
+    ,cash_expense.description AS expense_advance_desc
 FROM
-	route_lists
-RIGHT JOIN
-	(SELECT * FROM 
- (
-	 SELECT 
-		innerTab.rl_id,
-		innerTab.entry_name,
-		innerTab.entry_address,
-		innerTab.entry_price,
-		innerTab.entry_count,
-		innerTab.entry_payment_type,
-		innerTab.entry_sum,
-		innerTab.entry_wage,
-		innerTab.entry_profit,
-		innerTab.entry_nomenclatures
-		FROM
-		(SELECT
-				delivery_points.id,
-				route_list_addresses.route_list_id AS rl_id,
-				counterparty.name AS entry_name,
-				delivery_points.compiled_address_short AS entry_address,
-				order_items.price AS entry_price,
-				IFNULL(order_items.actual_count, 0) AS entry_count,
-				orders.payment_type AS entry_payment_type,
-				order_items.price * IFNULL(order_items.actual_count, 0) AS entry_sum,
-				order_items.price * IFNULL(order_items.actual_count, 0) * nomenclature.percent_for_master * 0.01 AS entry_wage,
-				order_items.price * IFNULL(order_items.actual_count, 0) * (1 - nomenclature.percent_for_master * 0.01) AS entry_profit,
-				IFNULL(nomenclature.short_name, nomenclature.name) AS entry_nomenclatures
-			FROM
-				route_list_addresses
-			LEFT JOIN
-				orders ON orders.id = route_list_addresses.order_id
-			LEFT JOIN
-				counterparty ON counterparty.id = orders.client_id
-			LEFT JOIN
-				delivery_points ON delivery_points.id = orders.delivery_point_id
-			LEFT JOIN
-				order_items ON order_items.order_id = orders.id
-			LEFT JOIN
-				nomenclature ON nomenclature.id = order_items.nomenclature_id
-			LEFT JOIN
-				order_equipment ON order_equipment.order_id = orders.id
-			WHERE
-				#Исключатся недовозы, частичные недовозы и отмены
-				(orders.order_status NOT IN ('NotDelivered', 'Canceled', 'DeliveryCanceled'))  
-				OR NOT (
-					# Частичные недовозы
-					route_list_addresses.status = 'Completed' 
-					AND					 
-					(
-						nomenclature.category in ('master', 'service')
-						AND nomenclature.serial = false				 
-						AND order_items.count != IFNULL(order_items.actual_count, 0)
-					)
-					OR order_equipment.confirmed = false	
-				)
-				) innerTab
-
-	) innerExpense ) AS entries ON entries.rl_id = route_lists.id
-LEFT JOIN
-	employees ON employees.id = route_lists.driver_id
-LEFT JOIN
-	wages_movement_operations ON wages_movement_operations.id = route_lists.driver_wages_movement_operations_id
-LEFT JOIN
-	cash_expense ON cash_expense.route_list_id = route_lists.id
+    route_lists
+    RIGHT JOIN
+        (
+            SELECT    
+                route_list_addresses.route_list_id AS rl_id,
+                counterparty.name AS entry_name,
+                delivery_points.compiled_address_short AS entry_address,
+                order_items.price AS entry_price,
+                IFNULL(order_items.actual_count, 0) AS entry_count,
+                orders.payment_type AS entry_payment_type,
+                order_items.price * IFNULL(order_items.actual_count, 0) AS entry_sum,
+                order_items.price * IFNULL(order_items.actual_count, 0) * nomenclature.percent_for_master * 0.01 AS entry_wage,
+                order_items.price * IFNULL(order_items.actual_count, 0) * (1 - nomenclature.percent_for_master * 0.01) AS entry_profit,
+                IFNULL(nomenclature.short_name, nomenclature.name) AS entry_nomenclatures
+            FROM
+                route_list_addresses
+                LEFT JOIN
+                    orders ON orders.id = route_list_addresses.order_id
+                LEFT JOIN
+                    counterparty ON counterparty.id = orders.client_id
+                LEFT JOIN
+                    delivery_points ON delivery_points.id = orders.delivery_point_id
+                LEFT JOIN
+                    order_items ON order_items.order_id = orders.id
+                LEFT JOIN
+                    nomenclature ON nomenclature.id = order_items.nomenclature_id
+                LEFT JOIN
+                    order_equipment ON order_equipment.order_id = orders.id
+                WHERE
+                    NOT(
+                        #Исключатся недовозы и отмены
+                        (
+                            orders.order_status IN ('NotDelivered', 'Canceled', 'DeliveryCanceled')
+                        )  
+                        OR
+                        #Частичные недовозы
+                        (                        
+                            route_list_addresses.status = 'Completed' 
+                            AND                  
+                            (
+                                nomenclature.category in ('master', 'service')
+                                AND nomenclature.serial = false              
+                                AND order_items.count != IFNULL(order_items.actual_count, 0)
+                            )
+                        )
+                    )
+        ) AS entries ON entries.rl_id = route_lists.id
+    LEFT JOIN
+        employees ON employees.id = route_lists.driver_id
+    LEFT JOIN
+        wages_movement_operations ON wages_movement_operations.id = route_lists.driver_wages_movement_operations_id
+    LEFT JOIN
+        cash_expense ON cash_expense.route_list_id = route_lists.id
 WHERE
-	route_lists.date &gt;= @start_date
-	AND route_lists.date &lt; date_add(@end_date, INTERVAL 1 DAY)
-	AND route_lists.driver_id = @driver_id
-ORDER BY route_lists.date, route_lists.id;</CommandText>
+    route_lists.date &gt;= @start_date
+    AND route_lists.date &lt; date_add(@end_date, INTERVAL 1 DAY)
+    AND route_lists.driver_id = @driver_id
+ORDER BY route_lists.date, route_lists.id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>={?start_date}</Value>
@@ -1357,7 +1346,7 @@ ORDER BY route_lists.date, route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1502,7 +1491,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
