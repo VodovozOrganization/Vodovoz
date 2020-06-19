@@ -168,6 +168,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\SmsPayment.cs" />
+    <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtItemMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\Accounting\AccountExpense.cs" />
@@ -869,6 +871,13 @@
     <Compile Include="HibernateMapping\BusinessTasks\ClientTaskMap.cs" />
     <Compile Include="HibernateMapping\BusinessTasks\PaymentTaskMap.cs" />
     <Compile Include="Domain\BusinessTasks\PaymentTask.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebt.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPayment.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePayment.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentBase.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtItem.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItem.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -953,6 +962,7 @@
     <Folder Include="Domain\Comments\" />
     <Folder Include="Domain\BusinessTasks\" />
     <Folder Include="HibernateMapping\BusinessTasks\" />
+    <Folder Include="Domain\Orders\OrdersWithoutShipment\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
