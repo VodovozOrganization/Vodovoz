@@ -124,13 +124,6 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
-		Release|x86 = Release|x86
-		Debug|x64 = Debug|x64
-		Release|x64 = Release|x64
-		v4.0-Debug|Any CPU = v4.0-Debug|Any CPU
-		v4.0-Release|Any CPU = v4.0-Release|Any CPU
-		Debug-short|x86 = Debug-short|x86
-		DebugShortWin|x86 = DebugShortWin|x86
 		DebugWin|x86 = DebugWin|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
