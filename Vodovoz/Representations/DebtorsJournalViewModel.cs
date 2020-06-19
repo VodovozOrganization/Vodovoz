@@ -160,18 +160,21 @@ namespace Vodovoz.Representations
 						.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
 				);
 
-			var ordersCountSubQuery = QueryOver.Of(() => orderCountAlias)
-				.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
-				.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
-				.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
-				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
-				.SelectList(list => list
-					.SelectGroup(() => orderAlias.Id)
-				);
+			var ordersCountProjection =
+					Projections.SubQuery(QueryOver.Of(() => orderCountAlias)
+						.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
+						.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
+						.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
+						.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+						.Select(Projections.CountDistinct(() => orderCountAlias.Id))
+					)
+				;
 
 			#endregion LastOrder
 
 			ordersQuery = ordersQuery.WithSubquery.WhereProperty(p => p.Id).Eq(LastOrderIdQuery);
+
+			ordersQuery.JoinAlias(c => c.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 			#region Filter
 
@@ -194,7 +197,7 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromAnotherDP);
 
 				if(FilterViewModel.HideWithOneOrder) {
-					ordersQuery.Where( Restrictions.Not (Restrictions.Eq(Projections.Count(Projections.SubQuery(ordersCountSubQuery)), 1)));
+					ordersQuery.Where(Restrictions.Not(Restrictions.Eq(ordersCountProjection, 1)));
 				}
 
 				if(FilterViewModel.LastOrderNomenclature != null)
@@ -218,7 +221,6 @@ namespace Vodovoz.Representations
 
 			var resultQuery = ordersQuery
 				.JoinAlias(c => c.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(c => c.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(c => c.BottlesMovementOperation, () => bottleMovementOperationAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList(list => list
 				   .Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.ClientId)
