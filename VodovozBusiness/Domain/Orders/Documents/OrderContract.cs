@@ -23,7 +23,14 @@ namespace Vodovoz.Domain.Orders.Documents
 			set => SetField(ref contract, value, () => Contract);
 		}
 
-		public override string Name => String.Format("Договор №{0}", contract.ContractFullNumber);
+		public override string Name {
+			get {
+				if(contract == null) {
+					return "Нет договора";
+				}
+				return String.Format("Договор №{0}", contract.ContractFullNumber);
+			}
+		}
 
 		public override DateTime? DocumentDate => Contract?.IssueDate;
 
