@@ -989,7 +989,7 @@ FROM
 	            
 	        LEFT JOIN delivery_points ON orders.delivery_point_id = delivery_points.id
 	        LEFT JOIN districts ON delivery_points.district_id = districts.id
-	        LEFT JOIN geographic_groups ON geographic_groups.id = distincts.geographic_group_id
+	        LEFT JOIN geographic_groups ON geographic_groups.id = districts.geographic_group_id
 	    WHERE
 	        delivery_date = @date
 	        AND !orders.is_contract_closer
