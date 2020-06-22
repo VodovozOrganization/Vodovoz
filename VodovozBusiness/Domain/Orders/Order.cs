@@ -2478,6 +2478,105 @@ namespace Vodovoz.Domain.Orders
 							);
 						}
 						break;
+					case OrderDocumentType.SpecialBill:
+						if(item is SpecialBillDocument &&
+							!ObservableOrderDocuments.OfType<SpecialBillDocument>().Any(x => x.Order == item.Order)) {
+							ObservableOrderDocuments.Add(
+								new SpecialBillDocument {
+									Order = item.Order,
+									AttachedToOrder = this
+								}
+							);
+						}
+						break;
+					case OrderDocumentType.EquipmentReturn:
+						if(item is EquipmentReturnDocument &&
+							!ObservableOrderDocuments.OfType<EquipmentReturnDocument>().Any(x => x.Order == item.Order)) {
+							ObservableOrderDocuments.Add(
+								new EquipmentReturnDocument {
+									Order = item.Order,
+									AttachedToOrder = this
+								}
+							);
+						}
+						break;
+					case OrderDocumentType.SpecialUPD:
+						if(item is SpecialUPDDocument &&
+							!ObservableOrderDocuments.OfType<SpecialUPDDocument>().Any(x => x.Order == item.Order)) {
+							ObservableOrderDocuments.Add(
+								new SpecialUPDDocument {
+									Order = item.Order,
+									AttachedToOrder = this
+								}
+							);
+						}
+						break;
+					case OrderDocumentType.RefundBottleDeposit:
+						if(item is RefundBottleDepositDocument &&
+							!ObservableOrderDocuments.OfType<RefundBottleDepositDocument>().Any(x => x.Order == item.Order)) {
+							ObservableOrderDocuments.Add(
+								new RefundBottleDepositDocument {
+									Order = item.Order,
+									AttachedToOrder = this
+								}
+							);
+						}
+						break;
+					case OrderDocumentType.RefundEquipmentDeposit:
+						if(item is RefundEquipmentDepositDocument &&
+							!ObservableOrderDocuments.OfType<RefundEquipmentDepositDocument>().Any(x => x.Order == item.Order)) {
+							ObservableOrderDocuments.Add(
+								new RefundEquipmentDepositDocument {
+									Order = item.Order,
+									AttachedToOrder = this
+								}
+							);
+						}
+						break;
+					case OrderDocumentType.BottleTransfer:
+						if(item is BottleTransferDocument &&
+							!ObservableOrderDocuments.OfType<BottleTransferDocument>().Any(x => x.Order == item.Order)) {
+							ObservableOrderDocuments.Add(
+								new BottleTransferDocument {
+									Order = item.Order,
+									AttachedToOrder = this
+								}
+							);
+						}
+						break;
+					case OrderDocumentType.TransportInvoice:
+						if(item is TransportInvoiceDocument &&
+							!ObservableOrderDocuments.OfType<TransportInvoiceDocument>().Any(x => x.Order == item.Order)) {
+							ObservableOrderDocuments.Add(
+								new TransportInvoiceDocument {
+									Order = item.Order,
+									AttachedToOrder = this
+								}
+							);
+						}
+						break;
+					case OrderDocumentType.Torg2:
+						if(item is Torg2Document &&
+							!ObservableOrderDocuments.OfType<Torg2Document>().Any(x => x.Order == item.Order)) {
+							ObservableOrderDocuments.Add(
+								new Torg2Document {
+									Order = item.Order,
+									AttachedToOrder = this
+								}
+							);
+						}
+						break;
+					case OrderDocumentType.AssemblyList:
+						if(item is AssemblyListDocument &&
+							!ObservableOrderDocuments.OfType<AssemblyListDocument>().Any(x => x.Order == item.Order)) {
+							ObservableOrderDocuments.Add(
+								new AssemblyListDocument {
+									Order = item.Order,
+									AttachedToOrder = this
+								}
+							);
+						}
+						break;
 					default:
 						break;
 				}
