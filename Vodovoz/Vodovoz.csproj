@@ -1531,10 +1531,6 @@
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\VodovozService\Chat\Chat.csproj">
-      <Project>{4E951BE3-3485-47E8-B7DF-5A098034A90E}</Project>
-      <Name>Chat</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.GtkSharp\GMap.NET.GtkSharp.csproj">
       <Project>{E06DEF77-F933-42FB-AFD8-DB2D0D8D6A98}</Project>
       <Name>GMap.NET.GtkSharp</Name>
@@ -1554,10 +1550,6 @@
     <ProjectReference Include="..\..\QSProjects\QSExtraGammaWidgets\QSExtraGammaWidgets.csproj">
       <Project>{3DCDD84A-20D0-4939-BE25-58B19F3961F2}</Project>
       <Name>QSExtraGammaWidgets</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\VodovozService\EmailService\EmailService.csproj">
-      <Project>{6E76A8A0-411C-4987-A77D-64B9571C7759}</Project>
-      <Name>EmailService</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
       <Project>{C97E91F4-B310-44E2-9B6C-96775395722D}</Project>
@@ -1599,9 +1591,17 @@
       <Project>{F22749B2-E35B-455D-BD8D-081373B16FC7}</Project>
       <Name>QS.BusinessCommon</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\VodovozService\VodovozSmsInformerService\InstantSmsService\InstantSmsService.csproj">
+    <ProjectReference Include="..\Services\Library\InstantSmsService\InstantSmsService.csproj">
       <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
       <Name>InstantSmsService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\EmailService\EmailService.csproj">
+      <Project>{6E76A8A0-411C-4987-A77D-64B9571C7759}</Project>
+      <Name>EmailService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\Chat\Chat.csproj">
+      <Project>{4E951BE3-3485-47E8-B7DF-5A098034A90E}</Project>
+      <Name>Chat</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

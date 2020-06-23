@@ -989,10 +989,6 @@
       <Project>{301F793C-130B-44EB-A45D-60D5F040B0AD}</Project>
       <Name>QS.Banks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\VodovozService\VodovozSmsInformerService\InstantSmsService\InstantSmsService.csproj">
-      <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
-      <Name>InstantSmsService</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
