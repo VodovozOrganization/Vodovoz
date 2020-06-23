@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{D123B6CA-4ABC-469D-B61D-EC4C7358FDAE}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>VodovozInstantSmsService</RootNamespace>
+    <AssemblyName>VodovozInstantSmsService</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <BaseDirectory>..\..\VodovozInstantSmsService</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="Mono.Posix" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="NLog">
+      <HintPath>..\..\..\packages\NLog.4.7.2\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Nini">
+      <HintPath>..\..\..\packages\Trove.Nini.1.1.0.0\lib\net20\Nini.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="InstantSmsServiceInstanceProvider.cs" />
+    <Compile Include="InstantSmsServiceBehavior.cs" />
+    <Compile Include="InstantSmsServiceHost.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\VodovozInstantSmsService\packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Library\InstantSmsService\InstantSmsService.csproj">
+      <Project>{FD5827D7-55A5-4387-BC5A-B5F6ED743FC9}</Project>
+      <Name>InstantSmsService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Library\SmsBlissSendService\SmsBlissSendService.csproj">
+      <Project>{6A2E255D-4702-4955-9C8C-80AD435EF217}</Project>
+      <Name>SmsBlissSendService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Library\SmsSendInterface\SmsSendInterface.csproj">
+      <Project>{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}</Project>
+      <Name>SmsSendInterface</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
