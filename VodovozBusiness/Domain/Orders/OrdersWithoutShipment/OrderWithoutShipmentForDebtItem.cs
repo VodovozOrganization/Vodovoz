@@ -25,6 +25,20 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			set => SetField(ref debtSum, value);
 		}
 
+		private OrderWithoutShipmentForDebtItemType itemType =
+			OrderWithoutShipmentForDebtItemType.ReconciliationArrears;
+		[Display(Name = "Задолженность по акту сверки")]
+		public virtual OrderWithoutShipmentForDebtItemType ItemType {
+			get => itemType;
+			set => SetField(ref itemType, value);
+		}
+
 		public OrderWithoutShipmentForDebtItem() { }
+	}
+
+	public enum OrderWithoutShipmentForDebtItemType
+	{
+		[Display(Name = "Задолженность по акту сверки")]
+		ReconciliationArrears
 	}
 }

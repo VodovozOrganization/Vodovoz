@@ -1478,6 +1478,9 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForPaymentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForDebtView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForAdvancePaymentView.cs" />
+    <Compile Include="Dialogs\Email\SendDocumentByEmailView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Email.SendDocumentByEmailView.cs" />
+    <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1744,6 +1747,7 @@
     <Folder Include="Footers\ViewModels\" />
     <Folder Include="Views\Orders\OrdersWithoutShipment\" />
     <Folder Include="ViewModels\Orders\OrdersWithoutShipment\" />
+    <Folder Include="Dialogs\Email\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1754,6 +1758,9 @@
     </None>
     <None Include="RdlEngineConfig.Linux.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\BillWithoutShipmentForDebt.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Equipment.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -50,7 +50,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewSentOrders;
 
-		private global::Vodovoz.ViewWidgets.SendDocumentByEmailView senddocumentbyemailview1;
+		private global::Gtk.HBox hbox7;
 
 		protected virtual void Build()
 		{
@@ -262,11 +262,11 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
 			w22.Position = 5;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.senddocumentbyemailview1 = new global::Vodovoz.ViewWidgets.SendDocumentByEmailView();
-			this.senddocumentbyemailview1.Events = ((global::Gdk.EventMask)(256));
-			this.senddocumentbyemailview1.Name = "senddocumentbyemailview1";
-			this.vbox1.Add(this.senddocumentbyemailview1);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.senddocumentbyemailview1]));
+			this.hbox7 = new global::Gtk.HBox();
+			this.hbox7.Name = "hbox7";
+			this.hbox7.Spacing = 6;
+			this.vbox1.Add(this.hbox7);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
 			w23.Position = 6;
 			this.Add(this.vbox1);
 			if ((this.Child != null))

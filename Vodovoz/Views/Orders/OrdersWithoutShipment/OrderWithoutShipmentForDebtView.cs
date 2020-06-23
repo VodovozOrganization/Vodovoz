@@ -6,6 +6,10 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
+using Vodovoz.Dialogs.Email;
+using Vodovoz.Repositories.HumanResources;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 {
@@ -32,8 +36,16 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			entityviewmodelentry1.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
 			);
-			entityviewmodelentry1.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.Client, w => w.Subject).InitializeFromSource();
+			entityviewmodelentry1.Binding.AddBinding(ViewModel.Entity, vm => vm.Client, w => w.Subject).InitializeFromSource();
+			entityviewmodelentry1.Binding.AddFuncBinding(ViewModel, vm => !vm.IsDocumentSent, w => w.Sensitive).InitializeFromSource();
+			entityviewmodelentry1.Changed += ViewModel.OnEntityViewModelEntryChanged;
 			entityviewmodelentry1.CanEditReference = true;
+
+			var sendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(), ViewModel.UoW);
+			ViewModel.SendDocViewModel = sendDocumentByEmailViewModel;
+			var sendEmailView = new SendDocumentByEmailView(sendDocumentByEmailViewModel);
+			hbox7.Add(sendEmailView);
+			sendEmailView.Show();
 
 			ViewModel.OpenCounterpatyJournal += entityviewmodelentry1.OpenSelectDialog;
 		}

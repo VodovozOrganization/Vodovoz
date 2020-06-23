@@ -92,6 +92,7 @@ using Vodovoz.Footers.ViewModels;
 using Vodovoz.Footers.Views;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.Views.Orders.OrdersWithoutShipment;
+using Vodovoz.Dialogs.Email;
 
 namespace Vodovoz
 {
@@ -254,6 +255,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CallTaskFilterViewModel, CallTaskFilterView>()
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalFooterViewModel, BusinessTasksJournalFooterView>()
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalActionsViewModel, BusinessTasksJournalActionsView>()
+				.RegisterWidgetForWidgetViewModel<SendDocumentByEmailViewModel, SendDocumentByEmailView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;
