@@ -167,6 +167,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Domain\Orders\Documents\BillWithoutShipmentForDebtDocument.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />

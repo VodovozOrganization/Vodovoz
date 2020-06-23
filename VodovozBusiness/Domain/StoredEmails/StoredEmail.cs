@@ -4,6 +4,7 @@ using QS.DomainModel.Entity;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.StoredEmails
 {
@@ -20,6 +21,27 @@ namespace Vodovoz.Domain.StoredEmails
 		public virtual Order Order {
 			get { return order; }
 			set { SetField(ref order, value, () => Order); }
+		}
+
+		private OrderWithoutShipmentForDebt orderWithoutShipmentForDebt;
+		[Display(Name = "Счет без отгрузки на долг")]
+		public virtual OrderWithoutShipmentForDebt OrderWithoutShipmentForDebt {
+			get => orderWithoutShipmentForDebt;
+			set => SetField(ref orderWithoutShipmentForDebt, value);
+		}
+
+		private OrderWithoutShipmentForAdvancePayment orderWithoutShipmentForAdvancePayment;
+		[Display(Name = "Счет без отгрузки на предоплату")]
+		public virtual OrderWithoutShipmentForAdvancePayment OrderWithoutShipmentForAdvancePayment {
+			get => orderWithoutShipmentForAdvancePayment;
+			set => SetField(ref orderWithoutShipmentForAdvancePayment, value);
+		}
+
+		private OrderWithoutShipmentForPayment orderWithoutShipmentForPayment;
+		[Display(Name = "Счет без отгрузки на постоплату")]
+		public virtual OrderWithoutShipmentForPayment OrderWithoutShipmentForPayment {
+			get => orderWithoutShipmentForPayment;
+			set => SetField(ref orderWithoutShipmentForPayment, value);
 		}
 
 		private OrderDocumentType documentType;
@@ -129,7 +151,6 @@ namespace Vodovoz.Domain.StoredEmails
 			}
 			Description += description;
 		}
-
 	}
 
 	public enum StoredEmailStates

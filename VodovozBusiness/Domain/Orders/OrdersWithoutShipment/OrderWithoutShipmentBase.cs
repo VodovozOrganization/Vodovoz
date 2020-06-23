@@ -38,6 +38,13 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 		}
 
+		bool isOrderWithoutShipmentSent;
+		[Display(Name = "Счет отправлен")]
+		public virtual bool IsOrderWithoutShipmentSent {
+			get => isOrderWithoutShipmentSent;
+			set => SetField(ref isOrderWithoutShipmentSent, value);
+		}
+
 		public OrderWithoutShipmentBase() { }
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -48,13 +50,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 		}
 
-		Equipment equipment;
-		[Display(Name = "Оборудование")]
-		public virtual Equipment Equipment {
-			get => equipment;
-			set => SetField(ref equipment, value);
-		}
-
 		bool isUserPrice;
 		[Display(Name = "Цена установлена пользователем")]
 		public virtual bool IsUserPrice {
@@ -62,12 +57,12 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			set => SetField(ref isUserPrice, value);
 		}
 
-		AdditionalAgreement additionalAgreement;
+		/*AdditionalAgreement additionalAgreement;
 		[Display(Name = "Дополнительное соглашение")]
 		public virtual AdditionalAgreement AdditionalAgreement {
 			get => additionalAgreement;
 			set => SetField(ref additionalAgreement, value, () => AdditionalAgreement);
-		}
+		}*/
 
 		decimal price;
 		[Display(Name = "Цена")]
@@ -81,8 +76,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 					IsUserPrice = value != GetPriceByTotalCount() && value != 0;
 
 				if(SetField(ref price, value)) {
-					if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
-						aa.UpdatePrice(Nomenclature, value);
+					/*if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
+						aa.UpdatePrice(Nomenclature, value);*/
 					RecalculateDiscount();
 					RecalculateNDS();
 				}
@@ -95,8 +90,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => count;
 			set {
 				if(SetField(ref count, value)) {
-					if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
-						aa.UpdateCount(Nomenclature, value);
+					/*if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
+						aa.UpdateCount(Nomenclature, value);*/
 					OrderWithoutDeliveryForAdvancePayment?.RecalculateItemsPrice();
 					RecalculateDiscount();
 					RecalculateNDS();
@@ -181,11 +176,58 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			set => SetField(ref discountReason, value);
 		}
 
-		PromotionalSet promoSet;
+		/*PromotionalSet promoSet;
 		[Display(Name = "Добавлено из промо-набора")]
 		public virtual PromotionalSet PromoSet {
 			get => promoSet;
 			set => SetField(ref promoSet, value);
+		}*/
+
+		FreeRentEquipment freeRentEquipment;
+
+		public virtual FreeRentEquipment FreeRentEquipment {
+			get => freeRentEquipment;
+			set => SetField(ref freeRentEquipment, value);
+		}
+
+		PaidRentEquipment paidRentEquipment;
+
+		public virtual PaidRentEquipment PaidRentEquipment {
+			get => paidRentEquipment;
+			set => SetField(ref paidRentEquipment, value);
+		}
+
+		int RentEquipmentCount {
+			get {
+				/*if(AdditionalAgreement?.Type == AgreementType.NonfreeRent && PaidRentEquipment != null)
+					return PaidRentEquipment.Count;
+
+				if(AdditionalAgreement?.Type == AgreementType.FreeRent && FreeRentEquipment != null)
+					return FreeRentEquipment.Count;*/
+
+				return 0;
+			}
+		}
+
+		int RentTime {
+			get {
+				/*if(AdditionalAgreement == null) {
+					return 0;
+				}
+				if(AdditionalAgreement.Self is NonfreeRentAgreement) {
+					NonfreeRentAgreement nonFreeRent = AdditionalAgreement.Self as NonfreeRentAgreement;
+					if(nonFreeRent.RentMonths.HasValue) {
+						return nonFreeRent.RentMonths.Value;
+					}
+				}
+
+				if(AdditionalAgreement.Self is DailyRentAgreement) {
+					DailyRentAgreement dailyRent = AdditionalAgreement.Self as DailyRentAgreement;
+					return dailyRent.RentDays;
+				}*/
+
+				return 0;
+			}
 		}
 
 		public int CurrentCount => ActualCount ?? Count;
@@ -193,6 +235,44 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual decimal Sum => Price * Count - DiscountMoney;//FIXME Count -- CurrentCount
 
 		public virtual decimal ActualSum => Price * CurrentCount - DiscountMoney;
+
+		public virtual decimal ManualChangingDiscount {
+			get => IsDiscountInMoney ? DiscountMoney : Discount;
+			set {
+				CalculateAndSetDiscount(value);
+				if(DiscountByStock != 0) {
+					DiscountByStock = 0;
+					DiscountReason = null;
+				}
+			}
+		}
+
+		public virtual bool IsRentCategory => RentEquipmentCount > 0;
+
+		public virtual string RentString {
+			get {
+				int rentCount = RentTime;
+				int count = RentEquipmentCount;
+
+				if(rentCount != 0)
+					return string.Format($"{count}*{rentCount}");
+				return string.Empty;
+			}
+		}
+
+		public virtual bool CanEditPrice {
+			get {
+				/*if(PromoSet != null) {
+					return false;
+				}
+				if(IsRentRenewal())
+					return true;
+					*/
+				return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
+			}
+		}
+
+		public virtual string NomenclatureString => Nomenclature != null ? Nomenclature.Name : string.Empty;
 
 		public virtual decimal DiscountSetter {
 			get => IsDiscountInMoney ? DiscountMoney : Discount;
@@ -229,7 +309,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public virtual void RecalculatePrice()
 		{
-			if(IsUserPrice || PromoSet != null)
+			if(IsUserPrice/* || PromoSet != null*/)
 				return;
 
 			Price = GetPriceByTotalCount();
@@ -255,9 +335,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		{
 			if(Nomenclature != null) {
 				if(Nomenclature.DependsOnNomenclature == null)
-					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
+					return Nomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment?.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
 				if(Nomenclature.IsWater19L)
-					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
+					return Nomenclature.DependsOnNomenclature.GetPrice(Nomenclature.IsWater19L ? OrderWithoutDeliveryForAdvancePayment?.GetTotalWater19LCount(doNotCountWaterFromPromoSets: true) : Count);
 			}
 			return 0m;
 		}

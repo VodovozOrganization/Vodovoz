@@ -296,49 +296,6 @@ namespace Vodovoz.JournalViewModels
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
 			//CreateDefaultDeleteAction();
-
-			CreateOrderWithoutDeliveryActions();
-		}
-
-		private void CreateOrderWithoutDeliveryActions()
-		{
-			var parentNodeAction = new JournalAction("Счета без отгрузки", (selected) => true, (selected) => true, (selected) => { });
-
-			parentNodeAction.ChildActionsList.Add(
-				new JournalAction(
-					"Счет без отгрузки на долг",
-					(selected) => true,
-					(selected) => true,
-					(selected) => {
-						var viewModel = new OrderWithoutShipmentForDebtViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
-						TabParent.OpenTab(() => viewModel, this);
-					}
-				)
-			);
-			parentNodeAction.ChildActionsList.Add(
-				new JournalAction(
-					"Счет без отгрузки на предоплату",
-					(selected) => true,
-					(selected) => true,
-					(selected) => {
-						var viewModel = new OrderWithoutShipmentForAdvancePaymentViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
-						TabParent.OpenTab(() => viewModel, this);
-					}
-				)
-			);
-			parentNodeAction.ChildActionsList.Add(
-				new JournalAction(
-					"Счет без отгрузки на постоплату",
-					(selected) => true,
-					(selected) => true,
-					(selected) => {
-						var viewModel = new OrderWithoutShipmentForPaymentViewModel(EntityUoWBuilder.ForCreate(), UnitOfWorkFactory, commonServices);
-						TabParent.OpenTab(() => viewModel, this);
-					}
-				)
-			);
-
-			NodeActionsList.Add(parentNodeAction);
 		}
 
 		protected override void CreatePopupActions()
