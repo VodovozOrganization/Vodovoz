@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>SmsBlissSendService</RootNamespace>
     <AssemblyName>SmsBlissSendService</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,14 +39,14 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
-    <Reference Include="SmsBlissAPI">
-      <HintPath>..\..\packages\SmsBliss.API.1.0.1\lib\net461\SmsBlissAPI.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
-      <HintPath>..\..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\..\..\packages\NLog.4.7.2\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="SmsBlissAPI">
+      <HintPath>..\..\..\packages\SmsBliss.API.1.0.1\lib\net461\SmsBlissAPI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -56,13 +56,13 @@
     <Compile Include="SmsBlissSentResult.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\SmsSendInterface\SmsSendInterface.csproj">
       <Project>{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85}</Project>
       <Name>SmsSendInterface</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
