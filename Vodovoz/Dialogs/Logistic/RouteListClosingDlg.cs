@@ -272,6 +272,8 @@ namespace Vodovoz
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
 
+			CalculateTotal();
+
 			UpdateSensitivity();
 		}
 
@@ -977,6 +979,7 @@ namespace Vodovoz
 			if(cashExpense != null) UoW.Save(cashExpense);
 			UoW.Save();
 
+			CalculateTotal();
 
 			if(messages.Any())
 				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
@@ -1086,6 +1089,8 @@ namespace Vodovoz
 
 			var operationsResultMessage = Entity.UpdateCashOperations();
 			messages.AddRange(operationsResultMessage);
+
+			CalculateTotal();
 
 			if(messages.Any()) {
 				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
