@@ -8,12 +8,12 @@ using Mailjet.Client.Resources;
 using Newtonsoft.Json.Linq;
 using NLog;
 using QS.DomainModel.UoW;
-using QSSupportLib;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Repositories;
+using Vodovoz.Services;
 
 namespace EmailService
 {
@@ -65,16 +65,13 @@ namespace EmailService
 				return;
 			}
 
-			var mailjetUserName = "MailjetUserId";
-			var mailjetSecretName = "MailjetSecretKey";
+			IMailjetParametersProvider parametersProvider = new BaseParametersProvider();
 
-			if(!MainSupport.BaseParameters.All.ContainsKey(mailjetUserName)
-			   || !MainSupport.BaseParameters.All.ContainsKey(mailjetSecretName)) {
-				logger.Error("В параметрах базы не указаны настройки подключения к серверу отправки почты Mailjet");
-				return;
+			try {
+				SetLoginSetting(parametersProvider.MailjetUserId, parametersProvider.MailjetSecretKey);
+			} catch(Exception ex) {
+				logger.Error(ex);
 			}
-
-			SetLoginSetting(MainSupport.BaseParameters.All[mailjetUserName], MainSupport.BaseParameters.All[mailjetSecretName]);
 		}
 
 		public static int GetEmailsInQueue()

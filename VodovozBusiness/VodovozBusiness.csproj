@@ -867,6 +867,7 @@
     <Compile Include="HibernateMapping\BusinessTasks\ClientTaskMap.cs" />
     <Compile Include="HibernateMapping\BusinessTasks\PaymentTaskMap.cs" />
     <Compile Include="Domain\BusinessTasks\PaymentTask.cs" />
+    <Compile Include="Services\IMailjetParametersProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

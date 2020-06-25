@@ -25,7 +25,8 @@ namespace Vodovoz.Core.DataService
 		IProfitCategoryProvider,
 		IPotentialFreePromosetsReportDefaultsProvider,
 		IOrganisationParametersProvider,
-		ISmsPaymentServiceParametersProvider
+		ISmsPaymentServiceParametersProvider,
+		IMailjetParametersProvider
 	{
 		public string GetDefaultBaseForErrorSend()
 		{
@@ -414,6 +415,24 @@ namespace Vodovoz.Core.DataService
 
 				return result;
 			} 
+		}
+
+		public string MailjetUserId {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("MailjetUserId")){
+					throw new InvalidProgramException("В параметрах базы не указаны настройки подключения к серверу отправки почты Mailjet (MailjetUserId)");
+				}
+				return ParametersProvider.Instance.GetParameterValue("MailjetUserId");
+			}
+		}
+
+		public string MailjetSecretKey {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("MailjetSecretKey")) {
+					throw new InvalidProgramException("В параметрах базы не указаны настройки подключения к серверу отправки почты Mailjet (MailjetSecretKey)");
+				}
+				return ParametersProvider.Instance.GetParameterValue("MailjetSecretKey");
+			}
 		}
 	}
 }
