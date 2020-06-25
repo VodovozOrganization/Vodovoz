@@ -10,7 +10,6 @@ using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Tdi;
-using QSOrmProject;
 using QSProjectsLib;
 using QS.Validation;
 using Vodovoz.Core.DataService;
@@ -23,7 +22,6 @@ using Vodovoz.JournalFilters;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Services;
 using QS.Dialog;
-using QS.Project.Repositories;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Services;
@@ -32,6 +30,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz
 {

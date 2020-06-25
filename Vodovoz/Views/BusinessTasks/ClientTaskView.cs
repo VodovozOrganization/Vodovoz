@@ -1,11 +1,11 @@
-﻿using QSOrmProject;
-using Vodovoz.Domain.BusinessTasks;
+﻿using Vodovoz.Domain.BusinessTasks;
 using Vodovoz.Views.Comments;
 using Vodovoz.ViewModels.BusinessTasks;
 using QS.Views.GtkUI;
 using QSWidgetLib;
 using QS.DomainModel.UoW;
 using System;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz.Views.BusinessTasks
 {

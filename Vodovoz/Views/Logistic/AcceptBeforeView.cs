@@ -1,6 +1,6 @@
 ﻿using QS.Views.GtkUI;
-using QSOrmProject;
 using Vodovoz.ViewModels.Logistic;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz.Views.Logistic
 {

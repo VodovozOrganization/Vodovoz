@@ -4,16 +4,15 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QSOrmProject;
 using QSProjectsLib;
 using QS.Validation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repositories.HumanResources;
 using QS.Services;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
+using QS.DomainModel.NotifyChange;
 
 namespace Vodovoz
 {
@@ -144,8 +143,9 @@ namespace Vodovoz
 
 			ydateDocument.Binding.AddBinding(Entity, s => s.Date, w => w.Date).InitializeFromSource();
 
-			OrmMain.GetObjectDescription<ExpenseCategory>().ObjectUpdated += OnExpenseCategoryUpdated;
-			OnExpenseCategoryUpdated(null, null);
+			NotifyConfiguration.Instance.BatchSubscribeOnEntity<ExpenseCategory>(HandleBatchEntityChangeHandler);
+			UpdateExpenseCategories();
+
 			comboExpense.Binding.AddBinding(Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource();
 
 			yspinMoney.Binding.AddBinding(Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource();
@@ -171,7 +171,12 @@ namespace Vodovoz
 			}
 		}
 
-		void OnExpenseCategoryUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
+		void HandleBatchEntityChangeHandler(EntityChangeEvent[] changeEvents)
+		{
+			UpdateExpenseCategories();
+		}
+
+		private void UpdateExpenseCategories()
 		{
 			comboExpense.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories(UoW);
 		}
