@@ -156,7 +156,6 @@
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
     <Compile Include="ViewModels\Warehouses\MovementDocumentRDL.cs" />
     <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />
-    <Compile Include="ViewModels\ForAdministrators\DeliverySchedulesCopierViewModel.cs" />
     <Compile Include="JournalNodes\DistrictJournalNode.cs" />
     <Compile Include="FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
     <Compile Include="JournalNodes\NomenclatureStockJournalNode.cs" />
@@ -220,6 +219,8 @@
     <Folder Include="Infrastructure\Services\" />
     <Folder Include="TempAdapters\" />
     <Folder Include="Infrastructure\InfoProviders\" />
+    <Folder Include="JournalViewModels\Organization\" />
+    <Folder Include="ViewModels\ForAdministrators" />
     <Folder Include="ViewModels\Organization\" />
     <Folder Include="ViewModels\WageCalculation\" />
     <Folder Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\" />

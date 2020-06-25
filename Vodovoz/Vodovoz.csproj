@@ -1054,8 +1054,6 @@
     <Compile Include="Core\Journal\MultipleEntityVMNodeBase.cs" />
     <Compile Include="Core\Journal\MultipleEntityModelBase.cs" />
     <Compile Include="Representations\CashMultipleDocumentVM.cs" />
-    <Compile Include="ServiceDialogs\DistrictFinderForDeliveryPointsDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.DistrictFinderForDeliveryPointsDlg.cs" />
     <Compile Include="Core\Journal\IMultipleEntityRepresentationModel.cs" />
     <Compile Include="Core\Journal\ActionForCreateEntityConfig.cs" />
     <Compile Include="Core\Journal\MultipleEntityModelDocumentConfig.cs" />
@@ -1315,8 +1313,6 @@
     <Compile Include="ViewModels\Logistic\DeliveryScheduleFilterType.cs" />
     <Compile Include="ReportsParameters\ZeroDebtClientReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ZeroDebtClientReport.cs" />
-    <Compile Include="Views\ForAdministrators\DeliverySchedulesCopierView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.ForAdministrators.DeliverySchedulesCopierView.cs" />
     <Compile Include="JournalViewModels\NomenclatureStockBalanceJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\NomenclatureStockFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclatureStockFilterView.cs" />
