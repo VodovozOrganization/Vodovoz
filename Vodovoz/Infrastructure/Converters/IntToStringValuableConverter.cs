@@ -4,19 +4,21 @@ using Gamma.Binding;
 
 namespace Vodovoz.Infrastructure.Converters
 {
-	public class IntToStringConverter : IValueConverter
+	public class IntToStringValuableConverter : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			int id = (int)value;
-			if(id > 0)
-				return id.ToString();
-			else
-				return "не определён";
+			return value?.ToString();
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
+			if(String.IsNullOrWhiteSpace(value as String))
+				return null;
+				
+			if(targetType == typeof(int) && Int32.TryParse(value.ToString(), out int number))
+				return number;
+
 			return null;
 		}
 	}

@@ -456,7 +456,7 @@
   <ItemGroup>
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="gtk-gui\generated.cs" />
-    <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
+    <Compile Include="Infrastructure\Converters\IntToStringValuableConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
@@ -1468,6 +1468,7 @@
     <Compile Include="ViewModels\Logistic\AddressType.cs" />
     <Compile Include="Dialogs\Logistic\DistrictDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DistrictDlg.cs" />
+    <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1614,6 +1615,10 @@
     <ProjectReference Include="..\Services\Library\Chat\Chat.csproj">
       <Project>{4E951BE3-3485-47E8-B7DF-5A098034A90E}</Project>
       <Name>Chat</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
+      <Project>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</Project>
+      <Name>VodovozInfrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

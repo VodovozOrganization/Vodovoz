@@ -1,9 +1,9 @@
 ﻿using System;
 using QS.Views.GtkUI;
-using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz.Filters.GtkViews
 {
