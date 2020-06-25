@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.Sale
 		NominativePlural = "районы",
 		Nominative = "район")]
 	[EntityPermission]
-	public class District : BusinessObjectBase<District>, IDomainObject, IValidatableObject
+	public class District : BusinessObjectBase<District>, IDomainObject, IValidatableObject, ICloneable
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
@@ -470,6 +470,29 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
+		private void InitializeAllCollections()
+		{
+			CommonDistrictRuleItems = new List<CommonDistrictRuleItem>();
+			
+			TodayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			MondayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			TuesdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			WednesdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			ThursdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			FridayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			SaturdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			SundayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			
+			TodayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			MondayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			TuesdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			WednesdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			ThursdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			FridayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			SaturdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			SundayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
@@ -519,6 +542,45 @@ namespace Vodovoz.Domain.Sale
 		}
 		
 		#endregion
-		
+
+		#region ICloneable implementation
+
+		public virtual object Clone()
+		{
+			var newDistrict = new District {
+				DistrictName = DistrictName,
+				DistrictBorder = DistrictBorder.Copy(),
+				WageDistrict = WageDistrict,
+				GeographicGroup = GeographicGroup,
+				PriceType = PriceType,
+				MinBottles = MinBottles,
+				TariffZone = TariffZone,
+				WaterPrice = WaterPrice
+			};
+			newDistrict.InitializeAllCollections();
+
+			foreach (var commonRuleItem in CommonDistrictRuleItems) {
+				var newCommonRuleItem = commonRuleItem.Clone() as CommonDistrictRuleItem;
+				newCommonRuleItem.District = newDistrict;
+				newDistrict.CommonDistrictRuleItems
+					.Add(newCommonRuleItem);
+			}
+			foreach (var scheduleRestriction in GetAllDeliveryScheduleRestrictions()) {
+				var newScheduleRestriction = scheduleRestriction.Clone() as DeliveryScheduleRestriction;
+				newScheduleRestriction.District = newDistrict;
+				newDistrict.GetScheduleRestrictionCollectionByWeekDayName(scheduleRestriction.WeekDay)
+					.Add(newScheduleRestriction);
+			}
+			foreach (var weekDayRule in GetAllWeekDayDistrictRuleItems()) {
+				var newWeekDayRule = weekDayRule.Clone() as WeekDayDistrictRuleItem;
+				newWeekDayRule.District = newDistrict;
+				newDistrict.GetWeekDayRuleItemCollectionByWeekDayName(weekDayRule.WeekDay)
+					.Add(newWeekDayRule);
+			}
+			
+			return newDistrict;
+		}
+
+		#endregion
 	}
 }

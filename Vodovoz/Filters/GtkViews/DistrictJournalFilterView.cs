@@ -1,5 +1,5 @@
-﻿using System;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Logistic;
 
 namespace Vodovoz.Filters.GtkViews
@@ -9,6 +9,16 @@ namespace Vodovoz.Filters.GtkViews
 		public DistrictJournalFilterView(DistrictJournalFilterViewModel filterViewModel) : base(filterViewModel)
 		{
 			this.Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			cmbDistrictsSetStatus.ShowSpecialStateAll = true;
+			cmbDistrictsSetStatus.ItemsEnum = typeof(DistrictsSetStatus);
+			cmbDistrictsSetStatus.Binding.AddBinding(ViewModel, vm => vm.Status, w => w.SelectedItemOrNull).InitializeFromSource();
+
+			ycheckOnlyWithBorders.Binding.AddBinding(ViewModel, vm => vm.OnlyWithBorders, w => w.Active).InitializeFromSource();
 		}
 	}
 }

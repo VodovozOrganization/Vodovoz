@@ -11,7 +11,7 @@ namespace Vodovoz.Repositories.Sale
 	{
 		public static GeographicGroup GeographicGroupByCoordinates(double? lat, double? lon, IUnitOfWork uow)
 		{
-			return GeographicGroupByCoordinates(lat, lon, ScheduleRestrictionRepository.AreasWithGeometry(uow));
+			return GeographicGroupByCoordinates(lat, lon, ScheduleRestrictionRepository.GetDistrictsWithBorder(uow));
 		}
 
 		public static GeographicGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source)

@@ -7,6 +7,7 @@ using GMap.NET;
 using NetTopologySuite.Geometries;
 using NLog;
 using QS.Commands;
+using QS.Deletion;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -16,23 +17,29 @@ using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Logistic
 {
     public sealed class DistrictsSetViewModel : EntityTabViewModelBase<DistrictsSet>
     {
-        public DistrictsSetViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigation = null) 
+        public DistrictsSetViewModel(IEntityUoWBuilder uowBuilder,
+            IUnitOfWorkFactory unitOfWorkFactory,
+            ICommonServices commonServices,
+            IEntityDeleteWorker entityDeleteWorker,
+            INavigationManager navigation = null) 
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
+            this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
             this.commonServices = commonServices;
             TabName = "Районы с графиками доставки";
             
             CanChangeDistrictWageTypePermissionResult = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_district_wage_type");
             
             var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District));
-            CanEdit = permissionResult.CanUpdate;
-            CanDelete = permissionResult.CanDelete;
-            CanCreate = permissionResult.CanCreate;
+            CanEdit = permissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
+            CanDelete = permissionResult.CanDelete && Entity.Status != DistrictsSetStatus.Active;
+            CanCreate = permissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
             
             Districts = new GenericObservableList<District>(Entity.ObservableDistricts
                 .OrderBy(x => x.TariffZone.Name, new NaturalStringComparer())
@@ -46,6 +53,7 @@ namespace Vodovoz.ViewModels.Logistic
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         
         private readonly ICommonServices commonServices;
+        private readonly IEntityDeleteWorker entityDeleteWorker;
         private readonly GeometryFactory geometryFactory;
 
         public readonly bool CanChangeDistrictWageTypePermissionResult;
@@ -190,7 +198,14 @@ namespace Vodovoz.ViewModels.Logistic
         private DelegateCommand removeDistrictCommand;
         public DelegateCommand RemoveDistrictCommand => removeDistrictCommand ?? (removeDistrictCommand = new DelegateCommand(
             () => {
-                Districts.Remove(SelectedDistrict);
+                var distrIdToDelete = SelectedDistrict.Id;
+                Entity.Districts.Remove(SelectedDistrict);
+                if(entityDeleteWorker.DeleteObject<District>(distrIdToDelete, UoW)) {
+                    Districts.Remove(SelectedDistrict);
+                    SelectedDistrict = null;
+                }
+                else
+                    Entity.Districts.Add(SelectedDistrict);
             },
             () => SelectedDistrict != null
         ));
@@ -341,11 +356,6 @@ namespace Vodovoz.ViewModels.Logistic
 
         #endregion
 
-        public override bool HasChanges {
-            get => base.HasChanges && CanEdit;
-            set => base.HasChanges = value;
-        }
-
         public override void Close(bool askSave, CloseSource source)
         {
             if(askSave)
@@ -354,23 +364,9 @@ namespace Vodovoz.ViewModels.Logistic
                 TabParent?.ForceCloseTab(this, source);
         }
 
-        public override bool Save(bool needClose)
-        {
-            logger.Info("Сохранение...");
-            foreach(District district in Districts) {
-                if(!commonServices.ValidationService.Validate(district)) {
-                    logger.Info("Сохранение отменено");
-                    return false;
-                }
-            }
-            foreach(District district in Districts) {
-                UoW.Save(district);
-            }
-            UoW.Commit();
-            if(needClose)
-                Close(HasChanges, CloseSource.Save);
-            logger.Info("Сохранено");
-            return true;
+        public override bool HasChanges {
+            get => base.HasChanges && CanEdit;
+            set => base.HasChanges = value;
         }
 
         public override void Dispose()

@@ -1,0 +1,49 @@
+﻿using Gamma.GtkWidgets;
+using Gtk;
+using QS.Dialog.GtkUI;
+using QS.Views.GtkUI;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModels.Logistic;
+
+namespace Vodovoz.Views.Logistic
+{
+	public partial class DistrictsSetActivationView : TabViewBase<DistrictsSetActivationViewModel>
+	{
+		public DistrictsSetActivationView(DistrictsSetActivationViewModel viewModel) : base(viewModel)
+		{
+			this.Build();
+			Configure();
+		}
+
+		private void Configure()
+		{
+			ylabelCurrentDistrictsSetStr.Text = ViewModel.ActiveDistrictsSet?.Name ?? "-";
+			ylabelSelectedDistrictsSetStr.Text = ViewModel.Entity?.Name ?? "";
+			
+			ybuttonActivate.Clicked += (sender, args) => {
+				if(MessageDialogHelper.RunQuestionDialog($"Переключить базу на набор районов \"{ViewModel.Entity.Name}\""))
+					ViewModel.ActivateDistrictsSetCommand.Execute();
+			};
+			
+			ytreePrioritiesToDelete.ColumnsConfig = ColumnsConfigFactory.Create<DriverDistrictPriority>()
+				.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
+				.AddColumn("Водитель").AddTextRenderer(x => x.Driver.ShortName)
+				.AddColumn("Старый район").AddTextRenderer(x => x.District.DistrictName)
+				.Finish();
+
+			ViewModel.PropertyChanged += (sender, args) => {
+				Application.Invoke((s, e) => {
+					if(args.PropertyName == nameof(ViewModel.ActivationStatus))
+						ylabelActivationStatus.Text = ViewModel.ActivationStatus;
+					if(args.PropertyName == nameof(ViewModel.ActivationInProgress))
+						ybuttonActivate.Sensitive = !ViewModel.ActivationInProgress && !ViewModel.WasSuccesfullyActivated;
+					if(args.PropertyName == nameof(ViewModel.ActiveDistrictsSet))
+						ylabelCurrentDistrictsSetStr.Text = ViewModel.ActiveDistrictsSet.Name;
+					if(args.PropertyName == nameof(ViewModel.DeletedPriorities))
+						ytreePrioritiesToDelete.ItemsDataSource = ViewModel.DeletedPriorities;
+				});
+			};
+		}
+		
+	}
+}

@@ -1198,7 +1198,7 @@ namespace Vodovoz
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			logisticanDistricts = ScheduleRestrictionRepository.AreasWithGeometry(UoW);
+			logisticanDistricts = ScheduleRestrictionRepository.GetDistrictsWithBorder(UoW);
 			foreach(var district in logisticanDistricts) {
 				var poligon = new GMapPolygon(
 					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),

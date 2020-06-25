@@ -1,10 +1,10 @@
 using System;
 using NHibernate;
 using NHibernate.Transform;
-using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.FilterViewModels.Logistic;
@@ -13,11 +13,13 @@ using Vodovoz.ViewModels.Logistic;
 
 namespace Vodovoz.JournalViewModels.Logistic
 {
-    public class DistrictJournalViewModel: FilterableSingleEntityJournalViewModelBase<District, DistrictViewModel, DistrictJournalNode, DistrictJournalFilterViewModel>
+    public sealed class DistrictJournalViewModel: FilterableSingleEntityJournalViewModelBase<District, DistrictViewModel, DistrictJournalNode, DistrictJournalFilterViewModel>
     {
         public DistrictJournalViewModel(DistrictJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(
             filterViewModel, unitOfWorkFactory, commonServices)
         {
+            TabName = "Журнал районов";
+            
             EnableAddButton = true;
             EnableDeleteButton = true;
             EnableEditButton = true;
@@ -30,10 +32,19 @@ namespace Vodovoz.JournalViewModels.Logistic
         protected override Func<IUnitOfWork, IQueryOver<District>> ItemsSourceQueryFunction => uow => {
             DistrictJournalNode districtJournalNode = null;
             District districtAlias = null;
+            DistrictsSet districtsSetAlias = null;
             WageDistrict wageDistrictAlias = null;
 
             var query = uow.Session.QueryOver<District>(() => districtAlias)
-                .Left.JoinAlias(() => districtAlias.WageDistrict, () => wageDistrictAlias);
+                .Left.JoinAlias(() => districtAlias.WageDistrict, () => wageDistrictAlias)
+                .Left.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias);
+
+            if(FilterViewModel != null) {
+                if(FilterViewModel.Status.HasValue)
+                    query.Where(() => districtsSetAlias.Status == FilterViewModel.Status.Value);
+                if(FilterViewModel.OnlyWithBorders)
+                    query.Where(() => districtAlias.DistrictBorder != null);
+            }
 
             query.Where(GetSearchCriterion(
                 () => districtAlias.Id,

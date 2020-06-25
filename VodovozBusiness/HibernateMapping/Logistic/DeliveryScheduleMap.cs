@@ -9,7 +9,7 @@ namespace Vodovoz.HibernateMapping
 		public DeliveryScheduleMap ()
 		{
 			Table("delivery_schedule");
-			Not.LazyLoad ();
+			// Not.LazyLoad ();
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.Name).Column ("name");

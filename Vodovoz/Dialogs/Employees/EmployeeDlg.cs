@@ -29,48 +29,29 @@ using Vodovoz.Infrastructure;
 using Vodovoz.EntityRepositories.Employees;
 using QS.Project.Dialogs.GtkUI.ServiceDlg;
 using QS.Project.Services.GtkUI;
-using Vodovoz.Domain.Sms;
 using InstantSmsService;
 using Vodovoz.Services;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using Vodovoz.Domain.Permissions;
 using Vodovoz.EntityRepositories.Permissions;
 using System.Data.Bindings.Collections.Generic;
-using NHibernate.Criterion;
 using Gamma.Widgets;
+using QS.Project.Journal;
 using QS.Widgets.GtkUI;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Additions;
 using Vodovoz.Journals.JournalViewModels.Organization;
+using Vodovoz.FilterViewModels.Logistic;
+using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
+using Vodovoz.JournalViewModels.Logistic;
 
 namespace Vodovoz
 {
 	public partial class EmployeeDlg : QS.Dialog.Gtk.EntityDialogBase<Employee>
 	{
-		IWageCalculationRepository wageParametersRepository;
-		ISubdivisionService subdivisionService;
-		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private bool canManageDriversAndForwarders;
-		private bool canManageOfficeWorkers;
-
-		public override bool HasChanges {
-			get {
-				phonesView.RemoveEmpty();
-				return UoWGeneric.HasChanges || attachmentFiles.HasChanges || !String.IsNullOrEmpty(yentryUserLogin.Text);
-			}
-			set => base.HasChanges = value;
-		}
-		private MySQLUserRepository mySQLUserRepository;
-
-		private GenericObservableList<DriverWorkScheduleNode> driverWorkDays;
-
-		private List<EmployeeCategory> hiddenCategory = new List<EmployeeCategory>();
-		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence, EmployeeDocumentType.ForeignCitizenPassport };
-		private readonly EmployeeDocumentType[] hiddenForForeignCitizen = { EmployeeDocumentType.MilitaryID, EmployeeDocumentType.NavyPassport, EmployeeDocumentType.OfficerCertificate };
-
 		public EmployeeDlg()
 		{
 			this.Build();
@@ -89,9 +70,7 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public EmployeeDlg(Employee sub) : this(sub.Id)
-		{
-		}
+		public EmployeeDlg(Employee sub) : this(sub.Id) {}
 
 		public EmployeeDlg(IUnitOfWorkGeneric<Employee> uow)
 		{
@@ -104,7 +83,18 @@ namespace Vodovoz
 			mySQLUserRepository = new MySQLUserRepository(new MySQLProvider(new GtkRunOperationService(), new GtkQuestionDialogsInteractive()), new GtkInteractiveService());
 			ConfigureDlg();
 		}
+		
+		private ISubdivisionService subdivisionService;
+		private bool canManageDriversAndForwarders;
+		private bool canManageOfficeWorkers;
+		private GenericObservableList<DriverWorkScheduleNode> driverWorkDays;
 
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly MySQLUserRepository mySQLUserRepository;
+		private readonly List<EmployeeCategory> hiddenCategory = new List<EmployeeCategory>();
+		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence, EmployeeDocumentType.ForeignCitizenPassport };
+		private readonly EmployeeDocumentType[] hiddenForForeignCitizen = { EmployeeDocumentType.MilitaryID, EmployeeDocumentType.NavyPassport, EmployeeDocumentType.OfficerCertificate };
+		
 		private void ConfigureDlg()
 		{
 			canManageDriversAndForwarders = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_drivers_and_forwarders");
@@ -119,7 +109,6 @@ namespace Vodovoz
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 
-			wageParametersRepository = WageSingletonRepository.GetInstance();
 			subdivisionService = SubdivisionParametersProvider.Instance;
 
 			yenumcomboStatus.ItemsEnum = typeof(EmployeeStatus);
@@ -310,6 +299,14 @@ namespace Vodovoz
 			if(!canManageOfficeWorkers && !canManageDriversAndForwarders) {
 				entrySubdivision.Sensitive = false;
 			}
+		}
+		
+		public override bool HasChanges {
+			get {
+				phonesView.RemoveEmpty();
+				return UoWGeneric.HasChanges || attachmentFiles.HasChanges || !String.IsNullOrEmpty(yentryUserLogin.Text);
+			}
+			set => base.HasChanges = value;
 		}
 
 		bool CanCreateNewUser => Entity.User == null && ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_users");
@@ -626,33 +623,27 @@ namespace Vodovoz
 		#region Driver & forwarder
 		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
 		{
-			var SelectDistrict = new OrmReference(
-				UoW,
-				ScheduleRestrictionRepository.AreaWithGeometryQuery()
-			) {
-				Mode = OrmReferenceMode.MultiSelect
+			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
+			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+				SelectionMode = JournalSelectionMode.Multiple, EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false
 			};
-			SelectDistrict.ObjectSelected += SelectDistrict_ObjectSelected;
-			TabParent.AddSlaveTab(this, SelectDistrict);
+			journalViewModel.OnEntitySelectedResult += (o, args) => {
+				var addDistricts = args.SelectedNodes;
+				addDistricts.Where(x => Entity.Districts.All(d => d.District.Id != x.Id))
+					.Select(x => new DriverDistrictPriority {
+						Driver = Entity,
+						District = UoW.GetById<District>(x.Id)
+					})
+					.ToList()
+					.ForEach(x => Entity.ObservableDistricts.Add(x));
+			};
+			TabParent.AddSlaveTab(this, journalViewModel);
 		}
 
 		protected void OnButtonRemoveDistrictClicked(object sender, EventArgs e)
 		{
 			var toRemoveDistricts = ytreeviewDistricts.GetSelectedObjects<DriverDistrictPriority>().ToList();
 			toRemoveDistricts.ForEach(x => Entity.ObservableDistricts.Remove(x));
-		}
-
-		void SelectDistrict_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			var addDistricts = e.GetEntities<District>();
-			addDistricts.Where(x => Entity.Districts.All(d => d.District.Id != x.Id))
-						.Select(x => new DriverDistrictPriority {
-							Driver = Entity,
-							District = x
-						})
-						.ToList()
-						.ForEach(x => Entity.ObservableDistricts.Add(x))
-						;
 		}
 
 		protected void OnComboCategoryEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)

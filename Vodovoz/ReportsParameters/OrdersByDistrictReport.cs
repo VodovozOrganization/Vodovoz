@@ -6,6 +6,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.FilterViewModels.Logistic;
 using Vodovoz.JournalViewModels.Logistic;
@@ -20,7 +21,7 @@ namespace Vodovoz.ReportsParameters
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 			entryDistrict.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () => {
-				var filter = new DistrictJournalFilterViewModel { HidenByDefault = true };
+				var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active};
 				return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
 					EnableDeleteButton = false,
 					EnableAddButton = false,

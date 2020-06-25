@@ -39,7 +39,7 @@ namespace Vodovoz.ViewWidgets.Logistics
 		{
 			var SelectDistrict = new OrmReference(
 				MyOrmDialog.UoW,
-				ScheduleRestrictionRepository.AreaWithGeometryQuery()
+				ScheduleRestrictionRepository.GetDistrictsWithBorder()
 			) {
 				Mode = OrmReferenceMode.MultiSelect
 			};

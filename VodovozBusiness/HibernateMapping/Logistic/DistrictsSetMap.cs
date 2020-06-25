@@ -7,13 +7,17 @@ namespace Vodovoz.HibernateMapping.Logistic
     {
 		public DistrictsSetMap()
 		{
-			Table("districts_set");
+			Table("districts_sets");
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.Name).Column("name");
+			Map(x => x.DateCreated).Column("date_created");
+			Map(x => x.DateActivated).Column("date_activated");
+			Map(x => x.DateClosed).Column("date_closed");
+			Map(x => x.Status).Column("status").CustomType<DistrictsSetStatusStringType>();
 			
-			References(x => x.Creator).Column("creator_id");
+			References(x => x.Author).Column("author_id");
 
 			HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse().KeyColumn("districts_set_id");
 		}

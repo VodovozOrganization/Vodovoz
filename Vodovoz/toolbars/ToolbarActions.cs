@@ -2,7 +2,6 @@
 using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.EntityRepositories;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
@@ -45,11 +44,9 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Repositories.HumanResources;
-using Vodovoz.JournalViewModels;
 using Vodovoz.FilterViewModels.Logistic;
-using Vodovoz.Footers.ViewModels;
 using Vodovoz.JournalViewModels.Logistic;
-
+using Vodovoz.TempAdapters;
 public partial class MainWindow : Window
 {
 	//Заказы
@@ -323,7 +320,7 @@ public partial class MainWindow : Window
 		var requestsJournal = new RequestsToSuppliersJournalViewModel(
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
-			QS.Project.Services.ServicesConfig.CommonServices,
+			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			new SupplierPriceItemsRepository()
 		);
@@ -838,7 +835,8 @@ public partial class MainWindow : Window
 
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
-		var filter = new DistrictsSetJournalFilterViewModel();
-		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices));
+		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
+		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,
+			EmployeeSingletonRepository.GetInstance(), new EntityDeleteWorker(), true, true));
 	}
 }

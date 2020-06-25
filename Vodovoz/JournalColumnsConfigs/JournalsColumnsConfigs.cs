@@ -5,6 +5,7 @@ using Gdk;
 using Gtk;
 using QS.Journal.GtkUI;
 using QSProjectsLib;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Payments;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
@@ -33,12 +34,19 @@ namespace Vodovoz.JournalColumnsConfigs
 			//DistrictsSetJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DistrictsSetJournalViewModel>(
 				() => FluentColumnsConfig<DistrictsSetJournalNode>.Create()
-					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+					.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
 					.AddColumn("Название").AddTextRenderer(node => node.Name)
+					.AddColumn("Статус").AddTextRenderer(node => node.Status.GetEnumTitle())
+					.AddColumn("Автор").AddTextRenderer(node => node.Author)
+					.AddColumn("Дата создания").AddTextRenderer(node => node.DateCreated.Date.ToString("d")).XAlign(0.5f)
+					.AddColumn("Дата активации").AddTextRenderer(node => node.DateActivated != null ? node.DateActivated.Value.Date.ToString("d") : "-").XAlign(0.5f)
+					.AddColumn("Дата закрытия").AddTextRenderer(node => node.DateClosed != null ? node.DateClosed.Value.Date.ToString("d") : "-").XAlign(0.5f)
+					.AddColumn("")
+					.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.Status == DistrictsSetStatus.Closed ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
 			
-			//DistrictsJournalViewModel
+			//DistrictJournalViewModel
 			TreeViewColumnsConfigFactory.Register<DistrictJournalViewModel>(
 				() => FluentColumnsConfig<DistrictJournalNode>.Create()
 					.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
