@@ -55,7 +55,6 @@ namespace Vodovoz.JournalViewModels
 				typeof(OrderWithoutShipmentForDebt),
 				typeof(OrderWithoutShipmentForPayment),
 				typeof(OrderWithoutShipmentForAdvancePayment),
-				typeof(OrderWithoutShipmentForDebtItem),
 				typeof(OrderWithoutShipmentForPaymentItem),
 				typeof(OrderWithoutShipmentForAdvancePaymentItem),
 				typeof(OrderItem)
@@ -233,8 +232,8 @@ namespace Vodovoz.JournalViewModels
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
 					() => new OrderWithoutShipmentForDebtViewModel(
-						EntityUoWBuilder.ForCreate(), 
-						UnitOfWorkFactory, 
+						EntityUoWBuilder.ForCreate(),
+						UnitOfWorkFactory,
 						commonServices
 					),
 					//функция диалога открытия документа

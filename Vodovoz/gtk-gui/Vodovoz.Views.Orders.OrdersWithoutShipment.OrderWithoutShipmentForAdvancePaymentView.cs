@@ -38,33 +38,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::Gamma.GtkWidgets.yButton btnDeleteOrderItem;
 
-		private global::Gtk.HBox hbox12;
-
-		private global::Gtk.Label labelDiscont;
-
-		private global::Gamma.Widgets.ySpecComboBox ycomboboxReason;
-
-		private global::QSOrmProject.EnumListComboBox enumDiscountUnit;
-
-		private global::Gamma.GtkWidgets.ySpinButton spinDiscount;
-
-		private global::Gtk.HBox hbox5;
-
-		private global::Gamma.GtkWidgets.yLabel ylabel9;
-
-		private global::Gamma.GtkWidgets.yEntry yentryEmail;
-
-		private global::Gamma.GtkWidgets.yButton ybtnSendEmail;
-
-		private global::Gtk.HBox hbox6;
-
-		private global::Gamma.GtkWidgets.yLabel ylabel10;
-
-		private global::Gtk.HBox hbox8;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-
-		private global::Gamma.GtkWidgets.yTreeView ytreeviewSentOrders;
+		private global::Gtk.HBox hboxSendDocuments;
 
 		protected virtual void Build()
 		{
@@ -225,135 +199,12 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox12 = new global::Gtk.HBox();
-			this.hbox12.Name = "hbox12";
-			this.hbox12.Spacing = 6;
-			// Container child hbox12.Gtk.Box+BoxChild
-			this.labelDiscont = new global::Gtk.Label();
-			this.labelDiscont.Name = "labelDiscont";
-			this.labelDiscont.LabelProp = global::Mono.Unix.Catalog.GetString("Скидка на все:");
-			this.hbox12.Add(this.labelDiscont);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.labelDiscont]));
-			w18.Position = 0;
-			w18.Expand = false;
-			w18.Fill = false;
-			// Container child hbox12.Gtk.Box+BoxChild
-			this.ycomboboxReason = new global::Gamma.Widgets.ySpecComboBox();
-			this.ycomboboxReason.Name = "ycomboboxReason";
-			this.ycomboboxReason.AddIfNotExist = false;
-			this.ycomboboxReason.DefaultFirst = false;
-			this.ycomboboxReason.ShowSpecialStateAll = false;
-			this.ycomboboxReason.ShowSpecialStateNot = false;
-			this.hbox12.Add(this.ycomboboxReason);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.ycomboboxReason]));
-			w19.Position = 1;
-			w19.Expand = false;
-			w19.Fill = false;
-			// Container child hbox12.Gtk.Box+BoxChild
-			this.enumDiscountUnit = new global::QSOrmProject.EnumListComboBox();
-			this.enumDiscountUnit.CanDefault = true;
-			this.enumDiscountUnit.Name = "enumDiscountUnit";
-			this.hbox12.Add(this.enumDiscountUnit);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.enumDiscountUnit]));
-			w20.Position = 2;
-			w20.Expand = false;
-			w20.Fill = false;
-			// Container child hbox12.Gtk.Box+BoxChild
-			this.spinDiscount = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
-			this.spinDiscount.CanFocus = true;
-			this.spinDiscount.Name = "spinDiscount";
-			this.spinDiscount.Adjustment.PageIncrement = 1D;
-			this.spinDiscount.ClimbRate = 1D;
-			this.spinDiscount.Numeric = true;
-			this.spinDiscount.ValueAsDecimal = 0m;
-			this.spinDiscount.ValueAsInt = 0;
-			this.hbox12.Add(this.spinDiscount);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox12[this.spinDiscount]));
-			w21.Position = 3;
-			w21.Expand = false;
-			w21.Fill = false;
-			this.vbox1.Add(this.hbox12);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox12]));
-			w22.Position = 5;
-			w22.Expand = false;
-			w22.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox5 = new global::Gtk.HBox();
-			this.hbox5.Name = "hbox5";
-			this.hbox5.Spacing = 6;
-			// Container child hbox5.Gtk.Box+BoxChild
-			this.ylabel9 = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel9.Name = "ylabel9";
-			this.ylabel9.LabelProp = global::Mono.Unix.Catalog.GetString("Email");
-			this.hbox5.Add(this.ylabel9);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ylabel9]));
-			w23.Position = 0;
-			w23.Expand = false;
-			w23.Fill = false;
-			// Container child hbox5.Gtk.Box+BoxChild
-			this.yentryEmail = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryEmail.CanFocus = true;
-			this.yentryEmail.Name = "yentryEmail";
-			this.yentryEmail.IsEditable = true;
-			this.yentryEmail.InvisibleChar = '•';
-			this.hbox5.Add(this.yentryEmail);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.yentryEmail]));
-			w24.Position = 1;
-			w24.Expand = false;
-			w24.Fill = false;
-			// Container child hbox5.Gtk.Box+BoxChild
-			this.ybtnSendEmail = new global::Gamma.GtkWidgets.yButton();
-			this.ybtnSendEmail.CanFocus = true;
-			this.ybtnSendEmail.Name = "ybtnSendEmail";
-			this.ybtnSendEmail.UseUnderline = true;
-			this.ybtnSendEmail.Label = global::Mono.Unix.Catalog.GetString("Отправить");
-			this.hbox5.Add(this.ybtnSendEmail);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ybtnSendEmail]));
-			w25.Position = 2;
-			w25.Expand = false;
-			w25.Fill = false;
-			this.vbox1.Add(this.hbox5);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox5]));
-			w26.Position = 6;
-			w26.Expand = false;
-			w26.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox6 = new global::Gtk.HBox();
-			this.hbox6.Name = "hbox6";
-			this.hbox6.Spacing = 6;
-			// Container child hbox6.Gtk.Box+BoxChild
-			this.ylabel10 = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel10.Name = "ylabel10";
-			this.ylabel10.LabelProp = global::Mono.Unix.Catalog.GetString("Отправленные счета:");
-			this.hbox6.Add(this.ylabel10);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.ylabel10]));
-			w27.Position = 0;
-			w27.Expand = false;
-			w27.Fill = false;
-			this.vbox1.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox6]));
-			w28.Position = 7;
-			w28.Expand = false;
-			w28.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox8 = new global::Gtk.HBox();
-			this.hbox8.Name = "hbox8";
-			this.hbox8.Spacing = 6;
-			// Container child hbox8.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeviewSentOrders = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewSentOrders.CanFocus = true;
-			this.ytreeviewSentOrders.Name = "ytreeviewSentOrders";
-			this.GtkScrolledWindow.Add(this.ytreeviewSentOrders);
-			this.hbox8.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.GtkScrolledWindow]));
-			w30.Position = 0;
-			this.vbox1.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox8]));
-			w31.Position = 8;
+			this.hboxSendDocuments = new global::Gtk.HBox();
+			this.hboxSendDocuments.Name = "hboxSendDocuments";
+			this.hboxSendDocuments.Spacing = 6;
+			this.vbox1.Add(this.hboxSendDocuments);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
+			w18.Position = 5;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

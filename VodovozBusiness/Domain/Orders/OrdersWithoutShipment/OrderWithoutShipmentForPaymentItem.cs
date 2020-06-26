@@ -7,14 +7,14 @@ using QS.DomainModel.Entity;
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки заказа без отгрузки на постоплату",
-		Nominative = "строка заказа без отгрузки на постоплату")]
+		NominativePlural = "строки счета без отгрузки на постоплату",
+		Nominative = "строка счета без отгрузки на постоплату")]
 	public class OrderWithoutShipmentForPaymentItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
 		OrderWithoutShipmentForPayment orderWithoutDeliveryForPayment;
-		[Display(Name = "Заказ без отгрузки на постоплату")]
+		[Display(Name = "Счет без отгрузки на постоплату")]
 		public virtual OrderWithoutShipmentForPayment OrderWithoutDeliveryForPayment {
 			get => orderWithoutDeliveryForPayment;
 			set => SetField(ref orderWithoutDeliveryForPayment, value);

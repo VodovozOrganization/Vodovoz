@@ -21,6 +21,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		PrepositionalPlural = "заказах без отгрузки на предоплату")]
 	public class OrderWithoutShipmentForAdvancePayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument
 	{
+		public virtual int Id { get; set; }
+		
 		IList<OrderWithoutShipmentForAdvancePaymentItem> orderWithoutDeliveryForAdvancePaymentItems = new List<OrderWithoutShipmentForAdvancePaymentItem>();
 		[Display(Name = "Строки заказа без отгрузки на предоплату")]
 		public virtual IList<OrderWithoutShipmentForAdvancePaymentItem> OrderWithoutDeliveryForAdvancePaymentItems {
@@ -103,7 +105,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Title = this.Title,
 				Identifier = "Documents.BillWithoutShipmentForAdvancePayment",
 				Parameters = new Dictionary<string, object> {
-					{ "order_ws_for_debt_id", Id },
+					{ "order_ws_for_advance_payment_id", Id },
 					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId },
 				}
 			};
@@ -111,9 +113,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public virtual string Title => string.Format($"Счет №{Id} от {CreateDate:d}");
+		public virtual string Title => string.Format($"Счет №Ф{Id} от {CreateDate:d}");
 
-		public virtual string Name => string.Format($"Счет №{Id}");
+		public virtual string Name => string.Format($"Счет №Ф{Id}");
 
 		public virtual DateTime? DocumentDate => CreateDate;
 

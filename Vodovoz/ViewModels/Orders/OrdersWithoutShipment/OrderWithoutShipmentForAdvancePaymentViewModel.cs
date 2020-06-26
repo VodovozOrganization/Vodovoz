@@ -9,10 +9,12 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalViewModels;
@@ -26,15 +28,17 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			get => selectedItem;
 			set => SetField(ref selectedItem, value);
 		}
-
+		
+		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
+		
+		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
+		
 		public Action<string> OpenCounterpatyJournal;
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
 
 		//public readonly OrderSingletonRepository orderRepository;
 
 		#region Commands
-
-		public DelegateCommand SendEmailCommand { get; private set; }
 
 		public DelegateCommand AddForSaleCommand { get; private set; }
 
@@ -50,6 +54,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 			
+			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(), UoW);
+			
 			if (uowBuilder.IsNewEntity)
 				Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
 				
@@ -58,7 +64,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private void CreateCommands()
 		{
-			CreateSendEmailCommand();
 			CreateAddForSaleCommand();
 			CreateDeleteItemCommand();
 		}
@@ -115,14 +120,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			);
 		}
 
-		private void CreateSendEmailCommand()
-		{
-			SendEmailCommand = new DelegateCommand(
-				() => Close(false, QS.Navigation.CloseSource.Cancel),
-				() => true
-			);
-		}
-
 		public void OnTabAdded()
 		{
 			if(EntityUoWBuilder.IsNewEntity)
@@ -165,6 +162,17 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				}
 
 			Entity.AddNomenclature(nomenclature, count, discount, false, discountReason);
+		}
+		
+		public void OnEntityViewModelEntryChanged(object sender, EventArgs e)
+		{
+			var email = Entity.GetEmailAddressForBill();
+
+			if(email != null)
+				SendDocViewModel.Update(Entity, email.Address);
+			else 
+			if(!string.IsNullOrEmpty(SendDocViewModel.EmailString))
+				SendDocViewModel.EmailString = string.Empty;
 		}
 	}
 }

@@ -21,6 +21,7 @@ namespace Vodovoz.Dialogs.Email
 			buttonSendEmail.Clicked += (sender, e) => ViewModel.SendEmailCommand.Execute();
 			buttonRefreshEmailList.Clicked += (sender, e) => ViewModel.RefreshEmailListCommand.Execute();
 
+			buttonSendEmail.Binding.AddBinding(ViewModel, vm => vm.BtnSendEmailSensitive, w => w.Sensitive).InitializeFromSource();
 			yvalidatedentryEmail.ValidationMode = QSWidgetLib.ValidationType.email;
 			yvalidatedentryEmail.Binding.AddBinding(ViewModel, vm => vm.EmailString, w => w.Text).InitializeFromSource();
 			ylabelDescription.Binding.AddBinding(ViewModel, vm => vm.Description, w => w.Text).InitializeFromSource();

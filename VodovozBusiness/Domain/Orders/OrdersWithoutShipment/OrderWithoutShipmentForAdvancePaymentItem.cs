@@ -9,14 +9,14 @@ using Vodovoz.Parameters;
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "строки заказа без отгрузки на предоплату",
-		Nominative = "строка заказа без отгрузки на предоплату")]
+		NominativePlural = "строки счета без отгрузки на предоплату",
+		Nominative = "строка счета без отгрузки на предоплату")]
 	public class OrderWithoutShipmentForAdvancePaymentItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
 		OrderWithoutShipmentForAdvancePayment orderWithoutDeliveryForAdvancePayment;
-		[Display(Name = "Заказ без отгрузки на предоплату")]
+		[Display(Name = "Счет без отгрузки на предоплату")]
 		public virtual OrderWithoutShipmentForAdvancePayment OrderWithoutDeliveryForAdvancePayment {
 			get => orderWithoutDeliveryForAdvancePayment;
 			set => SetField(ref orderWithoutDeliveryForAdvancePayment, value);
@@ -56,14 +56,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => isUserPrice;
 			set => SetField(ref isUserPrice, value);
 		}
-
-		/*AdditionalAgreement additionalAgreement;
-		[Display(Name = "Дополнительное соглашение")]
-		public virtual AdditionalAgreement AdditionalAgreement {
-			get => additionalAgreement;
-			set => SetField(ref additionalAgreement, value, () => AdditionalAgreement);
-		}*/
-
+		
 		decimal price;
 		[Display(Name = "Цена")]
 		public virtual decimal Price {
@@ -90,20 +83,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => count;
 			set {
 				if(SetField(ref count, value)) {
-					/*if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
-						aa.UpdateCount(Nomenclature, value);*/
 					OrderWithoutDeliveryForAdvancePayment?.RecalculateItemsPrice();
-					RecalculateDiscount();
-					RecalculateNDS();
-				}
-			}
-		}
-
-		int? actualCount;
-		public virtual int? ActualCount {
-			get => actualCount;
-			set {
-				if(SetField(ref actualCount, value)) {
 					RecalculateDiscount();
 					RecalculateNDS();
 				}
@@ -175,14 +155,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => discountReason;
 			set => SetField(ref discountReason, value);
 		}
-
-		/*PromotionalSet promoSet;
-		[Display(Name = "Добавлено из промо-набора")]
-		public virtual PromotionalSet PromoSet {
-			get => promoSet;
-			set => SetField(ref promoSet, value);
-		}*/
-
+		
 		FreeRentEquipment freeRentEquipment;
 
 		public virtual FreeRentEquipment FreeRentEquipment {
@@ -230,11 +203,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 		}
 
-		public int CurrentCount => ActualCount ?? Count;
-
-		public virtual decimal Sum => Price * Count - DiscountMoney;//FIXME Count -- CurrentCount
-
-		public virtual decimal ActualSum => Price * CurrentCount - DiscountMoney;
+		public virtual decimal Sum => Price * Count - DiscountMoney;
 
 		public virtual decimal ManualChangingDiscount {
 			get => IsDiscountInMoney ? DiscountMoney : Discount;
@@ -289,7 +258,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				return;
 			}
 
-			if(CurrentCount == 0)
+			if(Count == 0)
 				RemoveDiscount();
 			else
 				CalculateAndSetDiscount(DiscountSetter);
@@ -309,7 +278,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public virtual void RecalculatePrice()
 		{
-			if(IsUserPrice/* || PromoSet != null*/)
+			if(IsUserPrice)
 				return;
 
 			Price = GetPriceByTotalCount();
@@ -317,17 +286,17 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		private void CalculateAndSetDiscount(decimal value)
 		{
-			if((Price * CurrentCount) == 0) {
+			if((Price * Count) == 0) {
 				DiscountMoney = 0;
 				Discount = 0;
 				return;
 			}
 			if(IsDiscountInMoney) {
-				DiscountMoney = value > Price * CurrentCount ? Price * CurrentCount : (value < 0 ? 0 : value);
-				Discount = (100 * DiscountMoney) / (Price * CurrentCount);
+				DiscountMoney = value > Price * Count ? Price * Count : (value < 0 ? 0 : value);
+				Discount = (100 * DiscountMoney) / (Price * Count);
 			} else {
 				Discount = value > 100 ? 100 : (value < 0 ? 0 : value);
-				DiscountMoney = Price * CurrentCount * Discount / 100;
+				DiscountMoney = Price * Count * Discount / 100;
 			}
 		}
 
@@ -345,7 +314,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		void RecalculateNDS()
 		{
 			if(ValueAddedTax.HasValue)
-				IncludeNDS = Math.Round(ActualSum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
+				IncludeNDS = Math.Round(Sum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
 		}
 
 		public OrderWithoutShipmentForAdvancePaymentItem() { }

@@ -17,6 +17,7 @@ using fyiReporting.RdlGtkViewer;
 using fyiReporting.RDL;
 using QS.Commands;
 using System;
+using System.Collections.ObjectModel;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Dialogs.Email
@@ -49,18 +50,17 @@ namespace Vodovoz.Dialogs.Email
 
 		private readonly IEmailRepository emailRepository;
 		private readonly IEmployeeRepository employeeRepository;
-		private bool canSend => Document is IPrintableRDLDocument;
 		private IDocument Document { get; set; }
 
 		public List<StoredEmail> StoredEmails { get; set; }
+		
+		public ObservableCollection<StoredEmail> ListEmails { get; set; }
 
 		public DelegateCommand SendEmailCommand { get; private set; }
 
 		public DelegateCommand RefreshEmailListCommand { get; private set; }
-
-
-
-		public SendDocumentByEmailViewModel(IEmailRepository emailRepository, IEmployeeRepository employeeRepository, IUnitOfWork uow)
+		
+		public SendDocumentByEmailViewModel(IEmailRepository emailRepository, IEmployeeRepository employeeRepository, IUnitOfWork uow = null)
 		{
 			this.emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -79,9 +79,19 @@ namespace Vodovoz.Dialogs.Email
 		private void CreateSendEmailCommand()
 		{
 			SendEmailCommand = new DelegateCommand(
-				SendDocument,
+				SaveEntity,
 				() => !string.IsNullOrEmpty(EmailString)
 			);
+		}
+
+		private void SaveEntity()
+		{
+			switch(Document.Type)
+			{
+				case OrderDocumentType.BillWithoutShipmentForPayment:
+					UoW.Save(Document as OrderWithoutShipmentForPayment);
+					break;
+			}
 		}
 
 		private void CreateRefreshEmailListCommand()
@@ -103,35 +113,67 @@ namespace Vodovoz.Dialogs.Email
 		private void UpdateEmails()
 		{
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				StoredEmails = uow.Session.QueryOver<StoredEmail>()
-					.Where(Restrictions.Eq(
-						Projections.Property<StoredEmail>(x => x.Order.Id),
-						Document.Order.Id))
-					.And(Restrictions.Eq(
-						Projections.Property<StoredEmail>(x => x.DocumentType),
-						Document.Type))
-					.List().ToList();
+				switch (Document.Type)
+				{
+					case OrderDocumentType.Bill :
+						StoredEmails = uow.Session.QueryOver<StoredEmail>()
+							.Where(x => x.Order.Id == Document.Order.Id)
+							.And(x => x.DocumentType == Document.Type)
+							.List().ToList();
+						
+						BtnSendEmailSensitive = Document.Type == OrderDocumentType.Bill
+						                        && emailRepository.CanSendByTimeout(EmailString, Document.Order.Id, Document.Type) 
+						                        && Document.Order.Id > 0;
+						break;
+					case OrderDocumentType.BillWithoutShipmentForDebt:
+						StoredEmails = uow.Session.QueryOver<StoredEmail>()
+							.Where(x => x.OrderWithoutShipmentForDebt.Id == Document.Id)
+							.And(x => x.DocumentType == Document.Type)
+							.List().ToList();
+						
+						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWithoutShipmentForDebt
+						                        && emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						break;
+					case OrderDocumentType.BillWithoutShipmentForAdvancePayment:
+						StoredEmails = uow.Session.QueryOver<StoredEmail>()
+							.Where(x => x.OrderWithoutShipmentForAdvancePayment.Id == Document.Id)
+							.And(x => x.DocumentType == Document.Type)
+							.List().ToList();
+						
+						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWithoutShipmentForAdvancePayment
+						                        && emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						break;
+					case OrderDocumentType.BillWithoutShipmentForPayment:
+						StoredEmails = uow.Session.QueryOver<StoredEmail>()
+							.Where(x => x.OrderWithoutShipmentForPayment.Id == Document.Id)
+							.And(x => x.DocumentType == Document.Type)
+							.List().ToList();
+						
+						BtnSendEmailSensitive = Document.Type == OrderDocumentType.BillWithoutShipmentForPayment
+						                        && emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type);
+						break;
+				}
 			}
 			
-			BtnSendEmailSensitive = (Document.Type == OrderDocumentType.Bill 
+			/*BtnSendEmailSensitive = (Document.Type == OrderDocumentType.Bill 
 									|| Document.Type == OrderDocumentType.BillWithoutShipmentForDebt 
 									|| Document.Type == OrderDocumentType.BillWithoutShipmentForAdvancePayment 
 									|| Document.Type == OrderDocumentType.BillWithoutShipmentForPayment) 
 									&& emailRepository.CanSendByTimeout(EmailString, Document.Order.Id, Document.Type) 
-									&& Document.Order.Id > 0;
+									&& Document.Order.Id > 0;*/
 		}
 
 		private void SendDocument()
 		{
-			var client = Document.Order.Client;
-			var rdlDoc = (Document as IPrintableRDLDocument);
+			var client = Document.Order?.Client;
+			var rdlDoc = Document as IPrintableRDLDocument;
 
 			if(rdlDoc == null) {
 				MessageDialogHelper.RunErrorDialog("Невозможно распечатать данный тип документа");
 				return;
 			}
 
-			if(Document.Order.Id == 0) {
+			if(Document.Type == OrderDocumentType.Bill && Document.Order?.Id == 0) {
 				MessageDialogHelper.RunErrorDialog("Для отправки необходимо сохранить заказ."); 
 				return;
 				
@@ -140,7 +182,7 @@ namespace Vodovoz.Dialogs.Email
 				}*/
 			}
 
-			if(client == null) {
+			if(Document.Type == OrderDocumentType.Bill && client == null) {
 				MessageDialogHelper.RunErrorDialog("Должен быть выбран клиент в заказе");
 				return;
 			}
