@@ -21,7 +21,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalNodes;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Services;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -29,7 +29,7 @@ using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
 using Order = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.Journals.JournalViewModels
 {
 	public class ComplaintsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<ComplaintJournalNode, ComplaintFilterViewModel>, IComplaintsInfoProvider
 	{

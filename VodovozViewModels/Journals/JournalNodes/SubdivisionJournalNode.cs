@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.Project.Journal;
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.Journals.JournalNodes
 {
 	public class SubdivisionJournalNode : JournalEntityNodeBase
 	{

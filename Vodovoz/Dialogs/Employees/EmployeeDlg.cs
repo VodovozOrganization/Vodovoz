@@ -41,8 +41,9 @@ using Gamma.Widgets;
 using QS.Widgets.GtkUI;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Additions;
-using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz

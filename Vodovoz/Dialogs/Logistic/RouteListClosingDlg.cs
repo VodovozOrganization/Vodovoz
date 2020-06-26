@@ -35,12 +35,13 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Tools;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {

@@ -4,7 +4,7 @@ using QS.Project.Journal;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.Journals.JournalNodes
 {
 	public class OrderForMovDocJournalNode : JournalEntityNodeBase<Order>
 	{

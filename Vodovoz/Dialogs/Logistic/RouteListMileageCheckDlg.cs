@@ -14,7 +14,7 @@ using Vodovoz.ViewModel;
 using QS.Project.Services;
 using QS.Dialog;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Tools.CallTasks;
@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {

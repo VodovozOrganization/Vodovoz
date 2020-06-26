@@ -9,7 +9,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels;
 
-namespace Vodovoz.JournalViewModels
+namespace Vodovoz.Journals.JournalViewModels
 {
 	public class EmailTypeJournalViewModel : SingleEntityJournalViewModelBase<EmailType, EmailTypeViewModel, EmailTypeJournalNode>
 	{

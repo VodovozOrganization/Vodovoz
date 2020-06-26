@@ -1,7 +1,7 @@
 ﻿using QS.Project.Journal;
 using Vodovoz.Domain.WageCalculation;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.Journals.JournalNodes
 {
 	public class WageDistrictJournalNode : JournalEntityNodeBase<WageDistrict>
 	{

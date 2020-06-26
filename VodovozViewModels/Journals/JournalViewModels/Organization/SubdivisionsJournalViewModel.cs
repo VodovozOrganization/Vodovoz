@@ -6,15 +6,16 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.JournalNodes;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.ViewModels.Organization;
 
-namespace Vodovoz.JournalViewModels.Organization
+namespace Vodovoz.Journals.JournalViewModels.Organization
 {
 	public class SubdivisionsJournalViewModel : FilterableSingleEntityJournalViewModelBase<Subdivision, SubdivisionViewModel, SubdivisionJournalNode, SubdivisionFilterViewModel>
 	{

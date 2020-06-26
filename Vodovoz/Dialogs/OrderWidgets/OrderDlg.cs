@@ -56,7 +56,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalFilters;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repositories;
@@ -72,6 +72,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Repository;
 using Vodovoz.Infrastructure.Converters;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {

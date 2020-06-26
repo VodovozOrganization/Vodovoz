@@ -2,7 +2,7 @@
 using QS.Project.Journal;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.Journals.JournalNodes
 {
 	public class DistrictJournalNode : JournalEntityNodeBase
 	{

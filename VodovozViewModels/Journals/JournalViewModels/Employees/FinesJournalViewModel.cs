@@ -5,17 +5,18 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
+using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalNodes;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 
-namespace Vodovoz.JournalViewModels.Employees
+namespace Vodovoz.Journals.JournalViewModels.Employees
 {
 	public class FinesJournalViewModel : FilterableSingleEntityJournalViewModelBase<Fine, FineViewModel, FineJournalNode, FineFilterViewModel>
 	{

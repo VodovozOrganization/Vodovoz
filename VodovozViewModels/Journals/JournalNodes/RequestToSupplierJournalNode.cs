@@ -2,7 +2,7 @@
 using QS.Project.Journal;
 using Vodovoz.Domain.Suppliers;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.Journals.JournalNodes
 {
 	public class RequestToSupplierJournalNode : JournalEntityNodeBase<RequestToSupplier>
 	{

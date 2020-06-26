@@ -22,12 +22,13 @@ using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModel;
 using Vodovoz.Domain.Logistic;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories;
 using System.Collections.Generic;
 using QS.Project.Services;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {

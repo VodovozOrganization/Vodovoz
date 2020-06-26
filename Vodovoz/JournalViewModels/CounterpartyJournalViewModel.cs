@@ -9,6 +9,7 @@ using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using QS.Project.Journal;
 
 namespace Vodovoz.JournalViewModels
 {

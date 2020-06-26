@@ -3,6 +3,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;

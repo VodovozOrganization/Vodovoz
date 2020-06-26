@@ -9,9 +9,8 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.JournalViewModels.Logistic;
+using Vodovoz.Journals.JournalViewModels.Logistic;
 using QS.Navigation;
 
 namespace Vodovoz.ViewModels.ForAdministrators

@@ -3,7 +3,7 @@ using Gamma.Utilities;
 using QS.Project.Journal;
 using Vodovoz.Domain.Complaints;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.Journals.JournalNodes
 {
 	public class ComplaintJournalNode : JournalEntityNodeBase
 	{

@@ -5,7 +5,7 @@ using Gtk;
 using Vodovoz.Domain.Orders;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Client;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.DomainModel.UoW;
 using System;
@@ -13,6 +13,7 @@ using Vodovoz.Infrastructure.Converters;
 using QS.Project.Search.GtkUI;
 using QS.Project.Search;
 using QS.Navigation;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Views
 {

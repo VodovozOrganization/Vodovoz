@@ -6,6 +6,7 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz

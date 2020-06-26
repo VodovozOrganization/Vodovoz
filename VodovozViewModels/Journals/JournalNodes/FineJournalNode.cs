@@ -2,7 +2,7 @@
 using QS.Project.Journal;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.JournalNodes
+namespace Vodovoz.Journals.JournalNodes
 {
 	public class FineJournalNode : JournalEntityNodeBase<Fine>
 	{

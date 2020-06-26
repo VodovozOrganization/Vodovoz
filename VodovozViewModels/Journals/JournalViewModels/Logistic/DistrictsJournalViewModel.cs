@@ -8,9 +8,9 @@ using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.JournalNodes;
+using Vodovoz.Journals.JournalNodes;
 
-namespace Vodovoz.JournalViewModels.Logistic
+namespace Vodovoz.Journals.JournalViewModels.Logistic
 {
 	public class DistrictsJournalViewModel : SingleEntityJournalViewModelBase<District, EntityTabViewModelBase<District>, DistrictJournalNode>
 	{

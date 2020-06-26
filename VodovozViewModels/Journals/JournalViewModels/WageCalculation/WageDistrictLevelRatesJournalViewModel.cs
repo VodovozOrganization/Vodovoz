@@ -7,10 +7,10 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
 using Vodovoz.Domain.WageCalculation;
-using Vodovoz.JournalNodes;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.ViewModels.WageCalculation;
 
-namespace Vodovoz.JournalViewModels.WageCalculation
+namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 {
 	public class WageDistrictLevelRatesJournalViewModel : SingleEntityJournalViewModelBase<WageDistrictLevelRates, WageDistrictLevelRatesViewModel, WageDistrictLevelRatesJournalNode>
 	{
