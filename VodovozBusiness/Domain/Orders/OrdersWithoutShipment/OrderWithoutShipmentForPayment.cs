@@ -3,25 +3,27 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "заказы без отгрузки на постоплату",
-		Nominative = "заказ без отгрузки на постоплату",
-		Prepositional = "заказе без отгрузки на постоплату",
-		PrepositionalPlural = "заказах без отгрузки на постоплату")]
+		NominativePlural = "счета без отгрузки на постоплату",
+		Nominative = "счет без отгрузки на постоплату",
+		Prepositional = "счете без отгрузки на постоплату",
+		PrepositionalPlural = "счетах без отгрузки на постоплату")]
 	public class OrderWithoutShipmentForPayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument
 	{
+		public virtual int Id { get; set; }
+		
 		IList<OrderWithoutShipmentForPaymentItem> orderWithoutDeliveryForPaymentItems = new List<OrderWithoutShipmentForPaymentItem>();
-		[Display(Name = "Строки заказа без отгрузки на постоплату")]
+		[Display(Name = "Строки счета без отгрузки на постоплату")]
 		public virtual IList<OrderWithoutShipmentForPaymentItem> OrderWithoutDeliveryForPaymentItems {
 			get => orderWithoutDeliveryForPaymentItems;
 			set => SetField(ref orderWithoutDeliveryForPaymentItems, value);
@@ -41,6 +43,30 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public OrderWithoutShipmentForPayment() { }
 
+		public virtual void AddOrder(Order order)
+		{
+			var item = new OrderWithoutShipmentForPaymentItem
+			{
+				Order = order
+			};
+			
+			AddItem(item);
+		}
+		
+		protected virtual void AddItem(OrderWithoutShipmentForPaymentItem item)
+		{
+			ObservableOrderWithoutDeliveryForPaymentItems.Add(item);
+		}
+		
+		public virtual void RemoveItem(Order order)
+		{
+			var item = 
+				ObservableOrderWithoutDeliveryForPaymentItems.SingleOrDefault(x => x.Order == order);
+			
+			if(item != null)
+				ObservableOrderWithoutDeliveryForPaymentItems.Remove(item);
+		}
+		
 		#region implemented abstract members of OrderDocument
 		public virtual OrderDocumentType Type => OrderDocumentType.BillWithoutShipmentForPayment;
 		public virtual Order Order { get; set; }
@@ -53,7 +79,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Title = this.Title,
 				Identifier = "Documents.BillWithoutShipmentForDebt",
 				Parameters = new Dictionary<string, object> {
-					{ "order_ws_for_debt_id", Id },
+					{ "order_ws_for_payment_id", Id },
 					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId },
 				}
 			};
@@ -61,9 +87,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public virtual string Title => string.Format($"Счет №{Id} от {CreateDate:d}");
+		public virtual string Title => string.Format($"Счет №Ф{Id} от {CreateDate:d}");
 
-		public virtual string Name => string.Format($"Счет №{Id}");
+		public virtual string Name => string.Format($"Счет №Ф{Id}");
 
 		public virtual DateTime? DocumentDate => CreateDate;
 

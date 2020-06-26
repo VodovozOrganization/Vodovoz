@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
@@ -14,8 +13,10 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Project.Journal;
 using QS.Tdi;
+using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
@@ -23,8 +24,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForPaymentViewModel : EntityTabViewModelBase<OrderWithoutShipmentForPayment>, ITdiTabAddedNotifier
 	{
-		private GenericObservableList<OrderWithoutShipmentForPaymentNode> OrdersForPayment { get; set; }
-
 		private DateTime? startDate /*= DateTime.Now.AddMonths(-1)*/;
 		public DateTime? StartDate {
 			get => startDate;
@@ -36,8 +35,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			get => endDate;
 			set => SetField(ref endDate, value);
 		}
-
-		public DelegateCommand SendEmailCommand { get; private set; }
+		
+		public OrderWithoutShipmentForPaymentNode SelectedNode { get; set; }
+		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
+		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
+		
+		public GenericObservableList<OrderWithoutShipmentForPaymentNode> ObservableNodes { get; set; }
+		
 		public Action<string> OpenCounterpatyJournal;
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
 		
@@ -49,32 +53,29 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на постоплату";
 			
 			EntityUoWBuilder = uowBuilder;
-
+			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(),UoW);
+			
 			if (uowBuilder.IsNewEntity)
 			{
 				Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
 			}
 
+			ObservableNodes = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
+			
 			CreateCommands();
 		}
 
 		private void CreateCommands()
 		{
-			CreateSendEmailCommand();
+			
 		}
 
-		private void CreateSendEmailCommand()
-		{
-			SendEmailCommand = new DelegateCommand(
-				() => Close(false, QS.Navigation.CloseSource.Cancel),
-				() => true
-			);
-		}
-		
-		public IList<OrderWithoutShipmentForPaymentNode> UpdateNodes()
+		public void UpdateNodes(object sender, EventArgs e)
 		{
 			if (Entity.Client == null)
-				return null;
+				return;
+
+			ObservableNodes.Clear();
 			
 			OrderWithoutShipmentForPaymentNode resultAlias = null;
 			VodOrder orderAlias = null;
@@ -121,8 +122,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			var resultQuery = cashlessOrdersQuery
 					.SelectList(list => list
-				   	//.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
-				    .Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				   	.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 				   	.Select(() => orderAlias.CreateDate).WithAlias(() => resultAlias.OrderDate)
 				    .Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.DeliveryAddress)
@@ -133,13 +133,45 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				.TransformUsing(Transformers.AliasToBean<OrderWithoutShipmentForPaymentNode>())
 				.List<OrderWithoutShipmentForPaymentNode>();
 
-			return resultQuery;
+			foreach (var item in resultQuery)
+			{
+				ObservableNodes.Add(item);
+			}
 		}
 
 		public void OnTabAdded()
 		{
 			if(EntityUoWBuilder.IsNewEntity)
 				OpenCounterpatyJournal?.Invoke(string.Empty);
+		}
+		
+		public void OnEntityViewModelEntryChanged(object sender, EventArgs e)
+		{
+			var email = Entity.GetEmailAddressForBill();
+
+			if(email != null)
+				SendDocViewModel.Update(Entity, email.Address);
+			else 
+			if(!string.IsNullOrEmpty(SendDocViewModel.EmailString))
+				SendDocViewModel.EmailString = string.Empty;
+		}
+
+		public void UpdateItems()
+		{
+			if (SelectedNode.IsSelected)
+			{
+				var order = UoW.GetById<VodOrder>(SelectedNode.Id);
+				
+				if(order != null)
+					Entity.AddOrder(order);
+			}
+			else
+			{
+				var order = UoW.GetById<VodOrder>(SelectedNode.Id);
+				
+				if(order != null)
+					Entity.RemoveItem(order);
+			}
 		}
 	}
 

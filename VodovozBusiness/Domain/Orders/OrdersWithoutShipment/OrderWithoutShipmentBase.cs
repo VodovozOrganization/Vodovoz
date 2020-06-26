@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
-	public class OrderWithoutShipmentBase : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class OrderWithoutShipmentBase : PropertyChangedBase, IValidatableObject
 	{
-		public virtual int Id { get; set; }
-
 		DateTime? createDate;
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreateDate {
@@ -38,15 +38,20 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 		}
 
-		bool isOrderWithoutShipmentSent;
+		bool isBillWithoutShipmentSent;
 		[Display(Name = "Счет отправлен")]
-		public virtual bool IsOrderWithoutShipmentSent {
-			get => isOrderWithoutShipmentSent;
-			set => SetField(ref isOrderWithoutShipmentSent, value);
+		public virtual bool IsBillWithoutShipmentSent {
+			get => isBillWithoutShipmentSent;
+			set => SetField(ref isBillWithoutShipmentSent, value);
 		}
 
 		public OrderWithoutShipmentBase() { }
 
+		public virtual Email GetEmailAddressForBill()
+		{
+			return Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
+		}
+		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			throw new NotImplementedException();

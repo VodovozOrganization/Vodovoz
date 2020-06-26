@@ -18,6 +18,10 @@
         <CommandText>SELECT 
 	owdfd.id AS order_id,
 	DATE_FORMAT(owdfd.create_date,'%d.%m.%y') AS bill_date,
+	owdfd.debt_name as debt_name,
+	owdfd.debt_sum as debt_sum,
+	count(*) as count,
+	count(*) * debt_sum as total,
 	counterparty.full_name AS client_name,
 	counterparty.jur_address AS client_address,
 	counterparty.inn,
@@ -43,7 +47,7 @@
 	) AS client_contact,
 	CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author
 FROM 
-	order_without_delivery_for_debt owdfd
+	orders_without_delivery_for_debt owdfd
 LEFT JOIN 
 	counterparty ON owdfd.client_id = counterparty.id
 LEFT JOIN
@@ -119,10 +123,26 @@ WHERE
           <DataField>special_delivery_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="debt_name">
+          <DataField>debt_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="debt_sum">
+          <DataField>debt_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="total">
+          <DataField>total</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -144,7 +164,7 @@ Group by
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -160,7 +180,7 @@ Group by
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     organizations.full_name,
@@ -207,7 +227,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -615,12 +635,14 @@ WHERE
         <DataSetName>Organization</DataSetName>
       </List>
       <Table Name="Table2">
-        <DataSetName>Goods</DataSetName>
+        <DataSetName>Order</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -837,7 +859,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>=Fields!name.Value</Value>
+                      <Value>=Fields!debt_name.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -916,7 +938,7 @@ WHERE
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox16" >
+                    <Textbox Name="Textbox16">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -935,7 +957,7 @@ WHERE
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox17" >
+                    <Textbox Name="Textbox17">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -954,7 +976,7 @@ WHERE
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox18" >
+                    <Textbox Name="Textbox18">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1008,7 +1030,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>=Sum({total}, 'Goods')</Value>
+                      <Value>=Sum({total}, 'Order')</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1059,7 +1081,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
-                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0), 'Goods')</Value>
+                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0), 'Order')</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1084,7 +1106,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>='Всего наименований ' + Count({id}, 'Goods') + ', на сумму ' + Format(Sum({total}, 'Goods'), "N2") + ' руб.'</Value>
+                      <Value>='Всего наименований ' + ({count}, 'Order') + ', на сумму ' + Format(Sum({total}, 'Order'), "N2") + ' руб.'</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1112,7 +1134,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
-                      <Value>=SummaString_Val(Format(Sum({total}, 'Goods'), "F2"))</Value>
+                      <Value>=SummaString_Val(Format(Sum({total}, 'Order'), "F2"))</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1422,9 +1444,9 @@ WHERE
             <Style>
               <TextAlign>Right</TextAlign>
               <FontFamily>Calibri</FontFamily>
-              <BorderStyle  />
-              <BorderColor  />
-              <BorderWidth  />
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
             </Style>
           </Textbox>
         </ReportItems>
@@ -1433,7 +1455,7 @@ WHERE
       <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.75pt</Height>
         <Width>213.27pt</Width>
-        <Value>='Счет № ' + First({order_ws_for_debt_id}, 'Order') + ' от ' + First({bill_date}, 'Order')</Value>
+        <Value>='Счет № Ф-' + First({order_ws_for_debt_id}, 'Order') + ' от ' + First({bill_date}, 'Order')</Value>
         <ZIndex>1</ZIndex>
         <Left>39.2pt</Left>
         <Top>216.1pt</Top>
@@ -2022,7 +2044,7 @@ Iif(
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="order_ws_for_debt_id">
       <DataType>Integer</DataType>
       <DefaultValue>

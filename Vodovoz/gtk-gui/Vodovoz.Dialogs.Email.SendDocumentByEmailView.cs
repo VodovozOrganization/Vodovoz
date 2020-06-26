@@ -18,7 +18,7 @@ namespace Vodovoz.Dialogs.Email
 
 		private global::Gamma.Widgets.yValidatedEntry yvalidatedentryEmail;
 
-		private global::Gtk.Button buttonSendEmail;
+		private global::Gamma.GtkWidgets.yButton buttonSendEmail;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -92,7 +92,7 @@ namespace Vodovoz.Dialogs.Email
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.yvalidatedentryEmail]));
 			w5.Position = 1;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonSendEmail = new global::Gtk.Button();
+			this.buttonSendEmail = new global::Gamma.GtkWidgets.yButton();
 			this.buttonSendEmail.Sensitive = false;
 			this.buttonSendEmail.CanFocus = true;
 			this.buttonSendEmail.Name = "buttonSendEmail";

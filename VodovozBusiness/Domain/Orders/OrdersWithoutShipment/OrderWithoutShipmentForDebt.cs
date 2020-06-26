@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.IO;
-using System.Linq;
 using QS.DomainModel.Entity;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Core.DataService;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 
@@ -21,30 +18,22 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		PrepositionalPlural = "заказах без отгрузки на долги")]
 	public class OrderWithoutShipmentForDebt : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument
 	{
-		IList<OrderWithoutShipmentForDebtItem> orderWithoutDeliveryForDebtItems = new List<OrderWithoutShipmentForDebtItem>();
-		[Display(Name = "Строки заказа без отгрузки на долг")]
-		public virtual IList<OrderWithoutShipmentForDebtItem> OrderWithoutDeliveryForDebtItems {
-			get => orderWithoutDeliveryForDebtItems;
-			set => SetField(ref orderWithoutDeliveryForDebtItems, value);
+		public virtual int Id { get; set; }
+		
+		private decimal debtSum;
+		[Display(Name = "Сумма долга")]
+		public virtual decimal DebtSum {
+			get => debtSum;
+			set => SetField(ref debtSum, value);
 		}
 
-		GenericObservableList<OrderWithoutShipmentForDebtItem> observableOrderWithoutDeliveryForDebtItems;
-		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<OrderWithoutShipmentForDebtItem> ObservableOrderWithoutDeliveryForDebtItems {
-			get {
-				if(observableOrderWithoutDeliveryForDebtItems == null) {
-					observableOrderWithoutDeliveryForDebtItems = new GenericObservableList<OrderWithoutShipmentForDebtItem>(orderWithoutDeliveryForDebtItems);
-				}
+		private string debtName = "Задолженность по акту сверки";
+		[Display(Name = "Наименование задолженности")]
+		public virtual string DebtName {
+			get => debtName;
+			set => SetField(ref debtName, value);
+		}
 
-				return observableOrderWithoutDeliveryForDebtItems;
-			}
-		}
-		
-		public virtual Email GetEmailAddressForBill()
-		{
-			return Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
-		}
-		
 		#region implemented abstract members of OrderDocument
 		public virtual OrderDocumentType Type => OrderDocumentType.BillWithoutShipmentForDebt;
 		public virtual Order Order { get; set; }
@@ -65,9 +54,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public virtual string Title => string.Format($"Счет №{Id} от {CreateDate:d}");
+		public virtual string Title => string.Format($"Счет №Ф{Id} от {CreateDate:d}");
 
-		public virtual string Name => string.Format($"Счет №{Id}");
+		public virtual string Name => string.Format($"Счет №Ф{Id}");
 
 		public virtual DateTime? DocumentDate => CreateDate;
 
@@ -151,9 +140,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public OrderWithoutShipmentForDebt() { }
 	}
 
-	public interface IDocument
+	public interface IDocument : IDomainObject
 	{
-		int Id { get; set; }
 		Order Order { get; set; }
 		OrderDocumentType Type { get; }
 	}
