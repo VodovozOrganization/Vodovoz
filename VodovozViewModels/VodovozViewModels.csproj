@@ -197,6 +197,8 @@
     <Compile Include="ViewModels\ExportImportNomenclatureCatalogViewModel.cs" />
     <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
     <Compile Include="JournalNodes\OrderForMovDocJournalNode.cs" />
+    <Compile Include="TempAdapters\SearchHelper.cs" />
+    <Compile Include="TempAdapters\SearchParameter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -266,10 +268,6 @@
       <Project>{E2228A2B-4883-4DD8-8A05-23501F7B8A33}</Project>
       <Name>QS.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QS.Validation\QS.Validation.csproj">
-      <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
-      <Name>QS.Validation</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
       <Project>{F22749B2-E35B-455D-BD8D-081373B16FC7}</Project>
       <Name>QS.BusinessCommon</Name>
@@ -281,6 +279,10 @@
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
       <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
       <Name>QSProjectsLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
+      <Project>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</Project>
+      <Name>VodovozInfrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

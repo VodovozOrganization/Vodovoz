@@ -150,6 +150,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsSendInterface", "Service
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QS.Contacts", "..\QSProjects\Modules\QS.Contacts\QS.Contacts.csproj", "{B1DD034B-EC88-400C-9C6B-83CE68AB3541}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozInfrastructureTests", "VodovozBusinessTests\VodovozInfrastructureTests\VodovozInfrastructureTests.csproj", "{40E23597-DB10-4C70-80A6-5DCB844E665F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -505,6 +507,12 @@ Global
 		{B1DD034B-EC88-400C-9C6B-83CE68AB3541}.DebugWin|x86.Build.0 = Release|Any CPU
 		{B1DD034B-EC88-400C-9C6B-83CE68AB3541}.Release|x86.ActiveCfg = Release|Any CPU
 		{B1DD034B-EC88-400C-9C6B-83CE68AB3541}.Release|x86.Build.0 = Release|Any CPU
+		{40E23597-DB10-4C70-80A6-5DCB844E665F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{40E23597-DB10-4C70-80A6-5DCB844E665F}.Debug|x86.Build.0 = Debug|Any CPU
+		{40E23597-DB10-4C70-80A6-5DCB844E665F}.DebugWin|x86.ActiveCfg = Release|Any CPU
+		{40E23597-DB10-4C70-80A6-5DCB844E665F}.DebugWin|x86.Build.0 = Release|Any CPU
+		{40E23597-DB10-4C70-80A6-5DCB844E665F}.Release|x86.ActiveCfg = Release|Any CPU
+		{40E23597-DB10-4C70-80A6-5DCB844E665F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2} = {BDF3167E-B265-47FC-974D-0369CC62716A}
@@ -576,6 +584,7 @@ Global
 		{EFE73102-83BC-4036-8642-D3A4121E8351} = {029100AD-4EE8-4BD7-8FC8-C7ECF4C7B484}
 		{AF0C132E-1F93-4A70-BC01-65DD3AF1CE85} = {029100AD-4EE8-4BD7-8FC8-C7ECF4C7B484}
 		{B1DD034B-EC88-400C-9C6B-83CE68AB3541} = {4C931756-0F11-43FD-BE5D-F5691FCB8B01}
+		{40E23597-DB10-4C70-80A6-5DCB844E665F} = {51CFBEC6-D7DA-41C2-9F7A-B262FB32512D}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
