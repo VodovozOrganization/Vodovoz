@@ -12,6 +12,7 @@ namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
             Id(x => x.Id).Column("id").GeneratedBy.Native();
             
             References(x => x.Order).Column("order_id");
+            References(x => x.OrderWithoutDeliveryForPayment).Column("bill_ws_for_payment_id");
         }
     }
 }

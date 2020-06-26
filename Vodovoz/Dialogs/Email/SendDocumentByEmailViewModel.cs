@@ -89,7 +89,7 @@ namespace Vodovoz.Dialogs.Email
 			switch(Document.Type)
 			{
 				case OrderDocumentType.BillWithoutShipmentForPayment:
-					UoW.Save(Document as OrderWithoutShipmentForPayment);
+					UoW.Save();
 					break;
 			}
 		}

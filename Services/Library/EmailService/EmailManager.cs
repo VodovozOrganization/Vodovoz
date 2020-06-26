@@ -122,7 +122,7 @@ namespace EmailService
 
 		static void AddEmailToSend(Email email)
 		{
-			if(!emailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order)) {
+			if(!emailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order, email.OrderDocumentType)) {
 				logger.Error("{0} Попытка отправить почту до истечения минимального времени до повторной отправки", GetThreadInfo());
 				throw new Exception("Отправка на один и тот же адрес возможна раз в 10 минут");
 			}

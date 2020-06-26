@@ -158,17 +158,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		public void UpdateItems()
 		{
+			var order = UoW.GetById<VodOrder>(SelectedNode.OrderId);
+			
 			if (SelectedNode.IsSelected)
 			{
-				var order = UoW.GetById<VodOrder>(SelectedNode.Id);
-				
 				if(order != null)
 					Entity.AddOrder(order);
 			}
 			else
 			{
-				var order = UoW.GetById<VodOrder>(SelectedNode.Id);
-				
 				if(order != null)
 					Entity.RemoveItem(order);
 			}

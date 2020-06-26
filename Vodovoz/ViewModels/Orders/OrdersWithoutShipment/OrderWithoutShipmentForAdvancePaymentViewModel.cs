@@ -138,22 +138,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		void TryAddNomenclature(Nomenclature nomenclature, int count = 0, decimal discount = 0, DiscountReason discountReason = null)
 		{
-			/*
-			if(Entity.IsLoadedFrom1C)
-				return;
-
-			if(Entity.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
-			   && nomenclature.Category == NomenclatureCategory.master) {
-				MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
-				return;
-			}
-
-			if(Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
-			   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category)) {
-				MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
-				return;
-			}
-			*/
 			if(nomenclature.ProductGroup != null)
 				if(nomenclature.ProductGroup.IsOnlineStore && !ServicesConfig.CommonServices.CurrentPermissionService
 					.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order")) {

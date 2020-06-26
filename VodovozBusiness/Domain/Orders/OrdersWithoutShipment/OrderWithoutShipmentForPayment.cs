@@ -47,7 +47,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		{
 			var item = new OrderWithoutShipmentForPaymentItem
 			{
-				Order = order
+				Order = order,
+				OrderWithoutDeliveryForPayment = this
 			};
 			
 			AddItem(item);
@@ -61,7 +62,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual void RemoveItem(Order order)
 		{
 			var item = 
-				ObservableOrderWithoutDeliveryForPaymentItems.SingleOrDefault(x => x.Order == order);
+				ObservableOrderWithoutDeliveryForPaymentItems.SingleOrDefault(x => x.Order.Id == order.Id);
 			
 			if(item != null)
 				ObservableOrderWithoutDeliveryForPaymentItems.Remove(item);

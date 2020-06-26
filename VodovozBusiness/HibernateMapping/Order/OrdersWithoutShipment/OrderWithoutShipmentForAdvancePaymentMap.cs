@@ -3,11 +3,11 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
 {
-    public class OrderWithoutShipmentForPaymentMap : ClassMap<OrderWithoutShipmentForPayment>
+    public class OrderWithoutShipmentForAdvancePaymentMap : ClassMap<OrderWithoutShipmentForAdvancePayment>
     {
-        public OrderWithoutShipmentForPaymentMap()
+        public OrderWithoutShipmentForAdvancePaymentMap()
         {
-            Table("bills_without_shipment_for_payment");
+            Table("bills_without_shipment_for_advance_payment");
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
             Map(x => x.CreateDate).Column("create_date");
@@ -15,8 +15,8 @@ namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
             References(x => x.Author).Column("author_id");
             References(x => x.Client).Column("client_id");
             
-            HasMany(x => x.OrderWithoutDeliveryForPaymentItems).Cascade
-                .AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("bill_ws_for_payment_id");
+            HasMany(x => x.OrderWithoutDeliveryForAdvancePaymentItems).Cascade
+                .AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("bill_ws_for_advance_payment_id");
         }
     }
 }

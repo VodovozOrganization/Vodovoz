@@ -12,10 +12,10 @@ using Vodovoz.Domain.StoredEmails;
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "заказы без отгрузки на долги",
-		Nominative = "заказ без отгрузки на долг",
-		Prepositional = "заказе без отгрузки на долг",
-		PrepositionalPlural = "заказах без отгрузки на долги")]
+		NominativePlural = "счета без отгрузки на долги",
+		Nominative = "счет без отгрузки на долг",
+		Prepositional = "счете без отгрузки на долг",
+		PrepositionalPlural = "счетах без отгрузки на долги")]
 	public class OrderWithoutShipmentForDebt : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument
 	{
 		public virtual int Id { get; set; }
