@@ -117,6 +117,7 @@ namespace Vodovoz.Domain.Logistic
             foreach (var district in Districts) {
                 var newDistrict = district.Clone() as District;
                 newDistrict.DistrictsSet = newDistrictsSet;
+                newDistrict.CopyOf = district;
                 newDistrictsSet.Districts.Add(newDistrict);
             }
             return newDistrictsSet;

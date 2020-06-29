@@ -16,7 +16,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Repository.Logistics;
@@ -160,7 +159,7 @@ namespace Vodovoz.Dialogs.Logistic
 				
 				int deletedCount = 0;
 				foreach (var priority in outDatedpriorities) {
-					var newDistrict = activeDistrictsSet.ObservableDistricts.FirstOrDefault(x => x.DistrictName == priority.District.DistrictName);
+					var newDistrict = activeDistrictsSet.ObservableDistricts.FirstOrDefault(x => x.CopyOf == priority.District);
 					if(newDistrict == null) {
 						priority.Driver.ObservableDistrictsPriorities.Remove(priority);
 						UoW.Delete(priority);

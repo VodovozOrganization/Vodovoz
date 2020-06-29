@@ -92,6 +92,13 @@ namespace Vodovoz.Domain.Sale
 			set => SetField(ref districtsSet, value, () => DistrictsSet);
 		}
 		
+		private District copyOf;
+		[Display(Name = "Копия района")]
+		public virtual District CopyOf {
+			get => copyOf;
+			set => SetField(ref copyOf, value, () => CopyOf);
+		}
+		
 		#endregion
 
 		#region CommonDistrictRuleItems

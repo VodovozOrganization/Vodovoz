@@ -128,12 +128,12 @@ namespace Vodovoz.ViewModels.Logistic
         private void ReAssignDriverDistirctPriorities()
         {
             ActivationStatus = "Переприсвоение приоритетов доставки водителей";
-            
+
             foreach (var priority in UoW.Session.QueryOver<DriverDistrictPriority>().Future().ToList()) {
                 if(priority.District.DistrictsSet.Id == Entity.Id)
                     continue;
                 
-                var newDistrict = Entity.Districts.FirstOrDefault(x => x.DistrictName == priority.District.DistrictName);
+                var newDistrict = Entity.Districts.FirstOrDefault(x => x.CopyOf == priority.District);
                 if(newDistrict == null) {
                     DeletedPriorities.Add(priority);
                     UoW.Delete(priority);
