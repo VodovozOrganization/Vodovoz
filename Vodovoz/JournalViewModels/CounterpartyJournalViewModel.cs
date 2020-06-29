@@ -33,6 +33,7 @@ namespace Vodovoz.JournalViewModels
 			Counterparty counterpartyAliasForSubquery = null;
 			CounterpartyContract contractAlias = null;
 			Phone phoneAlias = null;
+			Phone deliveryPointPhoneAlias = null;
 			DeliveryPoint addressAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			Tag tagAliasForSubquery = null;
@@ -82,7 +83,9 @@ namespace Vodovoz.JournalViewModels
 
 			query
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
-				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias);
+				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias);
+
 
 
 			var searchHealperNew = new TempAdapters.SearchHelper(Search);
@@ -92,6 +95,7 @@ namespace Vodovoz.JournalViewModels
 			var nameParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Name, TempAdapters.SearchParametrType.Name);
 			var INNParam = new TempAdapters.SearchParameter(() => counterpartyAlias.INN, TempAdapters.SearchParametrType.INN);
 			var digitNumberParam = new TempAdapters.SearchParameter(() => phoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
+			var deliveryPointPhoneParam = new TempAdapters.SearchParameter(() => deliveryPointPhoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
 			var compiledAdressParam = new TempAdapters.SearchParameter(() => deliveryPointAlias.CompiledAddress, TempAdapters.SearchParametrType.CompiledAddress);
 
 			query.Where(searchHealperNew.GetSearchCriterionNew(
@@ -100,6 +104,7 @@ namespace Vodovoz.JournalViewModels
 				nameParam,
 				INNParam,
 				digitNumberParam,
+				deliveryPointPhoneParam,
 				compiledAdressParam
 			));
 
