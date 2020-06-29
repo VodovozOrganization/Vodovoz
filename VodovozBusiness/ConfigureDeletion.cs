@@ -627,6 +627,7 @@ namespace Vodovoz
 				.AddClearDependence<DriverDistrictPriority>(i => i.District)
 				.AddClearDependence<AtWorkDriverDistrictPriority>(i => i.District)
 				.AddClearDependence<DeliveryPoint>(i => i.District)
+				.AddClearDependence<District>(i => i.CopyOf)
 				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.District)
 				.AddDeleteDependence<DeliveryScheduleRestriction>(item => item.District)
 				.AddDeleteDependence<WeekDayDistrictRuleItem>(item => item.District)
