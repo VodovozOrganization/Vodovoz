@@ -128,9 +128,9 @@ namespace Vodovoz.Domain.Logistic
     {
         [Display(Name = "Черновик")]
         Draft,
-        [Display(Name = "Активен")]
+        [Display(Name = "Активна")]
         Active,
-        [Display(Name = "Закрыт")]
+        [Display(Name = "Закрыта")]
         Closed
     }
     
