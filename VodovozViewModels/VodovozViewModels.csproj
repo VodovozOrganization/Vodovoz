@@ -215,14 +215,12 @@
     <Folder Include="Infrastructure\Services\" />
     <Folder Include="TempAdapters\" />
     <Folder Include="Infrastructure\InfoProviders\" />
-    <Folder Include="ViewModels\ForAdministrators" />
     <Folder Include="ViewModels\Organization\" />
     <Folder Include="ViewModels\WageCalculation\" />
     <Folder Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\" />
     <Folder Include="ViewModels\Warehouses\" />
     <Folder Include="Infrastructure\Permissions\" />
     <Folder Include="Infrastructure\Print\" />
-    <Folder Include="ViewModels\ForAdministrators\" />
     <Folder Include="ViewModels\Contacts\" />
     <Folder Include="ViewModels\Users\" />
     <Folder Include="ViewModels\Permissions\" />

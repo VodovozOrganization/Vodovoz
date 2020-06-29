@@ -455,6 +455,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\SmsSender.cs" />
+    <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringValuableConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
@@ -637,7 +638,6 @@
     <Compile Include="SidePanel\InfoViews\DeliveryPointPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICounterpartyInfoProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\IDeliveryPointInfoProvider.cs" />
-    <Compile Include="Сrutches\WrapLabel.cs" />
     <Compile Include="SidePanel\InfoViews\AdditionalAgreementPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
@@ -1630,7 +1630,6 @@
     <Folder Include="icons\toolbar\" />
     <Folder Include="toolbars\" />
     <Folder Include="Dialogs\" />
-    <Folder Include="Сrutches\" />
     <Folder Include="Dialogs\DocumentDialogs\" />
     <Folder Include="Reports\" />
     <Folder Include="Representations\" />

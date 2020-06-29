@@ -79,7 +79,6 @@ namespace Vodovoz.Views.Logistic
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabelCurrentDistrictsSetStr = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelCurrentDistrictsSetStr.WidthRequest = 200;
 			this.ylabelCurrentDistrictsSetStr.Name = "ylabelCurrentDistrictsSetStr";
 			this.table1.Add(this.ylabelCurrentDistrictsSetStr);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelCurrentDistrictsSetStr]));

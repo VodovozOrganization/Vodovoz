@@ -86,6 +86,7 @@ namespace Vodovoz.ViewModels.Logistic
                         UoW.Commit();
                         ActivationStatus = "Активация завершена";
                         ActiveDistrictsSet = Entity;
+                        OnPropertyChanged(nameof(DeletedPriorities));
                     }
                     catch (Exception ex) {
                         ActivationStatus = "Ошибка при активации версии районов";
@@ -94,6 +95,7 @@ namespace Vodovoz.ViewModels.Logistic
                         ActivationInProgress = false;
                     }
                 });
+                
             }, () => true
         ));
         
@@ -128,8 +130,9 @@ namespace Vodovoz.ViewModels.Logistic
         private void ReAssignDriverDistirctPriorities()
         {
             ActivationStatus = "Переприсвоение приоритетов доставки водителей";
-
-            foreach (var priority in UoW.Session.QueryOver<DriverDistrictPriority>().Future().ToList()) {
+            
+            var priorities = UoW.Session.QueryOver<DriverDistrictPriority>().List();
+            foreach (var priority in priorities.ToList()) {
                 if(priority.District.DistrictsSet.Id == Entity.Id)
                     continue;
                 
@@ -143,7 +146,6 @@ namespace Vodovoz.ViewModels.Logistic
                     UoW.Save(priority);
                 }
             }
-            OnPropertyChanged(nameof(DeletedPriorities));
         }
     }
 }

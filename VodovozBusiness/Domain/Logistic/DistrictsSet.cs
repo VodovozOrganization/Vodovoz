@@ -89,7 +89,7 @@ namespace Vodovoz.Domain.Logistic
                 );
             }
             const int commentLength = 500;
-            if(Comment.Length > commentLength) {
+            if(Comment?.Length > commentLength) {
                 yield return new ValidationResult($"Слишком длинный комментарий. Максимальное число символов: {commentLength}",
                     new[] { this.GetPropertyName(x => x.Comment) }
                 );
