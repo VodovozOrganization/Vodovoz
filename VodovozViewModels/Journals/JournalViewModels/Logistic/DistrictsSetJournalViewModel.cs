@@ -74,10 +74,10 @@ namespace Vodovoz.Journals.JournalViewModels
 		};
 
 		protected override Func<DistrictsSetViewModel> CreateDialogFunction => () =>
-			new DistrictsSetViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, entityDeleteWorker);
+			new DistrictsSetViewModel(EntityUoWBuilder.ForCreate(), unitOfWorkFactory, commonServices, entityDeleteWorker, employeeRepository);
 
 		protected override Func<DistrictsSetJournalNode, DistrictsSetViewModel> OpenDialogFunction => node =>
-			new DistrictsSetViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, entityDeleteWorker);
+			new DistrictsSetViewModel(EntityUoWBuilder.ForOpen(node.Id), unitOfWorkFactory, commonServices, entityDeleteWorker, employeeRepository);
 		
 		protected override void CreateNodeActions()
 		{

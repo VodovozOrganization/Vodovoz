@@ -16,6 +16,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -26,15 +27,22 @@ namespace Vodovoz.ViewModels.Logistic
             IUnitOfWorkFactory unitOfWorkFactory,
             ICommonServices commonServices,
             IEntityDeleteWorker entityDeleteWorker,
+            IEmployeeRepository employeeRepository,
             INavigationManager navigation = null) 
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
             this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
+            this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
             this.commonServices = commonServices;
             TabName = "Районы с графиками доставки";
             
             CanChangeDistrictWageTypePermissionResult = commonServices.CurrentPermissionService.ValidatePresetPermission("can_change_district_wage_type");
-            
+
+            if(Entity.Id == 0) {
+                Entity.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
+                Entity.Status = DistrictsSetStatus.Draft;
+            }
+
             var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District));
             CanEdit = permissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
             CanDelete = permissionResult.CanDelete && Entity.Status != DistrictsSetStatus.Active;
@@ -50,6 +58,7 @@ namespace Vodovoz.ViewModels.Logistic
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         
         private readonly ICommonServices commonServices;
+        private readonly IEmployeeRepository employeeRepository;
         private readonly IEntityDeleteWorker entityDeleteWorker;
         private readonly GeometryFactory geometryFactory;
 
@@ -368,7 +377,14 @@ namespace Vodovoz.ViewModels.Logistic
                 }
             }
         }
-        
+
+        public override bool Save(bool close)
+        {
+            if(Entity.Id == 0)
+                Entity.DateCreated = DateTime.Now;
+            return base.Save(close);
+        }
+
         public override void Close(bool askSave, CloseSource source)
         {
             if(askSave)
