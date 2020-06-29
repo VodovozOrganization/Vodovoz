@@ -28,7 +28,6 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.JournalViewers;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
@@ -42,10 +41,9 @@ using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Footers.ViewModels;
-using Vodovoz.Repositories.HumanResources;
-using Vodovoz.FilterViewModels.Logistic;
-using Vodovoz.JournalViewModels.Logistic;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 public partial class MainWindow : Window
 {
@@ -168,7 +166,7 @@ public partial class MainWindow : Window
 		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
 		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
 		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Журнал доверенностей", null, "table");
-		ActionDistricts = new Action("ActionDistricts", "Районы с графиками доставки", null, "table");
+		ActionDistricts = new Action("ActionDistricts", "Версии районов", null, "table");
 		//Suppliers
 		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");

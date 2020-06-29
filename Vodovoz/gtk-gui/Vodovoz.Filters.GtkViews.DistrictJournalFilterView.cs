@@ -31,7 +31,7 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ylabelSetStatus = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSetStatus.Name = "ylabelSetStatus";
-			this.ylabelSetStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус набора районов:");
+			this.ylabelSetStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус версии районов:");
 			this.hbox1.Add(this.ylabelSetStatus);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabelSetStatus]));
 			w1.Position = 0;

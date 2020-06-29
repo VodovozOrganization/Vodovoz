@@ -620,14 +620,18 @@ namespace Vodovoz
 
 			#region District
 
+			DeleteConfig.AddHibernateDeleteInfo<DistrictsSet>()
+				.AddDeleteDependence<District>(x => x.DistrictsSet);
+
 			DeleteConfig.AddHibernateDeleteInfo<District>()
 				.AddClearDependence<DriverDistrictPriority>(i => i.District)
 				.AddClearDependence<AtWorkDriverDistrictPriority>(i => i.District)
 				.AddClearDependence<DeliveryPoint>(i => i.District)
 				.AddDeleteDependence<CommonDistrictRuleItem>(item => item.District)
 				.AddDeleteDependence<DeliveryScheduleRestriction>(item => item.District)
-				.AddDeleteDependence<WeekDayDistrictRuleItem>(item => item.District);
-			
+				.AddDeleteDependence<WeekDayDistrictRuleItem>(item => item.District)
+				.AddRemoveFromDependence<DistrictsSet>(x => x.Districts);
+
 			DeleteConfig.AddHibernateDeleteInfo<CommonDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<WeekDayDistrictRuleItem>();
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryScheduleRestriction>();

@@ -20,7 +20,6 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.Repositories.Sale;
 using Vodovoz.ViewModel;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.Core.DataService;
@@ -41,12 +40,10 @@ using QS.Widgets.GtkUI;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Additions;
 using Vodovoz.Journals.JournalViewModels.Organization;
-using Vodovoz.FilterViewModels.Logistic;
-using Vodovoz.JournalViewModels.Organization;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
-using Vodovoz.JournalViewModels.Logistic;
 
 namespace Vodovoz
 {

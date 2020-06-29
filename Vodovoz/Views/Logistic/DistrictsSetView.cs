@@ -69,7 +69,8 @@ namespace Vodovoz.Views.Logistic
 					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
-			ytreeDistricts.Binding.AddBinding(ViewModel, vm => vm.Districts, w => w.ItemsDataSource).InitializeFromSource();
+			
+			ytreeDistricts.Binding.AddBinding(ViewModel.Entity, e => e.ObservableDistricts, w => w.ItemsDataSource).InitializeFromSource();
 			ytreeDistricts.Selection.Changed += (sender, args) => {
 				if(ViewModel.IsCreatingNewBorder) {
 					ViewModel.CancelNewBorderCommand.Execute();
@@ -151,16 +152,19 @@ namespace Vodovoz.Views.Logistic
 			btnAddDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanCreate, w => w.Sensitive).InitializeFromSource();
 			btnAddDistrict.Clicked += (sender, args) => {
 				ViewModel.AddDistrictCommand.Execute();
-
-				if(ViewModel.SelectedDistrict != null) {
-					var iter = ytreeDistricts.YTreeModel.IterFromNode(ViewModel.SelectedDistrict);
-					var path = ytreeDistricts.YTreeModel.GetPath(iter);
-					ytreeDistricts.ScrollToCell(path, ytreeDistricts.Columns.FirstOrDefault(), false, 0, 0);
-				}
+				ScrollToSelectedDistrict();
 			};
 
-			btnRemoveDistrict.Clicked += (sender, args) => { ViewModel.RemoveDistrictCommand.Execute(); };
+			btnRemoveDistrict.Clicked += (sender, args) => {
+				ViewModel.RemoveDistrictCommand.Execute();
+				if(ViewModel.SelectedDistrict == null)
+					RefreshBorders();
+				else 
+					ScrollToSelectedDistrict();
+			};
 			btnRemoveDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanDelete, w => w.Sensitive).InitializeFromSource();
+			
+			ytextComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			
 			btnAddCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			btnAddCommonRule.Clicked += (sender, args) => {
@@ -348,7 +352,7 @@ namespace Vodovoz.Views.Logistic
 			void RefreshBorders()
 			{
 				bordersOverlay.Clear();
-				foreach (District district in ViewModel.Districts) {
+				foreach (District district in ViewModel.Entity.ObservableDistricts) {
 					if(district.DistrictBorder != null) {
 						bordersOverlay.Polygons.Add(new GMapPolygon(
 							district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(), district.DistrictName)
@@ -412,6 +416,15 @@ namespace Vodovoz.Views.Logistic
 					}
 				});
 			};
+		}
+		
+		private void ScrollToSelectedDistrict()
+		{
+			if(ViewModel.SelectedDistrict != null) {
+				var iter = ytreeDistricts.YTreeModel.IterFromNode(ViewModel.SelectedDistrict);
+				var path = ytreeDistricts.YTreeModel.GetPath(iter);
+				ytreeDistricts.ScrollToCell(path, ytreeDistricts.Columns.FirstOrDefault(), false, 0, 0);
+			}
 		}
 		
 	}

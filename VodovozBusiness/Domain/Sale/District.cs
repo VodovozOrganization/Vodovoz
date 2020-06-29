@@ -8,6 +8,7 @@ using Gamma.Utilities;
 using GeoAPI.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Tools.Orders;
@@ -18,6 +19,7 @@ namespace Vodovoz.Domain.Sale
 		NominativePlural = "районы",
 		Nominative = "район")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class District : BusinessObjectBase<District>, IDomainObject, IValidatableObject, ICloneable
 	{
 		#region Свойства
@@ -84,7 +86,7 @@ namespace Vodovoz.Domain.Sale
 		}
 		
 		private DistrictsSet districtsSet;
-		[Display(Name = "Набор районов")]
+		[Display(Name = "Версия районов")]
 		public virtual DistrictsSet DistrictsSet {
 			get => districtsSet;
 			set => SetField(ref districtsSet, value, () => DistrictsSet);
@@ -549,7 +551,7 @@ namespace Vodovoz.Domain.Sale
 		{
 			var newDistrict = new District {
 				DistrictName = DistrictName,
-				DistrictBorder = DistrictBorder.Copy(),
+				DistrictBorder = DistrictBorder?.Copy(),
 				WageDistrict = WageDistrict,
 				GeographicGroup = GeographicGroup,
 				PriceType = PriceType,

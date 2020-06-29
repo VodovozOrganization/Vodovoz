@@ -1,6 +1,5 @@
-﻿using System;
-using QS.Views.GtkUI;
-using Vodovoz.FilterViewModels.Logistic;
+﻿using QS.Views.GtkUI;
+using Vodovoz.Journals.FilterViewModels;
 
 namespace Vodovoz.Filters.GtkViews
 {

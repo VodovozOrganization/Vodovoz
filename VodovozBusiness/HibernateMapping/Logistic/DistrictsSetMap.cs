@@ -15,10 +15,11 @@ namespace Vodovoz.HibernateMapping.Logistic
 			Map(x => x.DateCreated).Column("date_created");
 			Map(x => x.DateActivated).Column("date_activated");
 			Map(x => x.DateClosed).Column("date_closed");
+			Map(x => x.Comment).Column("comment");
 			Map(x => x.Status).Column("status").CustomType<DistrictsSetStatusStringType>();
 			
 			References(x => x.Author).Column("author_id");
-
+			
 			HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse().KeyColumn("districts_set_id");
 		}
     }

@@ -19,7 +19,7 @@ namespace Vodovoz.Repositories.Sale
 			GeographicGroup gg = null;
 			if(lat.HasValue && lon.HasValue) {
 				var point = new Point(lat.Value, lon.Value);
-				gg = source.FirstOrDefault(d => d.DistrictBorder != null && d.DistrictBorder.Contains(point))
+				gg = source.FirstOrDefault(d => d.DistrictBorder != null && d.DistrictBorder.Contains(point))?
 				           .GeographicGroup;
 			}
 			return gg;

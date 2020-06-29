@@ -94,11 +94,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
-    <Compile Include="FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
-    <Compile Include="JournalNodes\DistrictsSetJournalNode.cs" />
-    <Compile Include="JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
-    <Compile Include="JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TempAdapters\IEntityDeleteWorker.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintViewModel.cs" />
@@ -156,9 +156,6 @@
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
     <Compile Include="ViewModels\Warehouses\MovementDocumentRDL.cs" />
     <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />
-    <Compile Include="JournalNodes\DistrictJournalNode.cs" />
-    <Compile Include="FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
-    <Compile Include="JournalNodes\NomenclatureStockJournalNode.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintKindViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\IWageParameterViewModel.cs" />
     <Compile Include="Infrastructure\NavigationManagerProvider.cs" />
@@ -188,7 +185,6 @@
     <Compile Include="Journals\JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Contacts\PhoneTypeJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FinesJournalViewModel.cs" />
-    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Organization\SubdivisionsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\WageCalculation\SalesPlanJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\WageCalculation\WageDistrictLevelRatesJournalViewModel.cs" />
@@ -219,7 +215,6 @@
     <Folder Include="Infrastructure\Services\" />
     <Folder Include="TempAdapters\" />
     <Folder Include="Infrastructure\InfoProviders\" />
-    <Folder Include="JournalViewModels\Organization\" />
     <Folder Include="ViewModels\ForAdministrators" />
     <Folder Include="ViewModels\Organization\" />
     <Folder Include="ViewModels\WageCalculation\" />

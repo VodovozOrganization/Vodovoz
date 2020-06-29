@@ -1,6 +1,6 @@
 ﻿using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.FilterViewModels.Logistic;
+using Vodovoz.Journals.FilterViewModels;
 
 namespace Vodovoz.Filters.GtkViews
 {

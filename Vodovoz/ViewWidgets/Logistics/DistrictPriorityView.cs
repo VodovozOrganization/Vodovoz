@@ -7,8 +7,8 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.FilterViewModels.Logistic;
-using Vodovoz.JournalViewModels.Logistic;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.Journals.JournalViewModels;
 
 namespace Vodovoz.ViewWidgets.Logistics
 {

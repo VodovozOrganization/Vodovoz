@@ -21,16 +21,15 @@ namespace Vodovoz.ViewModels.Logistic
         public DistrictsSetActivationViewModel(IEntityUoWBuilder uowBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
             INavigationManager navigation = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
-            TabName = $"Активация набора районов \"{Entity.Name}\"";
+            TabName = $"Активация версии районов \"{Entity.Name}\"";
             
             ActivationInProgress = false;
-            WasSuccesfullyActivated = false;
+            WasActivated = false;
             DeletedPriorities = new List<DriverDistrictPriority>();
             ActiveDistrictsSet = UoW.Session.QueryOver<DistrictsSet>()
                 .Where(x => x.Status == DistrictsSetStatus.Active)
                 .Take(1)
                 .SingleOrDefault();
-            
         }
 
         private DistrictsSet activeDistrictsSet;
@@ -56,8 +55,12 @@ namespace Vodovoz.ViewModels.Logistic
             get => deletedPriorities;
             set => SetField(ref deletedPriorities, value, () => DeletedPriorities);
         }
-        
-        public bool WasSuccesfullyActivated;
+
+        private bool wasActivated;
+        public bool WasActivated {
+            get => wasActivated;
+            private set => SetField(ref wasActivated, value, () => WasActivated);
+        }
 
         #region Commands
 
@@ -68,23 +71,24 @@ namespace Vodovoz.ViewModels.Logistic
                     try {
                         ActivationInProgress = true;
                         
-                        ReAssignDriverDistirctPriorities();
                         ReAssignDeliveryPoints();
+                        ReAssignDriverDistirctPriorities();
                         
                         Entity.Status = DistrictsSetStatus.Active;
                         Entity.DateActivated = DateTime.Now;
                         UoW.Save(Entity);
                         if(ActiveDistrictsSet != null) {
                             ActiveDistrictsSet.Status = DistrictsSetStatus.Draft;
+                            ActiveDistrictsSet.DateActivated = null;
                             UoW.Save(ActiveDistrictsSet);
                         }
+                        WasActivated = true;
                         UoW.Commit();
                         ActivationStatus = "Активация завершена";
                         ActiveDistrictsSet = Entity;
-                        WasSuccesfullyActivated = true;
                     }
                     catch (Exception ex) {
-                        ActivationStatus = "Ошибка при активации набора района";
+                        ActivationStatus = "Ошибка при активации версии районов";
                     }
                     finally {
                         ActivationInProgress = false;
@@ -92,7 +96,8 @@ namespace Vodovoz.ViewModels.Logistic
                 });
             }, () => true
         ));
-
+        
+        
         #endregion
         
         public bool CanClose()
@@ -124,7 +129,7 @@ namespace Vodovoz.ViewModels.Logistic
         {
             ActivationStatus = "Переприсвоение приоритетов доставки водителей";
             
-            foreach (var priority in UoW.Session.QueryOver<DriverDistrictPriority>().Future()) {
+            foreach (var priority in UoW.Session.QueryOver<DriverDistrictPriority>().Future().ToList()) {
                 if(priority.District.DistrictsSet.Id == Entity.Id)
                     continue;
                 

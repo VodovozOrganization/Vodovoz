@@ -6,6 +6,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 
@@ -15,7 +16,11 @@ namespace Vodovoz.Repositories.Sale
 	{
 		public static QueryOver<District> GetDistrictsWithBorder()
 		{
-			return QueryOver.Of<District>().Where(x => x.DistrictBorder != null);
+			DistrictsSet districtsSetAlias = null;
+			return QueryOver.Of<District>()
+				.Left.JoinAlias(x => x.DistrictsSet, () => districtsSetAlias)
+				.Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
+				.And(x => x.DistrictBorder != null);
 		}
 
 		public static IList<District> GetDistrictsWithBorder(IUnitOfWork uow)

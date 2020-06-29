@@ -86,11 +86,11 @@ using Vodovoz.ViewWidgets.Permissions;
 using Vodovoz.ViewModels.Reports;
 using Vodovoz.ReportsParameters;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.Views.BusinessTasks;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Footers.Views;
+using Vodovoz.Journals.FilterViewModels;
 
 namespace Vodovoz
 {

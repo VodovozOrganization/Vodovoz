@@ -7,7 +7,6 @@ using GMap.NET;
 using NetTopologySuite.Geometries;
 using NLog;
 using QS.Commands;
-using QS.Deletion;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
@@ -41,15 +40,13 @@ namespace Vodovoz.ViewModels.Logistic
             CanDelete = permissionResult.CanDelete && Entity.Status != DistrictsSetStatus.Active;
             CanCreate = permissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
             
-            Districts = new GenericObservableList<District>(Entity.ObservableDistricts
-                .OrderBy(x => x.TariffZone.Name, new NaturalStringComparer())
-                .ThenBy(x => x.DistrictName).ToList());
-            
+            SortDistricts();
+
             geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
             SelectedDistrictBorderVertices = new GenericObservableList<PointLatLng>();
             NewBorderVertices = new GenericObservableList<PointLatLng>();
         }
-        
+
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         
         private readonly ICommonServices commonServices;
@@ -61,12 +58,6 @@ namespace Vodovoz.ViewModels.Logistic
         public readonly bool CanDelete;
         public readonly bool CanCreate;
         
-        private GenericObservableList<District> districts;
-        public GenericObservableList<District> Districts {
-            get => districts;
-            set => SetField(ref districts, value, () => Districts);
-        }
-
         public GenericObservableList<DeliveryScheduleRestriction> ScheduleRestrictions => SelectedWeekDayName.HasValue && SelectedDistrict != null
             ? SelectedDistrict.GetScheduleRestrictionCollectionByWeekDayName(SelectedWeekDayName.Value)
             : null;
@@ -118,8 +109,8 @@ namespace Vodovoz.ViewModels.Logistic
                     OnPropertyChanged(nameof(CommonDistrictRuleItems));
                     OnPropertyChanged(nameof(SelectedGeoGroup));
                     OnPropertyChanged(nameof(SelectedWageDistrict));
-                    OnPropertyChanged(nameof(SelectedDistrictBorderVertices));
                 }
+                OnPropertyChanged(nameof(SelectedDistrictBorderVertices));
             }
         }
         
@@ -189,8 +180,8 @@ namespace Vodovoz.ViewModels.Logistic
         private DelegateCommand addDistrictCommand;
         public DelegateCommand AddDistrictCommand => addDistrictCommand ?? (addDistrictCommand = new DelegateCommand(
             () => {
-                var newDistrict = new District { PriceType = DistrictWaterPrice.Standart, DistrictName = "Новый район" };
-                Districts.Add(newDistrict);
+                var newDistrict = new District { PriceType = DistrictWaterPrice.Standart, DistrictName = "Новый район", DistrictsSet = Entity};
+                Entity.ObservableDistricts.Add(newDistrict);
                 SelectedDistrict = newDistrict;
             }, () => true
         ));
@@ -198,14 +189,15 @@ namespace Vodovoz.ViewModels.Logistic
         private DelegateCommand removeDistrictCommand;
         public DelegateCommand RemoveDistrictCommand => removeDistrictCommand ?? (removeDistrictCommand = new DelegateCommand(
             () => {
-                var distrIdToDelete = SelectedDistrict.Id;
-                Entity.Districts.Remove(SelectedDistrict);
-                if(entityDeleteWorker.DeleteObject<District>(distrIdToDelete, UoW)) {
-                    Districts.Remove(SelectedDistrict);
+                var distrToDel = selectedDistrict;
+                Entity.ObservableDistricts.Remove(SelectedDistrict);
+                if(entityDeleteWorker.DeleteObject<District>(distrToDel.Id, UoW)) {
                     SelectedDistrict = null;
                 }
-                else
-                    Entity.Districts.Add(SelectedDistrict);
+                else {
+                    Entity.ObservableDistricts.Add(distrToDel);
+                    SelectedDistrict = distrToDel;
+                }
             },
             () => SelectedDistrict != null
         ));
@@ -250,6 +242,7 @@ namespace Vodovoz.ViewModels.Logistic
                 SelectedDistrict.DistrictBorder = null;
                 SelectedDistrictBorderVertices.Clear();
                 OnPropertyChanged(nameof(SelectedDistrictBorderVertices));
+                OnPropertyChanged(nameof(SelectedDistrict));
             },
             () => !IsCreatingNewBorder
         ));
@@ -297,7 +290,7 @@ namespace Vodovoz.ViewModels.Logistic
         public DelegateCommand<IEnumerable<DeliveryPriceRule>> AddWeekDayDistrictRuleItemCommand => addWeekDayDistrictRuleItemCommand ?? (addWeekDayDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRule>>(
             ruleItems => {
                 foreach (var ruleItem in ruleItems) {
-                    if(SelectedWeekDayName.HasValue && WeekDayDistrictRuleItems.All(i => i.Id != ruleItem.Id)) {
+                    if(SelectedWeekDayName.HasValue && WeekDayDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != ruleItem.Id)) {
                         WeekDayDistrictRuleItems.Add(new WeekDayDistrictRuleItem {
                             District = SelectedDistrict, WeekDay = SelectedWeekDayName.Value, Price = 0,
                             DeliveryPriceRule = ruleItem
@@ -320,7 +313,7 @@ namespace Vodovoz.ViewModels.Logistic
         public DelegateCommand<IEnumerable<DeliveryPriceRule>> AddCommonDistrictRuleItemCommand => addCommonDistrictRuleItemCommand ?? (addCommonDistrictRuleItemCommand = new DelegateCommand<IEnumerable<DeliveryPriceRule>>(
             ruleItems => {
                 foreach (var ruleItem in ruleItems) {
-                    if(CommonDistrictRuleItems.All(i => i.Id != ruleItem.Id)) {
+                    if(CommonDistrictRuleItems.All(i => i.DeliveryPriceRule.Id != ruleItem.Id)) {
                         CommonDistrictRuleItems.Add(new CommonDistrictRuleItem {
                             District = SelectedDistrict, Price = 0, DeliveryPriceRule = ruleItem
                         });
@@ -356,6 +349,26 @@ namespace Vodovoz.ViewModels.Logistic
 
         #endregion
 
+        private void SortDistricts()
+        {
+            for(int i = 0; i < Entity.Districts.Count - 1; i++)
+            {
+                for(int j = 0; j < Entity.Districts.Count - 2 - i; j++)
+                {
+                    switch (NaturalStringComparer.CompareStrings(Entity.Districts[j].TariffZone.Name, Entity.Districts[j + 1].TariffZone.Name)) {
+                        case -1:
+                            break;
+                        case 1: (Entity.Districts[j], Entity.Districts[j + 1]) = (Entity.Districts[j + 1], Entity.Districts[j]);
+                            break;
+                        case 0: 
+                            if(String.Compare(Entity.Districts[j].DistrictName, Entity.Districts[j + 1].DistrictName, StringComparison.InvariantCulture) > 0) 
+                                (Entity.Districts[j], Entity.Districts[j + 1]) = (Entity.Districts[j + 1], Entity.Districts[j]); 
+                            break;
+                    }
+                }
+            }
+        }
+        
         public override void Close(bool askSave, CloseSource source)
         {
             if(askSave)
