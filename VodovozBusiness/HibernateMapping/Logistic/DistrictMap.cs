@@ -21,6 +21,8 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.TariffZone).Column("tariff_zone_id");
 			References(x => x.WageDistrict).Column("wage_district_id");
 			References(x => x.GeographicGroup).Column("geographic_group_id");
+			References(x => x.DistrictsSet).Column("districts_set_id");
+			References(x => x.CopyOf).Column("copy_of");
 
 			HasMany(x => x.CommonDistrictRuleItems).Cascade.AllDeleteOrphan().Inverse().KeyColumn("district_id");
 

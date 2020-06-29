@@ -299,8 +299,6 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionGeographicGroups;
 
-	private global::Gtk.Action ActionSetDistrictsToDeliveryPoints;
-
 	private global::Gtk.Action ActionCertificates;
 
 	private global::Gtk.Action ForShipmentReport;
@@ -382,8 +380,6 @@ public partial class MainWindow
 	private global::Gtk.Action Action63;
 
 	private global::Gtk.Action Action64;
-
-	private global::Gtk.Action ActionDeliveryScheduleCopy;
 
 	private global::Gtk.Action ActionComplaintKind;
 
@@ -896,9 +892,6 @@ public partial class MainWindow
 		this.ActionGeographicGroups = new global::Gtk.Action("ActionGeographicGroups", global::Mono.Unix.Catalog.GetString("Географические группы"), null, null);
 		this.ActionGeographicGroups.ShortLabel = global::Mono.Unix.Catalog.GetString("Географические группы");
 		w1.Add(this.ActionGeographicGroups, null);
-		this.ActionSetDistrictsToDeliveryPoints = new global::Gtk.Action("ActionSetDistrictsToDeliveryPoints", global::Mono.Unix.Catalog.GetString("Присвоение точкам доставки районов доставки"), null, null);
-		this.ActionSetDistrictsToDeliveryPoints.ShortLabel = global::Mono.Unix.Catalog.GetString("Присвоение точкам доставки районов доставки");
-		w1.Add(this.ActionSetDistrictsToDeliveryPoints, null);
 		this.ActionCertificates = new global::Gtk.Action("ActionCertificates", global::Mono.Unix.Catalog.GetString("Сертификаты продукции"), null, null);
 		this.ActionCertificates.ShortLabel = global::Mono.Unix.Catalog.GetString("Сертификаты продукции");
 		w1.Add(this.ActionCertificates, null);
@@ -1024,9 +1017,6 @@ public partial class MainWindow
 		this.Action64 = new global::Gtk.Action("Action64", global::Mono.Unix.Catalog.GetString("Отчет по нулевому долгу клиента"), null, null);
 		this.Action64.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по нулевому долгу клиента");
 		w1.Add(this.Action64, null);
-		this.ActionDeliveryScheduleCopy = new global::Gtk.Action("ActionDeliveryScheduleCopy", global::Mono.Unix.Catalog.GetString("Копирование интервалов доставки"), null, null);
-		this.ActionDeliveryScheduleCopy.ShortLabel = global::Mono.Unix.Catalog.GetString("Копирование интервалов доставки");
-		w1.Add(this.ActionDeliveryScheduleCopy, null);
 		this.ActionComplaintKind = new global::Gtk.Action("ActionComplaintKind", global::Mono.Unix.Catalog.GetString("Виды жалоб"), null, null);
 		this.ActionComplaintKind.ShortLabel = global::Mono.Unix.Catalog.GetString("Виды жалоб");
 		w1.Add(this.ActionComplaintKind, null);
@@ -1217,14 +1207,12 @@ public partial class MainWindow
 				"ctionOrdersWithoutBottlesOperation\' action=\'ActionOrdersWithoutBottlesOperation\'" +
 				"/><menuitem name=\'ActionLoad1cCounterpartyAndDeliveryPoints\' action=\'ActionLoad1" +
 				"cCounterpartyAndDeliveryPoints\'/><menuitem name=\'ActionToOnlineStore\' action=\'Ac" +
-				"tionToOnlineStore\'/><menuitem name=\'ActionSetDistrictsToDeliveryPoints\' action=\'" +
-				"ActionSetDistrictsToDeliveryPoints\'/><menuitem name=\'Action62\' action=\'Action62\'" +
-				"/><menuitem name=\'ActionDeliveryScheduleCopy\' action=\'ActionDeliveryScheduleCopy" +
-				"\'/></menu><separator/><menuitem name=\'ActionDocTemplates\' action=\'ActionDocTempl" +
-				"ates\'/><menuitem name=\'ActionGeographicGroups\' action=\'ActionGeographicGroups\'/>" +
-				"<menuitem name=\'ActionImages\' action=\'ActionImages\'/></menu><menu name=\'ActionAb" +
-				"out\' action=\'ActionAbout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/></m" +
-				"enu></menubar></ui>");
+				"tionToOnlineStore\'/><menuitem/><menuitem name=\'Action62\' action=\'Action62\'/><men" +
+				"uitem/></menu><separator/><menuitem name=\'ActionDocTemplates\' action=\'ActionDocT" +
+				"emplates\'/><menuitem name=\'ActionGeographicGroups\' action=\'ActionGeographicGroup" +
+				"s\'/><menuitem name=\'ActionImages\' action=\'ActionImages\'/></menu><menu name=\'Acti" +
+				"onAbout\' action=\'ActionAbout\'><menuitem name=\'aboutAction\' action=\'aboutAction\'/" +
+				"></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add(this.menubarMain);
@@ -1460,7 +1448,6 @@ public partial class MainWindow
 		this.ActionParameters.Activated += new global::System.EventHandler(this.OnActionParametersActivated);
 		this.Action58.Activated += new global::System.EventHandler(this.OnActionOrdersByCreationDate);
 		this.ActionGeographicGroups.Activated += new global::System.EventHandler(this.OnActionGeographicGroupsActivated);
-		this.ActionSetDistrictsToDeliveryPoints.Activated += new global::System.EventHandler(this.OnActionSetDistrictsToDeliveryPointsActivated);
 		this.ActionCertificates.Activated += new global::System.EventHandler(this.OnActionCertificatesActivated);
 		this.ForShipmentReport.Activated += new global::System.EventHandler(this.OnForShipmentReportActivated);
 		this.ActionImages.Activated += new global::System.EventHandler(this.OnImageListOpenActivated);
@@ -1498,7 +1485,6 @@ public partial class MainWindow
 		this.ActionSalesPlans.Activated += new global::System.EventHandler(this.OnActionSalesPlansActivated);
 		this.Action63.Activated += new global::System.EventHandler(this.OnActionZeroDebtClientReportActivated);
 		this.Action64.Activated += new global::System.EventHandler(this.OnActionZeroDebtClientReportActivated);
-		this.ActionDeliveryScheduleCopy.Activated += new global::System.EventHandler(this.OnActionDeliveryScheduleCopyActivated);
 		this.ActionComplaintKind.Activated += new global::System.EventHandler(this.OnActionComplaintKindActivated);
 		this.ActionSalesByDicountReport.Activated += new global::System.EventHandler(this.OnActionSalesByDicountReportActivated);
 		this.ActionSetBillsReport.Activated += new global::System.EventHandler(this.OnActionSetBillsReportActivated);

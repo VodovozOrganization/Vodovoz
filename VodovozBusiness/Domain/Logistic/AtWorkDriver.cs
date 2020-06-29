@@ -70,24 +70,24 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
 		}
 
-		private IList<AtWorkDriverDistrictPriority> districts = new List<AtWorkDriverDistrictPriority>();
+		private IList<AtWorkDriverDistrictPriority> districtsPriorities = new List<AtWorkDriverDistrictPriority>();
 
 		[Display(Name = "Районы")]
-		public virtual IList<AtWorkDriverDistrictPriority> Districts {
-			get => districts;
-			set => SetField(ref districts, value, () => Districts);
+		public virtual IList<AtWorkDriverDistrictPriority> DistrictsPriorities {
+			get => districtsPriorities;
+			set => SetField(ref districtsPriorities, value, () => DistrictsPriorities);
 		}
 
-		GenericObservableList<AtWorkDriverDistrictPriority> observableDistricts;
+		GenericObservableList<AtWorkDriverDistrictPriority> observableDistrictsPriorities;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<AtWorkDriverDistrictPriority> ObservableDistricts {
+		public virtual GenericObservableList<AtWorkDriverDistrictPriority> ObservableDistrictsPriorities {
 			get {
-				if(observableDistricts == null) {
-					observableDistricts = new GenericObservableList<AtWorkDriverDistrictPriority>(districts);
-					observableDistricts.ElementAdded += ObservableDistricts_ElementAdded;
-					observableDistricts.ElementRemoved += ObservableDistricts_ElementRemoved;
+				if(observableDistrictsPriorities == null) {
+					observableDistrictsPriorities = new GenericObservableList<AtWorkDriverDistrictPriority>(districtsPriorities);
+					observableDistrictsPriorities.ElementAdded += ObservableDistrictsPrioritiesElementAdded;
+					observableDistrictsPriorities.ElementRemoved += ObservableDistrictsPrioritiesElementRemoved;
 				}
-				return observableDistricts;
+				return observableDistrictsPriorities;
 			}
 		}
 
@@ -101,7 +101,7 @@ namespace Vodovoz.Domain.Logistic
 			this.car = car;
 			DaySchedule = daySchedule;
 
-			districts = new List<AtWorkDriverDistrictPriority>(driver.Districts.Select(x => x.CreateAtDay(this)));
+			districtsPriorities = new List<AtWorkDriverDistrictPriority>(driver.Districts.Select(x => x.CreateAtDay(this)));
 			if(car?.GeographicGroups.Count() == 1)
 				this.GeographicGroup = car.GeographicGroups[0];
 		}
@@ -110,26 +110,26 @@ namespace Vodovoz.Domain.Logistic
 
 		private void CheckDistrictsPriorities()
 		{
-			for(int i = 0; i < Districts.Count; i++) {
-				if(Districts[i] == null) {
-					Districts.RemoveAt(i);
+			for(int i = 0; i < DistrictsPriorities.Count; i++) {
+				if(DistrictsPriorities[i] == null) {
+					DistrictsPriorities.RemoveAt(i);
 					i--;
 					continue;
 				}
 
-				if(Districts[i].Priority != i)
-					Districts[i].Priority = i;
+				if(DistrictsPriorities[i].Priority != i)
+					DistrictsPriorities[i].Priority = i;
 			}
 		}
 
 		#endregion
 
-		void ObservableDistricts_ElementAdded(object aList, int[] aIdx)
+		void ObservableDistrictsPrioritiesElementAdded(object aList, int[] aIdx)
 		{
 			CheckDistrictsPriorities();
 		}
 
-		void ObservableDistricts_ElementRemoved(object aList, int[] aIdx, object aObject)
+		void ObservableDistrictsPrioritiesElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			CheckDistrictsPriorities();
 		}

@@ -114,8 +114,12 @@ namespace Vodovoz.ReportsParameters
 							.Select(() => districtAlias.Id).WithAlias(() => resultAlias.EntityId)
 							.Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.EntityTitle)
 						);
-					query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<District>>());
-					return query.List<SelectableParameter>();
+					var result = query.TransformUsing(Transformers.AliasToBean<SelectableEntityParameter<District>>())
+						.List<SelectableEntityParameter<District>>();
+					foreach (var parameter in result) {
+						parameter.EntityTitle = $"{parameter.EntityId} {parameter.EntityTitle}";
+					}
+					return result.Cast<SelectableParameter>().ToList();
 				})
 			);
 			districtParameter.AddFilterOnSourceSelectionChanged(geoGroups, () => {
@@ -125,7 +129,6 @@ namespace Vodovoz.ReportsParameters
 				}
 				return Restrictions.On(() => geoGroupAlias.Id).IsIn(selectedValues.ToArray());
 			});
-
 
 			var viewModel = new SelectableParameterReportFilterViewModel(filter);
 			var filterWidget = new SelectableParameterReportFilterView(viewModel);

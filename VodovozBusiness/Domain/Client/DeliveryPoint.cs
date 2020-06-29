@@ -99,21 +99,21 @@ namespace Vodovoz.Domain.Client
 			get {
 				string address = string.Empty;
 				if(!string.IsNullOrWhiteSpace(City))
-					address += string.Format("{0} {1}, ", LocalityType.GetEnumShortTitle(), City);
+					address += $"{LocalityType.GetEnumShortTitle()} {City}, ";
 				if(!string.IsNullOrWhiteSpace(Street))
-					address += string.Format("{0}, ", Street);
+					address += $"{Street}, ";
 				if(!string.IsNullOrWhiteSpace(Building))
-					address += string.Format("д.{0}, ", Building);
+					address += $"д.{Building}, ";
 				if(!string.IsNullOrWhiteSpace(Letter))
-					address += string.Format("лит.{0}, ", Letter);
+					address += $"лит.{Letter}, ";
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += string.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
+					address += $"{entranceType.GetEnumShortTitle()} {Entrance}, ";
 				if(!string.IsNullOrWhiteSpace(Floor))
-					address += string.Format("эт.{0}, ", Floor);
+					address += $"эт.{Floor}, ";
 				if(!string.IsNullOrWhiteSpace(Room))
-					address += string.Format("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
+					address += $"{RoomType.GetEnumShortTitle()} {Room}, ";
 				if(!string.IsNullOrWhiteSpace(АddressAddition))
-					address += string.Format("{0}, ", АddressAddition);
+					address += $"{АddressAddition}, ";
 
 				return address.TrimEnd(',', ' ');
 			}
@@ -125,19 +125,19 @@ namespace Vodovoz.Domain.Client
 			get {
 				string address = string.Empty;
 				if(!string.IsNullOrWhiteSpace(City))
-					address += string.Format("{0} {1}, ", LocalityType.GetEnumShortTitle(), City);
+					address += $"{LocalityType.GetEnumShortTitle()} {City}, ";
 				if(!string.IsNullOrWhiteSpace(Street))
-					address += string.Format("{0}, ", Street);
+					address += $"{Street}, ";
 				if(!string.IsNullOrWhiteSpace(Building))
-					address += string.Format("д.{0}, ", Building);
+					address += $"д.{Building}, ";
 				if(!string.IsNullOrWhiteSpace(Letter))
-					address += string.Format("лит.{0}, ", Letter);
+					address += $"лит.{Letter}, ";
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += string.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
+					address += $"{entranceType.GetEnumShortTitle()} {Entrance}, ";
 				if(!string.IsNullOrWhiteSpace(Floor))
-					address += string.Format("эт.{0}, ", Floor);
+					address += $"эт.{Floor}, ";
 				if(!string.IsNullOrWhiteSpace(Room))
-					address += string.Format("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
+					address += $"{RoomType.GetEnumShortTitle()} {Room}, ";
 
 				return address.TrimEnd(',', ' ');
 			}
@@ -150,19 +150,19 @@ namespace Vodovoz.Domain.Client
 			get {
 				string address = string.Empty;
 				if(!string.IsNullOrWhiteSpace(City) && City != "Санкт-Петербург")
-					address += string.Format("{0} {1}, ", LocalityType.GetEnumShortTitle(), AddressHelper.ShortenCity(City));
+					address += $"{LocalityType.GetEnumShortTitle()} {AddressHelper.ShortenCity(City)}, ";
 				if(!string.IsNullOrWhiteSpace(Street))
-					address += string.Format("{0}, ", AddressHelper.ShortenStreet(Street));
+					address += $"{AddressHelper.ShortenStreet(Street)}, ";
 				if(!string.IsNullOrWhiteSpace(Building))
-					address += string.Format("д.{0}, ", Building);
+					address += $"д.{Building}, ";
 				if(!string.IsNullOrWhiteSpace(Letter))
-					address += string.Format("лит.{0}, ", Letter);
+					address += $"лит.{Letter}, ";
 				if(!string.IsNullOrWhiteSpace(Entrance))
-					address += string.Format("{0} {1}, ", entranceType.GetEnumShortTitle(), Entrance);
+					address += $"{entranceType.GetEnumShortTitle()} {Entrance}, ";
 				if(!string.IsNullOrWhiteSpace(Floor))
-					address += string.Format("эт.{0}, ", Floor);
+					address += $"эт.{Floor}, ";
 				if(!string.IsNullOrWhiteSpace(Room))
-					address += string.Format("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
+					address += $"{RoomType.GetEnumShortTitle()} {Room}, ";
 
 				return address.TrimEnd(',', ' ');
 			}

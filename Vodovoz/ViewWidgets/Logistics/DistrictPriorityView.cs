@@ -2,28 +2,19 @@
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
-using QSOrmProject;
+using QS.DomainModel.UoW;
+using QS.Project.Journal;
+using QS.Project.Services;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
-using Vodovoz.Repositories.Sale;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.Journals.JournalViewModels;
 
 namespace Vodovoz.ViewWidgets.Logistics
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DistrictPriorityView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
-		GenericObservableList<AtWorkDriverDistrictPriority> observableDistricts;
-
-		public GenericObservableList<AtWorkDriverDistrictPriority> Districts {
-			get => observableDistricts;
-			set {
-				observableDistricts = value;
-				ytreeviewDistricts.SetItemsSource(observableDistricts);
-			}
-		}
-
-		public AtWorkDriver ListParent;
-
 		public DistrictPriorityView()
 		{
 			this.Build();
@@ -34,35 +25,41 @@ namespace Vodovoz.ViewWidgets.Logistics
 				.Finish();
 			ytreeviewDistricts.Reorderable = true;
 		}
+		
+		public AtWorkDriver ListParent;
+		
+		private GenericObservableList<AtWorkDriverDistrictPriority> observableDistricts;
+		public GenericObservableList<AtWorkDriverDistrictPriority> Districts {
+			get => observableDistricts;
+			set {
+				observableDistricts = value;
+				ytreeviewDistricts.SetItemsSource(observableDistricts);
+			}
+		}
 
 		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
 		{
-			var SelectDistrict = new OrmReference(
-				MyOrmDialog.UoW,
-				ScheduleRestrictionRepository.AreaWithGeometryQuery()
-			) {
-				Mode = OrmReferenceMode.MultiSelect
+			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
+			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+				SelectionMode = JournalSelectionMode.Multiple, EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false
 			};
-			SelectDistrict.ObjectSelected += SelectDistrict_ObjectSelected;
-			MyTab.TabParent.AddSlaveTab(MyTab, SelectDistrict);
+			journalViewModel.OnEntitySelectedResult += (o, args) => {
+				var addDistricts = args.SelectedNodes;
+				addDistricts.Where(x => observableDistricts.All(d => d.District.Id != x.Id))
+					.Select(x => new AtWorkDriverDistrictPriority {
+						Driver = ListParent,
+						District = UoW.GetById<District>(x.Id)
+					})
+					.ToList()
+					.ForEach(x => observableDistricts.Add(x));
+			};
+			MyTab.TabParent.AddSlaveTab(MyTab, journalViewModel);
 		}
 
 		protected void OnButtonRemoveDistrictClicked(object sender, EventArgs e)
 		{
 			var toRemoveDistricts = ytreeviewDistricts.GetSelectedObjects<AtWorkDriverDistrictPriority>().ToList();
 			toRemoveDistricts.ForEach(x => observableDistricts.Remove(x));
-		}
-
-		void SelectDistrict_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			var addDistricts = e.GetEntities<District>();
-			addDistricts.Where(x => observableDistricts.All(d => d.District.Id != x.Id))
-				.Select(x => new AtWorkDriverDistrictPriority {
-					Driver = ListParent,
-					District = x
-				})
-				.ToList()
-				.ForEach(x => observableDistricts.Add(x));
 		}
 	}
 }

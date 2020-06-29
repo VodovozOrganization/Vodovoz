@@ -2,7 +2,6 @@
 using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
-using QS.EntityRepositories;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
 using QS.Project.Domain;
@@ -29,7 +28,6 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.JournalViewers;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
@@ -43,10 +41,10 @@ using Vodovoz.ViewModels;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Footers.ViewModels;
-using Vodovoz.Repositories.HumanResources;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
-
+using Vodovoz.TempAdapters;
 public partial class MainWindow : Window
 {
 	//Заказы
@@ -168,7 +166,7 @@ public partial class MainWindow : Window
 		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
 		ActionPremiumJournal = new Action("ActionPremiumJournal", "Премии", null, "table");
 		ActionCarProxiesJournal = new Action("ActionCarProxiesJournal", "Журнал доверенностей", null, "table");
-		ActionDistricts = new Action("ActionDistricts", "Районы с графиками доставки", null, "table");
+		ActionDistricts = new Action("ActionDistricts", "Версии районов", null, "table");
 		//Suppliers
 		ActionNewRequestToSupplier = new Action(nameof(ActionNewRequestToSupplier), "Новая заявка поставщику", null, "table");
 		ActionJournalOfRequestsToSuppliers = new Action(nameof(ActionJournalOfRequestsToSuppliers), "Журнал заявок поставщику", null, "table");
@@ -320,7 +318,7 @@ public partial class MainWindow : Window
 		var requestsJournal = new RequestsToSuppliersJournalViewModel(
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
-			QS.Project.Services.ServicesConfig.CommonServices,
+			ServicesConfig.CommonServices,
 			VodovozGtkServicesConfig.EmployeeService,
 			new SupplierPriceItemsRepository()
 		);
@@ -835,6 +833,8 @@ public partial class MainWindow : Window
 
 	void ActionDistrictsActivated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(() => new DistrictsViewModel(UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices, null));
+		var filter = new DistrictsSetJournalFilterViewModel { HidenByDefault = true };
+		tdiMain.OpenTab(() => new DistrictsSetJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices,
+			EmployeeSingletonRepository.GetInstance(), new EntityDeleteWorker(), true, true));
 	}
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.EntityRepositories.Delivery
@@ -21,7 +22,8 @@ namespace Vodovoz.EntityRepositories.Delivery
 		{
 			Point point = new Point((double)latitude, (double)longitude);
 
-			IList<District> districtsWithBorders = uow.Session.QueryOver<District>().Where(x => x.DistrictBorder != null).List();
+			IList<District> districtsWithBorders = uow.Session.QueryOver<District>().Where(x => x.DistrictBorder != null).List()
+				.Where(x => x.DistrictsSet.Status == DistrictsSetStatus.Active).ToList();
 
 			var districts = districtsWithBorders.Where(x => x.DistrictBorder.Contains(point));
 

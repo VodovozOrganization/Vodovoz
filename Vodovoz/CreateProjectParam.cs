@@ -90,6 +90,7 @@ using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.Views.BusinessTasks;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Footers.Views;
+using Vodovoz.Journals.FilterViewModels;
 
 namespace Vodovoz
 {
@@ -186,6 +187,8 @@ namespace Vodovoz
 
 			//Регистрация вкладок
 			ViewModelWidgetResolver.Instance
+				.RegisterWidgetForTabViewModel<DistrictViewModel, DistrictView>()
+				.RegisterWidgetForTabViewModel<DistrictsSetActivationViewModel, DistrictsSetActivationView>()
 				.RegisterWidgetForTabViewModel<FuelTransferDocumentViewModel, FuelTransferDocumentView>()
 				.RegisterWidgetForTabViewModel<FuelIncomeInvoiceViewModel, FuelIncomeInvoiceView>()
 				.RegisterWidgetForTabViewModel<ClientCameFromViewModel, ClientCameFromView>()
@@ -218,12 +221,14 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ManualPaymentMatchingVM, ManualPaymentMatchingView>()
 				.RegisterWidgetForTabViewModel<ClientTaskViewModel, ClientTaskView>()
 				.RegisterWidgetForTabViewModel<PaymentTaskViewModel, PaymentTaskView>()
-				.RegisterWidgetForTabViewModel<DistrictsViewModel, DistrictsView>()
+				.RegisterWidgetForTabViewModel<DistrictsSetViewModel, DistrictsSetView>()
 				.RegisterWidgetForTabViewModel<AcceptBeforeViewModel, AcceptBeforeView>()
 				;
 
 			//Регистрация виджетов
 			ViewModelWidgetResolver.Instance
+				.RegisterWidgetForWidgetViewModel<DistrictsSetJournalFilterViewModel, DistrictsSetJournalFilterView>()
+				.RegisterWidgetForWidgetViewModel<DistrictJournalFilterViewModel, DistrictJournalFilterView>()
 				.RegisterWidgetForWidgetViewModel<SelectableParameterReportFilterViewModel, SelectableParameterReportFilterView>()
 				.RegisterWidgetForWidgetViewModel<ComplaintFilterViewModel, ComplaintFilterView>()
 				.RegisterWidgetForWidgetViewModel<CounterpartyJournalFilterViewModel, CounterpartyFilterView>()
@@ -406,13 +411,7 @@ namespace Vodovoz
 				   .SearchColumn("Код", x => x.Id.ToString())
 				   .SearchColumn("Название", x => x.Name)
 				   .End();
-			OrmMain.AddObjectDescription<District>()
-				.Dialog<DistrictDlg>()
-				.DefaultTableView()
-				.SearchColumn("Код", x => x.Id.ToString())
-				.SearchColumn("Название", x => x.DistrictName)
-				.End();
-			
+
 			#endregion
 
 			#region неПростые справочники

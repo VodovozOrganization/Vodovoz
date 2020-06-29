@@ -45,7 +45,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region IValidatableObject implementation
 
-		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_delivery_schedule") && Id > 0)
 				yield return new ValidationResult("Вы не можете изменять график доставки");

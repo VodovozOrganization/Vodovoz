@@ -6,7 +6,6 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
-
 	/// <summary>
 	/// Класс используется для указания адресов маршрута и хранения рассчитанных
 	/// на первоначальном этапе оптимизации итоговых значений заказа. Таких как 

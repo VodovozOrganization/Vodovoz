@@ -1,25 +1,15 @@
 ﻿using System;
 using QS.Project.Journal;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.Journals.JournalNodes
 {
-	public class DistrictJournalNode : JournalEntityNodeBase
+	public class DistrictJournalNode : JournalEntityNodeBase<District>
 	{
-		protected DistrictJournalNode() : base(typeof(District))
-		{
-		}
-
-		protected DistrictJournalNode(Type entityType) : base(entityType)
-		{
-		}
-
-		public override string Title {
-			get => Name;
-			protected set { }
-		}
-
+		public override string Title => Name;
 		public string Name { get; set; }
 		public string WageDistrict { get; set; }
+		public DistrictsSetStatus DistrictsSetStatus { get; set; }
 	}
 }

@@ -42,12 +42,11 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			TabName = "Журнал штрафов";
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<Fine>> ItemsSourceQueryFunction => (uow) => {
+		protected override Func<IUnitOfWork, IQueryOver<Fine>> ItemsSourceQueryFunction => uow => {
 			FineJournalNode resultAlias = null;
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
 			Employee employeeAlias = null;
-			Subdivision subdivisionAlias = null;
 			RouteList routeListAlias = null;
 
 			var query = uow.Session.QueryOver<Fine>(() => fineAlias)
