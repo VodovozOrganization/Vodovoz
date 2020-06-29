@@ -41,8 +41,9 @@ using Gamma.Widgets;
 using QS.Widgets.GtkUI;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Additions;
-using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
@@ -188,6 +189,8 @@ namespace Vodovoz
 			minAddressesSpin.Binding.AddBinding(Entity, e => e.MinRouteAddresses, w => w.ValueAsInt).InitializeFromSource();
 			maxAddressesSpin.Binding.AddBinding(Entity, e => e.MaxRouteAddresses, w => w.ValueAsInt).InitializeFromSource();
 			checkbuttonRussianCitizen.Binding.AddBinding(Entity, e => e.IsRussianCitizen, w => w.Active).InitializeFromSource();
+			checkVisitingMaster.Binding.AddBinding(Entity, e => e.VisitingMaster, w => w.Active).InitializeFromSource();
+			checkChainStoreDriver.Binding.AddBinding(Entity, e => e.IsChainStoreDriver, w => w.Active).InitializeFromSource();
 
 			ylblUserLogin.TooltipText = "При сохранении сотрудника создаёт нового пользователя с введённым логином и отправляет сотруднику SMS с сгенерированным паролем";
 			yentryUserLogin.Binding.AddBinding(Entity, e => e.LoginForNewUser, w => w.Text);

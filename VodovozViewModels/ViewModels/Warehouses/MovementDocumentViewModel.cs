@@ -18,7 +18,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalNodes;
+using Vodovoz.Journals.JournalNodes;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repositories;
 using Vodovoz.TempAdapters;

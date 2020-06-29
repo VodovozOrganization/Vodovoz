@@ -1,9 +1,9 @@
 ﻿using System;
 using QS.Views.GtkUI;
-using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -45,6 +45,7 @@ namespace Vodovoz.Filters.GtkViews
 			ydateperiodpickerLastOrder.Binding.AddBinding(ViewModel, x => x.EndDate, x => x.EndDateOrNull).InitializeFromSource();
 			ycheckbuttonHideActive.Binding.AddBinding(ViewModel, x => x.HideActiveCounterparty, x => x.Active).InitializeFromSource();
 			ycheckbuttonHideActive.Binding.AddBinding(ViewModel, x => x.ShowHideActiveCheck, x => x.Visible).InitializeFromSource();
+			ycheckbuttonHideOneOrder.Binding.AddBinding(ViewModel, x => x.HideWithOneOrder, x => x.Active).InitializeFromSource();
 		}
 
 		protected void OnEntryreferenceClientChanged(object sender, EventArgs e)

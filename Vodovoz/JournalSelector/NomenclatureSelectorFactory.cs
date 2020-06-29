@@ -8,7 +8,7 @@ using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 
 namespace Vodovoz.JournalSelector
 {

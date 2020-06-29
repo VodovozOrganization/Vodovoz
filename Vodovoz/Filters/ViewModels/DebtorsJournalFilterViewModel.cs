@@ -9,10 +9,11 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.ViewModel;
 using Vodovoz.FilterViewModels.Goods;
 using QS.DomainModel.Entity;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Filters.ViewModels
 {
@@ -73,6 +74,12 @@ namespace Vodovoz.Filters.ViewModels
 		public bool HideActiveCounterparty {
 			get => hideActiveCounterparty;
 			set => SetField(ref hideActiveCounterparty, value, () => HideActiveCounterparty);
+		}
+
+		private bool hideWithOneOrder;
+		public bool HideWithOneOrder {
+			get => hideWithOneOrder;
+			set => UpdateFilterField(ref hideWithOneOrder, value);
 		}
 
 		private int? debtBottlesFrom;

@@ -490,7 +490,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 6;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vboxInfo = new global::Gtk.VBox();
 			this.vboxInfo.Name = "vboxInfo";
@@ -1997,7 +1997,7 @@ namespace Vodovoz
 			this.buttonAddExistingDocument.CanFocus = true;
 			this.buttonAddExistingDocument.Name = "buttonAddExistingDocument";
 			this.buttonAddExistingDocument.UseUnderline = true;
-			this.buttonAddExistingDocument.Label = global::Mono.Unix.Catalog.GetString("документы прошлых заказов");
+			this.buttonAddExistingDocument.Label = global::Mono.Unix.Catalog.GetString("Документы прошлых заказов");
 			global::Gtk.Image w158 = new global::Gtk.Image();
 			w158.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.buttonAddExistingDocument.Image = w158;
@@ -2011,7 +2011,7 @@ namespace Vodovoz
 			this.btnAddM2ProxyForThisOrder.CanFocus = true;
 			this.btnAddM2ProxyForThisOrder.Name = "btnAddM2ProxyForThisOrder";
 			this.btnAddM2ProxyForThisOrder.UseUnderline = true;
-			this.btnAddM2ProxyForThisOrder.Label = global::Mono.Unix.Catalog.GetString("доверенность М-2 для этого заказа");
+			this.btnAddM2ProxyForThisOrder.Label = global::Mono.Unix.Catalog.GetString("Доверенность М-2 для этого заказа");
 			global::Gtk.Image w160 = new global::Gtk.Image();
 			w160.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.btnAddM2ProxyForThisOrder.Image = w160;
@@ -2025,7 +2025,7 @@ namespace Vodovoz
 			this.btnRemExistingDocument.CanFocus = true;
 			this.btnRemExistingDocument.Name = "btnRemExistingDocument";
 			this.btnRemExistingDocument.UseUnderline = true;
-			this.btnRemExistingDocument.Label = global::Mono.Unix.Catalog.GetString("документы прошлых заказов");
+			this.btnRemExistingDocument.Label = global::Mono.Unix.Catalog.GetString("Удалить док. прошлых заказов");
 			global::Gtk.Image w162 = new global::Gtk.Image();
 			w162.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-remove", global::Gtk.IconSize.Menu);
 			this.btnRemExistingDocument.Image = w162;

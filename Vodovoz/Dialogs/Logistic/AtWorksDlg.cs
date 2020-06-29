@@ -16,12 +16,13 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Sale;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Services;
 using Vodovoz.Core.DataService;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Dialogs.Logistic
 {

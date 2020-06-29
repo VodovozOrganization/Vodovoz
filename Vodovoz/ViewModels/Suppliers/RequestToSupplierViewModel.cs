@@ -15,6 +15,7 @@ using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories.Suppliers;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewModels.Suppliers

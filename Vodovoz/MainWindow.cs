@@ -43,8 +43,8 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalViewers;
-using Vodovoz.JournalViewModels;
-using Vodovoz.JournalViewModels.WageCalculation;
+using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
@@ -71,6 +71,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels;
+using Vodovoz.JournalViewModels;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {

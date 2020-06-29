@@ -864,6 +864,20 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		/// <summary>
+		/// Категории оборудования от клиента. Товары которые могут быть в новом заказе от клиента.
+		/// </summary>
+		public static NomenclatureCategory[] GetCategoriesForGoodsFromTheClient()
+		{
+			return new[] {
+				NomenclatureCategory.bottle,
+				NomenclatureCategory.additional,
+				NomenclatureCategory.equipment,
+				NomenclatureCategory.material,
+				NomenclatureCategory.spare_parts,
+			};
+		}
+
+		/// <summary>
 		/// Категории товаров. Товары могут хранится на складе без учёта 19л воды.
 		/// </summary>
 		public static NomenclatureCategory[] GetCategoriesForGoodsWithoutEmptyBottles()

@@ -35,12 +35,13 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Tools;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -271,6 +272,8 @@ namespace Vodovoz
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintDocuments)e.ItemEnum);
 
 			Entity.PropertyChanged += Entity_PropertyChanged;
+
+			CalculateTotal();
 
 			UpdateSensitivity();
 		}
@@ -977,6 +980,7 @@ namespace Vodovoz
 			if(cashExpense != null) UoW.Save(cashExpense);
 			UoW.Save();
 
+			CalculateTotal();
 
 			if(messages.Any())
 				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
@@ -1086,6 +1090,8 @@ namespace Vodovoz
 
 			var operationsResultMessage = Entity.UpdateCashOperations();
 			messages.AddRange(operationsResultMessage);
+
+			CalculateTotal();
 
 			if(messages.Any()) {
 				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));

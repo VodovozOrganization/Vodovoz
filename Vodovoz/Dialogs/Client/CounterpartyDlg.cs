@@ -19,7 +19,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Repositories;
 using Vodovoz.SidePanel;
 using Vodovoz.SidePanel.InfoProviders;
@@ -28,6 +28,7 @@ using Gtk;
 using Vodovoz.Domain.Goods;
 using QS.Project.Services;
 using QS.Tdi;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {

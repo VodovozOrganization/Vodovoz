@@ -1,4 +1,4 @@
-﻿﻿using Dialogs.Employees;
+﻿using Dialogs.Employees;
 using Gtk;
 using QS.Dialog.Gtk;
 using QS.DomainModel.UoW;
@@ -29,7 +29,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.JournalViewers;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels.Suppliers;
 using Vodovoz.Representations;
 using Vodovoz.ServiceDialogs;
@@ -45,6 +45,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Repositories.HumanResources;
+using Vodovoz.JournalViewModels;
 
 public partial class MainWindow : Window
 {

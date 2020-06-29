@@ -5,11 +5,12 @@ using QSReport;
 using QS.Dialog.GtkUI;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Employees;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ReportsParameters
 {

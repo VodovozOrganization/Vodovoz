@@ -78,9 +78,8 @@ namespace Vodovoz.Dialogs.Cash
 			ConfigureDlg();
 		}
 
-		public CashExpenseSelfDeliveryDlg(Order order, IPermissionService permissionService) : this(permissionService)
+		public CashExpenseSelfDeliveryDlg(Order order, IPermissionService permissionService) : this(order.Id, permissionService)
 		{
-			Entity.Order = UoW.GetById<Order>(order.Id);
 		}
 
 		public CashExpenseSelfDeliveryDlg(int id, IPermissionService permissionService)
@@ -93,6 +92,15 @@ namespace Vodovoz.Dialogs.Cash
 				FailInitialize = true;
 				return;
 			}
+
+			if(!accessfilteredsubdivisionselectorwidget.Configure(UoW, false, typeof(Expense))) {
+
+				MessageDialogHelper.RunErrorDialog(accessfilteredsubdivisionselectorwidget.ValidationErrorMessage);
+				FailInitialize = true;
+				return;
+			}
+			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
+
 			canEdit = userPermission.CanUpdate;
 			ConfigureDlg();
 		}
@@ -175,9 +183,6 @@ namespace Vodovoz.Dialogs.Cash
 
 			logger.Info("Сохраняем расходный ордер...");
 			UoWGeneric.Save();
-			//FIXME Необходимо проверить правильность этого кода, так как если заказ именялся то уведомление на его придет и без кода.
-			//А если в каком то месте нужно получать уведомления об изменениях текущего объекта, то логично чтобы этот объект на него и подписался.
-			//OrmMain.NotifyObjectUpdated(new object[] { Entity.Order });
 			logger.Info("Ok");
 			return true;
 

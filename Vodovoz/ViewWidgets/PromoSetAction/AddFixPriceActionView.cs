@@ -3,9 +3,10 @@ using QS.Project.Services;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Goods;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.JournalSelector;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewWidgets.PromoSetAction
 {

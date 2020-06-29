@@ -10,13 +10,13 @@ using QSReport;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Operations;
 using QSWidgetLib;
-using QSOrmProject;
 using Vodovoz.Dialogs.Phones;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Parameters;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz.Dialogs
 {

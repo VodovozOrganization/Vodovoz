@@ -4,7 +4,7 @@ using Gamma.Binding;
 
 namespace Vodovoz.Infrastructure.Converters
 {
-	public class IntToStringValuableConverter : IValueConverter
+	public class IntToStringConverter : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
@@ -15,8 +15,9 @@ namespace Vodovoz.Infrastructure.Converters
 		{
 			if(String.IsNullOrWhiteSpace(value as String))
 				return null;
-				
-			if(targetType == typeof(int) && Int32.TryParse(value.ToString(), out int number))
+
+			int number = 0;
+			if(targetType == typeof(int?) && Int32.TryParse(value.ToString(), out number))
 				return number;
 
 			return null;

@@ -60,6 +60,12 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.Widgets.ySpecComboBox ycomboboxReason;
 
+		private global::Gtk.Table table3;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonHideOneOrder;
+
+		private global::Gtk.VSeparator vseparator1;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -357,6 +363,34 @@ namespace Vodovoz.Filters.GtkViews
 			w27.Position = 2;
 			w27.Expand = false;
 			w27.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.table3 = new global::Gtk.Table(((uint)(4)), ((uint)(1)), false);
+			this.table3.Name = "table3";
+			this.table3.RowSpacing = ((uint)(6));
+			this.table3.ColumnSpacing = ((uint)(6));
+			// Container child table3.Gtk.Table+TableChild
+			this.ycheckbuttonHideOneOrder = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonHideOneOrder.CanFocus = true;
+			this.ycheckbuttonHideOneOrder.Name = "ycheckbuttonHideOneOrder";
+			this.ycheckbuttonHideOneOrder.Label = global::Mono.Unix.Catalog.GetString("Скрыть клиентов с одним заказом");
+			this.ycheckbuttonHideOneOrder.DrawIndicator = true;
+			this.ycheckbuttonHideOneOrder.UseUnderline = true;
+			this.table3.Add(this.ycheckbuttonHideOneOrder);
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table3[this.ycheckbuttonHideOneOrder]));
+			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.hbox2.Add(this.table3);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.table3]));
+			w29.Position = 3;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.hbox2.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vseparator1]));
+			w30.PackType = ((global::Gtk.PackType)(1));
+			w30.Position = 4;
+			w30.Expand = false;
+			w30.Fill = false;
 			this.Add(this.hbox2);
 			if ((this.Child != null))
 			{

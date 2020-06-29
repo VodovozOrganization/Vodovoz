@@ -8,13 +8,15 @@ using QSProjectsLib;
 using Vodovoz.Domain.BusinessTasks;
 using Vodovoz.Domain.Payments;
 using Vodovoz.JournalNodes;
-using Vodovoz.JournalViewModels;
-using Vodovoz.JournalViewModels.Employees;
-using Vodovoz.JournalViewModels.Logistic;
-using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels.Employees;
+using Vodovoz.Journals.JournalViewModels.Logistic;
+using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.JournalViewModels.Suppliers;
-using Vodovoz.JournalViewModels.WageCalculation;
+using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.Representations;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalNodes;
 
 namespace Vodovoz.JournalColumnsConfigs
 {

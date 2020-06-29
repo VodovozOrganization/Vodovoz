@@ -456,7 +456,7 @@ WHERE
         FROM
             orders AS ord
         WHERE
-            ord.client_id = counterparty.id 
+            ord.client_id = counterparty.id
             AND (
                 (
                     ord.self_delivery = TRUE 
@@ -467,10 +467,29 @@ WHERE
             AND ord.order_status = 'Closed'
         ORDER BY
             ord.id DESC LIMIT 1
-    ) 
+    )
+    AND (
+        (
+            1 != (
+                SELECT 
+                    COUNT(DISTINCT o2.id) 
+                FROM 
+                    orders o2
+                    LEFT JOIN order_items oi2 ON oi2.order_id = o2.id
+                    LEFT JOIN nomenclature n2 ON n2.id = oi2.nomenclature_id
+                WHERE 
+                    o2.client_id = counterparty.id
+                    AND n2.category = 'water')
+        )
+        AND 
+        @HideWithOneOrder = true
+    )       
+        
 GROUP BY
     delivery_points.id,
-    counterparty.id</CommandText>
+    counterparty.id
+    
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="CounterpartyId">
             <Value>={?CounterpartyId}</Value>
@@ -507,6 +526,9 @@ GROUP BY
           </QueryParameter>
           <QueryParameter Name="HideActiveCounterparty">
             <Value>={?HideActiveCounterparty}</Value>
+          </QueryParameter>
+          <QueryParameter Name="HideWithOneOrder">
+            <Value>={?HideWithOneOrder}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -640,7 +662,16 @@ GROUP BY
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="HideWithOneOrder">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

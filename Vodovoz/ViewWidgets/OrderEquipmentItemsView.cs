@@ -372,7 +372,7 @@ namespace Vodovoz.ViewWidgets
 
 			var nomenclatureFilter = new NomenclatureRepFilter(UoW);
 			nomenclatureFilter.SetAndRefilterAtOnce(
-				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoods(),
+				x => x.AvailableCategories = Nomenclature.GetCategoriesForGoodsFromTheClient(),
 				x => x.DefaultSelectedCategory = NomenclatureCategory.equipment,
 				x => x.DefaultSelectedSaleCategory = SaleCategory.notForSale
 			);
@@ -391,6 +391,7 @@ namespace Vodovoz.ViewWidgets
 			if(selectedId == 0) {
 				return;
 			}
+
 			AddNomenclatureFromClient(UoW.Session.Get<Nomenclature>(selectedId));
 		}
 

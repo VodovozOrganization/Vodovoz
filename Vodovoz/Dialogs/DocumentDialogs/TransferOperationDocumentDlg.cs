@@ -10,6 +10,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.ViewModel;

@@ -16,7 +16,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels.Employees;
+using Vodovoz.Journals.JournalViewModels.Employees;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Employees;
 

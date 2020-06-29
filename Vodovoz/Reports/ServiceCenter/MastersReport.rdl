@@ -1320,6 +1320,8 @@ FROM
                                 AND order_items.count != IFNULL(order_items.actual_count, 0)
                             )
                         )
+                        OR
+                        route_list_addresses.status = 'Transfered'
                     )
         ) AS entries ON entries.rl_id = route_lists.id
     LEFT JOIN

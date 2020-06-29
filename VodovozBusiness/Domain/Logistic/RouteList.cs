@@ -1363,7 +1363,7 @@ namespace Vodovoz.Domain.Logistic
 			// Если хотя бы один fuelDocument имеет PayedForFuel то добавить пустую строку разделитель и сообщения о расходных ордерах топлива
 			bool wasEmptyLineAdded = false;
 			foreach(var fuelDocument in fuelDocuments) {
-				if (fuelDocument.PayedForFuel != null && fuelDocument.PayedForFuel != 0) {
+				if (fuelDocument.PayedForFuel != null && fuelDocument.PayedForFuel != 0 && fuelDocument.FuelPaymentType == FuelPaymentType.Cash) {
 					if(!wasEmptyLineAdded) {
 						messages.Add("\n");
 						wasEmptyLineAdded = true;

@@ -6,9 +6,10 @@ using Vodovoz.ViewModels.FuelDocuments;
 using QS.Views.GtkUI;
 using QS.Permissions;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.Project.Services;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {

@@ -20,6 +20,7 @@ using QS.DocTemplates;
 using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
+using QSOrmProject;
 using QS.Print;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
@@ -31,7 +32,6 @@ using QS.Report;
 using QS.Tdi;
 using QS.Validation;
 using QSDocTemplates;
-using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using Vodovoz.Parameters;
@@ -56,7 +56,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalFilters;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Repositories.Client;
 using Vodovoz.Repositories;
@@ -70,6 +70,9 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Core;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Repository;
+using Vodovoz.Infrastructure.Converters;
+using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {

@@ -276,9 +276,17 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		bool visitingMaster;
+		[Display(Name = "Выездной мастер")]
 		public virtual bool VisitingMaster {
 			get => visitingMaster;
 			set => SetField(ref visitingMaster, value);
+		}
+
+		private bool isChainStoreDriver;
+		[Display(Name = "Водитель для сетей")]
+		public virtual bool IsChainStoreDriver {
+			get => isChainStoreDriver;
+			set => SetField(ref isChainStoreDriver, value);
 		}
 
 		bool isDriverForOneDay;

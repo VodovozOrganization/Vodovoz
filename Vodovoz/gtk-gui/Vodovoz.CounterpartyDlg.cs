@@ -624,7 +624,7 @@ namespace Vodovoz
 			this.entryFullName.CanFocus = true;
 			this.entryFullName.Name = "entryFullName";
 			this.entryFullName.IsEditable = true;
-			this.entryFullName.MaxLength = 300;
+			this.entryFullName.MaxLength = 500;
 			this.entryFullName.InvisibleChar = '●';
 			this.table1.Add(this.entryFullName);
 			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table1[this.entryFullName]));

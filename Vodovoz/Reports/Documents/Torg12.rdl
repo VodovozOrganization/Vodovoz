@@ -95,7 +95,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id, 
@@ -179,7 +179,7 @@ GROUP BY orders.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1370,7 +1370,7 @@ GROUP BY orders.id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value>=(Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds}*(1 - {item_discount} / 100),0)) - Fields!item_discount_money.Value</Value>
+                      <Value>=Iif({count}&gt;0, {item_price} * {count} - {item_discount_money} - {include_nds}, 0)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2457,7 +2457,7 @@ GROUP BY orders.id</CommandText>
           <Textbox Name="Textbox116" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>11.25pt</Height>
             <Width>389.15pt</Width>
-            <Value>=SummaString_Val(Convert.ToString(Sum(Fields!item_price.Value * Fields!count.Value, "Goods")))</Value>
+            <Value>=SummaString_Val(Convert.ToString(Sum(Fields!item_price.Value * Fields!count.Value - {item_discount_money}, "Goods")))</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
             <Top>85.1pt</Top>

@@ -54,6 +54,9 @@ namespace Vodovoz.ViewModel
 
 			var query = UoW.Session.QueryOver(() => routeListAlias);
 
+			query.Left.JoinAlias(o => o.Driver, () => driverAlias);
+
+
 			if(Filter.RestrictStatus != null) {
 				query.Where(o => o.Status == Filter.RestrictStatus);
 			}
@@ -79,46 +82,73 @@ namespace Vodovoz.ViewModel
 					 .Where(() => geographicGroupsAlias.Id == Filter.RestrictGeographicGroup.Id);
 			}
 
-			//логика фильтра ТС
-			switch(Filter.RestrictTransport) {
-				case RLFilterTransport.Mercenaries:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar && !carAlias.IsRaskat); break;
-				case RLFilterTransport.Raskat:
-					query.Where(() => carAlias.IsRaskat); break;
-				case RLFilterTransport.Largus:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyLargus); break;
-				case RLFilterTransport.GAZelle:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyGAZelle); break;
-				case RLFilterTransport.Waggon:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyTruck); break;
-				case RLFilterTransport.Others:
-					query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar); break;
-				default: break;
+			if(Filter.WithChainStoreAddresses && Filter.WithServiceAddresses && !Filter.WithDeliveryAddresses) {
+				query.Where(Restrictions.Or(
+					Restrictions.Where(() => driverAlias.VisitingMaster),
+					Restrictions.Where(() => driverAlias.IsChainStoreDriver)
+				));
+			} else if(Filter.WithChainStoreAddresses) {
+				if(Filter.WithDeliveryAddresses) {
+					query.Where(() => !driverAlias.VisitingMaster);
+				} else {
+					query.Where(() => driverAlias.IsChainStoreDriver);
+				}
+			} else if(Filter.WithServiceAddresses) {
+				if(Filter.WithDeliveryAddresses) {
+					query.Where(() => !driverAlias.IsChainStoreDriver);
+				} else {
+					query.Where(() => driverAlias.VisitingMaster);
+				}
+			} else {
+				query.Where(() => !driverAlias.VisitingMaster);
+				query.Where(() => !driverAlias.IsChainStoreDriver);
 			}
 
-			#region для ускорения редактора
-			var result = query
-				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
-				.Left.JoinAlias(o => o.Car, () => carAlias)
-				.Left.JoinAlias(o => o.Driver, () => driverAlias)
-				.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
-				.SelectList(list => list
-				   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
-				   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
-				   .Select(() => routeListAlias.Status).WithAlias(() => resultAlias.StatusEnum)
-				   .Select(() => shiftAlias.Name).WithAlias(() => resultAlias.ShiftName)
-				   .Select(() => carAlias.Model).WithAlias(() => resultAlias.CarModel)
-				   .Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
-				   .Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
-				   .Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
-				   .Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
-				   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
-				   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
-				   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)
-				).OrderBy(rl => rl.Date).Desc
-				.TransformUsing(Transformers.AliasToBean<RouteListsVMNode>())
-				.List<RouteListsVMNode>();
-			#endregion
+			IList<RouteListsVMNode> result;
+
+			if(!Filter.WithDeliveryAddresses && !Filter.WithServiceAddresses && !Filter.WithChainStoreAddresses) {
+				result = new List<RouteListsVMNode>();
+			} else {
+				//логика фильтра ТС
+				switch(Filter.RestrictTransport) {
+					case RLFilterTransport.Mercenaries:
+						query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar && !carAlias.IsRaskat); break;
+					case RLFilterTransport.Raskat:
+						query.Where(() => carAlias.IsRaskat); break;
+					case RLFilterTransport.Largus:
+						query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyLargus); break;
+					case RLFilterTransport.GAZelle:
+						query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyGAZelle); break;
+					case RLFilterTransport.Waggon:
+						query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.CompanyTruck); break;
+					case RLFilterTransport.Others:
+						query.Where(() => carAlias.TypeOfUse == CarTypeOfUse.DriverCar); break;
+					default: break;
+				}
+
+				#region для ускорения редактора
+				result = query
+					.Left.JoinAlias(o => o.Shift, () => shiftAlias)
+					.Left.JoinAlias(o => o.Car, () => carAlias)
+					.Left.JoinAlias(o => o.ClosingSubdivision, () => subdivisionAlias)
+					.SelectList(list => list
+					   .SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.Id)
+					   .Select(() => routeListAlias.Date).WithAlias(() => resultAlias.Date)
+					   .Select(() => routeListAlias.Status).WithAlias(() => resultAlias.StatusEnum)
+					   .Select(() => shiftAlias.Name).WithAlias(() => resultAlias.ShiftName)
+					   .Select(() => carAlias.Model).WithAlias(() => resultAlias.CarModel)
+					   .Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
+					   .Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
+					   .Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
+					   .Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+					   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
+					   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
+					   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)
+					).OrderBy(rl => rl.Date).Desc
+					.TransformUsing(Transformers.AliasToBean<RouteListsVMNode>())
+					.List<RouteListsVMNode>();
+				#endregion
+			}
 
 			SetItemsSource(result);
 		}
@@ -172,8 +202,6 @@ namespace Vodovoz.ViewModel
 		}
 
 		public override bool PopupMenuExist => true;
-
-		//RouteList selectedRouteList;
 
 		private List<RouteListStatus> KeepingDlgStatuses = new List<RouteListStatus> {
 			RouteListStatus.EnRoute,
