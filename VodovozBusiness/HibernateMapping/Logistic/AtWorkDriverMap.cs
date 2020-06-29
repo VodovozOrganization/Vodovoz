@@ -21,7 +21,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.WithForwarder).Column("forwarder_id");
 			References(x => x.GeographicGroup).Column("geographic_group_id");
 
-			HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse()
+			HasMany(x => x.DistrictsPriorities).Cascade.AllDeleteOrphan().Inverse()
 									 .KeyColumn("at_work_driver_id")
 									 .AsList(x => x.Column("priority"));
 		}

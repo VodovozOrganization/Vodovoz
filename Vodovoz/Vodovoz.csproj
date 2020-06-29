@@ -455,6 +455,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\SmsSender.cs" />
+    <Compile Include="Crutches\WrapLabel.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringValuableConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
@@ -489,6 +490,7 @@
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
+    <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
     <Compile Include="TempAdapters\EquipmentRepositoryForViews.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingInvoiceDlg.cs" />
@@ -636,7 +638,6 @@
     <Compile Include="SidePanel\InfoViews\DeliveryPointPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICounterpartyInfoProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\IDeliveryPointInfoProvider.cs" />
-    <Compile Include="Сrutches\WrapLabel.cs" />
     <Compile Include="SidePanel\InfoViews\AdditionalAgreementPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
@@ -1053,8 +1054,6 @@
     <Compile Include="Core\Journal\MultipleEntityVMNodeBase.cs" />
     <Compile Include="Core\Journal\MultipleEntityModelBase.cs" />
     <Compile Include="Representations\CashMultipleDocumentVM.cs" />
-    <Compile Include="ServiceDialogs\DistrictFinderForDeliveryPointsDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.DistrictFinderForDeliveryPointsDlg.cs" />
     <Compile Include="Core\Journal\IMultipleEntityRepresentationModel.cs" />
     <Compile Include="Core\Journal\ActionForCreateEntityConfig.cs" />
     <Compile Include="Core\Journal\MultipleEntityModelDocumentConfig.cs" />
@@ -1314,8 +1313,6 @@
     <Compile Include="ViewModels\Logistic\DeliveryScheduleFilterType.cs" />
     <Compile Include="ReportsParameters\ZeroDebtClientReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ZeroDebtClientReport.cs" />
-    <Compile Include="Views\ForAdministrators\DeliverySchedulesCopierView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.ForAdministrators.DeliverySchedulesCopierView.cs" />
     <Compile Include="JournalViewModels\NomenclatureStockBalanceJournalViewModel.cs" />
     <Compile Include="Filters\GtkViews\NomenclatureStockFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NomenclatureStockFilterView.cs" />
@@ -1461,14 +1458,20 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Payments.PaymentsFromBankClientFinDepartmentReport.cs" />
     <Compile Include="ServiceDialogs\LargeMessageDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.LargeMessageDialog.cs" />
-    <Compile Include="Views\Logistic\DistrictsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsView.cs" />
+    <Compile Include="Views\Logistic\DistrictsSetView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetView.cs" />
     <Compile Include="Views\Logistic\AcceptBeforeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AcceptBeforeView.cs" />
     <Compile Include="ViewModels\Logistic\AddressType.cs" />
-    <Compile Include="Dialogs\Logistic\DistrictDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DistrictDlg.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
+    <Compile Include="Filters\GtkViews\DistrictJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictJournalFilterView.cs" />
+    <Compile Include="Views\Logistic\DistrictView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictView.cs" />
+    <Compile Include="Filters\GtkViews\DistrictsSetJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictsSetJournalFilterView.cs" />
+    <Compile Include="Views\Logistic\DistrictsSetActivationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetActivationView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1627,7 +1630,6 @@
     <Folder Include="icons\toolbar\" />
     <Folder Include="toolbars\" />
     <Folder Include="Dialogs\" />
-    <Folder Include="Сrutches\" />
     <Folder Include="Dialogs\DocumentDialogs\" />
     <Folder Include="Reports\" />
     <Folder Include="Representations\" />

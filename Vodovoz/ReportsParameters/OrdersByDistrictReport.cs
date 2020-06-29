@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
 using QS.Report;
 using QSReport;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.Journals.JournalViewModels;
 
 namespace Vodovoz.ReportsParameters
 {
@@ -15,7 +19,15 @@ namespace Vodovoz.ReportsParameters
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
-			refDistrict.SubjectType = typeof(District);
+
+			entryDistrict.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<DistrictJournalViewModel>(typeof(District), () => {
+				var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active };
+				return new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+					EnableDeleteButton = false,
+					EnableAddButton = false,
+					EnableEditButton = false
+				};
+			}));
 		}
 
 		#region IParametersWidget implementation
@@ -38,7 +50,7 @@ namespace Vodovoz.ReportsParameters
 				ReportName = "Orders.OrdersByAllDistrict";
 			} else {
 				ReportName = "Orders.OrdersByDistrict";
-				parameters.Add("id_district", ((District)refDistrict.Subject).Id);
+				parameters.Add("id_district", ((District)entryDistrict.Subject).Id);
 			}
 
 			return new ReportInfo {
@@ -51,7 +63,7 @@ namespace Vodovoz.ReportsParameters
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			string errorString = string.Empty;
-			if(refDistrict.Subject == null && !checkAllDistrict.Active)
+			if(entryDistrict.Subject == null && !checkAllDistrict.Active)
 				errorString += "Не заполнен район\n";
 			if(dateperiodpicker.StartDateOrNull == null)
 				errorString += "Не заполнена дата\n";

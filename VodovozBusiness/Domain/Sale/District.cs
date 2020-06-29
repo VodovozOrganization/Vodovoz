@@ -8,6 +8,8 @@ using Gamma.Utilities;
 using GeoAPI.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Tools.Orders;
 
@@ -17,7 +19,8 @@ namespace Vodovoz.Domain.Sale
 		NominativePlural = "районы",
 		Nominative = "район")]
 	[EntityPermission]
-	public class District : BusinessObjectBase<District>, IDomainObject, IValidatableObject
+	[HistoryTrace]
+	public class District : BusinessObjectBase<District>, IDomainObject, IValidatableObject, ICloneable
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
@@ -80,6 +83,20 @@ namespace Vodovoz.Domain.Sale
 		public virtual GeographicGroup GeographicGroup {
 			get => geographicGroup;
 			set => SetField(ref geographicGroup, value, () => GeographicGroup);
+		}
+		
+		private DistrictsSet districtsSet;
+		[Display(Name = "Версия районов")]
+		public virtual DistrictsSet DistrictsSet {
+			get => districtsSet;
+			set => SetField(ref districtsSet, value, () => DistrictsSet);
+		}
+		
+		private District copyOf;
+		[Display(Name = "Копия района")]
+		public virtual District CopyOf {
+			get => copyOf;
+			set => SetField(ref copyOf, value, () => CopyOf);
 		}
 		
 		#endregion
@@ -462,6 +479,29 @@ namespace Vodovoz.Domain.Sale
 			}
 		}
 
+		private void InitializeAllCollections()
+		{
+			CommonDistrictRuleItems = new List<CommonDistrictRuleItem>();
+			
+			TodayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			MondayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			TuesdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			WednesdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			ThursdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			FridayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			SaturdayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			SundayDeliveryScheduleRestrictions = new List<DeliveryScheduleRestriction>();
+			
+			TodayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			MondayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			TuesdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			WednesdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			ThursdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			FridayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			SaturdayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+			SundayDistrictRuleItems = new List<WeekDayDistrictRuleItem>();
+		}
+
 		#endregion
 
 		#region IValidatableObject implementation
@@ -511,6 +551,45 @@ namespace Vodovoz.Domain.Sale
 		}
 		
 		#endregion
-		
+
+		#region ICloneable implementation
+
+		public virtual object Clone()
+		{
+			var newDistrict = new District {
+				DistrictName = DistrictName,
+				DistrictBorder = DistrictBorder?.Copy(),
+				WageDistrict = WageDistrict,
+				GeographicGroup = GeographicGroup,
+				PriceType = PriceType,
+				MinBottles = MinBottles,
+				TariffZone = TariffZone,
+				WaterPrice = WaterPrice
+			};
+			newDistrict.InitializeAllCollections();
+
+			foreach (var commonRuleItem in CommonDistrictRuleItems) {
+				var newCommonRuleItem = commonRuleItem.Clone() as CommonDistrictRuleItem;
+				newCommonRuleItem.District = newDistrict;
+				newDistrict.CommonDistrictRuleItems
+					.Add(newCommonRuleItem);
+			}
+			foreach (var scheduleRestriction in GetAllDeliveryScheduleRestrictions()) {
+				var newScheduleRestriction = scheduleRestriction.Clone() as DeliveryScheduleRestriction;
+				newScheduleRestriction.District = newDistrict;
+				newDistrict.GetScheduleRestrictionCollectionByWeekDayName(scheduleRestriction.WeekDay)
+					.Add(newScheduleRestriction);
+			}
+			foreach (var weekDayRule in GetAllWeekDayDistrictRuleItems()) {
+				var newWeekDayRule = weekDayRule.Clone() as WeekDayDistrictRuleItem;
+				newWeekDayRule.District = newDistrict;
+				newDistrict.GetWeekDayRuleItemCollectionByWeekDayName(weekDayRule.WeekDay)
+					.Add(newWeekDayRule);
+			}
+			
+			return newDistrict;
+		}
+
+		#endregion
 	}
 }

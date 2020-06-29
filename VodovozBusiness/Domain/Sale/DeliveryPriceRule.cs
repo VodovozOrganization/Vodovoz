@@ -77,7 +77,7 @@ namespace Vodovoz.Domain.Sale
 				sb.Append($" или 600мл б. < {Water19LCount * EqualsCount600mlFor19L}шт.");
 			}
 
-			return sb.ToString().Trim(new []{' ', ',', 'и'});
+			return sb.ToString().Trim(' ', ',', 'и');
 		}
 
 		public override bool Equals(object obj)

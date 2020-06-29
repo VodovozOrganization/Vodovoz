@@ -58,7 +58,6 @@ using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.ForAdministrators;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
@@ -1228,11 +1227,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void OnActionSetDistrictsToDeliveryPointsActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab<DistrictFinderForDeliveryPointsDlg>();
-	}
-
 	protected void OnActionCertificatesActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1493,19 +1487,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ZeroDebtClientReport>(),
 			() => new QSReport.ReportViewDlg(new ZeroDebtClientReport())
-		);
-	}
-
-	protected void OnActionDeliveryScheduleCopyActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			typeof(DeliverySchedulesCopierViewModel).FullName,
-			() => new DeliverySchedulesCopierViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				ServicesConfig.CommonServices.InteractiveService,
-				NavigationManagerProvider.NavigationManager
-			)
 		);
 	}
 

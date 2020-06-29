@@ -12,15 +12,16 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Dialogs;
 using QS.Project.Dialogs.GtkUI;
-using QS.Project.Repositories;
+using QS.Project.Journal;
 using QS.Project.Services;
-using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Repositories.Orders;
+using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz
@@ -254,18 +255,19 @@ namespace Vodovoz
 
 		protected void AddOrdersFromRegion()
 		{
-			OrmReference SelectDialog = new OrmReference(typeof(District), RouteListUoW) {
-				Mode = OrmReferenceMode.Select,
-				ButtonMode = ReferenceButtonMode.CanEdit
+			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
+			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
+				SelectionMode = JournalSelectionMode.Single, EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false
 			};
-			SelectDialog.ObjectSelected += (s, ea) => {
-				if(ea.Subject != null) {
-					foreach(var order in OrderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, ea.Subject as District))
-						if(!RouteListUoW.Root.ObservableAddresses.Any(a => a.Order.Id == order.Id))
+			journalViewModel.OnEntitySelectedResult += (o, args) => {
+				var selectedDistrict = args.SelectedNodes.FirstOrDefault();
+				if(selectedDistrict != null) {
+					foreach(var order in OrderSingletonRepository.GetInstance().GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, RouteListUoW.GetById<District>(selectedDistrict.Id)))
+						if(RouteListUoW.Root.ObservableAddresses.All(a => a.Order.Id != order.Id))
 							RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};
-			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
+			MyTab.TabParent.AddSlaveTab(MyTab, journalViewModel);
 		}
 
 		void CalculateTotal()
@@ -274,7 +276,7 @@ namespace Vodovoz
 				.Where(i => i.Nomenclature.Category == NomenclatureCategory.water && i.Nomenclature.TareVolume == TareVolume.Vol19L)
 				.Sum(i => i.Count);
 
-			labelSum.LabelProp = string.Format("Всего бутылей: {0}", total);
+			labelSum.LabelProp = $"Всего бутылей: {total}";
 			UpdateWeightInfo();
 			UpdateVolumeInfo();
 		}
@@ -286,8 +288,8 @@ namespace Vodovoz
 								   ? RouteListUoW.Root.Car.MaxWeight.ToString()
 								   : " ?";
 				string weight = RouteListUoW.Root.HasOverweight()
-											? string.Format("<span foreground = \"red\">Перегруз на {0} кг.</span>", RouteListUoW.Root.Overweight())
-											: string.Format("<span foreground = \"green\">Вес груза: {0}/{1} кг.</span>", RouteListUoW.Root.GetTotalWeight(), maxWeight);
+											? $"<span foreground = \"red\">Перегруз на {RouteListUoW.Root.Overweight()} кг.</span>"
+											: $"<span foreground = \"green\">Вес груза: {RouteListUoW.Root.GetTotalWeight()}/{maxWeight} кг.</span>";
 				lblWeight.LabelProp = weight;
 			}
 		}
