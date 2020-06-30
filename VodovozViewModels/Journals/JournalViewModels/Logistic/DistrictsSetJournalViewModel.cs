@@ -33,6 +33,11 @@ namespace Vodovoz.Journals.JournalViewModels
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			
+			canActivateDistrictsSet = commonServices.CurrentPermissionService.ValidatePresetPermission("can_activate_districts_set");
+			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
+			canCreate = permissionResult.CanCreate;
+			canUpdate = permissionResult.CanUpdate;
+
 			TabName = "Журнал версий районов";
 			EnableDeleteButton = false;
 			UpdateOnChanges(typeof(DistrictsSet));
@@ -41,6 +46,10 @@ namespace Vodovoz.Journals.JournalViewModels
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly IEmployeeRepository employeeRepository;
 		private readonly IEntityDeleteWorker entityDeleteWorker;
+		
+		private readonly bool canUpdate;
+		private readonly bool canCreate;
+		private readonly bool canActivateDistrictsSet;
 		
 		public bool EnableDeleteButton { get; set; }
 
@@ -94,7 +103,7 @@ namespace Vodovoz.Journals.JournalViewModels
 		private void CreateCopyAction()
 		{
 			var copyAction = new JournalAction("Копировать",
-				selectedItems => selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault() != null,
+				selectedItems => canCreate && selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault() != null,
 				selected => true,
 				selected => {
 					var selectedNode = selected.OfType<DistrictsSetJournalNode>().FirstOrDefault();
@@ -121,15 +130,18 @@ namespace Vodovoz.Journals.JournalViewModels
 		protected override void CreatePopupActions()
 		{
 			PopupActionsList.Clear();
-			
+			CreateActivateNodeAction();
+			CreateCloseNodeAction();
+			CreateToDraftNodeAction();
+		}
+
+		private void CreateActivateNodeAction()
+		{
 			PopupActionsList.Add(
 				new JournalAction(
 					"Активировать",
-					selectedItems => {
-						var selectedNodes = selectedItems.OfType<DistrictsSetJournalNode>();
-						var selectedNode = selectedNodes.FirstOrDefault();
-						return selectedNode?.Status == DistrictsSetStatus.Draft;
-					},
+					selectedItems => canActivateDistrictsSet && canUpdate
+						&& selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Draft,
 					selectedItems => true,
 					selectedItems => {
 						var selectedNodes = selectedItems.OfType<DistrictsSetJournalNode>();
@@ -142,18 +154,18 @@ namespace Vodovoz.Journals.JournalViewModels
 					}
 				)
 			);
-			
+		}
+		
+		private void CreateCloseNodeAction()
+		{
 			PopupActionsList.Add(
 				new JournalAction(
 					"Закрыть",
-					selectedItems => {
-						var selectedNodes = selectedItems.Cast<DistrictsSetJournalNode>();
-						var selectedNode = selectedNodes.FirstOrDefault();
-						return selectedNode?.Status == DistrictsSetStatus.Draft;
-					},
+					selectedItems => canUpdate &&
+						selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Draft,
 					selectedItems => true,
 					selectedItems => {
-						var selectedNodes = selectedItems.Cast<DistrictsSetJournalNode>();
+						var selectedNodes = selectedItems.OfType<DistrictsSetJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null) {
 							var districtsSet = UoW.GetById<DistrictsSet>(selectedNode.Id);
@@ -169,18 +181,18 @@ namespace Vodovoz.Journals.JournalViewModels
 					}
 				)
 			);
-			
+		}
+		
+		private void CreateToDraftNodeAction()
+		{
 			PopupActionsList.Add(
 				new JournalAction(
 					"В черновик",
-					selectedItems => {
-						var selectedNodes = selectedItems.Cast<DistrictsSetJournalNode>();
-						var selectedNode = selectedNodes.FirstOrDefault();
-						return selectedNode?.Status == DistrictsSetStatus.Closed;
-					},
+					selectedItems => canUpdate &&
+						selectedItems.OfType<DistrictsSetJournalNode>().FirstOrDefault()?.Status == DistrictsSetStatus.Closed,
 					selectedItems => true,
 					selectedItems => {
-						var selectedNodes = selectedItems.Cast<DistrictsSetJournalNode>();
+						var selectedNodes = selectedItems.OfType<DistrictsSetJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
 						if(selectedNode != null) {
 							var districtsSet = UoW.GetById<DistrictsSet>(selectedNode.Id);

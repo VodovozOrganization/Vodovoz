@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Logistic
 {
     [Appellative(Gender = GrammaticalGender.Feminine,
         NominativePlural = "версии районов",
-        Nominative = "вверсия районов")]
+        Nominative = "версия районов")]
     [EntityPermission]
     [HistoryTrace]
     public class DistrictsSet : PropertyChangedBase, IDomainObject, IValidatableObject, ICloneable

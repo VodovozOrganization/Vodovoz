@@ -101,6 +101,7 @@ namespace Vodovoz
 			UserDialog.RequestWidth = 900;
 			UserDialog.RequestHeight = 700;
 
+			PermissionsSettings.PresetPermissions.Add("can_activate_districts_set", new PresetUserPermissionSource("can_activate_districts_set", "Пользователь может активировать версию районов", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("driver_terminal", new PresetUserPermissionSource("driver_terminal", "ВНИМАНИЕ! Аккаунт будет использоватся только для печати документов МЛ", "Для использования отдельного окна для печати документов МЛ без доступа к остальным частям системы."));
 			PermissionsSettings.PresetPermissions.Add("max_loan_amount", new PresetUserPermissionSource("max_loan_amount", "Установка максимального кредита", "Пользователь имеет права для установки максимальной суммы кредита."));
 			PermissionsSettings.PresetPermissions.Add("logistican", new PresetUserPermissionSource("logistican", "Логист", "Пользователь является логистом."));

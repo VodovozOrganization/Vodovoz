@@ -137,7 +137,7 @@ namespace Vodovoz.Views.Logistic
 			#endregion
 
 			btnSave.Clicked += (sender, args) => ViewModel.Save();
-			btnSave.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			btnSave.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict || vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			
 			btnCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
 			
@@ -146,7 +146,7 @@ namespace Vodovoz.Views.Logistic
 			entryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			entryName.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			btnAddDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanCreate, w => w.Sensitive).InitializeFromSource();
+			btnAddDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanCreateDistrict, w => w.Sensitive).InitializeFromSource();
 			btnAddDistrict.Clicked += (sender, args) => {
 				ViewModel.AddDistrictCommand.Execute();
 				ScrollToSelectedDistrict();
@@ -159,11 +159,12 @@ namespace Vodovoz.Views.Logistic
 				else 
 					ScrollToSelectedDistrict();
 			};
-			btnRemoveDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanDelete, w => w.Sensitive).InitializeFromSource();
+			btnRemoveDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanDeleteDistrict, w => w.Sensitive).InitializeFromSource();
 			
 			ytextComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
+			ytextComment.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			
-			btnAddCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanEdit, w => w.Sensitive).InitializeFromSource();
+			btnAddCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanEditDistrict, w => w.Sensitive).InitializeFromSource();
 			btnAddCommonRule.Clicked += (sender, args) => {
 				var selectRules = new OrmReference(ViewModel.UoW, DistrictRuleRepository.GetQueryOverWithAllDeliveryPriceRules()) {
 					Mode = OrmReferenceMode.MultiSelect,
@@ -174,7 +175,7 @@ namespace Vodovoz.Views.Logistic
 				Tab.TabParent.AddSlaveTab(this.Tab, selectRules);
 			};
 
-			btnRemoveCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.CanEdit && vm.SelectedDistrict != null && vm.SelectedCommonDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
+			btnRemoveCommonRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedCommonDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveCommonRule.Clicked += (sender, args) => ViewModel.RemoveCommonDistrictRuleItemCommand.Execute();
 
 			btnToday.TooltipText = "День в день.\nГрафик доставки при создании заказа сегодня и на сегодняшнюю дату доставки.";
@@ -187,7 +188,7 @@ namespace Vodovoz.Views.Logistic
 			btnSaturday.Clicked += (sender, args) => ViewModel.SelectedWeekDayName = WeekDayName.Saturday;
 			btnSunday.Clicked += (sender, args) => ViewModel.SelectedWeekDayName = WeekDayName.Sunday;
 
-			btnAddSchedule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
+			btnAddSchedule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
 			btnAddSchedule.Clicked += (sender, args) => {
 				var selectSchedules = new OrmReference(typeof(DeliverySchedule), ViewModel.UoW) {
 					Mode = OrmReferenceMode.MultiSelect
@@ -204,10 +205,10 @@ namespace Vodovoz.Views.Logistic
 				Tab.TabParent.AddSlaveTab(this.Tab, selectSchedules);
 			};
 
-			btnRemoveSchedule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null, w => w.Sensitive).InitializeFromSource();
+			btnRemoveSchedule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveSchedule.Clicked += (sender, args) => ViewModel.RemoveScheduleRestrictionCommand.Execute();
 
-			btnAddAcceptBefore.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null, w => w.Sensitive).InitializeFromSource();
+			btnAddAcceptBefore.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null, w => w.Sensitive).InitializeFromSource();
 			btnAddAcceptBefore.Clicked += (sender, args) => {
 				var acceptBeforeTimeViewModel = new SimpleEntityJournalViewModel<AcceptBefore, AcceptBeforeViewModel>(
 					x => x.Name,
@@ -236,12 +237,12 @@ namespace Vodovoz.Views.Logistic
 			};
 
 			btnRemoveAcceptBefore.Binding.AddFuncBinding(ViewModel,
-					vm => vm.CanEdit && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null && vm.SelectedScheduleRestriction.AcceptBefore != null,
+					vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedScheduleRestriction != null && vm.SelectedScheduleRestriction.AcceptBefore != null,
 					w => w.Sensitive)
 				.InitializeFromSource();
 			btnRemoveAcceptBefore.Clicked += (sender, args) => ViewModel.RemoveAcceptBeforeCommand.Execute();
 			
-			btnAddWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
+			btnAddWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedWeekDayName.HasValue, w => w.Sensitive).InitializeFromSource();
 			btnAddWeekDayRule.Clicked += (sender, args) => {
 				var selectRules = new OrmReference(ViewModel.UoW, DistrictRuleRepository.GetQueryOverWithAllDeliveryPriceRules()) {
 					Mode = OrmReferenceMode.MultiSelect,
@@ -252,26 +253,26 @@ namespace Vodovoz.Views.Logistic
 				Tab.TabParent.AddSlaveTab(this.Tab, selectRules);
 			};
 
-			btnRemoveWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.SelectedDistrict != null && vm.SelectedWeekDayDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
+			btnRemoveWeekDayRule.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.SelectedWeekDayDistrictRuleItem != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveWeekDayRule.Clicked += (sender, args) => ViewModel.RemoveWeekDayDistrictRuleItemCommand.Execute();
 
 			cmbGeoGroup.ItemsList = ViewModel.UoW.GetAll<GeographicGroup>().ToList();
 			cmbGeoGroup.Binding.AddBinding(ViewModel, vm => vm.SelectedGeoGroup, w => w.SelectedItem).InitializeFromSource();
-			cmbGeoGroup.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.SelectedDistrict != null, w => w.Sensitive).InitializeFromSource();
+			cmbGeoGroup.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null, w => w.Sensitive).InitializeFromSource();
 
 			cmbWageDistrict.ItemsList = ViewModel.UoW.Session.QueryOver<WageDistrict>().Where(d => !d.IsArchive).List();
 			cmbWageDistrict.Binding.AddBinding(ViewModel, vm => vm.SelectedWageDistrict, w => w.SelectedItem).InitializeFromSource();
-			cmbWageDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && vm.SelectedDistrict != null && vm.CanChangeDistrictWageTypePermissionResult, w => w.Sensitive).InitializeFromSource();
+			cmbWageDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && vm.SelectedDistrict != null && vm.CanChangeDistrictWageTypePermissionResult, w => w.Sensitive).InitializeFromSource();
 			cmbWageDistrict.SetRenderTextFunc<WageDistrict>(x => x.Name);
 
 			#region GMap
 
 			btnAddBorder.Binding.AddFuncBinding(ViewModel, vm => !vm.IsCreatingNewBorder, w => w.Visible).InitializeFromSource();
-			btnAddBorder.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && !vm.IsCreatingNewBorder && vm.SelectedDistrict != null && vm.SelectedDistrict.DistrictBorder == null, w => w.Sensitive).InitializeFromSource();
+			btnAddBorder.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && !vm.IsCreatingNewBorder && vm.SelectedDistrict != null && vm.SelectedDistrict.DistrictBorder == null, w => w.Sensitive).InitializeFromSource();
 			btnAddBorder.Clicked += (sender, args) => ViewModel.CreateBorderCommand.Execute();
 
 			btnRemoveBorder.Binding.AddFuncBinding(ViewModel, vm => !vm.IsCreatingNewBorder, w => w.Visible).InitializeFromSource();
-			btnRemoveBorder.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit && !vm.IsCreatingNewBorder && vm.SelectedDistrict != null && vm.SelectedDistrict.DistrictBorder != null, w => w.Sensitive).InitializeFromSource();
+			btnRemoveBorder.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && !vm.IsCreatingNewBorder && vm.SelectedDistrict != null && vm.SelectedDistrict.DistrictBorder != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveBorder.Clicked += (sender, args) => {
 				if(MessageDialogHelper.RunQuestionDialog($"Удалить границу района {ViewModel.SelectedDistrict.DistrictName}?")) {
 					ViewModel.RemoveBorderCommand.Execute();
