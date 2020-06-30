@@ -124,7 +124,7 @@ namespace Vodovoz.ViewModels.Logistic
             var query = $"UPDATE {dpPersister.TableName} dp SET {districtColumn} = "
                 + $"(SELECT districts.{districtPersister.KeyColumnNames.First()} FROM {districtPersister.TableName} AS districts"
                 + $" WHERE districts.{districtsSetColumn} = {Entity.Id} AND ST_WITHIN(PointFromText(CONCAT('POINT(', dp.{latColumn} ,' ', dp.{longColumn} ,')')), districts.{borderColumn}) LIMIT 1);";
-            UoW.Session.CreateSQLQuery(query).ExecuteUpdate();
+            UoW.Session.CreateSQLQuery(query).SetTimeout(90).ExecuteUpdate();
         }
 
         private void ReAssignDriverDistirctPriorities()

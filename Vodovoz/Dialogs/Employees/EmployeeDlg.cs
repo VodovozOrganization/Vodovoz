@@ -622,7 +622,7 @@ namespace Vodovoz
 		{
 			var filter = new DistrictJournalFilterViewModel { Status = DistrictsSetStatus.Active, OnlyWithBorders = true };
 			var journalViewModel = new DistrictJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices) {
-				SelectionMode = JournalSelectionMode.Multiple, EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false
+				EnableDeleteButton = false, EnableEditButton = false, EnableAddButton = false, SelectionMode = JournalSelectionMode.Multiple
 			};
 			journalViewModel.OnEntitySelectedResult += (o, args) => {
 				var addDistricts = args.SelectedNodes;
