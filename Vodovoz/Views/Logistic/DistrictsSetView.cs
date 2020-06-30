@@ -136,10 +136,7 @@ namespace Vodovoz.Views.Logistic
 
 			#endregion
 
-			btnSave.Clicked += (sender, args) => {
-				if(ViewModel.Save())
-					MessageDialogHelper.RunInfoDialog("Сохранено!");
-			};
+			btnSave.Clicked += (sender, args) => ViewModel.Save();
 			btnSave.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 			
 			btnCancel.Clicked += (sender, args) => ViewModel.Close(true, CloseSource.Cancel);
