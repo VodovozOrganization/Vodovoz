@@ -382,7 +382,13 @@ namespace Vodovoz.ViewModels.Logistic
         {
             if(Entity.Id == 0)
                 Entity.DateCreated = DateTime.Now;
-            return base.Save(close);
+            if(base.Save(close)) {
+                if(!commonServices.InteractiveService.Question("Продолжить редактирование районов?", "Успешно сохранено"))
+                    Close(false, CloseSource.Save);
+                return true;
+            }
+            else
+                return false;
         }
 
         public override void Close(bool askSave, CloseSource source)
