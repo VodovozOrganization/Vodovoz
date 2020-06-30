@@ -152,7 +152,7 @@ namespace Vodovoz.Dialogs.Logistic
 		//Если дата диалога >= даты активации набора районов и есть хотя бы один район у водителя, который не принадлежит активному набору районов
 		private void CheckAndCorrectDistrictPriorities() {
 			var activeDistrictsSet = UoW.Session.QueryOver<DistrictsSet>().Where(x => x.Status == DistrictsSetStatus.Active).SingleOrDefault();
-			if(DialogAtDate.Date >= activeDistrictsSet.DateActivated) {
+			if(DialogAtDate.Date >= activeDistrictsSet.DateActivated.Value.Date) {
 				var outDatedpriorities = DriversAtDay.SelectMany(x => x.DistrictsPriorities.Where(d => d.District.DistrictsSet.Id != activeDistrictsSet.Id)).ToList();
 				if(!outDatedpriorities.Any()) 
 					return;
