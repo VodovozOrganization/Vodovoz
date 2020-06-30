@@ -32,7 +32,6 @@ namespace Vodovoz.ViewModels.Logistic
             : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
         {
             this.entityDeleteWorker = entityDeleteWorker ?? throw new ArgumentNullException(nameof(entityDeleteWorker));
-            this.employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
             this.commonServices = commonServices;
             TabName = "Районы с графиками доставки";
             
@@ -44,9 +43,14 @@ namespace Vodovoz.ViewModels.Logistic
             }
 
             var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District));
-            CanEdit = permissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
-            CanDelete = permissionResult.CanDelete && Entity.Status != DistrictsSetStatus.Active;
-            CanCreate = permissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
+            CanEditDistrict = permissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
+            CanDeleteDistrict = permissionResult.CanDelete && Entity.Status != DistrictsSetStatus.Active;
+            CanCreateDistrict = permissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
+            
+            var permissionRes = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
+            CanEdit = permissionRes.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
+            CanDelete = permissionRes.CanDelete && Entity.Status != DistrictsSetStatus.Active;
+            CanCreate = permissionRes.CanCreate && Entity.Status != DistrictsSetStatus.Active;
             
             SortDistricts();
 
@@ -58,11 +62,13 @@ namespace Vodovoz.ViewModels.Logistic
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         
         private readonly ICommonServices commonServices;
-        private readonly IEmployeeRepository employeeRepository;
         private readonly IEntityDeleteWorker entityDeleteWorker;
         private readonly GeometryFactory geometryFactory;
 
         public readonly bool CanChangeDistrictWageTypePermissionResult;
+        public readonly bool CanEditDistrict;
+        public readonly bool CanDeleteDistrict;
+        public readonly bool CanCreateDistrict;
         public readonly bool CanEdit;
         public readonly bool CanDelete;
         public readonly bool CanCreate;
@@ -400,7 +406,7 @@ namespace Vodovoz.ViewModels.Logistic
         }
 
         public override bool HasChanges {
-            get => base.HasChanges && CanEdit;
+            get => base.HasChanges && (CanEditDistrict || CanEdit);
             set => base.HasChanges = value;
         }
 
