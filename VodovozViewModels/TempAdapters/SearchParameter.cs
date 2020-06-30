@@ -5,21 +5,11 @@ namespace Vodovoz.TempAdapters
 {
 	public enum SearchParametrType
 	{
-		/*DeliveryPoint,
-		BottlesMovementOperation,
-		ClientTask,
-		BusinessTaskJournalNode,
-		Counterparty,
-		Employee,
-		Phone,
-		Order,
-		*/
-		// пока что это все только для CounterParty поиска
 		Id,
 		VodovozInternalId,
 		Name,
 		INN,
-		DigitsNumber, // Phone это красивый вариант со скобками
+		DigitsNumber,
 		CompiledAddress
 	}
 

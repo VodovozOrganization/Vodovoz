@@ -176,10 +176,11 @@ namespace Vodovoz.TempAdapters
 						var likeRestriction = Restrictions.Like(Projections.Cast(NHibernateUtil.String, Projections.Property(parameter.alias)), sv, MatchMode.Anywhere);
 			
 						// Если это номер то обработать
-						if (parameter.type == SearchParametrType.DigitsNumber) {
+						if (parameter.type == SearchParametrType.DigitsNumber && sv.Any(char.IsDigit)) {
 
 							bool needRunBoth;
 							string processedDigitsNumber = VodovozInfrastructure.Utils.PhoneUtils.NumberTrim(sv, out needRunBoth);
+
 
 							// Если тру значит нужно запустить и до и после обработки
 							if (needRunBoth) {
@@ -193,9 +194,9 @@ namespace Vodovoz.TempAdapters
 								disjunctionCriterion.Add(likeRestrictionProcessedNumber);
 							}
 							// Если это не номер то добавить как было
-						} else {
+						}
+						else {
 							disjunctionCriterion.Add(likeRestriction);
-
 						}
 
 					}
