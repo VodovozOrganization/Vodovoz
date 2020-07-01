@@ -5,7 +5,6 @@ using System.Linq;
 using GeoAPI.Geometries;
 using GMap.NET;
 using NetTopologySuite.Geometries;
-using NLog;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -43,15 +42,13 @@ namespace Vodovoz.ViewModels.Logistic
             }
 
             var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District));
-            CanEditDistrict = permissionResult.CanUpdate;
-            CanDeleteDistrict = permissionResult.CanDelete;
-            CanCreateDistrict = permissionResult.CanCreate;
+            CanEditDistrict = permissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
+            CanDeleteDistrict = permissionResult.CanDelete && Entity.Status != DistrictsSetStatus.Active;
+            CanCreateDistrict = permissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
             
             var permissionRes = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
-            CanEdit = permissionRes.CanUpdate;
-            CanDelete = permissionRes.CanDelete;
-            CanCreate = permissionRes.CanCreate;
-            
+            CanEdit = permissionRes.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
+
             SortDistricts();
 
             geometryFactory = new GeometryFactory(new PrecisionModel(), 3857);
@@ -59,8 +56,6 @@ namespace Vodovoz.ViewModels.Logistic
             NewBorderVertices = new GenericObservableList<PointLatLng>();
         }
 
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        
         private readonly ICommonServices commonServices;
         private readonly IEntityDeleteWorker entityDeleteWorker;
         private readonly GeometryFactory geometryFactory;
@@ -70,9 +65,7 @@ namespace Vodovoz.ViewModels.Logistic
         public readonly bool CanDeleteDistrict;
         public readonly bool CanCreateDistrict;
         public readonly bool CanEdit;
-        public readonly bool CanDelete;
-        public readonly bool CanCreate;
-        
+
         public GenericObservableList<DeliveryScheduleRestriction> ScheduleRestrictions => SelectedWeekDayName.HasValue && SelectedDistrict != null
             ? SelectedDistrict.GetScheduleRestrictionCollectionByWeekDayName(SelectedWeekDayName.Value)
             : null;
@@ -393,8 +386,7 @@ namespace Vodovoz.ViewModels.Logistic
                     Close(false, CloseSource.Save);
                 return true;
             }
-            else
-                return false;
+            return false;
         }
 
         public override void Close(bool askSave, CloseSource source)
