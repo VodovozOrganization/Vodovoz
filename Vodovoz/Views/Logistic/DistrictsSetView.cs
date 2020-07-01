@@ -146,7 +146,7 @@ namespace Vodovoz.Views.Logistic
 			entryName.Binding.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			entryName.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			btnAddDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanCreateDistrict && vm.Entity.Status != DistrictsSetStatus.Active, w => w.Sensitive).InitializeFromSource();
+			btnAddDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.CanCreateDistrict, w => w.Sensitive).InitializeFromSource();
 			btnAddDistrict.Clicked += (sender, args) => {
 				ViewModel.AddDistrictCommand.Execute();
 				ScrollToSelectedDistrict();
@@ -159,7 +159,7 @@ namespace Vodovoz.Views.Logistic
 				else 
 					ScrollToSelectedDistrict();
 			};
-			btnRemoveDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanDeleteDistrict && vm.Entity.Status != DistrictsSetStatus.Active, w => w.Sensitive).InitializeFromSource();
+			btnRemoveDistrict.Binding.AddFuncBinding(ViewModel, vm => vm.SelectedDistrict != null && vm.CanDeleteDistrict, w => w.Sensitive).InitializeFromSource();
 			
 			ytextComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			ytextComment.Binding.AddFuncBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
@@ -272,7 +272,7 @@ namespace Vodovoz.Views.Logistic
 			btnAddBorder.Clicked += (sender, args) => ViewModel.CreateBorderCommand.Execute();
 
 			btnRemoveBorder.Binding.AddFuncBinding(ViewModel, vm => !vm.IsCreatingNewBorder, w => w.Visible).InitializeFromSource();
-			btnRemoveBorder.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.Status != DistrictsSetStatus.Active && vm.CanEditDistrict && !vm.IsCreatingNewBorder && vm.SelectedDistrict != null && vm.SelectedDistrict.DistrictBorder != null, w => w.Sensitive).InitializeFromSource();
+			btnRemoveBorder.Binding.AddFuncBinding(ViewModel, vm => vm.CanEditDistrict && !vm.IsCreatingNewBorder && vm.SelectedDistrict != null && vm.SelectedDistrict.DistrictBorder != null, w => w.Sensitive).InitializeFromSource();
 			btnRemoveBorder.Clicked += (sender, args) => {
 				if(MessageDialogHelper.RunQuestionDialog($"Удалить границу района {ViewModel.SelectedDistrict.DistrictName}?")) {
 					ViewModel.RemoveBorderCommand.Execute();
