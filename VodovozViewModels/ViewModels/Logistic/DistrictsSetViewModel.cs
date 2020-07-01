@@ -43,14 +43,14 @@ namespace Vodovoz.ViewModels.Logistic
             }
 
             var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District));
-            CanEditDistrict = permissionResult.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
-            CanDeleteDistrict = permissionResult.CanDelete && Entity.Status != DistrictsSetStatus.Active;
-            CanCreateDistrict = permissionResult.CanCreate && Entity.Status != DistrictsSetStatus.Active;
+            CanEditDistrict = permissionResult.CanUpdate;
+            CanDeleteDistrict = permissionResult.CanDelete;
+            CanCreateDistrict = permissionResult.CanCreate;
             
             var permissionRes = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet));
-            CanEdit = permissionRes.CanUpdate && Entity.Status != DistrictsSetStatus.Active;
-            CanDelete = permissionRes.CanDelete && Entity.Status != DistrictsSetStatus.Active;
-            CanCreate = permissionRes.CanCreate && Entity.Status != DistrictsSetStatus.Active;
+            CanEdit = permissionRes.CanUpdate;
+            CanDelete = permissionRes.CanDelete;
+            CanCreate = permissionRes.CanCreate;
             
             SortDistricts();
 
