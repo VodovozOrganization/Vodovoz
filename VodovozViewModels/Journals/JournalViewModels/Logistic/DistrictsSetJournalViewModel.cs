@@ -9,6 +9,7 @@ using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.FilterViewModels;
@@ -109,8 +110,15 @@ namespace Vodovoz.Journals.JournalViewModels
 					var selectedNode = selected.OfType<DistrictsSetJournalNode>().FirstOrDefault();
 					if(selectedNode == null)
 						return;
+					var districtsSetToCopy = UoW.GetById<DistrictsSet>(selectedNode.Id);
+					var alreadyCopiedDistrict = UoW.Session.QueryOver<District>().WhereRestrictionOn(x => x.CopyOf.Id).IsIn(districtsSetToCopy.Districts.Select(x => x.Id).ToArray()).Take(1).SingleOrDefault();
+					if(alreadyCopiedDistrict != null) {
+						commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
+							$"Выбранная версия районов уже была скопирована\nКопия: {alreadyCopiedDistrict.DistrictsSet.Id} {alreadyCopiedDistrict.DistrictsSet.Name}");
+						return;
+					}
+					
 					if(commonServices.InteractiveService.Question($"Скопировать версию районов \"{selectedNode.Name}\"")) {
-						var districtsSetToCopy = UoW.GetById<DistrictsSet>(selectedNode.Id);
 						var copy = districtsSetToCopy.Clone() as DistrictsSet;
 						copy.Name += " - копия";
 						copy.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
@@ -146,11 +154,22 @@ namespace Vodovoz.Journals.JournalViewModels
 					selectedItems => {
 						var selectedNodes = selectedItems.OfType<DistrictsSetJournalNode>();
 						var selectedNode = selectedNodes.FirstOrDefault();
-						if(selectedNode != null) {
-							TabParent.AddSlaveTab(this, 
-								new DistrictsSetActivationViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices)
-							);
+						if(selectedNode == null)
+							return;
+						var activeDistrictsSet = UoW.Session.QueryOver<DistrictsSet>().Where(x => x.Status == DistrictsSetStatus.Active).Take(1).SingleOrDefault();
+						if(activeDistrictsSet.DateCreated > selectedNode.DateCreated) {
+							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Нельзя активировать, так как дата создания выбранной версии меньше чем дата создания активной версии");
+							return;
 						}
+						var selectedDistrictsSet = UoW.GetById<DistrictsSet>(selectedNode.Id);
+						if(selectedDistrictsSet.Districts.All(x => x.CopyOf == null) 
+							&& !commonServices.InteractiveService.Question("Активация выбранной версии приведёт к удалению всех приоритетов районов водителей.\nПродолжить?")) {
+							return;
+						}
+						TabParent.AddSlaveTab(this, 
+							new DistrictsSetActivationViewModel(EntityUoWBuilder.ForOpen(selectedNode.Id), QS.DomainModel.UoW.UnitOfWorkFactory.GetDefaultFactory, commonServices)
+						);
+						
 					}
 				)
 			);
