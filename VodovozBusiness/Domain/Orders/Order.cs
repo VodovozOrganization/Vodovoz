@@ -966,19 +966,9 @@ namespace Vodovoz.Domain.Orders
 			if(ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
-
-
 			if(DeliveryDate == null || DeliveryDate == default(DateTime))
 				yield return new ValidationResult("В заказе не указана дата доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryDate) });
-
-			// Если в списке оборудования добавили оборудование от клиента типа вода, то так незя
-			foreach(var item in OrderEquipments) {
-				if(item.Direction == Direction.PickUp && item.Nomenclature.Category == NomenclatureCategory.water) {
-					yield return new ValidationResult("Нельзя добавлять возврат бутылей от клиента");
-				}
-			}
-
 			if(!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
