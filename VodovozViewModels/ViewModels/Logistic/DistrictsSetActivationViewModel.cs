@@ -72,6 +72,7 @@ namespace Vodovoz.ViewModels.Logistic
                         ActivationInProgress = true;
                         
                         ReAssignDeliveryPoints();
+                        TryToFindNearbyDistrict();
                         ReAssignDriverDistirctPriorities();
                         
                         Entity.Status = DistrictsSetStatus.Active;
@@ -125,6 +126,30 @@ namespace Vodovoz.ViewModels.Logistic
                 + $"(SELECT districts.{districtPersister.KeyColumnNames.First()} FROM {districtPersister.TableName} AS districts"
                 + $" WHERE districts.{districtsSetColumn} = {Entity.Id} AND ST_WITHIN(PointFromText(CONCAT('POINT(', dp.{latColumn} ,' ', dp.{longColumn} ,')')), districts.{borderColumn}) LIMIT 1);";
             UoW.Session.CreateSQLQuery(query).SetTimeout(90).ExecuteUpdate();
+        }
+
+        private void TryToFindNearbyDistrict()
+        {
+            ActivationStatus = "Поиск районов для точек доставки без районов";
+            var deliveryPoints = UoW.Session.QueryOver<DeliveryPoint>()
+                .Where(d => d.District == null)
+                .And(x => x.Latitude != null)
+                .And(x => x.Longitude != null)
+                .List();
+            int batchCounter = 0;
+            UoW.Session.SetBatchSize(500);
+            
+            foreach(var dp in deliveryPoints) {
+                if(dp.FindAndAssociateDistrict(UoW)) {
+                    UoW.Save(dp);
+                    batchCounter++;
+                }
+                if(batchCounter == 500) {
+                    UoW.Commit();
+                    batchCounter = 0;
+                }
+            }
+            UoW.Commit();
         }
 
         private void ReAssignDriverDistirctPriorities()
