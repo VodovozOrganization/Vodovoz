@@ -60,7 +60,7 @@ case $build in
 esac
 
 function DeleteHttpDll {
-	deletedFilePath="./$1/bin/$buildFolderName/System.Net.Http.dll"
+	deletedFilePath="./Application/$1/bin/$buildFolderName/System.Net.Http.dll"
 
 	echo "-- Delete incorrect generated files: $deletedFilePath"
 
@@ -70,7 +70,7 @@ function DeleteHttpDll {
 }
 
 function CopyFiles {
-	rsync -vizaP --delete -e "ssh -p $serverPort" ./$1/bin/$buildFolderName/ $serverAddress:/opt/$1
+	rsync -vizaP --delete -e "ssh -p $serverPort" ./Application/$1/bin/$buildFolderName/ $serverAddress:/opt/$1
 }
 
 function UpdateDriverService {
