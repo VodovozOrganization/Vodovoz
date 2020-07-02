@@ -28,10 +28,11 @@ namespace Vodovoz.Reports
 			public DateTime FirstWorkDay { get; set; }
 		}
 
+		//Если это сопровождающий(forwarder) закрашивает серым то закрасить серым
 		IColumnsConfig columnsConfig = ColumnsConfigFactory.Create<DriverNode> ()
 			.AddColumn("Имя").AddTextRenderer(d => d.FullName)
 			.AddColumn("Выбрать").AddToggleRenderer(d => d.IsSelected)
-		    .RowCells().AddSetter<CellRenderer>((c, n) => c.CellBackground = n.Category == EmployeeCategory.forwarder ? "Light Gray" : "white")
+			.RowCells().AddSetter<CellRenderer>((c, n) => c.CellBackground = n.Category == EmployeeCategory.forwarder ? "Light Gray" : "white")
 			.Finish();
 
 		IList<DriverNode> driversList = new List<DriverNode>();
@@ -110,13 +111,37 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
 		{
-			if (driversList.Where(d => d.IsSelected).Select(d => d.Id).Count() <= 0)
+			//Сохранение значений во временную структуру
+			var oldSelected = new Dictionary<string, bool>();
+			foreach(var item in driversList) {
+				if(item.IsSelected) {
+					oldSelected.Add(item.FullName, item.IsSelected);
+				}
+			}
+
+			FillDrivers(); // обновление значений
+
+			//Возврат значений 
+			foreach(var item in oldSelected) {
+				for(int i = 0; i < driversList.Count; i++) {
+					if(driversList[i].FullName == item.Key) {
+						driversList[i].IsSelected = item.Value;
+					}
+				}
+			}
+
+
+			ytreeviewDrivers.SetItemsSource(driversList); // Обновление списка
+
+			if(driversList.Where(d => d.IsSelected).Select(d => d.Id).Count() <= 0)
 			{
 				MessageDialogWorks.RunErrorDialog("Необходимо выбрать хотя бы одного водителя");
 				return;
 			}
 
-			OnUpdate(true);
+			OnUpdate(true); // Загрузка листа отчета
+
+
 		}
 
 		protected void OnButtonSelectAllClicked (object sender, EventArgs e)
@@ -132,19 +157,22 @@ namespace Vodovoz.Reports
 				item.IsSelected = false;
 			ytreeviewDrivers.SetItemsSource(driversList);
 		}
-
+		//кнопка Проставить ЗП 
 		protected void OnButtonSelectWageClicked(object sender, EventArgs e)
 		{
-			foreach(var item in driversList)
+			//TODO Помойму этот код ничего не делает, gavr
+			foreach(var item in driversList) 
 				item.IsSelected = false;
 
 			var driversListFiltered = driversList.Where(x => CheckDate(x.FirstWorkDay, ydateDateSolary.Date) == true).ToList();
 			foreach(var item in driversListFiltered)
 				item.IsSelected = true;
-			 
-			ytreeviewDrivers.SetItemsSource(driversList);				
+			//
+
+			FillDrivers();
+			ytreeviewDrivers.SetItemsSource(driversList);
 		}
-	 
+
 		public bool CheckDate(DateTime firsWorkDay, DateTime currentDay)
 		{
 			if(currentDay.Subtract(firsWorkDay).Days > 14)
