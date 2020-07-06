@@ -33,6 +33,7 @@ namespace Vodovoz.Domain.Sale
 			set {
 				if(SetField(ref water19LCount, value, () => Water19LCount)) {
 					OnPropertyChanged(() => Water6LCount);
+					OnPropertyChanged(() => Water1500mlCount);
 					OnPropertyChanged(() => Water600mlCount);
 				}
 			}
@@ -42,6 +43,10 @@ namespace Vodovoz.Domain.Sale
 		[Display(Name = "Количество 6л бутылей на одну 19л бутыль")]
 		public virtual int EqualsCount6LFor19L => equalsCount6LFor19L ?? (equalsCount6LFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_6л_на_1бутыль_19л"))).Value;
 
+		private int? equalsCount1500mlFor19L;
+		[Display(Name = "Количество 1,5л бутылей на одну 19л бутыль")]
+		public virtual int EqualsCount1500mlFor19L => equalsCount1500mlFor19L ?? (equalsCount1500mlFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_1,5л_на_1бутыль_19л"))).Value;
+		
 		private int? equalsCount600mlFor19L;
 		[Display(Name = "Количество 0,6л бутылей на одну 19л бутыль")]
 		public virtual int EqualsCount600mlFor19L => equalsCount600mlFor19L ?? (equalsCount600mlFor19L = int.Parse(ParametersProvider.Instance.GetParameterValue("эквивалент_0,6л_на_1бутыль_19л"))).Value;
@@ -49,6 +54,9 @@ namespace Vodovoz.Domain.Sale
 		[Display(Name = "Количество 6л бутылей в заказе")]
 		public virtual string Water6LCount => (water19LCount * EqualsCount6LFor19L).ToString();
 
+		[Display(Name = "Количество 1,5л бутылей в заказе")]
+		public virtual string Water1500mlCount => (water19LCount * EqualsCount1500mlFor19L).ToString();
+		
 		[Display(Name = "Количество 0,6л бутылей в заказе")]
 		public virtual string Water600mlCount => (water19LCount * EqualsCount600mlFor19L).ToString();
 
@@ -74,6 +82,7 @@ namespace Vodovoz.Domain.Sale
 				sb.Append("Если");
 				sb.Append($" 19л б. < {Water19LCount}шт.");
 				sb.Append($" или 6л б. < {water19LCount * EqualsCount6LFor19L}шт.");
+				sb.Append($" или 1500мл б. < {Water19LCount * EqualsCount1500mlFor19L}шт.");
 				sb.Append($" или 600мл б. < {Water19LCount * EqualsCount600mlFor19L}шт.");
 			}
 
