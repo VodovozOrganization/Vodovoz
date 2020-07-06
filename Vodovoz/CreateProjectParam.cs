@@ -441,6 +441,7 @@ namespace Vodovoz
 			OrmMain.AddObjectDescription<DeliveryPriceRule>().Dialog<DeliveryPriceRuleDlg>().DefaultTableView()
 				   .Column("< 19л б.", x => x.Water19LCount.ToString())
 				   .Column("< 6л б.", x => x.Water6LCount)
+				   .Column("< 1,5л б.", x => x.Water1500mlCount)
 				   .Column("< 0,6л б.", x => x.Water600mlCount)
 				   .SearchColumn("Описание правила", x => x.ToString())
 				   .End();
