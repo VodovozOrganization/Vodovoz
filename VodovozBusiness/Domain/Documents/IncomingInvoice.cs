@@ -117,7 +117,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			int maxCommentLength = 255;
-			if(Comment.Length >= maxCommentLength) {
+			if(Comment?.Length >= maxCommentLength) {
 				yield return new ValidationResult(
 					$"Строка комментария слишком длинная. Максимальное количество символов {maxCommentLength}",
 					new[] { this.GetPropertyName(o => o.Items) }
