@@ -72,8 +72,9 @@ namespace Vodovoz.ViewModels.Warehouses
 		}
 
 		public bool CanEdit => 
-			(UoW.IsNew && PermissionResult.CanCreate) 
-			|| (PermissionResult.CanUpdate && (Entity.TimeStamp.Date == DateTime.Today || canEditRectroactively));
+			(UoW.IsNew && PermissionResult.CanCreate) || (PermissionResult.CanUpdate
+			                                              && ((Entity.TimeStamp.Date >= DateTime.Today && Entity.TimeStamp.Date <= (Entity.TimeStamp.Date.AddDays(1))) 
+			                                                  || canEditRectroactively));
 
 		private void ConfigureEntityChangingRelations()
 		{
