@@ -17,7 +17,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			//arrange
 			var source = Substitute.For<IRouteListWageCalculationSource>();
 			source.IsTruck.Returns(true);
-			var service = new RouteListOldRatesWageCalculationService(new OldRatesWageParameter(), source);
+			var service = new RouteListOldRatesWageCalculationService(new OldRatesWageParameterItem(), source);
 
 			//act
 			var result = service.CalculateWage();
@@ -36,7 +36,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 			//arrange
 			var source = Substitute.For<IRouteListWageCalculationSource>();
 			source.IsTruck.Returns(true);
-			var service = new RouteListOldRatesWageCalculationService(new OldRatesWageParameter(), source);
+			var service = new RouteListOldRatesWageCalculationService(new OldRatesWageParameterItem(), source);
 
 			var itemSource = Substitute.For<IRouteListItemWageCalculationSource>();
 
@@ -54,7 +54,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void CalculateWage_ForDriverWithOurCarWithForwarder()
 		{
 			//arrange
-			var wageParameter = new OldRatesWageParameter();
+			var wageParameter = new OldRatesWageParameterItem();
 
 			var source = Substitute.For<IRouteListWageCalculationSource>();
 			source.IsTruck.Returns(false);
@@ -103,7 +103,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void CalculateWageForRouteListItem_ForDriverWithOurCarWithForwarder()
 		{
 			//arrange
-			var wageParameter = new OldRatesWageParameter();
+			var wageParameter = new OldRatesWageParameterItem();
 
 			var source = Substitute.For<IRouteListWageCalculationSource>();
 			source.IsTruck.Returns(false);
@@ -151,7 +151,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void CalculateWage_ForDriverWithOurCarWithoutForwarder()
 		{
 			//arrange
-			var wageParameter = new OldRatesWageParameter();
+			var wageParameter = new OldRatesWageParameterItem();
 
 			var source = Substitute.For<IRouteListWageCalculationSource>();
 			source.IsTruck.Returns(false);
@@ -200,7 +200,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void CalculateWageForRouteListItem_ForDriverWithOurCarWithoutForwarder()
 		{
 			//arrange
-			var wageParameter = new OldRatesWageParameter();
+			var wageParameter = new OldRatesWageParameterItem();
 
 			var source = Substitute.For<IRouteListWageCalculationSource>();
 			source.IsTruck.Returns(false);
@@ -248,7 +248,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void CalculateWage_ForDriverWithMercenariesCarWithoutForwarder()
 		{
 			//arrange
-			var wageParameter = new OldRatesWageParameter();
+			var wageParameter = new OldRatesWageParameterItem();
 
 			var source = Substitute.For<IRouteListWageCalculationSource>();
 			source.IsTruck.Returns(false);
@@ -297,7 +297,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void CalculateWageForRouteListItem_ForDriverWithMercenariesCarWithoutForwarder()
 		{
 			//arrange
-			var wageParameter = new OldRatesWageParameter();
+			var wageParameter = new OldRatesWageParameterItem();
 
 			var source = Substitute.For<IRouteListWageCalculationSource>();
 			source.IsTruck.Returns(false);
@@ -345,7 +345,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void CalculateWage_ForDriverWithMercenariesCarWithForwarder()
 		{
 			//arrange
-			var wageParameter = new OldRatesWageParameter();
+			var wageParameter = new OldRatesWageParameterItem();
 
 			var source = Substitute.For<IRouteListWageCalculationSource>();
 			source.IsTruck.Returns(false);
@@ -394,7 +394,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void CalculateWageForRouteListItem_ForDriverWithMercenariesCarWithForwarder()
 		{
 			//arrange
-			var wageParameter = new OldRatesWageParameter();
+			var wageParameter = new OldRatesWageParameterItem();
 
 			var source = Substitute.For<IRouteListWageCalculationSource>();
 			source.IsTruck.Returns(false);

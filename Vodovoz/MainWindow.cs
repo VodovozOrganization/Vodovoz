@@ -1460,18 +1460,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void OnActionWageParametersForMercenariesCarsActivated(object sender, EventArgs e)
-	{
-		tdiMain.AddTab(
-			new CarsWageParametersViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				WageSingletonRepository.GetInstance(),
-				ServicesConfig.CommonServices,
-				NavigationManagerProvider.NavigationManager
-			)
-		);
-	}
-
 	protected void OnActionSalesPlansActivated(object sender, EventArgs e)
 	{
 		tdiMain.AddTab(

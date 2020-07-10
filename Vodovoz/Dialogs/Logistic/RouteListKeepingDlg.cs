@@ -44,7 +44,7 @@ namespace Vodovoz
 		private bool logisticanEditing = true;
 		private bool isUserLogist = true;
 		private Employee previousForwarder = null;
-		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
+		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
@@ -331,7 +331,7 @@ namespace Vodovoz
 			if(Entity.Status == RouteListStatus.OnClosing
 				&& ((previousForwarder == null && newForwarder != null)
 					|| (previousForwarder != null && newForwarder == null)))
-				Entity.RecalculateAllWages(wageCalculationServiceFactory);
+				Entity.RecalculateAllWages(wageParameterService);
 
 			previousForwarder = Entity.Forwarder;
 		}
@@ -359,7 +359,7 @@ namespace Vodovoz
 				SetSensetivity(false);
 				if(Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute)) {
 					if(MessageDialogHelper.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?")) {
-						Entity.CompleteRoute(wageCalculationServiceFactory, CallTaskWorker);
+						Entity.CompleteRoute(wageParameterService, CallTaskWorker);
 					}
 				}
 

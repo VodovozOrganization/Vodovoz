@@ -6,9 +6,9 @@ using Vodovoz.Domain.WageCalculation;
 namespace Vodovoz.Views.WageCalculation
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class PercentWageParameterView : WidgetViewBase<PercentWageParameterViewModel>
+	public partial class PercentWageParameterView : WidgetViewBase<PercentWageParameterItemViewModel>
 	{
-		public PercentWageParameterView(PercentWageParameterViewModel viewModel) : base(viewModel)
+		public PercentWageParameterView(PercentWageParameterItemViewModel itemViewModel) : base(itemViewModel)
 		{
 			this.Build();
 			ConfigureWidget();

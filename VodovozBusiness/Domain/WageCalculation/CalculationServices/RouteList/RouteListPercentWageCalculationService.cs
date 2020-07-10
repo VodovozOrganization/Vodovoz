@@ -5,12 +5,12 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
 	public class RouteListPercentWageCalculationService : IRouteListWageCalculationService
 	{
-		private readonly PercentWageParameter wageParameter;
+		private readonly PercentWageParameterItem wageParameterItem;
 		private readonly IRouteListWageCalculationSource wageCalculationSource;
 
-		public RouteListPercentWageCalculationService(PercentWageParameter wageParameter, IRouteListWageCalculationSource wageCalculationSource)
+		public RouteListPercentWageCalculationService(PercentWageParameterItem wageParameterItem, IRouteListWageCalculationSource wageCalculationSource)
 		{
-			this.wageParameter = wageParameter ?? throw new ArgumentNullException(nameof(wageParameter));
+			this.wageParameterItem = wageParameterItem ?? throw new ArgumentNullException(nameof(wageParameterItem));
 			this.wageCalculationSource = wageCalculationSource ?? throw new ArgumentNullException(nameof(wageCalculationSource));
 		}
 
@@ -22,12 +22,12 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		public RouteListItemWageResult CalculateWageForRouteListItem(IRouteListItemWageCalculationSource src)
 		{
-			switch(wageParameter.PercentWageType) {
+			switch(wageParameterItem.PercentWageType) {
 				case PercentWageTypes.RouteList:
 					var itemsSum = src.OrderItemsSource.Sum(i => (i.ActualCount ?? i.InitialCount) * i.Price - i.DiscountMoney);
 					var depositsSum = src.OrderDepositItemsSource.Sum(d => (d.ActualCount ?? d.InitialCount) * d.Deposit);
 					return new RouteListItemWageResult(
-						(itemsSum - depositsSum) * wageParameter.RouteListPercent / 100
+						(itemsSum - depositsSum) * wageParameterItem.RouteListPercent / 100
 					);
 				case PercentWageTypes.Service:
 					var wageForService = src.OrderItemsSource

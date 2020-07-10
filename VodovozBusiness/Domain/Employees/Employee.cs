@@ -258,19 +258,19 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		IList<WageParameter> wageParameters = new List<WageParameter>();
+		IList<EmployeeWageParameter> wageParameters = new List<EmployeeWageParameter>();
 		[Display(Name = "Параметры расчета зарплаты")]
-		public virtual IList<WageParameter> WageParameters {
+		public virtual IList<EmployeeWageParameter> WageParameters {
 			get => wageParameters;
 			set => SetField(ref wageParameters, value, () => WageParameters);
 		}
 
-		GenericObservableList<WageParameter> observableWageParameters;
+		GenericObservableList<EmployeeWageParameter> observableWageParameters;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<WageParameter> ObservableWageParameters {
+		public virtual GenericObservableList<EmployeeWageParameter> ObservableWageParameters {
 			get {
 				if(observableWageParameters == null)
-					observableWageParameters = new GenericObservableList<WageParameter>(WageParameters);
+					observableWageParameters = new GenericObservableList<EmployeeWageParameter>(WageParameters);
 				return observableWageParameters;
 			}
 		}
@@ -441,7 +441,7 @@ namespace Vodovoz.Domain.Employees
 			return oldWageParameter.StartDate < newStartDate;
 		}
 
-		public virtual void ChangeWageParameter(WageParameter wageParameter, DateTime startDate)
+		public virtual void ChangeWageParameter(EmployeeWageParameter wageParameter, DateTime startDate)
 		{
 			if(wageParameter == null) {
 				throw new ArgumentNullException(nameof(wageParameter));
@@ -460,7 +460,7 @@ namespace Vodovoz.Domain.Employees
 			return;
 		}
 
-		public virtual WageParameter GetActualWageParameter(DateTime date)
+		public virtual EmployeeWageParameter GetActualWageParameter(DateTime date)
 		{
 			return WageParameters.Where(x => x.StartDate <= date)
 								 .OrderByDescending(x => x.StartDate)
@@ -493,38 +493,61 @@ namespace Vodovoz.Domain.Employees
 			ObservableWageParameters.Clear();
 			switch(Category) {
 				case EmployeeCategory.driver:
-					WageParameter parameterForDriver = new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars };
-					if(VisitingMaster && !IsDriverForOneDay)
-						parameterForDriver = new PercentWageParameter {
-							PercentWageType = PercentWageTypes.Service,
-							WageParameterTarget = WageParameterTargets.ForMercenariesCars
+					EmployeeWageParameter parameterForDriver = new EmployeeWageParameter {
+						WageParameterItem = new ManualWageParameterItem(),
+						DriverWithOurCarsWageParameterItem = new ManualWageParameterItem()
+					};
+					if(VisitingMaster && !IsDriverForOneDay) {
+						parameterForDriver = new EmployeeWageParameter {
+							WageParameterItem = new PercentWageParameterItem {
+								PercentWageType = PercentWageTypes.Service
+							},
+							DriverWithOurCarsWageParameterItem = new PercentWageParameterItem {
+								PercentWageType = PercentWageTypes.Service
+							}
 						};
-					else if(DriverOf == CarTypeOfUse.CompanyLargus)
-						parameterForDriver = new FixedWageParameter {
-							FixedWageType = FixedWageTypes.RouteList,
-							RouteListFixedWage = wageParametersProvider.GetFixedWageForNewLargusDrivers(),
-							WageParameterTarget = WageParameterTargets.ForMercenariesCars,
+					}
+					else if(DriverOf == CarTypeOfUse.CompanyLargus) {
+						decimal fixedWage = wageParametersProvider.GetFixedWageForNewLargusDrivers();
+						parameterForDriver = new EmployeeWageParameter {
+							WageParameterItem = new FixedWageParameterItem {
+								RouteListFixedWage = fixedWage
+							},
+							DriverWithOurCarsWageParameterItem = new FixedWageParameterItem {
+								RouteListFixedWage = fixedWage
+							},
 							IsStartedWageParameter = true
 						};
-					else if(!IsDriverForOneDay)
-						parameterForDriver = new RatesLevelWageParameter {
-							WageDistrictLevelRates = defaultLevel,
-							WageParameterTarget = WageParameterTargets.ForMercenariesCars
+					}
+					else if(!IsDriverForOneDay) {
+						parameterForDriver = new EmployeeWageParameter {
+							WageParameterItem = new RatesLevelWageParameterItem {
+								WageDistrictLevelRates = defaultLevel
+							},
+							DriverWithOurCarsWageParameterItem = new RatesLevelWageParameterItem {
+								WageDistrictLevelRates = defaultLevel
+							}
 						};
+					}
+
 					ChangeWageParameter(parameterForDriver, DateTime.Today);
 					break;
 				case EmployeeCategory.forwarder:
-					var parameterForForwarder = new RatesLevelWageParameter {
-						WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW),
-						WageParameterTarget = WageParameterTargets.ForMercenariesCars
+					var parameterForForwarder = new EmployeeWageParameter {
+						WageParameterItem = new RatesLevelWageParameterItem {
+							WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW)
+						}
 					};
 					ChangeWageParameter(parameterForForwarder, DateTime.Today);
 					break;
 				case EmployeeCategory.office:
 				default:
-					ChangeWageParameter(new ManualWageParameter { WageParameterTarget = WageParameterTargets.ForMercenariesCars }, DateTime.Today);
+					ChangeWageParameter(
+						new EmployeeWageParameter{
+							WageParameterItem = new ManualWageParameterItem()
+						}, 
+						DateTime.Today);
 					break;
-
 			}
 			return;
 		}

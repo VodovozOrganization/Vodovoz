@@ -12,7 +12,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForNoWage_ReturnsZero()
 		{
 			// arrange
-			ManualWageParameter manualWage = Substitute.For<ManualWageParameter>();
+			ManualWageParameterItem manualWage = Substitute.For<ManualWageParameterItem>();
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
 
 			IRouteListWageCalculationService manualWageCalculationService = new RouteListManualWageCalculationService(

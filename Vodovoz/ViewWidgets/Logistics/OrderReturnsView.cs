@@ -95,7 +95,7 @@ namespace Vodovoz
 		}
 		OrderNode orderNode;
 		RouteListItem routeListItem;
-		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
+		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -389,7 +389,7 @@ namespace Vodovoz
 		{
 			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed, CallTaskWorker);
 			routeListItem.RestoreOrder();
-			routeListItem.FirstFillClosing(UoW, wageCalculationServiceFactory);
+			routeListItem.FirstFillClosing(UoW, wageParameterService);
 			UpdateListsSentivity();
 			UpdateButtonsState();
 		}

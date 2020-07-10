@@ -25,7 +25,7 @@ namespace Vodovoz
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
+		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
 		#region IOrmDialog implementation
 
@@ -271,11 +271,11 @@ namespace Vodovoz
 				item.TransferedTo = newItem;
 
 				//Пересчёт зарплаты после изменения МЛ
-				routeListFrom.CalculateWages(wageCalculationServiceFactory);
-				routeListTo.CalculateWages(wageCalculationServiceFactory);
+				routeListFrom.CalculateWages(wageParameterService);
+				routeListTo.CalculateWages(wageParameterService);
 
 				if(routeListTo.ClosingFilled)
-					newItem.FirstFillClosing(UoW, wageCalculationServiceFactory);
+					newItem.FirstFillClosing(UoW, wageParameterService);
 				UoW.Save(item);
 				UoW.Save(newItem);
 			}
@@ -342,7 +342,7 @@ namespace Vodovoz
 					pastPlace.DriverBottlesReturned = address.DriverBottlesReturned;
 					pastPlace.TransferedTo = null;
 					if(pastPlace.RouteList.ClosingFilled)
-						pastPlace.FirstFillClosing(UoW, wageCalculationServiceFactory);
+						pastPlace.FirstFillClosing(UoW, wageParameterService);
 					UoW.Save(pastPlace);
 				}
 				address.RouteList.ObservableAddresses.Remove(address);

@@ -32,23 +32,6 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 			return hideArchive ? baseQuery.Where(d => !d.IsArchive).OrderBy(r => r.Name).Asc.List() : baseQuery.OrderBy(r => r.Name).Asc.List();
 		}
 
-		public IList<WageParameter> GetWageParameters(IUnitOfWork uow, WageParameterTargets wageParameterTarget)
-		{
-			return uow.Session.QueryOver<WageParameter>()
-				.Where(x => x.WageParameterTarget == wageParameterTarget)
-				.List();
-		}
-
-		public WageParameter GetActualParameterForOurCars(IUnitOfWork uow, DateTime dateTime)
-		{
-			return uow.Session.QueryOver<WageParameter>()
-				.Where(x => x.WageParameterTarget == WageParameterTargets.ForOurCars)
-				.Where(x => x.StartDate <= dateTime)
-				.OrderBy(x => x.StartDate).Desc
-				.Take(1)
-				.SingleOrDefault();
-		}
-
 		public IEnumerable<SalesPlan> AllSalesPlans(IUnitOfWork uow, bool hideArchive = true)
 		{
 			var baseQuery = uow.Session.QueryOver<SalesPlan>();
