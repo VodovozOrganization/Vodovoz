@@ -195,7 +195,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 
 			var rates = ConfigureLevelRates(district1, district2);
 
-			RatesLevelWageParameter wage = new RatesLevelWageParameter {
+			RatesLevelWageParameterItem wage = new RatesLevelWageParameterItem {
 				WageDistrictLevelRates = new WageDistrictLevelRates {
 					IsArchive = false,
 					LevelRates = rates.Select(x => x.Value).ToList()
@@ -284,7 +284,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 
 			var rates = ConfigureLevelRates(district1, district2);
 
-			RatesLevelWageParameter wage = new RatesLevelWageParameter {
+			RatesLevelWageParameterItem wage = new RatesLevelWageParameterItem {
 				WageDistrictLevelRates = new WageDistrictLevelRates {
 					IsArchive = false,
 					LevelRates = rates.Select(x => x.Value).ToList()
@@ -372,7 +372,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 
 			var rates = ConfigureLevelRates(district1, district2);
 
-			RatesLevelWageParameter wage = new RatesLevelWageParameter {
+			RatesLevelWageParameterItem wage = new RatesLevelWageParameterItem {
 				WageDistrictLevelRates = new WageDistrictLevelRates {
 					IsArchive = false,
 					LevelRates = rates.Select(x => x.Value).ToList()
@@ -460,7 +460,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 
 			var rates = ConfigureLevelRates(district1, district2);
 
-			RatesLevelWageParameter wage = new RatesLevelWageParameter {
+			RatesLevelWageParameterItem wage = new RatesLevelWageParameterItem {
 				WageDistrictLevelRates = new WageDistrictLevelRates {
 					IsArchive = false,
 					LevelRates = rates.Select(x => x.Value).ToList()
@@ -612,7 +612,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 					}
 				}
 			);
-			RatesLevelWageParameter wage = new RatesLevelWageParameter {
+			RatesLevelWageParameterItem wage = new RatesLevelWageParameterItem {
 				WageDistrictLevelRates = new WageDistrictLevelRates {
 					IsArchive = false,
 					LevelRates = new List<WageDistrictLevelRate> { rate }
@@ -750,7 +750,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 					}
 				}
 			);
-			RatesLevelWageParameter wage = new RatesLevelWageParameter {
+			RatesLevelWageParameterItem wage = new RatesLevelWageParameterItem {
 				WageDistrictLevelRates = new WageDistrictLevelRates {
 					IsArchive = false,
 					LevelRates = new List<WageDistrictLevelRate> { rate }
@@ -928,7 +928,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 					}
 				}
 			);
-			RatesLevelWageParameter wage = new RatesLevelWageParameter {
+			RatesLevelWageParameterItem wage = new RatesLevelWageParameterItem {
 				WageDistrictLevelRates = new WageDistrictLevelRates {
 					IsArchive = false,
 					LevelRates = new List<WageDistrictLevelRate> { rate }
@@ -1106,7 +1106,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 					}
 				}
 			);
-			RatesLevelWageParameter wage = new RatesLevelWageParameter {
+			RatesLevelWageParameterItem wage = new RatesLevelWageParameterItem {
 				WageDistrictLevelRates = new WageDistrictLevelRates {
 					IsArchive = false,
 					LevelRates = new List<WageDistrictLevelRate> { rate }

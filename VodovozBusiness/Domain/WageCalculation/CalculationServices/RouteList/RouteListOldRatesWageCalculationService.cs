@@ -7,12 +7,12 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
 	public class RouteListOldRatesWageCalculationService : IRouteListWageCalculationService
 	{
-		private readonly OldRatesWageParameter wageParameter;
+		private readonly OldRatesWageParameterItem wageParameterItem;
 		private readonly IRouteListWageCalculationSource source;
 
-		public RouteListOldRatesWageCalculationService(OldRatesWageParameter wageParameter, IRouteListWageCalculationSource source)
+		public RouteListOldRatesWageCalculationService(OldRatesWageParameterItem wageParameterItem, IRouteListWageCalculationSource source)
 		{
-			this.wageParameter = wageParameter ?? throw new ArgumentNullException(nameof(wageParameter));
+			this.wageParameterItem = wageParameterItem ?? throw new ArgumentNullException(nameof(wageParameterItem));
 			this.source = source ?? throw new ArgumentNullException(nameof(source));
 		}
 
@@ -67,9 +67,9 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		private WageRate GetActualRate(WageRateTypes wageRateType)
 		{
 			if(source.DriverOfOurCar) {
-				return wageParameter.GetRateForOurs(source.RouteListDate, wageRateType);
+				return wageParameterItem.GetRateForOurs(source.RouteListDate, wageRateType);
 			} else {
-				return wageParameter.GetRateForMercenaries(source.RouteListDate, wageRateType);
+				return wageParameterItem.GetRateForMercenaries(source.RouteListDate, wageRateType);
 			}
 		}
 

@@ -10,9 +10,9 @@ using Vodovoz.ViewModels.WageCalculation;
 namespace Vodovoz.Views.WageCalculation
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RatesLevelWageParameterView : WidgetViewBase<RatesLevelWageParameterViewModel>
+	public partial class RatesLevelWageParameterView : WidgetViewBase<RatesLevelWageParameterItemViewModel>
 	{
-		public RatesLevelWageParameterView(RatesLevelWageParameterViewModel viewModel) : base(viewModel)
+		public RatesLevelWageParameterView(RatesLevelWageParameterItemViewModel itemViewModel) : base(itemViewModel)
 		{
 			this.Build();
 			ConfigureWidget();

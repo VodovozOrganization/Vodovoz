@@ -71,10 +71,10 @@ namespace Vodovoz.Filters.ViewModels
 			}
 		}
 
-		WageParameterTypes? restrictWageType;
-		public virtual WageParameterTypes? RestrictWageType {
-			get => restrictWageType;
-			set => UpdateFilterField(ref restrictWageType, value);
+		WageParameterItemTypes? restrictWageParameterItemType;
+		public virtual WageParameterItemTypes? RestrictWageParameterItemType {
+			get => restrictWageParameterItemType;
+			set => UpdateFilterField(ref restrictWageParameterItemType, value);
 		}
 	}
 }

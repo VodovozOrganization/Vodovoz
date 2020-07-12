@@ -12,7 +12,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForRouteListWithFixedWage()
 		{
 			// arrange
-			FixedWageParameter fixedWage = Substitute.For<FixedWageParameter>();
+			FixedWageParameterItem fixedWage = Substitute.For<FixedWageParameterItem>();
 			fixedWage.RouteListFixedWage.Returns(1112);
 			IRouteListWageCalculationSource src = Substitute.For<IRouteListWageCalculationSource>();
 

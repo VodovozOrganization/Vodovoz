@@ -29,19 +29,19 @@ namespace Android
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
-		private readonly WageCalculationServiceFactory wageCalculationServiceFactory;
+		private readonly WageParameterService wageParameterService;
 		private readonly IDriverServiceParametersProvider parameters;
 		private readonly ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory;
 		private readonly IDriverNotificator driverNotificator;
 
 		public AndroidDriverService(
-			WageCalculationServiceFactory wageCalculationServiceFactory, 
+			WageParameterService wageParameterService, 
 			IDriverServiceParametersProvider parameters,
 			ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory,
 			IDriverNotificator driverNotificator
 			)
 		{
-			this.wageCalculationServiceFactory = wageCalculationServiceFactory ?? throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
+			this.wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
 			this.smsPaymentChannelFactory = smsPaymentChannelFactory ?? throw new ArgumentNullException(nameof(smsPaymentChannelFactory));
 			this.driverNotificator = driverNotificator ?? throw new ArgumentNullException(nameof(driverNotificator));
@@ -453,7 +453,7 @@ namespace Android
 						return false;
 					}
 
-					routeList.CompleteRoute(wageCalculationServiceFactory, CallTaskWorker);
+					routeList.CompleteRoute(wageParameterService, CallTaskWorker);
 					uow.Save(routeList);
 					uow.Commit();
 					return true;

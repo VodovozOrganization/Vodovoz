@@ -5,9 +5,9 @@ using Vodovoz.ViewModels.WageCalculation;
 namespace Vodovoz.Views.WageCalculation
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OldRatesWageParameterView : WidgetViewBase<OldRatesWageParameterViewModel>
+	public partial class OldRatesWageParameterView : WidgetViewBase<OldRatesWageParameterItemViewModel>
 	{
-		public OldRatesWageParameterView(OldRatesWageParameterViewModel viewModel) : base(viewModel)
+		public OldRatesWageParameterView(OldRatesWageParameterItemViewModel itemViewModel) : base(itemViewModel)
 		{
 			this.Build();
 			ConfigureWidget();

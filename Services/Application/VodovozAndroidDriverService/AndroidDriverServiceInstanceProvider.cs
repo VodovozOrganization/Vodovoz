@@ -11,19 +11,19 @@ namespace VodovozAndroidDriverService
 {
 	public class AndroidDriverServiceInstanceProvider : IInstanceProvider
 	{
-		private readonly WageCalculationServiceFactory wageCalculationServiceFactory;
+		private readonly WageParameterService wageParameterService;
 		private readonly IDriverServiceParametersProvider parameters;
 		private readonly ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory;
 		private readonly IDriverNotificator driverNotificator;
 
 		public AndroidDriverServiceInstanceProvider(
-			WageCalculationServiceFactory wageCalculationServiceFactory, 
+			WageParameterService wageParameterService, 
 			IDriverServiceParametersProvider parameters,
 			ChannelFactory<ISmsPaymentService> smsPaymentChannelFactory,
 			IDriverNotificator driverNotificator
 			)
 		{
-			this.wageCalculationServiceFactory = wageCalculationServiceFactory ?? throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
+			this.wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			this.parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
 			this.smsPaymentChannelFactory = smsPaymentChannelFactory ?? throw new ArgumentNullException(nameof(smsPaymentChannelFactory));
 			this.driverNotificator = driverNotificator ?? throw new ArgumentNullException(nameof(driverNotificator));
@@ -33,7 +33,7 @@ namespace VodovozAndroidDriverService
 
 		public object GetInstance(InstanceContext instanceContext)
 		{
-			return new AndroidDriverService(wageCalculationServiceFactory, parameters, smsPaymentChannelFactory, driverNotificator);
+			return new AndroidDriverService(wageParameterService, parameters, smsPaymentChannelFactory, driverNotificator);
 		}
 
 		public object GetInstance(InstanceContext instanceContext, Message message)
