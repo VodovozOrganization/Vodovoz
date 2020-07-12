@@ -480,7 +480,9 @@ namespace Vodovoz.Domain.Employees
 				throw new ArgumentNullException(nameof(interactiveService));
 			}
 
-			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
+
+			var ourCar = DriverOf == CarTypeOfUse.CompanyGAZelle || DriverOf == CarTypeOfUse.CompanyLargus;
+			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW, ourCar);
 			if(defaultLevel == null) {
 				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников\"!\"", "Невозможно создать расчет зарплаты");
 				return;

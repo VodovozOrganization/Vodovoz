@@ -352,6 +352,10 @@ namespace Vodovoz
 		{
 			if(e.PropertyName == nameof(Entity.NormalWage))
 				Entity.RecalculateAllWages(wageParameterService);
+
+			if(e.PropertyName == nameof(Entity.Car)) {
+				Entity.RecalculateAllWages(wageParameterService);
+			}
 		}
 
 		private void UpdateFuelDocumentsColumns()

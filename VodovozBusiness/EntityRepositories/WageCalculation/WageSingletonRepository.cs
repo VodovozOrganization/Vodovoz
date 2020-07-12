@@ -38,12 +38,15 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 			return hideArchive ? baseQuery.Where(d => !d.IsArchive).List() : baseQuery.List();
 		}
 
-		public WageDistrictLevelRates DefaultLevelForNewEmployees(IUnitOfWork uow)
+		public WageDistrictLevelRates DefaultLevelForNewEmployees(IUnitOfWork uow, bool forOurCars = false)
 		{
-			return uow.Session.QueryOver<WageDistrictLevelRates>()
-							  .Where(x => x.IsDefaultLevel)
-							  .Take(1)
-							  .SingleOrDefault();
+			var query = uow.Session.QueryOver<WageDistrictLevelRates>();
+			if(forOurCars) {
+				query.Where(x => x.IsDefaultLevelForOurCars);
+			} else {
+				query.Where(x => x.IsDefaultLevel);
+			}
+			return query.Take(1).SingleOrDefault();
 		}
 
 		public IEnumerable<DateTime> GetDaysWorkedWithRouteLists(IUnitOfWork uow, Employee employee)

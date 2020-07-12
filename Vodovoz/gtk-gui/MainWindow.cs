@@ -373,8 +373,6 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionRates;
 
-	private global::Gtk.Action ActionRatesForOurCars;
-
 	private global::Gtk.Action ActionSalesPlans;
 
 	private global::Gtk.Action Action63;
@@ -1005,9 +1003,6 @@ public partial class MainWindow
 		this.ActionRates = new global::Gtk.Action("ActionRates", global::Mono.Unix.Catalog.GetString("Ставки"), null, null);
 		this.ActionRates.ShortLabel = global::Mono.Unix.Catalog.GetString("Ставки");
 		w1.Add(this.ActionRates, null);
-		this.ActionRatesForOurCars = new global::Gtk.Action("ActionRatesForOurCars", global::Mono.Unix.Catalog.GetString("Ставки для наших авто"), null, null);
-		this.ActionRatesForOurCars.ShortLabel = global::Mono.Unix.Catalog.GetString("Ставки для наших авто");
-		w1.Add(this.ActionRatesForOurCars, null);
 		this.ActionSalesPlans = new global::Gtk.Action("ActionSalesPlans", global::Mono.Unix.Catalog.GetString("Планы продаж"), null, null);
 		this.ActionSalesPlans.ShortLabel = global::Mono.Unix.Catalog.GetString("Планы продаж");
 		w1.Add(this.ActionSalesPlans, null);

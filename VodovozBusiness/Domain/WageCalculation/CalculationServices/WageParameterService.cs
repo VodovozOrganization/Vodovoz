@@ -31,14 +31,14 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 				return new WageCalculationServiceForOldRouteLists(source);
 			}
 
-			ActualizeWageParameter(uow, source.RouteListId, employee);
+			ActualizeWageParameter(uow, source.RouteListId, employee, source.DriverOfOurCar);
 			
 			EmployeeWageParameter actualWageParameter = employee.GetActualWageParameter(source.RouteListDate);
 
 			return new RouteListWageCalculationService(actualWageParameter, source);
 		}
 
-		private void ActualizeWageParameter(IUnitOfWork uow, int currentRouteListId, Employee employee)
+		private void ActualizeWageParameter(IUnitOfWork uow, int currentRouteListId, Employee employee, bool ourCar)
 		{
 			//Проверка на то, что сотрудник имеет только один стартовый расчет зарплаты
 			if(employee.WageParameters.Count != 1) {
@@ -58,7 +58,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 			var ratesLevelWageParameter = new EmployeeWageParameter {
 				WageParameterItem = new RatesLevelWageParameterItem {
-					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployees(uow)
+					WageDistrictLevelRates = wageCalculationRepository.DefaultLevelForNewEmployees(uow, ourCar)
 				}
 			};
 			employee.ChangeWageParameter(

@@ -63,6 +63,13 @@ namespace Vodovoz.Domain.WageCalculation
 			set => SetField(ref isDefaultLevel, value);
 		}
 
+		bool isDefaultLevelForOurCars;
+		[Display(Name = "По умолчанию для новых сотрудников, на наших авто")]
+		public virtual bool IsDefaultLevelForOurCars {
+			get => isDefaultLevelForOurCars;
+			set => SetField(ref isDefaultLevelForOurCars, value);
+		}
+
 		#endregion Свойства
 
 		#region Вычисляемые
