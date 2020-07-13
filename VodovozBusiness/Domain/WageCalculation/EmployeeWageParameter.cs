@@ -45,15 +45,15 @@ namespace Vodovoz.Domain.WageCalculation
 		{
 			DriverWithOurCarsWageParameterItem = null;
 
-			WageParameterItem = CreateCreateWageParameterItem(wageParameterItemType);
+			WageParameterItem = CreateWageParameterItem(wageParameterItemType);
 
 			var typesWithoutOurCarsItems = new WageParameterItemTypes[] { WageParameterItemTypes.Manual, WageParameterItemTypes.OldRates, WageParameterItemTypes.SalesPlan };
 			if(Employee.Category == EmployeeCategory.driver && !typesWithoutOurCarsItems.Contains(wageParameterItemType)) {
-				DriverWithOurCarsWageParameterItem = CreateCreateWageParameterItem(wageParameterItemType);
+				DriverWithOurCarsWageParameterItem = CreateWageParameterItem(wageParameterItemType);
 			}
 		}
 
-		private WageParameterItem CreateCreateWageParameterItem(WageParameterItemTypes wageParameterItemType)
+		private WageParameterItem CreateWageParameterItem(WageParameterItemTypes wageParameterItemType)
 		{
 			switch(wageParameterItemType) {
 				case WageParameterItemTypes.Manual:

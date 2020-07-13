@@ -481,10 +481,16 @@ namespace Vodovoz.Domain.Employees
 			}
 
 
-			var ourCar = DriverOf == CarTypeOfUse.CompanyGAZelle || DriverOf == CarTypeOfUse.CompanyLargus;
-			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW, ourCar);
+			var defaultLevel = wageRepository.DefaultLevelForNewEmployees(UoW);
 			if(defaultLevel == null) {
 				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников\"!\"", "Невозможно создать расчет зарплаты");
+				return;
+			}
+
+			var ourCar = DriverOf == CarTypeOfUse.CompanyGAZelle || DriverOf == CarTypeOfUse.CompanyLargus;
+			var defaultLevelForOurCar = wageRepository.DefaultLevelForNewEmployees(UoW, ourCar);
+			if(defaultLevelForOurCar == null) {
+				interactiveService.ShowMessage(ImportanceLevel.Warning, "\"В журнале ставок по уровням не отмечен \"Уровень по умолчанию для новых сотрудников (Для наших авто)\"!\"", "Невозможно создать расчет зарплаты");
 				return;
 			}
 
@@ -527,7 +533,7 @@ namespace Vodovoz.Domain.Employees
 								WageDistrictLevelRates = defaultLevel
 							},
 							DriverWithOurCarsWageParameterItem = new RatesLevelWageParameterItem {
-								WageDistrictLevelRates = defaultLevel
+								WageDistrictLevelRates = defaultLevelForOurCar
 							}
 						};
 					}
@@ -537,7 +543,7 @@ namespace Vodovoz.Domain.Employees
 				case EmployeeCategory.forwarder:
 					var parameterForForwarder = new EmployeeWageParameter {
 						WageParameterItem = new RatesLevelWageParameterItem {
-							WageDistrictLevelRates = wageRepository.DefaultLevelForNewEmployees(UoW)
+							WageDistrictLevelRates = defaultLevel
 						}
 					};
 					ChangeWageParameter(parameterForForwarder, DateTime.Today);
