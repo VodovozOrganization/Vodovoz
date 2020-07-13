@@ -326,12 +326,12 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
-                        <PaddingTop >7pt</PaddingTop>
-                        <PaddingBottom >7pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -350,10 +350,10 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Left</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
-                        <PaddingTop >7pt</PaddingTop>
-                        <PaddingBottom >7pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -376,8 +376,8 @@
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -397,12 +397,12 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
-                        <PaddingTop >7pt</PaddingTop>
-                        <PaddingBottom >7pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -421,12 +421,12 @@
                         <TextAlign>Center</TextAlign>
                         <Format># ##0.00</Format>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
-                        <PaddingTop >7pt</PaddingTop>
-                        <PaddingBottom >7pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -444,12 +444,12 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
-                        <PaddingTop >7pt</PaddingTop>
-                        <PaddingBottom >7pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -467,12 +467,12 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
-                        <PaddingTop >7pt</PaddingTop>
-                        <PaddingBottom >7pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -490,12 +490,12 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
                         <BackgroundColor>= Iif({unclosed_not_in_rl}, Lightcyan, White)</BackgroundColor>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
-                        <PaddingTop >7pt</PaddingTop>
-                        <PaddingBottom >7pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                        <PaddingTop>7pt</PaddingTop>
+                        <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -933,7 +933,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT 
@@ -993,11 +993,12 @@ JOIN (
 	SELECT
 		sales_plans.empty_bottles_to_take_salesplan_wage AS empty_quantity,
 		sales_plans.full_bottles_to_sell_salesplan_wage AS full_quantity,
-		wage_parameters.employee_id
-	FROM wage_parameters
-	LEFT JOIN sales_plans ON sales_plans.id = wage_parameters.sales_plan_id
-	WHERE wage_parameters.wage_type = 'SalesPlan'
-		AND (wage_parameters.end_date IS NULL OR wage_parameters.end_date &gt;= CURDATE())
+		w.employee_id
+	FROM wage_parameters w
+	LEFT JOIN wage_parameter_items wpi ON wpi.id = w.wage_parameter_item_id 
+	LEFT JOIN sales_plans ON sales_plans.id = wpi.sales_plan_id
+	WHERE wpi.wage_parameter_item_type = 'SalesPlan'
+		AND (w.end_date IS NULL OR w.end_date &gt;= CURDATE())
 ) w ON w.employee_id = auth.id
 LEFT JOIN route_list_addresses a ON a.order_id = o.id
 JOIN counterparty c ON c.id = o.client_id
@@ -1023,7 +1024,7 @@ GROUP BY o.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1078,7 +1079,7 @@ GROUP BY o.id
       </Fields>
     </DataSet>
     <DataSet Name="Employee">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -1090,11 +1091,12 @@ JOIN (
 	SELECT
 		sales_plans.empty_bottles_to_take_salesplan_wage AS empty_quantity,
 		sales_plans.full_bottles_to_sell_salesplan_wage AS full_quantity,
-		wage_parameters.employee_id
-	FROM wage_parameters
-	LEFT JOIN sales_plans ON sales_plans.id = wage_parameters.sales_plan_id
-	WHERE wage_parameters.wage_type = 'SalesPlan'
-		AND (wage_parameters.end_date IS NULL OR wage_parameters.end_date &gt;= CURDATE())
+		w.employee_id
+	FROM wage_parameters w
+	LEFT JOIN wage_parameter_items wpi ON wpi.id = w.wage_parameter_item_id 
+	LEFT JOIN sales_plans ON sales_plans.id = wpi.sales_plan_id
+	WHERE wpi.wage_parameter_item_type = 'SalesPlan'
+		AND (w.end_date IS NULL OR w.end_date &gt;= CURDATE())
 ) w ON w.employee_id = e.id
 WHERE e.id = @employee_id
 ;</CommandText>
@@ -1104,7 +1106,7 @@ WHERE e.id = @employee_id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>

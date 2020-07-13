@@ -30,8 +30,8 @@ namespace Vodovoz.ReportsParameters
 
 			filter = new EmployeeFilterViewModel();
 
-			var availablePlansToUse = new[] { WageParameterTypes.SalesPlan };
-			lstCmbPlanType.SetRenderTextFunc<WageParameterTypes>(t => t.GetEnumTitle());
+			var availablePlansToUse = new[] { WageParameterItemTypes.SalesPlan };
+			lstCmbPlanType.SetRenderTextFunc<WageParameterItemTypes>(t => t.GetEnumTitle());
 			lstCmbPlanType.ItemsList = availablePlansToUse;
 			lstCmbPlanType.SelectedItem = availablePlansToUse.FirstOrDefault();
 			lstCmbPlanType.Changed += LstCmbPlanType_Changed;
@@ -39,7 +39,7 @@ namespace Vodovoz.ReportsParameters
 			yEntRefEmployee.RepresentationModel = new EmployeesVM(filter);
 			yEntRefEmployee.ChangedByUser += (sender, e) => {
 				var actualWageParameter = (yEntRefEmployee.Subject as Employee)?.GetActualWageParameter(DateTime.Now);
-				if(actualWageParameter == null || actualWageParameter.WageParameterType != WageParameterTypes.SalesPlan) {
+				if(actualWageParameter == null || actualWageParameter.WageParameterItem.WageParameterItemType != WageParameterItemTypes.SalesPlan) {
 					return;
 				}
 
@@ -52,7 +52,7 @@ namespace Vodovoz.ReportsParameters
 			filter.SetAndRefilterAtOnce(
 				x => x.RestrictCategory = EmployeeCategory.office,
 				x => x.Status = EmployeeStatus.IsWorking,
-				x => x.RestrictWageType = lstCmbPlanType.SelectedItem as WageParameterTypes?
+				x => x.RestrictWageParameterItemType = lstCmbPlanType.SelectedItem as WageParameterItemTypes?
 			);
 		}
 

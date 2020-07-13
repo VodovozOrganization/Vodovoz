@@ -1278,8 +1278,6 @@
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.EmployeeWageParametersView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictView.cs" />
     <Compile Include="Views\WageCalculation\WageDistrictView.cs" />
-    <Compile Include="Views\WageCalculation\CarsWageParametersView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.CarsWageParametersView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageParameterView.cs" />
     <Compile Include="Views\WageCalculation\OldRatesWageParameterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.OldRatesWageParameterView.cs" />

@@ -18,6 +18,7 @@ namespace Vodovoz.Views.WageCalculation
 			yentryName.Binding.AddBinding(ViewModel.Entity, s => s.Name, w => w.Text).InitializeFromSource();
 			chkIsArchive.Binding.AddBinding(ViewModel.Entity, s => s.IsArchive, w => w.Active).InitializeFromSource();
 			chkDefaultLevel.Binding.AddBinding(ViewModel.Entity, s => s.IsDefaultLevel, w => w.Active).InitializeFromSource();
+			chkDefaultLevelOurCars.Binding.AddBinding(ViewModel.Entity, s => s.IsDefaultLevelForOurCars, w => w.Active).InitializeFromSource();
 
 			buttonSave.Clicked += (sender, e) => ViewModel.SaveAndClose();
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(false, QS.Navigation.CloseSource.Cancel);

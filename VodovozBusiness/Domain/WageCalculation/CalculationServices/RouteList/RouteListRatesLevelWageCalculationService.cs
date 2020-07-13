@@ -7,12 +7,12 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
 	public class RouteListRatesLevelWageCalculationService : IRouteListWageCalculationService
 	{
-		private readonly RatesLevelWageParameter wageParameter;
+		private readonly RatesLevelWageParameterItem wageParameterItem;
 		private readonly IRouteListWageCalculationSource wageCalculationSource;
 
-		public RouteListRatesLevelWageCalculationService(RatesLevelWageParameter wageParameter, IRouteListWageCalculationSource wageCalculationSource)
+		public RouteListRatesLevelWageCalculationService(RatesLevelWageParameterItem wageParameterItem, IRouteListWageCalculationSource wageCalculationSource)
 		{
-			this.wageParameter = wageParameter ?? throw new ArgumentNullException(nameof(wageParameter));
+			this.wageParameterItem = wageParameterItem ?? throw new ArgumentNullException(nameof(wageParameterItem));
 			this.wageCalculationSource = wageCalculationSource ?? throw new ArgumentNullException(nameof(wageCalculationSource));
 		}
 
@@ -188,7 +188,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 		/// </summary>
 		WageDistrictLevelRate GetCurrentWageDistrictLevelRate(IRouteListItemWageCalculationSource src)
 		{
-			return src.WageCalculationMethodic ?? wageParameter.WageDistrictLevelRates
+			return src.WageCalculationMethodic ?? wageParameterItem.WageDistrictLevelRates
 															   .LevelRates
 															   .FirstOrDefault(r => r.WageDistrict == src.WageDistrictOfAddress);
 		}

@@ -510,7 +510,7 @@ namespace Vodovoz.Domain.Logistic
 		/// Если адрес в пути, при закрытии МЛ он считается автоматически доставленным.
 		/// </summary>
 		/// <param name="uow">Uow.</param>
-		public virtual void FirstFillClosing(IUnitOfWork uow, WageCalculationServiceFactory wageCalculationServiceFactory)
+		public virtual void FirstFillClosing(IUnitOfWork uow, WageParameterService wageParameterService)
 		{
 			//В этом месте изменяем статус для подстраховки.
 			if(Status == RouteListItemStatus.EnRoute)
@@ -530,7 +530,7 @@ namespace Vodovoz.Domain.Logistic
 			PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 			BottlesReturned = IsDelivered() ? (DriverBottlesReturned ?? Order.BottlesReturn ?? 0) : 0;
 			RecalculateTotalCash();
-			RouteList.RecalculateWagesForRouteListItem(this, wageCalculationServiceFactory);
+			RouteList.RecalculateWagesForRouteListItem(this, wageParameterService);
 		}
 
 		/// <summary>

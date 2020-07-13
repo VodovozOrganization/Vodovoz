@@ -43,6 +43,7 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 									.Select(x => x.Name).WithAlias(() => resultAlias.Name)
 									.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
 									.Select(x => x.IsDefaultLevel).WithAlias(() => resultAlias.IsDefaultLevel)
+									.Select(x => x.IsDefaultLevelForOurCars).WithAlias(() => resultAlias.IsDefaultLevelOurCars)
 								)
 								.TransformUsing(Transformers.AliasToBean<WageDistrictLevelRatesJournalNode>())
 								.OrderBy(x => x.Name).Asc

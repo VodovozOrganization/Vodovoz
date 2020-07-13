@@ -972,13 +972,13 @@ namespace Vodovoz.Domain.Logistic
 					return true;
 				}
 				var actualWageParameter = Driver.GetActualWageParameter(Date);
-				return actualWageParameter == null || actualWageParameter.WageParameterType != WageParameterTypes.RatesLevel;
+				return actualWageParameter == null || actualWageParameter.WageParameterItem.WageParameterItemType != WageParameterItemTypes.RatesLevel;
 			}
 		}
-		public virtual void CompleteRoute(WageCalculationServiceFactory wageCalculationServiceFactory, CallTaskWorker callTaskWorker)
+		public virtual void CompleteRoute(WageParameterService wageParameterService, CallTaskWorker callTaskWorker)
 		{
-			if(wageCalculationServiceFactory == null) {
-				throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
+			if(wageParameterService == null) {
+				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
 			if(NeedMileageCheck) {
@@ -993,16 +993,16 @@ namespace Vodovoz.Domain.Logistic
 				track.CalculateDistanceToBase();
 				UoW.Save(track);
 			}
-			FirstFillClosing(wageCalculationServiceFactory);
+			FirstFillClosing(wageParameterService);
 			UoW.Save(this);
 		}
 
 
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
-		public virtual void FirstFillClosing(WageCalculationServiceFactory wageCalculationServiceFactory)
+		public virtual void FirstFillClosing(WageParameterService wageParameterService)
 		{
-			if(wageCalculationServiceFactory == null) {
-				throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
+			if(wageParameterService == null) {
+				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
 			PerformanceHelper.StartMeasurement("Первоначальное заполнение");
@@ -1011,7 +1011,7 @@ namespace Vodovoz.Domain.Logistic
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 
 				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
-				routeListItem.FirstFillClosing(UoW, wageCalculationServiceFactory);
+				routeListItem.FirstFillClosing(UoW, wageParameterService);
 				PerformanceHelper.EndPointsGroup();
 			}
 
@@ -1612,34 +1612,34 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Зарплата
 
-		private IRouteListWageCalculationService GetDriverWageCalculationService(WageCalculationServiceFactory wageCalculationServiceFactory)
+		private IRouteListWageCalculationService GetDriverWageCalculationService(WageParameterService wageParameterService)
 		{
-			if(wageCalculationServiceFactory == null) {
-				throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
+			if(wageParameterService == null) {
+				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
-			return wageCalculationServiceFactory.GetRouteListWageCalculationService(UoW, Driver, DriverWageCalculationSrc);
+			return wageParameterService.ActualizeWageParameterAndGetCalculationService(UoW, Driver, DriverWageCalculationSrc);
 		}
 
-		private IRouteListWageCalculationService GetForwarderWageCalculationService(WageCalculationServiceFactory wageCalculationServiceFactory)
+		private IRouteListWageCalculationService GetForwarderWageCalculationService(WageParameterService wageParameterService)
 		{
-			if(wageCalculationServiceFactory == null) {
-				throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
+			if(wageParameterService == null) {
+				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
 			if(Forwarder == null) {
 				return null;
 			}
-			return wageCalculationServiceFactory.GetRouteListWageCalculationService(UoW, Forwarder, ForwarderWageCalculationSrc);
+			return wageParameterService.ActualizeWageParameterAndGetCalculationService(UoW, Forwarder, ForwarderWageCalculationSrc);
 		}
 
 
 		/// <summary>
 		/// Возвращает пересчитанную заново зарплату водителя (не записывает)
 		/// </summary>
-		public virtual decimal GetRecalculatedDriverWage(WageCalculationServiceFactory wageCalculationServiceFactory)
+		public virtual decimal GetRecalculatedDriverWage(WageParameterService wageParameterService)
 		{
-			var routeListWageCalculationService = GetDriverWageCalculationService(wageCalculationServiceFactory);
+			var routeListWageCalculationService = GetDriverWageCalculationService(wageParameterService);
 			var wageResult = routeListWageCalculationService.CalculateWage();
 			return wageResult.Wage;
 		}
@@ -1647,17 +1647,17 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Возвращает пересчитанную заного зарплату экспедитора (не записывает)
 		/// </summary>
-		public virtual decimal GetRecalculatedForwarderWage(WageCalculationServiceFactory wageCalculationServiceFactory)
+		public virtual decimal GetRecalculatedForwarderWage(WageParameterService wageParameterService)
 		{
-			if(wageCalculationServiceFactory == null) {
-				throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
+			if(wageParameterService == null) {
+				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
 			if(Forwarder == null) {
 				return 0;
 			}
 
-			var routeListWageCalculationService = GetForwarderWageCalculationService(wageCalculationServiceFactory);
+			var routeListWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
 			var wageResult = routeListWageCalculationService.CalculateWage();
 			return wageResult.Wage;
 		}
@@ -1687,18 +1687,18 @@ namespace Vodovoz.Domain.Logistic
 			return Addresses.Sum(item => item.ForwarderWage);
 		}
 
-		public virtual void RecalculateWagesForRouteListItem(RouteListItem address, WageCalculationServiceFactory wageCalculationServiceFactory)
+		public virtual void RecalculateWagesForRouteListItem(RouteListItem address, WageParameterService wageParameterService)
 		{
 			if(!Addresses.Contains(address)) {
 				throw new InvalidOperationException("Расчет зарплаты возможен только для адресов текущего маршрутного листа.");
 			}
 
-			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageCalculationServiceFactory);
+			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
 			var drvWageResult = routeListDriverWageCalculationService.CalculateWageForRouteListItem(address.DriverWageCalculationSrc);
 			address.DriverWage = drvWageResult.Wage;
 			address.DriverWageCalcMethodicTemporaryStore = drvWageResult.WageDistrictLevelRate;
 			if(Forwarder != null) {
-				var routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageCalculationServiceFactory);
+				var routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
 				var fwdWageResult = routeListForwarderWageCalculationService.CalculateWageForRouteListItem(address.ForwarderWageCalculationSrc);
 				address.ForwarderWage = fwdWageResult.Wage;
 				address.ForwarderWageCalcMethodicTemporaryStore = fwdWageResult.WageDistrictLevelRate;
@@ -1708,18 +1708,18 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Расчитывает и записывает зарплату
 		/// </summary>
-		public virtual void CalculateWages(WageCalculationServiceFactory wageCalculationServiceFactory)
+		public virtual void CalculateWages(WageParameterService wageParameterService)
 		{
-			if(wageCalculationServiceFactory == null) {
-				throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
+			if(wageParameterService == null) {
+				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
-			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageCalculationServiceFactory);
+			var routeListDriverWageCalculationService = GetDriverWageCalculationService(wageParameterService);
 			FixedDriverWage = routeListDriverWageCalculationService.CalculateWage().FixedWage;
 
 			IRouteListWageCalculationService routeListForwarderWageCalculationService = null;
 			if(Forwarder != null) {
-				routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageCalculationServiceFactory);
+				routeListForwarderWageCalculationService = GetForwarderWageCalculationService(wageParameterService);
 				FixedForwarderWage = routeListForwarderWageCalculationService.CalculateWage().FixedWage;
 			}
 
@@ -1735,13 +1735,13 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void RecalculateAllWages(WageCalculationServiceFactory wageCalculationServiceFactory)
+		public virtual void RecalculateAllWages(WageParameterService wageParameterService)
 		{
-			if(wageCalculationServiceFactory == null) {
-				throw new ArgumentNullException(nameof(wageCalculationServiceFactory));
+			if(wageParameterService == null) {
+				throw new ArgumentNullException(nameof(wageParameterService));
 			}
 
-			CalculateWages(wageCalculationServiceFactory);
+			CalculateWages(wageParameterService);
 		}
 
 		void UpdateWageOperation()

@@ -67,13 +67,26 @@ namespace Vodovoz.ViewModels.WageCalculation
 
 		public override bool Save(bool close)
 		{
-			var defaultLevels = UoW.Session.QueryOver<WageDistrictLevelRates>()
+			if(Entity.IsDefaultLevel) {
+				var defaultLevels = UoW.Session.QueryOver<WageDistrictLevelRates>()
 					   .Where(r => r.IsDefaultLevel)
 					   .List();
-			foreach(var level in defaultLevels) {
-				level.IsDefaultLevel = false;
-				UoW.Save(level);
+				foreach(var level in defaultLevels) {
+					level.IsDefaultLevel = false;
+					UoW.Save(level);
+				}
 			}
+
+			if(Entity.IsDefaultLevelForOurCars) {
+				var defaultLevels = UoW.Session.QueryOver<WageDistrictLevelRates>()
+					   .Where(r => r.IsDefaultLevelForOurCars)
+					   .List();
+				foreach(var level in defaultLevels) {
+					level.IsDefaultLevelForOurCars = false;
+					UoW.Save(level);
+				}
+			}
+
 			return base.Save(close);
 		}
 	}

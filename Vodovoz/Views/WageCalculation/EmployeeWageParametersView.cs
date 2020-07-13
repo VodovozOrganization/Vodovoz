@@ -14,14 +14,14 @@ namespace Vodovoz.Views.WageCalculation
 
 		protected override void ConfigureWidget()
 		{
-			treeViewWageParameters.ColumnsConfig = FluentColumnsConfig<WageParameterNode>.Create()
+			treeViewWageParameters.ColumnsConfig = FluentColumnsConfig<EmployeeWageParameterNode>.Create()
 				.AddColumn("Тип расчета").AddTextRenderer(x => x.WageType)
 				.AddColumn("Начало действия").AddTextRenderer(x => x.StartDate)
 				.AddColumn("Окончание действия").AddTextRenderer(x => x.EndDate)
 				.Finish();
 
 			ViewModel.OnParameterNodesUpdated += (sender, e) => UpdateWageParameters();
-			treeViewWageParameters.RowActivated += (o, args) => ViewModel.OpenWageParameterCommand.Execute(treeViewWageParameters.GetSelectedObject() as WageParameterNode);
+			treeViewWageParameters.RowActivated += (o, args) => ViewModel.OpenWageParameterCommand.Execute(treeViewWageParameters.GetSelectedObject() as EmployeeWageParameterNode);
 			treeViewWageParameters.Selection.Changed += (sender, e) => {
 				ViewModel.ChangeWageParameterCommand.RaiseCanExecuteChanged();
 				ViewModel.ChangeWageStartDateCommand.RaiseCanExecuteChanged();
@@ -42,9 +42,9 @@ namespace Vodovoz.Views.WageCalculation
 			UpdateWageParameters();
 		}
 
-		private WageParameterNode GetSelectedNode()
+		private EmployeeWageParameterNode GetSelectedNode()
 		{
-			return treeViewWageParameters.GetSelectedObject() as WageParameterNode;
+			return treeViewWageParameters.GetSelectedObject() as EmployeeWageParameterNode;
 		}
 
 		private void UpdateWageParameters()
