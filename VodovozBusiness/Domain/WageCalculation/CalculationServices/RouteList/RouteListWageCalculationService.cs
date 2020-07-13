@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 
 		private void SetWageCalculationService(WageParameterItem wageParameterItem)
 		{
-			switch(wageParameter.WageParameterItem.WageParameterItemType) {
+			switch(wageParameterItem.WageParameterItemType) {
 				case WageParameterItemTypes.Manual:
 					calculationService = new RouteListManualWageCalculationService((ManualWageParameterItem) wageParameterItem, source);
 					break;
