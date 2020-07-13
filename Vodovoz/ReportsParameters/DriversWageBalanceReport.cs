@@ -160,16 +160,14 @@ namespace Vodovoz.Reports
 		//кнопка Проставить ЗП 
 		protected void OnButtonSelectWageClicked(object sender, EventArgs e)
 		{
-			//TODO Помойму этот код ничего не делает, gavr
+			FillDrivers();
 			foreach(var item in driversList) 
 				item.IsSelected = false;
 
 			var driversListFiltered = driversList.Where(x => CheckDate(x.FirstWorkDay, ydateDateSolary.Date) == true).ToList();
 			foreach(var item in driversListFiltered)
 				item.IsSelected = true;
-			//
-
-			FillDrivers();
+			
 			ytreeviewDrivers.SetItemsSource(driversList);
 		}
 
