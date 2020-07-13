@@ -13,7 +13,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForRouteListWithDelivery()
 		{
 			// arrange
-			PercentWageParameter percentWage = new PercentWageParameter {
+			PercentWageParameterItem percentWage = new PercentWageParameterItem {
 				PercentWageType = PercentWageTypes.RouteList,
 				RouteListPercent = 50
 			};
@@ -110,7 +110,7 @@ namespace VodovozBusinessTests.Domain.WageCalculation.CalculationServices.RouteL
 		public void WageCalculationForServiceRouteList()
 		{
 			// arrange
-			PercentWageParameter percentWage = new PercentWageParameter {
+			PercentWageParameterItem percentWage = new PercentWageParameterItem {
 				PercentWageType = PercentWageTypes.Service
 			};
 

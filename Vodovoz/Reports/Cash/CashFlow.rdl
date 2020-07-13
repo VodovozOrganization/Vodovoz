@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataIncome">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_income_category.name AS Category,
@@ -52,7 +52,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -64,7 +64,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataExpense">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name as Category,
@@ -95,7 +95,7 @@ ORDER BY Category
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -150,7 +150,7 @@ ORDER BY Category
       </Fields>
     </DataSet>
     <DataSet Name="IncomeReturn">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name AS Category,
@@ -181,7 +181,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <TypeName>System.String</TypeName>
@@ -193,7 +193,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="AdvanceReport">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name AS Category,
@@ -223,7 +223,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <TypeName>System.String</TypeName>
@@ -231,6 +231,60 @@ ORDER BY Category;</CommandText>
         <Field Name="sum">
           <DataField>sum</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="StartBalance">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+
+(SELECT SUM(money) FROM cash_income ci 
+WHERE 
+    `date` &lt; @startDate
+    AND related_to_subdivision_id = 17)
+-
+(SELECT SUM(money) FROM cash_expense ce 
+WHERE 
+    `date` &lt; @startDate
+    AND related_to_subdivision_id = 17) as startBalance;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!StartDate</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="startBalance">
+          <DataField>startBalance</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="EndBalance">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+
+(SELECT SUM(money) FROM cash_income ci 
+WHERE 
+    `date` &lt; @endDate
+    AND related_to_subdivision_id = 17)
+-
+(SELECT SUM(money) FROM cash_expense ce 
+WHERE 
+    `date` &lt; @endDate
+    AND related_to_subdivision_id = 17) as endBalance ;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="endBalance">
+          <DataField>endBalance</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1074,16 +1128,70 @@ ORDER BY Category;</CommandText>
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox36" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>16.48pt</Height>
+        <Width>177.62pt</Width>
+        <Value>Баланс на начало периода:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>18.50pt</Left>
+        <Top>344.20pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>20.24pt</Height>
+        <Width>227.23pt</Width>
+        <Value>Баланс на конец периода:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>18.5pt</Left>
+        <Top>363.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox38" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.75pt</Height>
+        <Width>178.21pt</Width>
+        <Value>=First({startBalance}, "StartBalance")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>150.60pt</Left>
+        <Top>343.90pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox39" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>16.50pt</Height>
+        <Width>170.81pt</Width>
+        <Value>=First({endBalance}, "EndBalance")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>150.90pt</Left>
+        <Top>365.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
-    <Height>342.1pt</Height>
+    <Height>386.2pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
-    <Height>15.3pt</Height>
+    <Height>29.3pt</Height>
     <ReportItems>
       <Textbox Name="Textbox35">
-        <Top>1pt</Top>
-        <Left>10pt</Left>
+        <Top>2.6pt</Top>
+        <Left>18.8pt</Left>
         <Height>12pt</Height>
         <Width>3in</Width>
         <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>

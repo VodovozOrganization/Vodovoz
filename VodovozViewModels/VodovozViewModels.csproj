@@ -94,62 +94,51 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TempAdapters\IEntityDeleteWorker.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintViewModel.cs" />
     <Compile Include="ViewModels\Employees\FineViewModel.cs" />
     <Compile Include="Infrastructure\Services\EmployeeService.cs" />
     <Compile Include="Infrastructure\Services\IEmployeeService.cs" />
     <Compile Include="TempAdapters\IUndeliveriesViewOpener.cs" />
     <Compile Include="ViewModels\Employees\FineTemplateViewModel.cs" />
-    <Compile Include="FilterViewModels\Employees\FineFilterViewModel.cs" />
-    <Compile Include="JournalViewModels\Employees\FinesJournalViewModel.cs" />
-    <Compile Include="JournalNodes\FineJournalNode.cs" />
     <Compile Include="ViewModels\Complaints\CreateComplaintViewModel.cs" />
     <Compile Include="ViewModels\Complaints\CreateInnerComplaintViewModel.cs" />
     <Compile Include="ViewModels\Complaints\GuiltyItemsViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintDiscussionViewModel.cs" />
     <Compile Include="ViewModels\FilesViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintDiscussionsViewModel.cs" />
-    <Compile Include="JournalViewModels\ComplaintsJournalViewModel.cs" />
-    <Compile Include="JournalNodes\ComplaintJournalNode.cs" />
     <Compile Include="ViewModels\Complaints\GuiltyItemViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintResultViewModel.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintSourceViewModel.cs" />
     <Compile Include="Infrastructure\InfoProviders\IComplaintsInfoProvider.cs" />
     <Compile Include="Infrastructure\InfoProviders\IInfoProvider.cs" />
     <Compile Include="Infrastructure\InfoProviders\PanelViewType.cs" />
-    <Compile Include="JournalViewModels\Organization\SubdivisionsJournalViewModel.cs" />
     <Compile Include="ViewModels\Logistic\AcceptBeforeViewModel.cs" />
-    <Compile Include="ViewModels\Logistic\DistrictsViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DistrictsSetActivationViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DistrictsSetViewModel.cs" />
+    <Compile Include="ViewModels\Logistic\DistrictViewModel.cs" />
     <Compile Include="ViewModels\Organization\SubdivisionViewModel.cs" />
-    <Compile Include="JournalNodes\SubdivisionJournalNode.cs" />
-    <Compile Include="FilterViewModels\Organization\SubdivisionFilterViewModel.cs" />
-    <Compile Include="FilterViewModels\ComplaintFilterViewModel.cs" />
     <Compile Include="TempAdapters\IReportViewOpener.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintFilesViewModel.cs" />
     <Compile Include="TempAdapters\IGtkTabsOpenerForRouteListViewAndOrderView.cs" />
-    <Compile Include="FilterViewModels\Goods\NomenclatureFilterViewModel.cs" />
-    <Compile Include="FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
-    <Compile Include="JournalNodes\RequestToSupplierJournalNode.cs" />
     <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRateViewModel.cs" />
-    <Compile Include="ViewModels\WageCalculation\WageParameterViewModel.cs" />
-    <Compile Include="ViewModels\WageCalculation\FixedWageParameterViewModel.cs" />
-    <Compile Include="ViewModels\WageCalculation\PercentWageParameterViewModel.cs" />
-    <Compile Include="ViewModels\WageCalculation\SalesPlanWageParameterViewModel.cs" />
-    <Compile Include="ViewModels\WageCalculation\RatesLevelWageParameterViewModel.cs" />
-    <Compile Include="JournalViewModels\WageCalculation\WageDistrictsJournalViewModel.cs" />
-    <Compile Include="JournalNodes\WageDistrictJournalNode.cs" />
+    <Compile Include="ViewModels\WageCalculation\EmployeeWageParameterViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\FixedWageParameterItemViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\PercentWageParameterItemViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\SalesPlanWageParameterItemViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\RatesLevelWageParameterItemViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\WageDistrictViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRatesViewModel.cs" />
-    <Compile Include="JournalViewModels\WageCalculation\WageDistrictLevelRatesJournalViewModel.cs" />
-    <Compile Include="JournalNodes\WageDistrictLevelRatesJournalNode.cs" />
     <Compile Include="ViewModels\WageCalculation\EmployeeWageParametersViewModel.cs" />
-    <Compile Include="ViewModels\WageCalculation\WageParameterNode.cs" />
-    <Compile Include="ViewModels\WageCalculation\CarsWageParametersViewModel.cs" />
-    <Compile Include="ViewModels\WageCalculation\OldRatesWageParameterViewModel.cs" />
-    <Compile Include="JournalViewModels\WageCalculation\SalesPlanJournalViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\EmployeeWageParameterNode.cs" />
+    <Compile Include="ViewModels\WageCalculation\OldRatesWageParameterItemViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\SalesPlanViewModel.cs" />
-    <Compile Include="JournalNodes\SalesPlanJournalNode.cs" />
     <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\BottlesCountAdvancedWageParameterViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\DeliveryTimeAdvancedWageParameterViewModel.cs" />
     <Compile Include="Infrastructure\AdvancedWageWidgetFactory.cs" />
@@ -166,17 +155,10 @@
     <Compile Include="VodovozViewModelAssemblyFinder.cs" />
     <Compile Include="ViewModels\Warehouses\MovementDocumentRDL.cs" />
     <Compile Include="Infrastructure\Print\IRDLPreviewOpener.cs" />
-    <Compile Include="ViewModels\ForAdministrators\DeliverySchedulesCopierViewModel.cs" />
-    <Compile Include="JournalViewModels\Logistic\DistrictsJournalViewModel.cs" />
-    <Compile Include="JournalNodes\DistrictJournalNode.cs" />
-    <Compile Include="FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
-    <Compile Include="JournalNodes\NomenclatureStockJournalNode.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintKindViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\IWageParameterViewModel.cs" />
     <Compile Include="Infrastructure\NavigationManagerProvider.cs" />
     <Compile Include="ViewModels\Contacts\PhoneTypeViewModel.cs" />
-    <Compile Include="JournalViewModels\Contacts\PhoneTypeJournalViewModel.cs" />
-    <Compile Include="JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
     <Compile Include="ViewModels\Contacts\EmailTypeViewModel.cs" />
     <Compile Include="ViewModels\Users\UserSettingsViewModel.cs" />
     <Compile Include="ViewModels\Permissions\PresetUserPermissionsViewModel.cs" />
@@ -196,42 +178,59 @@
     <Compile Include="Infrastructure\Report\SelectableParametersFilter\ParametersEnumFactory.cs" />
     <Compile Include="ViewModels\ExportImportNomenclatureCatalogViewModel.cs" />
     <Compile Include="TempAdapters\IOrderSelectorFactory.cs" />
-    <Compile Include="JournalNodes\OrderForMovDocJournalNode.cs" />
+    <Compile Include="TempAdapters\SearchHelper.cs" />
+    <Compile Include="TempAdapters\SearchParameter.cs" />
+    <Compile Include="Journals\JournalViewModels\ComplaintsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Contacts\EmailTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Contacts\PhoneTypeJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Employees\FinesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Organization\SubdivisionsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\WageCalculation\SalesPlanJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\WageCalculation\WageDistrictLevelRatesJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\WageCalculation\WageDistrictsJournalViewModel.cs" />
+    <Compile Include="Journals\JournalNodes\ComplaintJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\DistrictJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\FineJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\NomenclatureStockJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\OrderForMovDocJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\RequestToSupplierJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\SalesPlanJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\SubdivisionJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\WageDistrictJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\WageDistrictLevelRatesJournalNode.cs" />
+    <Compile Include="Journals\FilterViewModels\ComplaintFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Employees\FineFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Goods\NomenclatureFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Goods\NomenclatureStockFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Organization\SubdivisionFilterViewModel.cs" />
+    <Compile Include="Journals\FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\EmptyClass.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
-    <Folder Include="JournalViewModels\" />
     <Folder Include="ViewModels\Complaints\" />
     <Folder Include="ViewModels\Employees\" />
     <Folder Include="Infrastructure\" />
     <Folder Include="Infrastructure\Services\" />
     <Folder Include="TempAdapters\" />
-    <Folder Include="FilterViewModels\" />
-    <Folder Include="FilterViewModels\Employees\" />
-    <Folder Include="JournalViewModels\Employees\" />
-    <Folder Include="JournalNodes\" />
     <Folder Include="Infrastructure\InfoProviders\" />
-    <Folder Include="JournalViewModels\Organization\" />
     <Folder Include="ViewModels\Organization\" />
-    <Folder Include="FilterViewModels\Organization\" />
-    <Folder Include="FilterViewModels\Goods\" />
-    <Folder Include="FilterViewModels\Suppliers\" />
     <Folder Include="ViewModels\WageCalculation\" />
-    <Folder Include="JournalViewModels\WageCalculation\" />
     <Folder Include="ViewModels\WageCalculation\AdvancedWageParametersViewModels\" />
     <Folder Include="ViewModels\Warehouses\" />
     <Folder Include="Infrastructure\Permissions\" />
     <Folder Include="Infrastructure\Print\" />
-    <Folder Include="ViewModels\ForAdministrators\" />
-    <Folder Include="JournalViewModels\Logistic\" />
     <Folder Include="ViewModels\Contacts\" />
-    <Folder Include="JournalViewModels\Contacts\" />
     <Folder Include="ViewModels\Users\" />
     <Folder Include="ViewModels\Permissions\" />
     <Folder Include="Infrastructure\Report\" />
     <Folder Include="Infrastructure\Report\SelectableParametersFilter\" />
     <Folder Include="ViewModels\Reports\" />
     <Folder Include="ViewModels\Logistic\" />
+    <Folder Include="Journals\" />
+    <Folder Include="Journals\JournalViewModels\" />
+    <Folder Include="Journals\JournalNodes\" />
+    <Folder Include="Journals\FilterViewModels\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
@@ -266,10 +265,6 @@
       <Project>{E2228A2B-4883-4DD8-8A05-23501F7B8A33}</Project>
       <Name>QS.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QS.Validation\QS.Validation.csproj">
-      <Project>{0178CD90-AD47-45BD-887E-416CAFE86236}</Project>
-      <Name>QS.Validation</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
       <Project>{F22749B2-E35B-455D-BD8D-081373B16FC7}</Project>
       <Name>QS.BusinessCommon</Name>
@@ -281,6 +276,10 @@
     <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
       <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
       <Name>QSProjectsLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VodovozInfrastructure\VodovozInfrastructure.csproj">
+      <Project>{DD740AE7-7854-40C6-B9F6-2F70A5E1CAAC}</Project>
+      <Name>VodovozInfrastructure</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

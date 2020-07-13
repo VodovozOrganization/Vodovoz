@@ -4,12 +4,12 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
 	public class RouteListManualWageCalculationService : IRouteListWageCalculationService
 	{
-		private readonly ManualWageParameter wageParameter;
+		private readonly ManualWageParameterItem wageParameterItem;
 		private readonly IRouteListWageCalculationSource wageCalculationSource;
 
-		public RouteListManualWageCalculationService(ManualWageParameter wageParameter, IRouteListWageCalculationSource wageCalculationSource)
+		public RouteListManualWageCalculationService(ManualWageParameterItem wageParameterItem, IRouteListWageCalculationSource wageCalculationSource)
 		{
-			this.wageParameter = wageParameter ?? throw new ArgumentNullException(nameof(wageParameter));
+			this.wageParameterItem = wageParameterItem ?? throw new ArgumentNullException(nameof(wageParameterItem));
 			this.wageCalculationSource = wageCalculationSource ?? throw new ArgumentNullException(nameof(wageCalculationSource));
 		}
 

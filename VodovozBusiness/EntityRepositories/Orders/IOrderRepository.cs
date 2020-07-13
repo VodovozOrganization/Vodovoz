@@ -107,6 +107,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		bool IsOrderCloseWithoutDelivery(IUnitOfWork uow, Domain.Orders.Order order);
 
 		SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId);
+
+		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId);
 	}
 
 	public class ClientEquipmentNode

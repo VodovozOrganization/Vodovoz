@@ -716,7 +716,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			ViewModel.LogisticanDistricts = ScheduleRestrictionRepository.AreasWithGeometry(ViewModel.UoW);
+			ViewModel.LogisticanDistricts = ScheduleRestrictionRepository.GetDistrictsWithBorder(ViewModel.UoW);
 			foreach(var district in ViewModel.LogisticanDistricts) {
 				var poligon = new GMapPolygon(
 					district.DistrictBorder.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList(),

@@ -20,6 +20,8 @@ namespace Vodovoz.Views.WageCalculation
 
 		private global::Gamma.GtkWidgets.yCheckButton chkDefaultLevel;
 
+		private global::Gamma.GtkWidgets.yCheckButton chkDefaultLevelOurCars;
+
 		private global::Gtk.HBox hbxNotebooksWithDistricts;
 
 		private global::Gamma.GtkWidgets.yCheckButton chkIsArchive;
@@ -72,6 +74,7 @@ namespace Vodovoz.Views.WageCalculation
 			w5.Expand = false;
 			// Container child vbxMain.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(2)), false);
+			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -111,12 +114,24 @@ namespace Vodovoz.Views.WageCalculation
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbxMain.Gtk.Box+BoxChild
+			this.chkDefaultLevelOurCars = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkDefaultLevelOurCars.CanFocus = true;
+			this.chkDefaultLevelOurCars.Name = "chkDefaultLevelOurCars";
+			this.chkDefaultLevelOurCars.Label = global::Mono.Unix.Catalog.GetString("Уровень по умолчанию для новых сотрудников (Наши авто)");
+			this.chkDefaultLevelOurCars.DrawIndicator = true;
+			this.chkDefaultLevelOurCars.UseUnderline = true;
+			this.vbxMain.Add(this.chkDefaultLevelOurCars);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.chkDefaultLevelOurCars]));
+			w10.Position = 3;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child vbxMain.Gtk.Box+BoxChild
 			this.hbxNotebooksWithDistricts = new global::Gtk.HBox();
 			this.hbxNotebooksWithDistricts.Name = "hbxNotebooksWithDistricts";
 			this.hbxNotebooksWithDistricts.Spacing = 6;
 			this.vbxMain.Add(this.hbxNotebooksWithDistricts);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.hbxNotebooksWithDistricts]));
-			w10.Position = 3;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.hbxNotebooksWithDistricts]));
+			w11.Position = 4;
 			// Container child vbxMain.Gtk.Box+BoxChild
 			this.chkIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkIsArchive.CanFocus = true;
@@ -125,10 +140,10 @@ namespace Vodovoz.Views.WageCalculation
 			this.chkIsArchive.DrawIndicator = true;
 			this.chkIsArchive.UseUnderline = true;
 			this.vbxMain.Add(this.chkIsArchive);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.chkIsArchive]));
-			w11.Position = 4;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.chkIsArchive]));
+			w12.Position = 5;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vbxMain);
 			if ((this.Child != null))
 			{

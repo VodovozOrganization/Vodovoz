@@ -166,13 +166,9 @@ namespace Vodovoz.ViewModels
 				UpdateProgress?.Invoke($"Обработан платеж {count} из {parserDocs.Count}", progress);
 			}
 
-			UpdateProgress?.Invoke($"Загрузка завершена. Обработано платежей {count} из них не загружено дублей: {countDuplicates}", progress);
+			var paymentsSum = ObservablePayments.Sum(x => x.Total);
+			UpdateProgress?.Invoke($"Загрузка завершена. Обработано платежей {count} на сумму: {paymentsSum}р. из них не загружено дублей: {countDuplicates}", progress);
 
-			/*ObservablePayments = new GenericObservableList<Payment>(list.OrderBy(p => p.Status)
-																	.ThenBy(p => p.CounterpartyName)
-																	.ThenBy(p => p.Total)
-																	.ToList());*/
-			
 			IsNotAutoMatchingMode = true;
 		}
 

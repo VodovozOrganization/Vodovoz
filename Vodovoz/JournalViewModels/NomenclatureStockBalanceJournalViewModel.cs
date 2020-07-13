@@ -13,7 +13,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.FilterViewModels.Goods;
-using Vodovoz.JournalNodes;
+using Vodovoz.Journals.JournalNodes;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels

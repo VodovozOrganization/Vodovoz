@@ -8,6 +8,7 @@ using QS.Report;
 using QSReport;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Repositories.Orders;
 

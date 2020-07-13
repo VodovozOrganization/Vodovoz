@@ -11,7 +11,7 @@ namespace Vodovoz.Repositories.Sale
 	{
 		public static GeographicGroup GeographicGroupByCoordinates(double? lat, double? lon, IUnitOfWork uow)
 		{
-			return GeographicGroupByCoordinates(lat, lon, ScheduleRestrictionRepository.AreasWithGeometry(uow));
+			return GeographicGroupByCoordinates(lat, lon, ScheduleRestrictionRepository.GetDistrictsWithBorder(uow));
 		}
 
 		public static GeographicGroup GeographicGroupByCoordinates(double? lat, double? lon, IList<District> source)
@@ -19,7 +19,7 @@ namespace Vodovoz.Repositories.Sale
 			GeographicGroup gg = null;
 			if(lat.HasValue && lon.HasValue) {
 				var point = new Point(lat.Value, lon.Value);
-				gg = source.FirstOrDefault(d => d.DistrictBorder != null && d.DistrictBorder.Contains(point))
+				gg = source.FirstOrDefault(d => d.DistrictBorder != null && d.DistrictBorder.Contains(point))?
 				           .GeographicGroup;
 			}
 			return gg;

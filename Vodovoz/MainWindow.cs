@@ -43,8 +43,8 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalViewers;
-using Vodovoz.JournalViewModels;
-using Vodovoz.JournalViewModels.WageCalculation;
+using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.ReportsParameters;
 using Vodovoz.ReportsParameters.Bookkeeping;
 using Vodovoz.ReportsParameters.Bottles;
@@ -58,7 +58,6 @@ using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
-using Vodovoz.ViewModels.ForAdministrators;
 using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
@@ -71,6 +70,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels;
+using Vodovoz.JournalViewModels;
 
 public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 {
@@ -122,7 +122,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 		ActionAddOrder.Sensitive = ServicesConfig.CommonServices.PermissionService.ValidateUserPermission(typeof(Order), QSMain.User.Id)?.CanCreate ?? false;
 		ActionExportImportNomenclatureCatalog.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
-		ActionDistricts.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(District)).CanRead;
+		ActionDistricts.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
 
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle) {
@@ -1227,11 +1227,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void OnActionSetDistrictsToDeliveryPointsActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab<DistrictFinderForDeliveryPointsDlg>();
-	}
-
 	protected void OnActionCertificatesActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1465,18 +1460,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void OnActionWageParametersForMercenariesCarsActivated(object sender, EventArgs e)
-	{
-		tdiMain.AddTab(
-			new CarsWageParametersViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				WageSingletonRepository.GetInstance(),
-				ServicesConfig.CommonServices,
-				NavigationManagerProvider.NavigationManager
-			)
-		);
-	}
-
 	protected void OnActionSalesPlansActivated(object sender, EventArgs e)
 	{
 		tdiMain.AddTab(
@@ -1492,19 +1475,6 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<ZeroDebtClientReport>(),
 			() => new QSReport.ReportViewDlg(new ZeroDebtClientReport())
-		);
-	}
-
-	protected void OnActionDeliveryScheduleCopyActivated(object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			typeof(DeliverySchedulesCopierViewModel).FullName,
-			() => new DeliverySchedulesCopierViewModel(
-				UnitOfWorkFactory.GetDefaultFactory,
-				ServicesConfig.CommonServices,
-				ServicesConfig.CommonServices.InteractiveService,
-				NavigationManagerProvider.NavigationManager
-			)
 		);
 	}
 

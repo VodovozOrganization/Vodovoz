@@ -4,12 +4,13 @@ using QS.Commands;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.BusinessTasks;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using System.Linq;
 using QS.ViewModels;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewModels
 {

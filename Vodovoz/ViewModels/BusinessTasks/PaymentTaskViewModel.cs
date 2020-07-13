@@ -11,9 +11,10 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
-using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels.Organization;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewModels.BusinessTasks
 {

@@ -35,12 +35,13 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.WageCalculation;
 using QS.Project.Journal.EntitySelector;
 using QS.Tools;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Tools;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
 {
@@ -55,7 +56,7 @@ namespace Vodovoz
 		private bool editing = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("money_manage_cash");
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
-		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
+		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
 		List<ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
@@ -234,7 +235,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Получили возврат на склад");
 			//FIXME Убрать из этого места первоначальное заполнение. Сейчас оно вызывается при переводе статуса на сдачу. После того как не нормально не переведенных в закрытие маршрутников, тут заполение можно убрать.
 			if(!Entity.ClosingFilled)
-				Entity.FirstFillClosing(wageCalculationServiceFactory);
+				Entity.FirstFillClosing(wageParameterService);
 
 			PerformanceHelper.AddTimePoint("Закончено первоначальное заполнение");
 
@@ -321,8 +322,8 @@ namespace Vodovoz
 		{
 			decimal driverCurrentWage = Entity.GetDriversTotalWage();
 			decimal forwarderCurrentWage = Entity.GetForwardersTotalWage();
-			decimal driverRecalcWage = Entity.GetRecalculatedDriverWage(wageCalculationServiceFactory);
-			decimal forwarderRecalcWage = Entity.GetRecalculatedForwarderWage(wageCalculationServiceFactory);
+			decimal driverRecalcWage = Entity.GetRecalculatedDriverWage(wageParameterService);
+			decimal forwarderRecalcWage = Entity.GetRecalculatedForwarderWage(wageParameterService);
 
 			string recalcWageMessage = "Найдены расхождения после пересчета зарплаты:";
 			bool hasDiscrepancy = false;
@@ -338,7 +339,7 @@ namespace Vodovoz
 
 			if(hasDiscrepancy && Entity.Status == RouteListStatus.Closed) {
 				MessageDialogHelper.RunInfoDialog(recalcWageMessage);
-				Entity.RecalculateAllWages(wageCalculationServiceFactory);
+				Entity.RecalculateAllWages(wageParameterService);
 			}
 		}
 
@@ -350,7 +351,11 @@ namespace Vodovoz
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(Entity.NormalWage))
-				Entity.RecalculateAllWages(wageCalculationServiceFactory);
+				Entity.RecalculateAllWages(wageParameterService);
+
+			if(e.PropertyName == nameof(Entity.Car)) {
+				Entity.RecalculateAllWages(wageParameterService);
+			}
 		}
 
 		private void UpdateFuelDocumentsColumns()
@@ -393,7 +398,7 @@ namespace Vodovoz
 
 			if((previousForwarder == null && newForwarder != null)
 			 || (previousForwarder != null && newForwarder == null))
-				Entity.RecalculateAllWages(wageCalculationServiceFactory);
+				Entity.RecalculateAllWages(wageParameterService);
 
 			previousForwarder = Entity.Forwarder;
 		}
@@ -460,7 +465,7 @@ namespace Vodovoz
 		{
 			var item = routeListAddressesView.Items[aIdx[0]];
 
-			Entity.RecalculateWagesForRouteListItem(item, wageCalculationServiceFactory);
+			Entity.RecalculateWagesForRouteListItem(item, wageParameterService);
 			item.RecalculateTotalCash();
 			if(!item.IsDelivered() && item.Status != RouteListItemStatus.Transfered)
 				foreach(var itm in item.Order.OrderItems)
@@ -489,7 +494,7 @@ namespace Vodovoz
 		{
 			foreach(var item in routeListAddressesView.Items) {
 				var rli = item as RouteListItem;
-				Entity.RecalculateWagesForRouteListItem(rli, wageCalculationServiceFactory);
+				Entity.RecalculateWagesForRouteListItem(rli, wageParameterService);
 				rli.RecalculateTotalCash();
 			}
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
@@ -535,7 +540,7 @@ namespace Vodovoz
 			decimal depositsCollectedTotal = items.Sum(item => item.BottleDepositsCollected);
 			decimal equipmentDepositsCollectedTotal = items.Sum(item => item.EquipmentDepositsCollected);
 			decimal totalCollected = items.Sum(item => item.TotalCash);
-			Entity.CalculateWages(wageCalculationServiceFactory);
+			Entity.CalculateWages(wageParameterService);
 			decimal driverWage = Entity.GetDriversTotalWage();
 			decimal forwarderWage = Entity.GetForwardersTotalWage();
 			labelAddressCount.Text = string.Format("Адр.: {0}", Entity.UniqueAddressCount);

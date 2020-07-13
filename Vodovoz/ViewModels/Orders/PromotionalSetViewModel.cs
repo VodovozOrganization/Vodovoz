@@ -11,6 +11,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.JournalNodes;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.ViewModels.Orders

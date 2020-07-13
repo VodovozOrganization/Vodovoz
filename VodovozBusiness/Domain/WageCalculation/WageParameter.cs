@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -20,49 +19,39 @@ namespace Vodovoz.Domain.WageCalculation
 	[EntityPermission]
 	public abstract class WageParameter : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		public abstract WageParameterTypes WageParameterType { get; set; }
-
 		public virtual int Id { get; set; }
 
-		public virtual string Title => $"{WageParameterType.GetEnumTitle()}";
+		public abstract string Title { get; }
+		
+		private WageParameterTypes wageParameterType;
+		public virtual WageParameterTypes WageParameterType {
+			get => wageParameterType;
+			set => SetField(ref wageParameterType, value);
+		}
 
 		private DateTime startDate;
 		[Display(Name = "Дата начала")]
 		public virtual DateTime StartDate {
 			get => startDate;
-			set => SetField(ref startDate, value, () => StartDate);
+			set => SetField(ref startDate, value );
 		}
 
 		private DateTime? endDate;
 		[Display(Name = "Дата окончания")]
 		public virtual DateTime? EndDate {
 			get => endDate;
-			set => SetField(ref endDate, value, () => EndDate);
-		}
-
-		private Employee employee;
-		[Display(Name = "Сотрудник")]
-		public virtual Employee Employee {
-			get => employee;
-			set => SetField(ref employee, value, () => Employee);
-		}
-
-		private WageParameterTargets wageParameterTarget;
-		[Display(Name = "Назначение расчета")]
-		public virtual WageParameterTargets WageParameterTarget {
-			get => wageParameterTarget;
-			set => SetField(ref wageParameterTarget, value, () => WageParameterTarget);
+			set => SetField(ref endDate, value );
 		}
 
 		private bool isStartedWageParameter;
 		/// <summary>
-		/// Расчет является стартовым для нового водителя.
-		/// Устанавливается автоматически при создании водителя.
+		/// Расчет является стартовым.
+		/// Устанавливается автоматически, в дальнейшем меняется на другой расчет.
 		/// </summary>
 		[Display(Name = "Стартовый расчет")]
 		public virtual bool IsStartedWageParameter {
 			get => isStartedWageParameter;
-			set => SetField(ref isStartedWageParameter, value, () => IsStartedWageParameter);
+			set => SetField(ref isStartedWageParameter, value);
 		}
 
 		#region IValidatableObject implementation

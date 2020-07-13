@@ -15,72 +15,72 @@ using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
-	/// <summary>
-	/// Главный класс построение оптимальных маршрутов.
-	/// </summary>
-	/// <remarks>
-	/// <para>
-	/// Имеет 2 основных метода, расчет всего дня <c>CreateRoutes()</c> и 
-	/// перестройка одного маршрута <c>RebuidOneRoute()</c>.
-	/// </para>
-	/// <para>
-	/// Класс так же содержит статические поля всевозможных коэфициентов применяемых при оптимизации маршрута.
-	/// Все настроечные коэфециенты находятся в регионе "Настройки оптимизации"
-	/// </para>
-	/// </remarks>
+	// <summary>
+	// Главный класс построение оптимальных маршрутов.
+	// </summary>
+	// <remarks>
+	// <para>
+	// Имеет 2 основных метода, расчет всего дня <c>CreateRoutes()</c> и 
+	// перестройка одного маршрута <c>RebuidOneRoute()</c>.
+	// </para>
+	// <para>
+	// Класс так же содержит статические поля всевозможных коэфициентов применяемых при оптимизации маршрута.
+	// Все настроечные коэфециенты находятся в регионе "Настройки оптимизации"
+	// </para>
+	// </remarks>
 	public class RouteOptimizer : PropertyChangedBase
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		#region Настройки оптимизации
-		/// <summary>
-		/// Штраф за поездку в отсутствующий в списке водителя район.
-		/// </summary>
+		// <summary>
+		// Штраф за поездку в отсутствующий в списке водителя район.
+		// </summary>
 		public static long UnlikeDistrictPenalty = 500000;//100000;
-		/// <summary>
-		/// Штраф за передачу заказа другому водителю, если заказ уже находится в маршрутном листе сформированным до начала оптимизации.
-		/// </summary>
+		// <summary>
+		// Штраф за передачу заказа другому водителю, если заказ уже находится в маршрутном листе сформированным до начала оптимизации.
+		// </summary>
 		public static long RemoveOrderFromExistRLPenalty = 100000;
-		/// <summary>
-		/// Штраф за каждый шаг приоритета к каждому адресу, в менее приоритеном районе.
-		/// </summary>
+		// <summary>
+		// Штраф за каждый шаг приоритета к каждому адресу, в менее приоритеном районе.
+		// </summary>
 		public static long DistrictPriorityPenalty = 5000;
-		/// <summary>
-		/// Штраф каждому менее приоритетному водителю, за единицу приоритета, при выходе на маршрут.
-		/// </summary>
+		// <summary>
+		// Штраф каждому менее приоритетному водителю, за единицу приоритета, при выходе на маршрут.
+		// </summary>
 		public static long DriverPriorityPenalty = 20000;
-		/// <summary>
-		/// Штраф каждому менее приоритетному водителю на единицу приоритета, на каждом адресе.
-		/// </summary>
+		// <summary>
+		// Штраф каждому менее приоритетному водителю на единицу приоритета, на каждом адресе.
+		// </summary>
 		public static long DriverPriorityAddressPenalty = 800;
-		/// <summary>
-		/// Штраф за неотвезенный заказ. Или максимальное расстояние на которое имеет смысл ехать.
-		/// </summary>
+		// <summary>
+		// Штраф за неотвезенный заказ. Или максимальное расстояние на которое имеет смысл ехать.
+		// </summary>
 		public static long MaxDistanceAddressPenalty = 300000;
-		/// <summary>
-		/// Максимальное количество бутелей в заказе для ларгусов.
-		/// </summary>
+		// <summary>
+		// Максимальное количество бутелей в заказе для ларгусов.
+		// </summary>
 		public static int MaxBottlesInOrderForLargus = 4;
-		/// <summary>
-		/// Штраф за добавление в лагрус большего количества бутелей. Сейчас установлено больше чем стоимость недоставки заказа.
-		/// То есть такого проиходить не может.
-		/// </summary>
+		// <summary>
+		// Штраф за добавление в лагрус большего количества бутелей. Сейчас установлено больше чем стоимость недоставки заказа.
+		// То есть такого проиходить не может.
+		// </summary>
 		public static long LargusMaxBottlePenalty = 500000;
-		/// <summary>
-		/// Штраф обычному водителю если он взял себе адрес ларгуса.
-		/// </summary>
+		// <summary>
+		// Штраф обычному водителю если он взял себе адрес ларгуса.
+		// </summary>
 		public static long SmallOrderNotLargusPenalty = 25000;
-		/// <summary>
-		/// Штраф за каждый адрес в маршруте меньше минимального позволенного в настройках машины <see cref="Employee.MinRouteAddresses"/>.
-		/// </summary>
+		// <summary>
+		// Штраф за каждый адрес в маршруте меньше минимального позволенного в настройках машины <see cref="Employee.MinRouteAddresses"/>.
+		// </summary>
 		public static long MinAddressesInRoutePenalty = 50000;
-		/// <summary>
-		/// Штраф за каждую бутыль в маршруте меньше минимального позволенного в настройках машины <see cref="Employee.MinRouteAddresses"/>.
-		/// </summary>
+		// <summary>
+		// Штраф за каждую бутыль в маршруте меньше минимального позволенного в настройках машины <see cref="Employee.MinRouteAddresses"/>.
+		// </summary>
 		public static long MinBottlesInRoutePenalty = 10000;
-		/// <summary>
-		/// Штраф за адрес из других частей города <see cref="RouteList.GeographicGroups"/>.
-		/// </summary>
+		// <summary>
+		// Штраф за адрес из других частей города <see cref="RouteList.GeographicGroups"/>.
+		// </summary>
 		public static long AddressFromForeignGeographicGroupPenalty = 500000;
 		#endregion
 
@@ -95,9 +95,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public Action<string> StatisticsTxtAction { get; set; }
 		public List<string> WarningMessages = new List<string>();
 
-		/// <summary>
-		/// Максимальное время работы механизма оптимизации после вызова <c>Solve()</c>. Это время именно оптимизации, время создания модели при этом не учитывается.
-		/// </summary>
+		// <summary>
+		// Максимальное время работы механизма оптимизации после вызова <c>Solve()</c>. Это время именно оптимизации, время создания модели при этом не учитывается.
+		// </summary>
 		public int MaxTimeSeconds { get; set; } = 30;
 
 		public IUnitOfWork UoW;
@@ -111,10 +111,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			interactiveService = service ?? throw new ArgumentNullException(nameof(service));
 		}
 
-		/// <summary>
-		/// Метод создаем маршруты на день основываясь на данных всесенных в поля <c>Routes</c>, <c>Orders</c>,
-		/// <c>Drivers</c> и <c>Forwarders</c>.
-		/// </summary>
+		// <summary>
+		// Метод создаем маршруты на день основываясь на данных всесенных в поля <c>Routes</c>, <c>Orders</c>,
+		// <c>Drivers</c> и <c>Forwarders</c>.
+		// </summary>
 		public void CreateRoutes(TimeSpan drvStartTime, TimeSpan drvEndTime)
 		{
 			WarningMessages.Clear();
@@ -124,8 +124,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			PerformanceHelper.StartMeasurement($"Строим оптимальные маршруты");
 			MainClass.progressBarWin.ProgressStart(4);
 
-			/// Создаем список поездок всех водителей. Тут перебираем всех водителей с машинами
-			/// и создаем поездки для них, в зависимости от выбранного режима работы.
+			// Создаем список поездок всех водителей. Тут перебираем всех водителей с машинами
+			// и создаем поездки для них, в зависимости от выбранного режима работы.
 			var trips = Drivers.Where(x => x.Car != null)
 							   .OrderBy(x => x.PriorityAtDay)
 							   .SelectMany(drv => drv.DaySchedule != null
@@ -135,8 +135,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 											   )
 							   .ToList();
 
-			/// Стыкуем уже созданные маршрутные листы с возможными поездками, на основании водителя и смены.
-			/// Если уже созданный маршрут не найден в поездках, то создаем поездку для него.
+			// Стыкуем уже созданные маршрутные листы с возможными поездками, на основании водителя и смены.
+			// Если уже созданный маршрут не найден в поездках, то создаем поездку для него.
 			foreach(var existRoute in Routes) {
 				var trip = trips.FirstOrDefault(x => x.Driver == existRoute.Driver && x.Shift == existRoute.Shift);
 				if(trip != null)
@@ -145,7 +145,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					trips.Add(new PossibleTrip(existRoute));
 				//Проверяем все ли заказы из МЛ присутствуют в списке заказов. Если их нет. Добавляем.
 				foreach(var address in existRoute.Addresses) {
-					if(!Orders.Any(x => x.Id == address.Order.Id))
+					if(Orders.All(x => x.Id != address.Order.Id))
 						Orders.Add(address.Order);
 				}
 			}
@@ -159,13 +159,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			TestCars(possibleRoutes);
 
-			var areas = UoW.GetAll<District>().ToList();
+			var areas = UoW.GetAll<District>().Where(x => x.DistrictsSet.Status == DistrictsSetStatus.Active).ToList();
 			List<District> unusedDistricts = new List<District>();
 			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
 
-			/// Перебираем все заказы, исключаем те которые без координат, определяем для каждого заказа район
-			/// на основании координат. И создавая экземпляр <c>CalculatedOrder</c>, происходит подсчет сумарной
-			/// информации о заказе. Всего бутылей, вес и прочее.
+			// Перебираем все заказы, исключаем те которые без координат, определяем для каждого заказа район
+			// на основании координат. И создавая экземпляр <c>CalculatedOrder</c>, происходит подсчет сумарной
+			// информации о заказе. Всего бутылей, вес и прочее.
 			foreach(var order in Orders) {
 				if(order.DeliveryPoint.Longitude == null || order.DeliveryPoint.Latitude == null)
 					continue;
@@ -188,29 +188,29 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				AddWarning("Районы без водителей: {0}", string.Join(", ", unusedDistricts.Select(x => x.DistrictName)));
 			}
 
-			/// Создаем калькулятор расчета расстояний. Он сразу запрашивает уже имеющиеся расстояния из кеша
-			/// и в фоновом режиме начинает считать недостающую матрицу.
+			// Создаем калькулятор расчета расстояний. Он сразу запрашивает уже имеющиеся расстояния из кеша
+			// и в фоновом режиме начинает считать недостающую матрицу.
 			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), StatisticsTxtAction);
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Развозка по {0} районам.", calculatedOrders.Select(x => x.District).Distinct().Count());
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
 
-			/// Пред запуском оптимизации мы должны создать модель и внести в нее все необходимые данные.
+			// Пред запуском оптимизации мы должны создать модель и внести в нее все необходимые данные.
 			logger.Info("Создаем модель...");
 			RoutingModel routing = new RoutingModel(Nodes.Length + 1, possibleRoutes.Length, 0);
 
-			/// Создаем измерение со временем на маршруте.
-			/// <c>horizon</c> - ограничивает максимально допустимое значение диапазона, чтобы не уйти за границы суток;
-			/// <c>maxWaitTime</c> - Максимальное время ожидания водителя. То есть водитель закончил разгрузку следующий
-			/// адрес в маршруте у него не должен быть позже чем на 4 часа ожидания.
+			// Создаем измерение со временем на маршруте.
+			// <c>horizon</c> - ограничивает максимально допустимое значение диапазона, чтобы не уйти за границы суток;
+			// <c>maxWaitTime</c> - Максимальное время ожидания водителя. То есть водитель закончил разгрузку следующий
+			// адрес в маршруте у него не должен быть позже чем на 4 часа ожидания.
 			int horizon = 24 * 3600;
 			int maxWaitTime = 4 * 3600;
 			var timeEvaluators = possibleRoutes.Select(x => new CallbackTime(Nodes, x, distanceCalculator)).ToArray();
 			routing.AddDimensionWithVehicleTransits(timeEvaluators, maxWaitTime, horizon, false, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
 
-			/// Ниже заполняем все измерения для учета бутылей, веса, адресов, объема.
+			// Ниже заполняем все измерения для учета бутылей, веса, адресов, объема.
 			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Car.MaxBottles).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles");
 
@@ -239,8 +239,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				var cumulTimeOnEnd = routing.CumulVar(routing.End(ix), "Time");
 				var cumulTimeOnBegin = routing.CumulVar(routing.Start(ix), "Time");
 
-				/// Устанавливаем минимальные(мягкие) границы для измерений. При значениях меньше минимальных, маршрут все таки принимается,
-				/// но вносятся некоторые штрафные очки на последнюю точку маршрута.
+				// Устанавливаем минимальные(мягкие) границы для измерений. При значениях меньше минимальных, маршрут все таки принимается,
+				// но вносятся некоторые штрафные очки на последнюю точку маршрута.
 				//bottlesDimension.SetEndCumulVarSoftLowerBound(ix, possibleRoutes[ix].Car.MinBottles, MinBottlesInRoutePenalty);
 				//addressDimension.SetEndCumulVarSoftLowerBound(ix, possibleRoutes[ix].Driver.MinRouteAddresses, MinAddressesInRoutePenalty);
 
@@ -259,7 +259,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 
 			for(int ix = 0; ix < Nodes.Length; ix++) {
-				/// Проставляем на каждый адрес окно времени приезда.
+				// Проставляем на каждый адрес окно времени приезда.
 				var startWindow = Nodes[ix].Order.DeliverySchedule.From.TotalSeconds;
 				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(false); //FIXME Внимание здесь задаем время без экспедитора и без учета скорости водителя. Это не правильно, но другого варианта я придумать не смог.
 				if(endWindow < startWindow) {
@@ -267,11 +267,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					endWindow = startWindow;
 				}
 				time_dimension.CumulVar(ix + 1).SetRange((long)startWindow, (long)endWindow);
-				/// Добавляем абсолютно все заказы в дизюкцию. Если бы заказы небыли вдобавлены в отдельные дизьюкции
-				/// то при не возможность доставить хоть один заказ. Все решение бы считаль не верным. Добавление каждого заказа
-				/// в отдельную дизьюкцию, позволяет механизму не вести какой то и заказов, и все таки формировать решение с недовезенными
-				/// заказами. Дизьюкция работает так. Он говорит, если хотя бы один заказ в этой группе(дизьюкции) доставлен,
-				/// то все хорошо, иначе штраф. Так как у нас в кадой дизьюкции по одному заказу. Мы получаем опциональную доставку каждого заказа.
+				// Добавляем абсолютно все заказы в дизюкцию. Если бы заказы небыли вдобавлены в отдельные дизьюкции
+				// то при не возможность доставить хоть один заказ. Все решение бы считаль не верным. Добавление каждого заказа
+				// в отдельную дизьюкцию, позволяет механизму не вести какой то и заказов, и все таки формировать решение с недовезенными
+				// заказами. Дизьюкция работает так. Он говорит, если хотя бы один заказ в этой группе(дизьюкции) доставлен,
+				// то все хорошо, иначе штраф. Так как у нас в кадой дизьюкции по одному заказу. Мы получаем опциональную доставку каждого заказа.
 				routing.AddDisjunction(new int[] { ix + 1 }, MaxDistanceAddressPenalty);
 			}
 
@@ -281,19 +281,19 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			RoutingSearchParameters search_parameters = RoutingModel.DefaultSearchParameters();
 			// Setting first solution heuristic (cheapest addition).
-			/// Указывается стратегия первоначального заполнения. Опытным путем было вычислено, что именно при 
-			/// стратегиях вставки маршруты получаются с набором точек более близких к друг другу. То есть в большей
-			/// степени облачком. Что воспринималось человеком как более отпимальное. В отличии от большенства других
-			/// стратегий в которых маршруты, формируюся скорее по лентами ведущими через все обезжаемые раоны. То есть водители
-			/// чаще имели пересечения маршутов.
+			// Указывается стратегия первоначального заполнения. Опытным путем было вычислено, что именно при 
+			// стратегиях вставки маршруты получаются с набором точек более близких к друг другу. То есть в большей
+			// степени облачком. Что воспринималось человеком как более отпимальное. В отличии от большенства других
+			// стратегий в которых маршруты, формируюся скорее по лентами ведущими через все обезжаемые раоны. То есть водители
+			// чаще имели пересечения маршутов.
 			search_parameters.FirstSolutionStrategy = FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
 
 			search_parameters.TimeLimitMs = MaxTimeSeconds * 1000;
-			/// Отключаем внутреннего кеширования расчитанных значений. Опытным путем было проверено, что включение этого значения.
-			/// Значительно(на несколько секунд) увеличивает время закрытия модели и сокращает иногда не значительно время расчета оптимизаций.
-			/// И в принцепе становится целесообразно только на количествах заказов 300-400. При количестве заказов менее 200
-			/// влючение отпечатков значений. Не уменьшало, а увеличивало общее время расчета. А при большом количестве заказов
-			/// время расчета уменьшалось не значительно.
+			// Отключаем внутреннего кеширования расчитанных значений. Опытным путем было проверено, что включение этого значения.
+			// Значительно(на несколько секунд) увеличивает время закрытия модели и сокращает иногда не значительно время расчета оптимизаций.
+			// И в принцепе становится целесообразно только на количествах заказов 300-400. При количестве заказов менее 200
+			// влючение отпечатков значений. Не уменьшало, а увеличивало общее время расчета. А при большом количестве заказов
+			// время расчета уменьшалось не значительно.
 			//search_parameters.FingerprintArcCostEvaluators = false;
 
 			search_parameters.FingerprintArcCostEvaluators = true;
@@ -422,12 +422,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 		}
 
-		/// <summary>
-		/// Получаем предложение по оптимальному расположению адресов в указанном маршруте.
-		/// Рачет идет с учетом окон доставки. Но естественно без любых ограничений по весу и прочему.
-		/// </summary>
-		/// <returns>Предолженый маршрут</returns>
-		/// <param name="route">Первоначальный маршрутный лист, чтобы взять адреса.</param>
+		// <summary>
+		// Получаем предложение по оптимальному расположению адресов в указанном маршруте.
+		// Рачет идет с учетом окон доставки. Но естественно без любых ограничений по весу и прочему.
+		// </summary>
+		// <returns>Предолженый маршрут</returns>
+		// <param name="route">Первоначальный маршрутный лист, чтобы взять адреса.</param>
 		public ProposedRoute RebuidOneRoute(RouteList route)
 		{
 			var trip = new PossibleTrip(route);
@@ -598,9 +598,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Warn(text);
 		}
 
-		/// <summary>
-		/// Метод проверят список поездок и создает предупреждающие сообщения о возможных проблемах с настройками машин.
-		/// </summary>
+		// <summary>
+		// Метод проверят список поездок и создает предупреждающие сообщения о возможных проблемах с настройками машин.
+		// </summary>
 		private void TestCars(PossibleTrip[] trips)
 		{
 			var addressProblems = trips.Select(x => x.Driver).Distinct().Where(x => x.MaxRouteAddresses < 1).ToList();

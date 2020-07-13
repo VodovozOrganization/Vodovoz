@@ -5,35 +5,30 @@ using Gtk;
 using Vodovoz.Domain.Orders;
 using QS.Project.Journal.EntitySelector;
 using Vodovoz.Domain.Client;
-using Vodovoz.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
-using QS.DomainModel.UoW;
 using System;
 using Vodovoz.Infrastructure.Converters;
 using QS.Project.Search.GtkUI;
 using QS.Project.Search;
-using QS.Navigation;
+using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.Views
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ManualPaymentMatchingView : TabViewBase<ManualPaymentMatchingVM>
 	{
-		readonly IUnitOfWork UoW;
-
 		public ManualPaymentMatchingView(ManualPaymentMatchingVM manualPaymentLoaderVM) : base(manualPaymentLoaderVM)
 		{
 			this.Build();
 			ViewModel.TabName = "Ручное распределение платежей";
-			UoW = ViewModel.UoW;
 
 			ConfigureDlg();
 		}
 
 		void ConfigureDlg()
 		{
-			btnSave.Clicked += OnBtnSave_Clicked;
-			btnCancel.Clicked += OnBtnCancel_Clicked;
+			btnSave.Clicked += (sender, e) => ViewModel.SaveViewModelCommand.Execute();
+			btnCancel.Clicked += (sender, e) => ViewModel.CloseViewModelCommand.Execute();
 			buttonComplete.Clicked += (sender, e) => ViewModel.CompleteAllocation.Execute();
 			button1.Clicked += (sender, e) => ViewModel.AddCounterpatyCommand.Execute(ViewModel.Entity);
 
@@ -53,13 +48,12 @@ namespace Vodovoz.Views
 
 			ylabelCurBalance.Binding.AddBinding(ViewModel, vm => vm.CurrentBalance, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
 			ylabelAllocated.Binding.AddBinding(ViewModel, vm => vm.AllocatedSum, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
+			ylabelCounterpartyDebt.Binding.AddBinding(ViewModel, vm => vm.CounterpartyDebt, v => v.Text, new DecimalToStringConverter()).InitializeFromSource();
 
 			labelPayer.Text = ViewModel.Entity.CounterpartyName;
 			labelPaymentNum.Text = ViewModel.Entity.PaymentNum.ToString();
 			labelDate.Text = ViewModel.Entity.Date.ToShortDateString();
-
-			//var text = ViewModel.Entity.PaymentPurpose + ViewModel.Entity.PaymentPurpose + ViewModel.Entity.PaymentPurpose;
-			//ytextviewPaymentPurpose.Binding.AddBinding(ViewModel.Entity, vm => vm.PaymentPurpose, v => v.Buffer.Text).InitializeFromSource();
+			
 			ytextviewPaymentPurpose.Buffer.Text = ViewModel.Entity.PaymentPurpose;
 			ytextviewComments.Binding.AddBinding(ViewModel.Entity, vm => vm.Comment, v => v.Buffer.Text).InitializeFromSource();
 
@@ -83,6 +77,7 @@ namespace Vodovoz.Views
 				.AddColumn("Прошлые оплаты, р.").AddNumericRenderer(node => node.LastPayments).Digits(2)
 				.AddColumn("Текущая оплата, р.").AddNumericRenderer(node => node.CurrentPayment).Editing().Digits(2)
 					.Adjustment(new Adjustment(0, 0, 10000000, 1, 10, 10)).EditedEvent(TreeViewCurentPaymentEdited)
+				.AddColumn("Статус оплаты").AddEnumRenderer(node => node.OrderPaymentStatus)
 				.AddColumn("Рассчитать остаток?").AddToggleRenderer(node => node.Calculate).ToggledEvent(UseFine_Toggled)
 				.AddColumn("")
 			.Finish();
@@ -139,7 +134,7 @@ namespace Vodovoz.Views
 			if(selectedObj == null)
 				return;
 
-			var order = UoW.GetById<Order>((selectedObj as ManualPaymentMatchingVMNode).Id);
+			var order = ViewModel.UoW.GetById<Order>((selectedObj as ManualPaymentMatchingVMNode).Id);
 
 			var menu = new Menu();
 
@@ -150,17 +145,6 @@ namespace Vodovoz.Views
 
 			menu.ShowAll();
 			menu.Popup();
-		}
-
-
-		void OnBtnSave_Clicked(object sender, System.EventArgs e)
-		{
-			ViewModel.SaveViewModel();
-		}
-
-		void OnBtnCancel_Clicked(object sender, System.EventArgs e)
-		{
-			ViewModel.Close(false, CloseSource.Cancel);
 		}
 
 		void UpdateNodes(object sender, EventArgs e)

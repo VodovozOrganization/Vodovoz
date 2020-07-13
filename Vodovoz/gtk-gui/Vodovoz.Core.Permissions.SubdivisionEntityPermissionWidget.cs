@@ -16,7 +16,7 @@ namespace Vodovoz.Core.Permissions
 
 		private global::Gtk.Button buttonAdd;
 
-		private global::QS.Project.Dialogs.GtkUI.PermissionListView permissionlistview;
+		private global::QS.Project.Dialogs.PermissionListView permissionlistview;
 
 		protected virtual void Build()
 		{
@@ -65,7 +65,7 @@ namespace Vodovoz.Core.Permissions
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.permissionlistview = new global::QS.Project.Dialogs.GtkUI.PermissionListView();
+			this.permissionlistview = new global::QS.Project.Dialogs.PermissionListView();
 			this.permissionlistview.Events = ((global::Gdk.EventMask)(256));
 			this.permissionlistview.Name = "permissionlistview";
 			this.hbox2.Add(this.permissionlistview);

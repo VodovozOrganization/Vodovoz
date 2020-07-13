@@ -9,6 +9,7 @@ using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
+using QS.Project.Journal;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -32,6 +33,7 @@ namespace Vodovoz.JournalViewModels
 			Counterparty counterpartyAliasForSubquery = null;
 			CounterpartyContract contractAlias = null;
 			Phone phoneAlias = null;
+			Phone deliveryPointPhoneAlias = null;
 			DeliveryPoint addressAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			Tag tagAliasForSubquery = null;
@@ -81,15 +83,29 @@ namespace Vodovoz.JournalViewModels
 
 			query
 				.Left.JoinAlias(c => c.Phones, () => phoneAlias)
-				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias);
+				.Left.JoinAlias(() => counterpartyAlias.DeliveryPoints, () => deliveryPointAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => deliveryPointPhoneAlias);
 
-			query.Where(GetSearchCriterion(
-				() => counterpartyAlias.Id,
-				() => counterpartyAlias.VodovozInternalId,
-				() => counterpartyAlias.Name,
-				() => counterpartyAlias.INN,
-				() => phoneAlias.DigitsNumber,
-				() => deliveryPointAlias.CompiledAddress
+
+
+			var searchHealperNew = new TempAdapters.SearchHelper(Search);
+
+			var idParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Id, TempAdapters.SearchParametrType.Id);
+			var vodovozInternalIdParam = new TempAdapters.SearchParameter(() => counterpartyAlias.VodovozInternalId, TempAdapters.SearchParametrType.VodovozInternalId);
+			var nameParam = new TempAdapters.SearchParameter(() => counterpartyAlias.Name, TempAdapters.SearchParametrType.Name);
+			var INNParam = new TempAdapters.SearchParameter(() => counterpartyAlias.INN, TempAdapters.SearchParametrType.INN);
+			var digitNumberParam = new TempAdapters.SearchParameter(() => phoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
+			var deliveryPointPhoneParam = new TempAdapters.SearchParameter(() => deliveryPointPhoneAlias.DigitsNumber, TempAdapters.SearchParametrType.DigitsNumber);
+			var compiledAdressParam = new TempAdapters.SearchParameter(() => deliveryPointAlias.CompiledAddress, TempAdapters.SearchParametrType.CompiledAddress);
+
+			query.Where(searchHealperNew.GetSearchCriterionNew(
+				idParam,
+				vodovozInternalIdParam,
+				nameParam,
+				INNParam,
+				digitNumberParam,
+				deliveryPointPhoneParam,
+				compiledAdressParam
 			));
 
 			var counterpartyResultQuery = query.SelectList(list => list

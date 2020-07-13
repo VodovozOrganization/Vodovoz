@@ -3,6 +3,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -52,11 +53,13 @@ namespace Vodovoz.JournalViewModels
 			if(FilterViewModel?.Category != null)
 				query.Where(e => e.Category == FilterViewModel.Category);
 
-			if(FilterViewModel?.RestrictWageType != null) {
-				var subquery = QueryOver.Of<WageParameter>()
-										.Where(p => p.WageParameterType == FilterViewModel.RestrictWageType.Value)
-										.Where(p => p.EndDate == null || p.EndDate >= DateTime.Today)
-										.Select(p => p.Employee.Id)
+			if(FilterViewModel?.RestrictWageParameterItemType != null) {
+				WageParameterItem wageParameterItemAlias = null;
+				var subquery = QueryOver.Of<EmployeeWageParameter>()
+					.Left.JoinAlias(x => x.WageParameterItem, () => wageParameterItemAlias)
+					.Where(() => wageParameterItemAlias.WageParameterItemType == FilterViewModel.RestrictWageParameterItemType.Value)
+					.Where(p => p.EndDate == null || p.EndDate >= DateTime.Today)
+					.Select(p => p.Employee.Id)
 				;
 				query.WithSubquery.WhereProperty(e => e.Id).In(subquery);
 			}

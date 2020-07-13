@@ -6,6 +6,7 @@ using QS.Project.Services;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz.TempAdapters

@@ -13,7 +13,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels.Organization;
+using Vodovoz.Journals.JournalViewModels.Organization;
 
 namespace Vodovoz.ViewModels.Complaints
 {

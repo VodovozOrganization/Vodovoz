@@ -58,8 +58,8 @@ namespace VodovozAndroidDriverService
 				string.Format("http://{0}:{1}/SmsPaymentService", smsPaymentServiceHostName, smsPaymentServicePort)
 			);
 
-			WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), new LoggerInteractiveService());
-			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider = new AndroidDriverServiceInstanceProvider(wageCalculationServiceFactory, parameters, smsPaymentServiceChannelFactory, driverNotificator);
+			WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+			AndroidDriverServiceInstanceProvider androidDriverServiceInstanceProvider = new AndroidDriverServiceInstanceProvider(wageParameterService, parameters, smsPaymentServiceChannelFactory, driverNotificator);
 
 			ServiceHost ChatHost = new ServiceHost(typeof(ChatService));
 			ServiceHost AndroidDriverHost = new AndroidDriverServiceHost(androidDriverServiceInstanceProvider);

@@ -5,17 +5,13 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Sale;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalNodes;
+using Vodovoz.Journals.JournalNodes;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.JournalViewModels

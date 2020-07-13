@@ -44,7 +44,7 @@ namespace Vodovoz.Tools.Logistic
 				fuelCost = (double)fuel.Cost;
 
 				//Районы
-				districts = ScheduleRestrictionRepository.AreasWithGeometry(uow);
+				districts = ScheduleRestrictionRepository.GetDistrictsWithBorder(uow);
 
 				//Координаты
 				if(!latitude.HasValue || !longitude.HasValue) {

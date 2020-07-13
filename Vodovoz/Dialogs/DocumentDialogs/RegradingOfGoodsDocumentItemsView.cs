@@ -19,9 +19,11 @@ using Vodovoz.ViewModel;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.EntityRepositories.Store;
 using QS.Project.Services;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using QS.Project.Journal;
 using Vodovoz.JournalNodes;
+using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalNodes;
 
 namespace Vodovoz
 {

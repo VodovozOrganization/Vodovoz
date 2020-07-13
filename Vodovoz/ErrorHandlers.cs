@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using MySql.Data.MySqlClient;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.ErrorReporting;
@@ -34,6 +36,17 @@ namespace Vodovoz
 				message = String.Format(message + "\nВаши изменения не будут записаны, чтобы не потерять чужие изменения. \nПереоткройте вкладку.", objectName?.Nominative ?? type.Name, staleObjectStateException.Identifier);
 
 				interactiveMessage.ShowMessage(QS.Dialog.ImportanceLevel.Warning, message);
+				return true;
+			}
+			return false;
+		}
+
+		public static bool MySqlExceptionConnectionTimeout(Exception exception, IApplicationInfo application, UserBase user, IInteractiveMessage interactiveMessage)
+		{
+			var mysqlEx = ExceptionHelper.FineExceptionTypeInInner<MySqlException>(exception);
+			var exceptions = new[] { 1159, 1161 };
+			if(mysqlEx != null && exceptions.Contains(mysqlEx.Number)) {
+				interactiveMessage.ShowMessage(ImportanceLevel.Error, "Возникла проблема с подключением к серверу, попробуйте снова.");
 				return true;
 			}
 			return false;

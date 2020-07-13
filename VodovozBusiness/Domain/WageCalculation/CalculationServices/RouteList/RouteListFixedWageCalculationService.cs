@@ -4,20 +4,20 @@ namespace Vodovoz.Domain.WageCalculation.CalculationServices.RouteList
 {
 	public class RouteListFixedWageCalculationService : IRouteListWageCalculationService
 	{
-		private readonly FixedWageParameter wageParameter;
+		private readonly FixedWageParameterItem wageParameterItem;
 		private readonly IRouteListWageCalculationSource wageCalculationSource;
 
-		public RouteListFixedWageCalculationService(FixedWageParameter wageParameter, IRouteListWageCalculationSource wageCalculationSource)
+		public RouteListFixedWageCalculationService(FixedWageParameterItem wageParameterItem, IRouteListWageCalculationSource wageCalculationSource)
 		{
-			this.wageParameter = wageParameter ?? throw new ArgumentNullException(nameof(wageParameter));
+			this.wageParameterItem = wageParameterItem ?? throw new ArgumentNullException(nameof(wageParameterItem));
 			this.wageCalculationSource = wageCalculationSource ?? throw new ArgumentNullException(nameof(wageCalculationSource));
 		}
 
 		public RouteListWageResult CalculateWage()
 		{
-			switch(wageParameter.FixedWageType) {
+			switch(wageParameterItem.FixedWageType) {
 				case FixedWageTypes.RouteList:
-					return new RouteListWageResult(wageParameter.RouteListFixedWage, wageParameter.RouteListFixedWage);
+					return new RouteListWageResult(wageParameterItem.RouteListFixedWage, wageParameterItem.RouteListFixedWage);
 				default:
 					throw new NotImplementedException();
 			}

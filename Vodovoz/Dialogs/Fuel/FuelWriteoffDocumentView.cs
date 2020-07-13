@@ -11,7 +11,7 @@ using Vodovoz.Domain.Fuel;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz.Dialogs.Fuel

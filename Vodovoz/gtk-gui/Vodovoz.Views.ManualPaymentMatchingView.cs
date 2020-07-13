@@ -102,6 +102,12 @@ namespace Vodovoz.Views
 
 		private global::Gamma.GtkWidgets.yLabel ylabelCurBalance;
 
+		private global::Gtk.HBox hbox8;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel1;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelCounterpartyDebt;
+
 		private global::Gtk.Button buttonComplete;
 
 		protected virtual void Build()
@@ -523,26 +529,53 @@ namespace Vodovoz.Views
 			w48.Expand = false;
 			w48.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
+			this.hbox8 = new global::Gtk.HBox();
+			this.hbox8.Name = "hbox8";
+			this.hbox8.Spacing = 6;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel1.Name = "ylabel1";
+			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Долг контрагента: ");
+			this.hbox8.Add(this.ylabel1);
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.ylabel1]));
+			w49.Position = 0;
+			w49.Expand = false;
+			w49.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.ylabelCounterpartyDebt = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelCounterpartyDebt.Name = "ylabelCounterpartyDebt";
+			this.ylabelCounterpartyDebt.LabelProp = global::Mono.Unix.Catalog.GetString("CounterpartyDebt");
+			this.hbox8.Add(this.ylabelCounterpartyDebt);
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.ylabelCounterpartyDebt]));
+			w50.Position = 1;
+			w50.Expand = false;
+			w50.Fill = false;
+			this.vbox3.Add(this.hbox8);
+			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox8]));
+			w51.Position = 2;
+			w51.Expand = false;
+			w51.Fill = false;
+			// Container child vbox3.Gtk.Box+BoxChild
 			this.buttonComplete = new global::Gtk.Button();
 			this.buttonComplete.CanFocus = true;
 			this.buttonComplete.Name = "buttonComplete";
 			this.buttonComplete.UseUnderline = true;
 			this.buttonComplete.Label = global::Mono.Unix.Catalog.GetString("Завершить распределение");
 			this.vbox3.Add(this.buttonComplete);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.buttonComplete]));
-			w49.Position = 2;
-			w49.Expand = false;
-			w49.Fill = false;
+			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.buttonComplete]));
+			w52.Position = 3;
+			w52.Expand = false;
+			w52.Fill = false;
 			this.hbox9.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.vbox3]));
-			w50.Position = 2;
-			w50.Expand = false;
-			w50.Fill = false;
+			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.vbox3]));
+			w53.Position = 2;
+			w53.Expand = false;
+			w53.Fill = false;
 			this.vbox2.Add(this.hbox9);
-			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox9]));
-			w51.Position = 10;
-			w51.Expand = false;
-			w51.Fill = false;
+			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox9]));
+			w54.Position = 10;
+			w54.Expand = false;
+			w54.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

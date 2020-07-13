@@ -20,7 +20,7 @@ namespace Vodovoz.Repositories.Sale
 			return res;
 		}
 
-		public static IList<CommonDistrictRuleItem> GetScheduleCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, District district)
+		public static IList<CommonDistrictRuleItem> GetCommonDistrictRuleItemsForDistrict(IUnitOfWork uow, District district)
 		{
 			var res = uow.Session.QueryOver<CommonDistrictRuleItem>()
 						 .Where(i => i.District.Id == district.Id)

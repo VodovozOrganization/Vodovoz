@@ -1,10 +1,15 @@
+using System;
 using System.ComponentModel.DataAnnotations;
+using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Sale
 {
-    public class DeliveryScheduleRestriction : PropertyChangedBase, IDomainObject
+    [Appellative(Gender = GrammaticalGender.Neuter,
+        NominativePlural = "ограничения времени доставки",
+        Nominative = "ограничение времени доставки")]
+    public class DeliveryScheduleRestriction : PropertyChangedBase, IDomainObject, ICloneable
     {
         public virtual int Id { get; set; }
 
@@ -37,5 +42,20 @@ namespace Vodovoz.Domain.Sale
         }
 
         public virtual string AcceptBeforeTitle => AcceptBefore?.Name ?? "";
+        public virtual object Clone()
+        {
+            var newDeliveryScheduleRestriction = new DeliveryScheduleRestriction {
+                AcceptBefore = AcceptBefore,
+                DeliverySchedule = DeliverySchedule,
+                WeekDay = WeekDay
+            };
+            return newDeliveryScheduleRestriction;
+        }
+
+        public override string ToString()
+        {
+            var acceptBeforeStr = AcceptBefore == null ? "" : ", Время приема до: " + AcceptBeforeTitle;
+            return $" День недели: {WeekDay.GetEnumTitle()}, График доставки: {DeliverySchedule.Name}{acceptBeforeStr}";
+        }
     }
 }

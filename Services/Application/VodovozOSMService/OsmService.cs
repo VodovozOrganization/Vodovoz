@@ -16,19 +16,16 @@ namespace VodovozOSMService
 		private static string pgpass;
 		private static string pgdb;
 
-		Logger logger = LogManager.GetCurrentClassLogger();
+		private readonly RequestCounter requestCounter = new RequestCounter();
+		private readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		static NpgsqlConnection GetPostgisConnection()
 		{
 			return new NpgsqlConnection(PostgresConnectionString);
 		}
 
-		public static string PostgresConnectionString {
-			get {
-				return String.Format("Host={0};Username={1};Password={2};Database={3}",
-					pgserver, pguser, pgpass, pgdb);
-			}
-		}
+		public static string PostgresConnectionString =>
+			$"Host={pgserver};Username={pguser};Password={pgpass};Database={pgdb}";
 
 		public static void ConfigureService(IniConfigSource configFile)
 		{
@@ -55,6 +52,8 @@ namespace VodovozOSMService
 
 		public List<OsmCity> GetCities()
 		{
+			requestCounter.City++;
+			
 			var cities = new List<OsmCity>();
 
 			try {
@@ -89,6 +88,8 @@ namespace VodovozOSMService
 
 		public List<OsmCity> GetCitiesByCriteria(string searchString, int limit)
 		{
+			requestCounter.CityByCriteria++;
+			
 			logger.Info("загрузка городов по критерию");
 			var cities = new List<OsmCity>();
 
@@ -130,6 +131,8 @@ namespace VodovozOSMService
 
 		public List<OsmStreet> GetStreets(long cityId)
 		{
+			requestCounter.Street++;
+			
 			var streets = new List<OsmStreet>();
 
 			try {
@@ -167,6 +170,8 @@ namespace VodovozOSMService
 
 		public List<OsmStreet> GetStreetsByCriteria(long cityId, string searchString, int limit)
 		{
+			requestCounter.StreetByCriteria++;
+			
 			var streets = new List<OsmStreet>();
 
 			try {
@@ -207,6 +212,8 @@ namespace VodovozOSMService
 
 		public long GetCityId(string City, string District, string Locality)
 		{
+			requestCounter.CityId++;
+			
 			long id = new long();
 			try {
 				using(var connection = GetPostgisConnection()) {
@@ -246,6 +253,8 @@ namespace VodovozOSMService
 
 		public string GetPointRegion(long OsmId)
 		{
+			requestCounter.PointRegion++;
+			
 			string region = String.Empty;
 			bool SPb = false;
 			bool LO = false;
@@ -300,6 +309,8 @@ namespace VodovozOSMService
 						cmd.Connection = connection;
 						cmd.CommandText = "SELECT name FROM osm_cities WHERE id = @id;";
 						cmd.Parameters.AddWithValue("@id", cityId);
+						
+						requestCounter.HouseNumbers++;
 						using(var reader = cmd.ExecuteReader()) {
 							if(reader.Read()) {
 								city = reader.IsDBNull(0) ? String.Empty : reader.GetString(0);
@@ -338,6 +349,7 @@ namespace VodovozOSMService
 						if(districtsArray.Length > 0)
 							cmd.CommandText += ");";
 
+						requestCounter.HouseNumbers++;
 						using(var reader = cmd.ExecuteReader()) {
 							while(reader.Read()) {
 								houses.Add(new OsmHouse(
@@ -363,6 +375,8 @@ namespace VodovozOSMService
 
 		public long GetBuildingCountInCity(string city)
 		{
+			requestCounter.BuildingCountInCity++;
+			
 			long result = 0;
 			try {
 				using(var connection = GetPostgisConnection()) {
@@ -391,6 +405,8 @@ namespace VodovozOSMService
 
 		public long GetBuildingCountInRegion(string region)
 		{
+			requestCounter.BuildingCountInRegion++;
+			
 			long result = 0;
 			try {
 				using(var connection = GetPostgisConnection()) {

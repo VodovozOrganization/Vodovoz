@@ -18,7 +18,7 @@ using Vodovoz.Domain.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Filters.ViewModels;
-using Vodovoz.JournalViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using System.Threading.Tasks;
 using System.Threading;
 

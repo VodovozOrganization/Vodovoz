@@ -31,8 +31,9 @@ namespace VodovozBusinessTests.Employees
 		{
 			//arrange
 			var newDate = new DateTime(2019, 01, 01);
-			var existingWage = new ManualWageParameter {
-				StartDate = new DateTime(2000, 02, 11)
+			var existingWage = new EmployeeWageParameter(){
+				StartDate = new DateTime(2000, 02, 11),
+				WageParameterItem = new ManualWageParameterItem()
 			};
 
 			var employee = new Employee();
@@ -48,8 +49,9 @@ namespace VodovozBusinessTests.Employees
 		{
 			//arrange
 			var newDate = new DateTime(2019, 01, 01);
-			var existingWage = new ManualWageParameter {
-				StartDate = new DateTime(2019, 11, 01)
+			var existingWage = new EmployeeWageParameter(){
+				StartDate = new DateTime(2019, 11, 01),
+				WageParameterItem = new ManualWageParameterItem()
 			};
 
 			var employee = new Employee();
@@ -67,8 +69,12 @@ namespace VodovozBusinessTests.Employees
 			var newDate = new DateTime(2019, 01, 01);
 			var employee = new Employee();
 			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
+			var wageParameter = new EmployeeWageParameter() {
+				WageParameterItem = new ManualWageParameterItem()
+			};
+			
 			//act
-			employee.ChangeWageParameter(new ManualWageParameter(), newDate);
+			employee.ChangeWageParameter(wageParameter, newDate);
 			//assert
 			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(1));
 			Assert.That(employee.ObservableWageParameters.FirstOrDefault().Employee, Is.EqualTo(employee));
@@ -80,31 +86,37 @@ namespace VodovozBusinessTests.Employees
 		{
 			//arrange
 			var newDate = new DateTime(2019, 01, 01);
-			var existingWage = new FixedWageParameter {
-				StartDate = new DateTime(2018, 01, 01)
+			var existingWage = new EmployeeWageParameter(){
+				StartDate = new DateTime(2018, 01, 01),
+				WageParameterItem = new FixedWageParameterItem()
 			};
+			
 			var employee = new Employee();
 			employee.WageParameters.Add(existingWage);
 			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
+			var wageParameter = new EmployeeWageParameter() {
+				WageParameterItem = new ManualWageParameterItem()
+			};
+			
 			//act
-			employee.ChangeWageParameter(new ManualWageParameter(), newDate);
+			employee.ChangeWageParameter(wageParameter, newDate);
 			//assert
 			Assert.That(employee.ObservableWageParameters.Count(), Is.EqualTo(2));
 			Assert.That(
 				employee.ObservableWageParameters
-						.FirstOrDefault(w => w.WageParameterType == WageParameterTypes.Manual)
+						.FirstOrDefault(w => w.WageParameterItem.WageParameterItemType == WageParameterItemTypes.Manual)
 						.Employee,
 				Is.EqualTo(employee)
 			);
 			Assert.That(
 				employee.ObservableWageParameters
-						.FirstOrDefault(w => w.WageParameterType == WageParameterTypes.Manual)
+						.FirstOrDefault(w => w.WageParameterItem.WageParameterItemType == WageParameterItemTypes.Manual)
 						.StartDate,
 				Is.EqualTo(newDate.AddTicks(1))
 			);
 			Assert.That(
 				employee.ObservableWageParameters
-						.FirstOrDefault(w => w.WageParameterType == WageParameterTypes.Fixed)
+						.FirstOrDefault(w => w.WageParameterItem.WageParameterItemType == WageParameterItemTypes.Fixed)
 						.EndDate,
 				Is.EqualTo(newDate)
 			);
@@ -115,14 +127,17 @@ namespace VodovozBusinessTests.Employees
 		{
 			//arrange
 			var date = new DateTime(2018, 11, 01);
-			var wage1 = new FixedWageParameter {
-				StartDate = new DateTime(2017, 01, 01)
+			var wage1 = new EmployeeWageParameter(){
+				StartDate = new DateTime(2017, 01, 01),
+				WageParameterItem = new FixedWageParameterItem()
 			};
-			var wage2 = new FixedWageParameter {
-				StartDate = new DateTime(2018, 01, 01)
+			var wage2 = new EmployeeWageParameter(){
+				StartDate = new DateTime(2018, 01, 01),
+				WageParameterItem = new FixedWageParameterItem()
 			};
-			var wage3 = new FixedWageParameter {
-				StartDate = new DateTime(2019, 01, 01)
+			var wage3 = new EmployeeWageParameter(){
+				StartDate = new DateTime(2019, 01, 01),
+				WageParameterItem = new FixedWageParameterItem()
 			};
 			var employee = new Employee();
 			employee.WageParameters.Add(wage1);
@@ -158,8 +173,9 @@ namespace VodovozBusinessTests.Employees
 			IWageCalculationRepository wageCalculationRepository = Substitute.For<IWageCalculationRepository>();
 			var employee = new Employee { Id = 1 };
 			employee.WageParameters.Add(
-				new FixedWageParameter {
-					StartDate = new DateTime(2000, 01, 01)
+				new EmployeeWageParameter(){
+					StartDate = new DateTime(2000, 01, 01),
+					WageParameterItem = new FixedWageParameterItem()
 				}
 			);
 			IInteractiveService interactiveService = Substitute.For<IInteractiveService>();
@@ -200,8 +216,9 @@ namespace VodovozBusinessTests.Employees
 			Assert.That(
 				employee.ObservableWageParameters
 						.FirstOrDefault()
-						.WageParameterType,
-				Is.EqualTo(WageParameterTypes.Percent)
+						.WageParameterItem
+						.WageParameterItemType,
+				Is.EqualTo(WageParameterItemTypes.Percent)
 			);
 		}
 
@@ -227,8 +244,9 @@ namespace VodovozBusinessTests.Employees
 			Assert.That(
 				employee.ObservableWageParameters
 						.FirstOrDefault()
-						.WageParameterType,
-				Is.EqualTo(WageParameterTypes.RatesLevel)
+						.WageParameterItem
+						.WageParameterItemType,
+				Is.EqualTo(WageParameterItemTypes.RatesLevel)
 			);
 		}
 
@@ -255,8 +273,9 @@ namespace VodovozBusinessTests.Employees
 			Assert.That(
 				employee.ObservableWageParameters
 						.FirstOrDefault()
-						.WageParameterType,
-				Is.EqualTo(WageParameterTypes.Manual)
+						.WageParameterItem
+						.WageParameterItemType,
+				Is.EqualTo(WageParameterItemTypes.Manual)
 			);
 		}
 
@@ -282,8 +301,9 @@ namespace VodovozBusinessTests.Employees
 			Assert.That(
 				employee.ObservableWageParameters
 						.FirstOrDefault()
-						.WageParameterType,
-				Is.EqualTo(WageParameterTypes.RatesLevel)
+						.WageParameterItem
+						.WageParameterItemType,
+				Is.EqualTo(WageParameterItemTypes.RatesLevel)
 			);
 		}
 
@@ -309,8 +329,9 @@ namespace VodovozBusinessTests.Employees
 			Assert.That(
 				employee.ObservableWageParameters
 						.FirstOrDefault()
-						.WageParameterType,
-				Is.EqualTo(WageParameterTypes.Manual)
+						.WageParameterItem
+						.WageParameterItemType,
+				Is.EqualTo(WageParameterItemTypes.Manual)
 			);
 		}
 

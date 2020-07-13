@@ -29,6 +29,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -44,7 +45,7 @@ namespace Vodovoz
 		private ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		private IEmployeeRepository employeeRepository = EmployeeSingletonRepository.GetInstance();
 
-		WageCalculationServiceFactory wageCalculationServiceFactory = new WageCalculationServiceFactory(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
+		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
 
 		bool isEditable;
 
@@ -367,7 +368,7 @@ namespace Vodovoz
 
 					if(Entity.Car.TypeOfUse == CarTypeOfUse.CompanyTruck) {
 						if(MessageDialogHelper.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
-							Entity.CompleteRoute(wageCalculationServiceFactory, callTaskWorker);
+							Entity.CompleteRoute(wageParameterService, callTaskWorker);
 						}
 					} else {
 						//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
