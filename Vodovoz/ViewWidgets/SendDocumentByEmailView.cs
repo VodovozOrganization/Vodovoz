@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using EmailService;
 using fyiReporting.RDL;
-using fyiReporting.RdlGtkViewer;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -15,6 +14,7 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.EntityRepositories;
 using NHibernate.Criterion;
+using RdlEngine;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -66,7 +66,7 @@ namespace Vodovoz.ViewWidgets
 					.List().ToList();
 			}
 			ytreeviewStoredEmails.ItemsDataSource = storedEmails;
-			buttonSendEmail.Sensitive = document.Type == OrderDocumentType.Bill && emailRepository.CanSendByTimeout(yvalidatedentryEmail.Text, document.Order.Id) && document.Order.Id > 0;
+			buttonSendEmail.Sensitive = document.Type == OrderDocumentType.Bill && emailRepository.CanSendByTimeout(yvalidatedentryEmail.Text, document.Order.Id, OrderDocumentType.Bill) && document.Order.Id > 0;
 		}
 
 		protected void OnYtreeviewStoredEmailsCursorChanged(object sender, EventArgs e)

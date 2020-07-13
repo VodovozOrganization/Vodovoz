@@ -165,6 +165,7 @@
     <Compile Include="Domain\Sale\DistrictRuleItemBase.cs" />
     <Compile Include="Domain\Sale\SaleEnums.cs" />
     <Compile Include="Domain\Sale\WeekDayDistrictRuleItem.cs" />
+    <Compile Include="Domain\Orders\Documents\BillWithoutShipmentForDebtDocument.cs" />
     <Compile Include="Domain\SmsPayment.cs" />
     <Compile Include="Domain\WageCalculation\CalculationServices\RouteList\RouteListWageCalculationService.cs" />
     <Compile Include="Domain\WageCalculation\EmployeeWageParameter.cs" />
@@ -174,8 +175,13 @@
     <Compile Include="HibernateMapping\Logistic\AcceptBeforeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItemMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />
     <Compile Include="HibernateMapping\Sale\DeliveryScheduleRestrictionMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForDebtMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItemMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -874,6 +880,12 @@
     <Compile Include="HibernateMapping\BusinessTasks\PaymentTaskMap.cs" />
     <Compile Include="Domain\BusinessTasks\PaymentTask.cs" />
     <Compile Include="Services\IMailjetParametersProvider.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebt.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPayment.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePayment.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentBase.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItem.cs" />
+    <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -957,6 +969,7 @@
     <Folder Include="Domain\Comments\" />
     <Folder Include="Domain\BusinessTasks\" />
     <Folder Include="HibernateMapping\BusinessTasks\" />
+    <Folder Include="Domain\Orders\OrdersWithoutShipment\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">

@@ -1462,6 +1462,18 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.AcceptBeforeView.cs" />
     <Compile Include="ViewModels\Logistic\AddressType.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
+    <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtView.cs" />
+    <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentView.cs" />
+    <Compile Include="Views\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentView.cs" />
+    <Compile Include="ViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentViewModel.cs" />
+    <Compile Include="ViewModels\Orders\OrdersWithoutShipment\OrderWithoutShipmentForDebtViewModel.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForPaymentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForDebtView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.OrdersWithoutShipment.OrderWithoutShipmentForAdvancePaymentView.cs" />
+    <Compile Include="Dialogs\Email\SendDocumentByEmailView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Email.SendDocumentByEmailView.cs" />
+    <Compile Include="Dialogs\Email\SendDocumentByEmailViewModel.cs" />
     <Compile Include="Filters\GtkViews\DistrictJournalFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictJournalFilterView.cs" />
     <Compile Include="Views\Logistic\DistrictView.cs" />
@@ -1733,6 +1745,9 @@
     <Folder Include="Footers\" />
     <Folder Include="Footers\Views\" />
     <Folder Include="Footers\ViewModels\" />
+    <Folder Include="Views\Orders\OrdersWithoutShipment\" />
+    <Folder Include="ViewModels\Orders\OrdersWithoutShipment\" />
+    <Folder Include="Dialogs\Email\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1743,6 +1758,9 @@
     </None>
     <None Include="RdlEngineConfig.Linux.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\BillWithoutShipmentForDebt.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Equipment.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -2210,6 +2228,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Payments\PaymentsFromBankClientFinDepartmentReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\BillWithoutShipmentForPayment.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\BillWithoutShipmentForAdvancePayment.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

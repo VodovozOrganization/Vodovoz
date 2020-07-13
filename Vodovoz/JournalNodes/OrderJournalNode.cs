@@ -1,12 +1,23 @@
 ﻿using System;
+using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.JournalNodes
 {
-	public class OrderJournalNode : JournalEntityNodeBase<Order>
+	public class OrderJournalNode<TEntity> : OrderJournalNode
+		where TEntity : class, IDomainObject
 	{
+		public OrderJournalNode() : base(typeof(TEntity)) { }
+	}
+
+	public class OrderJournalNode : JournalEntityNodeBase
+	{
+		public OrderJournalNode(Type entityType) : base(entityType)
+		{
+		}
+
 		public OrderStatus StatusEnum { get; set; }
 
 		public DateTime Date { get; set; }

@@ -5,13 +5,14 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Print;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "документы заказа",
 		Nominative = "документ заказа")]
-	public abstract class OrderDocument : PropertyChangedBase, IDomainObject, IPrintableDocument
+	public abstract class OrderDocument : PropertyChangedBase, IPrintableDocument, IDocument
 	{
 		public virtual int Id { get; set; }
 
@@ -84,6 +85,15 @@ namespace Vodovoz.Domain.Orders.Documents
 		[DocumentOfOrder]
 		[Display(Name = "Особый счет")]
 		SpecialBill,
+		[DocumentOfOrder]
+		[Display(Name = "Счет без отгрузки на долг")]
+		BillWSForDebt,
+		[DocumentOfOrder]
+		[Display(Name = "Счет без отгрузки на предоплату")]
+		BillWSForAdvancePayment,
+		[DocumentOfOrder]
+		[Display(Name = "Счет без отгрузки на постоплату")]
+		BillWSForPayment,
 		[DocumentOfOrder]
 		[Display(Name = "Акт выполненных работ")]
 		DoneWorkReport,

@@ -21,23 +21,49 @@ using Vodovoz.JournalViewers;
 using Vodovoz.Repositories;
 using NomenclatureRepository = Vodovoz.EntityRepositories.Goods.NomenclatureRepository;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using QS.Project.Journal.DataLoader;
+using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
+using QS.Project.Domain;
 
 namespace Vodovoz.JournalViewModels
 {
-	public class OrderJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, OrderJournalNode, OrderJournalFilterViewModel>
+	public class OrderJournalViewModel : FilterableMultipleEntityJournalViewModelBase<OrderJournalNode, OrderJournalFilterViewModel>
 	{
-		public OrderJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		private readonly ICommonServices commonServices;
+
+		public OrderJournalViewModel(
+			OrderJournalFilterViewModel filterViewModel, 
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+
 			TabName = "Журнал заказов";
-			SetOrder(x => x.CreateDate, true);
+
+			RegisterOrders();
+			RegisterOrdersWithoutShipmentForDebt();
+			RegisterOrdersWithoutShipmentForPayment();
+			RegisterOrdersWithoutShipmentForAdvancePayment();
+
+			var threadLoader = DataLoader as ThreadDataLoader<OrderJournalNode>;
+			threadLoader.MergeInOrderBy(x => x.Id, true);
+
+			FinishJournalConfiguration();
 
 			UpdateOnChanges(
 				typeof(VodovozOrder),
+				typeof(OrderWithoutShipmentForDebt),
+				typeof(OrderWithoutShipmentForPayment),
+				typeof(OrderWithoutShipmentForAdvancePayment),
+				typeof(OrderWithoutShipmentForPaymentItem),
+				typeof(OrderWithoutShipmentForAdvancePaymentItem),
 				typeof(OrderItem)
 			);
 		}
 
-		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
+		private IQueryOver<VodovozOrder> GetOrdersQuery(IUnitOfWork uow)
+		{
 			OrderJournalNode resultAlias = null;
 			VodovozOrder orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
@@ -53,6 +79,11 @@ namespace Vodovoz.JournalViewModels
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
+			if (FilterViewModel.ViewTypes != ViewTypes.Order)
+			{
+				query.Where(o => o.Id == -1);
+			}
+			
 			if(FilterViewModel.RestrictStatus != null) {
 				query.Where(o => o.OrderStatus == FilterViewModel.RestrictStatus);
 			}
@@ -137,11 +168,11 @@ namespace Vodovoz.JournalViewModels
 												   )
 											   );
 
-			query.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				 .JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				 .JoinAlias(o => o.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				 .JoinAlias(o => o.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				 .JoinAlias(o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			query.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
+				 .Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
+				 .Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				 .Left.JoinAlias(o => o.Author, () => authorAlias)
+				 .Left.JoinAlias(o => o.LastEditor, () => lastEditorAlias)
 				 .Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias);
 
 			query.Where(GetSearchCriterion(
@@ -186,23 +217,300 @@ namespace Vodovoz.JournalViewModels
 				   .SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
 				)
 				.OrderBy(x => x.CreateDate).Desc
-				.TransformUsing(Transformers.AliasToBean<OrderJournalNode>());
+				.TransformUsing(Transformers.AliasToBean<OrderJournalNode<VodovozOrder>>());
 
 			return resultQuery;
-		};
+		}
 
-		protected override Func<OrderDlg> CreateDialogFunction => () => new OrderDlg();
+		private void RegisterOrders()
+		{
+			var ordersConfig = RegisterEntity<VodovozOrder>(GetOrdersQuery)
+				.AddDocumentConfiguration(
+					//функция диалога создания документа
+					() => new OrderDlg(),
+					//функция диалога открытия документа
+					(OrderJournalNode node) => new OrderDlg(node.Id),
+					//функция идентификации документа 
+					(OrderJournalNode node) => node.EntityType == typeof(VodovozOrder),
+					"Заказ",
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
+				);
+				
+			//завершение конфигурации
+			ordersConfig.FinishConfiguration();
+		}
 
-		protected override Func<OrderJournalNode, OrderDlg> OpenDialogFunction => node => new OrderDlg(node.Id);
+		private IQueryOver<OrderWithoutShipmentForDebt> GetOrdersWithoutShipmentForDebtQuery(IUnitOfWork uow)
+		{
+			OrderJournalNode resultAlias = null;
+			OrderWithoutShipmentForDebt orderWSDAlias = null;
+			Counterparty counterpartyAlias = null;
+			Employee authorAlias = null;
+
+			var query = uow.Session.QueryOver(() => orderWSDAlias);
+
+			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFD)
+			{
+				query.Where(o => o.Id == -1);
+			}
+			
+			if(FilterViewModel.RestrictCounterparty != null) {
+				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
+			}
+
+			query.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				 .Left.JoinAlias(o => o.Author, () => authorAlias);
+
+			query.Where(GetSearchCriterion(
+				() => orderWSDAlias.Id,
+				() => counterpartyAlias.Name,
+				() => authorAlias.LastName
+			));
+
+			var resultQuery = query
+				.SelectList(list => list
+				   .Select(() => orderWSDAlias.Id).WithAlias(() => resultAlias.Id)
+				   .Select(() => orderWSDAlias.CreateDate).WithAlias(() => resultAlias.Date)
+				   .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
+				   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+				   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+				   .Select(() => orderWSDAlias.DebtSum).WithAlias(() => resultAlias.Sum)
+				)
+				.OrderBy(x => x.CreateDate).Desc
+				.TransformUsing(Transformers.AliasToBean<OrderJournalNode<OrderWithoutShipmentForDebt>>());
+
+			return resultQuery;
+		}
+
+		private void RegisterOrdersWithoutShipmentForDebt()
+		{
+			var ordersConfig = RegisterEntity<OrderWithoutShipmentForDebt>(GetOrdersWithoutShipmentForDebtQuery)
+				.AddDocumentConfiguration(
+					//функция диалога создания документа
+					() => new OrderWithoutShipmentForDebtViewModel(
+						EntityUoWBuilder.ForCreate(),
+						UnitOfWorkFactory,
+						commonServices
+					),
+					//функция диалога открытия документа
+					(OrderJournalNode node) => new OrderWithoutShipmentForDebtViewModel(
+						EntityUoWBuilder.ForOpen(node.Id),
+						UnitOfWorkFactory,
+						commonServices
+					),
+					//функция идентификации документа 
+					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForDebt),
+					"Счет без отгрузки на долг",
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
+				);
+
+			//завершение конфигурации
+			ordersConfig.FinishConfiguration();
+		}
+
+		private IQueryOver<OrderWithoutShipmentForPayment> GetOrdersWithoutShipmentForPaymentQuery(IUnitOfWork uow)
+		{
+			OrderJournalNode resultAlias = null;
+			OrderWithoutShipmentForPayment orderWSPAlias = null;
+			OrderWithoutShipmentForPaymentItem orderWSPItemAlias = null;
+			VodovozOrder orderAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			OrderItem orderItemAlias = null;
+			Counterparty counterpartyAlias = null;
+			Employee authorAlias = null;
+
+			var query = uow.Session.QueryOver(() => orderWSPAlias)
+				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.Left.JoinAlias(o => o.Author, () => authorAlias);
+
+			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFP)
+			{
+				query.Where(o => o.Id == -1);
+			}
+
+			if(FilterViewModel.RestrictCounterparty != null) {
+				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
+			}
+
+			var bottleCountSubquery = QueryOver.Of(() => orderWSPItemAlias)
+				.Where(() => orderWSPAlias.Id == orderWSPItemAlias.OrderWithoutDeliveryForPayment.Id)
+				.Left.JoinAlias(() => orderWSPItemAlias.Order, () => orderAlias)
+				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Select(Projections.Sum(() => orderItemAlias.Count));
+
+			var orderSumSubquery = QueryOver.Of(() => orderWSPItemAlias)
+											.Where(() => orderWSPAlias.Id == orderWSPItemAlias.OrderWithoutDeliveryForPayment.Id)
+											.Left.JoinAlias(() => orderWSPItemAlias.Order, () => orderAlias)
+											.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+											.Select(
+												Projections.Sum(
+													Projections.SqlFunction(
+														new SQLFunctionTemplate(NHibernateUtil.Decimal, "?1 * ?2 - IF(?3 IS NULL OR ?3 = 0, IFNULL(?4, 0), ?3)"),
+														NHibernateUtil.Decimal,
+														Projections.Property(() => orderItemAlias.Count),
+														Projections.Property(() => orderItemAlias.Price),
+														Projections.Property(() => orderItemAlias.DiscountMoney),
+														Projections.Property(() => orderItemAlias.OriginalDiscountMoney)
+													   )
+												   )
+											   );
+
+			query.Where(GetSearchCriterion(
+				() => orderWSPAlias.Id,
+				() => counterpartyAlias.Name,
+				() => authorAlias.LastName
+			));
+
+			var resultQuery = query
+				.SelectList(list => list
+				   	.Select(() => orderWSPAlias.Id).WithAlias(() => resultAlias.Id)
+				   	.Select(() => orderWSPAlias.CreateDate).WithAlias(() => resultAlias.Date)
+				   	.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
+				   	.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+				   	.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+				   	.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+				   	.SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
+				   	.SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
+				)
+				.OrderBy(x => x.CreateDate).Desc
+				.TransformUsing(Transformers.AliasToBean<OrderJournalNode<OrderWithoutShipmentForPayment>>());
+
+			return resultQuery;
+		}
+
+		private void RegisterOrdersWithoutShipmentForPayment()
+		{
+			var ordersConfig = RegisterEntity<OrderWithoutShipmentForPayment>(GetOrdersWithoutShipmentForPaymentQuery)
+				.AddDocumentConfiguration(
+					//функция диалога создания документа
+					() => new OrderWithoutShipmentForPaymentViewModel(
+						EntityUoWBuilder.ForCreate(),
+						UnitOfWorkFactory,
+						commonServices
+					),
+					//функция диалога открытия документа
+					(OrderJournalNode node) => new OrderWithoutShipmentForPaymentViewModel(
+						EntityUoWBuilder.ForOpen(node.Id),
+						UnitOfWorkFactory,
+						commonServices
+					),
+					//функция идентификации документа 
+					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForPayment),
+					"Счет без отгрузки на постоплату",
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
+				);
+
+			//завершение конфигурации
+			ordersConfig.FinishConfiguration();
+		}
+
+		private IQueryOver<OrderWithoutShipmentForAdvancePayment> GetOrdersWithoutShipmentForAdvancePaymentQuery(IUnitOfWork uow)
+		{
+			OrderJournalNode resultAlias = null;
+			OrderWithoutShipmentForAdvancePayment orderWSAPAlias = null;
+			OrderWithoutShipmentForAdvancePaymentItem orderWSAPItemAlias = null;
+			Counterparty counterpartyAlias = null;
+			Employee authorAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var query = uow.Session.QueryOver(() => orderWSAPAlias)
+				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
+				.Left.JoinAlias(o => o.Author, () => authorAlias);
+
+			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFAP)
+			{
+				query.Where(o => o.Id == -1);
+			}
+			
+			if(FilterViewModel.RestrictCounterparty != null) {
+				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
+			}
+
+			var bottleCountSubquery = QueryOver.Of(() => orderWSAPItemAlias)
+				.Where(() => orderWSAPAlias.Id == orderWSAPItemAlias.OrderWithoutDeliveryForAdvancePayment.Id)
+				.JoinAlias(() => orderWSAPItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
+				.Select(Projections.Sum(() => orderWSAPItemAlias.Count));
+
+			var orderSumSubquery = QueryOver.Of(() => orderWSAPItemAlias)
+											.Where(() => orderWSAPItemAlias.OrderWithoutDeliveryForAdvancePayment.Id == orderWSAPAlias.Id)
+											.Select(Projections.Sum(
+														Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * ?2 - ?3)"),
+														NHibernateUtil.Decimal, new IProjection[] {
+														Projections.Property(() => orderWSAPItemAlias.Price),
+														Projections.Property(() => orderWSAPItemAlias.Count),
+														Projections.Property(() => orderWSAPItemAlias.DiscountMoney)})
+												   )
+										   );
+
+			query.Where(GetSearchCriterion(
+				() => orderWSAPAlias.Id,
+				() => counterpartyAlias.Name,
+				() => authorAlias.LastName
+			));
+
+			var resultQuery = query
+				.SelectList(list => list
+				   .Select(() => orderWSAPAlias.Id).WithAlias(() => resultAlias.Id)
+				   .Select(() => orderWSAPAlias.CreateDate).WithAlias(() => resultAlias.Date)
+				   .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
+				   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+				   .Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+				   .SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
+				   .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
+				)
+				.OrderBy(x => x.CreateDate).Desc
+				.TransformUsing(Transformers.AliasToBean<OrderJournalNode<OrderWithoutShipmentForAdvancePayment>>());
+
+			return resultQuery;
+		}
+
+		private void RegisterOrdersWithoutShipmentForAdvancePayment()
+		{
+			var ordersConfig = RegisterEntity<OrderWithoutShipmentForAdvancePayment>(GetOrdersWithoutShipmentForAdvancePaymentQuery)
+				.AddDocumentConfiguration(
+					//функция диалога создания документа
+					() => new OrderWithoutShipmentForAdvancePaymentViewModel(
+						EntityUoWBuilder.ForCreate(),
+						UnitOfWorkFactory,
+						commonServices
+					),
+					//функция диалога открытия документа
+					(OrderJournalNode node) => new OrderWithoutShipmentForAdvancePaymentViewModel(
+						EntityUoWBuilder.ForOpen(node.Id),
+						UnitOfWorkFactory,
+						commonServices
+					),
+					//функция идентификации документа 
+					(OrderJournalNode node) => node.EntityType == typeof(OrderWithoutShipmentForAdvancePayment),
+					"Счет без отгрузки на предоплату",
+					new JournalParametersForDocument { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
+				);
+
+			//завершение конфигурации
+			ordersConfig.FinishConfiguration();
+		}
 
 		protected override void CreatePopupActions()
 		{
+			bool IsOrder(object[] objs) 
+			{
+				var selectedNodes = objs.Cast<OrderJournalNode>();
+				if(selectedNodes.Count() != 1)
+					return false;
+
+				return selectedNodes.FirstOrDefault().EntityType == typeof(VodovozOrder);
+			}
+
 			PopupActionsList.Add(
 				new JournalAction(
 					"Перейти в маршрутный лист",
 					selectedItems => selectedItems.Any(
-						x => AccessRouteListKeeping((x as OrderJournalNode).Id)
-					),
+						x => AccessRouteListKeeping((x as OrderJournalNode).Id)) && IsOrder(selectedItems),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -225,7 +533,8 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Перейти в недовоз",
-					(selectedItems) => selectedItems.Any(o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, (o as OrderJournalNode).Id).Any()),
+					(selectedItems) => selectedItems.Any(
+						o => UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, (o as OrderJournalNode).Id).Any()) && IsOrder(selectedItems),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -245,7 +554,8 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть диалог закрытия",
-					(selectedItems) => selectedItems.Any(x => AccessToRouteListClosing((x as OrderJournalNode).Id)),
+					(selectedItems) => selectedItems.Any(
+						x => AccessToRouteListClosing((x as OrderJournalNode).Id)) && IsOrder(selectedItems),
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -268,7 +578,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на Yandex картах(координаты)",
-					selectedItems => true,
+					IsOrder,
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -292,7 +602,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на Yandex картах(адрес)",
-					selectedItems => true,
+					IsOrder,
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -316,7 +626,7 @@ namespace Vodovoz.JournalViewModels
 			PopupActionsList.Add(
 				new JournalAction(
 					"Открыть на карте OSM",
-					selectedItems => true,
+					IsOrder,
 					selectedItems => true,
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<OrderJournalNode>();
@@ -360,6 +670,5 @@ namespace Vodovoz.JournalViewModels
 			}
 			return false;
 		}
-
 	}
 }

@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using EmailService;
 using fyiReporting.RDL;
-using fyiReporting.RdlGtkViewer;
 using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
@@ -36,6 +35,7 @@ using QSProjectsLib;
 using QSReport;
 using Vodovoz.Parameters;
 using QSWidgetLib;
+using RdlEngine;
 using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs;
 using Vodovoz.Domain;
@@ -68,9 +68,9 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.Core;
+using Vodovoz.Dialogs.Email;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.Repository;
-using Vodovoz.Infrastructure.Converters;
 using IntToStringConverter = Vodovoz.Infrastructure.Converters.IntToStringConverter;
 using Vodovoz.JournalViewModels;
 
@@ -95,6 +95,7 @@ namespace Vodovoz
 		private IOrderRepository orderRepository { get; set;} = OrderSingletonRepository.GetInstance();
 		private IRouteListItemRepository routeListItemRepository { get; set; } = new RouteListItemRepository();
 		private IEmailRepository emailRepository { get; set; } = new EmailRepository();
+		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
 
 		#region Работа с боковыми панелями
 
@@ -155,6 +156,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order>();
+			SendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(emailRepository, employeeRepository);
 			Entity.Author = employeeRepository.GetEmployeeForCurrentUser(UoW);
 			if(Entity.Author == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать заказы, так как некого указывать в качестве автора документа.");
@@ -170,6 +172,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Order>(id);
+			SendDocumentByEmailViewModel = new SendDocumentByEmailViewModel(emailRepository, employeeRepository);
 			ConfigureDlg();
 		}
 
@@ -215,6 +218,7 @@ namespace Vodovoz
 		{
 			ConfigureTrees();
 			ConfigureButtonActions();
+			ConfigureSendDocumentByEmailWidget();
 
 			enumDiscountUnit.SetEnumItems((DiscountUnits[])Enum.GetValues(typeof(DiscountUnits)));
 			spinDiscount.Adjustment.Upper = 100;
@@ -525,8 +529,7 @@ namespace Vodovoz
 					.AddSetter((c, n) => {
 						if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
 							c.Text = n.ManualChangingOriginalDiscount.ToString();
-							}
-					) 
+					}) 
 					.Digits(2)
 					.WidthChars(10)
 					.AddTextRenderer(n => n.IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%", false)
@@ -631,6 +634,13 @@ namespace Vodovoz
 			menubuttonActions.Menu = menu;
 			menubuttonActions.LabelXAlign = 0.5f;
 			menu.ShowAll();
+		}
+		
+		private void ConfigureSendDocumentByEmailWidget()
+		{
+			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
+			hbox19.Add(sendEmailView);
+			sendEmailView.Show();
 		}
 
 		/// <summary>
@@ -2721,7 +2731,7 @@ namespace Vodovoz
 				}
 				email = clientEmail.Address;
 			}
-			senddocumentbyemailview1.Update(selectedDoc, email);
+			SendDocumentByEmailViewModel.Update(selectedDoc, email);
 		}
 
 		protected void OnCheckSelfDeliveryToggled(object sender, EventArgs e)
