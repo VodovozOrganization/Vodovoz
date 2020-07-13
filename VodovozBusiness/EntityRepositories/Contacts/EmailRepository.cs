@@ -6,6 +6,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
+using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.EntityRepositories
 {
@@ -17,6 +18,21 @@ namespace Vodovoz.EntityRepositories
 				      .Where(x => x.Order.Id == orderId)
 				      .List()
 				      .ToList();
+		}
+
+		public List<BillDocument> GetAllUnsentDocuments(IUnitOfWork uow, DateTime date)
+		{
+			VodOrder orderAlias = null;
+
+			return uow.Session.QueryOver<BillDocument>()
+					  .Left.JoinAlias(bdoc => bdoc.Order, () => orderAlias)
+					  .Where(() => orderAlias.CreateDate >= date)
+					  .WithSubquery.WhereNotExists(
+					  	QueryOver.Of<StoredEmail>()
+						.Where(se => se.Order.Id == orderAlias.Id)
+						.Select(x => x.Id))
+					  .List().Take(1)
+					  .ToList();
 		}
 
 		public StoredEmail GetStoredEmailByMessageId(IUnitOfWork uow, string messageId)
@@ -55,7 +71,7 @@ namespace Vodovoz.EntityRepositories
 						return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
 					}
 				}
-				else if(type == OrderDocumentType.BillWithoutShipmentForDebt) {
+				else if(type == OrderDocumentType.BillWSForDebt) {
 					var lastSendTime = uow.Session.QueryOver<StoredEmail>()
 										  .Where(x => x.RecipientAddress == address)
 										  .Where(x => x.OrderWithoutShipmentForDebt.Id == orderId)
@@ -66,7 +82,7 @@ namespace Vodovoz.EntityRepositories
 						return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
 					}
 				}
-				else if(type == OrderDocumentType.BillWithoutShipmentForAdvancePayment) {
+				else if(type == OrderDocumentType.BillWSForAdvancePayment) {
 					var lastSendTime = uow.Session.QueryOver<StoredEmail>()
 										  .Where(x => x.RecipientAddress == address)
 										  .Where(x => x.OrderWithoutShipmentForAdvancePayment.Id == orderId)
@@ -77,7 +93,7 @@ namespace Vodovoz.EntityRepositories
 						return DateTime.Now.Subtract(lastSendTime).TotalMinutes > timeLimit;
 					}
 				}
-				else if(type == OrderDocumentType.BillWithoutShipmentForPayment) {
+				else if(type == OrderDocumentType.BillWSForPayment) {
 					var lastSendTime = uow.Session.QueryOver<StoredEmail>()
 										  .Where(x => x.RecipientAddress == address)
 										  .Where(x => x.OrderWithoutShipmentForPayment.Id == orderId)

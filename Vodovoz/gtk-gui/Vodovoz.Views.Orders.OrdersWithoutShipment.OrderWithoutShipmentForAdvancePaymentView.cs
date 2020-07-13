@@ -58,7 +58,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel1.Name = "ylabel1";
-			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Счет без доставки № ");
+			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Счет без отгрузки на предоплату № Ф");
 			this.hbox1.Add(this.ylabel1);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabel1]));
 			w1.Position = 0;
@@ -67,7 +67,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ylabelOrderNum = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelOrderNum.Name = "ylabelOrderNum";
-			this.ylabelOrderNum.LabelProp = global::Mono.Unix.Catalog.GetString("ylabel2");
+			this.ylabelOrderNum.LabelProp = global::Mono.Unix.Catalog.GetString("orderNum");
 			this.hbox1.Add(this.ylabelOrderNum);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabelOrderNum]));
 			w2.Position = 1;

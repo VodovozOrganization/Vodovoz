@@ -36,7 +36,7 @@ namespace Vodovoz.Dialogs.Email
 			ytreeviewStoredEmails.ItemsDataSource = ViewModel.StoredEmails;
 			ytreeviewStoredEmails.Selection.Changed += OnYtreeviewStoredEmailsSelectionChanged;
 
-			//Sensitive = EmailServiceSetting.SendingAllowed;
+			Sensitive = EmailServiceSetting.SendingAllowed;
 		}
 
 		void OnYtreeviewStoredEmailsSelectionChanged(object sender, EventArgs e)

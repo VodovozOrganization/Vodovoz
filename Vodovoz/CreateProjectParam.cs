@@ -168,6 +168,7 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_change_accepted_movement_doc", new PresetUserPermissionSource("can_change_accepted_movement_doc", "Изменение документа перемещения в статусе \"Принят\"", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_manage_drivers_and_forwarders", new PresetUserPermissionSource("can_manage_drivers_and_forwarders", "Создание и изменение водителей и экспедиторов", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_manage_office_workers", new PresetUserPermissionSource("can_manage_office_workers", "Создание и изменение офисных работников", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_create_bills_without_shipment", new PresetUserPermissionSource("can_create_bills_without_shipment", "Выставление счетов без отгрузки", string.Empty));
 
 			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {

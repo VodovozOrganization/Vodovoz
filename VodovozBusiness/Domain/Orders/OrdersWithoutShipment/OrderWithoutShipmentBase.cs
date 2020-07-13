@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
@@ -9,7 +8,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
-	public class OrderWithoutShipmentBase : PropertyChangedBase, IValidatableObject
+	public class OrderWithoutShipmentBase : PropertyChangedBase
 	{
 		DateTime? createDate;
 		[Display(Name = "Дата создания")]
@@ -45,16 +44,9 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			set => SetField(ref isBillWithoutShipmentSent, value);
 		}
 
-		public OrderWithoutShipmentBase() { }
-
 		public virtual Email GetEmailAddressForBill()
 		{
-			return Client.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
-		}
-		
-		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-		{
-			throw new NotImplementedException();
+			return Client?.Emails.FirstOrDefault(x => (x.EmailType?.EmailPurpose == EmailPurpose.ForBills) || x.EmailType == null);
 		}
 	}
 }

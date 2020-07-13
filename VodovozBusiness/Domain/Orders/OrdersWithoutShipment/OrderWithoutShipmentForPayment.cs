@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		Nominative = "счет без отгрузки на постоплату",
 		Prepositional = "счете без отгрузки на постоплату",
 		PrepositionalPlural = "счетах без отгрузки на постоплату")]
-	public class OrderWithoutShipmentForPayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument
+	public class OrderWithoutShipmentForPayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 		
@@ -40,8 +40,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				return observableOrderWithoutDeliveryForPaymentItems;
 			}
 		}
-
-		public OrderWithoutShipmentForPayment() { }
 
 		public virtual void AddOrder(Order order)
 		{
@@ -68,20 +66,20 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				ObservableOrderWithoutDeliveryForPaymentItems.Remove(item);
 		}
 		
-		#region implemented abstract members of OrderDocument
-		public virtual OrderDocumentType Type => OrderDocumentType.BillWithoutShipmentForPayment;
+		public virtual OrderDocumentType Type => OrderDocumentType.BillWSForPayment;
 		public virtual Order Order { get; set; }
-		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
 				Title = this.Title,
-				Identifier = "Documents.BillWithoutShipmentForDebt",
+				Identifier = "Documents.BillWithoutShipmentForPayment",
 				Parameters = new Dictionary<string, object> {
-					{ "order_ws_for_payment_id", Id },
+					{ "bill_ws_for_payment_id", Id },
 					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId },
+					{ "hide_signature", HideSignature },
+					{ "special", false }
 				}
 			};
 		}
@@ -169,6 +167,21 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 						string.Format("<img src=\"cid:{0}\">", imageId);
 
 			return template;
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if (Client == null)
+				yield return new ValidationResult(
+					"Необходимо заполнить контрагента.",
+					new[] {nameof(Client)}
+				);
+			
+			if(!OrderWithoutDeliveryForPaymentItems.Any())
+				yield return new ValidationResult(
+					"Необходимо добавить заказы в счет.",
+					new[] {nameof(OrderWithoutDeliveryForPaymentItems)}
+				);
 		}
 	}
 }

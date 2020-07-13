@@ -7,7 +7,7 @@ namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
     {
         public OrderWithoutShipmentForAdvancePaymentItemMap()
         {
-            Table ("order_items");
+            Table ("bill_without_shipment_for_advance_payment_items");
             Not.LazyLoad ();
 
             Id (x => x.Id).Column ("id").GeneratedBy.Native ();
@@ -23,9 +23,7 @@ namespace Vodovoz.HibernateMapping.Order.OrdersWithoutShipment
             Map (x => x.ValueAddedTax).Column ("value_added_tax");
             
             References (x => x.Nomenclature).Column ("nomenclature_id");
-            References (x => x.OrderWithoutDeliveryForAdvancePayment).Column ("order_ws_for_advance_payment_id");
-            //References (x => x.FreeRentEquipment)			 .Column ("free_rent_equipment_id").Cascade.All();
-            //References (x => x.PaidRentEquipment)			 .Column ("paid_rent_equipment_id").Cascade.All();
+            References (x => x.OrderWithoutDeliveryForAdvancePayment).Column ("bill_ws_for_advance_payment_id");
             References (x => x.DiscountReason).Column ("discount_reason_id");
         }
     }

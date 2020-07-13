@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		Nominative = "счет без отгрузки на долг",
 		Prepositional = "счете без отгрузки на долг",
 		PrepositionalPlural = "счетах без отгрузки на долги")]
-	public class OrderWithoutShipmentForDebt : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument
+	public class OrderWithoutShipmentForDebt : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 		
@@ -24,7 +24,25 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		[Display(Name = "Сумма долга")]
 		public virtual decimal DebtSum {
 			get => debtSum;
-			set => SetField(ref debtSum, value);
+			set
+			{
+				if(SetField(ref debtSum, value))
+					RecalculateNDS();
+			}
+		}
+		
+		decimal includeNDS;
+		[Display(Name = "Включая НДС")]
+		public virtual decimal IncludeNDS {
+			get => includeNDS;
+			set => SetField(ref includeNDS, value);
+		}
+
+		private decimal? valueAddedTax = 0.20m;
+		[Display(Name = "НДС на момент создания")]
+		public virtual decimal? ValueAddedTax {
+			get => valueAddedTax;
+			set => SetField(ref valueAddedTax, value);
 		}
 
 		private string debtName = "Задолженность по акту сверки";
@@ -33,11 +51,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => debtName;
 			set => SetField(ref debtName, value);
 		}
-
-		#region implemented abstract members of OrderDocument
-		public virtual OrderDocumentType Type => OrderDocumentType.BillWithoutShipmentForDebt;
+		
+		void RecalculateNDS()
+		{
+			IncludeNDS = Math.Round(DebtSum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
+		}
+		
+		public virtual OrderDocumentType Type => OrderDocumentType.BillWSForDebt;
 		public virtual Order Order { get; set; }
-		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo()
@@ -46,8 +67,10 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Title = this.Title,
 				Identifier = "Documents.BillWithoutShipmentForDebt",
 				Parameters = new Dictionary<string, object> {
-					{ "order_ws_for_debt_id", Id },
+					{ "bill_ws_for_debt_id", Id },
 					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId },
+					{ "hide_signature", HideSignature },
+					{ "special", false }
 				}
 			};
 		}
@@ -137,7 +160,26 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			return template;
 		}
 		
-		public OrderWithoutShipmentForDebt() { }
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if (Client == null)
+				yield return new ValidationResult(
+					"Необходимо заполнить контрагента.",
+					new[] {nameof(Client)}
+				);
+
+			if (DebtSum == 0)
+				yield return new ValidationResult(
+					"Сумма долга не может быть равна нулю.",
+					new[] {nameof(DebtSum)}
+				);
+			
+			if (string.IsNullOrEmpty(DebtName))
+				yield return new ValidationResult(
+					"Наименование задолженности должно быть заполнено.",
+					new[] {nameof(DebtName)}
+				);
+		}
 	}
 
 	public interface IDocument : IDomainObject

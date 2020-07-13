@@ -15,16 +15,16 @@ using Vodovoz.Domain.StoredEmails;
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "заказы без отгрузки на предоплату",
-		Nominative = "заказ без отгрузки на предоплату",
-		Prepositional = "заказе без отгрузки на предоплату",
-		PrepositionalPlural = "заказах без отгрузки на предоплату")]
-	public class OrderWithoutShipmentForAdvancePayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument
+		NominativePlural = "счета без отгрузки на предоплату",
+		Nominative = "счет без отгрузки на предоплату",
+		Prepositional = "счете без отгрузки на предоплату",
+		PrepositionalPlural = "счетах без отгрузки на предоплату")]
+	public class OrderWithoutShipmentForAdvancePayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 		
 		IList<OrderWithoutShipmentForAdvancePaymentItem> orderWithoutDeliveryForAdvancePaymentItems = new List<OrderWithoutShipmentForAdvancePaymentItem>();
-		[Display(Name = "Строки заказа без отгрузки на предоплату")]
+		[Display(Name = "Строки счета без отгрузки на предоплату")]
 		public virtual IList<OrderWithoutShipmentForAdvancePaymentItem> OrderWithoutDeliveryForAdvancePaymentItems {
 			get => orderWithoutDeliveryForAdvancePaymentItems;
 			set => SetField(ref orderWithoutDeliveryForAdvancePaymentItems, value);
@@ -36,14 +36,12 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get {
 				if(observableOrderWithoutDeliveryForAdvancePaymentItems == null) {
 					observableOrderWithoutDeliveryForAdvancePaymentItems =
-						new GenericObservableList<OrderWithoutShipmentForAdvancePaymentItem>(orderWithoutDeliveryForAdvancePaymentItems);
+						new GenericObservableList<OrderWithoutShipmentForAdvancePaymentItem>(OrderWithoutDeliveryForAdvancePaymentItems);
 				}
 
 				return observableOrderWithoutDeliveryForAdvancePaymentItems;
 			}
 		}
-
-		public OrderWithoutShipmentForAdvancePayment() { }
 
 		public virtual void RecalculateItemsPrice()
 		{
@@ -73,7 +71,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				DiscountReason = discountReason
 			};
 			AddItemWithNomenclatureForSale(oi);
-
 		}
 
 		public virtual void AddItemWithNomenclatureForSale(OrderWithoutShipmentForAdvancePaymentItem orderItem)
@@ -89,14 +86,10 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual void RemoveItem(OrderWithoutShipmentForAdvancePaymentItem item)
 		{
 			ObservableOrderWithoutDeliveryForAdvancePaymentItems.Remove(item);
-
-			//UpdateDocuments();
 		}
-
-		#region implemented abstract members of OrderDocument
-		public virtual OrderDocumentType Type => OrderDocumentType.BillWithoutShipmentForAdvancePayment;
+		
+		public virtual OrderDocumentType Type => OrderDocumentType.BillWSForAdvancePayment;
 		public virtual Order Order { get; set; }
-		#endregion
 
 		#region implemented abstract members of IPrintableRDLDocument
 		public virtual ReportInfo GetReportInfo()
@@ -105,8 +98,10 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Title = this.Title,
 				Identifier = "Documents.BillWithoutShipmentForAdvancePayment",
 				Parameters = new Dictionary<string, object> {
-					{ "order_ws_for_advance_payment_id", Id },
+					{ "bill_ws_for_advance_payment_id", Id },
 					{ "organization_id", new BaseParametersProvider().GetCashlessOrganisationId },
+					{ "hide_signature", HideSignature },
+					{ "special", false }
 				}
 			};
 		}
@@ -194,6 +189,21 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 						string.Format("<img src=\"cid:{0}\">", imageId);
 
 			return template;
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if (Client == null)
+				yield return new ValidationResult(
+					"Необходимо заполнить контрагента.",
+					new[] {nameof(Client)}
+				);
+			
+			if(!OrderWithoutDeliveryForAdvancePaymentItems.Any())
+				yield return new ValidationResult(
+					"Необходимо добавить товары в счет.",
+					new[] {nameof(OrderWithoutDeliveryForAdvancePaymentItems)}
+				);
 		}
 	}
 }

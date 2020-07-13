@@ -16,9 +16,8 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-	orders.id AS order_id,
-	DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date,
-	DATE_FORMAT(orders.bill_date,'%d.%m.%y') AS bill_date,
+	bwsfap.id AS bwsfap_id,
+	DATE_FORMAT(bwsfap.create_date,'%d.%m.%y') AS bill_date,
 	counterparty.full_name AS client_name,
 	counterparty.jur_address AS client_address,
 	counterparty.inn,
@@ -33,18 +32,6 @@
 	GROUP_CONCAT(
 		CONCAT(
 			'+7 ',
-			delivery_points_phones.number,
-			IF(
-				delivery_points_phones.name IS NULL,
-				'',
-				CONCAT(' ', delivery_points_phones.name)
-			)
-		)
-		SEPARATOR '; '
-	) AS delivery_point_contact,
-	GROUP_CONCAT(
-		CONCAT(
-			'+7 ',
 			counterparty_phones.number,
 			IF(
 				counterparty_phones.name IS NULL,
@@ -56,33 +43,25 @@
 	) AS client_contact,
 	CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author
 FROM 
-	orders 
+	bills_without_shipment_for_advance_payment bwsfap
 LEFT JOIN 
-	counterparty ON orders.client_id = counterparty.id
-LEFT JOIN 
-	delivery_points ON delivery_points.id = orders.delivery_point_id
-LEFT JOIN
-	phones as delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id
+	counterparty ON bwsfap.client_id = counterparty.id
 LEFT JOIN
 	phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id
 LEFT JOIN 
-	employees ON employees.id = orders.author_employee_id
+	employees ON employees.id = bwsfap.author_id
 WHERE 
-	orders.id = @order_id;</CommandText>
+	bwsfap.id = @bill_ws_for_advance_payment_id;</CommandText>
         <QueryParameters>
-          <QueryParameter Name="order_ws_for_advance_payment_id">
-            <Value>=Parameters!order_ws_for_advance_payment_id</Value>
+          <QueryParameter Name="bill_ws_for_advance_payment_id">
+            <Value>=Parameters!bill_ws_for_advance_payment_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields >
-        <Field Name="order_id">
-          <DataField>order_id</DataField>
+        <Field Name="bwsfap_id">
+          <DataField>bwsfap_id</DataField>
           <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="order_date">
-          <DataField>order_date</DataField>
-          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="client_name">
           <DataField>client_name</DataField>
@@ -102,10 +81,6 @@ WHERE
         </Field>
         <Field Name="author">
           <DataField>author</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="delivery_point_contact">
-          <DataField>delivery_point_contact</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="client_contact">
@@ -155,28 +130,24 @@ WHERE
 	nomenclature.official_name AS name,
 	'--' AS unit_code,
 	measurement_units.name AS mu_name,
-	IFNULL(actual_count, count) AS count,
-	order_items.count AS required_count,
-	order_items.actual_count AS actual_count,
-	order_items.price AS item_price,
-	order_items.include_nds,
-	order_items.discount,
-    order_items.discount_money,
-    order_items.price * IFNULL(actual_count, count) AS sum,
-	order_items.price * IFNULL(actual_count, count) - order_items.discount_money AS total
+	bwsfapi.count AS count,
+	bwsfapi.price AS item_price,
+	bwsfapi.include_nds,
+	bwsfapi.discount,
+    bwsfapi.discount_money,
+    bwsfapi.price * count AS sum,
+	bwsfapi.price * count - bwsfapi.discount_money AS total
 FROM
-	order_items
-		LEFT JOIN
-	nomenclature ON order_items.nomenclature_id = nomenclature.id
-		LEFT JOIN
+	bill_without_shipment_for_advance_payment_items bwsfapi
+LEFT JOIN
+	nomenclature ON bwsfapi.nomenclature_id = nomenclature.id
+LEFT JOIN
 	measurement_units ON nomenclature.unit_id = measurement_units.id
-		LEFT JOIN
-	orders ON orders.id = order_items.order_id
 WHERE
-	order_items.order_id = @order_id;</CommandText>
+	bwsfapi.bill_ws_for_advance_payment_id = @bill_ws_for_advance_payment_id;</CommandText>
         <QueryParameters>
-          <QueryParameter Name="order_ws_for_advance_payment_id">
-            <Value>=Parameters!order_ws_for_advance_payment_id</Value>
+          <QueryParameter Name="bill_ws_for_advance_payment_id">
+            <Value>=Parameters!bill_ws_for_advance_payment_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -250,13 +221,7 @@ WHERE
     buh.name AS buh_name,
     buh.patronymic AS buh_patronymic
 FROM
-    orders
-        LEFT JOIN
-    counterparty ON orders.client_id = counterparty.id
-        LEFT JOIN
-    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
-        LEFT JOIN
-    organizations ON organizations.id = counterparty_contract.organization_id
+    organizations
         LEFT JOIN
     accounts ON accounts.id = organizations.default_account_id
         LEFT JOIN
@@ -268,10 +233,10 @@ FROM
         LEFT JOIN
     phones ON organizations.id = phones.org_id
 WHERE
-    orders.id = @order_id;</CommandText>
+    organizations.id = @organization_id;</CommandText>
         <QueryParameters>
-          <QueryParameter Name="order_ws_for_advance_payment_id">
-            <Value>={?order_ws_for_advance_payment_id}</Value>
+          <QueryParameter Name="organization_id">
+            <Value>={?organization_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -377,11 +342,11 @@ WHERE
       </Image>
       <Textbox Name="Textbox1">
         <Height>12.00pt</Height>
-        <Width>229.77pt</Width>
+        <Width>326.91pt</Width>
         <Value>Образец заполнения платежного поручения</Value>
         <ZIndex>1</ZIndex>
-        <Left>174.2pt</Left>
-        <Top>80.9pt</Top>
+        <Left>174.20pt</Left>
+        <Top>80.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -689,8 +654,8 @@ WHERE
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -1499,10 +1464,10 @@ WHERE
       <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>15.75pt</Height>
         <Width>213.27pt</Width>
-        <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order')</Value>
+        <Value>='Счет № Ф-' + First({bwsfap_id}, 'Order') + ' от ' + First({bill_date}, 'Order')</Value>
         <ZIndex>1</ZIndex>
-        <Left>39.2pt</Left>
-        <Top>216.1pt</Top>
+        <Left>39.20pt</Left>
+        <Top>216.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1625,13 +1590,13 @@ Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Or
 Iif(
     Iif(
         {client_contact} = null,
-        {delivery_point_contact},
+        '',
         {client_contact}
     ) = null,
     '',
     Iif(
         {client_contact} = null,
-        {delivery_point_contact},
+        '',
         {client_contact}
     )
 )</Value>
@@ -2091,7 +2056,7 @@ Iif(
     </DataSource>
   </DataSources>
   <ReportParameters >
-    <ReportParameter Name="order_ws_for_advance_payment_id">
+    <ReportParameter Name="bill_ws_for_advance_payment_id">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
@@ -2119,6 +2084,14 @@ Iif(
     </ReportParameter>
     <ReportParameter Name="special">
       <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="organization_id">
+      <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

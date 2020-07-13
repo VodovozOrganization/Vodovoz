@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using EmailService;
 using fyiReporting.RDL;
-using fyiReporting.RdlGtkViewer;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
@@ -15,6 +14,7 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.EntityRepositories;
 using NHibernate.Criterion;
+using RdlEngine;
 
 namespace Vodovoz.ViewWidgets
 {

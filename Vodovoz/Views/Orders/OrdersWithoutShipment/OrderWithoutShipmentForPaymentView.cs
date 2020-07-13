@@ -6,8 +6,8 @@ using QS.Views.GtkUI;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
-using Vodovoz.ViewModels;
 using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Views.Orders.OrdersWithoutShipment
@@ -24,28 +24,30 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private void Configure()
 		{
-			//ylabelOrderNum.Binding.AddBinding(ViewModel.Entity, vm => vm.Id, w => w.Text).InitializeFromSource();
+			ylabelOrderNum.Binding.AddBinding(ViewModel.Entity, vm => vm.Id, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 			ylabelOrderDate.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.CreateDate.ToString(), w => w.Text).InitializeFromSource();
 			ylabelOrderAuthor.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.Author.ShortName, w => w.Text).InitializeFromSource();
 
 			entityviewmodelentry1.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(QS.Project.Services.ServicesConfig.CommonServices)
 			);
+
+			entityviewmodelentry1.Changed += ViewModel.OnEntityViewModelEntryChanged;
+
 			entityviewmodelentry1.Binding.AddBinding(ViewModel.Entity, vm => vm.Client, w => w.Subject).InitializeFromSource();
 			entityviewmodelentry1.Binding.AddFuncBinding(ViewModel, vm => !vm.IsDocumentSent, w => w.Sensitive).InitializeFromSource();
-			entityviewmodelentry1.Changed += ViewModel.OnEntityViewModelEntryChanged;
 			entityviewmodelentry1.CanEditReference = true;
-			
+
 			var sendEmailView = new SendDocumentByEmailView(ViewModel.SendDocViewModel);
 			hboxSendDocuments.Add(sendEmailView);
 			sendEmailView.Show();
-			
-			ViewModel.OpenCounterpatyJournal += entityviewmodelentry1.OpenSelectDialog;
+
+			ViewModel.OpenCounterpartyJournal += entityviewmodelentry1.OpenSelectDialog;
 
 			daterangepickerOrdersDate.Binding.AddBinding(ViewModel, vm => vm.StartDate, w => w.StartDateOrNull).InitializeFromSource();
 			daterangepickerOrdersDate.Binding.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull).InitializeFromSource();
 			daterangepickerOrdersDate.PeriodChangedByUser += (s, e) => ViewModel.UpdateNodes(this, EventArgs.Empty);
-			
+
 			ytreeviewOrders.ColumnsConfig = FluentColumnsConfig<OrderWithoutShipmentForPaymentNode>.Create()
 				.AddColumn("Выбрать").AddToggleRenderer(node => node.IsSelected).ToggledEvent(UseFine_Toggled)
 				.AddColumn("Номер").AddTextRenderer(node => node.OrderId.ToString())
@@ -58,7 +60,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 			ytreeviewOrders.ItemsDataSource = ViewModel.ObservableNodes;
 		}
-		
+
 		void UseFine_Toggled(object o, ToggledArgs args) =>
 			//Вызываем через Application.Invoke чтобы событие вызывалось уже после того как поле обновилось.
 			Application.Invoke(delegate { OnToggleClicked(this, EventArgs.Empty); });
@@ -73,6 +75,13 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			ViewModel.SelectedNode = selectedObj as OrderWithoutShipmentForPaymentNode;
 
 			ViewModel.UpdateItems();
+		}
+
+		public override void Destroy()
+		{
+			entityviewmodelentry1.Changed -= ViewModel.OnEntityViewModelEntryChanged;
+
+			base.Destroy();
 		}
 	}
 }

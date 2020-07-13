@@ -24,13 +24,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 {
 	public class OrderWithoutShipmentForPaymentViewModel : EntityTabViewModelBase<OrderWithoutShipmentForPayment>, ITdiTabAddedNotifier
 	{
-		private DateTime? startDate /*= DateTime.Now.AddMonths(-1)*/;
+		private DateTime? startDate = DateTime.Now.AddMonths(-1);
 		public DateTime? StartDate {
 			get => startDate;
 			set => SetField(ref startDate, value);
 		}
 
-		private DateTime? endDate/* = DateTime.Now*/;
+		private DateTime? endDate = DateTime.Now;
 		public DateTime? EndDate {
 			get => endDate;
 			set => SetField(ref endDate, value);
@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		
 		public GenericObservableList<OrderWithoutShipmentForPaymentNode> ObservableNodes { get; set; }
 		
-		public Action<string> OpenCounterpatyJournal;
+		public Action<string> OpenCounterpartyJournal;
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
 		
 		public OrderWithoutShipmentForPaymentViewModel(
@@ -50,16 +50,19 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices) : base(uowBuilder, uowFactory, commonServices)
 		{
+			if (uowBuilder.IsNewEntity)
+			{
+				if(!AskQuestion("Вы действительно хотите создать счет без отгрузки на постоплату?"))
+					AbortOpening();
+				else
+					Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			}
+			
 			TabName = "Счет без отгрузки на постоплату";
 			
 			EntityUoWBuilder = uowBuilder;
 			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(),UoW);
 			
-			if (uowBuilder.IsNewEntity)
-			{
-				Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
-			}
-
 			ObservableNodes = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
 			
 			CreateCommands();
@@ -142,7 +145,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public void OnTabAdded()
 		{
 			if(EntityUoWBuilder.IsNewEntity)
-				OpenCounterpatyJournal?.Invoke(string.Empty);
+				OpenCounterpartyJournal?.Invoke(string.Empty);
 		}
 		
 		public void OnEntityViewModelEntryChanged(object sender, EventArgs e)

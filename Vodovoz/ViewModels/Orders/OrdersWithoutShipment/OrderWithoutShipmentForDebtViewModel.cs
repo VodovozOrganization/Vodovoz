@@ -1,7 +1,5 @@
 ﻿using System;
-using QS.Commands;
 using QS.DomainModel.UoW;
-using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.Tdi;
@@ -16,7 +14,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 	public class OrderWithoutShipmentForDebtViewModel : EntityTabViewModelBase<OrderWithoutShipmentForDebt>, ITdiTabAddedNotifier
 	{
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
-		public Action<string> OpenCounterpatyJournal;
+		public Action<string> OpenCounterpartyJournal;
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
 
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
@@ -26,25 +24,24 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices) : base(uowBuilder, uowFactory, commonServices)
 		{
-			/*if(!AskQuestion("Вы действительно хотите создать счет без отгрузки на долг?"))
-				Close(false, CloseSource.Cancel);
-			*/
+			if (uowBuilder.IsNewEntity)
+			{
+				if(!AskQuestion("Вы действительно хотите создать счет без отгрузки на долг?"))
+					AbortOpening();
+				else
+					Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			}
 			
 			TabName = "Счет без отгрузки на долг";
 			EntityUoWBuilder = uowBuilder;
 
 			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(), UoW);
-			
-			if (uowBuilder.IsNewEntity)
-			{
-				Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
-			}
 		}
 
 		public void OnTabAdded()
 		{
 			if(EntityUoWBuilder.IsNewEntity)
-				OpenCounterpatyJournal?.Invoke(string.Empty);
+				OpenCounterpartyJournal?.Invoke(string.Empty);
 		}
 
 		public void OnEntityViewModelEntryChanged(object sender, EventArgs e)

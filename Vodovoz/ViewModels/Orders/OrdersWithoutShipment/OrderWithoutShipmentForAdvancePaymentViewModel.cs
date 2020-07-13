@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using QS.Commands;
+using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
@@ -10,7 +11,6 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using Vodovoz.Dialogs.Email;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -33,10 +33,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 		
-		public Action<string> OpenCounterpatyJournal;
+		public Action<string> OpenCounterpartyJournal;
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
-
-		//public readonly OrderSingletonRepository orderRepository;
 
 		#region Commands
 
@@ -51,14 +49,19 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices) : base(uowBuilder, uowFactory, commonServices)
 		{
+			if (uowBuilder.IsNewEntity)
+			{
+				if(!AskQuestion("Вы действительно хотите создать счет без отгрузки на предоплату?"))
+					AbortOpening();
+				else
+					Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+			}
+			
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 			
 			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(), UoW);
-			
-			if (uowBuilder.IsNewEntity)
-				Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
-				
+
 			CreateCommands();
 		}
 
@@ -123,13 +126,13 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public void OnTabAdded()
 		{
 			if(EntityUoWBuilder.IsNewEntity)
-				OpenCounterpatyJournal?.Invoke(string.Empty);
+				OpenCounterpartyJournal?.Invoke(string.Empty);
 		}
 
 		bool CanAddNomenclaturesToOrder()
 		{
 			if(Entity.Client == null) {
-				MessageDialogHelper.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,"Для добавления товара на продажу должен быть выбран клиент.");
 				return false;
 			}
 
@@ -152,10 +155,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		{
 			var email = Entity.GetEmailAddressForBill();
 
-			if(email != null)
+			if (email != null)
 				SendDocViewModel.Update(Entity, email.Address);
-			else 
-			if(!string.IsNullOrEmpty(SendDocViewModel.EmailString))
+			else if (!string.IsNullOrEmpty(SendDocViewModel.EmailString))
 				SendDocViewModel.EmailString = string.Empty;
 		}
 	}

@@ -2,9 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Parameters;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -69,8 +67,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 					IsUserPrice = value != GetPriceByTotalCount() && value != 0;
 
 				if(SetField(ref price, value)) {
-					/*if(AdditionalAgreement?.Self is SalesEquipmentAgreement aa)
-						aa.UpdatePrice(Nomenclature, value);*/
 					RecalculateDiscount();
 					RecalculateNDS();
 				}
@@ -155,50 +151,15 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => discountReason;
 			set => SetField(ref discountReason, value);
 		}
-		
-		FreeRentEquipment freeRentEquipment;
-
-		public virtual FreeRentEquipment FreeRentEquipment {
-			get => freeRentEquipment;
-			set => SetField(ref freeRentEquipment, value);
-		}
-
-		PaidRentEquipment paidRentEquipment;
-
-		public virtual PaidRentEquipment PaidRentEquipment {
-			get => paidRentEquipment;
-			set => SetField(ref paidRentEquipment, value);
-		}
 
 		int RentEquipmentCount {
 			get {
-				/*if(AdditionalAgreement?.Type == AgreementType.NonfreeRent && PaidRentEquipment != null)
-					return PaidRentEquipment.Count;
-
-				if(AdditionalAgreement?.Type == AgreementType.FreeRent && FreeRentEquipment != null)
-					return FreeRentEquipment.Count;*/
-
 				return 0;
 			}
 		}
 
 		int RentTime {
 			get {
-				/*if(AdditionalAgreement == null) {
-					return 0;
-				}
-				if(AdditionalAgreement.Self is NonfreeRentAgreement) {
-					NonfreeRentAgreement nonFreeRent = AdditionalAgreement.Self as NonfreeRentAgreement;
-					if(nonFreeRent.RentMonths.HasValue) {
-						return nonFreeRent.RentMonths.Value;
-					}
-				}
-
-				if(AdditionalAgreement.Self is DailyRentAgreement) {
-					DailyRentAgreement dailyRent = AdditionalAgreement.Self as DailyRentAgreement;
-					return dailyRent.RentDays;
-				}*/
-
 				return 0;
 			}
 		}
@@ -231,12 +192,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public virtual bool CanEditPrice {
 			get {
-				/*if(PromoSet != null) {
-					return false;
-				}
-				if(IsRentRenewal())
-					return true;
-					*/
 				return Nomenclature.GetCategoriesWithEditablePrice().Contains(Nomenclature.Category);
 			}
 		}
@@ -266,11 +221,6 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		void RemoveDiscount()
 		{
-			/*if(DiscountMoney > 0) {
-				OriginalDiscountMoney = DiscountMoney;
-				OriginalDiscountReason = DiscountReason;
-				OriginalDiscount = Discount;
-			}*/
 			DiscountReason = null;
 			DiscountMoney = 0;
 			Discount = 0;

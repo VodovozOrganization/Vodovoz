@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.HibernateMapping.StoredEmails
@@ -27,6 +28,7 @@ namespace Vodovoz.HibernateMapping.StoredEmails
 			References(x => x.Author).Column("author_id");
 			References(x => x.OrderWithoutShipmentForDebt).Column("bill_ws_for_debt_id");
 			References(x => x.OrderWithoutShipmentForPayment).Column("bill_ws_for_payment_id");
+			References(x => x.OrderWithoutShipmentForAdvancePayment).Column("bill_ws_for_advance_payment_id");
 		}
 	}
 }

@@ -85,6 +85,10 @@
     <Folder Include="Mailjet\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\QSProjects\QS.Report\QS.Report.csproj">
+      <Project>{d30a23bf-c5dc-4a1b-95fc-9c2038d46e8e}</Project>
+      <Name>QS.Report</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
@@ -96,6 +100,10 @@
     <ProjectReference Include="..\..\..\..\QSProjects\QS.Project\QS.Project.csproj">
       <Project>{28A78143-42E3-40E7-86F5-DD7E1679BE86}</Project>
       <Name>QS.Project</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
+      <Project>{C97E91F4-B310-44E2-9B6C-96775395722D}</Project>
+      <Name>RdlEngine</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
