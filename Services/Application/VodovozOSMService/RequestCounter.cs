@@ -38,7 +38,7 @@ namespace VodovozOSMService
                 return;
             }
             
-            var timer = new Timer(30000);
+            var timer = new Timer(60000);
             timer.Elapsed += TimerOnElapsed;
             timer.Enabled = true;
             logger.Info("Счётчик запросов запущен");
@@ -57,8 +57,34 @@ namespace VodovozOSMService
         
         private void TimerOnElapsed(object sender, ElapsedEventArgs e)
         {
+            logger.Info("Подготовка к сохранению данных счётчика...");
+            try {            
+                var allLines = File.ReadAllLines(path).ToList();
+                var line = allLines.FirstOrDefault(x => x.StartsWith(DateTime.Now.Date.ToString("d")));
+                if(line != null) {
+                    var stringToSave = GetString();
+                    logger.Info($"Сохранение данных счётчика в файл. Строка: {stringToSave}");
+                    allLines[allLines.IndexOf(line)] = stringToSave;
+                    File.WriteAllLines(path, allLines);
+                }
+                else {
+                    ClearCounter();
+                    var stringToSave = GetString();
+                    logger.Info($"Сохранение данных счётчика в файл. Строка: {stringToSave}");
+                    File.AppendAllText(path, stringToSave + "\n");
+                }
+            }
+            catch (Exception ex) {
+                logger.Error(ex, "Ошибка при сохранении данных счётчика в файл");
+                return;
+            }
+            logger.Info("Сохранение завершено");
+        }
+
+        private string GetString()
+        {
             var requestSum = City + CityByCriteria + Street + StreetByCriteria + CityId + PointRegion + HouseNumbers + BuildingCountInCity + BuildingCountInRegion;
-            string stringToSave = $"{DateTime.Now.Date:d} "
+            return $"{DateTime.Now.Date:d} "
                 + $"{nameof(City)} {City} "
                 + $"{nameof(CityByCriteria)} {CityByCriteria} "
                 + $"{nameof(Street)} {Street} "
@@ -69,24 +95,19 @@ namespace VodovozOSMService
                 + $"{nameof(BuildingCountInCity)} {BuildingCountInCity} "
                 + $"{nameof(BuildingCountInRegion)} {BuildingCountInRegion} "
                 + $"Сумма: {requestSum}";
-            logger.Info($"Сохранение данных счётчика в файл. Строка: {stringToSave}");
-            
-            try {            
-                var allLines = File.ReadAllLines(path).ToList();
-                var line = allLines.FirstOrDefault(x => x.StartsWith(DateTime.Now.Date.ToString("d")));
-                if(line != null) {
-                    allLines[allLines.IndexOf(line)] = stringToSave;
-                    File.WriteAllLines(path, allLines);
-                }
-                else
-                    File.AppendAllText(path, stringToSave + "\n");
-            }
-            catch (Exception ex) {
-                logger.Error(ex, "Ошибка при сохранении данных счётчика в файл");
-                return;
-            }
-            
-            logger.Info("Сохранение завершено");
+        }
+
+        private void ClearCounter()
+        {
+            City = 0;
+            CityByCriteria = 0;
+            Street = 0;
+            StreetByCriteria = 0;
+            CityId = 0;
+            PointRegion = 0;
+            HouseNumbers = 0;
+            BuildingCountInCity = 0;
+            BuildingCountInRegion = 0;
         }
     }
 }

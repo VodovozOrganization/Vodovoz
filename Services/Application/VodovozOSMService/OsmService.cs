@@ -295,8 +295,6 @@ namespace VodovozOSMService
 
 		public List<OsmHouse> GetHouseNumbers(long cityId, string street, string districts)
 		{
-			requestCounter.HouseNumbers++;
-			
 			var houses = new List<OsmHouse>();
 			string city = String.Empty;
 			street = street.Replace('+', ' ');
@@ -311,6 +309,8 @@ namespace VodovozOSMService
 						cmd.Connection = connection;
 						cmd.CommandText = "SELECT name FROM osm_cities WHERE id = @id;";
 						cmd.Parameters.AddWithValue("@id", cityId);
+						
+						requestCounter.HouseNumbers++;
 						using(var reader = cmd.ExecuteReader()) {
 							if(reader.Read()) {
 								city = reader.IsDBNull(0) ? String.Empty : reader.GetString(0);
@@ -349,6 +349,7 @@ namespace VodovozOSMService
 						if(districtsArray.Length > 0)
 							cmd.CommandText += ");";
 
+						requestCounter.HouseNumbers++;
 						using(var reader = cmd.ExecuteReader()) {
 							while(reader.Read()) {
 								houses.Add(new OsmHouse(
