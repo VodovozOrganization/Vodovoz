@@ -17,10 +17,6 @@ using Vodovoz.LoadFrom1c;
 using QS.Project.Repositories;
 using QS.Banks.Domain;
 using QS.Project.Services;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
-using Vodovoz.EntityRepositories.WageCalculation;
-using Vodovoz.Core.DataService;
 
 namespace Vodovoz.ServiceDialogs
 {
@@ -51,12 +47,12 @@ namespace Vodovoz.ServiceDialogs
 				return;
 			}
 
-			//throw new ApplicationException("Сюда сейчас нельзя.");//Counterparty.VodInternalId генерируется тригером на стороне БД. Исправить соответствующий код ниже.
+			throw new ApplicationException("Сюда сейчас нельзя.");//Counterparty.VodInternalId генерируется тригером на стороне БД. Исправить соответствующий код ниже.
 
 			this.Build();
 
 			TabName = "Загрузка из 1с";
-			/*
+
 			FileFilter Filter = new FileFilter();
 			Filter.Name = "XML выгрузка";
 			Filter.AddMimeType("application/xml");
@@ -66,7 +62,7 @@ namespace Vodovoz.ServiceDialogs
 			nomStroika = UoW.GetById<Nomenclature>(15);
 			nomRuchki = UoW.GetById<Nomenclature>(7);
 
-			errorLog.Add(string.Format("Статус;Код1с контрагента;Код1с точки доставки;Причина"));*/
+			errorLog.Add(string.Format("Статус;Код1с контрагента;Код1с точки доставки;Причина"));
 
 		}
 
@@ -608,21 +604,7 @@ namespace Vodovoz.ServiceDialogs
 
 		protected void OnButton1Clicked(object sender, EventArgs e)
 		{
-			//PreLoadEntities();
-
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
-				var service = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
-				var routelists = uow.Session.QueryOver<RouteList>()
-					.Where(x => x.Date >= new DateTime(2020, 07, 01))
-					.List();
-
-				foreach(var rl in routelists) {
-					rl.RecalculateAllWages(service);
-					rl.UpdateWageOperation();
-					uow.Save(rl);
-				}
-				uow.Commit();
-			}
+			PreLoadEntities();
 		}
 
 		void PreLoadEntities()

@@ -1744,7 +1744,7 @@ namespace Vodovoz.Domain.Logistic
 			CalculateWages(wageParameterService);
 		}
 
-		public virtual void UpdateWageOperation()
+		void UpdateWageOperation()
 		{
 			decimal driverWage = GetDriversTotalWage();
 
