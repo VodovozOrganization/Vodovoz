@@ -23,10 +23,6 @@ namespace VodovozOSMService
 		private static string serviceHostName;
 		private static string servicePort;
 
-		private static System.Timers.Timer orderRoutineTimer;
-		private static System.Timers.Timer trackRoutineTimer;
-		private static System.Timers.Timer onlineStoreCatalogSyncTimer;
-
 		public static void Main(string[] args)
 		{
 			AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;

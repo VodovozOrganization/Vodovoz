@@ -24,6 +24,7 @@ using System.Text.RegularExpressions;
 using QS.Project.Search;
 using QS.Project.Journal.Search;
 using System.Linq.Expressions;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.ViewModels
 {
@@ -64,6 +65,12 @@ namespace Vodovoz.ViewModels
 			get => currentBalance;
 			set => SetField(ref currentBalance, value);
 		}
+		
+		private decimal counterpartyDebt;
+		public decimal CounterpartyDebt {
+			get => counterpartyDebt;
+			set => SetField(ref counterpartyDebt, value);
+		}
 
 		public decimal SumToAllocate { get; set; }
 
@@ -100,6 +107,8 @@ namespace Vodovoz.ViewModels
 
 			CurrentBalance = SumToAllocate - AllocatedSum;
 			CreateCommands();
+
+			GetCounterpatyDebt();
 		}
 
 		private void GetLastBalance()
@@ -123,7 +132,10 @@ namespace Vodovoz.ViewModels
 				AllocatedSum = SumToAllocate;
 			}
 
+			UpdateCounterpartyDebt(node);
+
 			node.OldCurrentPayment = node.CurrentPayment;
+
 			UpdateCurrentBalance();
 		}
 
@@ -134,8 +146,11 @@ namespace Vodovoz.ViewModels
 
 			AllocatedSum -= node.CurrentPayment;
 
-			node.OldCurrentPayment = 0;
 			node.CurrentPayment = 0;
+
+			UpdateCounterpartyDebt(node);
+
+			node.OldCurrentPayment = 0;
 
 			UpdateCurrentBalance();
 		}
@@ -160,7 +175,10 @@ namespace Vodovoz.ViewModels
 
 			AllocatedSum += node.CurrentPayment - node.OldCurrentPayment;
 
+			UpdateCounterpartyDebt(node);
+
 			node.OldCurrentPayment = node.CurrentPayment;
+
 			UpdateCurrentBalance();
 		}
 
@@ -169,10 +187,44 @@ namespace Vodovoz.ViewModels
 			CreateOpenOrderCommand();
 			CreateAddCounterpatyCommand();
 			CreateCompleteAllocation();
+			CreateSaveViewModelCommand();
+			CreateCloseViewModelCommand();
 		}
 
 		void UpdateCurrentBalance() => CurrentBalance = SumToAllocate - AllocatedSum;
 
+		void UpdateCounterpartyDebt(ManualPaymentMatchingVMNode node) => CounterpartyDebt -= node.CurrentPayment - node.OldCurrentPayment;
+
+		#region Commands
+		public DelegateCommand SaveViewModelCommand { get; private set; }
+
+		void CreateSaveViewModelCommand()
+		{
+			SaveViewModelCommand = new DelegateCommand(
+				() => {
+					AllocateOrders();
+
+					if(Save()) {
+						UoW.Commit();
+						Close(false, QS.Navigation.CloseSource.Save);
+					}
+				},
+				() => true
+			);
+		}
+		
+		public DelegateCommand CloseViewModelCommand { get; private set; }
+
+		void CreateCloseViewModelCommand()
+		{
+			CloseViewModelCommand = new DelegateCommand(
+				() => {
+					Close(false, QS.Navigation.CloseSource.Cancel);
+				},
+				() => true
+			);
+		}
+		
 		public DelegateCommand<VodOrder> OpenOrderCommand { get; private set; }
 
 		void CreateOpenOrderCommand()
@@ -221,43 +273,13 @@ namespace Vodovoz.ViewModels
 					UoW.Save(client);
 
 					var dlg = new CounterpartyDlg(EntityUoWBuilder.ForOpenInChildUoW(client.Id, UoW), UnitOfWorkFactory);
-					//var dlg = new CounterpartyDlg(client);
-					//dlg.HasChanges = false;
 					TabParent.AddSlaveTab(this, dlg);
 					dlg.EntitySaved += NewCounterpartySaved;
 				},
 				payment => payment.Counterparty == null
 			);
 		}
-
-		private Bank FillBank(Payment payment)
-		{
-			var bank = BankRepository.GetBankByBik(UoW, payment.CounterpartyBik);
-
-			if(bank == null) {
-
-				bank = new Bank {
-					Bik = payment.CounterpartyBik,
-					Name = payment.CounterpartyBank
-				};
-				var corAcc = new CorAccount { CorAccountNumber = payment.CounterpartyCorrespondentAcc };
-				bank.CorAccounts.Add(corAcc);
-				bank.DefaultCorAccount = corAcc;
-				UoW.Save(bank);
-			}
-
-			return bank;
-		}
-
-		void NewCounterpartySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
-		{
-			var client = e.Entity as Counterparty;
-
-			Entity.Counterparty = client;
-			Entity.CounterpartyAccount = client.DefaultAccount;
-		}
-
-
+		
 		public DelegateCommand CompleteAllocation { get; private set; }
 
 		void CreateCompleteAllocation()
@@ -295,7 +317,36 @@ namespace Vodovoz.ViewModels
 				() => true
 			);
 		}
+		
+		#endregion Commands
 
+		private Bank FillBank(Payment payment)
+		{
+			var bank = BankRepository.GetBankByBik(UoW, payment.CounterpartyBik);
+
+			if(bank == null) {
+
+				bank = new Bank {
+					Bik = payment.CounterpartyBik,
+					Name = payment.CounterpartyBank
+				};
+				var corAcc = new CorAccount { CorAccountNumber = payment.CounterpartyCorrespondentAcc };
+				bank.CorAccounts.Add(corAcc);
+				bank.DefaultCorAccount = corAcc;
+				UoW.Save(bank);
+			}
+
+			return bank;
+		}
+
+		void NewCounterpartySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
+		{
+			var client = e.Entity as Counterparty;
+
+			Entity.Counterparty = client;
+			Entity.CounterpartyAccount = client.DefaultAccount;
+		}
+		
 		private void CreateOperations()
 		{
 			Entity.CreateIncomeOperation();
@@ -331,16 +382,6 @@ namespace Vodovoz.ViewModels
 		{
 			AllocatedSum = default(int);
 			CurrentBalance = SumToAllocate;
-		}
-
-		public void SaveViewModel()
-		{
-			AllocateOrders();
-
-			if(Save()) {
-				UoW.Commit();
-				Close(false, QS.Navigation.CloseSource.Self);
-			}
 		}
 
 		public IList<ManualPaymentMatchingVMNode> UpdateNodes()
@@ -396,6 +437,7 @@ namespace Vodovoz.ViewModels
 					.SelectList(list => list
 				   	.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 				   	.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
+				    .Select(() => orderAlias.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
 				   	.Select(() => orderAlias.BillDate).WithAlias(() => resultAlias.OrderDate)
 					.SelectSubQuery(totalSum).WithAlias(() => resultAlias.ActualOrderSum)
 					.SelectSubQuery(lastPayment).WithAlias(() => resultAlias.LastPayments)
@@ -406,6 +448,11 @@ namespace Vodovoz.ViewModels
 			listNodes = resultQuery;
 
 			return resultQuery;
+		}
+
+		private void GetCounterpatyDebt()
+		{
+			CounterpartyDebt = OrderSingletonRepository.GetInstance().GetCounterpartyDebt(UoW, Entity.Counterparty.Id);
 		}
 
 		private string TryGetOrganizationType(string name)
@@ -448,5 +495,7 @@ namespace Vodovoz.ViewModels
 		public decimal CurrentPayment { get; set; }
 
 		public bool Calculate { get; set; }
+		
+		public OrderPaymentStatus OrderPaymentStatus { get; set; }
 	}
 }

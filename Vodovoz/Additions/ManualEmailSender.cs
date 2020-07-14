@@ -2,7 +2,6 @@
 using System.IO;
 using EmailService;
 using fyiReporting.RDL;
-using fyiReporting.RdlGtkViewer;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -13,6 +12,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using System.Collections.Generic;
 using System.Linq;
+using RdlEngine;
 
 namespace Vodovoz.Additions
 {

@@ -163,6 +163,16 @@ namespace Vodovoz.Filters.ViewModels
 		}
 		public bool CanChangeLessThreeHours { get; private set; } = true;
 
+		private ViewTypes viewTypes = ViewTypes.Order;
+		public virtual ViewTypes ViewTypes {
+			get => viewTypes;
+			set {
+				if(SetField(ref viewTypes, value)) {
+					Update();
+				}
+			}
+		}
+
 		#region Selfdelivery
 
 		private bool? restrictOnlySelfDelivery;
@@ -264,5 +274,17 @@ namespace Vodovoz.Filters.ViewModels
 		AfterShipment,
 		[Display(Name = "Оплата до отгрузки")]
 		BeforeShipment
+	}
+
+	public enum ViewTypes
+	{
+		[Display(Name = "Заказы")]
+		Order,
+		[Display(Name = "Счета без отгрузки на долг")]
+		OrderWSFD,
+		[Display(Name = "Счета без отгрузки на предоплату")]
+		OrderWSFAP,
+		[Display(Name = "Счета без отгрузки на постоплату")]
+		OrderWSFP
 	}
 }

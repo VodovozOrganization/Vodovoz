@@ -11,7 +11,7 @@ namespace Vodovoz.EntityRepositories
 		List<StoredEmail> GetAllEmailsForOrder(IUnitOfWork uow, int orderId);
 		StoredEmail GetStoredEmailByMessageId(IUnitOfWork uow, string messageId);
 		bool HaveSendedEmail(int orderId, OrderDocumentType type);
-		bool CanSendByTimeout(string address, int orderId);
+		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);
 
 		#region EmailType
 

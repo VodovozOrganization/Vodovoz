@@ -328,14 +328,34 @@ namespace Vodovoz.Domain.Sale
 		{
 			var result = new StringBuilder();
 			foreach (var deliveryScheduleRestriction in GetAllDeliveryScheduleRestrictions().GroupBy(x => x.WeekDay).OrderBy(x => (int)x.Key)) {
-
+				WeekDayDistrictRuleItem sas = new WeekDayDistrictRuleItem();
+				Console.Out.WriteLine(sas.Price);
+				
 				var weekName = deliveryScheduleRestriction.Key.GetEnumTitle();
 				result.Append(withMarkup ? $"<u><b>{weekName}</b></u>" : weekName);
 				var weekRules = GetWeekDayRuleItemCollectionByWeekDayName(deliveryScheduleRestriction.Key);
 				if(weekRules.Any())
-					result.AppendLine(", минимум: " + weekRules.Select(x => x.DeliveryPriceRule.Water19LCount).Min());
+				{
+					result.AppendLine("\n цена: " + weekRules.Select(x => x.Price).Min());
+					
+					result.AppendLine(", минимум 19Л: " + weekRules.Select(x => x.DeliveryPriceRule.Water19LCount).Min());
+					result.AppendLine(", минимум 6Л: " + weekRules.Select(x => x.DeliveryPriceRule.Water6LCount).Min());
+					result.AppendLine(", минимум 1,5Л: " + weekRules.Select(x => x.DeliveryPriceRule.Water1500mlCount).Min());
+					result.AppendLine(", минимум 0,6Л: " + weekRules.Select(x => x.DeliveryPriceRule.Water600mlCount).Min());
+				}
 				else if(ObservableCommonDistrictRuleItems.Any())
-					result.AppendLine(", минимум: " + ObservableCommonDistrictRuleItems.Select(x => x.DeliveryPriceRule.Water19LCount).Min());
+				{
+					result.AppendLine("\n цена: " +ObservableCommonDistrictRuleItems
+						.Select(x => x.Price).Min());
+					result.AppendLine("минимум 19Л: " + ObservableCommonDistrictRuleItems
+						.Select(x => x.DeliveryPriceRule.Water19LCount).Min() );
+					result.AppendLine("минимум 6Л: " + ObservableCommonDistrictRuleItems
+						.Select(x => x.DeliveryPriceRule.Water6LCount).Min());
+					result.AppendLine("минимум 1,5Л: " + ObservableCommonDistrictRuleItems
+						.Select(x => x.DeliveryPriceRule.Water1500mlCount).Min());
+					result.AppendLine("минимум 0,6Л: " + ObservableCommonDistrictRuleItems
+						.Select(x => x.DeliveryPriceRule.Water600mlCount).Min());
+				}
 				else
 					result.AppendLine();
 				

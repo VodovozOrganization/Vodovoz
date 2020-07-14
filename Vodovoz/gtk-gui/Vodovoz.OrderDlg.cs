@@ -336,8 +336,6 @@ namespace Vodovoz
 
 		private global::Gtk.Button btnOpnPrnDlg;
 
-		private global::Vodovoz.ViewWidgets.SendDocumentByEmailView senddocumentbyemailview1;
-
 		private global::Gtk.Label label29;
 
 		private global::Gtk.HBox hboxStatusButtons;
@@ -2108,19 +2106,12 @@ namespace Vodovoz
 			this.hbox19.Add(this.vbox9);
 			global::Gtk.Box.BoxChild w174 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.vbox9]));
 			w174.Position = 0;
-			// Container child hbox19.Gtk.Box+BoxChild
-			this.senddocumentbyemailview1 = new global::Vodovoz.ViewWidgets.SendDocumentByEmailView();
-			this.senddocumentbyemailview1.Events = ((global::Gdk.EventMask)(256));
-			this.senddocumentbyemailview1.Name = "senddocumentbyemailview1";
-			this.hbox19.Add(this.senddocumentbyemailview1);
-			global::Gtk.Box.BoxChild w175 = ((global::Gtk.Box.BoxChild)(this.hbox19[this.senddocumentbyemailview1]));
-			w175.Position = 1;
 			this.vboxDocuments.Add(this.hbox19);
-			global::Gtk.Box.BoxChild w176 = ((global::Gtk.Box.BoxChild)(this.vboxDocuments[this.hbox19]));
-			w176.Position = 0;
+			global::Gtk.Box.BoxChild w175 = ((global::Gtk.Box.BoxChild)(this.vboxDocuments[this.hbox19]));
+			w175.Position = 0;
 			this.notebook1.Add(this.vboxDocuments);
-			global::Gtk.Notebook.NotebookChild w177 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vboxDocuments]));
-			w177.Position = 6;
+			global::Gtk.Notebook.NotebookChild w176 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.vboxDocuments]));
+			w176.Position = 6;
 			// Notebook tab
 			this.label29 = new global::Gtk.Label();
 			this.label29.Name = "label29";
@@ -2128,8 +2119,8 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel(this.vboxDocuments, this.label29);
 			this.label29.ShowAll();
 			this.vbox2.Add(this.notebook1);
-			global::Gtk.Box.BoxChild w178 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
-			w178.Position = 1;
+			global::Gtk.Box.BoxChild w177 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.notebook1]));
+			w177.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hboxStatusButtons = new global::Gtk.HBox();
 			this.hboxStatusButtons.Name = "hboxStatusButtons";
@@ -2141,8 +2132,8 @@ namespace Vodovoz
 			this.buttonFormOrder.UseUnderline = true;
 			this.buttonFormOrder.Label = global::Mono.Unix.Catalog.GetString("Сформировать");
 			this.hboxStatusButtons.Add(this.buttonFormOrder);
-			global::Gtk.Box.BoxChild w179 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonFormOrder]));
-			w179.Position = 0;
+			global::Gtk.Box.BoxChild w178 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonFormOrder]));
+			w178.Position = 0;
 			// Container child hboxStatusButtons.Gtk.Box+BoxChild
 			this.buttonAcceptOrder = new global::Gtk.Button();
 			this.buttonAcceptOrder.CanFocus = true;
@@ -2150,8 +2141,8 @@ namespace Vodovoz
 			this.buttonAcceptOrder.UseUnderline = true;
 			this.buttonAcceptOrder.Label = global::Mono.Unix.Catalog.GetString("Подтвердить");
 			this.hboxStatusButtons.Add(this.buttonAcceptOrder);
-			global::Gtk.Box.BoxChild w180 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonAcceptOrder]));
-			w180.Position = 1;
+			global::Gtk.Box.BoxChild w179 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonAcceptOrder]));
+			w179.Position = 1;
 			// Container child hboxStatusButtons.Gtk.Box+BoxChild
 			this.buttonEditOrder = new global::Gtk.Button();
 			this.buttonEditOrder.CanFocus = true;
@@ -2159,8 +2150,8 @@ namespace Vodovoz
 			this.buttonEditOrder.UseUnderline = true;
 			this.buttonEditOrder.Label = global::Mono.Unix.Catalog.GetString("Редактировать");
 			this.hboxStatusButtons.Add(this.buttonEditOrder);
-			global::Gtk.Box.BoxChild w181 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonEditOrder]));
-			w181.Position = 2;
+			global::Gtk.Box.BoxChild w180 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonEditOrder]));
+			w180.Position = 2;
 			// Container child hboxStatusButtons.Gtk.Box+BoxChild
 			this.buttonWaitForPayment = new global::Gtk.Button();
 			this.buttonWaitForPayment.Sensitive = false;
@@ -2169,20 +2160,20 @@ namespace Vodovoz
 			this.buttonWaitForPayment.UseUnderline = true;
 			this.buttonWaitForPayment.Label = global::Mono.Unix.Catalog.GetString("Ожидание оплаты");
 			this.hboxStatusButtons.Add(this.buttonWaitForPayment);
-			global::Gtk.Box.BoxChild w182 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonWaitForPayment]));
-			w182.Position = 3;
+			global::Gtk.Box.BoxChild w181 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonWaitForPayment]));
+			w181.Position = 3;
 			// Container child hboxStatusButtons.Gtk.Box+BoxChild
 			this.buttonCancelOrder = new global::Gtk.Button();
 			this.buttonCancelOrder.CanFocus = true;
 			this.buttonCancelOrder.Name = "buttonCancelOrder";
 			this.buttonCancelOrder.UseUnderline = true;
 			this.buttonCancelOrder.Label = global::Mono.Unix.Catalog.GetString("Отменить заказ");
-			global::Gtk.Image w183 = new global::Gtk.Image();
-			w183.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
-			this.buttonCancelOrder.Image = w183;
+			global::Gtk.Image w182 = new global::Gtk.Image();
+			w182.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.buttonCancelOrder.Image = w182;
 			this.hboxStatusButtons.Add(this.buttonCancelOrder);
-			global::Gtk.Box.BoxChild w184 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonCancelOrder]));
-			w184.Position = 4;
+			global::Gtk.Box.BoxChild w183 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.buttonCancelOrder]));
+			w183.Position = 4;
 			// Container child hboxStatusButtons.Gtk.Box+BoxChild
 			this.menubuttonActions = new global::QSWidgetLib.MenuButton();
 			this.menubuttonActions.CanFocus = true;
@@ -2192,13 +2183,13 @@ namespace Vodovoz
 			this.menubuttonActions.LabelXAlign = 0F;
 			this.menubuttonActions.Label = global::Mono.Unix.Catalog.GetString("Действия");
 			this.hboxStatusButtons.Add(this.menubuttonActions);
-			global::Gtk.Box.BoxChild w185 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.menubuttonActions]));
-			w185.Position = 5;
+			global::Gtk.Box.BoxChild w184 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons[this.menubuttonActions]));
+			w184.Position = 5;
 			this.vbox2.Add(this.hboxStatusButtons);
-			global::Gtk.Box.BoxChild w186 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxStatusButtons]));
-			w186.Position = 2;
-			w186.Expand = false;
-			w186.Fill = false;
+			global::Gtk.Box.BoxChild w185 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxStatusButtons]));
+			w185.Position = 2;
+			w185.Expand = false;
+			w185.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

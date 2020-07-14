@@ -11,7 +11,9 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
@@ -592,6 +594,49 @@ namespace Vodovoz.EntityRepositories.Orders
 			}
 
 			return null;
+		}
+
+		public decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId)
+		{
+			VodovozOrder orderAlias = null;
+			OrderItem orderItemAlias = null;
+			Counterparty counterpartyAlias = null;
+			PaymentItem paymentItemAlias = null;
+			CashlessMovementOperation cashlessMovOperationAlias = null;
+			
+			var total = uow.Session.QueryOver(() => orderAlias)
+				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Where(() => counterpartyAlias.Id == counterpartyId)
+				.Where(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
+				.And(() => orderAlias.OrderStatus != OrderStatus.Canceled)
+				.And(() => orderAlias.OrderStatus != OrderStatus.DeliveryCanceled)
+				.And(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Select(
+					Projections.Sum(
+						Projections.SqlFunction(new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
+							NHibernateUtil.Decimal, new IProjection[] {
+								Projections.Property(() => orderItemAlias.Price),
+								Projections.Property(() => orderItemAlias.ActualCount),
+								Projections.Property(() => orderItemAlias.Count),
+								Projections.Property(() => orderItemAlias.DiscountMoney)})
+					)
+				).SingleOrDefault<decimal>();
+			
+			var totalPayPartiallyPaidOrders = uow.Session.QueryOver(() => paymentItemAlias)
+				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovOperationAlias)
+				.Left.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
+				.Left.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.Where(() => counterpartyAlias.Id == counterpartyId)
+				.Where(() => orderAlias.OrderStatus != OrderStatus.NewOrder)
+				.And(() => orderAlias.OrderStatus != OrderStatus.Canceled)
+				.And(() => orderAlias.OrderStatus != OrderStatus.DeliveryCanceled)
+				.And(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.PartiallyPaid)
+				.Select(
+					Projections.Sum(() => cashlessMovOperationAlias.Expense)
+				).SingleOrDefault<decimal>();
+
+			return total - totalPayPartiallyPaidOrders;
 		}
 	}
 }

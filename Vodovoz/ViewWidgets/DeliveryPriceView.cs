@@ -13,7 +13,7 @@ namespace Vodovoz.ViewWidgets
 		public DeliveryPriceView()
 		{
 			this.Build();
-			
+			//Отображается только у точек доставки без района
 			ytreeviewPrices.CreateFluentColumnsConfig<DeliveryPriceRow>()
 				.AddColumn("Количество").AddNumericRenderer(x => x.Amount)
 				.AddColumn("Цена за бутыль").AddTextRenderer(x => x.Price)

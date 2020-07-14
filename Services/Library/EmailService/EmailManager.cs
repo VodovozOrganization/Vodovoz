@@ -11,6 +11,8 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Services;
@@ -122,7 +124,7 @@ namespace EmailService
 
 		static void AddEmailToSend(Email email)
 		{
-			if(!emailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order)) {
+			if(!emailRepository.CanSendByTimeout(email.Recipient.EmailAddress, email.Order, email.OrderDocumentType)) {
 				logger.Error("{0} Попытка отправить почту до истечения минимального времени до повторной отправки", GetThreadInfo());
 				throw new Exception("Отправка на один и тот же адрес возможна раз в 10 минут");
 			}
@@ -130,7 +132,22 @@ namespace EmailService
 			logger.Debug("{0} Запись в базу информации о письме", GetThreadInfo());
 			using(var uow = UnitOfWorkFactory.CreateWithNewRoot<StoredEmail>($"[ES]Добавление письма на отправку")) {
 				//Заполнение нового письма данными
-				uow.Root.Order = uow.GetById<Order>(email.Order);
+				switch (email.OrderDocumentType)
+				{
+					case OrderDocumentType.Bill:
+						uow.Root.Order = uow.GetById<Order>(email.Order);
+						break;
+					case OrderDocumentType.BillWSForDebt:
+						uow.Root.OrderWithoutShipmentForDebt = uow.GetById<OrderWithoutShipmentForDebt>(email.Order);
+						break;
+					case OrderDocumentType.BillWSForAdvancePayment:
+						uow.Root.OrderWithoutShipmentForAdvancePayment = uow.GetById<OrderWithoutShipmentForAdvancePayment>(email.Order);
+						break;
+					case OrderDocumentType.BillWSForPayment:
+						uow.Root.OrderWithoutShipmentForPayment = uow.GetById<OrderWithoutShipmentForPayment>(email.Order);
+						break;
+				}
+				
 				uow.Root.DocumentType = email.OrderDocumentType;
 				uow.Root.SendDate = DateTime.Now;
 				uow.Root.StateChangeDate = DateTime.Now;
@@ -155,7 +172,6 @@ namespace EmailService
 				emailsQueue.Add(email);
 				logger.Debug("{0} Письмо добавлено в очередь на отправку. Писем в очереди: {1}", GetThreadInfo(), emailsQueue.Count);
 				logger.Debug("{0} Закончил работу.", GetThreadInfo());
-
 			}
 		}
 

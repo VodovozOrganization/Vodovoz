@@ -112,10 +112,10 @@ namespace Vodovoz.Reports
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
 		{
 			//Сохранение значений во временную структуру
-			var oldSelected = new Dictionary<string, bool>();
+			var oldSelected = new Dictionary<int, bool>();
 			foreach(var item in driversList) {
 				if(item.IsSelected) {
-					oldSelected.Add(item.FullName, item.IsSelected);
+					oldSelected.Add(item.Id, item.IsSelected);
 				}
 			}
 
@@ -124,7 +124,7 @@ namespace Vodovoz.Reports
 			//Возврат значений 
 			foreach(var item in oldSelected) {
 				for(int i = 0; i < driversList.Count; i++) {
-					if(driversList[i].FullName == item.Key) {
+					if(driversList[i].Id == item.Key) {
 						driversList[i].IsSelected = item.Value;
 					}
 				}
@@ -160,16 +160,14 @@ namespace Vodovoz.Reports
 		//кнопка Проставить ЗП 
 		protected void OnButtonSelectWageClicked(object sender, EventArgs e)
 		{
-			//TODO Помойму этот код ничего не делает, gavr
+			FillDrivers();
 			foreach(var item in driversList) 
 				item.IsSelected = false;
 
 			var driversListFiltered = driversList.Where(x => CheckDate(x.FirstWorkDay, ydateDateSolary.Date) == true).ToList();
 			foreach(var item in driversListFiltered)
 				item.IsSelected = true;
-			//
-
-			FillDrivers();
+			
 			ytreeviewDrivers.SetItemsSource(driversList);
 		}
 

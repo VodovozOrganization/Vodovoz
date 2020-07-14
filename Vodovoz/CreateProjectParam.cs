@@ -90,6 +90,9 @@ using Vodovoz.ViewModels.BusinessTasks;
 using Vodovoz.Views.BusinessTasks;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Footers.Views;
+using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
+using Vodovoz.Views.Orders.OrdersWithoutShipment;
+using Vodovoz.Dialogs.Email;
 using Vodovoz.Journals.FilterViewModels;
 
 namespace Vodovoz
@@ -167,6 +170,7 @@ namespace Vodovoz
 			PermissionsSettings.PresetPermissions.Add("can_change_accepted_movement_doc", new PresetUserPermissionSource("can_change_accepted_movement_doc", "Изменение документа перемещения в статусе \"Принят\"", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_manage_drivers_and_forwarders", new PresetUserPermissionSource("can_manage_drivers_and_forwarders", "Создание и изменение водителей и экспедиторов", string.Empty));
 			PermissionsSettings.PresetPermissions.Add("can_manage_office_workers", new PresetUserPermissionSource("can_manage_office_workers", "Создание и изменение офисных работников", string.Empty));
+			PermissionsSettings.PresetPermissions.Add("can_create_bills_without_shipment", new PresetUserPermissionSource("can_create_bills_without_shipment", "Выставление счетов без отгрузки", string.Empty));
 
 			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {
@@ -223,6 +227,9 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<PaymentTaskViewModel, PaymentTaskView>()
 				.RegisterWidgetForTabViewModel<DistrictsSetViewModel, DistrictsSetView>()
 				.RegisterWidgetForTabViewModel<AcceptBeforeViewModel, AcceptBeforeView>()
+				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForDebtViewModel, OrderWithoutShipmentForDebtView>()
+				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForPaymentViewModel, OrderWithoutShipmentForPaymentView>()
+				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForAdvancePaymentViewModel, OrderWithoutShipmentForAdvancePaymentView>()
 				;
 
 			//Регистрация виджетов
@@ -254,6 +261,7 @@ namespace Vodovoz
 				.RegisterWidgetForWidgetViewModel<CallTaskFilterViewModel, CallTaskFilterView>()
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalFooterViewModel, BusinessTasksJournalFooterView>()
 				.RegisterWidgetForWidgetViewModel<BusinessTasksJournalActionsViewModel, BusinessTasksJournalActionsView>()
+				.RegisterWidgetForWidgetViewModel<SendDocumentByEmailViewModel, SendDocumentByEmailView>()
 				;
 
 			DialogHelper.FilterWidgetResolver = ViewModelWidgetResolver.Instance;

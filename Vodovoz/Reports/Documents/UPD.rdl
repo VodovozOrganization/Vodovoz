@@ -95,7 +95,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
@@ -176,7 +176,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -2026,8 +2026,8 @@ WHERE
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -2586,7 +2586,7 @@ WHERE
           <Textbox Name="Textbox144">
             <Height>11.25pt</Height>
             <Width>151.35pt</Width>
-            <Value>«     »                                  года</Value>
+            <Value>=Fields!order_date.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>180.7pt</Left>
             <Top>130.8pt</Top>
@@ -2597,6 +2597,9 @@ WHERE
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
+              <Format >d</Format>
+              <TextAlign >Center</TextAlign>
+              <VerticalAlign >Middle</VerticalAlign>
             </Style>
           </Textbox>
           <Textbox Name="Textbox145">
