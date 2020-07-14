@@ -282,7 +282,6 @@ namespace Vodovoz
 		{
 			if(Entity.Status != RouteListStatus.OnClosing && Entity.Status != RouteListStatus.MileageCheck) {
 				tblRLInfo.Sensitive = false;
-				routeListAddressesView.Sensitive = false;
 				vboxHidenPanel.Sensitive = false;
 				hbxStatistics1.Sensitive = false;
 				hbxStatistics2.Sensitive = false;
