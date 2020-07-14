@@ -338,22 +338,22 @@ namespace Vodovoz.Domain.Sale
 				{
 					result.AppendLine("\n цена: " + weekRules.Select(x => x.Price).Min());
 					
-					result.AppendLine(", минимум 19Л: " + weekRules.Select(x => x.DeliveryPriceRule.Water19LCount).Min());
-					result.AppendLine(", минимум 6Л: " + weekRules.Select(x => x.DeliveryPriceRule.Water6LCount).Min());
-					result.AppendLine(", минимум 1,5Л: " + weekRules.Select(x => x.DeliveryPriceRule.Water1500mlCount).Min());
-					result.AppendLine(", минимум 0,6Л: " + weekRules.Select(x => x.DeliveryPriceRule.Water600mlCount).Min());
+					result.AppendLine(", минимум 19л: " + weekRules.Select(x => x.DeliveryPriceRule.Water19LCount).Min());
+					result.AppendLine(", минимум 6л: " + weekRules.Select(x => x.DeliveryPriceRule.Water6LCount).Min());
+					result.AppendLine(", минимум 1,5л: " + weekRules.Select(x => x.DeliveryPriceRule.Water1500mlCount).Min());
+					result.AppendLine(", минимум 0,6л: " + weekRules.Select(x => x.DeliveryPriceRule.Water600mlCount).Min());
 				}
 				else if(ObservableCommonDistrictRuleItems.Any())
 				{
 					result.AppendLine("\n цена: " +ObservableCommonDistrictRuleItems
 						.Select(x => x.Price).Min());
-					result.AppendLine("минимум 19Л: " + ObservableCommonDistrictRuleItems
+					result.AppendLine("минимум 19л: " + ObservableCommonDistrictRuleItems
 						.Select(x => x.DeliveryPriceRule.Water19LCount).Min() );
-					result.AppendLine("минимум 6Л: " + ObservableCommonDistrictRuleItems
+					result.AppendLine("минимум 6л: " + ObservableCommonDistrictRuleItems
 						.Select(x => x.DeliveryPriceRule.Water6LCount).Min());
-					result.AppendLine("минимум 1,5Л: " + ObservableCommonDistrictRuleItems
+					result.AppendLine("минимум 1,5л: " + ObservableCommonDistrictRuleItems
 						.Select(x => x.DeliveryPriceRule.Water1500mlCount).Min());
-					result.AppendLine("минимум 0,6Л: " + ObservableCommonDistrictRuleItems
+					result.AppendLine("минимум 0,6л: " + ObservableCommonDistrictRuleItems
 						.Select(x => x.DeliveryPriceRule.Water600mlCount).Min());
 				}
 				else
