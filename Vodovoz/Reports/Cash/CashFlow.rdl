@@ -239,6 +239,7 @@ ORDER BY Category;</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 
+IFNULL(
 (SELECT SUM(money) FROM cash_income ci 
 WHERE 
     `date` &lt; @startDate
@@ -247,7 +248,7 @@ WHERE
 (SELECT SUM(money) FROM cash_expense ce 
 WHERE 
     `date` &lt; @startDate
-    AND related_to_subdivision_id = 17) as startBalanceSof;</CommandText>
+    AND related_to_subdivision_id = 17), 0) as startBalanceSof;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
@@ -266,6 +267,7 @@ WHERE
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 
+IFNULL(
 (SELECT SUM(money) FROM cash_income ci 
 WHERE 
     `date` &lt; @endDate
@@ -274,7 +276,7 @@ WHERE
 (SELECT SUM(money) FROM cash_expense ce 
 WHERE 
     `date` &lt; @endDate
-    AND related_to_subdivision_id = 17) as endBalanceSof ;</CommandText>
+    AND related_to_subdivision_id = 17), 0) as endBalanceSof ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
@@ -284,15 +286,16 @@ WHERE
       <Fields >
         <Field Name="endBalanceSof">
           <DataField>endBalanceSof</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="StartBalanceBC" >
-      <Query>
+    <DataSet Name="StartBalanceBC">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 
+IFNULL(
 (SELECT SUM(money) FROM cash_income ci 
 WHERE 
     `date` &lt; @startDate
@@ -301,25 +304,26 @@ WHERE
 (SELECT SUM(money) FROM cash_expense ce 
 WHERE 
     `date` &lt; @startDate
-    AND related_to_subdivision_id = 33) as startBalanceBC;</CommandText>
+    AND related_to_subdivision_id = 33), 0) as startBalanceBC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="startBalanceBC">
           <DataField>startBalanceBC</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="StartBalanceParnas" >
-      <Query>
+    <DataSet Name="StartBalanceParnas">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 
+IFNULL(
 (SELECT SUM(money) FROM cash_income ci 
 WHERE 
     `date` &lt; @startDate
@@ -328,25 +332,25 @@ WHERE
 (SELECT SUM(money) FROM cash_expense ce 
 WHERE 
     `date` &lt; @startDate
-    AND related_to_subdivision_id = 25) as startBalanceParnas;</CommandText>
+    AND related_to_subdivision_id = 25), 0) as startBalanceParnas;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="startBalanceParnas">
           <DataField>startBalanceParnas</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="StartBalanceYach" >
-      <Query>
+    <DataSet Name="StartBalanceYach">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-
+IFNULL(
 (SELECT SUM(money) FROM cash_income ci 
 WHERE 
     `date` &lt; @startDate
@@ -355,25 +359,25 @@ WHERE
 (SELECT SUM(money) FROM cash_expense ce 
 WHERE 
     `date` &lt; @startDate
-    AND related_to_subdivision_id = 34) as startBalanceYach;</CommandText>
+    AND related_to_subdivision_id = 34), 0) as startBalanceYach;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="startBalanceYach">
           <DataField>startBalanceYach</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="EndBalanceBC" >
-      <Query>
+    <DataSet Name="EndBalanceBC">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-
+IFNULL(
 (SELECT SUM(money) FROM cash_income ci 
 WHERE 
     `date` &lt; @endDate
@@ -382,25 +386,25 @@ WHERE
 (SELECT SUM(money) FROM cash_expense ce 
 WHERE 
     `date` &lt; @endDate
-    AND related_to_subdivision_id = 33) as endBalanceBC ;</CommandText>
+    AND related_to_subdivision_id = 33), 0) as endBalanceBC ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="endBalanceBC">
           <DataField>endBalanceBC</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="EndBalanceParnas" >
-      <Query>
+    <DataSet Name="EndBalanceParnas">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-
+IFNULL(
 (SELECT SUM(money) FROM cash_income ci 
 WHERE 
     `date` &lt; @endDate
@@ -409,25 +413,25 @@ WHERE
 (SELECT SUM(money) FROM cash_expense ce 
 WHERE 
     `date` &lt; @endDate
-    AND related_to_subdivision_id = 25) as endBalanceParnas ;</CommandText>
+    AND related_to_subdivision_id = 25), 0) as endBalanceParnas ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="endBalanceParnas">
           <DataField>endBalanceParnas</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="EndBalanceYach" >
-      <Query>
+    <DataSet Name="EndBalanceYach">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-
+IFNULL(
 (SELECT SUM(money) FROM cash_income ci 
 WHERE 
     `date` &lt; @endDate
@@ -436,17 +440,17 @@ WHERE
 (SELECT SUM(money) FROM cash_expense ce 
 WHERE 
     `date` &lt; @endDate
-    AND related_to_subdivision_id = 34) as endBalanceYach;</CommandText>
+    AND related_to_subdivision_id = 34), 0) as endBalanceYach;</CommandText>
         <QueryParameters>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="endBalanceYach">
           <DataField>endBalanceYach</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1321,13 +1325,13 @@ WHERE
         <Width>178.21pt</Width>
         <Value>=First({startBalanceSof}, "StartBalanceSof")</Value>
         <ZIndex>1</ZIndex>
-        <Left>109.9pt</Left>
+        <Left>116.3pt</Left>
         <Top>364.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign>Center</TextAlign>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox39" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1335,16 +1339,16 @@ WHERE
         <Width>170.81pt</Width>
         <Value>=First({endBalanceSof}, "EndBalanceSof")</Value>
         <ZIndex>1</ZIndex>
-        <Left>112.5pt</Left>
+        <Left>118.9pt</Left>
         <Top>471.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign>Center</TextAlign>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox40" >
+      <Textbox Name="Textbox40">
         <Height>15.04pt</Height>
         <Width>110.58pt</Width>
         <Value>Касса Софийская:</Value>
@@ -1357,7 +1361,7 @@ WHERE
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox41" >
+      <Textbox Name="Textbox41">
         <Height>15.04pt</Height>
         <Width>110.58pt</Width>
         <Value>Касса БЦ:</Value>
@@ -1370,7 +1374,7 @@ WHERE
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox42" >
+      <Textbox Name="Textbox42">
         <Height>15.04pt</Height>
         <Width>110.58pt</Width>
         <Value>Касса Ячейка:</Value>
@@ -1383,7 +1387,7 @@ WHERE
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox43" >
+      <Textbox Name="Textbox43">
         <Height>15.04pt</Height>
         <Width>110.58pt</Width>
         <Value>Касса Парнас:</Value>
@@ -1401,13 +1405,13 @@ WHERE
         <Width>178.21pt</Width>
         <Value>=First({startBalanceParnas}, "StartBalanceParnas")</Value>
         <ZIndex>1</ZIndex>
-        <Left>110.8pt</Left>
+        <Left>118.9pt</Left>
         <Top>396.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign>Center</TextAlign>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox45" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1415,13 +1419,13 @@ WHERE
         <Width>178.21pt</Width>
         <Value>=First({startBalanceBC}, "StartBalanceBC")</Value>
         <ZIndex>1</ZIndex>
-        <Left>110.2pt</Left>
+        <Left>118.9pt</Left>
         <Top>380.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign>Center</TextAlign>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox46" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1429,16 +1433,16 @@ WHERE
         <Width>178.21pt</Width>
         <Value>=First({startBalanceYach}, "StartBalanceYach")</Value>
         <ZIndex>1</ZIndex>
-        <Left>112.3pt</Left>
+        <Left>118.9pt</Left>
         <Top>413.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign>Center</TextAlign>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox47" >
+      <Textbox Name="Textbox47">
         <Height>15.04pt</Height>
         <Width>110.58pt</Width>
         <Value>Касса Софийская:</Value>
@@ -1451,7 +1455,7 @@ WHERE
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox48" >
+      <Textbox Name="Textbox48">
         <Height>15.04pt</Height>
         <Width>110.58pt</Width>
         <Value>Касса БЦ:</Value>
@@ -1464,7 +1468,7 @@ WHERE
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox49" >
+      <Textbox Name="Textbox49">
         <Height>15.04pt</Height>
         <Width>110.58pt</Width>
         <Value>Касса Ячейка:</Value>
@@ -1477,7 +1481,7 @@ WHERE
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox50" >
+      <Textbox Name="Textbox50">
         <Height>15.04pt</Height>
         <Width>110.58pt</Width>
         <Value>Касса Парнас:</Value>
@@ -1495,13 +1499,13 @@ WHERE
         <Width>178.21pt</Width>
         <Value>=First({endBalanceParnas}, "EndBalanceParnas")</Value>
         <ZIndex>1</ZIndex>
-        <Left>111.3pt</Left>
+        <Left>118.9pt</Left>
         <Top>500.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign>Center</TextAlign>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox52" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1509,13 +1513,13 @@ WHERE
         <Width>178.21pt</Width>
         <Value>=First({endBalanceBC}, "EndBalanceBC")</Value>
         <ZIndex>1</ZIndex>
-        <Left>111.0pt</Left>
+        <Left>118.9pt</Left>
         <Top>486.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign>Center</TextAlign>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox53" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1523,13 +1527,13 @@ WHERE
         <Width>178.21pt</Width>
         <Value>=First({endBalanceYach}, "EndBalanceYach")</Value>
         <ZIndex>1</ZIndex>
-        <Left>112.7pt</Left>
+        <Left>118.9pt</Left>
         <Top>515.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign>Center</TextAlign>
+          <TextAlign>Left</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
