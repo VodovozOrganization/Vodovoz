@@ -21,6 +21,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private void Configure()
 		{
+			btnCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
 			ylabelOrderNum.Binding.AddBinding(ViewModel.Entity, vm => vm.Id, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 			yentryDebtName.Binding.AddBinding(ViewModel.Entity, vm => vm.DebtName, w => w.Text).InitializeFromSource();
 			yspinbtnDebtSum.Binding.AddBinding(ViewModel.Entity, vm => vm.DebtSum, v => v.ValueAsDecimal).InitializeFromSource();
