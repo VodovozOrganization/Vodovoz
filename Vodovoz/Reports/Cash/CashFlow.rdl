@@ -239,16 +239,16 @@ ORDER BY Category;</CommandText>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 
-IFNULL(
-(SELECT SUM(money) FROM cash_income ci 
+
+(SELECT IFNULL(SUM(money),0) FROM cash_income ci 
 WHERE 
     `date` &lt; @startDate
     AND related_to_subdivision_id = 17)
 -
-(SELECT SUM(money) FROM cash_expense ce 
+(SELECT IFNULL(SUM(money),0) FROM cash_expense ce 
 WHERE 
     `date` &lt; @startDate
-    AND related_to_subdivision_id = 17), 0) as startBalanceSof;</CommandText>
+    AND related_to_subdivision_id = 17) as startBalanceSof;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
@@ -267,16 +267,15 @@ WHERE
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 
-IFNULL(
-(SELECT SUM(money) FROM cash_income ci 
+(SELECT IFNULL(SUM(money),0) FROM cash_income ci 
 WHERE 
     `date` &lt; @endDate
     AND related_to_subdivision_id = 17)
 -
-(SELECT SUM(money) FROM cash_expense ce 
+(SELECT IFNULL(SUM(money),0) FROM cash_expense ce 
 WHERE 
     `date` &lt; @endDate
-    AND related_to_subdivision_id = 17), 0) as endBalanceSof ;</CommandText>
+    AND related_to_subdivision_id = 17) as endBalanceSof ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
@@ -295,16 +294,15 @@ WHERE
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 
-IFNULL(
-(SELECT SUM(money) FROM cash_income ci 
+(SELECT IFNULL(SUM(money),0) FROM cash_income ci 
 WHERE 
     `date` &lt; @startDate
     AND related_to_subdivision_id = 33)
 -
-(SELECT SUM(money) FROM cash_expense ce 
+(SELECT IFNULL(SUM(money),0) FROM cash_expense ce 
 WHERE 
     `date` &lt; @startDate
-    AND related_to_subdivision_id = 33), 0) as startBalanceBC;</CommandText>
+    AND related_to_subdivision_id = 33) as startBalanceBC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
@@ -323,16 +321,15 @@ WHERE
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 
-IFNULL(
-(SELECT SUM(money) FROM cash_income ci 
+(SELECT IFNULL(SUM(money),0) FROM cash_income ci 
 WHERE 
     `date` &lt; @startDate
     AND related_to_subdivision_id = 25)
 -
-(SELECT SUM(money) FROM cash_expense ce 
+(SELECT IFNULL(SUM(money),0) FROM cash_expense ce 
 WHERE 
     `date` &lt; @startDate
-    AND related_to_subdivision_id = 25), 0) as startBalanceParnas;</CommandText>
+    AND related_to_subdivision_id = 25) as startBalanceParnas;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
@@ -350,16 +347,16 @@ WHERE
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-IFNULL(
-(SELECT SUM(money) FROM cash_income ci 
+
+(SELECT IFNULL(SUM(money),0) FROM cash_income ci 
 WHERE 
     `date` &lt; @startDate
     AND related_to_subdivision_id = 34)
 -
-(SELECT SUM(money) FROM cash_expense ce 
+(SELECT IFNULL(SUM(money),0) FROM cash_expense ce 
 WHERE 
     `date` &lt; @startDate
-    AND related_to_subdivision_id = 34), 0) as startBalanceYach;</CommandText>
+    AND related_to_subdivision_id = 34) as startBalanceYach;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
@@ -377,16 +374,16 @@ WHERE
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-IFNULL(
-(SELECT SUM(money) FROM cash_income ci 
+
+(SELECT IFNULL(SUM(money),0) FROM cash_income ci 
 WHERE 
     `date` &lt; @endDate
     AND related_to_subdivision_id = 33)
 -
-(SELECT SUM(money) FROM cash_expense ce 
+(SELECT IFNULL(SUM(money),0) FROM cash_expense ce 
 WHERE 
     `date` &lt; @endDate
-    AND related_to_subdivision_id = 33), 0) as endBalanceBC ;</CommandText>
+    AND related_to_subdivision_id = 33) as endBalanceBC ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
@@ -404,16 +401,16 @@ WHERE
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-IFNULL(
-(SELECT SUM(money) FROM cash_income ci 
+
+(SELECT IFNULL(SUM(money),0) FROM cash_income ci 
 WHERE 
     `date` &lt; @endDate
     AND related_to_subdivision_id = 25)
 -
-(SELECT SUM(money) FROM cash_expense ce 
+(SELECT IFNULL(SUM(money),0) FROM cash_expense ce 
 WHERE 
     `date` &lt; @endDate
-    AND related_to_subdivision_id = 25), 0) as endBalanceParnas ;</CommandText>
+    AND related_to_subdivision_id = 25) as endBalanceParnas ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
@@ -431,16 +428,16 @@ WHERE
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-IFNULL(
-(SELECT SUM(money) FROM cash_income ci 
+
+(SELECT IFNULL(SUM(money),0) FROM cash_income ci 
 WHERE 
     `date` &lt; @endDate
     AND related_to_subdivision_id = 34)
 -
-(SELECT SUM(money) FROM cash_expense ce 
+(SELECT IFNULL(SUM(money),0) FROM cash_expense ce 
 WHERE 
     `date` &lt; @endDate
-    AND related_to_subdivision_id = 34), 0) as endBalanceYach;</CommandText>
+    AND related_to_subdivision_id = 34) as endBalanceYach;</CommandText>
         <QueryParameters>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
