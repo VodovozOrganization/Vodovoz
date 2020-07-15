@@ -107,7 +107,7 @@ ORDER BY Category
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name as Category,
@@ -138,7 +138,7 @@ ORDER BY Category
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -234,7 +234,7 @@ ORDER BY Category;</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="StartBalance">
+    <DataSet Name="StartBalanceSof">
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
@@ -247,7 +247,7 @@ WHERE
 (SELECT SUM(money) FROM cash_expense ce 
 WHERE 
     `date` &lt; @startDate
-    AND related_to_subdivision_id = 17) as startBalance;</CommandText>
+    AND related_to_subdivision_id = 17) as startBalanceSof;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
@@ -255,13 +255,13 @@ WHERE
         </QueryParameters>
       </Query>
       <Fields >
-        <Field Name="startBalance">
-          <DataField>startBalance</DataField>
+        <Field Name="startBalanceSof">
+          <DataField>startBalanceSof</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="EndBalance">
+    <DataSet Name="EndBalanceSof">
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
@@ -274,7 +274,7 @@ WHERE
 (SELECT SUM(money) FROM cash_expense ce 
 WHERE 
     `date` &lt; @endDate
-    AND related_to_subdivision_id = 17) as endBalance ;</CommandText>
+    AND related_to_subdivision_id = 17) as endBalanceSof ;</CommandText>
         <QueryParameters>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
@@ -282,8 +282,170 @@ WHERE
         </QueryParameters>
       </Query>
       <Fields >
-        <Field Name="endBalance">
-          <DataField>endBalance</DataField>
+        <Field Name="endBalanceSof">
+          <DataField>endBalanceSof</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="StartBalanceBC" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+
+(SELECT SUM(money) FROM cash_income ci 
+WHERE 
+    `date` &lt; @startDate
+    AND related_to_subdivision_id = 33)
+-
+(SELECT SUM(money) FROM cash_expense ce 
+WHERE 
+    `date` &lt; @startDate
+    AND related_to_subdivision_id = 33) as startBalanceBC;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!StartDate</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="startBalanceBC">
+          <DataField>startBalanceBC</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="StartBalanceParnas" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+
+(SELECT SUM(money) FROM cash_income ci 
+WHERE 
+    `date` &lt; @startDate
+    AND related_to_subdivision_id = 25)
+-
+(SELECT SUM(money) FROM cash_expense ce 
+WHERE 
+    `date` &lt; @startDate
+    AND related_to_subdivision_id = 25) as startBalanceParnas;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!StartDate</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="startBalanceParnas">
+          <DataField>startBalanceParnas</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="StartBalanceYach" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+
+(SELECT SUM(money) FROM cash_income ci 
+WHERE 
+    `date` &lt; @startDate
+    AND related_to_subdivision_id = 34)
+-
+(SELECT SUM(money) FROM cash_expense ce 
+WHERE 
+    `date` &lt; @startDate
+    AND related_to_subdivision_id = 34) as startBalanceYach;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!StartDate</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="startBalanceYach">
+          <DataField>startBalanceYach</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="EndBalanceBC" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+
+(SELECT SUM(money) FROM cash_income ci 
+WHERE 
+    `date` &lt; @endDate
+    AND related_to_subdivision_id = 33)
+-
+(SELECT SUM(money) FROM cash_expense ce 
+WHERE 
+    `date` &lt; @endDate
+    AND related_to_subdivision_id = 33) as endBalanceBC ;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="endBalanceBC">
+          <DataField>endBalanceBC</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="EndBalanceParnas" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+
+(SELECT SUM(money) FROM cash_income ci 
+WHERE 
+    `date` &lt; @endDate
+    AND related_to_subdivision_id = 25)
+-
+(SELECT SUM(money) FROM cash_expense ce 
+WHERE 
+    `date` &lt; @endDate
+    AND related_to_subdivision_id = 25) as endBalanceParnas ;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="endBalanceParnas">
+          <DataField>endBalanceParnas</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="EndBalanceYach" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+
+(SELECT SUM(money) FROM cash_income ci 
+WHERE 
+    `date` &lt; @endDate
+    AND related_to_subdivision_id = 34)
+-
+(SELECT SUM(money) FROM cash_expense ce 
+WHERE 
+    `date` &lt; @endDate
+    AND related_to_subdivision_id = 34) as endBalanceYach;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="endBalanceYach">
+          <DataField>endBalanceYach</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
@@ -1146,8 +1308,8 @@ WHERE
         <Width>227.23pt</Width>
         <Value>Баланс на конец периода:</Value>
         <ZIndex>1</ZIndex>
-        <Left>18.5pt</Left>
-        <Top>363.5pt</Top>
+        <Left>12.3pt</Left>
+        <Top>447.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1157,33 +1319,221 @@ WHERE
       <Textbox Name="Textbox38" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>18.75pt</Height>
         <Width>178.21pt</Width>
-        <Value>=First({startBalance}, "StartBalance")</Value>
+        <Value>=First({startBalanceSof}, "StartBalanceSof")</Value>
         <ZIndex>1</ZIndex>
-        <Left>150.60pt</Left>
-        <Top>343.90pt</Top>
+        <Left>109.9pt</Left>
+        <Top>364.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign >Center</TextAlign>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
       <Textbox Name="Textbox39" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>16.50pt</Height>
         <Width>170.81pt</Width>
-        <Value>=First({endBalance}, "EndBalance")</Value>
+        <Value>=First({endBalanceSof}, "EndBalanceSof")</Value>
         <ZIndex>1</ZIndex>
-        <Left>150.90pt</Left>
-        <Top>365.00pt</Top>
+        <Left>112.5pt</Left>
+        <Top>471.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <TextAlign >Center</TextAlign>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox40" >
+        <Height>15.04pt</Height>
+        <Width>110.58pt</Width>
+        <Value>Касса Софийская:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>24.3pt</Left>
+        <Top>363.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox41" >
+        <Height>15.04pt</Height>
+        <Width>110.58pt</Width>
+        <Value>Касса БЦ:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>24.5pt</Left>
+        <Top>380.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox42" >
+        <Height>15.04pt</Height>
+        <Width>110.58pt</Width>
+        <Value>Касса Ячейка:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>24.1pt</Left>
+        <Top>412.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox43" >
+        <Height>15.04pt</Height>
+        <Width>110.58pt</Width>
+        <Value>Касса Парнас:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>24.8pt</Left>
+        <Top>395.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox44" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.75pt</Height>
+        <Width>178.21pt</Width>
+        <Value>=First({startBalanceParnas}, "StartBalanceParnas")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>110.8pt</Left>
+        <Top>396.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox45" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.75pt</Height>
+        <Width>178.21pt</Width>
+        <Value>=First({startBalanceBC}, "StartBalanceBC")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>110.2pt</Left>
+        <Top>380.6pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox46" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.75pt</Height>
+        <Width>178.21pt</Width>
+        <Value>=First({startBalanceYach}, "StartBalanceYach")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>112.3pt</Left>
+        <Top>413.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox47" >
+        <Height>15.04pt</Height>
+        <Width>110.58pt</Width>
+        <Value>Касса Софийская:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>25.3pt</Left>
+        <Top>470.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox48" >
+        <Height>15.04pt</Height>
+        <Width>110.58pt</Width>
+        <Value>Касса БЦ:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>25.5pt</Left>
+        <Top>485.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox49" >
+        <Height>15.04pt</Height>
+        <Width>110.58pt</Width>
+        <Value>Касса Ячейка:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>25.6pt</Left>
+        <Top>516.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox50" >
+        <Height>15.04pt</Height>
+        <Width>110.58pt</Width>
+        <Value>Касса Парнас:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>25.1pt</Left>
+        <Top>499.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox51" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.75pt</Height>
+        <Width>178.21pt</Width>
+        <Value>=First({endBalanceParnas}, "EndBalanceParnas")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>111.3pt</Left>
+        <Top>500.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox52" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.75pt</Height>
+        <Width>178.21pt</Width>
+        <Value>=First({endBalanceBC}, "EndBalanceBC")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>111.0pt</Left>
+        <Top>486.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox53" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.75pt</Height>
+        <Width>178.21pt</Width>
+        <Value>=First({endBalanceYach}, "EndBalanceYach")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>112.7pt</Left>
+        <Top>515.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
-    <Height>386.2pt</Height>
+    <Height>599.3pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>

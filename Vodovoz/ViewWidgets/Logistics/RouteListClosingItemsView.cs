@@ -206,7 +206,8 @@ namespace Vodovoz
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
 				.AddColumn("С погрузкой").HeaderAlignment(0.5f)
-					.AddToggleRenderer(item => item.NeedToReload)
+					.AddToggleRenderer(item => item.TransferedTo != null ? item.TransferedTo.NeedToReload : item.NeedToReload )
+						.Editing(false)
 						
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
