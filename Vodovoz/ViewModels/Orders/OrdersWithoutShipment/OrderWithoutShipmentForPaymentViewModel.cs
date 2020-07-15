@@ -4,13 +4,14 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using QS.Commands;
 using Vodovoz.Domain.Orders;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Commands;
+using QS.Navigation;
 using QS.Project.Journal;
 using QS.Tdi;
 using Vodovoz.Dialogs.Email;
@@ -36,6 +37,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			set => SetField(ref endDate, value);
 		}
 		
+		#region Commands
+		
+		public DelegateCommand CancelCommand { get; private set; }
+		
+		#endregion
+		
 		public OrderWithoutShipmentForPaymentNode SelectedNode { get; set; }
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
@@ -50,12 +57,25 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices) : base(uowBuilder, uowFactory, commonServices)
 		{
+			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
+			
 			if (uowBuilder.IsNewEntity)
 			{
-				if(!AskQuestion("Вы действительно хотите создать счет без отгрузки на постоплату?"))
-					AbortOpening();
+				if (canCreateBillsWithoutShipment)
+				{
+					if (!AskQuestion("Вы действительно хотите создать счет без отгрузки на постоплату?"))
+					{
+						AbortOpening();
+					}
+					else
+					{
+						Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+					}
+				}
 				else
-					Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+				{
+					AbortOpening("У Вас нет прав на выставление счетов без отгрузки.");
+				}
 			}
 			
 			TabName = "Счет без отгрузки на постоплату";
@@ -64,22 +84,30 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(),UoW);
 			
 			ObservableNodes = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
-			
+
 			CreateCommands();
 		}
 
 		private void CreateCommands()
 		{
-			
+			CreateCancelCommand();
+		}
+
+		private void CreateCancelCommand()
+		{
+			CancelCommand = new DelegateCommand(
+			() =>Close(false, CloseSource.Cancel),
+			() => true
+			);
 		}
 
 		public void UpdateNodes(object sender, EventArgs e)
 		{
+			ObservableNodes.Clear();
+			
 			if (Entity.Client == null)
 				return;
 
-			ObservableNodes.Clear();
-			
 			OrderWithoutShipmentForPaymentNode resultAlias = null;
 			VodOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
@@ -117,12 +145,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 						)
 					);
 
-			/*incomePaymentQuery.Where(
-					GetSearchCriterion(
-					() => orderAlias.Id
-				)
-			);*/
-
 			var resultQuery = cashlessOrdersQuery
 					.SelectList(list => list
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
@@ -155,8 +177,10 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			if(email != null)
 				SendDocViewModel.Update(Entity, email.Address);
 			else 
-			if(!string.IsNullOrEmpty(SendDocViewModel.EmailString))
-				SendDocViewModel.EmailString = string.Empty;
+				if(!string.IsNullOrEmpty(SendDocViewModel.EmailString))
+					SendDocViewModel.EmailString = string.Empty;
+			
+			UpdateNodes(this, EventArgs.Empty);
 		}
 
 		public void UpdateItems()

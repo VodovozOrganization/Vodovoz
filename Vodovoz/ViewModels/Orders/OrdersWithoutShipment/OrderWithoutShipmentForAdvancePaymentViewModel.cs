@@ -4,6 +4,7 @@ using QS.Commands;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
@@ -39,7 +40,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		#region Commands
 
 		public DelegateCommand AddForSaleCommand { get; private set; }
-
+		public DelegateCommand CancelCommand { get; private set; }
 		public DelegateCommand DeleteItemCommand { get; private set; }
 
 		#endregion Commands
@@ -49,12 +50,25 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices) : base(uowBuilder, uowFactory, commonServices)
 		{
+			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
+			
 			if (uowBuilder.IsNewEntity)
 			{
-				if(!AskQuestion("Вы действительно хотите создать счет без отгрузки на предоплату?"))
-					AbortOpening();
+				if (canCreateBillsWithoutShipment)
+				{
+					if (!AskQuestion("Вы действительно хотите создать счет без отгрузки на предоплату?"))
+					{
+						AbortOpening();
+					}
+					else
+					{
+						Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+					}
+				}
 				else
-					Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+				{
+					AbortOpening("У Вас нет прав на выставление счетов без отгрузки.");
+				}
 			}
 			
 			TabName = "Счет без отгрузки на предоплату";
@@ -68,9 +82,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private void CreateCommands()
 		{
 			CreateAddForSaleCommand();
+			CreateCancelCommand();
 			CreateDeleteItemCommand();
 		}
 
+		private void CreateCancelCommand()
+		{
+			CancelCommand = new DelegateCommand(
+				() =>Close(false, CloseSource.Cancel),
+				() => true
+			);
+		}
+		
 		private void CreateAddForSaleCommand()
 		{
 			AddForSaleCommand = new DelegateCommand(
