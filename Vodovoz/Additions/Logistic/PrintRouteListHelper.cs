@@ -90,7 +90,9 @@ namespace Vodovoz.Additions.Logistic
 			//Расширяем таблицу
 			string columnsXml = "<TableColumn><Width>18pt</Width></TableColumn>";
 			string columns = String.Empty;
-			for(int i = 0; i < RouteColumns.Count; i++) {
+			
+			columns += "<TableColumn><Width>100pt</Width></TableColumn>"; // Первая колонка шире тк кк это коммент
+			for(int i = 1; i < RouteColumns.Count; i++) {
 				columns += columnsXml;
 			}
 			RdlText = RdlText.Replace("<!--table_column-->", columns);
@@ -104,6 +106,9 @@ namespace Vodovoz.Additions.Logistic
 			string SqlSelectSubquery = String.Empty;
 			string Fields = String.Empty;
 			string TotalSum = "= 0";
+
+			bool isFirstColumn = true;
+			
 			foreach(var column in RouteColumns) {
 				//Заголовки колонок
 				CellColumnHeader += String.Format(
@@ -117,48 +122,79 @@ namespace Vodovoz.Additions.Logistic
 					TextBoxNumber++, column.Name);
 				//Формула для колонки с водой для информации из запроса
 				//'' + {{Water_fact{0}}} + '(' + ({{Water_fact{0}}} - {{Water{0}}}) + ')'
-				if(isClosed)
-					CellColumnValue += String.Format(numericCellTemplate,
-													  TextBoxNumber++,
-													  String.Format("=Iif({{Water{0}}} + {{Water_fact{0}}} = 0, \"\", Iif( {{Water{0}}} = {{Water_fact{0}}}, Format({{Water{0}}}, '0'), '' + {{Water_fact{0}}} + '(' + Iif({{Water_fact{0}}} - {{Water{0}}} > 0, '+', '') + ({{Water_fact{0}}} - {{Water{0}}}) + ')'))", column.Id),
-													  String.Format("=Iif({{Water{0}}} = {{Water_fact{0}}}, \"0\", \"\")", column.Id)
-													 );
-				else
-					CellColumnValue += String.Format(numericCellTemplate,
-					TextBoxNumber++, String.Format("=Iif({{Water{0}}} = 0, \"\", {{Water{0}}})", column.Id), 'C');
+				
+				if (isFirstColumn) {
+					CellColumnValue += String.Format(numericCellTemplate, TextBoxNumber++, "={OrderComment}", "0");
+				}
+				else {
+					if (isClosed)
+						CellColumnValue += String.Format(numericCellTemplate,
+							TextBoxNumber++,
+							String.Format(
+								"=Iif({{Water{0}}} + {{Water_fact{0}}} = 0, \"\", Iif( {{Water{0}}} = {{Water_fact{0}}}, Format({{Water{0}}}, '0'), '' + {{Water_fact{0}}} + '(' + Iif({{Water_fact{0}}} - {{Water{0}}} > 0, '+', '') + ({{Water_fact{0}}} - {{Water{0}}}) + ')'))",
+								column.Id),
+							String.Format("=Iif({{Water{0}}} = {{Water_fact{0}}}, \"0\", \"\")", column.Id)
+						);
+					else
+						CellColumnValue += String.Format(numericCellTemplate,
+							TextBoxNumber++, String.Format("=Iif({{Water{0}}} = 0, \"\", {{Water{0}}})", column.Id),
+							'C');
+				}
 				//Ячейка с запасом. Пока там пусто
-				CellColumnStock += String.Format(numericCellTemplate,
-												  TextBoxNumber++, "", 0);
+				CellColumnStock += String.Format(numericCellTemplate, TextBoxNumber++, "", 0);
 
 				//Ячейка с суммой по бутылям.
-				string formula;
-				if(isClosed)
-					formula = String.Format("=Iif(Sum({{Water_fact{0}}}) = 0, \"\", Sum({{Water_fact{0}}}))", column.Id);
-				else
-					formula = String.Format("=Iif(Sum({{Water{0}}}) = 0, \"\", Sum({{Water{0}}}))", column.Id);
-				CellColumnTotal += String.Format(numericCellTemplate, TextBoxNumber++, formula, 0);
+				if (isFirstColumn) {
+					CellColumnTotal += String.Format(numericCellTemplate, TextBoxNumber++, "", 0);
+				}
+				else {
+					string formula;
+					if (isClosed)
+						formula = String.Format("=Iif(Sum({{Water_fact{0}}}) = 0, \"\", Sum({{Water_fact{0}}}))",
+							column.Id);
+					else
+						formula = String.Format("=Iif(Sum({{Water{0}}}) = 0, \"\", Sum({{Water{0}}}))", column.Id);
+					CellColumnTotal += String.Format(numericCellTemplate, TextBoxNumber++, formula, 0);
+				}
 
 				//Запрос..
-				SqlSelect += String.Format(", IFNULL(wt_qry.Water{0}, 0) AS Water{0}", column.Id.ToString());
-				SqlSelectSubquery += String.Format(", SUM(IF(nomenclature_route_column.id = {0}, order_items.count, 0)) AS {1}",
-					column.Id, "Water" + column.Id.ToString());
-				if(isClosed) {
-					SqlSelect += String.Format(", IF(route_list_addresses.status = 'Transfered', 0, IFNULL(wt_qry.Water_fact{0}, 0)) AS Water_fact{0}", column.Id.ToString());
-					SqlSelectSubquery += String.Format(", SUM(IF(nomenclature_route_column.id = {0}, IFNULL(order_items.actual_count, 0), 0)) AS {1}",
-						column.Id, "Water_fact" + column.Id.ToString());
-				}
-				//Линкуем запрос на переменные RDL
-				Fields += String.Format("" +
-					"<Field Name=\"{0}\">" +
-					"<DataField>{0}</DataField>" +
-					"<TypeName>System.Int32</TypeName>" +
-					"</Field>", "Water" + column.Id.ToString());
-				if(isClosed) {
+				if (isFirstColumn) {
+					SqlSelect += String.Format(", orders.comment AS OrderComment", column.Id.ToString());
 					Fields += String.Format("" +
-						"<Field Name=\"{0}\">" +
-						"<DataField>{0}</DataField>" +
-						"<TypeName>System.Int32</TypeName>" +
-						"</Field>", "Water_fact" + column.Id.ToString());
+					                        "<Field Name=\"{0}\">" +
+					                        "<DataField>{0}</DataField>" +
+					                        "<TypeName>System.String</TypeName>" +
+					                        "</Field>", "OrderComment" );
+					isFirstColumn = false;
+				}
+				else {
+					SqlSelect += String.Format(", IFNULL(wt_qry.Water{0}, 0) AS Water{0}", column.Id.ToString());
+					SqlSelectSubquery += String.Format(
+						", SUM(IF(nomenclature_route_column.id = {0}, order_items.count, 0)) AS {1}",
+						column.Id, "Water" + column.Id.ToString());
+					if (isClosed) {
+						SqlSelect +=
+							String.Format(
+								", IF(route_list_addresses.status = 'Transfered', 0, IFNULL(wt_qry.Water_fact{0}, 0)) AS Water_fact{0}",
+								column.Id.ToString());
+						SqlSelectSubquery += String.Format(
+							", SUM(IF(nomenclature_route_column.id = {0}, IFNULL(order_items.actual_count, 0), 0)) AS {1}",
+							column.Id, "Water_fact" + column.Id.ToString());
+					}
+
+					//Линкуем запрос на переменные RDL
+					Fields += String.Format("" +
+					                        "<Field Name=\"{0}\">" +
+					                        "<DataField>{0}</DataField>" +
+					                        "<TypeName>System.Int32</TypeName>" +
+					                        "</Field>", "Water" + column.Id.ToString());
+					if (isClosed) {
+						Fields += String.Format("" +
+						                        "<Field Name=\"{0}\">" +
+						                        "<DataField>{0}</DataField>" +
+						                        "<TypeName>System.Int32</TypeName>" +
+						                        "</Field>", "Water_fact" + column.Id.ToString());
+					}
 				}
 				//Формула итоговой суммы по всем бутылям.
 				if(RouteColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == NomenclatureCategory.water && x.TareVolume == TareVolume.Vol19L)) {
