@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Core.DataService;
@@ -16,6 +17,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		Nominative = "счет без отгрузки на долг",
 		Prepositional = "счете без отгрузки на долг",
 		PrepositionalPlural = "счетах без отгрузки на долги")]
+	[EntityPermission]
 	public class OrderWithoutShipmentForDebt : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument, IValidatableObject
 	{
 		public virtual int Id { get; set; }
