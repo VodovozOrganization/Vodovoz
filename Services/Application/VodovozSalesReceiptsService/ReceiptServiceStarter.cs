@@ -50,7 +50,7 @@ namespace VodovozSalesReceiptsService
 
 			orderRoutineTimer = new System.Timers.Timer(30000d);
 			orderRoutineTimer.Elapsed += (sender, e) => {
-				orderRoutineTimer.Interval = 120000d; //2 минуты
+				orderRoutineTimer.Interval = 180000d; //3 минуты
 				if(DateTime.Now.Hour >= 1 && DateTime.Now.Hour < 5) {
 					var fiveHrsOfToday = DateTime.Today.AddHours(5);
 					orderRoutineTimer.Interval = fiveHrsOfToday.Subtract(DateTime.Now).TotalMilliseconds;//миллисекунд до 5 утра
