@@ -1,5 +1,7 @@
 ﻿using System;
+using QS.Commands;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.Tdi;
@@ -17,6 +19,12 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		public Action<string> OpenCounterpartyJournal;
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
 
+		#region Commands
+
+		public DelegateCommand CancelCommand { get; private set; }
+		
+		#endregion
+		
 		public bool IsDocumentSent => Entity.IsBillWithoutShipmentSent;
 
 		public OrderWithoutShipmentForDebtViewModel(
@@ -24,20 +32,48 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices) : base(uowBuilder, uowFactory, commonServices)
 		{
+			bool canCreateBillsWithoutShipment = CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
+			
 			if (uowBuilder.IsNewEntity)
 			{
-				if(!AskQuestion("Вы действительно хотите создать счет без отгрузки на долг?"))
-					AbortOpening();
+				if (canCreateBillsWithoutShipment)
+				{
+					if (!AskQuestion("Вы действительно хотите создать счет без отгрузки на долг?"))
+					{
+						AbortOpening();
+					}
+					else
+					{
+						Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+					}
+				}
 				else
-					Entity.Author = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+				{
+					AbortOpening("У Вас нет прав на выставление счетов без отгрузки.");
+				}
 			}
 			
 			TabName = "Счет без отгрузки на долг";
 			EntityUoWBuilder = uowBuilder;
 
 			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(), UoW);
+			
+			CreateCommands();
 		}
 
+		private void CreateCommands()
+		{
+			CreateCancelCommand();
+		}
+
+		private void CreateCancelCommand()
+		{
+			CancelCommand = new DelegateCommand(
+				() =>Close(false, CloseSource.Cancel),
+				() => true
+			);
+		}
+		
 		public void OnTabAdded()
 		{
 			if(EntityUoWBuilder.IsNewEntity)

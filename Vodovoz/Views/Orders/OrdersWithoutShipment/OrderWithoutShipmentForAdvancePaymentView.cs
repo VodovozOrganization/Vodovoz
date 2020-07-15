@@ -27,6 +27,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private void Configure()
 		{
+			btnCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
 			buttonAddForSale.Clicked += (sender, e) => ViewModel.AddForSaleCommand.Execute();
 			btnDeleteOrderItem.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute();
 
