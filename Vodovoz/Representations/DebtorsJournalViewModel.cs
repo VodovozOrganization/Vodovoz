@@ -440,7 +440,7 @@ namespace Vodovoz.Representations
 				}
 			};
 			var dlg = new ReportViewDlg(reportInfo);
-			TabParent.AddTab(dlg, this);
+			TabParent.AddTab(dlg, this, false);
 		}
 
 		private ReportViewDlg CreateReportDlg(int counterpartyId, int deliveryPointId = -1) 
