@@ -4,7 +4,7 @@ namespace Vodovoz.ViewWidgets
 {
 	public partial class DeliveryPriceView
 	{
-		private global::Gtk.VBox vbox2;
+		private global::Gtk.VBox vbox1;
 
 		private global::Gtk.HBox hbox4;
 
@@ -24,9 +24,7 @@ namespace Vodovoz.ViewWidgets
 
 		private global::Gamma.GtkWidgets.yLabel ylabelSchedules;
 
-		private global::Gtk.HBox hboxTreeView;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		private global::Gtk.ScrolledWindow scrollPrices;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewPrices;
 
@@ -37,10 +35,10 @@ namespace Vodovoz.ViewWidgets
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ViewWidgets.DeliveryPriceView";
 			// Container child Vodovoz.ViewWidgets.DeliveryPriceView.Gtk.Container+ContainerChild
-			this.vbox2 = new global::Gtk.VBox();
-			this.vbox2.Name = "vbox2";
-			this.vbox2.Spacing = 6;
-			// Container child vbox2.Gtk.Box+BoxChild
+			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1.Name = "vbox1";
+			this.vbox1.Spacing = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
@@ -64,12 +62,12 @@ namespace Vodovoz.ViewWidgets
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
-			this.vbox2.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox4]));
+			this.vbox1.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
 			w3.Position = 0;
 			w3.Expand = false;
 			w3.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox7 = new global::Gtk.HBox();
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
@@ -94,12 +92,12 @@ namespace Vodovoz.ViewWidgets
 			this.hbox7.Add(this.yTxtWarehouses);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.yTxtWarehouses]));
 			w5.Position = 1;
-			this.vbox2.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox7]));
+			this.vbox1.Add(this.hbox7);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
 			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox6 = new global::Gtk.HBox();
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
@@ -113,41 +111,34 @@ namespace Vodovoz.ViewWidgets
 			w7.Position = 0;
 			w7.Expand = false;
 			w7.Fill = false;
-			this.vbox2.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox6]));
+			this.vbox1.Add(this.hbox6);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox6]));
 			w8.Position = 2;
 			w8.Expand = false;
 			w8.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.ylabelSchedules = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelSchedules.Name = "ylabelSchedules";
 			this.ylabelSchedules.Xalign = 0F;
-			this.vbox2.Add(this.ylabelSchedules);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.ylabelSchedules]));
+			this.vbox1.Add(this.ylabelSchedules);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelSchedules]));
 			w9.Position = 3;
 			w9.Expand = false;
 			w9.Fill = false;
-			// Container child vbox2.Gtk.Box+BoxChild
-			this.hboxTreeView = new global::Gtk.HBox();
-			this.hboxTreeView.Name = "hboxTreeView";
-			this.hboxTreeView.Spacing = 6;
-			// Container child hboxTreeView.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.scrollPrices = new global::Gtk.ScrolledWindow();
+			this.scrollPrices.Name = "scrollPrices";
+			this.scrollPrices.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrollPrices.Gtk.Container+ContainerChild
 			this.ytreeviewPrices = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeviewPrices.HeightRequest = 300;
 			this.ytreeviewPrices.CanFocus = true;
 			this.ytreeviewPrices.Name = "ytreeviewPrices";
-			this.GtkScrolledWindow.Add(this.ytreeviewPrices);
-			this.hboxTreeView.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxTreeView[this.GtkScrolledWindow]));
-			w11.Position = 0;
-			this.vbox2.Add(this.hboxTreeView);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hboxTreeView]));
-			w12.Position = 4;
-			this.Add(this.vbox2);
+			this.scrollPrices.Add(this.ytreeviewPrices);
+			this.vbox1.Add(this.scrollPrices);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.scrollPrices]));
+			w11.Position = 4;
+			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
