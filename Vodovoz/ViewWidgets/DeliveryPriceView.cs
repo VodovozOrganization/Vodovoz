@@ -38,7 +38,7 @@ namespace Vodovoz.ViewWidgets
 		{
 			ylabelSchedules.Markup = deliveryPriceNode.Schedule;
 			yTxtWarehouses.Buffer.Text = deliveryPriceNode.GeographicGroups;
-			hboxTreeView.Visible = deliveryPriceNode.ByDistance;
+			scrollPrices.Visible = deliveryPriceNode.ByDistance;
 			ytreeviewPrices.SetItemsSource(deliveryPriceNode.Prices);
 			lblDistrict.LabelProp = deliveryPriceNode.DistrictName;
 		}
