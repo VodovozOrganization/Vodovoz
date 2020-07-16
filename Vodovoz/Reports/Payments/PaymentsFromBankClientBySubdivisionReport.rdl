@@ -31,7 +31,7 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox23" >
+      <Textbox Name="Textbox23">
         <Height>23.21pt</Height>
         <Width>801.63pt</Width>
         <Value>В отчет попадают заказы в статусе "Ожидание оплаты" и со статусом оплаты "Оплачен", "Частично оплачен"
@@ -529,7 +529,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="payments">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	MAX(date(payments.payment_date)) as payment_date,
@@ -538,7 +538,7 @@
 	counterparty.full_name AS client,
 	CASE
 		WHEN orders.order_payment_status = 'Paid' THEN 'Оплачен'
-		WHEN orders.order_status = 'PartiallyPaid' THEN 'Частично оплачен'
+		WHEN orders.order_payment_status = 'PartiallyPaid' THEN 'Частично оплачен'
 	ELSE ''
 	END AS order_payment_status,
     IFNULL(deposit.dep, 0) as deposit,
@@ -573,7 +573,7 @@ ORDER BY author, payment_date DESC, orderdate DESC, orders.id DESC;</CommandText
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
