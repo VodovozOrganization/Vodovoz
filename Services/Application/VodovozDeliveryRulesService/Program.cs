@@ -20,7 +20,7 @@ namespace VodovozDeliveryRulesService
 {
 	class Service
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		private static readonly string configFile = "/etc/vodovoz-delivery-rules-service.conf";
 
@@ -64,7 +64,7 @@ namespace VodovozDeliveryRulesService
 				return;
 			}
 
-			logger.Info(String.Format("Запуск службы правил доставки"));
+			logger.Info("Запуск службы правил доставки");
 			try {
 				var conStrBuilder = new MySqlConnectionStringBuilder();
 				conStrBuilder.Server = mysqlServerHostName;
@@ -80,7 +80,7 @@ namespace VodovozDeliveryRulesService
 										 .ConnectionString(QSMain.ConnectionString);
 
 				OrmConfig.ConfigureOrm(db_config,
-					new System.Reflection.Assembly[] {
+					new[] {
 					System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 					System.Reflection.Assembly.GetAssembly (typeof(Bank)),
 					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.Domain.UserBase))
@@ -148,7 +148,7 @@ namespace VodovozDeliveryRulesService
 
 	public class ConsoleMessageTracer : IDispatchMessageInspector
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger();
+		static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 		enum Action
 		{
