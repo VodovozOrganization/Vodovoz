@@ -869,6 +869,7 @@ namespace Vodovoz.ViewModels.Logistic
 											 .GetExecutableQueryOver(UoW.Session)
 											 .Select(Projections.Count<Order>(x => x.Id))
 											 .Where(o => !o.IsContractCloser)
+											 .And(o => !o.IsService)
 											 .SingleOrDefault<int>();
 
 			int totalBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
@@ -878,6 +879,7 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol19L)
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
+											  .And(o => !o.IsService)
 											  .SingleOrDefault<int>();
 												
 			int total6LBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
@@ -887,6 +889,7 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol6L)
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
+											  .And(o => !o.IsService)
 											  .SingleOrDefault<int>();
 
 			int total600mlBottles = orderRepository.GetOrdersForRLEditingQuery(DateForRouting, true)
@@ -896,6 +899,7 @@ namespace Vodovoz.ViewModels.Logistic
 											  .Where(() => nomenclatureAlias.Category == NomenclatureCategory.water && nomenclatureAlias.TareVolume == TareVolume.Vol600ml)
 											  .Select(Projections.Sum(() => orderItemAlias.Count))
 											  .Where(o => !o.IsContractCloser)
+											  .And(o => !o.IsService)
 											  .SingleOrDefault<int>();
 
 			var text = new List<string> {
