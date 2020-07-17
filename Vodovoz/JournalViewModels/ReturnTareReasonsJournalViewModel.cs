@@ -25,8 +25,8 @@ namespace Vodovoz.JournalViewModels
 			TabName = "Причины забора тары";
 
 			var threadLoader = DataLoader as ThreadDataLoader<ReturnTareReasonsJournalNode>;
-			//threadLoader.MergeInOrderBy(x => x.IsArchive, false);
-			//threadLoader.MergeInOrderBy(x => x.Id, false);
+			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
+			threadLoader.MergeInOrderBy(x => x.Id, false);
 
 			UpdateOnChanges(typeof(ReturnTareReason));
 		}
@@ -44,7 +44,7 @@ namespace Vodovoz.JournalViewModels
 
 			var result = query.SelectList(list => list
 									.Select(x => x.Id).WithAlias(() => resultAlias.Id)
-									//.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
+									.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
 									.Select(x => x.Name).WithAlias(() => resultAlias.Name)
 									.Select(x => x.ReasonCategory).WithAlias(() => resultAlias.ReasonCategory))
 									.TransformUsing(Transformers.AliasToBean<ReturnTareReasonsJournalNode>())

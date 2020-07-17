@@ -206,6 +206,7 @@ namespace Vodovoz
 			Entity.Trifle = templateOrder.Trifle;
 			Entity.IsService = templateOrder.IsService;
 			Entity.Contract = templateOrder.Contract;
+			Entity.ReturnTareReason = templateOrder.ReturnTareReason;
 			Entity.CopyPromotionalSetsFrom(templateOrder);
 			Entity.CopyItemsFrom(templateOrder);
 			Entity.CopyDocumentsFrom(templateOrder);
@@ -246,6 +247,7 @@ namespace Vodovoz
 			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
 
 			Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
+			Entity.ObservableOrderItems.ElementRemoved += ObservableOrderItems_ElementRemoved;
 
 			//Подписывемся на изменения листа для сокрытия колонки промо-наборов
 			Entity.ObservablePromotionalSets.ListChanged += ObservablePromotionalSets_ListChanged;
@@ -285,6 +287,7 @@ namespace Vodovoz
 			ylabelloadAllowed.Binding.AddFuncBinding(Entity, s => s.LoadAllowedBy != null ? s.LoadAllowedBy.ShortName : string.Empty, w => w.Text).InitializeFromSource();
 			entryBottlesToReturn.ValidationMode = ValidationType.numeric;
 			entryBottlesToReturn.Binding.AddBinding(Entity, e => e.BottlesReturn, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			entryBottlesToReturn.Changed += OnEntryBottlesToReturnChanged;
 
 			yChkActionBottle.Binding.AddBinding(Entity, e => e.IsBottleStock, w => w.Active).InitializeFromSource();
 			yEntTareActBtlFromClient.ValidationMode = ValidationType.numeric;
@@ -405,7 +408,9 @@ namespace Vodovoz
 
 			yCmbReturnTareReasons.SetRenderTextFunc<ReturnTareReason>(x => x.Title);
 			yCmbReturnTareReasons.ItemsList = UoW.Session.QueryOver<ReturnTareReason>().List();
-
+			yCmbReturnTareReasons.Binding.AddBinding(Entity, e => e.ReturnTareReason, w => w.SelectedItem).InitializeFromSource();
+			HboxReturnTareReasonShow();
+			
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 
@@ -2229,6 +2234,27 @@ namespace Vodovoz
 			}
 		}
 
+		void OnEntryBottlesToReturnChanged(object sender, EventArgs e)
+		{
+			HboxReturnTareReasonShow();
+		}
+
+		void HboxReturnTareReasonShow()
+		{
+			if (Entity.BottlesReturn.HasValue && Entity.BottlesReturn > 0)
+			{
+				hboxReturnTareReason.Visible = Entity.GetTotalWater19LCount() == 0;
+				
+				if(!hboxReturnTareReason.Visible)
+					Entity.RemoveReturnTareReason();
+			}
+			else
+			{
+				hboxReturnTareReason.Visible = false;
+				Entity.RemoveReturnTareReason();
+			}
+		}
+
 		#endregion
 
 		#region Service functions
@@ -2309,6 +2335,11 @@ namespace Vodovoz
 			//Выполнение в случае если размер не поменяется
 			EditGoodsCountCellOnAdd(treeItems);
 		}
+		
+		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			HboxReturnTareReasonShow();
+		}
 
 		void ObservableOrderDocuments_ListChanged(object aList)
 		{
@@ -2385,14 +2416,19 @@ namespace Vodovoz
 		private bool OrderItemEquipmentCountHasChanges;
 
 		/// <summary>
-		/// При изменении количества оборудования в списке товаров меняет его 
+		/// При изменении количества оборудования в списке товаров меняет его
 		/// также в доп. соглашении и списке оборудования заказа
+		/// + если меняем количество у 19л бут, то меняем видимость у hboxReturnTareReason
 		/// </summary>
 		void ObservableOrderItems_ElementChanged_ChangeCount(object aList, int[] aIdx)
 		{
 			if(aList is GenericObservableList<OrderItem>) {
 				foreach(var i in aIdx) {
 					OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
+					
+					if(oItem != null && oItem.Nomenclature.IsWater19L)
+						HboxReturnTareReasonShow();
+					
 					if(oItem == null || oItem.PaidRentEquipment == null) {
 						return;
 					}

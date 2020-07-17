@@ -16,13 +16,6 @@ namespace Vodovoz.ViewModels.Orders
                 TabName = "Создание новой причины забора тары";
             else
                 TabName = $"{Entity.Title}";
-            
-            CreateCommands();
-        }
-
-        private void CreateCommands()
-        {
-            
         }
     }
 }

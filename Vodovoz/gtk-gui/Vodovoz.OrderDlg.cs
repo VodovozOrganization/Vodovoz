@@ -2228,6 +2228,7 @@ namespace Vodovoz
 			this.ycheckPaymentBySms.Hide();
 			this.lblTareReturned.Hide();
 			this.entryTareReturned.Hide();
+			this.hboxReturnTareReason.Hide();
 			this.labelDeposit1.Hide();
 			this.depositrefunditemsview.Hide();
 			this.Hide();
