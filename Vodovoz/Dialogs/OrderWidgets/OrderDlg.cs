@@ -403,6 +403,9 @@ namespace Vodovoz
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
 
+			yCmbReturnTareReasons.SetRenderTextFunc<ReturnTareReason>(x => x.Title);
+			yCmbReturnTareReasons.ItemsList = UoW.Session.QueryOver<ReturnTareReason>().List();
+
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
 

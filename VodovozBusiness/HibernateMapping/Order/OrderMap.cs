@@ -87,10 +87,17 @@ namespace Vodovoz.HibernateMapping
 			HasMany (x => x.InitialOrderService).Cascade.None 			  ().Inverse ().LazyLoad ().KeyColumn ("initial_order_id");
 			HasMany (x => x.FinalOrderService)	.Cascade.None  			  ().Inverse ().LazyLoad ().KeyColumn ("final_order_id");
 			HasMany (x => x.DepositOperations)  .Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");
-			HasManyToMany(x => x.PromotionalSets).Table("promotional_sets_to_orders")
-								.ParentKeyColumn("order_id")
-								.ChildKeyColumn("promotional_set_id")
-								.LazyLoad();
+			
+			HasManyToMany(x => x.PromotionalSets)
+				.Table("promotional_sets_to_orders")
+				.ParentKeyColumn("order_id")
+				.ChildKeyColumn("promotional_set_id")
+				.LazyLoad();
+			HasManyToMany(x => x.ReturnTareReasons)
+				.Table("return_tare_reasons_to_orders")
+				.ParentKeyColumn("order_id")
+				.ChildKeyColumn("return_tare_reason_id")
+				.LazyLoad();
 		}
 	}
 }

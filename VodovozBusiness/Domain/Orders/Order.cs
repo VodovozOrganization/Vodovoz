@@ -797,6 +797,24 @@ namespace Vodovoz.Domain.Orders
 				return observablePromotionalSets;
 			}
 		}
+		
+		IList<ReturnTareReason> returnTareReasons = new List<ReturnTareReason>();
+		[Display(Name = "Причины забора тары")]
+		public virtual IList<ReturnTareReason> ReturnTareReasons {
+			get => returnTareReasons;
+			set => SetField(ref returnTareReasons, value);
+		}
+
+		GenericObservableList<ReturnTareReason> observableReturnTareReasons;
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ReturnTareReason> ObservableReturnTareReasons {
+			get {
+				if(observableReturnTareReasons == null) {
+					observableReturnTareReasons = new GenericObservableList<ReturnTareReason>(ReturnTareReasons);
+				}
+				return observableReturnTareReasons;
+			}
+		}
 
 		public Order()
 		{
