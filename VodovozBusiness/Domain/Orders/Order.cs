@@ -657,6 +657,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref paymentBySms, value, () => PaymentBySms);
 		}
 
+		ReturnTareReason returnTareReason;
+		[Display(Name = "Причина забора тары")]
+		public virtual ReturnTareReason ReturnTareReason {
+			get => returnTareReason;
+			set => SetField(ref returnTareReason, value);
+		}
+		
 		#endregion
 
 		public virtual bool CanChangeContractor()
@@ -850,6 +857,9 @@ namespace Vodovoz.Domain.Orders
 
 					if(!IsLoadedFrom1C && bottlesReturn == null && this.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.water && !x.Nomenclature.IsDisposableTare))
 						yield return new ValidationResult("В заказе не указана планируемая тара.",
+							new[] { this.GetPropertyName(o => o.Contract) });
+					if(bottlesReturn.HasValue && bottlesReturn > 0 && GetTotalWater19LCount() == 0 && ReturnTareReason == null)
+						yield return new ValidationResult("Необходимо указать причину забора тары.",
 							new[] { this.GetPropertyName(o => o.Contract) });
 					if(!IsLoadedFrom1C && trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.TotalSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
@@ -4043,5 +4053,11 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+
+		public virtual void RemoveReturnTareReason()
+		{
+			if (ReturnTareReason != null)
+				ReturnTareReason = null;
+		}
 	}
 }

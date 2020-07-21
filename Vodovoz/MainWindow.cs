@@ -708,7 +708,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFilePickerService filePickerService = new GtkFilePicker();
-		
+
 		tdiMain.OpenTab(
 			() => {
 				return new ComplaintsJournalViewModel(
@@ -1562,6 +1562,16 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientFinDepartmentReport>(),
 			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientFinDepartmentReport())
+		);
+	}
+
+	protected void OnActionReturnTareReasonsActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new ReturnTareReasonsJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
 		);
 	}
 }
