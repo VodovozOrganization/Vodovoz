@@ -1567,4 +1567,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientFinDepartmentReport())
 		);
 	}
+
+	protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
+			() => new QSReport.ReportViewDlg(new ReturnedTareReport())
+		);
+	}
 }
