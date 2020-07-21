@@ -250,9 +250,12 @@ namespace Vodovoz.Representations
 			Order orderCountAlias = null;
 			Order lastOrderAlias = null;
 			OrderItem orderItemAlias = null;
+			OrderItem orderItemsSubQueryAlias = null;
 			DiscountReason discountReasonAlias = null;
 			Nomenclature nomenclatureAlias = null;
+			Nomenclature nomenclatureSubQueryAlias = null;
 			Order orderFromAnotherDPAlias = null;
+			
 
 			var ordersQuery = uow.Session.QueryOver(() => orderAlias);
 
@@ -268,6 +271,16 @@ namespace Vodovoz.Representations
 					Projections.Sum(() => bottlesMovementAlias.Returned),
 					Projections.Sum(() => bottlesMovementAlias.Delivered)}
 				));
+			
+			var ordersCountProjection =
+					Projections.SubQuery(QueryOver.Of(() => orderCountAlias)
+						.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
+						.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
+						.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
+						.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+						.Select(Projections.CountDistinct(() => orderCountAlias.Id))
+					)
+				;
 
 			#region LastOrder
 
@@ -335,7 +348,10 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesFrom.Value).Le(bottleDebtByAddressQuery);
 				if(FilterViewModel.DebtBottlesTo != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
+				if(FilterViewModel.HideWithOneOrder) 
+					ordersQuery.Where(Restrictions.Not(Restrictions.Eq(ordersCountProjection, 1)));
 			}
+			
 
 			#endregion Filter
 
@@ -433,14 +449,14 @@ namespace Vodovoz.Representations
 					{ "AddressId", FilterViewModel?.Address?.Id ?? 0},
 					{ "CounterpartyId", FilterViewModel?.Client?.Id ?? 0},
 					{ "OPF", FilterViewModel?.OPF?.ToString() ?? String.Empty},
-					{ "DebtBottlesFrom", FilterViewModel.DebtBottlesFrom != null ? FilterViewModel?.DebtBottlesFrom.Value.ToString() : int.MinValue.ToString()},
-					{ "DebtBottlesTo", FilterViewModel.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : int.MaxValue.ToString()},
+					{ "DebtBottlesFrom", FilterViewModel.DebtBottlesFrom != null ? FilterViewModel?.DebtBottlesFrom.Value.ToString() : ""},
+					{ "DebtBottlesTo", FilterViewModel.DebtBottlesTo != null ? FilterViewModel?.DebtBottlesTo.Value.ToString() : ""},
 					{ "HideActiveCounterparty", FilterViewModel.HideActiveCounterparty ? "true" : ""},
 					{ "HideWithOneOrder", FilterViewModel.HideWithOneOrder ? "true" : ""}
 				}
 			};
 			var dlg = new ReportViewDlg(reportInfo);
-			TabParent.AddTab(dlg, this);
+			TabParent.AddTab(dlg, this, false);
 		}
 
 		private ReportViewDlg CreateReportDlg(int counterpartyId, int deliveryPointId = -1) 

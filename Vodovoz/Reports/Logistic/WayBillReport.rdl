@@ -839,7 +839,7 @@ Month(CDate({?date})) = 12, 'декабря'
       <Textbox Name="Textbox60">
         <Height>13.25pt</Height>
         <Width>82.07pt</Width>
-        <Value>=' ' + Format(CDate({?date}), "dd.MM.yy") + ',  7:15'</Value>
+        <Value>=' ' + Format(CDate({?date}), "dd.MM.yy") + ', ' + {?time}</Value>
         <ZIndex>1</ZIndex>
         <Left>127.5pt</Left>
         <Top>273.1pt</Top>
@@ -853,7 +853,9 @@ Month(CDate({?date})) = 12, 'декабря'
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
+          <FontSize>9pt</FontSize>
         </Style>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox43">
         <Height>13.51pt</Height>
@@ -2316,8 +2318,9 @@ Month(CDate({?date})) = 12, 'декабря'
         </Style>
       </Textbox>
       <Table Name="Table1">
-        <DataSetName>Car</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <DataSetName>fakeDataSet</DataSetName>
+        <NoRows>
+        </NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -2334,6 +2337,7 @@ Month(CDate({?date})) = 12, 'декабря'
           </TableColumn>
           <TableColumn>
             <Width>60.6pt</Width>
+            <FixedHeader>true</FixedHeader>
           </TableColumn>
           <TableColumn>
             <Width>53.7pt</Width>
@@ -8324,9 +8328,9 @@ Month(CDate({?date})) = 12, 'декабря'
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	car.model as car_model,
-	car.reg_number as reg_number,
-	ft.name as fuel_type
+	IFNULL(car.model, ' ') as car_model,
+	IFNULL(car.reg_number, ' ') as reg_number,
+	IFNULL(ft.name, ' ') as fuel_type
 FROM
 	cars car
 LEFT JOIN
@@ -8381,6 +8385,22 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="fakeDataSet">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	car.model as car_model
+FROM
+	cars car
+LIMIT 1;</CommandText>
+      </Query>
+      <Fields >
+        <Field Name="car_model">
+          <DataField>car_model</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <ReportParameters>
     <ReportParameter Name="driver_id">
@@ -8421,6 +8441,18 @@ WHERE
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="time">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>7:15</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>
