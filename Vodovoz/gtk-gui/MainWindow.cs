@@ -400,6 +400,8 @@ public partial class MainWindow
 	private global::Gtk.Action ActionPaymentsFinDepartmentReport;
 
 	private global::Gtk.Action ActionReturnTareReasons;
+	
+	private global::Gtk.Action ActionProductionRequestReport;
 
 	private global::Gtk.HBox hbox1;
 
@@ -1047,6 +1049,9 @@ public partial class MainWindow
 		this.ActionReturnTareReasons = new global::Gtk.Action("ActionReturnTareReasons", global::Mono.Unix.Catalog.GetString("Причины забора тары"), null, null);
 		this.ActionReturnTareReasons.ShortLabel = global::Mono.Unix.Catalog.GetString("Причины забора тары");
 		w1.Add(this.ActionReturnTareReasons, null);
+		this.ActionProductionRequestReport = new global::Gtk.Action("ActionProductionRequestReport", global::Mono.Unix.Catalog.GetString("Заявка на производство"), null, null);
+		this.ActionProductionRequestReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Заявка на производство");
+		w1.Add(this.ActionProductionRequestReport, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -1156,7 +1161,8 @@ public partial class MainWindow
 				"msReport\' action=\'ActionDefectiveItemsReport\'/><menuitem name=\'ActionNotFullyLoa" +
 				"dedRouteLists\' action=\'ActionNotFullyLoadedRouteLists\'/><menuitem name=\'ActionFo" +
 				"rShipment\' action=\'ActionForShipment\'/><menuitem name=\'ActionStockMovementsAdvan" +
-				"cedReport\' action=\'ActionStockMovementsAdvancedReport\'/></menu><menu name=\'Actio" +
+				"cedReport\' action=\'ActionStockMovementsAdvancedReport\'/><menuitem name=\'Act" +
+				"ionProductionRequestReport\' action=\'ActionProductionRequestReport\'/></menu><menu name=\'Actio" +
 				"nReportsBottles\' action=\'ActionReportsBottles\'><menuitem name=\'ActionBottlesMove" +
 				"mentSummaryReport\' action=\'ActionBottlesMovementSummaryReport\'/><menuitem name=\'" +
 				"ActionBottlesMovementRLReport\' action=\'ActionBottlesMovementRLReport\'/><menuitem" +
@@ -1495,6 +1501,7 @@ public partial class MainWindow
 		this.ActionPaymentsReport.Activated += new global::System.EventHandler(this.OnActionPaymentsReportActivated);
 		this.ActionPaymentsFinDepartmentReport.Activated += new global::System.EventHandler(this.OnActionPaymentsFinDepartmentReportActivated);
 		this.ActionReturnTareReasons.Activated += new global::System.EventHandler(this.OnActionReturnTareReasonsActivated);
+		this.ActionProductionRequestReport.Activated += new global::System.EventHandler(this.OnActionProductionRequestReportActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);

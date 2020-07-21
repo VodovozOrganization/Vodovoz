@@ -1487,6 +1487,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetActivationView.cs" />
     <Compile Include="Views\Orders\ReturnTareReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ReturnTareReasonView.cs" />
+    <Compile Include="ReportsParameters\Store\ProductionRequestReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.ProductionRequestReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1852,6 +1854,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\DriverTicket.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\ProductionRequestReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\WriteOff.rdl">

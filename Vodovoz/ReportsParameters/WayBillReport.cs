@@ -27,7 +27,9 @@ namespace Vodovoz.ReportsParameters
 		private void Configure()
 		{
 			datepicker.Date = DateTime.Today;
-
+			timeHourEntry.Text = DateTime.Now.Hour.ToString("00.##");
+			timeMinuteEntry.Text = DateTime.Now.Minute.ToString("00.##");
+			
 			entryDriver.SetEntityAutocompleteSelectorFactory(new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee), () => {
 				var filter = new EmployeeFilterViewModel();
 				filter.Status = EmployeeStatus.IsWorking;
@@ -58,8 +60,10 @@ namespace Vodovoz.ReportsParameters
 				Parameters = new Dictionary<string, object>
 				{
 					{ "date", datepicker.Date },
-					{ "driver_id", (entryDriver.Subject as Employee).Id },
-					{ "car_id", (entryCar.Subject as Car).Id }
+					{ "driver_id", (entryDriver?.Subject  as Employee)?.Id ?? -1 },
+					{ "car_id", (entryCar?.Subject as Car)?.Id ?? -1 },
+					{ "time", timeHourEntry.Text + ":" + timeMinuteEntry.Text }
+					
 				}
 			};
 		}
@@ -74,10 +78,6 @@ namespace Vodovoz.ReportsParameters
 			string errorString = string.Empty;
 			if(datepicker.Date == DateTime.MinValue)
 				errorString += "Не заполнена дата\n";
-			if(entryDriver.Subject == null)
-				errorString += "Не заполнено поле водителя\n";
-			if(entryCar.Subject == null)
-				errorString += "Не заполнено поле автомобиля\n";
 			if(!string.IsNullOrWhiteSpace(errorString)) {
 				MessageDialogHelper.RunErrorDialog(errorString);
 				return;
