@@ -399,6 +399,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionPaymentsFinDepartmentReport;
 
+	private global::Gtk.Action ActionReturnedTareReport;
+	
 	private global::Gtk.Action ActionReturnTareReasons;
 
 	private global::Gtk.HBox hbox1;
@@ -627,7 +629,7 @@ public partial class MainWindow
 		this.ActionIconsMiddle.ShortLabel = global::Mono.Unix.Catalog.GetString("Средние иконки");
 		w1.Add(this.ActionIconsMiddle, null);
 		this.ActionIconsLarge = new global::Gtk.RadioAction("ActionIconsLarge", global::Mono.Unix.Catalog.GetString("Большие иконки"), null, null, 0);
-		this.ActionIconsLarge.Group = this.ActionIconsExtraSmall.Group;
+		this.ActionIconsLarge.Group = this.ActionIconsMiddle.Group;
 		this.ActionIconsLarge.ShortLabel = global::Mono.Unix.Catalog.GetString("Большие иконки");
 		w1.Add(this.ActionIconsLarge, null);
 		this.ActionDeliveryPoints = new global::Gtk.Action("ActionDeliveryPoints", global::Mono.Unix.Catalog.GetString("Точки доставки"), null, null);
@@ -1044,6 +1046,9 @@ public partial class MainWindow
 		this.ActionPaymentsFinDepartmentReport = new global::Gtk.Action("ActionPaymentsFinDepartmentReport", global::Mono.Unix.Catalog.GetString("Отчет по оплатам (ФО)"), null, null);
 		this.ActionPaymentsFinDepartmentReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по оплатам (ФО)");
 		w1.Add(this.ActionPaymentsFinDepartmentReport, null);
+		this.ActionReturnedTareReport = new global::Gtk.Action("ActionReturnedTareReport", global::Mono.Unix.Catalog.GetString("Отчет по забору тары"), null, null);
+		this.ActionReturnedTareReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по забору тары");
+		w1.Add(this.ActionReturnedTareReport, null);
 		this.ActionReturnTareReasons = new global::Gtk.Action("ActionReturnTareReasons", global::Mono.Unix.Catalog.GetString("Причины забора тары"), null, null);
 		this.ActionReturnTareReasons.ShortLabel = global::Mono.Unix.Catalog.GetString("Причины забора тары");
 		w1.Add(this.ActionReturnTareReasons, null);
@@ -1168,7 +1173,8 @@ public partial class MainWindow
 				"e=\'ActionExtraBottlesReport\' action=\'ActionExtraBottlesReport\'/><menuitem name=\'" +
 				"ActionFirstSecondReport\' action=\'ActionFirstSecondReport\'/><menuitem name=\'Actio" +
 				"nProfitabilityBottlesByStock\' action=\'ActionProfitabilityBottlesByStock\'/><menui" +
-				"tem name=\'Action64\' action=\'Action64\'/></menu><menu name=\'ActionLogistic\' action" +
+				"tem name=\'Action64\' action=\'Action64\'/><menuitem name=\'ActionReturnedTareRe" +
+				"port\' action=\'ActionReturnedTareReport\'/></menu><menu name=\'ActionLogistic\' action" +
 				"=\'ActionLogistic\'><menuitem name=\'ActionOrdersByDistrictsAndDeliverySchedules\' a" +
 				"ction=\'ActionOrdersByDistrictsAndDeliverySchedules\'/><menuitem name=\'ActionFuelC" +
 				"onsumptionReport\' action=\'ActionFuelConsumptionReport\'/><menuitem name=\'ActionOr" +
@@ -1494,6 +1500,7 @@ public partial class MainWindow
 		this.ActionWayBillReport.Activated += new global::System.EventHandler(this.OnActionWayBillReportActivated);
 		this.ActionPaymentsReport.Activated += new global::System.EventHandler(this.OnActionPaymentsReportActivated);
 		this.ActionPaymentsFinDepartmentReport.Activated += new global::System.EventHandler(this.OnActionPaymentsFinDepartmentReportActivated);
+		this.ActionReturnedTareReport.Activated += new global::System.EventHandler(this.OnActionReturnedTareReportActivated);
 		this.ActionReturnTareReasons.Activated += new global::System.EventHandler(this.OnActionReturnTareReasonsActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);

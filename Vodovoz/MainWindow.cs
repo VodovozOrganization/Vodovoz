@@ -1565,6 +1565,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
+	protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
+			() => new QSReport.ReportViewDlg(new ReturnedTareReport())
+		);
+	}
+	
 	protected void OnActionReturnTareReasonsActivated(object sender, EventArgs e)
 	{
 		tdiMain.AddTab(
