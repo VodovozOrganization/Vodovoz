@@ -1485,6 +1485,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictsSetJournalFilterView.cs" />
     <Compile Include="Views\Logistic\DistrictsSetActivationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetActivationView.cs" />
+    <Compile Include="ReportsParameters\Bottles\ReturnedTareReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ReturnedTareReport.cs" />
     <Compile Include="Views\Orders\ReturnTareReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ReturnTareReasonView.cs" />
     <Compile Include="ReportsParameters\Store\ProductionRequestReport.cs" />
@@ -1765,6 +1767,9 @@
     </None>
     <None Include="RdlEngineConfig.Linux.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Bottles\ReturnedTareReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\BillWithoutShipmentForDebt.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
