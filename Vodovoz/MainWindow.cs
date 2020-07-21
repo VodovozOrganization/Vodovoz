@@ -1565,6 +1565,16 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
+	protected void OnActionReturnTareReasonsActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new ReturnTareReasonsJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+	
 	protected void OnActionProductionRequestReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(

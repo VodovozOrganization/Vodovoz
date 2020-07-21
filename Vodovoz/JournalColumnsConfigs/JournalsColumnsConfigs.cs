@@ -132,7 +132,6 @@ namespace Vodovoz.JournalColumnsConfigs
 					.Finish()
 			);
 
-
 			//SelfDeliveriesJournalViewModel
 			TreeViewColumnsConfigFactory.Register<SelfDeliveriesJournalViewModel>(
 				() => FluentColumnsConfig<SelfDeliveryJournalNode>.Create()
@@ -539,6 +538,23 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Ответственный").AddTextRenderer(node => node.AssignedEmployeeName ?? string.Empty)
 					.AddColumn("Выполнить до").AddTextRenderer(node => node.Deadline.ToString("dd / MM / yyyy  HH:mm"))
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+					.Finish()
+			);
+			
+			//PromotionalSetJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ReturnTareReasonsJournalViewModel>(
+				() => FluentColumnsConfig<ReturnTareReasonsJournalNode>.Create()
+					.AddColumn("Код")
+						.AddTextRenderer(n => n.Id.ToString())
+					.AddColumn("Название")
+						.AddTextRenderer(n => n.Name)
+					.AddColumn("Категория причины")
+						.AddEnumRenderer(n => n.ReasonCategory)
+					.AddColumn("В архиве?")
+						.AddToggleRenderer(n => n.IsArchive).Editing(false)
+					.AddColumn("")
+					.RowCells()
+					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
 		}
