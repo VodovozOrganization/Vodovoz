@@ -12,7 +12,7 @@ namespace Vodovoz.HibernateMapping.Order
             Id(x => x.Id).Column("id").GeneratedBy.Native();
             Map(x => x.Name).Column("name");
             Map(x => x.IsArchive).Column("is_archive");
-            Map(x => x.ReasonCategory).Column("category");
+            Map(x => x.ReasonCategory).Column("category").CustomType<ReturnTareReasonCategoryStringType>();
         }
     }
 }

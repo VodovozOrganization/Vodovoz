@@ -67,4 +67,9 @@ namespace Vodovoz.Domain.Orders
         [Display(Name = "Дозабор")]
         TakeAway
     }
+    
+    public class ReturnTareReasonCategoryStringType : NHibernate.Type.EnumStringType
+    {
+        public ReturnTareReasonCategoryStringType() : base(typeof(ReturnTareReasonCategory)) { }
+    }
 }
