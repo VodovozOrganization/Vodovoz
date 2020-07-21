@@ -24,7 +24,7 @@ namespace Vodovoz.Dialogs.Sale
 		{
 			this.Build();
 
-			TabName = "Рассчет стоимости доставки";
+			TabName = "Расчет стоимости доставки";
 
 			entryCity.CitySelected += (sender, e) => {
 				entryBuilding.House = string.Empty;

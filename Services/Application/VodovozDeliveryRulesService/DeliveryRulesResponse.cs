@@ -1,14 +1,14 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
+
 namespace VodovozDeliveryRulesService
 {
 	[DataContract]
 	public class DeliveryRulesResponse
 	{
 		private DeliveryRulesResponseStatus statusEnum;
-
 		public DeliveryRulesResponseStatus StatusEnum {
-			get { return statusEnum; }
+			get => statusEnum;
 			set {
 				statusEnum = value;
 				Status = statusEnum.ToString();
@@ -22,6 +22,6 @@ namespace VodovozDeliveryRulesService
 		public string Message { get; set; }
 
 		[DataMember]
-		public DeliveryRuleDTO DeliveryRule { get; set; }
+		public IList<WeekDayDeliveryRuleDTO> WeekDayDeliveryRules { get; set; }
 	}
 }

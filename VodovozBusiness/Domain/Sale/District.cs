@@ -481,20 +481,6 @@ namespace Vodovoz.Domain.Sale
 			return ruleItems.Any() ? ruleItems.Max(x => x.Price) : 0m;
 		}
 
-		private WeekDayName ConvertDayOfWeekToWeekDayName(DayOfWeek dayOfWeek)
-		{
-			switch (dayOfWeek) {
-				case DayOfWeek.Monday: return WeekDayName.Monday;
-				case DayOfWeek.Tuesday: return WeekDayName.Tuesday;
-				case DayOfWeek.Wednesday: return WeekDayName.Wednesday;
-				case DayOfWeek.Thursday: return WeekDayName.Thursday;
-				case DayOfWeek.Friday: return WeekDayName.Friday;
-				case DayOfWeek.Saturday: return WeekDayName.Saturday;
-				case DayOfWeek.Sunday: return WeekDayName.Sunday;
-				default: throw new ArgumentOutOfRangeException();
-			}
-		}
-
 		private void InitializeAllCollections()
 		{
 			CommonDistrictRuleItems = new List<CommonDistrictRuleItem>();
@@ -607,5 +593,19 @@ namespace Vodovoz.Domain.Sale
 		}
 
 		#endregion
+		
+		public static WeekDayName ConvertDayOfWeekToWeekDayName(DayOfWeek dayOfWeek)
+		{
+			switch (dayOfWeek) {
+				case DayOfWeek.Monday: return WeekDayName.Monday;
+				case DayOfWeek.Tuesday: return WeekDayName.Tuesday;
+				case DayOfWeek.Wednesday: return WeekDayName.Wednesday;
+				case DayOfWeek.Thursday: return WeekDayName.Thursday;
+				case DayOfWeek.Friday: return WeekDayName.Friday;
+				case DayOfWeek.Saturday: return WeekDayName.Saturday;
+				case DayOfWeek.Sunday: return WeekDayName.Sunday;
+				default: throw new ArgumentOutOfRangeException();
+			}
+		}
 	}
 }
