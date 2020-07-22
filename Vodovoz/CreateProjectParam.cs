@@ -94,6 +94,8 @@ using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.Views.Orders.OrdersWithoutShipment;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Cash;
+using Vodovoz.Views.Cash;
 
 namespace Vodovoz
 {
@@ -230,6 +232,7 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForDebtViewModel, OrderWithoutShipmentForDebtView>()
 				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForPaymentViewModel, OrderWithoutShipmentForPaymentView>()
 				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForAdvancePaymentViewModel, OrderWithoutShipmentForAdvancePaymentView>()
+				.RegisterWidgetForTabViewModel<PaymentByCardViewModel, PaymentByCardView>()
 				;
 
 			//Регистрация виджетов

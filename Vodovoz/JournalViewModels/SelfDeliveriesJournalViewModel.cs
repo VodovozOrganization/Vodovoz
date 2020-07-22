@@ -12,6 +12,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Config;
 using QS.DomainModel.UoW;
 using QS.Permissions;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QSProjectsLib;
@@ -25,6 +26,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.ViewModels.Cash;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Representations
@@ -151,8 +153,9 @@ namespace Vodovoz.Representations
 			return result;
 		};
 
-		public override IEnumerable<IJournalAction> NodeActions => new List<IJournalAction>();
-
+		public override IEnumerable<IJournalAction> NodeActions => new List<IJournalAction>();	
+		
+		//Действие при дабл клике
 		protected override Func<OrderDlg> CreateDialogFunction => () => throw new ApplicationException();
 
 		//FIXME отделить от GTK
@@ -216,7 +219,32 @@ namespace Vodovoz.Representations
 					}
 				)
 			);
+			PopupActionsList.Add(
+				new JournalAction(
+					"Оплата по карте",
+					selectedItems => {
+						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>().ToList();
+						return selectedNodes.Count() == 1 && selectedNodes.First().PaymentTypeEnum == PaymentType.cash;
+					},
+					selectedItems => true,
+					selectedItems => {
+						var selectedNodes = selectedItems.Cast<SelfDeliveryJournalNode>();
+						var selectedNode  = selectedNodes.FirstOrDefault();
+						if (selectedNode != null)
+							TabParent.AddTab(
+								new PaymentByCardViewModel(
+									EntityUoWBuilder.ForOpen(selectedNode.Id),
+									UnitOfWorkFactory,
+									commonServices), 
+								this
+							);
+					}
+					
+				)
+			);
+			
 		}
+		
 
 		//FIXME отделить от GTK
 		void CreateSelfDeliveryCashInvoices(int orderId)
