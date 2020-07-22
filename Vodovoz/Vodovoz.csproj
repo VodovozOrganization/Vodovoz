@@ -504,6 +504,7 @@
     <Compile Include="gtk-gui\Vodovoz.EquipmentGenerator.cs" />
     <Compile Include="Representations\ContractsVM.cs" />
     <Compile Include="Representations\ProxiesVM.cs" />
+    <Compile Include="ViewModels\Cash\PaymentByCardViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
     <Compile Include="ViewWidgets\AdditionalAgreementsView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointView.cs" />
@@ -1485,6 +1486,8 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictsSetJournalFilterView.cs" />
     <Compile Include="Views\Logistic\DistrictsSetActivationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetActivationView.cs" />
+    <Compile Include="Views\Cash\PaymentByCardView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentByCardView.cs" />
     <Compile Include="ReportsParameters\Bottles\ReturnedTareReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ReturnedTareReport.cs" />
     <Compile Include="Views\Orders\ReturnTareReasonView.cs" />
@@ -1757,6 +1760,7 @@
     <Folder Include="Views\Orders\OrdersWithoutShipment\" />
     <Folder Include="ViewModels\Orders\OrdersWithoutShipment\" />
     <Folder Include="Dialogs\Email\" />
+    <Folder Include="Views\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
