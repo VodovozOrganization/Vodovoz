@@ -10,9 +10,9 @@ namespace Vodovoz.Views.Cash
 
 		private global::Gtk.Label label1;
 
-		private global::Gamma.GtkWidgets.yEntry yentry2;
+		private global::Gamma.Widgets.yValidatedEntry entryOnlineOrder;
 
-		private global::Gamma.Widgets.yListComboBox ylistcombobox1;
+		private global::Gamma.Widgets.yListComboBox comboPaymentFrom;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonSave;
 
@@ -40,23 +40,23 @@ namespace Vodovoz.Views.Cash
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.yentry2 = new global::Gamma.GtkWidgets.yEntry();
-			this.yentry2.CanFocus = true;
-			this.yentry2.Name = "yentry2";
-			this.yentry2.IsEditable = true;
-			this.yentry2.InvisibleChar = '•';
-			this.hbox1.Add(this.yentry2);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yentry2]));
+			this.entryOnlineOrder = new global::Gamma.Widgets.yValidatedEntry();
+			this.entryOnlineOrder.CanFocus = true;
+			this.entryOnlineOrder.Name = "entryOnlineOrder";
+			this.entryOnlineOrder.IsEditable = true;
+			this.entryOnlineOrder.InvisibleChar = '•';
+			this.hbox1.Add(this.entryOnlineOrder);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entryOnlineOrder]));
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.ylistcombobox1 = new global::Gamma.Widgets.yListComboBox();
-			this.ylistcombobox1.Name = "ylistcombobox1";
-			this.ylistcombobox1.AddIfNotExist = true;
-			this.ylistcombobox1.DefaultFirst = true;
-			this.hbox1.Add(this.ylistcombobox1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylistcombobox1]));
+			this.comboPaymentFrom = new global::Gamma.Widgets.yListComboBox();
+			this.comboPaymentFrom.Name = "comboPaymentFrom";
+			this.comboPaymentFrom.AddIfNotExist = true;
+			this.comboPaymentFrom.DefaultFirst = true;
+			this.hbox1.Add(this.comboPaymentFrom);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.comboPaymentFrom]));
 			w3.Position = 2;
 			w3.Expand = false;
 			w3.Fill = false;

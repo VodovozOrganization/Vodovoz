@@ -45,6 +45,9 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
+
 public partial class MainWindow : Window
 {
 	//Заказы
@@ -520,7 +523,18 @@ public partial class MainWindow : Window
 			x => x.RestrictOnlyWithoutCoodinates = false
 		);
 		filter.HidenByDefault = true;
-		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(filter, UnitOfWorkFactory.GetDefaultFactory, QS.Project.Services.ServicesConfig.CommonServices);
+		var selfDeliveriesJournal = new SelfDeliveriesJournalViewModel(
+			filter,
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			new CallTaskWorker(CallTaskSingletonFactory.GetInstance(),
+				new CallTaskRepository(),
+				OrderSingletonRepository.GetInstance(),
+				EmployeeSingletonRepository.GetInstance(),
+				new BaseParametersProvider(),
+				ServicesConfig.CommonServices.UserService,
+				SingletonErrorReporter.Instance));
+		
 		tdiMain.AddTab(selfDeliveriesJournal);
 	}
 
