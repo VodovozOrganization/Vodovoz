@@ -26,6 +26,7 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalNodes;
 using Vodovoz.Journals.JournalViewModels;
+using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Cash;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
@@ -33,8 +34,11 @@ namespace Vodovoz.Representations
 {
 	public class SelfDeliveriesJournalViewModel : FilterableSingleEntityJournalViewModelBase<VodovozOrder, OrderDlg, SelfDeliveryJournalNode, OrderJournalFilterViewModel>
 	{
-		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(filterViewModel, unitOfWorkFactory, commonServices)
+		public SelfDeliveriesJournalViewModel(OrderJournalFilterViewModel filterViewModel, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, CallTaskWorker callTaskWorker) 
+			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
+			this.callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			
 			TabName = "Журнал самовывозов";
 			SetOrder(x => x.Date, true);
 			UpdateOnChanges(
@@ -42,6 +46,8 @@ namespace Vodovoz.Representations
 				typeof(OrderItem)
 			);
 		}
+
+		private readonly CallTaskWorker callTaskWorker;
 
 		protected override Func<IUnitOfWork, IQueryOver<VodovozOrder>> ItemsSourceQueryFunction => (uow) => {
 			SelfDeliveryJournalNode resultAlias = null;
@@ -235,7 +241,8 @@ namespace Vodovoz.Representations
 								new PaymentByCardViewModel(
 									EntityUoWBuilder.ForOpen(selectedNode.Id),
 									UnitOfWorkFactory,
-									commonServices), 
+									commonServices,
+									callTaskWorker), 
 								this
 							);
 					}

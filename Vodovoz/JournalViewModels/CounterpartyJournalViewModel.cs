@@ -118,7 +118,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(Projections.SqlFunction(
 					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
 					   NHibernateUtil.String,
-						   Projections.Property(() => phoneAlias.Number),
+					   Projections.Property(() => phoneAlias.Number),
 					   Projections.Constant("\n"))
 					   ).WithAlias(() => resultAlias.Phones)			   
 					.SelectSubQuery(addressSubquery).WithAlias(() => resultAlias.Addresses)

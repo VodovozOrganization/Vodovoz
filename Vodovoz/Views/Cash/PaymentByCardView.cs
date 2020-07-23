@@ -1,9 +1,8 @@
-﻿using System;
-using System.ServiceModel.Channels;
-using GMap.NET.MapProviders;
-using QS.Dialog.GtkUI;
+﻿using System.Linq;
 using QS.Views.GtkUI;
+using QSWidgetLib;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Cash;
 
 namespace Vodovoz.Views.Cash
@@ -16,16 +15,15 @@ namespace Vodovoz.Views.Cash
 		}
 
 		private void Configure() {
-			int tryParseTemp;
-			// ybuttonSave.Binding.AddFuncBinding(ViewModel, vm => vm.StringText.Length != 0, w => w.Sensitive).InitializeFromSource();
-			ybuttonSave.Binding.AddFuncBinding(ViewModel, vm => int.TryParse(vm.OnlineOrderNumber, out tryParseTemp), w => w.Sensitive).InitializeFromSource();
-			ybuttonSave.Clicked += (s, ea) => ViewModel.SaveItemCommand.Execute();
-
-			yentry2.Binding.AddBinding(ViewModel, vm => vm.OnlineOrderNumber, w => w.Text).InitializeFromSource();
+			ybuttonSave.Binding.AddFuncBinding(ViewModel.Entity, e => e.OnlineOrder.HasValue, w => w.Sensitive).InitializeFromSource();
+			ybuttonSave.Clicked += (s, ea) => ViewModel.SaveAndClose();
 			
-			ylistcombobox1.SetRenderTextFunc<PaymentFrom>(x => x.Name);
-			ylistcombobox1.Binding.AddBinding(ViewModel, vm => vm.PaymentsFrom, e => e.ItemsList).InitializeFromSource();
-			ylistcombobox1.Binding.AddBinding(ViewModel, vm => vm.SelectedPaymentFrom, w => w.SelectedItem).InitializeFromSource();
+			entryOnlineOrder.ValidationMode = ValidationType.numeric;
+			entryOnlineOrder.Binding.AddBinding(ViewModel.Entity, e => e.OnlineOrder, w => w.Text, new IntToStringConverter()).InitializeFromSource();
+			
+			comboPaymentFrom.SetRenderTextFunc<PaymentFrom>(x => x.Name);
+			comboPaymentFrom.Binding.AddBinding(ViewModel.Entity, vm => vm.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
+			comboPaymentFrom.ItemsList = ViewModel.UoW.GetAll<PaymentFrom>();
 		}
 	}
 }
