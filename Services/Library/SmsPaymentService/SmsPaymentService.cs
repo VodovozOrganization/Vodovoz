@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace SmsPaymentService
@@ -57,6 +58,14 @@ namespace SmsPaymentService
                             payment.Order.PaymentType = PaymentType.ByCard;    
                             payment.Order.PaymentByCardFrom = smsPaymentFrom;
                             payment.Order.OnlineOrder = externalId;
+
+                            var routeListItem = uow.Session.QueryOver<RouteListItem>()
+                                .Where(x => x.Order.Id == payment.Order.Id)
+                                .Take(1).SingleOrDefault<RouteListItem>();
+                            if(routeListItem != null) {
+                                routeListItem.RecalculateTotalCash();
+                                uow.Save(routeListItem);
+                            }
                         }
                     }
                     uow.Save(payment);
