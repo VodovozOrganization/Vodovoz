@@ -414,6 +414,10 @@ namespace Vodovoz
 			HboxReturnTareReasonCategoriesShow();
 
 			yCmbReturnTareReasons.SetRenderTextFunc<ReturnTareReason>(x => x.Name);
+			
+			if(Entity.ReturnTareReasonCategory != null)
+				ChangeHboxReasonsVisibility();
+			
 			yCmbReturnTareReasons.Binding.AddBinding(Entity, e => e.ReturnTareReason, w => w.SelectedItem).InitializeFromSource();
 			
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
@@ -2264,9 +2268,14 @@ namespace Vodovoz
 		
 		private void YCmbReturnTareReasonCategoriesOnChanged(object sender, EventArgs e)
 		{
+			ChangeHboxReasonsVisibility();
+		}
+
+		private void ChangeHboxReasonsVisibility()
+		{
 			if (yCmbReturnTareReasonCategories.SelectedItem is ReturnTareReasonCategory category)
 			{
-				if(!hboxReasons.Visible)
+				if (!hboxReasons.Visible)
 					hboxReasons.Visible = true;
 
 				yCmbReturnTareReasons.ItemsList = category.ChildReasons;
