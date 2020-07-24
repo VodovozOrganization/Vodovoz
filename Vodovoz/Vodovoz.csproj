@@ -1500,6 +1500,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ReturnTareReasonCategoryView.cs" />
     <Compile Include="JournalViewModels\ReturnTareReasonsJournalViewModel.cs" />
     <Compile Include="JournalNodes\ReturnTareReasonsJournalNode.cs" />
+    <Compile Include="ReportsParameters\Store\ProductionRequestReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.ProductionRequestReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

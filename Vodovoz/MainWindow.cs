@@ -1568,6 +1568,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
+	protected void OnActionProductionRequestReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ProductionRequestReport>(),
+			() => new QSReport.ReportViewDlg(new ProductionRequestReport())
+		);
+	}
+	
 	protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
