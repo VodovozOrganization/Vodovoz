@@ -13,24 +13,29 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	M.*,
-	IF((M.norm + M.sold - M.total) &gt;= 0, M.norm + M.sold - M.total, '') as request,
+	# Заявка на производство
+	IF((M.norm + M.sold - M.total) &gt;= 0, M.norm + M.sold - M.total, 0) as request,
+	# Остаток на завтра
 	M.total + IF((M.norm + M.sold - M.total) &gt;= 0, M.norm + M.sold - M.total, 0) as balance,
+	# Разница
 	M.total + IF((M.norm + M.sold - M.total) &gt;= 0, M.norm + M.sold - M.total, 0) - M.norm as difference
 FROM
 (
 	SELECT
 		Tab.*,
+		# Итого
 		Tab.store_balance - (Tab.sold - Tab.shipped) as total,
-		Tab.max_sold * 1.2 as norm
-	FROM 
+		# Норма
+		Tab.max_shipped * 1.2 as norm
+	FROM
 	(
-	
 		SELECT 
 			n.name as nomenclature_name,
+			# Остаток на складе
 			IFNULL
 			(
 				(
@@ -42,7 +47,7 @@ FROM
 					WHERE 
 						wmo.incoming_warehouse_id = @warehouse_id
 						AND wmo.nomenclature_id = n.id
-						AND wmo.operation_time &lt; @start_date
+						AND wmo.operation_time &lt;= @currently
 				)
 				-
 				(
@@ -53,10 +58,12 @@ FROM
 					WHERE
 						wmo.writeoff_warehouse_id = @warehouse_id
 						AND wmo.nomenclature_id = n.id
-						AND wmo.operation_time &lt; @start_date
+						AND wmo.operation_time &lt;= @currently
 				), 
 			0) as store_balance,
+			# Продано
 			IFNULL(SUM(t_sales.count_nom), 0) as sold,
+			# Отгружено
 			IFNULL
 			(
 				(
@@ -68,9 +75,10 @@ FROM
 					WHERE
 						wmo.writeoff_warehouse_id = @warehouse_id
 						AND wmo.nomenclature_id = n.id
-						AND wmo.operation_time BETWEEN @start_date AND @end_date),
+						AND wmo.operation_time BETWEEN @today AND @currently),
 			0) AS shipped,
-			IFNULL(max_sales.max_sold, 0) as max_sold
+			# Макс. продажи за день
+			IFNULL(max_shipping.max_shipped, 0) as max_shipped
 		From
 			nomenclature n
 		LEFT JOIN
@@ -98,52 +106,36 @@ FROM
 					OR o.order_status = 'Closed'
 			        OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)
 				)
-				AND o.delivery_date BETWEEN @start_date AND @end_date
+				AND o.delivery_date BETWEEN @today AND @currently
 				AND !o.is_contract_closer
-				#AND gg.id in (@geographic_group_id)
+				AND gg.id in (@geographic_group_id)
 			GROUP BY oi.id
 		) as t_sales ON t_sales.nomenclature_id = n.id
 		LEFT JOIN
 		(
 			SELECT
-			T2.nomenclature_id,
-			MAX(T2.sold) as max_sold
-		FROM
-		(
-			SELECT
-				T.delivery_date,
 				T.nomenclature_id,
-				sum(count_nom) as sold
-			FROM 
+				MAX(T.amount) as max_shipped
+			FROM
 			(
 				SELECT
-				o.delivery_date,
-				IFNULL(oi.actual_count, oi.count) as count_nom,
-				n.id as nomenclature_id
-			FROM orders o
-			LEFT JOIN order_items oi ON oi.order_id = o.id
-			LEFT JOIN nomenclature n ON oi.nomenclature_id = n.id
-			LEFT JOIN delivery_points ON o.delivery_point_id = delivery_points.id
-			LEFT JOIN districts distr ON delivery_points.district_id = distr.id
-			LEFT JOIN geographic_groups gg ON gg.id = distr.geographic_group_id
-			WHERE
-				(
-					o.order_status = 'Accepted'
-					OR o.order_status = 'InTravelList'
-					OR o.order_status = 'OnLoading'
-					OR o.order_status = 'OnTheWay'
-					OR o.order_status = 'Shipped'
-					OR o.order_status = 'UnloadingOnStock'
-					OR o.order_status = 'Closed'
-			        OR (o.order_status = 'WaitForPayment' AND o.self_delivery AND o.pay_after_shipment)
-				)
-				AND o.delivery_date BETWEEN @start_date AND @end_date
-				AND !o.is_contract_closer
-				#AND gg.id in (@geographic_group_id)
-			GROUP BY oi.id) AS T
-			GROUP BY T.nomenclature_id, T.delivery_date) AS T2
-		GROUP BY T2.nomenclature_id
-		) as max_sales ON max_sales.nomenclature_id = n.id
+					n.id as nomenclature_id,
+					n.name,
+					n.tare_volume,
+					wmo.operation_time,
+					SUM(wmo.amount) as amount
+				FROM
+					warehouse_movement_operations wmo
+				LEFT JOIN store_car_load_document_items ON store_car_load_document_items.warehouse_movement_operation_id = wmo.id
+				LEFT JOIN store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = wmo.id
+				LEFT JOIN nomenclature n ON wmo.nomenclature_id = n.id
+				WHERE
+					wmo.writeoff_warehouse_id = @warehouse_id
+					AND wmo.operation_time BETWEEN @start_date AND @end_date
+				GROUP BY nomenclature_id, date(wmo.operation_time)
+			)AS T
+			GROUP BY T.nomenclature_id
+		) as max_shipping ON max_shipping.nomenclature_id = n.id
 		WHERE
 			n.category = 'water'
 			AND !n.is_archive
@@ -151,7 +143,8 @@ FROM
 		ORDER BY
 			n.tare_volume
 	) as Tab
-) as M</CommandText>
+) as M
+HAVING store_balance &gt; 0 OR sold &gt; 0 OR shipped &gt; 0</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -173,7 +166,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -190,8 +183,8 @@ FROM
           <DataField>shipped</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
-        <Field Name="max_sold">
-          <DataField>max_sold</DataField>
+        <Field Name="max_shipped">
+          <DataField>max_shipped</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
         <Field Name="request">
@@ -272,7 +265,7 @@ WHERE
         <Left>4.50pt</Left>
         <Width>794.97pt</Width>
         <Height>18.07pt</Height>
-        <Value>= "Запрос на производство:  " + First({name}, "warehouse") + ", " +  First({name}, "geographic_group") + ", " + " с " + Format(CDate({?start_date}), "d") + " по " + Format(CDate({?end_date}), "d")</Value>
+        <Value>= "Запрос на производство:  " + First({name}, "warehouse") + ", " +  First({name}, "geographic_group") + ", " + Iif(First({name}, "geographic_group") != Last({name}, "geographic_group"), Last({name}, "geographic_group") + ",", '') + " с " + Format(CDate({?start_date}), "d") + " по " + Format(CDate({?end_date}), "d")</Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
@@ -466,7 +459,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>Макс. продажи за день</Value>
+                      <Value>Макс. отгрузки за день</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -664,7 +657,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>=Fields!max_sold.Value</Value>
+                      <Value>={max_shipped}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -726,18 +719,19 @@ WHERE
         <Left>0.8pt</Left>
         <Top>96.1pt</Top>
       </Table>
-      <Textbox Name="Textbox24" >
-        <Height>48.06pt</Height>
+      <Textbox Name="Textbox24">
+        <Height>56.32pt</Height>
         <Width>480.29pt</Width>
         <Value>В отчете: 
 - идет выборка остатков воды по выбранному складу на текущий момент;
 - идет выборка продаж по выбранной части города на текущий момент;
 - происходит выборка отгрузок по выбранному складу на текущий момент;
-- выбираются максимальные продажи за день из соответствующего периода;
+- выбираются максимальные отгрузки за день из соответствующего периода;
+Сортировка по объему тары, от большей к меньшей
 </Value>
         <ZIndex>1</ZIndex>
         <Left>2.50pt</Left>
-        <Top>44.20pt</Top>
+        <Top>35.94pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

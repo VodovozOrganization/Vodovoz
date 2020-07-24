@@ -101,7 +101,7 @@ namespace Vodovoz.ReportsParameters.Store
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabel3 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel3.Name = "ylabel3";
-			this.ylabel3.LabelProp = global::Mono.Unix.Catalog.GetString("Макс продажи: ");
+			this.ylabel3.LabelProp = global::Mono.Unix.Catalog.GetString("Макс отгрузки: ");
 			this.table1.Add(this.ylabel3);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel3]));
 			w7.TopAttach = ((uint)(2));
