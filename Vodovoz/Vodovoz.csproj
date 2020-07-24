@@ -506,6 +506,7 @@
     <Compile Include="Representations\ProxiesVM.cs" />
     <Compile Include="ViewModels\Cash\PaymentByCardViewModel.cs" />
     <Compile Include="ViewModels\Orders\ReturnTareReasonCategoryViewModel.cs" />
+    <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
     <Compile Include="ViewWidgets\AdditionalAgreementsView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointView.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
