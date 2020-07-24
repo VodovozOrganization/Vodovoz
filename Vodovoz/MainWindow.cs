@@ -38,6 +38,7 @@ using Vodovoz.Domain.StoredResources;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.FilterViewModels.Goods;
@@ -57,6 +58,7 @@ using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.SidePanel.InfoProviders;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Complaints;
+using Vodovoz.ViewModels.WageCalculation;
 using Vodovoz.ViewWidgets;
 using ToolbarStyle = Vodovoz.Domain.Employees.ToolbarStyle;
 using QSSupportLib;
@@ -64,6 +66,7 @@ using Vodovoz.ReportsParameters.Sales;
 using Vodovoz.Domain.Service.BaseParametersServices;
 using QS.Tdi;
 using QS.Tools;
+using Vodovoz.Infrastructure;
 using Vodovoz.EntityRepositories;
 using Vodovoz.ViewModels.Users;
 using Vodovoz.ViewModels;
@@ -1580,6 +1583,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			)
+		);
+	}
+	
+	protected void OnActionProductionRequestReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ProductionRequestReport>(),
+			() => new QSReport.ReportViewDlg(new ProductionRequestReport())
 		);
 	}
 

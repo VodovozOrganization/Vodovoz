@@ -404,6 +404,8 @@ public partial class MainWindow
 	private global::Gtk.Action ActionReturnTareReasons;
 
 	private global::Gtk.Action ActionReturnTareReasonCategories;
+	
+	private global::Gtk.Action ActionProductionRequestReport;
 
 	private global::Gtk.HBox hbox1;
 
@@ -1057,6 +1059,9 @@ public partial class MainWindow
 		this.ActionReturnTareReasonCategories = new global::Gtk.Action("ActionReturnTareReasonCategories", global::Mono.Unix.Catalog.GetString("Категории забора тары"), null, null);
 		this.ActionReturnTareReasonCategories.ShortLabel = global::Mono.Unix.Catalog.GetString("Категории забора тары");
 		w1.Add(this.ActionReturnTareReasonCategories, null);
+		this.ActionProductionRequestReport = new global::Gtk.Action("ActionProductionRequestReport", global::Mono.Unix.Catalog.GetString("Заявка на производство"), null, null);
+		this.ActionProductionRequestReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Заявка на производство");
+		w1.Add(this.ActionProductionRequestReport, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -1167,7 +1172,8 @@ public partial class MainWindow
 				"nDefectiveItemsReport\' action=\'ActionDefectiveItemsReport\'/><menuitem name=\'Acti" +
 				"onNotFullyLoadedRouteLists\' action=\'ActionNotFullyLoadedRouteLists\'/><menuitem n" +
 				"ame=\'ActionForShipment\' action=\'ActionForShipment\'/><menuitem name=\'ActionStockM" +
-				"ovementsAdvancedReport\' action=\'ActionStockMovementsAdvancedReport\'/></menu><men" +
+				"ovementsAdvancedReport\' action=\'ActionStockMovementsAdvancedReport\'/><menuitem name=\'Act" +
+				"ionProductionRequestReport\' action=\'ActionProductionRequestReport\'/></menu><men" +
 				"u name=\'ActionReportsBottles\' action=\'ActionReportsBottles\'><menuitem name=\'Acti" +
 				"onBottlesMovementSummaryReport\' action=\'ActionBottlesMovementSummaryReport\'/><me" +
 				"nuitem name=\'ActionBottlesMovementRLReport\' action=\'ActionBottlesMovementRLRepor" +
@@ -1509,6 +1515,7 @@ public partial class MainWindow
 		this.ActionReturnedTareReport.Activated += new global::System.EventHandler(this.OnActionReturnedTareReportActivated);
 		this.ActionReturnTareReasons.Activated += new global::System.EventHandler(this.OnActionReturnTareReasonsActivated);
 		this.ActionReturnTareReasonCategories.Activated += new global::System.EventHandler(this.OnActionReturnTareReasonCategoriesActivated);
+		this.ActionProductionRequestReport.Activated += new global::System.EventHandler(this.OnActionProductionRequestReportActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
