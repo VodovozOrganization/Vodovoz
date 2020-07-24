@@ -98,6 +98,7 @@ using Vodovoz.Dialogs.Email;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Cash;
 using Vodovoz.Views.Cash;
+using Vodovoz.Views.Orders;
 
 namespace Vodovoz
 {
@@ -166,6 +167,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForDebtViewModel, OrderWithoutShipmentForDebtView>()
 				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForPaymentViewModel, OrderWithoutShipmentForPaymentView>()
 				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForAdvancePaymentViewModel, OrderWithoutShipmentForAdvancePaymentView>()
+				.RegisterWidgetForTabViewModel<ReturnTareReasonCategoryViewModel, ReturnTareReasonCategoryView>()
+				.RegisterWidgetForTabViewModel<ReturnTareReasonViewModel, ReturnTareReasonView>()
 				.RegisterWidgetForTabViewModel<PaymentByCardViewModel, PaymentByCardView>()
 				;
 

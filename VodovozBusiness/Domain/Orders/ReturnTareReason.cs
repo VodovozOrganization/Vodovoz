@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
+using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -21,7 +21,7 @@ namespace Vodovoz.Domain.Orders
 
         public virtual int Id { get; set; }
 
-        public virtual string Title => $"Причина забора тары №{Id} {Name}, категории {ReasonCategory.GetEnumTitle()}";
+		public virtual string Title => $"Причина №{Id} - {Name}";
 
         string name;
         [Display(Name = "Причина забора тары")]
@@ -30,23 +30,38 @@ namespace Vodovoz.Domain.Orders
             set => SetField(ref name, value);
         }
         
-        ReturnTareReasonCategory reasonCategory;
-        [Display(Name = "Категория причины забора тары")]
-        public virtual ReturnTareReasonCategory ReasonCategory {
-            get => reasonCategory;
-            set => SetField(ref reasonCategory, value);
-        }
-        
         bool isArchive;
         [Display(Name = "В архиве?")]
         public virtual bool IsArchive {
             get => isArchive;
             set => SetField(ref isArchive, value);
         }
-        
-        #endregion
 
-        public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		IList<ReturnTareReasonCategory> reasonCategories = new List<ReturnTareReasonCategory>();
+		[Display(Name = "Категории причины забора тары")]
+		public virtual IList<ReturnTareReasonCategory> ReasonCategories {
+			get => reasonCategories;
+			set => SetField(ref reasonCategories, value);
+		}
+
+		GenericObservableList<ReturnTareReasonCategory> observableReasonCategories;
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<ReturnTareReasonCategory> ObservableReasonCategories {
+			get {
+				if(observableReasonCategories == null)
+					observableReasonCategories = new GenericObservableList<ReturnTareReasonCategory>(ReasonCategories);
+				return observableReasonCategories;
+			}
+		}
+
+		#endregion
+
+		public virtual void AddCategory(ReturnTareReasonCategory category)
+		{
+			ObservableReasonCategories.Add(category);
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (string.IsNullOrEmpty(Name))
             {
@@ -56,20 +71,5 @@ namespace Vodovoz.Domain.Orders
                 );
             }
         }
-    }
-
-    public enum ReturnTareReasonCategory
-    {
-        [Display(Name = "Приостановление")]
-        Suspension,
-        [Display(Name = "Расторжение")]
-        Termination,
-        [Display(Name = "Дозабор")]
-        TakeAway
-    }
-    
-    public class ReturnTareReasonCategoryStringType : NHibernate.Type.EnumStringType
-    {
-        public ReturnTareReasonCategoryStringType() : base(typeof(ReturnTareReasonCategory)) { }
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using NHibernate;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -12,9 +12,9 @@ using Vodovoz.ViewModels.Orders;
 
 namespace Vodovoz.JournalViewModels
 {
-    public class ReturnTareReasonsJournalViewModel : SingleEntityJournalViewModelBase<ReturnTareReason, ReturnTareReasonViewModel, ReturnTareReasonsJournalNode>
-    {
-        private readonly IUnitOfWorkFactory unitOfWorkFactory;
+	public class ReturnTareReasonsJournalViewModel : SingleEntityJournalViewModelBase<ReturnTareReason, ReturnTareReasonViewModel, ReturnTareReasonsJournalNode>
+	{
+		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 
 		public ReturnTareReasonsJournalViewModel(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices,
 			bool hideJournalForOpenDialog = false, bool hideJournalForCreateDialog = false)
@@ -22,7 +22,7 @@ namespace Vodovoz.JournalViewModels
 		{
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
-			TabName = "Причины забора тары";
+			TabName = "Категории причин забора тары";
 
 			var threadLoader = DataLoader as ThreadDataLoader<ReturnTareReasonsJournalNode>;
 			threadLoader.MergeInOrderBy(x => x.IsArchive, false);
@@ -35,18 +35,17 @@ namespace Vodovoz.JournalViewModels
 			ReturnTareReasonsJournalNode resultAlias = null;
 
 			var query = uow.Session.QueryOver<ReturnTareReason>();
-			
+
 			query.Where(
-				GetSearchCriterion<PromotionalSet>(
+				GetSearchCriterion<ReturnTareReason>(
 					x => x.Id
 				)
 			);
 
 			var result = query.SelectList(list => list
 									.Select(x => x.Id).WithAlias(() => resultAlias.Id)
-									.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive)
 									.Select(x => x.Name).WithAlias(() => resultAlias.Name)
-									.Select(x => x.ReasonCategory).WithAlias(() => resultAlias.ReasonCategory))
+									.Select(x => x.IsArchive).WithAlias(() => resultAlias.IsArchive))
 									.TransformUsing(Transformers.AliasToBean<ReturnTareReasonsJournalNode>())
 									.OrderBy(x => x.Name).Asc;
 			return result;
@@ -71,5 +70,5 @@ namespace Vodovoz.JournalViewModels
 			CreateDefaultAddActions();
 			CreateDefaultEditAction();
 		}
-    }
+	}
 }

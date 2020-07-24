@@ -663,7 +663,14 @@ namespace Vodovoz.Domain.Orders
 			get => returnTareReason;
 			set => SetField(ref returnTareReason, value);
 		}
-		
+
+		ReturnTareReasonCategory returnTareReasonCategory;
+		[Display(Name = "Категория причины забора тары")]
+		public virtual ReturnTareReasonCategory ReturnTareReasonCategory {
+			get => returnTareReasonCategory;
+			set => SetField(ref returnTareReasonCategory, value);
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()
@@ -860,7 +867,10 @@ namespace Vodovoz.Domain.Orders
 							new[] { this.GetPropertyName(o => o.Contract) });
 					if(bottlesReturn.HasValue && bottlesReturn > 0 && GetTotalWater19LCount() == 0 && ReturnTareReason == null)
 						yield return new ValidationResult("Необходимо указать причину забора тары.",
-							new[] { this.GetPropertyName(o => o.Contract) });
+							new[] { nameof(ReturnTareReason) });
+					if(bottlesReturn.HasValue && bottlesReturn > 0 && GetTotalWater19LCount() == 0 && ReturnTareReasonCategory == null)
+						yield return new ValidationResult("Необходимо указать категорию причины забора тары.",
+							new[] { nameof(ReturnTareReasonCategory) });
 					if(!IsLoadedFrom1C && trifle == null && (PaymentType == PaymentType.cash || PaymentType == PaymentType.BeveragesWorld) && this.TotalSum > 0m)
 						yield return new ValidationResult("В заказе не указана сдача.",
 							new[] { this.GetPropertyName(o => o.Trifle) });
@@ -4071,6 +4081,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			if (ReturnTareReason != null)
 				ReturnTareReason = null;
+
+			if(ReturnTareReasonCategory != null)
+				ReturnTareReasonCategory = null;
 		}
 	}
 }
