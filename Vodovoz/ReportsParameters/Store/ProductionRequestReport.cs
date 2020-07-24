@@ -92,13 +92,7 @@ namespace Vodovoz.ReportsParameters.Store
 
 		private ReportInfo GetReportInfo()
 		{
-			string reportId;
 			var warehouse = yentryrefWarehouse.Subject as Warehouse;
-			
-			if(warehouse != null && warehouse.TypeOfUse == WarehouseUsing.Shipment)
-				reportId = "Store.ProductionRequestReport";
-			else
-				throw new NotImplementedException("Неизвестный тип использования склада.");
 
 			var gGroups = GeographicGroupNodes.Where(x => x.Selected);
 
@@ -108,7 +102,7 @@ namespace Vodovoz.ReportsParameters.Store
 				{"end_date", dateperiodpickerMaxSales.EndDateOrNull.Value.AddHours(23).AddMinutes(59).AddSeconds(59)},
 				{"today", DateTime.Today},
 				{"currently", DateTime.Now},
-				{"warehouse_id", warehouse.Id},
+				{"warehouse_id", warehouse?.Id ?? -1},
 				{"creation_date", DateTime.Now},
 				{
 					"geographic_group_id", GeographicGroupNodes.Where(x => x.Selected)
@@ -117,7 +111,7 @@ namespace Vodovoz.ReportsParameters.Store
 			};
 
 			return new ReportInfo {
-				Identifier = reportId,
+				Identifier = "Store.ProductionRequestReport",
 				Parameters = parameters
 			};
 		}
