@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	M.*,
@@ -173,7 +173,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -217,7 +217,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="warehouse">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	warehouses.name as warehouse_name
@@ -230,7 +230,7 @@ WHERE warehouses.id = @warehouse_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>warehouse_name</DataField>
           <TypeName>System.String</TypeName>
@@ -238,7 +238,7 @@ WHERE warehouses.id = @warehouse_id</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="geographic_group">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	name
@@ -252,7 +252,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
@@ -288,8 +288,8 @@ WHERE
         <Width>340.91pt</Width>
         <Value>="Сформировано:" + Format( {?creation_date}, "dd.MM.yyyy HH:mm")</Value>
         <ZIndex>1</ZIndex>
-        <Left>466.86pt</Left>
-        <Top>50.48pt</Top>
+        <Left>466.1pt</Left>
+        <Top>81.4pt</Top>
         <Style>
           <TextAlign>Right</TextAlign>
           <BorderStyle />
@@ -723,11 +723,30 @@ WHERE
             </TableRow>
           </TableRows>
         </Details>
-        <Left>1.6pt</Left>
-        <Top>70.0pt</Top>
+        <Left>0.8pt</Left>
+        <Top>96.1pt</Top>
       </Table>
+      <Textbox Name="Textbox24" >
+        <Height>48.06pt</Height>
+        <Width>480.29pt</Width>
+        <Value>В отчете: 
+- идет выборка остатков воды по выбранному складу на текущий момент;
+- идет выборка продаж по выбранной части города на текущий момент;
+- происходит выборка отгрузок по выбранному складу на текущий момент;
+- выбираются максимальные продажи за день из соответствующего периода;
+</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.50pt</Left>
+        <Top>44.20pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+        </Style>
+      </Textbox>
     </ReportItems>
-    <Height>137.5pt</Height>
+    <Height>155.4pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -762,7 +781,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>

@@ -36,7 +36,8 @@ namespace Vodovoz.ReportsParameters.Store
 			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
 				yentryrefWarehouse.Subject = CurrentUserSettings.Settings.DefaultWarehouse;
 
-			dateperiodpickerMaxSales.StartDate = dateperiodpickerMaxSales.EndDate = DateTime.Today;
+			dateperiodpickerMaxSales.StartDate = DateTime.Today.AddYears(-1);
+			dateperiodpickerMaxSales.EndDate = DateTime.Today.AddHours(23).AddMinutes(59).AddSeconds(59);
 			dateperiodpickerMaxSales.PeriodChangedByUser += DateperiodpickerMaxSalesPeriodChangedByUser;
 
 			GeographicGroupNodes = new GenericObservableList<GeographicGroupNode>(
