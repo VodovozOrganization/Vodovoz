@@ -1593,4 +1593,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new ProductionRequestReport())
 		);
 	}
+
+	protected void OnActionReturnTareReasonCategoriesActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new ReturnTareReasonCategoriesJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
 }

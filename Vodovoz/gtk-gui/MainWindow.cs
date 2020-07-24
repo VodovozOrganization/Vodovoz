@@ -400,10 +400,12 @@ public partial class MainWindow
 	private global::Gtk.Action ActionPaymentsFinDepartmentReport;
 
 	private global::Gtk.Action ActionReturnedTareReport;
-	
+
 	private global::Gtk.Action ActionReturnTareReasons;
 	
 	private global::Gtk.Action ActionProductionRequestReport;
+
+	private global::Gtk.Action ActionReturnTareReasonCategories;
 
 	private global::Gtk.HBox hbox1;
 
@@ -1057,6 +1059,9 @@ public partial class MainWindow
 		this.ActionProductionRequestReport = new global::Gtk.Action("ActionProductionRequestReport", global::Mono.Unix.Catalog.GetString("Заявка на производство"), null, null);
 		this.ActionProductionRequestReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Заявка на производство");
 		w1.Add(this.ActionProductionRequestReport, null);
+		this.ActionReturnTareReasonCategories = new global::Gtk.Action("ActionReturnTareReasonCategories", global::Mono.Unix.Catalog.GetString("Категории забора тары"), null, null);
+		this.ActionReturnTareReasonCategories.ShortLabel = global::Mono.Unix.Catalog.GetString("Категории забора тары");
+		w1.Add(this.ActionReturnTareReasonCategories, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -1114,7 +1119,8 @@ public partial class MainWindow
 				"RentPackage\' action=\'ActionPaidRentPackage\'/><menuitem name=\'ActionDiscountReaso" +
 				"ns\' action=\'ActionDiscountReasons\'/><menuitem name=\'ActionNonReturnReasons\' acti" +
 				"on=\'ActionNonReturnReasons\'/><menuitem name=\'ActionReturnTareReasons\' action=\'Ac" +
-				"tionReturnTareReasons\'/></menu><menu name=\'ActionBanksMenu\' action=\'ActionBanksM" +
+				"tionReturnTareReasons\'/><menuitem name=\'ActionReturnTareReasonCategories\' action" +
+				"=\'ActionReturnTareReasonCategories\'/></menu><menu name=\'ActionBanksMenu\' action=\'ActionBanksM" +
 				"enu\'><menuitem name=\'ActionBanksRF\' action=\'ActionBanksRF\'/><separator/><menuite" +
 				"m name=\'Action51\' action=\'Action51\'/></menu><menu name=\'Action13\' action=\'Action" +
 				"13\'><menuitem name=\'Action14\' action=\'Action14\'/><menuitem name=\'Action15\' actio" +
@@ -1509,6 +1515,7 @@ public partial class MainWindow
 		this.ActionReturnedTareReport.Activated += new global::System.EventHandler(this.OnActionReturnedTareReportActivated);
 		this.ActionReturnTareReasons.Activated += new global::System.EventHandler(this.OnActionReturnTareReasonsActivated);
 		this.ActionProductionRequestReport.Activated += new global::System.EventHandler(this.OnActionProductionRequestReportActivated);
+		this.ActionReturnTareReasonCategories.Activated += new global::System.EventHandler(this.OnActionReturnTareReasonCategoriesActivated);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QS.Tdi.Gtk.TabAddedEventArgs>(this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QS.Tdi.Gtk.TabSwitchedEventArgs>(this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QS.Tdi.Gtk.TabClosedEventArgs>(this.OnTdiMainTabClosed);
