@@ -1582,4 +1582,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			)
 		);
 	}
+
+	protected void OnActionReturnTareReasonCategoriesActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new ReturnTareReasonCategoriesJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
 }

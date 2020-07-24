@@ -22,11 +22,7 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.Label labelReasonName;
 
-		private global::Gtk.Label lblCategory;
-
 		private global::Gamma.GtkWidgets.yEntry yentryReturnTareReasonName;
-
-		private global::Gamma.Widgets.yEnumComboBox yenumcmbReasonCategory;
 
 		protected virtual void Build()
 		{
@@ -101,7 +97,7 @@ namespace Vodovoz.Views.Orders
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table2 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
+			this.table2 = new global::Gtk.Table(((uint)(1)), ((uint)(2)), false);
 			this.table2.Name = "table2";
 			this.table2.RowSpacing = ((uint)(6));
 			this.table2.ColumnSpacing = ((uint)(6));
@@ -112,19 +108,8 @@ namespace Vodovoz.Views.Orders
 			this.labelReasonName.LabelProp = global::Mono.Unix.Catalog.GetString("Название причины:");
 			this.table2.Add(this.labelReasonName);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table2[this.labelReasonName]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.lblCategory = new global::Gtk.Label();
-			this.lblCategory.Name = "lblCategory";
-			this.lblCategory.Xalign = 1F;
-			this.lblCategory.LabelProp = global::Mono.Unix.Catalog.GetString("Категория забора тары: ");
-			this.table2.Add(this.lblCategory);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table2[this.lblCategory]));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
 			this.yentryReturnTareReasonName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryReturnTareReasonName.CanFocus = true;
@@ -132,31 +117,16 @@ namespace Vodovoz.Views.Orders
 			this.yentryReturnTareReasonName.IsEditable = true;
 			this.yentryReturnTareReasonName.InvisibleChar = '•';
 			this.table2.Add(this.yentryReturnTareReasonName);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table2[this.yentryReturnTareReasonName]));
-			w10.TopAttach = ((uint)(1));
-			w10.BottomAttach = ((uint)(2));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table2.Gtk.Table+TableChild
-			this.yenumcmbReasonCategory = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumcmbReasonCategory.Name = "yenumcmbReasonCategory";
-			this.yenumcmbReasonCategory.ShowSpecialStateAll = false;
-			this.yenumcmbReasonCategory.ShowSpecialStateNot = false;
-			this.yenumcmbReasonCategory.UseShortTitle = false;
-			this.yenumcmbReasonCategory.DefaultFirst = false;
-			this.table2.Add(this.yenumcmbReasonCategory);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table2[this.yenumcmbReasonCategory]));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table2[this.yentryReturnTareReasonName]));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table2);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table2]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table2]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
