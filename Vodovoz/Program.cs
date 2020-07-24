@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Common;
 using Gtk;
 using NLog;
 using QSProjectsLib;
@@ -18,6 +19,7 @@ using QS.ErrorReporting;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools;
 using QS.Osm;
+using QS.Permissions;
 using QS.Tools;
 
 namespace Vodovoz
@@ -72,7 +74,7 @@ namespace Vodovoz
 			LoginDialog.Destroy ();
 
 			PerformanceHelper.StartMeasurement ("Замер запуска приложения");
-
+			GetPermissionsSettings();
 			//Настройка базы
 			CreateBaseConfig ();
 			PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
