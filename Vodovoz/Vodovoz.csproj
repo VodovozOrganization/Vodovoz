@@ -1493,7 +1493,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ReturnedTareReport.cs" />
     <Compile Include="Views\Orders\ReturnTareReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ReturnTareReasonView.cs" />
-    <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
     <Compile Include="Views\Orders\ReturnTareReasonCategoryView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ReturnTareReasonCategoryView.cs" />
     <Compile Include="JournalViewModels\ReturnTareReasonsJournalViewModel.cs" />
