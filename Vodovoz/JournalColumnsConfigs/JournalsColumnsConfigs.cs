@@ -540,21 +540,41 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
 					.Finish()
 			);
-			
-			//PromotionalSetJournalViewModel
+
+			//ReturnTareReasonCategoriesJournalViewModel
+			TreeViewColumnsConfigFactory.Register<ReturnTareReasonCategoriesJournalViewModel>(
+				() => FluentColumnsConfig<ReturnTareReasonCategoriesJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+						.XAlign(0.5f)
+					.AddColumn("Категория причины")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Name)
+						.XAlign(0.5f)
+					.AddColumn("")
+					.Finish()
+			);
+
+			//ReturnTareReasonsJournalViewModel
 			TreeViewColumnsConfigFactory.Register<ReturnTareReasonsJournalViewModel>(
 				() => FluentColumnsConfig<ReturnTareReasonsJournalNode>.Create()
 					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Id.ToString())
-					.AddColumn("Название")
+						.XAlign(0.5f)
+					.AddColumn("Причина")
+						.HeaderAlignment(0.5f)
 						.AddTextRenderer(n => n.Name)
-					.AddColumn("Категория причины")
-						.AddEnumRenderer(n => n.ReasonCategory)
+						.XAlign(0.5f)
 					.AddColumn("В архиве?")
-						.AddToggleRenderer(n => n.IsArchive).Editing(false)
+						.HeaderAlignment(0.5f)
+						.AddToggleRenderer(n => n.IsArchive)
+						.Editing(false)
+						.XAlign(0.5f)
 					.AddColumn("")
 					.RowCells()
-					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
 		}

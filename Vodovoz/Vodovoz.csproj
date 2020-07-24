@@ -459,8 +459,8 @@
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringValuableConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
-    <Compile Include="JournalNodes\ReturnTareReasonsJournalNode.cs" />
-    <Compile Include="JournalViewModels\ReturnTareReasonsJournalViewModel.cs" />
+    <Compile Include="JournalNodes\ReturnTareReasonCategoriesJournalNode.cs" />
+    <Compile Include="JournalViewModels\ReturnTareReasonCategoriesJournalViewModel.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
     <Compile Include="Program.cs" />
@@ -505,7 +505,7 @@
     <Compile Include="Representations\ContractsVM.cs" />
     <Compile Include="Representations\ProxiesVM.cs" />
     <Compile Include="ViewModels\Cash\PaymentByCardViewModel.cs" />
-    <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
+    <Compile Include="ViewModels\Orders\ReturnTareReasonCategoryViewModel.cs" />
     <Compile Include="ViewWidgets\AdditionalAgreementsView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointView.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
@@ -1492,6 +1492,11 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ReturnedTareReport.cs" />
     <Compile Include="Views\Orders\ReturnTareReasonView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.ReturnTareReasonView.cs" />
+    <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
+    <Compile Include="Views\Orders\ReturnTareReasonCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.ReturnTareReasonCategoryView.cs" />
+    <Compile Include="JournalViewModels\ReturnTareReasonsJournalViewModel.cs" />
+    <Compile Include="JournalNodes\ReturnTareReasonsJournalNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

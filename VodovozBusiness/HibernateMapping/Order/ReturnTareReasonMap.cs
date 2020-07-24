@@ -11,8 +11,13 @@ namespace Vodovoz.HibernateMapping.Order
 
             Id(x => x.Id).Column("id").GeneratedBy.Native();
             Map(x => x.Name).Column("name");
-            Map(x => x.IsArchive).Column("is_archive");
-            Map(x => x.ReasonCategory).Column("category").CustomType<ReturnTareReasonCategoryStringType>();
-        }
+			Map(x => x.IsArchive).Column("is_archive");
+
+			HasManyToMany(x => x.ReasonCategories)
+				.Table("return_tare_reasons_to_categories")
+				.ParentKeyColumn("return_tare_reason_id")
+				.ChildKeyColumn("return_tare_reason_category_id")
+				.LazyLoad();
+		}
     }
 }

@@ -206,6 +206,7 @@ namespace Vodovoz
 			Entity.Trifle = templateOrder.Trifle;
 			Entity.IsService = templateOrder.IsService;
 			Entity.Contract = templateOrder.Contract;
+			Entity.ReturnTareReasonCategory = templateOrder.ReturnTareReasonCategory;
 			Entity.ReturnTareReason = templateOrder.ReturnTareReason;
 			Entity.CopyPromotionalSetsFrom(templateOrder);
 			Entity.CopyItemsFrom(templateOrder);
@@ -406,10 +407,14 @@ namespace Vodovoz
 			ycomboboxReason.SetRenderTextFunc<DiscountReason>(x => x.Name);
 			ycomboboxReason.ItemsList = UoW.Session.QueryOver<DiscountReason>().List();
 
-			yCmbReturnTareReasons.SetRenderTextFunc<ReturnTareReason>(x => x.Title);
-			yCmbReturnTareReasons.ItemsList = UoW.Session.QueryOver<ReturnTareReason>().List();
+			yCmbReturnTareReasonCategories.SetRenderTextFunc<ReturnTareReasonCategory>(x => x.Name);
+			yCmbReturnTareReasonCategories.ItemsList = UoW.Session.QueryOver<ReturnTareReasonCategory>().List();
+			yCmbReturnTareReasonCategories.Binding.AddBinding(Entity, e => e.ReturnTareReasonCategory, w => w.SelectedItem).InitializeFromSource();
+			yCmbReturnTareReasonCategories.Changed += YCmbReturnTareReasonCategoriesOnChanged;
+			HboxReturnTareReasonCategoriesShow();
+
+			yCmbReturnTareReasons.SetRenderTextFunc<ReturnTareReason>(x => x.Name);
 			yCmbReturnTareReasons.Binding.AddBinding(Entity, e => e.ReturnTareReason, w => w.SelectedItem).InitializeFromSource();
-			HboxReturnTareReasonShow();
 			
 			yCmbPromoSets.SetRenderTextFunc<PromotionalSet>(x => x.ShortTitle);
 			yCmbPromoSets.ItemSelected += YCmbPromoSets_ItemSelected;
@@ -2234,24 +2239,37 @@ namespace Vodovoz
 			}
 		}
 
-		void OnEntryBottlesToReturnChanged(object sender, EventArgs e)
+		private void OnEntryBottlesToReturnChanged(object sender, EventArgs e)
 		{
-			HboxReturnTareReasonShow();
+			HboxReturnTareReasonCategoriesShow();
 		}
 
-		void HboxReturnTareReasonShow()
+		private void HboxReturnTareReasonCategoriesShow()
 		{
 			if (Entity.BottlesReturn.HasValue && Entity.BottlesReturn > 0)
 			{
 				hboxReturnTareReason.Visible = Entity.GetTotalWater19LCount() == 0;
-				
-				if(!hboxReturnTareReason.Visible)
+
+				if(!hboxReturnTareReason.Visible) {
+					hboxReasons.Visible = false;
 					Entity.RemoveReturnTareReason();
+				}
 			}
 			else
 			{
-				hboxReturnTareReason.Visible = false;
+				hboxReturnTareReason.Visible = hboxReasons.Visible = false;
 				Entity.RemoveReturnTareReason();
+			}
+		}
+		
+		private void YCmbReturnTareReasonCategoriesOnChanged(object sender, EventArgs e)
+		{
+			if (yCmbReturnTareReasonCategories.SelectedItem is ReturnTareReasonCategory category)
+			{
+				if(!hboxReasons.Visible)
+					hboxReasons.Visible = true;
+
+				yCmbReturnTareReasons.ItemsList = category.ChildReasons;
 			}
 		}
 
@@ -2338,7 +2356,7 @@ namespace Vodovoz
 		
 		void ObservableOrderItems_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
-			HboxReturnTareReasonShow();
+			HboxReturnTareReasonCategoriesShow();
 		}
 
 		void ObservableOrderDocuments_ListChanged(object aList)
@@ -2427,7 +2445,7 @@ namespace Vodovoz
 					OrderItem oItem = (aList as GenericObservableList<OrderItem>)[aIdx] as OrderItem;
 					
 					if(oItem != null && oItem.Nomenclature.IsWater19L)
-						HboxReturnTareReasonShow();
+						HboxReturnTareReasonCategoriesShow();
 					
 					if(oItem == null || oItem.PaidRentEquipment == null) {
 						return;
