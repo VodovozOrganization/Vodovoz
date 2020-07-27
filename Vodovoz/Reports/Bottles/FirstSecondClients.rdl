@@ -758,7 +758,7 @@
 FROM 
     orders
     JOIN order_items ON orders.id = order_items.order_id
-    JOIN discount_reasons ON order_items.discount_reason_id = discount_reasons.id
+    LEFT JOIN discount_reasons ON order_items.discount_reason_id = discount_reasons.id
     JOIN counterparty ON orders.id = counterparty.first_order_id
     LEFT JOIN phones p1 ON p1.counterparty_id = orders.client_id
     LEFT JOIN phones p2 ON p2.delivery_point_id = orders.delivery_point_id
@@ -839,7 +839,7 @@ WHERE
     ) AND
     (@discount_id = 0 OR discount_reasons.id = @discount_id) AND
     (@author_employer_id = 0 OR orders.author_employee_id = @author_employer_id)  AND
-    (@show_only_client_wiht_one_order = 0 OR SecondOrder.Id IS NULL) AND
+    (@show_only_client_with_one_order = 0 OR SecondOrder.Id IS NULL) AND
     NOT EXISTS
     (
 		SELECT
@@ -864,8 +864,8 @@ GROUP BY
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
-          <QueryParameter Name="show_only_client_wiht_one_order">
-            <Value>={?show_only_client_wiht_one_order}</Value>
+          <QueryParameter Name="show_only_client_with_one_order">
+            <Value>={?show_only_client_with_one_order}</Value>
           </QueryParameter>
           <QueryParameter Name="discount_id">
             <Value>={?discount_id}</Value>
@@ -929,7 +929,7 @@ GROUP BY
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -969,7 +969,7 @@ GROUP BY
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="show_only_client_wiht_one_order">
+    <ReportParameter Name="show_only_client_with_one_order">
       <DataType>Boolean</DataType>
       <DefaultValue>
         <Values>
