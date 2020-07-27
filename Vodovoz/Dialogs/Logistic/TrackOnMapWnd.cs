@@ -84,7 +84,7 @@ namespace Dialogs.Logistic
 
 		private void ConfigureMap()
 		{
-			gmapWidget.MapProvider = GMapProviders.OpenStreetMap;
+			gmapWidget.MapProvider = GMapProviders.YandexMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.MinZoom = 0;
@@ -582,7 +582,7 @@ namespace Dialogs.Logistic
 
 			labelDistance.LabelProp = string.Join("\n", text);
 
-			routeList.RecalculatedDistance = totalDistanceTrack + recalculatedToBase.TotalDistanceKm;
+			routeList.RecalculatedDistance = decimal.Round(totalDistanceTrack + recalculatedToBase.TotalDistanceKm);
 			UoW.Save(routeList);
 			UoW.Commit();
 		}
