@@ -45,6 +45,7 @@ namespace Vodovoz.Tools.Logistic
 
 				//Районы
 				districts = ScheduleRestrictionRepository.GetDistrictsWithBorder(uow);
+				result.WageDistrict = deliveryPoint.District.WageDistrict.Name ?? "Unknown";
 
 				//Координаты
 				if(!latitude.HasValue || !longitude.HasValue) {
@@ -110,6 +111,7 @@ namespace Vodovoz.Tools.Logistic
 					? string.Join(", ", district.GetSchedulesString(true))
 					: "любой день";
 			}
+
 			return result;
 		}
 
@@ -131,6 +133,7 @@ namespace Vodovoz.Tools.Logistic
 		public bool WithPrice { get; set; }
 		public string DistrictName { get; set; }
 		public string GeographicGroups { get; set; }
+		public string WageDistrict { get; set; }
 
 		string errorMessage;
 		public string ErrorMessage {

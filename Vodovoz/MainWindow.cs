@@ -711,7 +711,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
 		IRouteListItemRepository routeListItemRepository = new RouteListItemRepository();
 		IFilePickerService filePickerService = new GtkFilePicker();
-		
+
 		tdiMain.OpenTab(
 			() => {
 				return new ComplaintsJournalViewModel(
@@ -1565,6 +1565,42 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<PaymentsFromBankClientFinDepartmentReport>(),
 			() => new QSReport.ReportViewDlg(new PaymentsFromBankClientFinDepartmentReport())
+		);
+	}
+
+	protected void OnActionReturnedTareReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ReturnedTareReport>(),
+			() => new QSReport.ReportViewDlg(new ReturnedTareReport())
+		);
+	}
+	
+	protected void OnActionReturnTareReasonsActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new ReturnTareReasonsJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+	
+	protected void OnActionProductionRequestReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<ProductionRequestReport>(),
+			() => new QSReport.ReportViewDlg(new ProductionRequestReport())
+		);
+	}
+
+	protected void OnActionReturnTareReasonCategoriesActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new ReturnTareReasonCategoriesJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
 		);
 	}
 }

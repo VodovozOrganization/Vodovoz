@@ -459,6 +459,8 @@
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringValuableConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
+    <Compile Include="JournalNodes\ReturnTareReasonCategoriesJournalNode.cs" />
+    <Compile Include="JournalViewModels\ReturnTareReasonCategoriesJournalViewModel.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="gtk-gui\MainWindow.cs" />
     <Compile Include="Program.cs" />
@@ -502,6 +504,9 @@
     <Compile Include="gtk-gui\Vodovoz.EquipmentGenerator.cs" />
     <Compile Include="Representations\ContractsVM.cs" />
     <Compile Include="Representations\ProxiesVM.cs" />
+    <Compile Include="ViewModels\Cash\PaymentByCardViewModel.cs" />
+    <Compile Include="ViewModels\Orders\ReturnTareReasonCategoryViewModel.cs" />
+    <Compile Include="ViewModels\Orders\ReturnTareReasonViewModel.cs" />
     <Compile Include="ViewWidgets\AdditionalAgreementsView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointView.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
@@ -1482,6 +1487,18 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.DistrictsSetJournalFilterView.cs" />
     <Compile Include="Views\Logistic\DistrictsSetActivationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.DistrictsSetActivationView.cs" />
+    <Compile Include="Views\Cash\PaymentByCardView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.PaymentByCardView.cs" />
+    <Compile Include="ReportsParameters\Bottles\ReturnedTareReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Bottles.ReturnedTareReport.cs" />
+    <Compile Include="Views\Orders\ReturnTareReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.ReturnTareReasonView.cs" />
+    <Compile Include="Views\Orders\ReturnTareReasonCategoryView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Orders.ReturnTareReasonCategoryView.cs" />
+    <Compile Include="JournalViewModels\ReturnTareReasonsJournalViewModel.cs" />
+    <Compile Include="JournalNodes\ReturnTareReasonsJournalNode.cs" />
+    <Compile Include="ReportsParameters\Store\ProductionRequestReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.ProductionRequestReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1748,6 +1765,7 @@
     <Folder Include="Views\Orders\OrdersWithoutShipment\" />
     <Folder Include="ViewModels\Orders\OrdersWithoutShipment\" />
     <Folder Include="Dialogs\Email\" />
+    <Folder Include="Views\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1758,6 +1776,9 @@
     </None>
     <None Include="RdlEngineConfig.Linux.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Bottles\ReturnedTareReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\BillWithoutShipmentForDebt.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1847,6 +1868,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\DriverTicket.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\ProductionRequestReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\WriteOff.rdl">

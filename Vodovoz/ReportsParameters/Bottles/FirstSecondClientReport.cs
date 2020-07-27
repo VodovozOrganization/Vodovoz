@@ -5,9 +5,12 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repositories.Orders;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.ReportsParameters.Bottles
 {
@@ -22,6 +25,11 @@ namespace Vodovoz.ReportsParameters.Bottles
 			yCpecCmbDiscountReason.ItemsList = reasons;
 			daterangepicker.StartDate = DateTime.Now.AddDays(-7);
 			daterangepicker.EndDate = DateTime.Now.AddDays(1);
+			
+			var filter = new EmployeeFilterViewModel();
+			filter.Status = EmployeeStatus.IsWorking;
+			filter.Category = EmployeeCategory.office;
+			yentryEmployer.RepresentationModel = new EmployeesVM(filter);
 		}
 
 		#region IParametersWidget implementation
@@ -46,7 +54,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 					{ "start_date", daterangepicker.StartDateOrNull },
 					{ "end_date", daterangepicker.EndDateOrNull },
 					{ "discount_id", (yCpecCmbDiscountReason.SelectedItem as DiscountReason)?.Id ?? 0},
-					{ "show_only_client_wiht_one_order" , ycheckbutton1.Active}
+					{ "show_only_client_wiht_one_order" , ycheckbutton1.Active},
+					{ "author_employer_id" , (yentryEmployer.Subject as Employee)?.Id ?? 0}
 				}
 			};
 		}

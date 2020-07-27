@@ -22,8 +22,14 @@ namespace Vodovoz.EntityRepositories.Delivery
 		{
 			Point point = new Point((double)latitude, (double)longitude);
 
-			IList<District> districtsWithBorders = uow.Session.QueryOver<District>().Where(x => x.DistrictBorder != null).List()
-				.Where(x => x.DistrictsSet.Status == DistrictsSetStatus.Active).ToList();
+			District districtAlias = null;
+			DistrictsSet districtsSetAlias = null;
+			
+			IList<District> districtsWithBorders = uow.Session.QueryOver<District>(() => districtAlias)
+				.Left.JoinAlias(() => districtAlias.DistrictsSet, () => districtsSetAlias)
+				.Where(x => x.DistrictBorder != null)
+				.Where(() => districtsSetAlias.Status == DistrictsSetStatus.Active)
+				.List<District>();
 
 			var districts = districtsWithBorders.Where(x => x.DistrictBorder.Contains(point));
 

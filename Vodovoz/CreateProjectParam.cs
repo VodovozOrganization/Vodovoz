@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using Gamma.Binding;
 using Gamma.Utilities;
@@ -8,6 +9,7 @@ using NHibernate.Cfg;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
+using QS.DomainModel.NotifyChange;
 using QS.HistoryLog;
 using QS.Permissions;
 using QS.Print;
@@ -94,6 +96,9 @@ using Vodovoz.ViewModels.Orders.OrdersWithoutShipment;
 using Vodovoz.Views.Orders.OrdersWithoutShipment;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.ViewModels.Cash;
+using Vodovoz.Views.Cash;
+using Vodovoz.Views.Orders;
 
 namespace Vodovoz
 {
@@ -103,74 +108,6 @@ namespace Vodovoz
 		{
 			UserDialog.RequestWidth = 900;
 			UserDialog.RequestHeight = 700;
-
-			PermissionsSettings.PresetPermissions.Add("can_activate_districts_set", new PresetUserPermissionSource("can_activate_districts_set", "Пользователь может активировать версию районов", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("driver_terminal", new PresetUserPermissionSource("driver_terminal", "ВНИМАНИЕ! Аккаунт будет использоватся только для печати документов МЛ", "Для использования отдельного окна для печати документов МЛ без доступа к остальным частям системы."));
-			PermissionsSettings.PresetPermissions.Add("max_loan_amount", new PresetUserPermissionSource("max_loan_amount", "Установка максимального кредита", "Пользователь имеет права для установки максимальной суммы кредита."));
-			PermissionsSettings.PresetPermissions.Add("logistican", new PresetUserPermissionSource("logistican", "Логист", "Пользователь является логистом."));
-			PermissionsSettings.PresetPermissions.Add("logistic_changedeliverytime", new PresetUserPermissionSource("logistic_changedeliverytime", "Логистика. Изменение времени доставки при ведении МЛ", "Пользователь может изменять время доставки в диалоге ведения маршрутного листа"));
-			PermissionsSettings.PresetPermissions.Add("money_manage_bookkeeping", new PresetUserPermissionSource("money_manage_bookkeeping", "Управление деньгами. Бухгалтерия.", "Пользователь имеет доступ к денежным операциям во вкладке \"Бухгалтерия\"."));
-			PermissionsSettings.PresetPermissions.Add("money_manage_cash", new PresetUserPermissionSource("money_manage_cash", "Управление деньгами. Касса.", "Пользователь имеет доступ к денежным операциям во вкладке \"Касса\"."));
-			PermissionsSettings.PresetPermissions.Add("routelist_unclosing", new PresetUserPermissionSource("routelist_unclosing", "Касса. Отмена закрытия маршрутных листов", "Пользователь может переводить маршрутные листы из статуса Закрыт в статус Сдается"));
-			PermissionsSettings.PresetPermissions.Add("can_delete", new PresetUserPermissionSource("can_delete", "Удаление заказов и маршрутных листов", "Пользователь может удалять заказы и маршрутные листы в журналах."));
-			PermissionsSettings.PresetPermissions.Add("can_delete_fines", new PresetUserPermissionSource("can_delete_fines", "Удаление и изменение штрафов", "Пользователь может удалять и изменять штрафы."));
-			PermissionsSettings.PresetPermissions.Add("can_close_orders", new PresetUserPermissionSource("can_close_orders", "Закрытие заказов", "Пользователь может закрывать заказы вручную."));
-			PermissionsSettings.PresetPermissions.Add("can_edit_wage", new PresetUserPermissionSource("can_edit_wage", "Установка заработной платы ", "Пользователь может устанавливать тип заработной платы и ставку."));
-			PermissionsSettings.PresetPermissions.Add("change_driver_wage", new PresetUserPermissionSource("change_driver_wage", "Изменение типа расчета ЗП в МЛ", "Пользователь может устанавливать для МЛ другой расчет заработной платы."));
-			PermissionsSettings.PresetPermissions.Add("can_create_and_arc_nomenclatures", new PresetUserPermissionSource("can_create_and_arc_nomenclatures", "Создание и архивирование номенклатур", "Пользователь может создавать номенклатуры и устанавливать галочку архивный."));
-			PermissionsSettings.PresetPermissions.Add("can_delete_counterparty_and_deliverypoint", new PresetUserPermissionSource("can_delete_counterparty_and_deliverypoint", "Удаление контрагентов и точек доставки", "Пользователь может удалять контрагентов и точки доставки."));
-			PermissionsSettings.PresetPermissions.Add("can_arc_counterparty_and_deliverypoint", new PresetUserPermissionSource("can_arc_counterparty_and_deliverypoint", "Архивирование контрагентов и точек доставки", "Пользователь может устанавливать галочку архивный для контрагентов и точек доставки."));
-			PermissionsSettings.PresetPermissions.Add("can_set_common_additionalagreement", new PresetUserPermissionSource("can_set_common_additionalagreement", "Возврат общего доп.соглашения", "Пользователь может нажать кнопку 'Вернуть общий' в доп.соглашении."));
-			PermissionsSettings.PresetPermissions.Add("can_confirm_routelist_with_overweight", new PresetUserPermissionSource("can_confirm_routelist_with_overweight", "Подтверждение МЛ с перегрузом", "Пользователь может подтверждать МЛ, суммарный вес товаров и оборудования в котором превышает грузоподъемность автомобиля."));
-			PermissionsSettings.PresetPermissions.Add("can_set_contract_closer", new PresetUserPermissionSource("can_set_contract_closer", "Установка крыжика 'Закрывашка по контракту'", "Пользователю доступна возможность установки крыжика 'Закрывашка по контракту'."));
-			PermissionsSettings.PresetPermissions.Add("can_can_create_order_in_advance", new PresetUserPermissionSource("can_can_create_order_in_advance", "Проведение накладных задним числом", "Пользователь может создавать заказы с датой доставки более ранней, чем текущая дата."));
-			PermissionsSettings.PresetPermissions.Add("can_create_several_orders_for_date_and_deliv_point", new PresetUserPermissionSource("can_create_several_orders_for_date_and_deliv_point", "Создание нескольких заказов для точки доставки на одну дату доставки.", "Пользователь может создавать несколько заказов для одной и той же точки доставки на одну и туже дату доставки."));
-			PermissionsSettings.PresetPermissions.Add("can_add_spares_to_order", new PresetUserPermissionSource("can_add_spares_to_order", "Продажа запчастей", "Пользователь может добавлять запчасти, которые отмечены как \"Не для продажи\", в заказ на продажу."));
-			PermissionsSettings.PresetPermissions.Add("can_add_bottles_to_order", new PresetUserPermissionSource("can_add_bottles_to_order", "Продажа тары", "Пользователь может добавлять тару, которая отмечена как \"Не для продажи\", в заказ на продажу."));
-			PermissionsSettings.PresetPermissions.Add("can_add_materials_to_order", new PresetUserPermissionSource("can_add_materials_to_order", "Продажа сырья", "Пользователь может добавлять сырьё, которое отмечено как \"Не для продажи\", в заказ на продажу."));
-			PermissionsSettings.PresetPermissions.Add("can_add_equipment_not_for_sale_to_order", new PresetUserPermissionSource("can_add_equipment_not_for_sale_to_order", "Продажа оборудования", "Пользователь может добавлять оборудование, которое отмечено как \"Не для продажи\", в заказ на продажу."));
-			PermissionsSettings.PresetPermissions.Add("can_edit_delivery_schedule", new PresetUserPermissionSource("can_edit_delivery_schedule", "Изменение времени доставки", "Пользователь может изменять время доставки."));
-			PermissionsSettings.PresetPermissions.Add("can_edit_undeliveries", new PresetUserPermissionSource("can_edit_undeliveries", "Изменение недовозов", "Пользователь может изменять недовозы, в т.ч. менять их статус."));
-			PermissionsSettings.PresetPermissions.Add("can_close_undeliveries", new PresetUserPermissionSource("can_close_undeliveries", "Закрытие недовозов", "Пользователь может переводить статус недовоза в \"Закрыт\""));
-			PermissionsSettings.PresetPermissions.Add("can_archive_warehouse", new PresetUserPermissionSource("can_archive_warehouse", "Архивирование склада", "Пользователь может архивировать склады."));
-			PermissionsSettings.PresetPermissions.Add("access_to_salaries", new PresetUserPermissionSource("access_to_salaries", "Доступ к зарплатам и отчётам по ним", "Пользователю предоставляется доступ к отчётам по зарплатам водителей и экспедиторов"));
-			PermissionsSettings.PresetPermissions.Add("access_to_fines_bonuses", new PresetUserPermissionSource("access_to_fines_bonuses", "Доступ к премиям, штрафам и отчётам по ним", "Пользователю предоставляется доступ к отчету по штрафам и премиям, а так же ко вкладке \"Штрафы и премии\" в \"Кадры\""));
-			PermissionsSettings.PresetPermissions.Add("can_move_order_from_closed_to_acepted", new PresetUserPermissionSource("can_move_order_from_closed_to_acepted", "Перевод заказа из \"Закрыт\" в \"Принят\"", "Пользователь может вернуть заказ, находящийся в статусе \"Закрыт\", в статус \"Принят\". Это касается только заказов, закрытых без доставки, то есть те, у которых нет МЛ."));
-			PermissionsSettings.PresetPermissions.Add("can_accept_cashles_service_orders", new PresetUserPermissionSource("can_accept_cashles_service_orders", "Проведение безналичного заказа на \"Выезд мастера\"", "Пользователь может подтверждать заказы по безналу типа \"Выезд мастера\". В случае отсутствия этого права, пользователю будет доступен только перевод заказа в статус \"Ожидание оплаты\"."));
-			PermissionsSettings.PresetPermissions.Add("can_change_trainee_to_driver", new PresetUserPermissionSource("can_change_trainee_to_driver", "Перевод стажера в водителя или экспедитора", "Позволяет перевести стажера в статус водителя или экспедитора"));
-			PermissionsSettings.PresetPermissions.Add("database_maintenance", new PresetUserPermissionSource("database_maintenance", "Обслуживание базы данных", "Предоставить пользователю права на доступ ко вкладке База --> Обслуживание"));
-			PermissionsSettings.PresetPermissions.Add("can_edit_online_store", new PresetUserPermissionSource("can_edit_online_store", "Изменение для онлайн магазина", "Пользователь может изменять группы товаров влияющие на выгрузку в интернет магазин."));
-			PermissionsSettings.PresetPermissions.Add("can_edit_delivery_price_rules", new PresetUserPermissionSource("can_edit_delivery_price_rules", "Создание и изменение правил доставки", "Пользователь может создавать и изменять правила доставки.\nДля установки цен доставки отдельных прав не нужно."));
-			PermissionsSettings.PresetPermissions.Add("can_set_free_delivery", new PresetUserPermissionSource("can_set_free_delivery", "Отключение для точки доставки платной доставки", "Пользователь может отмечать точки доставки флагом \"Всегда бесплатная доставка\""));
-			PermissionsSettings.PresetPermissions.Add("allow_load_selfdelivery", new PresetUserPermissionSource("allow_load_selfdelivery", "Разрешение отгрузки самовывоза", "Пользователь может переводить заказ с самовывозом в статус на погрузку"));
-			PermissionsSettings.PresetPermissions.Add("accept_cashless_paid_selfdelivery", new PresetUserPermissionSource("accept_cashless_paid_selfdelivery", "Разрешение отметки оплаты самовывоза", "Пользователь может отмечать заказ с самовывозом по безналу как оплаченный"));
-			PermissionsSettings.PresetPermissions.Add("can_edit_logistic_areas", new PresetUserPermissionSource("can_edit_logistic_areas", "Доступ к редактированию логистических районов", "Пользователь может редактировать логистические районы"));
-			PermissionsSettings.PresetPermissions.Add("can_send_not_loaded_route_lists_en_route", new PresetUserPermissionSource("can_send_not_loaded_route_lists_en_route", "Разрешение отправки недогруженых МЛ в путь", "Пользователь может отправлять недогруженные маршрутные листы в путь"));
-			PermissionsSettings.PresetPermissions.Add("can_confirm_mileage_for_our_GAZelles_Larguses", new PresetUserPermissionSource("can_confirm_mileage_for_our_GAZelles_Larguses", "Разрешение подтверждать киллометраж для наших ГАЗелей и Ларгусов", "Разрешение подтверждать киллометраж для наших ГАЗелей и Ларгусов"));
-			PermissionsSettings.PresetPermissions.Add("can_close_deliveries_for_counterparty", new PresetUserPermissionSource("can_close_deliveries_for_counterparty", "Возможность закрыть поставки для клиента", "Возможность закрыть поставки для клиента"));
-			PermissionsSettings.PresetPermissions.Add("can_edit_cashier_review_comment", new PresetUserPermissionSource("can_edit_cashier_review_comment", "Комментарий по проверке кассы", "Возможность изменять комментарий по проверке кассы"));
-			PermissionsSettings.PresetPermissions.Add("can_edit_fuelwriteoff_document_date", new PresetUserPermissionSource("can_edit_fuelwriteoff_document_date", "Смена даты в акте выдачи топлива", "Возможность изменять дату в акте выдачи топлива"));
-			PermissionsSettings.PresetPermissions.Add("can_edit_price_discount_from_route_list", new PresetUserPermissionSource("can_edit_price_discount_from_route_list", "Изменение цены и скидки в закрытии МЛ", "Возможность изменять цену и скидку в заказе из закрытия МЛ"));
-			PermissionsSettings.PresetPermissions.Add("can_edit_order", new PresetUserPermissionSource("can_edit_order", "Изменение заказа", "Для тех, у кого нет права, засеривается кнопка в Заказе \"Редактировать\""));
-			PermissionsSettings.PresetPermissions.Add("can_complete_complaint_discussion", new PresetUserPermissionSource("can_complete_complaint_discussion", "Завершение обсуждения в жалобе", "Дает возможность пользователю завершить обсуждение в жалобе"));
-			PermissionsSettings.PresetPermissions.Add("can_change_fuel_card_number", new PresetUserPermissionSource("can_change_fuel_card_number", "Изменение номера ТК в карточке автомобиля", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_change_car_load_and_unload_docs", new PresetUserPermissionSource("can_change_car_load_and_unload_docs", "Редактирование талонов разгрузки и погрузки по закрытым МЛ", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_change_district_wage_type", new PresetUserPermissionSource("can_change_district_wage_type", "Изменение зарплатного типа района", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_change_cars_volume_weight_consumption", new PresetUserPermissionSource("can_change_cars_volume_weight_consumption", "Изменение в автомобиле расхода топлива, объема груза, грузоподъемности", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_edit_counterparty_details", new PresetUserPermissionSource("can_edit_counterparty_details", "Редактирование реквизитов контрагента", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_edit_order_extra_cash", new PresetUserPermissionSource("can_edit_order_extra_cash", "Редактирование доп. нала в заказе", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_fire_employees", new PresetUserPermissionSource("can_fire_employees", "Возможность поставить статус \"Уволен\" сотруднику", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_accept_movement_document_dicrepancy", new PresetUserPermissionSource("can_accept_movement_document_dicrepancy", "Подтверждение расхождений в документа перемещения ТМЦ", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_manage_users", new PresetUserPermissionSource("can_manage_users", "Изменение существующего и создание нового пользователей в диалоге сотрудника", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_change_undelivery_problem_source", new PresetUserPermissionSource("can_change_undelivery_problem_source", "Изменение источника проблемы в недовозах", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_add_online_store_nomenclatures_to_order", new PresetUserPermissionSource("can_add_online_store_nomenclatures_to_order", "Добавление номенклатур интернет магазина в заказ", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_change_driver_surcharge", new PresetUserPermissionSource("can_change_driver_surcharge", "Изменение доплаты водителя", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_retrieve_routelist_en_route", new PresetUserPermissionSource("can_retrieve_routelist_en_route", "Возможность вернуть статус МЛ в путь", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_change_cars_bottles_from_address", new PresetUserPermissionSource("can_change_cars_bottles_from_address", "Изменение в автомобиле количества забираемых бутылей с адреса", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_change_accepted_movement_doc", new PresetUserPermissionSource("can_change_accepted_movement_doc", "Изменение документа перемещения в статусе \"Принят\"", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_manage_drivers_and_forwarders", new PresetUserPermissionSource("can_manage_drivers_and_forwarders", "Создание и изменение водителей и экспедиторов", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_manage_office_workers", new PresetUserPermissionSource("can_manage_office_workers", "Создание и изменение офисных работников", string.Empty));
-			PermissionsSettings.PresetPermissions.Add("can_create_bills_without_shipment", new PresetUserPermissionSource("can_create_bills_without_shipment", "Выставление счетов без отгрузки", string.Empty));
 
 			UserDialog.UserPermissionViewsCreator = () => {
 				return new List<IUserPermissionTab> {
@@ -230,6 +167,9 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForDebtViewModel, OrderWithoutShipmentForDebtView>()
 				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForPaymentViewModel, OrderWithoutShipmentForPaymentView>()
 				.RegisterWidgetForTabViewModel<OrderWithoutShipmentForAdvancePaymentViewModel, OrderWithoutShipmentForAdvancePaymentView>()
+				.RegisterWidgetForTabViewModel<ReturnTareReasonCategoryViewModel, ReturnTareReasonCategoryView>()
+				.RegisterWidgetForTabViewModel<ReturnTareReasonViewModel, ReturnTareReasonView>()
+				.RegisterWidgetForTabViewModel<PaymentByCardViewModel, PaymentByCardView>()
 				;
 
 			//Регистрация виджетов
@@ -506,6 +446,21 @@ namespace Vodovoz
 			ParentReferenceConfig.AddActions(new ParentReferenceActions<Trainee, Account> {
 				AddNewChild = (c, a) => c.AddAccount(a)
 			});
+		}
+		
+		static void GetPermissionsSettings() {
+			string    sql = "SELECT * FROM permissions_settings";
+			DbCommand cmd = QSMain.ConnectionDB.CreateCommand();
+			cmd.CommandText = sql;
+			using (DbDataReader rdr = cmd.ExecuteReader())
+			{
+				while (rdr.Read())
+				{
+					PermissionsSettings.PresetPermissions.Add(rdr["name"].ToString(),
+						new PresetUserPermissionSource(rdr["name"].ToString(), rdr["display_name"].ToString(),
+							string.IsNullOrEmpty(rdr["description"].ToString()) ? "" : rdr["description"].ToString()));
+				}
+			}
 		}
 
 		public static void CreateTempDir()

@@ -79,6 +79,8 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.LoadAllowedBy)			.Column("load_allowed_employee_id");
 			References(x => x.TareNonReturnReason)		.Column("tare_non_return_reason_id");
 			References(x => x.PaymentByCardFrom)		.Column("payment_from_id");
+			References(x => x.ReturnTareReason).Column("return_tare_reason_id");
+			References(x => x.ReturnTareReasonCategory).Column("return_tare_reason_category_id");
 
 			HasMany(x => x.OrderDocuments)		.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("attached_to_order_id");
 			HasMany (x => x.OrderDepositItems)	.Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");
@@ -87,10 +89,12 @@ namespace Vodovoz.HibernateMapping
 			HasMany (x => x.InitialOrderService).Cascade.None 			  ().Inverse ().LazyLoad ().KeyColumn ("initial_order_id");
 			HasMany (x => x.FinalOrderService)	.Cascade.None  			  ().Inverse ().LazyLoad ().KeyColumn ("final_order_id");
 			HasMany (x => x.DepositOperations)  .Cascade.AllDeleteOrphan  ().Inverse ().LazyLoad ().KeyColumn ("order_id");
-			HasManyToMany(x => x.PromotionalSets).Table("promotional_sets_to_orders")
-								.ParentKeyColumn("order_id")
-								.ChildKeyColumn("promotional_set_id")
-								.LazyLoad();
+			
+			HasManyToMany(x => x.PromotionalSets)
+				.Table("promotional_sets_to_orders")
+				.ParentKeyColumn("order_id")
+				.ChildKeyColumn("promotional_set_id")
+				.LazyLoad();
 		}
 	}
 }

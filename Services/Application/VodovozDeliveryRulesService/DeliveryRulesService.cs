@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using NLog;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
 
 namespace VodovozDeliveryRulesService
 {
 	public class DeliveryRulesService : IDeliveryRulesService
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 		private readonly IDeliveryRepository deliveryRepository;
 
 		public DeliveryRulesService(IDeliveryRepository deliveryRepository)
@@ -17,42 +20,52 @@ namespace VodovozDeliveryRulesService
 
 		public DeliveryRulesResponse GetRulesByDistrict(decimal latitude, decimal longitude)
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot($"Получение правил доставки ")) {
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение правил доставки ")) {
 				try {
 					var district = deliveryRepository.GetDistrict(uow, latitude, longitude);
-
 					if(district != null) {
 						logger.Debug($"Район получен {district.DistrictName}");
-						var rule = new DeliveryRuleDTO();
-						rule.MinBottles = district?.MinBottles ?? 0;
-						rule.DeliveryPrice = district.CommonDistrictRuleItems.Count > 0
-							? district.CommonDistrictRuleItems[0]?.Price ?? 0
-							: 0;
-						rule.DeliveryRuleTitle = district.CommonDistrictRuleItems.Count > 0
-							? district.CommonDistrictRuleItems[0]?.DeliveryPriceRule.ToString()
-							: "";
-						rule.DeliverySchedule = district.GetSchedulesString();
 
-						return new DeliveryRulesResponse {
-							StatusEnum = DeliveryRulesResponseStatus.Ok,
-							DeliveryRule = rule,
-							Message = ""
+						var response = new DeliveryRulesResponse {
+							WeekDayDeliveryRules = new List<WeekDayDeliveryRuleDTO>(),
 						};
-					} else {
-						string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден район";
-						logger.Debug(message);
-						return new DeliveryRulesResponse {
-							StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
-							DeliveryRule = null,
-							Message = message
-						};
+						foreach (WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName))) {
+							//Берём все правила дня недели
+							var rulesToAdd = district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay).Select(x => x.Title).ToList();
+							//Если правил дня недели нет берем общие правила района
+							if(!rulesToAdd.Any())
+								rulesToAdd = district.ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
+							var item = new WeekDayDeliveryRuleDTO {
+								WeekDayEnum = weekDay,
+								DeliveryRules = rulesToAdd,
+								ScheduleRestrictions = district.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
+									.Select(x => x.DeliverySchedule)
+									.OrderBy(x => x.From)
+									.ThenBy(x => x.To)
+									.Select(x => x.Name)
+									.ToList()
+							};
+							response.WeekDayDeliveryRules.Add(item);
+						}
+
+						response.StatusEnum = DeliveryRulesResponseStatus.Ok;
+						response.Message = "";
+						return response;
 					}
+					
+					string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден район";
+					logger.Debug(message);
+					return new DeliveryRulesResponse {
+						StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
+						WeekDayDeliveryRules = null,
+						Message = message
+					};
 				}
-				catch(Exception e) {
-					logger.Error(e);
+				catch (Exception ex) {
+					logger.Error(ex);
 					return new DeliveryRulesResponse {
 						StatusEnum = DeliveryRulesResponseStatus.Error,
-						DeliveryRule = null,
+						WeekDayDeliveryRules = null,
 						Message = "Возникла внутренняя ошибка при получении правила доставки"
 					};
 				}
@@ -67,4 +80,5 @@ namespace VodovozDeliveryRulesService
 			return true;
 		}
 	}
+	
 }
