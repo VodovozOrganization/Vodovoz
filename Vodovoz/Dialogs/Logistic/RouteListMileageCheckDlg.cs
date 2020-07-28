@@ -133,8 +133,7 @@ namespace Vodovoz
 
 				vboxRouteList.Sensitive = table2.Sensitive = false;
 			}
-
-			if(!Entity.RecalculatedDistance.HasValue)
+			else
 				RecountMileage();
 		}
 
