@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
-using QS.Dialog;
 using QS.Report;
 using QSReport;
 using System.ComponentModel.DataAnnotations;
@@ -9,7 +7,6 @@ using QS.Dialog.GtkUI;
 
 namespace Vodovoz.ReportsParameters
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class IncomeBalanceReport : SingleUoWWidgetBase, IParametersWidget
 	{
 		private string reportPath = "Sales.CommonIncomeBalance";
@@ -25,11 +22,7 @@ namespace Vodovoz.ReportsParameters
 
 		#region IParametersWidget implementation
 
-		public string Title {
-			get {
-				return "Отчет по приходу по кассе";
-			}
-		}
+		public string Title => "Отчет по приходу по кассе";
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
@@ -37,9 +30,8 @@ namespace Vodovoz.ReportsParameters
 
 		private ReportInfo GetReportInfo()
 		{
-
-			string startDate = String.Format("{0:yyyy-MM-dd}", dateperiodpicker.StartDate);
-			string endDate = String.Format("{0:yyyy-MM-dd}", dateperiodpicker.EndDate);
+			string startDate = $"{dateperiodpicker.StartDate:yyyy-MM-dd}";
+			string endDate = $"{dateperiodpicker.EndDate:yyyy-MM-dd}";
 
 			var parameters = new Dictionary<string, object> {
 				{ "StartDate", startDate },
