@@ -155,6 +155,7 @@ namespace Vodovoz.ViewModels.Logistic
         private void ReAssignDriverDistirctPriorities()
         {
             ActivationStatus = "Переприсвоение приоритетов доставки водителей";
+            DeletedPriorities.Clear();
             
             var priorities = UoW.Session.QueryOver<DriverDistrictPriority>().List();
             foreach (var priority in priorities.ToList()) {
@@ -163,7 +164,13 @@ namespace Vodovoz.ViewModels.Logistic
                 
                 var newDistrict = Entity.Districts.FirstOrDefault(x => x.CopyOf == priority.District);
                 if(newDistrict == null) {
-                    DeletedPriorities.Add(priority);
+                    DeletedPriorities.Add(new DriverDistrictPriority {
+                        District = priority.District,
+                        Driver = priority.Driver,
+                        Id = priority.Id,
+                        Priority = priority.Priority
+                    });
+                    priority.Driver.Districts.Remove(priority);
                     UoW.Delete(priority);
                 }
                 else {
