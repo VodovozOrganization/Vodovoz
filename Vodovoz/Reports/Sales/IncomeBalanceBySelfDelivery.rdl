@@ -1431,6 +1431,7 @@
     <DataSet Name="Income">
       <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>60</Timeout>
         <CommandText>SELECT
 res.*,
 (res.fact-res.plan) as dif
@@ -1523,8 +1524,9 @@ GROUP BY
       </Fields>
     </DataSet>
     <DataSet Name="IncomeAllStatus">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>60</Timeout>
         <CommandText>SELECT
 res.*,
 (res.fact-res.plan) as dif
@@ -1586,7 +1588,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="CashIncomeDates">
           <DataField>CashIncomeDates</DataField>
           <TypeName>System.String</TypeName>

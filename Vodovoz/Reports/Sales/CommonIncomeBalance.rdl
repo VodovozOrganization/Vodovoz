@@ -562,8 +562,9 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Income">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>75</Timeout>
         <CommandText>SELECT
     cash_income_category.name as category_name,
     SUM(cash_income.money) AS fact_income,
@@ -594,7 +595,7 @@ GROUP BY cash_income_category.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="category_name">
           <DataField>category_name</DataField>
         </Field>
@@ -606,6 +607,7 @@ GROUP BY cash_income_category.id</CommandText>
     <DataSet Name="OrdersIncome">
       <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>75</Timeout>
         <CommandText>SELECT
     res1.*,
     (res1.fact - res1.plan) as dif
