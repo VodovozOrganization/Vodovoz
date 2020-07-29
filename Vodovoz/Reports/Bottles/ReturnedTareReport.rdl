@@ -87,7 +87,7 @@
             <Width>101.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>106.0pt</Width>
+            <Width>98.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>90.7pt</Width>
@@ -96,7 +96,7 @@
             <Width>83.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>94.5pt</Width>
+            <Width>88.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>52.5pt</Width>
@@ -104,8 +104,11 @@
           <TableColumn>
             <Width>57.1pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>66.9pt</Width>
+          </TableColumn>
           <TableColumn>
-            <Width>162.8pt</Width>
+            <Width>110.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -255,6 +258,23 @@
                   <ReportItems>
                     <Textbox Name="Textbox7">
                       <Value>Факт бутылей</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>Статус заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -461,6 +481,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>={status}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
@@ -647,6 +684,24 @@
                         <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum({bottles_returned})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -922,10 +977,26 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-    orders.id AS order_id,
+    orders.id as order_id,
     orders.bottles_return,
-    IF(orders.order_status = 'Closed', sum(rla.bottles_returned), 0) as bottles_returned,
-	counterparty.full_name AS client,
+    (
+    	CASE 
+	       	WHEN orders.order_status = 'NewOrder' THEN 'Новый'
+	    	WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
+			WHEN orders.order_status = 'Accepted' THEN 'Принят'
+			WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
+			WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'
+			WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
+			WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
+			WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
+			WHEN orders.order_status = 'Closed' THEN 'Закрыт'
+			WHEN orders.order_status = 'Canceled' THEN 'Отменён'
+			WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
+			WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'
+			ElSE ''
+		END) as status,
+	IF(orders.order_status = 'Closed', sum(rla.bottles_returned), 0) as bottles_returned,
+	counterparty.full_name as client,
 	rtr.name as reason_name,
 	rtrc.name as category_name,
 	orders.comment_manager as comment,
@@ -1025,6 +1096,10 @@ ORDER BY orders.id DESC;</CommandText>
           <DataField>comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="status">
+          <DataField>status</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="reasons_names">
@@ -1068,7 +1143,7 @@ GROUP BY rtr.name</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="reasons_categories">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>Select 
 	rtrc.name as category,
@@ -1098,7 +1173,7 @@ GROUP BY rtrc.name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="category">
           <DataField>category</DataField>
           <TypeName>System.String</TypeName>
