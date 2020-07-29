@@ -773,11 +773,11 @@ FROM
         LEFT JOIN counterparty ON counterparty.id = orders.client_id
         WHERE counterparty.first_order_id != orders.id
             AND
-            (orders.order_status != 'NewOrder' OR 
-		    orders.order_status = 'WaitForPayment' OR
-		    orders.order_status = 'Canceled' OR
-		    orders.order_status = 'NotDelivered' OR
-		    orders.order_status = 'DeliveryCanceled'
+            (orders.order_status != 'NewOrder' AND 
+		    orders.order_status != 'WaitForPayment' AND
+		    orders.order_status != 'Canceled' AND
+		    orders.order_status != 'NotDelivered' AND
+		    orders.order_status != 'DeliveryCanceled'
 		    )
         ORDER BY orders.id DESC
     ) as SecondOrder ON SecondOrder.client_id = orders.client_id
@@ -831,11 +831,11 @@ FROM
     ) AS OrderDeposit ON OrderDeposit.order_id = orders.id
 WHERE 
     orders.delivery_date BETWEEN @start_date AND @end_date AND
-    (orders.order_status != 'NewOrder' OR 
-    orders.order_status = 'WaitForPayment' OR
-    orders.order_status = 'Canceled' OR
-    orders.order_status = 'NotDelivered' OR
-    orders.order_status = 'DeliveryCanceled'
+    (orders.order_status != 'NewOrder' AND 
+    orders.order_status != 'WaitForPayment' AND
+    orders.order_status != 'Canceled' AND
+    orders.order_status != 'NotDelivered' AND
+    orders.order_status != 'DeliveryCanceled'
     ) AND
     (@discount_id = 0 OR discount_reasons.id = @discount_id) AND
     (@author_employer_id = 0 OR orders.author_employee_id = @author_employer_id)  AND
@@ -849,11 +849,11 @@ WHERE
 		WHERE
 			o.client_id = orders.client_id AND 
             o.delivery_date &lt; orders.delivery_date AND
-            (orders.order_status != 'NewOrder' OR 
-		     orders.order_status = 'WaitForPayment' OR
-		     orders.order_status = 'Canceled' OR
-		     orders.order_status = 'NotDelivered' OR
-		     orders.order_status = 'DeliveryCanceled')
+            (orders.order_status != 'NewOrder' AND 
+		     orders.order_status != 'WaitForPayment' AND
+		     orders.order_status != 'Canceled' AND
+		     orders.order_status != 'NotDelivered' AND
+		     orders.order_status != 'DeliveryCanceled')
     )
 GROUP BY 
     orders.id DESC;</CommandText>
