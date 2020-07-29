@@ -1,10 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.UoW;
 using QS.Dialog;
 using QS.Report;
 using QSReport;
 using QS.Dialog.GtkUI;
+using QS.Project.Journal.EntitySelector;
+using QS.Project.Services;
+using QS.Widgets;
+using QS.Widgets.GtkUI;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz.ReportsParameters.Logistic
 {
@@ -15,6 +25,30 @@ namespace Vodovoz.ReportsParameters.Logistic
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			entityviewmodelentryEmployee.SetEntityAutocompleteSelectorFactory(
+				new EntityAutocompleteSelectorFactory<EmployeesJournalViewModel>(typeof(Employee),
+					() =>
+					{
+						var employeeFilter = new EmployeeFilterViewModel{
+							Status = EmployeeStatus.IsWorking,
+							Category = EmployeeCategory.driver
+						};
+						return new EmployeesJournalViewModel(employeeFilter, UnitOfWorkFactory.GetDefaultFactory, ServicesConfig.CommonServices);
+					})
+				);
+			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
+				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
+
+			ycheckbutton1.Toggled += (sender, args) =>
+			{
+				entityviewmodelentryCar.Sensitive = !ycheckbutton1.Active;
+				entityviewmodelentryEmployee.Sensitive = !ycheckbutton1.Active;
+				entityviewmodelentryCar.Subject = null;
+				entityviewmodelentryEmployee.Subject = null;
+			};
+
+			validatedentryDifference.ValidationMode = ValidationType.Numeric;
+			
 		}
 
 		#region IParametersWidget implementation
@@ -33,7 +67,17 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
 			parameters.Add("end_date", dateperiodpicker.EndDateOrNull);
-
+			parameters.Add("our_cars_only", ycheckbutton1.Active);
+			parameters.Add("car_id", (entityviewmodelentryCar.Subject as Car)?.Id ?? 0);
+			parameters.Add("employee_id", (entityviewmodelentryEmployee.Subject as Employee)?.Id ?? 0);
+			
+			int temp = 0;
+			if (!String.IsNullOrEmpty(validatedentryDifference.Text) && validatedentryDifference.Text.All(char.IsDigit))
+			{
+				temp = int.Parse(validatedentryDifference.Text);
+			}
+			parameters.Add("difference_km", validatedentryDifference.Text);
+			
 			return new ReportInfo {
 				Identifier = "Logistic.MileageReport",
 				UseUserVariables = true,
