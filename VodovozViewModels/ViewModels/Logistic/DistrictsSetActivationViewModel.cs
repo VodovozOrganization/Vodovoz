@@ -130,7 +130,7 @@ namespace Vodovoz.ViewModels.Logistic
 
         private void TryToFindNearbyDistrict()
         {
-            ActivationStatus = "Поиск районов для точек доставки без районов";
+            ActivationStatus = "Поиск районов для точек доставки без районов...";
             var deliveryPoints = UoW.Session.QueryOver<DeliveryPoint>()
                 .Where(d => d.District == null)
                 .And(x => x.Latitude != null)
@@ -154,7 +154,7 @@ namespace Vodovoz.ViewModels.Logistic
 
         private void ReAssignDriverDistirctPriorities()
         {
-            ActivationStatus = "Переприсвоение приоритетов доставки водителей";
+            ActivationStatus = "Переприсвоение приоритетов доставки водителей...";
             DeletedPriorities.Clear();
             
             var priorities = UoW.Session.QueryOver<DriverDistrictPriority>().List();
@@ -170,7 +170,10 @@ namespace Vodovoz.ViewModels.Logistic
                         Id = priority.Id,
                         Priority = priority.Priority
                     });
-                    priority.Driver.Districts.Remove(priority);
+                    var driver = priority.Driver;
+                    driver.Districts.Remove(priority);
+                    driver.CheckAndFixDriverPriorities();
+                    UoW.Save(driver);
                     UoW.Delete(priority);
                 }
                 else {
