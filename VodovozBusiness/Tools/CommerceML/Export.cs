@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using QS.DomainModel.UoW;
@@ -190,7 +191,7 @@ namespace Vodovoz.Tools.CommerceML
 				response = client.Execute(request);
 				DebugResponse(response);
 			} while(response.Content.StartsWith("progress"));
-			Results.Add(response.Content);
+			Results.Add(DecodeResponseContent(response));
 		}
 
 		private void SendFileXMLDoc(RestClient client, string filename, Root root)
@@ -222,10 +223,19 @@ namespace Vodovoz.Tools.CommerceML
             }
 			logger.Debug(response.ResponseUri?.ToString());
 			logger.Debug("Cookies:{0}", String.Join(";", response.Cookies.Select(x => x.Name + "=" + x.Value)));
-            logger.Debug(response.StatusCode.ToString());
-			logger.Debug(response.Content);
+			logger.Debug(response.StatusCode.ToString());
+			logger.Debug(DecodeResponseContent(response));
 		}
 
+		private string DecodeResponseContent(IRestResponse response)
+		{
+			if(response.ContentType.Contains("charset=windows-1251")) {
+				Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+				Encoding encoding = Encoding.GetEncoding("Windows-1251");
+				return encoding.GetString(response.RawBytes);
+			}
+			return response.Content;
+		}
 
 		void  CreateObjects()
 		{
