@@ -2493,6 +2493,7 @@
     <DataSet Name="Income">
       <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>75</Timeout>
         <CommandText>SELECT
     route_lists.id AS number,
     route_lists.date,
@@ -2708,8 +2709,9 @@ GROUP BY route_lists.id
       </Fields>
     </DataSet>
     <DataSet Name="IncomeAllStatus">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
+        <Timeout>75</Timeout>
         <CommandText>SELECT
     route_lists.id as number,
     route_lists.closing_comment,
@@ -2871,7 +2873,7 @@ GROUP BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="number">
           <DataField>number</DataField>
           <TypeName>System.Int32</TypeName>
