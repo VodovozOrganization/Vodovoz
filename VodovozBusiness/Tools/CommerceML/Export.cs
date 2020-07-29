@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -26,6 +26,7 @@ namespace Vodovoz.Tools.CommerceML
 				NewLineChars = "\r\n"
 			};
 
+		public const string OnlineStoreExportMode = "online_store_export_mode";
 		public const string OnlineStoreUrlParameterName = "online_store_export_url";
 		public const string OnlineStoreLoginParameterName = "online_store_export_login";
 		public const string OnlineStorePasswordParameterName = "online_store_export_password";
@@ -248,5 +249,11 @@ namespace Vodovoz.Tools.CommerceML
 			OnProgressPlusOneTask("Формируем XML");
 			return rootCatalog.ToXml();
 		}
+	}
+
+	public enum ExportMode
+	{
+		Umi,
+		Bitrix
 	}
 }
