@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -126,12 +126,12 @@ namespace Vodovoz.Tools.CommerceML
 
 			OnProgressPlusOneTask("Соединяемся с сайтом");
 			//Проверяем связь с сервером
-			var baseUrl = ParametersProvider.Instance.GetParameterValue(OnlineStoreUrlParameterName).ReplaceLastOccurrence("1c_exchange.php", "").TrimEnd('/');
+			var baseUrl = ParametersProvider.Instance.GetParameterValue(OnlineStoreUrlParameterName);
 			var client = new RestClient(baseUrl);
 			client.CookieContainer = new System.Net.CookieContainer();
 			client.Authenticator = new HttpBasicAuthenticator(ParametersProvider.Instance.GetParameterValue(OnlineStoreLoginParameterName),
 			                                                  ParametersProvider.Instance.GetParameterValue(OnlineStorePasswordParameterName));
-			var request = new RestRequest("1c_exchange.php?type=catalog&mode=checkauth", Method.GET);
+			var request = new RestRequest("?type=catalog&mode=checkauth", Method.GET);
 			IRestResponse response = client.Execute(request);
 			DebugResponse(response);
 			if(!response.Content.StartsWith("success"))
@@ -144,7 +144,7 @@ namespace Vodovoz.Tools.CommerceML
 
 			OnProgressPlusOneTask("Инициализация процесса обмена");
 			//Инициализируем передачу. Ответ о сжатии и размере нас не интересует. Мы не умеем других вариантов.
-			request = new RestRequest("1c_exchange.php?type=catalog&mode=init", Method.GET);
+			request = new RestRequest("?type=catalog&mode=init", Method.GET);
 			response = client.Execute(request);
 			DebugResponse(response);
 
@@ -156,7 +156,7 @@ namespace Vodovoz.Tools.CommerceML
 			//Внимание здесь "/" после 1c_exchange.php в выгрузке для umi не случаен, в документации его нет, но если его не написать то на запрос без слеша,
 			// приходит ответ 301 то есть переадресация на такую же строку но со слешем, но RestSharp после переадресации уже отправляет
 			// не POST запрос а GET, из за чего, файл не принимается нормально сервером.
-			var beginOfUrl = mode == ExportMode.Umi ? "1c_exchange.php/?type=catalog&mode=file&filename=" : "1c_exchange.php?type=catalog&mode=file&filename=";
+			var beginOfUrl = mode == ExportMode.Umi ? "/?type=catalog&mode=file&filename=" : "?type=catalog&mode=file&filename=";
 
 			foreach(var img in exportedImages) {
 				var imgFileName = $"img_{img.Id:0000000}.jpg";
@@ -182,7 +182,7 @@ namespace Vodovoz.Tools.CommerceML
 
 		private void SendImportCommand(RestClient client, string filename)
 		{
-			var request = new RestRequest("1c_exchange.php?type=catalog&mode=import&filename=" + filename, Method.GET);
+			var request = new RestRequest("?type=catalog&mode=import&filename=" + filename, Method.GET);
 			IRestResponse response = null;
 
 			do {
@@ -202,7 +202,7 @@ namespace Vodovoz.Tools.CommerceML
 			//Внимание здесь "/" после 1c_exchange.php не случаен в документации его нет, но если его не написать то на запрос без слеша,
 			// приходит ответ 301 то есть переадресация на такую же строку но со слешем, но RestSharp после переадресации уже отправляет
 			// не POST запрос а GET, из за чего, файл не принимается нормально сервером.
-			var beginOfUrl = mode == ExportMode.Umi ? "1c_exchange.php/?type=catalog&mode=file&filename=" : "1c_exchange.php?type=catalog&mode=file&filename=";
+			var beginOfUrl = mode == ExportMode.Umi ? "/?type=catalog&mode=file&filename=" : "?type=catalog&mode=file&filename=";
 			var request = new RestRequest(beginOfUrl + filename, Method.POST);
 
             using (MemoryStream stream = new MemoryStream())
