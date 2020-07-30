@@ -65,18 +65,17 @@
            AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol6L')) AS water6_amount,
     GROUP_CONCAT(DISTINCT ' ',
                  (SELECT
-                      GROUP_CONCAT(districts.district_name SEPARATOR ' пересечение с ')
+                      GROUP_CONCAT(d.district_name SEPARATOR ' пересечение с ')
                   FROM
                       orders
                           LEFT JOIN
                       delivery_points ON orders.delivery_point_id = delivery_points.id
                           LEFT JOIN
-                      districts ON district_id = delivery_points.district_id
+                      districts d ON d.id = delivery_points.district_id
                   WHERE
                           orders.id = route_list_addresses.order_id
                  )
-        ) AS street_district,
-    GROUP_CONCAT(gg.name SEPARATOR ', ')
+        ) AS street_district
 FROM
     route_lists
         LEFT JOIN
@@ -103,8 +102,7 @@ WHERE
   AND (@end_date = '' OR route_lists.`date` &lt;= @end_date)
   AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
 GROUP BY route_lists.id
-ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date)
-;</CommandText>
+ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date);</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
