@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>8.5in</PageHeight>
-  <PageWidth>11in</PageWidth>
+  <PageHeight>296.926mm</PageHeight>
+  <PageWidth>209.804mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -17,8 +17,8 @@
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox24">
-        <Height>31.55pt</Height>
-        <Width>755.19pt</Width>
+        <Height>30.81pt</Height>
+        <Width>521.72pt</Width>
         <Value>="Отчёт по километражу"
 + Iif(
 	({?start_date} = {?end_date}), (" за " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy")),
@@ -37,17 +37,17 @@
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox4" >
+      <Textbox Name="Textbox4">
         <Height>48.12pt</Height>
-        <Width>212.31pt</Width>
+        <Width>239.42pt</Width>
         <Value>В отчет попадают МЛ, которые:
 - находятся в статусе: закрыт
-- находятся между выбранными датами
-- имеют разницу &gt; или = указанной
-- принадлежат компании (галочка)</Value>
+- попадают в выбранный период
+- имеют расхождение км &gt; или = указанной
+- принадлежат компании (стоит галочка)</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>42.9pt</Top>
+        <Left>0.8pt</Left>
+        <Top>34.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -82,16 +82,10 @@
             <Width>53.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.1pt</Width>
-          </TableColumn>
-          <TableColumn>
             <Width>70.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>57.2pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>65.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>68.7pt</Width>
@@ -161,24 +155,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Value>Проверка километ- ража</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>8pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox9">
                       <Value>Пересчи- танный кило- метраж</Value>
                       <Style>
@@ -208,23 +184,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>Кило- метраж по кассе</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -347,22 +306,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox28">
-                      <Value>=Iif({mileage_check} = true, "√", "")</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox20">
                       <Value>=Fields!recalculated_distance.Value</Value>
                       <CanGrow>true</CanGrow>
@@ -382,23 +325,6 @@
                   <ReportItems>
                     <Textbox Name="Textbox21">
                       <Value>=Fields!tracked_distance.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Value>=Fields!actual_distance.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -459,6 +385,8 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
+                      <CanShrink >true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -532,25 +460,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox39">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>
-                      </Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox40">
                       <Style>
                         <BorderStyle>
@@ -583,24 +492,6 @@
                         <BorderWidth />
                       </Style>
                       <Value>="Итого: " + Sum({tracked_distance})</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox42">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                          <Left>None</Left>
-                          <Right>None</Right>
-                          <Top>None</Top>
-                          <Bottom>None</Bottom>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>="Итого: " + Sum({actual_distance})</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
