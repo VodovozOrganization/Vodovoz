@@ -12,7 +12,7 @@
   <RightMargin>.25in</RightMargin>
   <BottomMargin>.25in</BottomMargin>
   <PageHeader>
-    <Height>43.0pt</Height>
+    <Height>92.6pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -37,6 +37,24 @@
           <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox4" >
+        <Height>48.12pt</Height>
+        <Width>212.31pt</Width>
+        <Value>В отчет попадают МЛ, которые:
+- находятся в статусе: закрыт
+- находятся между выбранными датами
+- имеют разницу &gt; или = указанной
+- принадлежат компании (галочка)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>42.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>8pt</FontSize>
+        </Style>
+      </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
@@ -50,11 +68,11 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
-          <TableColumn >
+          <TableColumn>
             <Width>17.2pt</Width>
           </TableColumn>
           <TableColumn>
@@ -78,7 +96,7 @@
           <TableColumn>
             <Width>68.7pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>56.1pt</Width>
           </TableColumn>
           <TableColumn>
@@ -90,7 +108,7 @@
             <TableRow>
               <Height>42.7pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
                       <Value>№</Value>
@@ -230,7 +248,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
                       <Value>Разница километ- ража</Value>
@@ -276,7 +294,7 @@
             <TableRow>
               <Height>13.4pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
                       <Value>=RowNumber()</Value>
@@ -411,7 +429,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
                       <Value>={confirmed_distance} - {recalculated_distance}</Value>
@@ -423,7 +441,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >0.00</Format>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -450,7 +468,7 @@
         </Details>
         <Left>0.8pt</Left>
         <Top>0.0pt</Top>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -670,7 +688,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	route_lists.id,
@@ -726,7 +744,7 @@ ORDER BY route_lists.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -776,7 +794,7 @@ ORDER BY route_lists.id
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
