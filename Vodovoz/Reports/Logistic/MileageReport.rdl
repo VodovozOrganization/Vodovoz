@@ -472,8 +472,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value>="Итого: " + Sum({recalculated_distance})</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
