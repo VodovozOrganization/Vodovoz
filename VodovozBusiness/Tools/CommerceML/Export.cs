@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -233,7 +233,7 @@ namespace Vodovoz.Tools.CommerceML
 
 		private string DecodeResponseContent(IRestResponse response)
 		{
-			if(response.ContentType.Contains("charset=windows-1251")) {
+			if(response.ContentType != null && response.ContentType.Contains("charset=windows-1251")) {
 				Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 				Encoding encoding = Encoding.GetEncoding("Windows-1251");
 				return encoding.GetString(response.RawBytes);
