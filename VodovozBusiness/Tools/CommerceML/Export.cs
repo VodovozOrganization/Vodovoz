@@ -14,6 +14,12 @@ using Vodovoz.Tools.CommerceML.Nodes;
 
 namespace Vodovoz.Tools.CommerceML
 {
+	/// <summary>
+	/// Некоторые нюансы экспорта.
+	/// Для UMI при отправке пост запроса нужно после .php добавлять \ иначе umi возвращает код переадресации 301, а RestSharp это корректно обрабатывает только для GET запроса.
+	/// Для Bitrix на стороне сайта в админке /bitrix/admin/1c_admin.php надо обязательно отключить zip. Пункт "Использовать сжатие zip, если доступно" в расширенных настройках.
+	/// Так как иначе сайт ждет архив.
+	/// </summary>
 	public class Export
 	{
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
