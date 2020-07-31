@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -187,7 +187,7 @@ namespace Vodovoz.Tools.CommerceML
 
 			do {
 				if(response != null) {
-					string progress = response.Content.Substring(9);//Здесь обрезаем progress
+					string progress = DecodeResponseContent(response).Substring(9);//Здесь обрезаем progress
 					CurrentTaskText = $"Ожидаем обработки данных на сайте [{progress}]";
 				}
 				ProgressUpdated?.Invoke(this, EventArgs.Empty);
