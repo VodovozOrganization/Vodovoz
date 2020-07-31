@@ -6,7 +6,6 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using QS.DomainModel.UoW;
-using QS.Utilities.Text;
 using RestSharp;
 using RestSharp.Authenticators;
 using Vodovoz.Parameters;
@@ -126,12 +125,14 @@ namespace Vodovoz.Tools.CommerceML
 
 			OnProgressPlusOneTask("Соединяемся с сайтом");
 			//Проверяем связь с сервером
-			var baseUrl = ParametersProvider.Instance.GetParameterValue(OnlineStoreUrlParameterName);
-			var client = new RestClient(baseUrl);
+			var configuredUrl = ParametersProvider.Instance.GetParameterValue(OnlineStoreUrlParameterName);
+			var parsedUrl = new Uri(configuredUrl);
+			var path = parsedUrl.LocalPath; 
+			var client = new RestClient(configuredUrl.Replace(path, ""));
 			client.CookieContainer = new System.Net.CookieContainer();
 			client.Authenticator = new HttpBasicAuthenticator(ParametersProvider.Instance.GetParameterValue(OnlineStoreLoginParameterName),
 			                                                  ParametersProvider.Instance.GetParameterValue(OnlineStorePasswordParameterName));
-			var request = new RestRequest("?type=catalog&mode=checkauth", Method.GET);
+			var request = new RestRequest(path + "?type=catalog&mode=checkauth", Method.GET);
 			IRestResponse response = client.Execute(request);
 			DebugResponse(response);
 			if(!response.Content.StartsWith("success"))
@@ -144,19 +145,19 @@ namespace Vodovoz.Tools.CommerceML
 
 			OnProgressPlusOneTask("Инициализация процесса обмена");
 			//Инициализируем передачу. Ответ о сжатии и размере нас не интересует. Мы не умеем других вариантов.
-			request = new RestRequest("?type=catalog&mode=init", Method.GET);
+			request = new RestRequest(path + "?type=catalog&mode=init", Method.GET);
 			response = client.Execute(request);
 			DebugResponse(response);
 
 			OnProgressPlusOneTask("Выгружаем каталог");
-			SendFileXMLDoc(client, "import.xml", rootCatalog, mode);
+			SendFileXMLDoc(client, path, "import.xml", rootCatalog, mode);
             
 			OnProgressPlusOneTask("Выгружаем изображения");
 			var exportedImages = Catalog.Goods.Nomenclatures.SelectMany(x => x.Images);
 			//Внимание здесь "/" после 1c_exchange.php в выгрузке для umi не случаен, в документации его нет, но если его не написать то на запрос без слеша,
 			// приходит ответ 301 то есть переадресация на такую же строку но со слешем, но RestSharp после переадресации уже отправляет
 			// не POST запрос а GET, из за чего, файл не принимается нормально сервером.
-			var beginOfUrl = mode == ExportMode.Umi ? "/?type=catalog&mode=file&filename=" : "?type=catalog&mode=file&filename=";
+			var beginOfUrl = path + (mode == ExportMode.Umi ? "/" : "") +"?type=catalog&mode=file&filename=";
 
 			foreach(var img in exportedImages) {
 				var imgFileName = $"img_{img.Id:0000000}.jpg";
@@ -170,19 +171,19 @@ namespace Vodovoz.Tools.CommerceML
 			Results.Add("Выгружено изображений: " + exportedImages.Count());
 
 			OnProgressPlusOneTask("Выгружаем склад");
-			SendFileXMLDoc(client, "offers.xml", rootOffers, mode);
+			SendFileXMLDoc(client, path, "offers.xml", rootOffers, mode);
 
 			Results.Add("Выгрузка каталога товаров:");
 			OnProgressPlusOneTask("Импорт каталога товаров на сайте.");
-			SendImportCommand(client, "import.xml");
+			SendImportCommand(client, path, "import.xml");
 			Results.Add("Выгрузка склада и цен:");
 			OnProgressPlusOneTask("Импорт склада и цен на сайте.");
-			SendImportCommand(client, "offers.xml");
+			SendImportCommand(client, path, "offers.xml");
         }
 
-		private void SendImportCommand(RestClient client, string filename)
+		private void SendImportCommand(RestClient client, string path, string filename)
 		{
-			var request = new RestRequest("?type=catalog&mode=import&filename=" + filename, Method.GET);
+			var request = new RestRequest(path + "?type=catalog&mode=import&filename=" + filename, Method.GET);
 			IRestResponse response = null;
 
 			do {
@@ -197,12 +198,12 @@ namespace Vodovoz.Tools.CommerceML
 			Results.Add(DecodeResponseContent(response));
 		}
 
-		private void SendFileXMLDoc(RestClient client, string filename, Root root, ExportMode mode)
+		private void SendFileXMLDoc(RestClient client, string path, string filename, Root root, ExportMode mode)
 		{
 			//Внимание здесь "/" после 1c_exchange.php не случаен в документации его нет, но если его не написать то на запрос без слеша,
 			// приходит ответ 301 то есть переадресация на такую же строку но со слешем, но RestSharp после переадресации уже отправляет
 			// не POST запрос а GET, из за чего, файл не принимается нормально сервером.
-			var beginOfUrl = mode == ExportMode.Umi ? "/?type=catalog&mode=file&filename=" : "?type=catalog&mode=file&filename=";
+			var beginOfUrl = path + (mode == ExportMode.Umi ? "/" : "") + "?type=catalog&mode=file&filename=";
 			var request = new RestRequest(beginOfUrl + filename, Method.POST);
 
             using (MemoryStream stream = new MemoryStream())
