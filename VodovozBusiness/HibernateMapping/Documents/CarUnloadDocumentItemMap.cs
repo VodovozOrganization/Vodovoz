@@ -1,22 +1,24 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents;
 
-namespace Vodovoz
+namespace Vodovoz.HibernateMapping
 {
-	public class CarUnloadDocumentItemMap:ClassMap<CarUnloadDocumentItem>
+	public class CarUnloadDocumentItemMap : ClassMap<CarUnloadDocumentItem>
 	{
 		public CarUnloadDocumentItemMap ()
 		{
 			Table ("store_car_unload_document_items");
-
-			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
+			
+			Id(x => x.Id).Column("id").GeneratedBy.Native();
+			
+			Map(x => x.Redhead).Column("redhead");
 			Map(x => x.ReciveType).Column("receive_type").CustomType<ReciveTypesStringType>();
+			Map(x => x.Source).Column("source").CustomType<DefectSourceStringType>();
+			
 			References (x => x.Document).Column ("car_unload_document_id");
 			References (x => x.MovementOperation).Column ("warehouse_movement_operation_id").Cascade.All();
 			References (x => x.ServiceClaim).Column ("service_claim_id");
-			Map(x => x.Redhead).Column("redhead");
 			References(x => x.TypeOfDefect).Column("defect_type_id");
-			Map(x => x.Source).Column("source").CustomType<DefectSourceStringType>();
 		}
 	}
 }

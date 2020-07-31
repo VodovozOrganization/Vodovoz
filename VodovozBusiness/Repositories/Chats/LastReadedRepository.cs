@@ -16,7 +16,6 @@ namespace Vodovoz.Repository.Chats
 		}
 
 		public static int GetLastReadedMessagesCountForEmployee(IUnitOfWork uow, Chat chat, Employee employee) {
-			LastReadedMessage lastReadedAlias = null;
 			ChatMessage chatMessageAlias = null;
 			var lastMessage = GetLastReadedMessageForEmloyee(uow, chat, employee);
 
