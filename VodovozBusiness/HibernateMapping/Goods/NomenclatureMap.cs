@@ -35,6 +35,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.NoDelivey).Column("no_delivery");
 			Map(x => x.IsNewBottle).Column("is_new_bottle");
 			Map(x => x.IsDefectiveBottle).Column("is_defective_bottle");
+			Map(x => x.IsShabbyBottle).Column("is_shabby_bottle");
 			Map(x => x.IsDiler).Column("is_diler");
 			Map(x => x.PercentForMaster).Column("percent_for_master");
 			Map(x => x.TypeOfDepositCategory).Column("type_of_deposit").CustomType<TypeOfDepositCategoryStringType>();

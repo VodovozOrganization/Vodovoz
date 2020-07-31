@@ -313,24 +313,38 @@ namespace Vodovoz.Domain.Goods
 		}
 
 		private bool isNewBottle;
-
 		[Display(Name = "Это новая бутыль")]
 		public virtual bool IsNewBottle {
 			get => isNewBottle;
 			set {
-				if(SetField(ref isNewBottle, value, () => IsNewBottle) && isNewBottle)
+				if(SetField(ref isNewBottle, value) && isNewBottle) {
 					IsDefectiveBottle = false;
+					IsShabbyBottle = false;
+				}
 			}
 		}
 
 		private bool isDefectiveBottle;
-
 		[Display(Name = "Это бракованая бутыль")]
 		public virtual bool IsDefectiveBottle {
 			get => isDefectiveBottle;
 			set {
-				if(SetField(ref isDefectiveBottle, value, () => IsDefectiveBottle) && isDefectiveBottle)
+				if(SetField(ref isDefectiveBottle, value) && isDefectiveBottle) {
 					IsNewBottle = false;
+					IsShabbyBottle = false;
+				}
+			}
+		}
+
+		private bool isShabbyBottle;
+		[Display(Name = "Стройка")]
+		public virtual bool IsShabbyBottle {
+			get => isShabbyBottle;
+			set {
+				if(SetField(ref isShabbyBottle, value) && isShabbyBottle) {
+					IsNewBottle = false;
+					IsDefectiveBottle = false;
+				}
 			}
 		}
 
