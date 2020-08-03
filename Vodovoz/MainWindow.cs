@@ -1575,7 +1575,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new ReturnedTareReport())
 		);
 	}
-	
+
 	protected void OnActionReturnTareReasonsActivated(object sender, EventArgs e)
 	{
 		tdiMain.AddTab(
@@ -1585,7 +1585,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			)
 		);
 	}
-	
+
 	protected void OnActionProductionRequestReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1601,6 +1601,14 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			)
+		);
+	}
+
+	protected void OnActionScheduleOnLinePerShiftReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
+			() => new QSReport.ReportViewDlg(new ScheduleOnLinePerShiftReport())
 		);
 	}
 }

@@ -1202,7 +1202,7 @@ namespace Vodovoz.ViewModels.Logistic
 			progressBar?.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", DateForRouting);
 			ObservableDriversOnDay.Clear();
-			atWorkRepository.GetDriversAtDay(UoW, DateForRouting).ToList().ForEach(x => ObservableDriversOnDay.Add(x));
+			atWorkRepository.GetDriversAtDay(UoW, DateForRouting, AtWorkDriver.DriverStatus.IsWorking).ToList().ForEach(x => ObservableDriversOnDay.Add(x));
 			progressBar?.ProgressAdd();
 			logger.Info("Загружаем экспедиторов на {0:d}...", DateForRouting);
 			ObservableForwardersOnDay.Clear();

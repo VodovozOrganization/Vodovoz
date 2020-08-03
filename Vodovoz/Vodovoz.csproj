@@ -1499,6 +1499,8 @@
     <Compile Include="JournalNodes\ReturnTareReasonsJournalNode.cs" />
     <Compile Include="ReportsParameters\Store\ProductionRequestReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.ProductionRequestReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\ScheduleOnLinePerShiftReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ScheduleOnLinePerShiftReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2258,6 +2260,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\BillWithoutShipmentForAdvancePayment.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Reports\Logistic\ScheduleOnLinePerShiftReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
