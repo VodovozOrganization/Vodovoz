@@ -15,48 +15,48 @@
     <DataSet Name="Order">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	bwsfd.id AS bwsfd_id,
-	DATE_FORMAT(bwsfd.create_date,'%d.%m.%y') AS bill_date,
-	bwsfd.debt_name as debt_name,
-	bwsfd.debt_sum as debt_sum,
-	bwsfd.include_nds as include_nds,
-	count(*) as count,
-	count(*) * debt_sum as total,
-	counterparty.full_name AS client_name,
-	counterparty.jur_address AS client_address,
-	counterparty.inn,
-	counterparty.kpp,
-	counterparty.use_special_doc_fields,
-	counterparty.special_cargo_receiver,
-	counterparty.special_customer,
-	counterparty.special_contract_number,
-	counterparty.payer_special_kpp,
-	counterparty.special_gov_contract,
-	counterparty.special_delivery_address,
-	GROUP_CONCAT(
-		CONCAT(
-			'+7 ',
-			counterparty_phones.number,
-			IF(
-				counterparty_phones.name IS NULL,
-				'',
-				CONCAT(' ', counterparty_phones.name)
-			)
-		)
-		SEPARATOR '; '
-	) AS client_contact,
-	CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author
-FROM 
-	bills_without_shipment_for_debt bwsfd
-LEFT JOIN 
-	counterparty ON bwsfd.client_id = counterparty.id
+        <CommandText>SELECT
+    bwsfd.id AS bwsfd_id,
+    DATE_FORMAT(bwsfd.create_date,'%d.%m.%y') AS bill_date,
+    bwsfd.debt_name as debt_name,
+    bwsfd.debt_sum as debt_sum,
+    bwsfd.include_nds as include_nds,
+    count(DISTINCT bwsfd.id) as count,
+    count(DISTINCT bwsfd.id) * debt_sum as total,
+    counterparty.full_name AS client_name,
+    counterparty.jur_address AS client_address,
+    counterparty.inn,
+    counterparty.kpp,
+    counterparty.use_special_doc_fields,
+    counterparty.special_cargo_receiver,
+    counterparty.special_customer,
+    counterparty.special_contract_number,
+    counterparty.payer_special_kpp,
+    counterparty.special_gov_contract,
+    counterparty.special_delivery_address,
+    GROUP_CONCAT(
+            CONCAT(
+                    '+7 ',
+                    counterparty_phones.number,
+                    IF(
+                            counterparty_phones.name IS NULL,
+                            '',
+                            CONCAT(' ', counterparty_phones.name)
+                        )
+                )
+            SEPARATOR '; '
+        ) AS client_contact,
+    CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author
+FROM
+    bills_without_shipment_for_debt bwsfd
 LEFT JOIN
-	phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id
-LEFT JOIN 
-	employees ON employees.id = bwsfd.author_id
-WHERE 
-	bwsfd.id = @bill_ws_for_debt_id;</CommandText>
+    counterparty ON bwsfd.client_id = counterparty.id
+LEFT JOIN
+    phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id
+LEFT JOIN
+    employees ON employees.id = bwsfd.author_id
+WHERE
+        bwsfd.id = @bill_ws_for_debt_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="bill_ws_for_debt_id">
             <Value>=Parameters!bill_ws_for_debt_id</Value>
