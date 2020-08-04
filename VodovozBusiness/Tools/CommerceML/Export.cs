@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using QS.DomainModel.UoW;
@@ -13,6 +14,13 @@ using Vodovoz.Tools.CommerceML.Nodes;
 
 namespace Vodovoz.Tools.CommerceML
 {
+	/// <summary>
+	/// Некоторые нюансы экспорта.
+	/// Для UMI при отправке пост запроса нужно после .php добавлять \ иначе umi возвращает код переадресации 301, а RestSharp это корректно обрабатывает только для GET запроса.
+	/// Для Bitrix на стороне сайта в админке /bitrix/admin/1c_admin.php надо обязательно отключить zip. Пункт "Использовать сжатие zip, если доступно" в расширенных настройках.
+	/// Так как иначе сайт ждет архив.
+	/// Так же для Битрикс, если на сайте стоит редакция для Малый Бизнес. Надо установить guid на сайте https://yadi.sk/i/ruFjv4Q0BFlDjg такой же как в свойстве DefaultPriceGuid. Так как Балый бизнес подерживает только один тип цен.
+	/// </summary>
 	public class Export
 	{
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -25,11 +33,12 @@ namespace Vodovoz.Tools.CommerceML
 				NewLineChars = "\r\n"
 			};
 
+		public const string OnlineStoreExportMode = "online_store_export_mode";
 		public const string OnlineStoreUrlParameterName = "online_store_export_url";
 		public const string OnlineStoreLoginParameterName = "online_store_export_login";
 		public const string OnlineStorePasswordParameterName = "online_store_export_password";
 
-#endregion
+		#endregion
 
 		public IUnitOfWork UOW { get; private set; }
 
@@ -117,15 +126,20 @@ namespace Vodovoz.Tools.CommerceML
 		{
 			Errors.Clear();
             TotalTasks = 12;
+			ExportMode mode = ParametersProvider.Instance.ContainsParameter(OnlineStoreExportMode) 
+				? (ExportMode)Enum.Parse(typeof(ExportMode), ParametersProvider.Instance.GetParameterValue(OnlineStoreExportMode))
+				: ExportMode.Umi;
 
 			OnProgressPlusOneTask("Соединяемся с сайтом");
 			//Проверяем связь с сервером
-			var baseUrl = ParametersProvider.Instance.GetParameterValue(OnlineStoreUrlParameterName).TrimEnd('/');
-			var client = new RestClient(baseUrl);
+			var configuredUrl = ParametersProvider.Instance.GetParameterValue(OnlineStoreUrlParameterName);
+			var parsedUrl = new Uri(configuredUrl);
+			var path = parsedUrl.LocalPath; 
+			var client = new RestClient(configuredUrl.Replace(path, ""));
 			client.CookieContainer = new System.Net.CookieContainer();
 			client.Authenticator = new HttpBasicAuthenticator(ParametersProvider.Instance.GetParameterValue(OnlineStoreLoginParameterName),
 			                                                  ParametersProvider.Instance.GetParameterValue(OnlineStorePasswordParameterName));
-			var request = new RestRequest("1c_exchange.php?type=catalog&mode=checkauth", Method.GET);
+			var request = new RestRequest(path + "?type=catalog&mode=checkauth", Method.GET);
 			IRestResponse response = client.Execute(request);
 			DebugResponse(response);
 			if(!response.Content.StartsWith("success"))
@@ -138,65 +152,66 @@ namespace Vodovoz.Tools.CommerceML
 
 			OnProgressPlusOneTask("Инициализация процесса обмена");
 			//Инициализируем передачу. Ответ о сжатии и размере нас не интересует. Мы не умеем других вариантов.
-			request = new RestRequest("1c_exchange.php?type=catalog&mode=init", Method.GET);
+			request = new RestRequest(path + "?type=catalog&mode=init", Method.GET);
 			response = client.Execute(request);
 			DebugResponse(response);
 
 			OnProgressPlusOneTask("Выгружаем каталог");
-            SendFileXMLDoc(client, "import.xml", rootCatalog);
+			SendFileXMLDoc(client, path, "import.xml", rootCatalog, mode);
             
 			OnProgressPlusOneTask("Выгружаем изображения");
 			var exportedImages = Catalog.Goods.Nomenclatures.SelectMany(x => x.Images);
+			//Внимание здесь "/" после 1c_exchange.php в выгрузке для umi не случаен, в документации его нет, но если его не написать то на запрос без слеша,
+			// приходит ответ 301 то есть переадресация на такую же строку но со слешем, но RestSharp после переадресации уже отправляет
+			// не POST запрос а GET, из за чего, файл не принимается нормально сервером.
+			var beginOfUrl = path + (mode == ExportMode.Umi ? "/" : "") +"?type=catalog&mode=file&filename=";
 
 			foreach(var img in exportedImages) {
 				var imgFileName = $"img_{img.Id:0000000}.jpg";
 				var dirImgFileName = $"import_files/" + imgFileName;
 				OnProgressTextOnly("Отправляем " + imgFileName);
-
-                //Внимание здесь "/" после 1c_exchange.php не случаен в документации его нет, но если его не написать то на запрос без слеша,
-                // приходит ответ 301 то есть переадресация на такую же строку но со слешем, но RestSharp после переадресации уже отправляет
-                // не POST запрос а GET, из за чего, файл не принимается нормально сервером.
-                request = new RestRequest("1c_exchange.php/?type=catalog&mode=file&filename=" + dirImgFileName, Method.POST);
-                request.AddParameter("image/jpeg", img.Image, ParameterType.RequestBody);
+				request = new RestRequest(beginOfUrl + dirImgFileName, Method.POST);
+				request.AddParameter("image/jpeg", img.Image, ParameterType.RequestBody);
 				response = client.Execute(request);
 				DebugResponse(response);
 			}
 			Results.Add("Выгружено изображений: " + exportedImages.Count());
 
 			OnProgressPlusOneTask("Выгружаем склад");
-            SendFileXMLDoc(client, "offers.xml", rootOffers);
+			SendFileXMLDoc(client, path, "offers.xml", rootOffers, mode);
 
-            Results.Add("Выгрузка каталога товаров:");
+			Results.Add("Выгрузка каталога товаров:");
 			OnProgressPlusOneTask("Импорт каталога товаров на сайте.");
-			SendImportCommand(client, "import.xml");
-            Results.Add("Выгрузка склада и цен:");
+			SendImportCommand(client, path, "import.xml");
+			Results.Add("Выгрузка склада и цен:");
 			OnProgressPlusOneTask("Импорт склада и цен на сайте.");
-			SendImportCommand(client, "offers.xml");
+			SendImportCommand(client, path, "offers.xml");
         }
 
-		private void SendImportCommand(RestClient client, string filename)
+		private void SendImportCommand(RestClient client, string path, string filename)
 		{
-			var request = new RestRequest("1c_exchange.php?type=catalog&mode=import&filename=" + filename, Method.GET);
+			var request = new RestRequest(path + "?type=catalog&mode=import&filename=" + filename, Method.GET);
 			IRestResponse response = null;
 
 			do {
 				if(response != null) {
-					string progress = response.Content.Substring(9);//Здесь обрезаем progress
+					string progress = DecodeResponseContent(response).Substring(9);//Здесь обрезаем progress
 					CurrentTaskText = $"Ожидаем обработки данных на сайте [{progress}]";
 				}
 				ProgressUpdated?.Invoke(this, EventArgs.Empty);
 				response = client.Execute(request);
 				DebugResponse(response);
 			} while(response.Content.StartsWith("progress"));
-			Results.Add(response.Content);
+			Results.Add(DecodeResponseContent(response));
 		}
 
-		private void SendFileXMLDoc(RestClient client, string filename, Root root)
-        {
-            //Внимание здесь "/" после 1c_exchange.php не случаен в документации его нет, но если его не написать то на запрос без слеша,
+		private void SendFileXMLDoc(RestClient client, string path, string filename, Root root, ExportMode mode)
+		{
+			//Внимание здесь "/" после 1c_exchange.php не случаен в документации его нет, но если его не написать то на запрос без слеша,
 			// приходит ответ 301 то есть переадресация на такую же строку но со слешем, но RestSharp после переадресации уже отправляет
 			// не POST запрос а GET, из за чего, файл не принимается нормально сервером.
-            var request = new RestRequest("1c_exchange.php/?type=catalog&mode=file&filename=" + filename, Method.POST);
+			var beginOfUrl = path + (mode == ExportMode.Umi ? "/" : "") + "?type=catalog&mode=file&filename=";
+			var request = new RestRequest(beginOfUrl + filename, Method.POST);
 
             using (MemoryStream stream = new MemoryStream())
             {
@@ -220,10 +235,19 @@ namespace Vodovoz.Tools.CommerceML
             }
 			logger.Debug(response.ResponseUri?.ToString());
 			logger.Debug("Cookies:{0}", String.Join(";", response.Cookies.Select(x => x.Name + "=" + x.Value)));
-            logger.Debug(response.StatusCode.ToString());
-			logger.Debug(response.Content);
+			logger.Debug(response.StatusCode.ToString());
+			logger.Debug(DecodeResponseContent(response));
 		}
 
+		private string DecodeResponseContent(IRestResponse response)
+		{
+			if(response.ContentType != null && response.ContentType.Contains("charset=windows-1251")) {
+				Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+				Encoding encoding = Encoding.GetEncoding("Windows-1251");
+				return encoding.GetString(response.RawBytes);
+			}
+			return response.Content;
+		}
 
 		void  CreateObjects()
 		{
@@ -247,5 +271,11 @@ namespace Vodovoz.Tools.CommerceML
 			OnProgressPlusOneTask("Формируем XML");
 			return rootCatalog.ToXml();
 		}
+	}
+
+	public enum ExportMode
+	{
+		Umi,
+		Bitrix
 	}
 }
