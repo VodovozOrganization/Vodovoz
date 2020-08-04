@@ -47,7 +47,7 @@ namespace Vodovoz.JournalViewModels
 			RegisterOrdersWithoutShipmentForAdvancePayment();
 
 			var threadLoader = DataLoader as ThreadDataLoader<OrderJournalNode>;
-			threadLoader.MergeInOrderBy(x => x.Id, true);
+			threadLoader.MergeInOrderBy(x => x.CreateDate, true);
 
 			FinishJournalConfiguration();
 
@@ -79,7 +79,7 @@ namespace Vodovoz.JournalViewModels
 
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias);
 
-			if (FilterViewModel.ViewTypes != ViewTypes.Order)
+			if (FilterViewModel.ViewTypes != ViewTypes.Order && FilterViewModel.ViewTypes != ViewTypes.All)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -249,7 +249,7 @@ namespace Vodovoz.JournalViewModels
 
 			var query = uow.Session.QueryOver(() => orderWSDAlias);
 
-			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFD)
+			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFD && FilterViewModel.ViewTypes != ViewTypes.All)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -270,6 +270,7 @@ namespace Vodovoz.JournalViewModels
 			var resultQuery = query
 				.SelectList(list => list
 				   .Select(() => orderWSDAlias.Id).WithAlias(() => resultAlias.Id)
+				   .Select(() => orderWSDAlias.CreateDate).WithAlias(() => resultAlias.CreateDate)
 				   .Select(() => orderWSDAlias.CreateDate).WithAlias(() => resultAlias.Date)
 				   .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
 				   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
@@ -324,7 +325,7 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias);
 
-			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFP)
+			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFP && FilterViewModel.ViewTypes != ViewTypes.All)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -367,7 +368,8 @@ namespace Vodovoz.JournalViewModels
 			var resultQuery = query
 				.SelectList(list => list
 				   	.Select(() => orderWSPAlias.Id).WithAlias(() => resultAlias.Id)
-				   	.Select(() => orderWSPAlias.CreateDate).WithAlias(() => resultAlias.Date)
+				   	.Select(() => orderWSPAlias.CreateDate).WithAlias(() => resultAlias.CreateDate)
+					.Select(() => orderWSPAlias.CreateDate).WithAlias(() => resultAlias.Date)
 				   	.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
 				   	.Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
 				   	.Select(() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
@@ -420,7 +422,7 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias);
 
-			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFAP)
+			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFAP && FilterViewModel.ViewTypes != ViewTypes.All)
 			{
 				query.Where(o => o.Id == -1);
 			}
@@ -455,6 +457,7 @@ namespace Vodovoz.JournalViewModels
 			var resultQuery = query
 				.SelectList(list => list
 				   .Select(() => orderWSAPAlias.Id).WithAlias(() => resultAlias.Id)
+				   .Select(() => orderWSAPAlias.CreateDate).WithAlias(() => resultAlias.CreateDate)
 				   .Select(() => orderWSAPAlias.CreateDate).WithAlias(() => resultAlias.Date)
 				   .Select(() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
 				   .Select(() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
