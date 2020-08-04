@@ -6,7 +6,6 @@ using Gamma.GtkWidgets;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
 using QS.Validation;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
@@ -14,7 +13,6 @@ using Vodovoz.ViewModel;
 using QS.Project.Services;
 using QS.Dialog;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Tools.CallTasks;
@@ -24,6 +22,9 @@ using Vodovoz.Core.DataService;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
+using QS.Osm;
+using QS.Osm.Osrm;
+using Vodovoz.Infrastructure.Converters;
 
 namespace Vodovoz
 {
@@ -76,6 +77,7 @@ namespace Vodovoz
 				HasChanges = false;
 				vbxMain.Sensitive = false;
 			}
+
 			entityviewmodelentryCar.SetEntityAutocompleteSelectorFactory(
 				new DefaultEntityAutocompleteSelectorFactory<Car, CarJournalViewModel, CarJournalFilterViewModel>(ServicesConfig.CommonServices));
 			entityviewmodelentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
@@ -94,6 +96,8 @@ namespace Vodovoz
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
 
 			yspinConfirmedDistance.Binding.AddBinding(Entity, rl => rl.ConfirmedDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
+
+			yentryRecalculatedDistance.Binding.AddBinding(Entity, rl => rl.RecalculatedDistance, widget => widget.Text, new DecimalToStringConverter()).InitializeFromSource();
 
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
 				.AddColumn("Заказ")
@@ -123,12 +127,14 @@ namespace Vodovoz
 			});
 
 			ytreeviewAddresses.ItemsDataSource = items;
-			entryMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Text).InitializeFromSource();
+			ytextviewMileageComment.Binding.AddBinding(Entity, x => x.MileageComment, w => w.Buffer.Text).InitializeFromSource();
 
 			if(Entity.Status == RouteListStatus.Closed) {
-				vboxRouteList.Sensitive = false;
-				buttonSave.Sensitive = false;
+
+				vboxRouteList.Sensitive = table2.Sensitive = false;
 			}
+			else
+				RecountMileage();
 		}
 
 		#endregion
@@ -194,6 +200,48 @@ namespace Vodovoz
 		}
 
 		#endregion
+
+		private void RecountMileage()
+		{
+			var pointsToRecalculate = new List<PointOnEarth>();
+			var pointsToBase = new List<PointOnEarth>();
+			var baseLat = (double)Entity.GeographicGroups.FirstOrDefault().BaseLatitude.Value;
+			var baseLon = (double)Entity.GeographicGroups.FirstOrDefault().BaseLongitude.Value;
+
+			decimal totalDistanceTrack = 0;
+
+			IEnumerable<RouteListItem> completedAddresses = Entity.Addresses.Where(x => x.Status == RouteListItemStatus.Completed);
+
+			if(!completedAddresses.Any()) {
+				ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Для МЛ нет завершенных адресов, невозможно расчитать трек", "");
+				return;
+			}
+
+			if(completedAddresses.Count() > 1) {
+				foreach(RouteListItem address in Entity.Addresses.OrderBy(x => x.StatusLastUpdate)) {
+					if(address.Status == RouteListItemStatus.Completed) {
+						pointsToRecalculate.Add(new PointOnEarth((double)address.Order.DeliveryPoint.Latitude, (double)address.Order.DeliveryPoint.Longitude));
+					}
+				}
+
+				var recalculatedTrackResponse = OsrmMain.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
+
+				totalDistanceTrack = recalculatedTrack.TotalDistanceKm;
+			} else {
+				var point = Entity.Addresses.First(x => x.Status == RouteListItemStatus.Completed).Order.DeliveryPoint;
+				pointsToRecalculate.Add(new PointOnEarth((double)point.Latitude, (double)point.Longitude));
+			}
+
+			pointsToBase.Add(pointsToRecalculate.Last());
+			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
+			pointsToBase.Add(pointsToRecalculate.First());
+
+			var recalculatedToBaseResponse = OsrmMain.GetRoute(pointsToBase, false, GeometryOverview.Full);
+			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
+
+			Entity.RecalculatedDistance = decimal.Round(totalDistanceTrack + recalculatedToBase.TotalDistanceKm);
+		}
 	}
 }
 
