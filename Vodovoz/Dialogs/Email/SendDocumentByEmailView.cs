@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using EmailService;
 using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
@@ -22,8 +23,11 @@ namespace Vodovoz.Dialogs.Email
 			buttonRefreshEmailList.Clicked += (sender, e) => ViewModel.RefreshEmailListCommand.Execute();
 
 			buttonSendEmail.Binding.AddBinding(ViewModel, vm => vm.BtnSendEmailSensitive, w => w.Sensitive).InitializeFromSource();
+			
 			yvalidatedentryEmail.ValidationMode = QSWidgetLib.ValidationType.email;
 			yvalidatedentryEmail.Binding.AddBinding(ViewModel, vm => vm.EmailString, w => w.Text).InitializeFromSource();
+			yvalidatedentryEmail.Changed += YvalidatedentryEmailOnChanged;
+			
 			ylabelDescription.Binding.AddBinding(ViewModel, vm => vm.Description, w => w.Text).InitializeFromSource();
 
 			ytreeviewStoredEmails.ColumnsConfig = ColumnsConfigFactory.Create<StoredEmail>()
@@ -37,6 +41,24 @@ namespace Vodovoz.Dialogs.Email
 			ytreeviewStoredEmails.Selection.Changed += OnYtreeviewStoredEmailsSelectionChanged;
 
 			Sensitive = EmailServiceSetting.SendingAllowed;
+		}
+
+		private void YvalidatedentryEmailOnChanged(object sender, EventArgs e)
+		{
+			if (!string.IsNullOrWhiteSpace(yvalidatedentryEmail.Text))
+			{
+				var regex = new Regex(@"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@" +
+				                      @"[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]$");
+
+				yvalidatedentryEmail.Text = yvalidatedentryEmail.Text.Replace(" ", "").Replace("\n", "");
+				
+				if(regex.IsMatch(yvalidatedentryEmail.Text))
+					ViewModel.UpdateEmails();
+				else
+					ViewModel.BtnSendEmailSensitive = false;
+			}
+			else
+				ViewModel.BtnSendEmailSensitive = false;
 		}
 
 		void OnYtreeviewStoredEmailsSelectionChanged(object sender, EventArgs e)
