@@ -180,8 +180,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			if (email != null)
 				SendDocViewModel.Update(Entity, email.Address);
-			else if (!string.IsNullOrEmpty(SendDocViewModel.EmailString))
-				SendDocViewModel.EmailString = string.Empty;
+			else
+				SendDocViewModel.Update(Entity, string.Empty);
 		}
 	}
 }

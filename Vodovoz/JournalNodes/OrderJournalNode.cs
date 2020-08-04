@@ -3,6 +3,8 @@ using QS.DomainModel.Entity;
 using QS.Project.Journal;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Filters.ViewModels;
 
 namespace Vodovoz.JournalNodes
 {
@@ -16,9 +18,25 @@ namespace Vodovoz.JournalNodes
 	{
 		public OrderJournalNode(Type entityType) : base(entityType)
 		{
+			if (entityType != typeof(Order))
+				StatusEnum = OrderStatus.Closed;
+
+			if(entityType == typeof(Order))
+				ViewType = "Заказ";
+
+			if(entityType == typeof(OrderWithoutShipmentForDebt))
+				ViewType = "Счет на долг";
+
+			if(entityType == typeof(OrderWithoutShipmentForPayment))
+				ViewType = "Счет на постоплату";
+
+			if(entityType == typeof(OrderWithoutShipmentForAdvancePayment))
+				ViewType = "Счет на предоплату";
 		}
 
 		public OrderStatus StatusEnum { get; set; }
+
+		public string ViewType { get; set; }
 
 		public DateTime Date { get; set; }
 		public DateTime CreateDate { get; set; }

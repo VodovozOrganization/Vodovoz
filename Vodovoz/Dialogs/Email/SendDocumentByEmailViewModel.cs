@@ -145,13 +145,17 @@ namespace Vodovoz.Dialogs.Email
 
 		public void Update(IDocument document, string email)
 		{
+			Document = document;
+			
 			EmailString = email;
 
-			Document = document;
-			UpdateEmails();
+			if(!string.IsNullOrEmpty(EmailString))
+				UpdateEmails();
+			else
+				BtnSendEmailSensitive = false;
 		}
 
-		private void UpdateEmails()
+		public void UpdateEmails()
 		{
 			StoredEmails.Clear();
 

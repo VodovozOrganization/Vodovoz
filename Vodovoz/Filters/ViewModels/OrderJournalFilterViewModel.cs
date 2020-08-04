@@ -163,7 +163,7 @@ namespace Vodovoz.Filters.ViewModels
 		}
 		public bool CanChangeLessThreeHours { get; private set; } = true;
 
-		private ViewTypes viewTypes = ViewTypes.Order;
+		private ViewTypes viewTypes;
 		public virtual ViewTypes ViewTypes {
 			get => viewTypes;
 			set {
@@ -278,6 +278,8 @@ namespace Vodovoz.Filters.ViewModels
 
 	public enum ViewTypes
 	{
+		[Display(Name = "Все")]
+		All,
 		[Display(Name = "Заказы")]
 		Order,
 		[Display(Name = "Счета без отгрузки на долг")]
