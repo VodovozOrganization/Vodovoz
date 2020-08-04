@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>296.926mm</PageHeight>
-  <PageWidth>209.804mm</PageWidth>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>5mm</LeftMargin>
@@ -49,25 +49,27 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>79.1pt</Width>
+            <Width>29.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>113.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>113.5pt</Width>
+            <Width>106.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>113.5pt</Width>
+            <Width>105.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>113.5pt</Width>
+            <Width>106.1pt</Width>
           </TableColumn>
-          <TableColumn >
-            <Width>113.5pt</Width>
+          <TableColumn>
+            <Width>108.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -78,8 +80,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>
-                      </Value>
+                      <Value>№</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -161,7 +162,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
                       <Value>Ответственный</Value>
@@ -191,8 +192,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
+                      <Value>=RowNumber()</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -210,7 +210,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>={addresses}</Value>
+                      <Value>={driver_name}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -221,13 +221,15 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>={bottles}</Value>
+                      <Value>={reason}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -238,13 +240,15 @@
                         <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
                       </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>={liters}</Value>
+                      <Value>={last_author_removed}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -256,13 +260,15 @@
                         <TextAlign>Center</TextAlign>
                         <Format># ##0.00</Format>
                       </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>={confirmed_distance}</Value>
+                      <Value>={comment}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -273,14 +279,14 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value>
-                      </Value>
+                      <Value>={last_author_commented}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -290,6 +296,8 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
+                      <CanShrink >false</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -301,11 +309,11 @@
         <Top>63.3pt</Top>
         <TableGroups>
           <TableGroup>
-            <Grouping Name="GeoGroup">
+            <Grouping Name="TransportGroup">
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression>={geo_groups}</GroupExpression>
+                <GroupExpression >={transport_type}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -331,9 +339,7 @@
                             <PaddingLeft>10pt</PaddingLeft>
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
-                          <Value>= {geo_groups}
-+ ', с ' + Format(Min({date_from}), 'dd.MM.yy')
-+ ' по ' + Format(Max({date_to}), 'dd.MM.yy')</Value>
+                          <Value>={transport_type}</Value>
                         </Textbox>
                       </ReportItems>
                       <ColSpan>6</ColSpan>
@@ -342,19 +348,13 @@
                 </TableRow>
               </TableRows>
             </Header>
-            <Sorting>
-              <SortBy>
-                <SortExpression>={geo_groups}</SortExpression>
-                <Direction>Ascending</Direction>
-              </SortBy>
-            </Sorting>
           </TableGroup>
         </TableGroups>
       </Table>
-      <Textbox Name="Textbox2" >
+      <Textbox Name="Textbox2">
         <Height>12pt</Height>
         <Width>1in</Width>
-        <Value>Создано: {?start_date}</Value>
+        <Value>='Создано: ' +  Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
         <Top>33.7pt</Top>
@@ -365,13 +365,13 @@
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox3" >
+      <Textbox Name="Textbox3">
         <Height>12.76pt</Height>
-        <Width>111.39pt</Width>
-        <Value>Всего работает: </Value>
+        <Width>122.65pt</Width>
+        <Value>="Всего работает: " +  First({countWorks}, "CountWorks")</Value>
         <ZIndex>1</ZIndex>
-        <Left>422.6pt</Left>
-        <Top>32.2pt</Top>
+        <Left>432.2pt</Left>
+        <Top>27.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -379,13 +379,13 @@
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox6" >
-        <Height>12.00pt</Height>
-        <Width>103.07pt</Width>
-        <Value>Всего не работает: </Value>
+      <Textbox Name="Textbox6">
+        <Height>13.50pt</Height>
+        <Width>135.36pt</Width>
+        <Value>="Всего не работает: " +  First({countNotWorks}, "NotWorks")</Value>
         <ZIndex>1</ZIndex>
-        <Left>423.1pt</Left>
-        <Top>45.9pt</Top>
+        <Left>432.3pt</Left>
+        <Top>40.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -397,7 +397,7 @@
     <Columns>1</Columns>
   </Body>
   <PageFooter>
-    <Height>13.2pt</Height>
+    <Height>22.3pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -422,65 +422,42 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
-	MIN(rl_date) AS date_from,
-	MAX(rl_date) AS date_to,
-	gg_name AS geo_groups,
-	IFNULL(ft_name, '[не выдано]') AS fuel_type,
-	SUM(addresses_count) AS addresses,
-	SUM(bottles_count) AS bottles,
-	IFNULL(SUM(fdoc_fuel_coupons), 0) AS liters,
-	SUM(rl_confirmed_distance) AS confirmed_distance
-FROM(
-	SELECT
-		rl.id AS rl_id,
-		rl.date AS rl_date,
-		rl.confirmed_distance AS rl_confirmed_distance,
-		rl.status AS rl_status,
-		GROUP_CONCAT(DISTINCT gg.name ORDER BY gg.id SEPARATOR ', ') AS gg_name,
-		SUM(
-			IF(
-				fdoc.liter_cost &gt; 0,
-				fdoc.fuel_coupons + IFNULL(fdoc.payed_for_fuel/fdoc.liter_cost, 0),
-				fdoc.fuel_coupons
-			)
-		) AS fdoc_fuel_coupons,
-		ft.name AS ft_name,
-		(
-			SELECT COUNT(a.id)
-			FROM route_list_addresses a
-			WHERE a.route_list_id = rl.id
-				AND a.status = 'Completed'
-		) AS addresses_count,
-		(
-			SELECT
-				IFNULL(SUM(i.actual_count), 0)
-			FROM route_list_addresses a
-			LEFT JOIN order_items i ON a.order_id = i.order_id
-			LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
-			WHERE a.route_list_id = rl.id
-				AND a.status = 'Completed'
-				AND n.category = 'water'
-				AND n.tare_volume = 'Vol19L'
-		) AS bottles_count
-	FROM route_lists rl
-	JOIN geographic_groups_to_entities ggtorl ON rl.id = ggtorl.route_list_id
-	JOIN geographic_groups gg ON gg.id = ggtorl.geographic_group_id
-	LEFT JOIN fuel_documents fdoc ON fdoc.route_list_id = rl.id
-	LEFT JOIN fuel_types ft ON ft.id = fdoc.fuel_type_id
-	WHERE 
-		rl.status = 'Closed' 
-		AND (@start_date = '' OR rl.date &gt;= @start_date)
-		AND (@end_date = '' OR rl.date &lt;= @end_date)
-		AND (0 IN(@geo_group_ids) OR gg.id IN(@geo_group_ids))
-	GROUP BY rl.id
-) AS gg_grp
-GROUP BY gg_grp.gg_name, gg_grp.ft_name
-ORDER BY gg_grp.ft_name ASC
-;</CommandText>
+    CONCAT_WS(' ',
+              e.last_name,
+              IF(e.name = '', NULL, e.name),
+              IF(e.patronymic = '', NULL, e.patronymic)) AS driver_name,
+    ifnull(reason,'') AS reason,
+    ifnull(CONCAT_WS(' ',
+                     reason_author.last_name,
+                     IF(reason_author.name = '', NULL, reason_author.name),
+                     IF(reason_author.patronymic = '', NULL, reason_author.patronymic)),'') AS last_author_removed,
+    ifnull(comment,'') as comment,
+    ifnull(CONCAT_WS(' ',
+                     comment_author.last_name,
+                     IF(comment_author.name = '', NULL, comment_author.name),
+                     IF(comment_author.patronymic = '', NULL, comment_author.patronymic)),'') AS last_author_commented,
+    CASE c.type_of_use
+        WHEN 'CompanyGAZelle' THEN CONCAT_WS(' ','Газель Компании', if(c.is_raskat = 0,'Не раскат', 'Раскат') ) 
+        WHEN 'DriverCar' THEN CONCAT_WS(' ','Авто водителя', if(c.is_raskat = 0,'Не раскат', 'Раскат') ) 
+        WHEN 'CompanyLargus' THEN CONCAT_WS(' ','Ларгус Компании', if(c.is_raskat = 0,'Не раскат', 'Раскат') ) 
+        WHEN 'CompanyTruck' THEN CONCAT_WS(' ','Грузовик Компании', if(c.is_raskat = 0,'Не раскат', 'Раскат') )
+    END as transport_type
+FROM at_work_drivers
+         LEFT JOIN employees e on  e.id = at_work_drivers.employee_id
+         LEFT JOIN employees reason_author on reason_author.id = at_work_drivers.author_removed_driver
+         LEFT JOIN employees comment_author on comment_author.id = at_work_drivers.comment_last_edited_author_id
+         LEFT JOIN geographic_groups gg on at_work_drivers.geographic_group_id = gg.id
+         LEFT JOIN cars c on at_work_drivers.car_id = c.id
+where e.category = 'driver' AND
+    (at_work_drivers.date BETWEEN @start_date AND @end_date) AND
+    (0 IN (@geo_group_ids) OR gg.id IN (@geo_group_ids)) AND
+    (@is_raskat = c.is_raskat) AND
+    (@transport_type = '' OR @transport_type = c.type_of_use)
+ORDER BY e.name;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -491,40 +468,88 @@ ORDER BY gg_grp.ft_name ASC
           <QueryParameter Name="geo_group_ids">
             <Value>=Parameters!geo_group_ids</Value>
           </QueryParameter>
+          <QueryParameter Name="is_raskat">
+            <Value>=Parameters!is_raskat</Value>
+          </QueryParameter>
+          <QueryParameter Name="transport_type">
+            <Value>=Parameters!transport_type</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="driver_name">
+          <DataField>driver_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="reason">
+          <DataField>reason</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="last_author_removed">
+          <DataField>last_author_removed</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="last_author_commented">
+          <DataField>last_author_commented</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="transport_type">
+          <DataField>transport_type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="CountWorks" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    count(*) as countWorks
+FROM at_work_drivers
+where
+    (at_work_drivers.date BETWEEN @start_date AND @end_date) AND
+        status = 'IsWorking';</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
       <Fields>
-        <Field Name="date_from">
-          <DataField>date_from</DataField>
-          <TypeName>System.DateTime</TypeName>
+        <Field Name="countWorks">
+          <DataField>countWorks</DataField>
+          <TypeName>System.Int64</TypeName>
         </Field>
-        <Field Name="date_to">
-          <DataField>date_to</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="geo_groups">
-          <DataField>geo_groups</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="fuel_type">
-          <DataField>fuel_type</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="addresses">
-          <DataField>addresses</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="bottles">
-          <DataField>bottles</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="liters">
-          <DataField>liters</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="confirmed_distance">
-          <DataField>confirmed_distance</DataField>
-          <TypeName>System.Decimal</TypeName>
+      </Fields>
+    </DataSet>
+    <DataSet Name="NotWorks" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    count(*) as countNotWorks
+FROM at_work_drivers
+where
+    (at_work_drivers.date BETWEEN @start_date AND @end_date) AND
+        status = 'NotWorking';</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="countNotWorks">
+          <DataField>countNotWorks</DataField>
+          <TypeName>System.Int64</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -577,6 +602,22 @@ ORDER BY gg_grp.ft_name ASC
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="transport_type">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="is_raskat">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
     </ReportParameter>

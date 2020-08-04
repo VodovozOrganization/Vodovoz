@@ -6,6 +6,7 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Report;
 using QSReport;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ReportsParameters.Logistic
@@ -31,6 +32,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 			foreach(var gg in UoW.Session.QueryOver<GeographicGroup>().List())
 				geographicGroups.Add(gg);
 
+			yEnumCmbTransport.ItemsEnum = typeof(CarTypeOfUse);
+			
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
 		}
 
@@ -45,13 +48,14 @@ namespace Vodovoz.ReportsParameters.Logistic
 		private ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Identifier = "Logistic.ScheduleOnLinePerShiftReport" , // TODO  че это chkDetailed.Active
+				Identifier = "Logistic.ScheduleOnLinePerShiftReport" , 
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
 					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "geo_group_ids", GetResultIds(geographicGroups.Select(g => g.Id)) }
-					//TODO добавить МЛ - по видам авто у мл ентитивьюмоделентри
+					{ "geo_group_ids", GetResultIds(geographicGroups.Select(g => g.Id)) },
+					{ "transport_type", yEnumCmbTransport.SelectedItemOrNull?.ToString() ?? ""},
+					{ "is_raskat", ycheckRaskat.Active? 1 : 0 }
 				}
 			};
 		}
@@ -69,6 +73,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 			}
 			OnUpdate(true);
 		}
+		
 		
 	}
 }
