@@ -105,7 +105,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		#region Свои свойства
 
-		private bool hideSignature = true;
+		private bool hideSignature;
 		[Display(Name = "Без подписей и печати")]
 		public virtual bool HideSignature {
 			get => hideSignature;
