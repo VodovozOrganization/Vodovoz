@@ -35,6 +35,8 @@ namespace Vodovoz.JournalNodes
 		}
 
 		public OrderStatus StatusEnum { get; set; }
+		
+		public OrderPaymentStatus? OrderPaymentStatus { get; set; }
 
 		public string ViewType { get; set; }
 
@@ -80,16 +82,6 @@ namespace Vodovoz.JournalNodes
 
 		public int? EShopOrder { get; set; }
 		public string EShopNumber=> EShopOrder?.ToString() ?? string.Empty;
-
-		public decimal? Latitude { get; set; }
-		public decimal? Longitude { get; set; }
-		public string Coordinates {
-			get {
-				if(IsSelfDelivery)
-					return "-";
-				return Latitude.HasValue && Longitude.HasValue ? "Есть" : string.Empty;
-			}
-		}
 
 		public string RowColor {
 			get {

@@ -140,17 +140,6 @@ namespace Vodovoz.Filters.ViewModels
 		}
 		public bool CanChangeEndDate { get; private set; } = true;
 
-		private bool restrictOnlyWithoutCoodinates;
-		public virtual bool RestrictOnlyWithoutCoodinates {
-			get => restrictOnlyWithoutCoodinates;
-			set {
-				if(SetField(ref restrictOnlyWithoutCoodinates, value, () => RestrictOnlyWithoutCoodinates))
-					Update();
-				CanChangeWithoutCoodinates = false;
-			}
-		}
-		public bool CanChangeWithoutCoodinates { get; private set; } = true;
-
 		private bool? restrictLessThreeHours;
 		public virtual bool? RestrictLessThreeHours {
 			get => restrictLessThreeHours;
@@ -170,6 +159,15 @@ namespace Vodovoz.Filters.ViewModels
 				if(SetField(ref viewTypes, value)) {
 					Update();
 				}
+			}
+		}
+
+		private OrderPaymentStatus? orderPaymentStatus;
+		public OrderPaymentStatus? OrderPaymentStatus {
+			get => orderPaymentStatus;
+			set {
+				SetField(ref orderPaymentStatus, value);
+				Update();
 			}
 		}
 
