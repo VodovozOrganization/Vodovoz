@@ -72,7 +72,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Кол-во с/о").AddTextRenderer(node => node.SanitisationAmount.ToString())
 					.AddColumn("Клиент").AddTextRenderer(node => node.Counterparty)
 					.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
-					.AddColumn("Коор.").AddTextRenderer(x => x.Coordinates)
+					.AddColumn("Статус оплаты").AddTextRenderer(x =>
+						x.OrderPaymentStatus != null ? x.OrderPaymentStatus.GetEnumTitle() : "")
 					.AddColumn("Район доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DistrictName)
 					.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 					.AddColumn("Изменил").AddTextRenderer(node => node.LastEditor)

@@ -36,6 +36,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::Gamma.GtkWidgets.ySpinButton yspinbtnDebtSum;
 
+		private global::Gamma.GtkWidgets.yButton ybtnOpenBill;
+
 		private global::Gtk.HBox hbox7;
 
 		protected virtual void Build()
@@ -188,18 +190,29 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w14.Position = 1;
 			w14.Expand = false;
 			w14.Fill = false;
-			this.vbox1.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
-			w15.Position = 3;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.ybtnOpenBill = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnOpenBill.CanFocus = true;
+			this.ybtnOpenBill.Name = "ybtnOpenBill";
+			this.ybtnOpenBill.UseUnderline = true;
+			this.ybtnOpenBill.Label = global::Mono.Unix.Catalog.GetString("Открыть счет");
+			this.hbox4.Add(this.ybtnOpenBill);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ybtnOpenBill]));
+			w15.Position = 2;
 			w15.Expand = false;
 			w15.Fill = false;
+			this.vbox1.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w16.Position = 3;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox7 = new global::Gtk.HBox();
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			this.vbox1.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
-			w16.Position = 4;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
+			w17.Position = 4;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

@@ -25,6 +25,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 		private void Configure()
 		{
 			btnCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
+			ybtnOpenBill.Clicked += (sender, e) => ViewModel.OpenBillCommand.Execute();
+			
 			ylabelOrderNum.Binding.AddBinding(ViewModel.Entity, vm => vm.Id, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 			ylabelOrderDate.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.CreateDate.ToString(), w => w.Text).InitializeFromSource();
 			ylabelOrderAuthor.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.Author.ShortName, w => w.Text).InitializeFromSource();

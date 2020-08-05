@@ -30,6 +30,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			btnCancel.Clicked += (sender, e) => ViewModel.CancelCommand.Execute();
 			buttonAddForSale.Clicked += (sender, e) => ViewModel.AddForSaleCommand.Execute();
 			btnDeleteOrderItem.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute();
+			ybtnOpenBill.Clicked += (sender, e) => ViewModel.OpenBillCommand.Execute();
 
 			ylabelOrderNum.Binding.AddBinding(ViewModel.Entity, vm => vm.Id, w => w.Text, new IntToStringConverter()).InitializeFromSource();
 			ylabelOrderDate.Binding.AddFuncBinding(ViewModel, vm => vm.Entity.CreateDate.ToString(), w => w.Text).InitializeFromSource();
