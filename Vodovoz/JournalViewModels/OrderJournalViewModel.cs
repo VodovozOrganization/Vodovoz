@@ -120,10 +120,6 @@ namespace Vodovoz.JournalViewModels
 				query.Where(o => o.DeliveryDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 			}
 
-			if(FilterViewModel.RestrictOnlyWithoutCoodinates) {
-				query.Where(() => deliveryPointAlias.Longitude == null && deliveryPointAlias.Latitude == null);
-			}
-
 			if(FilterViewModel.RestrictLessThreeHours == true) {
 				query.Where(Restrictions
 							.GtProperty(Projections.SqlFunction(
@@ -140,6 +136,10 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.RestrictOnlyService != null) {
 				query.Where(o => o.IsService == FilterViewModel.RestrictOnlyService);
+			}
+			
+			if(FilterViewModel.OrderPaymentStatus != null) {
+				query.Where(o => o.OrderPaymentStatus == FilterViewModel.OrderPaymentStatus);
 			}
 
 			var bottleCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
@@ -182,7 +182,8 @@ namespace Vodovoz.JournalViewModels
 				() => authorAlias.LastName,
 				() => orderAlias.DriverCallId,
 				() => orderAlias.OnlineOrder,
-				() => orderAlias.EShopOrder
+				() => orderAlias.EShopOrder,
+				() => orderAlias.OrderPaymentStatus
 			));
 
 			var resultQuery = query
@@ -209,9 +210,8 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => deliveryPointAlias.City).WithAlias(() => resultAlias.City)
 				   .Select(() => deliveryPointAlias.Street).WithAlias(() => resultAlias.Street)
 				   .Select(() => deliveryPointAlias.Building).WithAlias(() => resultAlias.Building)
-				   .Select(() => deliveryPointAlias.Latitude).WithAlias(() => resultAlias.Latitude)
-				   .Select(() => deliveryPointAlias.Longitude).WithAlias(() => resultAlias.Longitude)
 				   .Select(() => orderAlias.EShopOrder).WithAlias(() => resultAlias.EShopOrder)
+				   .Select(() => orderAlias.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
 				   .SelectSubQuery(orderSumSubquery).WithAlias(() => resultAlias.Sum)
 				   .SelectSubQuery(bottleCountSubquery).WithAlias(() => resultAlias.BottleAmount)
 				   .SelectSubQuery(sanitisationCountSubquery).WithAlias(() => resultAlias.SanitisationAmount)
@@ -249,15 +249,30 @@ namespace Vodovoz.JournalViewModels
 
 			var query = uow.Session.QueryOver(() => orderWSDAlias);
 
-			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFD && FilterViewModel.ViewTypes != ViewTypes.All)
+			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFD && FilterViewModel.ViewTypes != ViewTypes.All
+				|| FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
+				|| FilterViewModel.RestrictPaymentType != null
+				|| FilterViewModel.RestrictDeliveryPoint != null
+				|| FilterViewModel.RestrictOnlyService != null
+				|| FilterViewModel.RestrictOnlySelfDelivery != null
+				|| FilterViewModel.RestrictLessThreeHours == true
+				|| FilterViewModel.OrderPaymentStatus != null)
 			{
 				query.Where(o => o.Id == -1);
+			}
+			
+			if(FilterViewModel.RestrictStartDate != null) {
+				query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
+			}
+
+			if(FilterViewModel.RestrictEndDate != null) {
+				query.Where(o => o.CreateDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
 			}
-
+			
 			query.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				 .Left.JoinAlias(o => o.Author, () => authorAlias);
 
@@ -325,9 +340,24 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias);
 
-			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFP && FilterViewModel.ViewTypes != ViewTypes.All)
+			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFP && FilterViewModel.ViewTypes != ViewTypes.All
+			    || FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
+			    || FilterViewModel.RestrictPaymentType != null
+			    || FilterViewModel.RestrictDeliveryPoint != null
+			    || FilterViewModel.RestrictOnlyService != null
+				|| FilterViewModel.RestrictOnlySelfDelivery != null
+			    || FilterViewModel.RestrictLessThreeHours == true
+			    || FilterViewModel.OrderPaymentStatus != null)
 			{
 				query.Where(o => o.Id == -1);
+			}
+			
+			if(FilterViewModel.RestrictStartDate != null) {
+				query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
+			}
+
+			if(FilterViewModel.RestrictEndDate != null) {
+				query.Where(o => o.CreateDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 			}
 
 			if(FilterViewModel.RestrictCounterparty != null) {
@@ -422,9 +452,24 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.Author, () => authorAlias);
 
-			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFAP && FilterViewModel.ViewTypes != ViewTypes.All)
+			if (FilterViewModel.ViewTypes != ViewTypes.OrderWSFAP && FilterViewModel.ViewTypes != ViewTypes.All
+			    || FilterViewModel.RestrictStatus != null && FilterViewModel.RestrictStatus != OrderStatus.Closed
+			    || FilterViewModel.RestrictPaymentType != null
+			    || FilterViewModel.RestrictDeliveryPoint != null
+			    || FilterViewModel.RestrictOnlyService != null
+			    || FilterViewModel.RestrictOnlySelfDelivery != null
+			    || FilterViewModel.RestrictLessThreeHours == true
+			    || FilterViewModel.OrderPaymentStatus != null)
 			{
 				query.Where(o => o.Id == -1);
+			}
+			
+			if(FilterViewModel.RestrictStartDate != null) {
+				query.Where(o => o.CreateDate >= FilterViewModel.RestrictStartDate);
+			}
+
+			if(FilterViewModel.RestrictEndDate != null) {
+				query.Where(o => o.CreateDate <= FilterViewModel.RestrictEndDate.Value.AddDays(1).AddTicks(-1));
 			}
 			
 			if(FilterViewModel.RestrictCounterparty != null) {

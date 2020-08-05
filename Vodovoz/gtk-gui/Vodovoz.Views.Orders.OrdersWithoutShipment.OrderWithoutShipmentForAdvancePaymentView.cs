@@ -42,6 +42,10 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		private global::Gamma.GtkWidgets.yButton btnDeleteOrderItem;
 
+		private global::Gtk.VSeparator vseparator2;
+
+		private global::Gamma.GtkWidgets.yButton ybtnOpenBill;
+
 		private global::Gtk.HBox hboxSendDocuments;
 
 		protected virtual void Build()
@@ -217,18 +221,37 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			w18.Position = 2;
 			w18.Expand = false;
 			w18.Fill = false;
-			this.vbox1.Add(this.hbox11);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox11]));
-			w19.Position = 5;
+			// Container child hbox11.Gtk.Box+BoxChild
+			this.vseparator2 = new global::Gtk.VSeparator();
+			this.vseparator2.Name = "vseparator2";
+			this.hbox11.Add(this.vseparator2);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.vseparator2]));
+			w19.Position = 3;
 			w19.Expand = false;
 			w19.Fill = false;
+			// Container child hbox11.Gtk.Box+BoxChild
+			this.ybtnOpenBill = new global::Gamma.GtkWidgets.yButton();
+			this.ybtnOpenBill.CanFocus = true;
+			this.ybtnOpenBill.Name = "ybtnOpenBill";
+			this.ybtnOpenBill.UseUnderline = true;
+			this.ybtnOpenBill.Label = global::Mono.Unix.Catalog.GetString("Открыть счет");
+			this.hbox11.Add(this.ybtnOpenBill);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox11[this.ybtnOpenBill]));
+			w20.Position = 4;
+			w20.Expand = false;
+			w20.Fill = false;
+			this.vbox1.Add(this.hbox11);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox11]));
+			w21.Position = 5;
+			w21.Expand = false;
+			w21.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxSendDocuments = new global::Gtk.HBox();
 			this.hboxSendDocuments.Name = "hboxSendDocuments";
 			this.hboxSendDocuments.Spacing = 6;
 			this.vbox1.Add(this.hboxSendDocuments);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
-			w20.Position = 6;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxSendDocuments]));
+			w22.Position = 6;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
