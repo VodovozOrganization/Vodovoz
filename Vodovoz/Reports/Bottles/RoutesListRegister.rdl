@@ -73,7 +73,7 @@
                           LEFT JOIN
                       districts d ON d.id = dp.district_id
                   WHERE
-                      o.id = route_list_addresses.order_id
+                          o.id = route_list_addresses.order_id
                  )
         ) AS street_district
 FROM
@@ -85,16 +85,20 @@ FROM
         LEFT JOIN
     route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
         LEFT JOIN
-    geographic_groups_to_entities gge ON gge.route_list_id = route_lists.id
-        LEFT JOIN
-    geographic_groups gg ON gge.geographic_group_id = gg.id
-        LEFT JOIN
     (SELECT id, CONCAT_WS(' - ', model, reg_number) as car FROM cars) as route_list_cars ON route_list_cars.id = route_lists.car_id
 WHERE
         employees.visiting_master IN(@is_driver_master, 1)
   AND (@start_date = '' OR route_lists.`date` &gt;= @start_date)
   AND (@end_date = '' OR route_lists.`date` &lt;= @end_date)
-  AND (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
+  AND route_lists.id IN 
+      (
+          select 
+                 gge.route_list_id 
+          from geographic_groups_to_entities gge
+              LEFT JOIN
+          geographic_groups gg ON gge.geographic_group_id = gg.id
+              WHERE (gg.id IN(@geographic_groups) OR 0 IN(@geographic_groups))
+      )
 GROUP BY route_lists.id
 ORDER BY IF(@order_by_id ,route_lists.id , route_lists.date);</CommandText>
         <QueryParameters>
