@@ -1061,7 +1061,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void OnAction49Activated(object sender, EventArgs e)
+	protected void OnActionOrderStatisticByWeekReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderStatisticByWeekReport>(),
