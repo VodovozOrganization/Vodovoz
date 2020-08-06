@@ -38,7 +38,7 @@ namespace Vodovoz.ReportsParameters.Logistic
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
-		public string Title => "Отчет по выдаче топлива по МЛ";
+		public string Title => "График выхода на линию за смену";
 		
 		private int[] GetResultIds(IEnumerable<int> ids)
 		{
