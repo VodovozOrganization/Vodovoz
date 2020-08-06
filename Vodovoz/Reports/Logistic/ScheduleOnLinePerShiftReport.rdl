@@ -296,8 +296,8 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >false</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -348,6 +348,98 @@
                 </TableRow>
               </TableRows>
             </Header>
+            <Footer >
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox19">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox20">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                          <Value>="Итого: " + Count({driver_name})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox21">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox22">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox23">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox24">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
           </TableGroup>
         </TableGroups>
       </Table>
@@ -422,7 +514,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -476,7 +568,7 @@ ORDER BY e.name;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver_name">
           <DataField>driver_name</DataField>
           <TypeName>System.String</TypeName>
@@ -503,7 +595,7 @@ ORDER BY e.name;</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="CountWorks" >
+    <DataSet Name="CountWorks">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
@@ -528,7 +620,7 @@ where
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="NotWorks" >
+    <DataSet Name="NotWorks">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
