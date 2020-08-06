@@ -19,7 +19,7 @@
       <Textbox Name="Textbox2">
         <Height>19.57pt</Height>
         <Width>828.59pt</Width>
-        <Value>Статистика заказов по дням недели</Value>
+        <Value>="Статистика заказов по дням недели за период с " +  Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " +   Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>7.20pt</Left>
         <Top>13.40pt</Top>
@@ -56,92 +56,291 @@
             <Width>51.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>50.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>52.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>49.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>50.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>57.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>47.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>49.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>45.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>43.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>48.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>37.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>46.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>49.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>48.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
+            <Width>47.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>26pt</Width>
+            <Width>42.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
+            <TableRow>
+              <Height>11.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox78">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox80">
+                      <Value>="Создано: " + Format(Today(), "dd/MM/yy")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox82">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox84">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox86">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox88">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox90">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox92">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>1</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox96">
+                      <Value>Итого:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox94">
+                      <Value>=Sum({bottles_monday} + {bottles_tuesday} + {bottles_wednesday} + {bottles_thursday} + {bottles_friday} + {bottles_saturday} + {bottles_sunday})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>1</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox98">
+                      <Value>=Sum({address_monday} + {address_tuesday} + {address_wednesday} + {address_thursday} + {address_friday} + {address_saturday} + {address_sunday})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
             <TableRow>
               <Height>11.2pt</Height>
               <TableCells>
@@ -183,7 +382,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -203,7 +402,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -223,7 +422,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -243,7 +442,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -263,7 +462,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -283,7 +482,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -303,7 +502,25 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Всего</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -346,7 +563,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -365,7 +582,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -384,7 +601,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -403,7 +620,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -422,7 +639,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -441,7 +658,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -460,7 +677,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -479,7 +696,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -498,7 +715,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -517,7 +734,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -536,7 +753,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -555,7 +772,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -574,7 +791,7 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -593,126 +810,12 @@
                       <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox19">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox20">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox21">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox22">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox1">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox4">
-                      <Value>Вечер</Value>
+                      <Value>Бутыли</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -722,87 +825,13 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                       </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox6">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox8">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>День</Value>
+                      <Value>Адреса</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -812,314 +841,6 @@
                         <BorderWidth />
                         <FontSize>7pt</FontSize>
                       </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox10">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox12">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox14">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox15">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox16">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox17">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox23">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox25">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox26">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox28">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox29">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox30">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox31">
-                      <Value>День</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox32">
-                      <Value>Вечер</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1154,7 +875,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>={bottles_monday_day}</Value>
+                      <Value>={bottles_monday}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1163,25 +884,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox35">
-                      <Value>={bottles_monday_night}</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -1192,26 +894,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>={address_monday_day}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>={address_monday_night}</Value>
+                      <Value>={address_monday}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1230,7 +913,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>={bottles_tuesday_day}</Value>
+                      <Value>={bottles_tuesday}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1239,25 +922,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox39">
-                      <Value>={bottles_tuesday_night}</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -1268,26 +932,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
-                      <Value>={address_tuesday_day}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox41">
-                      <Value>={address_tuesday_night}</Value>
+                      <Value>={address_tuesday}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1306,7 +951,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
-                      <Value>={bottles_wednesday_day}</Value>
+                      <Value>={bottles_wednesday}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1315,25 +960,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox43">
-                      <Value>={bottles_wednesday_night}</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -1344,26 +970,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
-                      <Value>={address_wednesday_day}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox45">
-                      <Value>={address_wednesday_night}</Value>
+                      <Value>={address_wednesday}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1382,7 +989,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
-                      <Value>={bottles_thursday_day}</Value>
+                      <Value>={bottles_thursday}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1391,25 +998,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox47">
-                      <Value>={bottles_thursday_night}</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -1420,26 +1008,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>={address_thursday_day}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox49">
-                      <Value>={address_thursday_night}</Value>
+                      <Value>={address_thursday}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1458,7 +1027,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>={bottles_friday_day}</Value>
+                      <Value>={bottles_friday}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1467,25 +1036,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox51">
-                      <Value>={bottles_friday_night}</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -1496,26 +1046,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value>={address_friday_day}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox53">
-                      <Value>={address_friday_night}</Value>
+                      <Value>={address_friday}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1534,7 +1065,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>={bottles_saturday_day}</Value>
+                      <Value>={bottles_saturday}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1543,25 +1074,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox55">
-                      <Value>={bottles_saturday_night}</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -1572,26 +1084,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>={address_saturday_day}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox57">
-                      <Value>={address_saturday_night}</Value>
+                      <Value>={address_saturday}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1610,7 +1103,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>={bottles_sunday_day}</Value>
+                      <Value>={bottles_sunday}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1619,25 +1112,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox59">
-                      <Value>={bottles_sunday_night}</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -1648,7 +1122,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value>={address_sunday_day}</Value>
+                      <Value>={address_sunday}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1666,8 +1140,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox61">
-                      <Value>={address_sunday_night}</Value>
+                    <Textbox Name="Textbox4">
+                      <Value>={bottles_monday} + {bottles_tuesday} + {bottles_wednesday} + {bottles_thursday} + {bottles_friday} + {bottles_saturday} + {bottles_sunday}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1678,8 +1152,23 @@
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>={address_monday} + {address_tuesday} + {address_wednesday} + {address_thursday} + {address_friday} + {address_saturday} + {address_sunday}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1687,8 +1176,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>23.2pt</Left>
-        <Top>13.0pt</Top>
+        <Left>22.4pt</Left>
+        <Top>20.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1715,7 +1204,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value>=Max({bottles_monday_day})</Value>
+                      <Value>=Max({bottles_monday})</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1724,25 +1213,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox64">
-                      <Value>=Max({bottles_monday_night})</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -1753,26 +1223,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox65">
-                      <Value>=Max({address_monday_day})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox66">
-                      <Value>=Max({address_monday_night})</Value>
+                      <Value>=Max({address_monday})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1791,7 +1242,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
-                      <Value>=Max({bottles_tuesday_day})</Value>
+                      <Value>=Max({bottles_tuesday})</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1800,25 +1251,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox68">
-                      <Value>=Max({bottles_tuesday_night})</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -1829,26 +1261,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox69">
-                      <Value>=Max({address_tuesday_day})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox70">
-                      <Value>=Max({address_tuesday_night})</Value>
+                      <Value>=Max({address_tuesday})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1867,7 +1280,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>=Max({bottles_wednesday_day})</Value>
+                      <Value>=Max({bottles_wednesday})</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1876,25 +1289,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox72">
-                      <Value>=Max({bottles_wednesday_night})</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -1905,26 +1299,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox73">
-                      <Value>=Max({address_wednesday_day})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox74">
-                      <Value>=Max({address_wednesday_night})</Value>
+                      <Value>=Max({address_wednesday})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1943,7 +1318,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value>=Max({bottles_thursday_day})</Value>
+                      <Value>=Max({bottles_thursday})</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1952,25 +1327,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox76">
-                      <Value>=Max({bottles_thursday_night})</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -1981,26 +1337,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox77">
-                      <Value>=Max({address_thursday_day})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox78">
-                      <Value>=Max({address_thursday_night})</Value>
+                      <Value>=Max({address_thursday})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2019,7 +1356,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox79">
-                      <Value>=Max({bottles_friday_day})</Value>
+                      <Value>=Max({bottles_friday})</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2028,25 +1365,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox80">
-                      <Value>=Max({bottles_friday_night})</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -2057,26 +1375,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox81">
-                      <Value>=Max({address_friday_day})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox82">
-                      <Value>=Max({address_friday_night})</Value>
+                      <Value>=Max({address_friday})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2095,7 +1394,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox83">
-                      <Value>=Max({bottles_saturday_day})</Value>
+                      <Value>=Max({bottles_saturday})</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2104,25 +1403,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox84">
-                      <Value>=Max({bottles_saturday_night})</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -2133,26 +1413,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox85">
-                      <Value>=Max({address_saturday_day})</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox86">
-                      <Value>=Max({address_saturday_night})</Value>
+                      <Value>=Max({address_saturday})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2171,7 +1432,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox87">
-                      <Value>=Max({bottles_sunday_day})</Value>
+                      <Value>=Max({bottles_sunday})</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2180,25 +1441,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox88">
-                      <Value>=Max({bottles_sunday_night})</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -2209,7 +1451,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox89">
-                      <Value>=Max({address_sunday_day})</Value>
+                      <Value>=Max({address_sunday})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2227,8 +1469,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox90">
-                      <Value>=Max({address_sunday_night})</Value>
+                    <Textbox Name="Textbox5">
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2239,8 +1482,24 @@
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2270,7 +1529,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox93">
-                      <Value>=Round(Avg({bottles_monday_day}))</Value>
+                      <Value>=Round(Avg({bottles_monday}))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2279,25 +1538,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox94">
-                      <Value>=Round(Avg({bottles_monday_night}))</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -2308,26 +1548,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox95">
-                      <Value>=Round(Avg({address_monday_day}))</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox96">
-                      <Value>=Round(Avg({address_monday_night}))</Value>
+                      <Value>=Round(Avg({address_monday}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2346,7 +1567,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox97">
-                      <Value>=Round(Avg({bottles_tuesday_day}))</Value>
+                      <Value>=Round(Avg({bottles_tuesday}))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2355,25 +1576,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox98">
-                      <Value>=Round(Avg({bottles_tuesday_night}))</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -2384,26 +1586,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox99">
-                      <Value>=Round(Avg({address_tuesday_day}))</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox100">
-                      <Value>=Round(Avg({address_tuesday_night}))</Value>
+                      <Value>=Round(Avg({address_tuesday}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2422,7 +1605,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox101">
-                      <Value>=Round(Avg({bottles_wednesday_day}))</Value>
+                      <Value>=Round(Avg({bottles_wednesday}))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2431,25 +1614,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox102">
-                      <Value>=Round(Avg({bottles_wednesday_night}))</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -2460,26 +1624,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox103">
-                      <Value>=Round(Avg({address_wednesday_day}))</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox104">
-                      <Value>=Round(Avg({address_wednesday_night}))</Value>
+                      <Value>=Round(Avg({address_wednesday}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2498,7 +1643,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox105">
-                      <Value>=Round(Avg({bottles_thursday_day}))</Value>
+                      <Value>=Round(Avg({bottles_thursday}))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2507,25 +1652,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox106">
-                      <Value>=Round(Avg({bottles_thursday_night}))</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -2536,26 +1662,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value>=Round(Avg({address_thursday_day}))</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox108">
-                      <Value>=Round(Avg({address_thursday_night}))</Value>
+                      <Value>=Round(Avg({address_thursday}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2574,7 +1681,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox109">
-                      <Value>=Round(Avg({bottles_friday_day}))</Value>
+                      <Value>=Round(Avg({bottles_friday}))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2583,25 +1690,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox110">
-                      <Value>=Round(Avg({bottles_friday_night}))</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -2612,26 +1700,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox111">
-                      <Value>=Round(Avg({address_friday_day}))</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox112">
-                      <Value>=Round(Avg({address_friday_night}))</Value>
+                      <Value>=Round(Avg({address_friday}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2650,7 +1719,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox113">
-                      <Value>=Round(Avg({bottles_saturday_day}))</Value>
+                      <Value>=Round(Avg({bottles_saturday}))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2659,25 +1728,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox114">
-                      <Value>=Round(Avg({bottles_saturday_night}))</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -2688,26 +1738,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox115">
-                      <Value>=Round(Avg({address_saturday_day}))</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox116">
-                      <Value>=Round(Avg({address_saturday_night}))</Value>
+                      <Value>=Round(Avg({address_saturday}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2726,7 +1757,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox117">
-                      <Value>=Round(Avg({bottles_sunday_day}))</Value>
+                      <Value>=Round(Avg({bottles_sunday}))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2735,25 +1766,6 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize>7pt</FontSize>
-                        <FontFamily>Arial</FontFamily>
-                      </Style>
-                      <CanShrink>false</CanShrink>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox118">
-                      <Value>=Round(Avg({bottles_sunday_night}))</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
@@ -2764,7 +1776,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox119">
-                      <Value>=Round(Avg({address_sunday_day}))</Value>
+                      <Value>=Round(Avg({address_sunday}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2782,8 +1794,9 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox120">
-                      <Value>=Round(Avg({address_sunday_night}))</Value>
+                    <Textbox Name="Textbox6">
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2794,8 +1807,393 @@
                         <FontSize>7pt</FontSize>
                         <FontFamily>Arial</FontFamily>
                       </Style>
-                      <CanGrow>false</CanGrow>
-                      <CanShrink>false</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>7pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>К недовозам:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value>=First({nedovozi}, "k_nedovozam") * 100 / Sum({address_monday} + {address_tuesday} + {address_wednesday} + {address_thursday} + {address_friday} + {address_saturday} + {address_sunday})</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>7pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                        <Format>0.00</Format>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2816,128 +2214,100 @@
     <DataSet Name="Data">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	T.week_begin,
-	T.week_end,
-	
-	SUM(T.bottles_monday_day) as bottles_monday_day,
-	COUNT(T.address_monday_day) as address_monday_day,
-	SUM(T.bottles_monday_night) as bottles_monday_night,
-	COUNT(T.address_monday_night) as address_monday_night,
-	
-	SUM(T.bottles_tuesday_day) as bottles_tuesday_day,
-	COUNT(T.address_tuesday_day) as address_tuesday_day,
-	SUM(T.bottles_tuesday_night) as bottles_tuesday_night,
-	COUNT(T.address_tuesday_night) as address_tuesday_night,
-	
-	SUM(T.bottles_wednesday_day) as bottles_wednesday_day,
-	COUNT(T.address_wednesday_day) as address_wednesday_day,
-	SUM(T.bottles_wednesday_night) as bottles_wednesday_night,
-	COUNT(T.address_wednesday_night) as address_wednesday_night,
-	
-	SUM(T.bottles_thursday_day) as bottles_thursday_day,
-	COUNT(T.address_thursday_day) as address_thursday_day,
-	SUM(T.bottles_thursday_night) as bottles_thursday_night,
-	COUNT(T.address_thursday_night) as address_thursday_night,
-	
-	SUM(T.bottles_friday_day) as bottles_friday_day,
-	COUNT(T.address_friday_day) as address_friday_day,
-	SUM(T.bottles_friday_night) as bottles_friday_night,
-	COUNT(T.address_friday_night) as address_friday_night,
-	
-	SUM(T.bottles_saturday_day) as bottles_saturday_day,
-	COUNT(T.address_saturday_day) as address_saturday_day,
-	SUM(T.bottles_saturday_night) as bottles_saturday_night,
-	COUNT(T.address_saturday_night) as address_saturday_night,
-	
-	SUM(T.bottles_sunday_day) as bottles_sunday_day,
-	COUNT(T.address_sunday_day) as address_sunday_day,
-	SUM(T.bottles_sunday_night) as bottles_sunday_night,
-	COUNT(T.address_sunday_night) as address_sunday_night        
+        <CommandText>SELECT
+    T.week_begin,
+    T.week_end,
+    SUM(T.bottles_monday) as bottles_monday,
+    COUNT(T.address_monday) as address_monday,
+
+    SUM(T.bottles_tuesday) as bottles_tuesday,
+    COUNT(T.address_tuesday) as address_tuesday,
+
+    SUM(T.bottles_wednesday) as bottles_wednesday,
+    COUNT(T.address_wednesday) as address_wednesday,
+
+    SUM(T.bottles_thursday) as bottles_thursday,
+    COUNT(T.address_thursday) as address_thursday,
+
+    SUM(T.bottles_friday) as bottles_friday,
+    COUNT(T.address_friday) as address_friday,
+
+    SUM(T.bottles_saturday) as bottles_saturday,
+    COUNT(T.address_saturday) as address_saturday,
+
+    SUM(T.bottles_sunday) as bottles_sunday,
+    COUNT(T.address_sunday) as address_sunday
 FROM
-	(SELECT
-		week_days.week_begin,
-		week_days.week_end,
-		
-		IF(dayofweek = 0 and daytime = 'day', order_sum.count, 0)  AS bottles_monday_day,
-		IF(dayofweek = 0 and daytime = 'day', compiled_address, null)  AS address_monday_day,
-		IF(dayofweek = 0 and daytime = 'night', order_sum.count, 0)  AS bottles_monday_night,
-		IF(dayofweek = 0 and daytime = 'night', compiled_address, null)  AS address_monday_night,
-		
-		IF(dayofweek = 1 and daytime = 'day', order_sum.count, 0)  AS bottles_tuesday_day,
-		IF(dayofweek = 1 and daytime = 'day', compiled_address, null)  AS address_tuesday_day,
-		IF(dayofweek = 1 and daytime = 'night', order_sum.count, 0)  AS bottles_tuesday_night,
-		IF(dayofweek = 1 and daytime = 'night', compiled_address, null)  AS address_tuesday_night,
-		
-		IF(dayofweek = 2 and daytime = 'day', order_sum.count, 0)  AS bottles_wednesday_day,
-		IF(dayofweek = 2 and daytime = 'day', compiled_address, null)  AS address_wednesday_day,
-		IF(dayofweek = 2 and daytime = 'night', order_sum.count, 0)  AS bottles_wednesday_night,
-		IF(dayofweek = 2 and daytime = 'night', compiled_address, null)  AS address_wednesday_night,
-		
-		IF(dayofweek = 3 and daytime = 'day', order_sum.count, 0)  AS bottles_thursday_day,
-		IF(dayofweek = 3 and daytime = 'day', compiled_address, null)  AS address_thursday_day,
-		IF(dayofweek = 3 and daytime = 'night', order_sum.count, 0)  AS bottles_thursday_night,
-		IF(dayofweek = 3 and daytime = 'night', compiled_address, null)  AS address_thursday_night,
-		
-		IF(dayofweek = 4 and daytime = 'day', order_sum.count, 0)  AS bottles_friday_day,
-		IF(dayofweek = 4 and daytime = 'day', compiled_address, null)  AS address_friday_day,
-		IF(dayofweek = 4 and daytime = 'night', order_sum.count, 0)  AS bottles_friday_night,
-		IF(dayofweek = 4 and daytime = 'night', compiled_address, null)  AS address_friday_night,
-		
-		IF(dayofweek = 5 and daytime = 'day', order_sum.count, 0)  AS bottles_saturday_day,
-		IF(dayofweek = 5 and daytime = 'day', compiled_address, null)  AS address_saturday_day,
-		IF(dayofweek = 5 and daytime = 'night', order_sum.count, 0)  AS bottles_saturday_night,
-		IF(dayofweek = 5 and daytime = 'night', compiled_address, null)  AS address_saturday_night,
-		
-		IF(dayofweek = 6 and daytime = 'day', order_sum.count, 0)  AS bottles_sunday_day,
-		IF(dayofweek = 6 and daytime = 'day', compiled_address, null)  AS address_sunday_day,
-		IF(dayofweek = 6 and daytime = 'night', order_sum.count, 0)  AS bottles_sunday_night,
-		IF(dayofweek = 6 and daytime = 'night', compiled_address, null)  AS address_sunday_night    
-	FROM
-		orders
-		LEFT JOIN
-			(
-				SELECT 
-					orders.id as order_id,
-					date_sub(delivery_date, interval (weekday(delivery_date)) day) as week_begin,
-					date_add(delivery_date, interval (6-weekday(delivery_date)) day) as week_end,             
-					IF(delivery_schedule.from_time &lt; '18:00', 'day', 'night') as daytime,                
-					WEEKDAY(delivery_date) as dayofweek
-				FROM 
-					orders
-					LEFT JOIN 
-						delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
-			) as week_days ON week_days.order_id = orders.id
-		LEFT JOIN
-			(
-				SELECT 
-					order_items.order_id,
-					SUM(order_items.count) AS count
-				FROM
-					order_items
-					LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-				WHERE
-					nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
-				GROUP BY order_items.order_id
-			) AS order_sum ON order_sum.order_id = orders.id
-		LEFT JOIN
-			delivery_points ON delivery_point_id = delivery_points.id
-		LEFT JOIN
-			route_list_addresses ON orders.id = route_list_addresses.order_id
-		LEFT JOIN
-			route_lists ON route_list_addresses.route_list_id = route_lists.id
-		LEFT JOIN
-			employees ON route_lists.driver_id = employees.id
-		LEFT JOIN 
-			delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
-	WHERE
-			(delivery_date BETWEEN @start_date AND @end_date)
-		AND route_list_addresses.status &lt;&gt; 'Transfered'
-		AND (order_status &lt;&gt; 'Canceled' AND order_status &lt;&gt; 'DeliveryCanceled')
-		AND NOT orders.self_delivery
-		AND delivery_points.city &lt;&gt; 'Семиозерье') as T
+    (SELECT
+         week_days.week_begin,
+         week_days.week_end,
+
+         IF(dayofweek = 0, order_sum.count, 0)  AS bottles_monday,
+         IF(dayofweek = 0, compiled_address, null)  AS address_monday,
+
+         IF(dayofweek = 1 , order_sum.count, 0)  AS bottles_tuesday,
+         IF(dayofweek = 1 , compiled_address, null)  AS address_tuesday,
+
+         IF(dayofweek = 2 , order_sum.count, 0)  AS bottles_wednesday,
+         IF(dayofweek = 2 , compiled_address, null)  AS address_wednesday,
+
+         IF(dayofweek = 3 , order_sum.count, 0)  AS bottles_thursday,
+         IF(dayofweek = 3 , compiled_address, null)  AS address_thursday,
+
+         IF(dayofweek = 4 , order_sum.count, 0)  AS bottles_friday,
+         IF(dayofweek = 4 , compiled_address, null)  AS address_friday,
+
+         IF(dayofweek = 5 , order_sum.count, 0)  AS bottles_saturday,
+         IF(dayofweek = 5 , compiled_address, null)  AS address_saturday,
+
+         IF(dayofweek = 6 , order_sum.count, 0)  AS bottles_sunday,
+         IF(dayofweek = 6 , compiled_address, null)  AS address_sunday
+     FROM
+         orders
+             LEFT JOIN
+         (
+             SELECT
+                 orders.id as order_id,
+                 date_sub(delivery_date, interval (weekday(delivery_date)) day) as week_begin,
+                 date_add(delivery_date, interval (6-weekday(delivery_date)) day) as week_end,
+                 WEEKDAY(delivery_date) as dayofweek
+             FROM
+                 orders
+                     LEFT JOIN
+                 delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+         ) as week_days ON week_days.order_id = orders.id
+             LEFT JOIN
+         (
+             SELECT
+                 order_items.order_id,
+                 SUM(order_items.count) AS count
+             FROM
+                 order_items
+                     LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
+             WHERE
+                     nomenclature.category = 'water' AND NOT nomenclature.is_disposable_tare
+             GROUP BY order_items.order_id
+         ) AS order_sum ON order_sum.order_id = orders.id
+             LEFT JOIN
+         delivery_points ON delivery_point_id = delivery_points.id
+             LEFT JOIN
+         route_list_addresses ON orders.id = route_list_addresses.order_id
+             LEFT JOIN
+         route_lists ON route_list_addresses.route_list_id = route_lists.id
+             LEFT JOIN
+         employees ON route_lists.driver_id = employees.id
+             LEFT JOIN
+         delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+     WHERE
+         (delivery_date BETWEEN @start_date AND @end_date)
+       AND route_list_addresses.status &lt;&gt; 'Transfered'
+       AND (order_status &lt;&gt; 'Canceled' AND order_status &lt;&gt; 'DeliveryCanceled' AND order_status != 'WaitForPayment')
+       AND NOT orders.self_delivery
+       AND orders.is_contract_closer = 0
+       AND orders.service = 0) as T
 GROUP BY week_begin
-ORDER BY week_begin</CommandText>
+ORDER BY week_begin
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -2956,117 +2326,99 @@ ORDER BY week_begin</CommandText>
           <DataField>week_end</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="bottles_monday_day">
-          <DataField>bottles_monday_day</DataField>
+        <Field Name="bottles_monday">
+          <DataField>bottles_monday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="address_monday_day">
-          <DataField>address_monday_day</DataField>
+        <Field Name="address_monday">
+          <DataField>address_monday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="bottles_monday_night">
-          <DataField>bottles_monday_night</DataField>
+        <Field Name="bottles_tuesday">
+          <DataField>bottles_tuesday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="address_monday_night">
-          <DataField>address_monday_night</DataField>
+        <Field Name="address_tuesday">
+          <DataField>address_tuesday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="bottles_tuesday_day">
-          <DataField>bottles_tuesday_day</DataField>
+        <Field Name="bottles_wednesday">
+          <DataField>bottles_wednesday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="address_tuesday_day">
-          <DataField>address_tuesday_day</DataField>
+        <Field Name="address_wednesday">
+          <DataField>address_wednesday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="bottles_tuesday_night">
-          <DataField>bottles_tuesday_night</DataField>
+        <Field Name="bottles_thursday">
+          <DataField>bottles_thursday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="address_tuesday_night">
-          <DataField>address_tuesday_night</DataField>
+        <Field Name="address_thursday">
+          <DataField>address_thursday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="bottles_wednesday_day">
-          <DataField>bottles_wednesday_day</DataField>
+        <Field Name="bottles_friday">
+          <DataField>bottles_friday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="address_wednesday_day">
-          <DataField>address_wednesday_day</DataField>
+        <Field Name="address_friday">
+          <DataField>address_friday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="bottles_wednesday_night">
-          <DataField>bottles_wednesday_night</DataField>
+        <Field Name="bottles_saturday">
+          <DataField>bottles_saturday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="address_wednesday_night">
-          <DataField>address_wednesday_night</DataField>
+        <Field Name="address_saturday">
+          <DataField>address_saturday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="bottles_thursday_day">
-          <DataField>bottles_thursday_day</DataField>
+        <Field Name="bottles_sunday">
+          <DataField>bottles_sunday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="address_thursday_day">
-          <DataField>address_thursday_day</DataField>
+        <Field Name="address_sunday">
+          <DataField>address_sunday</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="bottles_thursday_night">
-          <DataField>bottles_thursday_night</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="address_thursday_night">
-          <DataField>address_thursday_night</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="bottles_friday_day">
-          <DataField>bottles_friday_day</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="address_friday_day">
-          <DataField>address_friday_day</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="bottles_friday_night">
-          <DataField>bottles_friday_night</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="address_friday_night">
-          <DataField>address_friday_night</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="bottles_saturday_day">
-          <DataField>bottles_saturday_day</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="address_saturday_day">
-          <DataField>address_saturday_day</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="bottles_saturday_night">
-          <DataField>bottles_saturday_night</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="address_saturday_night">
-          <DataField>address_saturday_night</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="bottles_sunday_day">
-          <DataField>bottles_sunday_day</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="address_sunday_day">
-          <DataField>address_sunday_day</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="bottles_sunday_night">
-          <DataField>bottles_sunday_night</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="address_sunday_night">
-          <DataField>address_sunday_night</DataField>
-          <TypeName>System.Int32</TypeName>
+      </Fields>
+    </DataSet>
+    <DataSet Name="k_nedovozam">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    count(*) as nedovozi
+FROM
+    undelivered_orders undeliv_orders
+        left outer join
+    guilty_in_undelivered_orders guiltyinun
+    on undeliv_orders.id=guiltyinun.undelivery_id
+        left outer join
+    subdivisions subdivisio
+    on guiltyinun.guilty_department_id=subdivisio.id
+        left outer join
+    orders oldorderal
+    on undeliv_orders.old_order_id=oldorderal.id
+WHERE
+        oldorderal.delivery_date &gt;= @start_date
+        and oldorderal.delivery_date &lt;= @end_date
+        and guiltyinun.guilty_side = 'Driver' 
+        and undeliv_orders.status = 'Closed'
+        and (subdivisio.id = 13 or subdivisio.id = 26);</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="nedovozi">
+          <DataField>nedovozi</DataField>
+          <TypeName>System.Int64</TypeName>
         </Field>
       </Fields>
     </DataSet>
