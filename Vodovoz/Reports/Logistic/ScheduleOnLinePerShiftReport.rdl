@@ -514,7 +514,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>SELECT
@@ -533,11 +533,11 @@
                      IF(comment_author.name = '', NULL, comment_author.name),
                      IF(comment_author.patronymic = '', NULL, comment_author.patronymic)),'') AS last_author_commented,
     CASE c.type_of_use
-        WHEN 'CompanyGAZelle' THEN CONCAT_WS(' ','Газель Компании', if(c.is_raskat = 0,'Не раскат', 'Раскат') ) 
-        WHEN 'DriverCar' THEN CONCAT_WS(' ','Авто водителя', if(c.is_raskat = 0,'Не раскат', 'Раскат') ) 
-        WHEN 'CompanyLargus' THEN CONCAT_WS(' ','Ларгус Компании', if(c.is_raskat = 0,'Не раскат', 'Раскат') ) 
+        WHEN 'CompanyGAZelle' THEN CONCAT_WS(' ','Газель Компании', if(c.is_raskat = 0,'Не раскат', 'Раскат') )
+        WHEN 'DriverCar' THEN CONCAT_WS(' ','Авто водителя', if(c.is_raskat = 0,'Не раскат', 'Раскат') )
+        WHEN 'CompanyLargus' THEN CONCAT_WS(' ','Ларгус Компании', if(c.is_raskat = 0,'Не раскат', 'Раскат') )
         WHEN 'CompanyTruck' THEN CONCAT_WS(' ','Грузовик Компании', if(c.is_raskat = 0,'Не раскат', 'Раскат') )
-    END as transport_type
+        END as transport_type
 FROM at_work_drivers
          LEFT JOIN employees e on  e.id = at_work_drivers.employee_id
          LEFT JOIN employees reason_author on reason_author.id = at_work_drivers.author_removed_driver
@@ -547,8 +547,8 @@ FROM at_work_drivers
 where e.category = 'driver' AND
     (at_work_drivers.date BETWEEN @start_date AND @end_date) AND
     (0 IN (@geo_group_ids) OR gg.id IN (@geo_group_ids)) AND
-    (@is_raskat = c.is_raskat) AND
-    (@transport_type = '' OR @transport_type = c.type_of_use)
+    (@is_raskat = c.is_raskat OR @vse_TS = 1) AND
+    (@transport_type = '' OR @vse_TS = 1 OR @transport_type = c.type_of_use)
 ORDER BY e.name;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -566,9 +566,12 @@ ORDER BY e.name;</CommandText>
           <QueryParameter Name="transport_type">
             <Value>=Parameters!transport_type</Value>
           </QueryParameter>
+          <QueryParameter Name="vse_TS">
+            <Value>=Parameters!vse_TS</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver_name">
           <DataField>driver_name</DataField>
           <TypeName>System.String</TypeName>
@@ -657,7 +660,7 @@ where
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -706,6 +709,14 @@ where
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="is_raskat">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="vse_TS">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

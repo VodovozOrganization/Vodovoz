@@ -35,6 +35,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 			yEnumCmbTransport.ItemsEnum = typeof(CarTypeOfUse);
 			
 			buttonCreateReport.Clicked += OnButtonCreateReportClicked;
+			// ycheckAllTS.Activated += OnCheckBtnAllTSClicked;
+			ycheckAllTS.Toggled += OnCheckBtnAllTSClicked;
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
@@ -55,7 +57,8 @@ namespace Vodovoz.ReportsParameters.Logistic
 					{ "end_date", dateperiodpicker.EndDateOrNull },
 					{ "geo_group_ids", GetResultIds(geographicGroups.Select(g => g.Id)) },
 					{ "transport_type", yEnumCmbTransport.SelectedItemOrNull?.ToString() ?? ""},
-					{ "is_raskat", ycheckRaskat.Active? 1 : 0 }
+					{ "is_raskat", ycheckRaskat.Active? 1 : 0 },
+					{ "vse_TS", ycheckAllTS.Active? 1 : 0 }
 				}
 			};
 		}
@@ -72,6 +75,20 @@ namespace Vodovoz.ReportsParameters.Logistic
 				return;
 			}
 			OnUpdate(true);
+		}
+
+		protected void OnCheckBtnAllTSClicked(object sender, EventArgs e)
+		{
+			if (ycheckAllTS.Active)
+			{
+				ycheckRaskat.Sensitive = false;
+				yEnumCmbTransport.Sensitive = false;
+			}
+			else
+			{
+				ycheckRaskat.Sensitive = true;
+				yEnumCmbTransport.Sensitive = true;
+			}
 		}
 		
 		
