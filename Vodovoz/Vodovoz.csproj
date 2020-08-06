@@ -1499,6 +1499,8 @@
     <Compile Include="JournalNodes\ReturnTareReasonsJournalNode.cs" />
     <Compile Include="ReportsParameters\Store\ProductionRequestReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.ProductionRequestReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\NonClosedRLByPeriodReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.NonClosedRLByPeriodReport.cs" />
     <Compile Include="ViewModels\Logistic\RouteListAnalysisViewModel.cs" />
     <Compile Include="Views\Logistic\RouteListAnalysisView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListAnalysisView.cs" />
@@ -2268,6 +2270,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\BillWithoutShipmentForAdvancePayment.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\NonClosedRLByPeriodReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

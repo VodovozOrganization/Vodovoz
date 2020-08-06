@@ -1621,4 +1621,12 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new ScheduleOnLinePerShiftReport())
 		);
 	}
+	
+	protected void OnActionNonClosedRLByPeriodReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<NonClosedRLByPeriodReport>(),
+			() => new QSReport.ReportViewDlg(new NonClosedRLByPeriodReport())
+		);
+	}
 }
