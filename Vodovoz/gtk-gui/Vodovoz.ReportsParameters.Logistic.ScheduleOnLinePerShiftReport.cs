@@ -16,6 +16,10 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gtk.HBox hbox4;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckAllTS;
+
+		private global::Gtk.VSeparator vseparator1;
+
 		private global::Gtk.Label label2;
 
 		private global::Gamma.Widgets.yEnumComboBox yEnumCmbTransport;
@@ -78,14 +82,34 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
 			// Container child hbox4.Gtk.Box+BoxChild
+			this.ycheckAllTS = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckAllTS.CanFocus = true;
+			this.ycheckAllTS.Name = "ycheckAllTS";
+			this.ycheckAllTS.Label = global::Mono.Unix.Catalog.GetString("Все ТС");
+			this.ycheckAllTS.DrawIndicator = true;
+			this.ycheckAllTS.UseUnderline = true;
+			this.hbox4.Add(this.ycheckAllTS);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckAllTS]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator();
+			this.vseparator1.Name = "vseparator1";
+			this.hbox4.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.vseparator1]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child hbox4.Gtk.Box+BoxChild
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Тип ТС:");
 			this.hbox4.Add(this.label2);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.label2]));
-			w5.Position = 0;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.label2]));
+			w7.Position = 2;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.yEnumCmbTransport = new global::Gamma.Widgets.yEnumComboBox();
 			this.yEnumCmbTransport.Name = "yEnumCmbTransport";
@@ -94,27 +118,27 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.yEnumCmbTransport.UseShortTitle = false;
 			this.yEnumCmbTransport.DefaultFirst = false;
 			this.hbox4.Add(this.yEnumCmbTransport);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yEnumCmbTransport]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yEnumCmbTransport]));
+			w8.Position = 3;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.ycheckRaskat = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckRaskat.CanFocus = true;
 			this.ycheckRaskat.Name = "ycheckRaskat";
-			this.ycheckRaskat.Label = global::Mono.Unix.Catalog.GetString("Раскат:");
+			this.ycheckRaskat.Label = global::Mono.Unix.Catalog.GetString("Раскат");
 			this.ycheckRaskat.DrawIndicator = true;
 			this.ycheckRaskat.UseUnderline = true;
 			this.hbox4.Add(this.ycheckRaskat);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckRaskat]));
-			w7.Position = 2;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckRaskat]));
+			w9.Position = 4;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.vbox1.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox4]));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.chkDetailed = new global::Gtk.CheckButton();
 			this.chkDetailed.CanFocus = true;
@@ -123,10 +147,10 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.chkDetailed.DrawIndicator = true;
 			this.chkDetailed.UseUnderline = true;
 			this.vbox1.Add(this.chkDetailed);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.chkDetailed]));
-			w9.Position = 3;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.chkDetailed]));
+			w11.Position = 3;
+			w11.Expand = false;
+			w11.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
@@ -134,10 +158,10 @@ namespace Vodovoz.ReportsParameters.Logistic
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w10.Position = 5;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w12.Position = 5;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
