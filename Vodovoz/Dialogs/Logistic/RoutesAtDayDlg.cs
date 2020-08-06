@@ -1343,7 +1343,7 @@ namespace Vodovoz
 					rl.Driver = propose.Trip.Driver;
 					rl.Shift = propose.Trip.Shift;
 					rl.Date = CurDate;
-					rl.Logistican = logistican;
+					rl.Logistician = logistican;
 
 					if(propose.Trip.OldRoute == null) {
 						rl.GeographicGroups.Clear();

@@ -168,7 +168,7 @@ namespace Vodovoz
 			var filterLogistican = new EmployeeFilterViewModel();
 			filterLogistican.SetAndRefilterAtOnce(x => x.Status = EmployeeStatus.IsWorking);
 			referenceLogistican.RepresentationModel = new EmployeesVM(filterLogistican);
-			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
+			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 
 			speccomboShift.ItemsList = Repository.Logistics.DeliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();

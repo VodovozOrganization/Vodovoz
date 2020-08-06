@@ -80,12 +80,12 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		Employee logistican;
+		Employee logistician;
 
 		[Display(Name = "Логист")]
-		public virtual Employee Logistican {
-			get => logistican;
-			set => SetField(ref logistican, value, () => Logistican);
+		public virtual Employee Logistician {
+			get => logistician;
+			set => SetField(ref logistician, value, () => Logistician);
 		}
 
 		Car car;
@@ -184,6 +184,20 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string ClosingComment {
 			get => closingComment;
 			set => SetField(ref closingComment, value, () => ClosingComment);
+		}
+		
+		string logisticiansComment;
+		[Display(Name = "Комментарий ЛО")]
+		public virtual string LogisticiansComment {
+			get => logisticiansComment;
+			set => SetField(ref logisticiansComment, value);
+		}
+		
+		Employee logisticiansCommentAuthor;
+		[Display(Name = "Последний редактор комментария ЛО")]
+		public virtual Employee LogisticiansCommentAuthor {
+			get => logisticiansCommentAuthor;
+			set => SetField(ref logisticiansCommentAuthor, value);
 		}
 
 		string cashierReviewComment;

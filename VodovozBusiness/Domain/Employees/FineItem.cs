@@ -68,8 +68,6 @@ namespace Vodovoz.Domain.Employees
 					CurrencyWorks.GetShortCurrencyString(Money));
 			}
 		}
-
 	}
-
 }
 

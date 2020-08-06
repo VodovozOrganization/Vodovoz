@@ -1604,6 +1604,16 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
+	protected void OnActionLateArrivalReasonsActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new LateArrivalReasonsJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+	
 	protected void OnActionScheduleOnLinePerShiftReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(

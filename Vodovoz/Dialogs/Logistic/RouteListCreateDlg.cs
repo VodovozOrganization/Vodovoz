@@ -63,8 +63,8 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList>();
-			Entity.Logistican = employeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Logistican == null) {
+			Entity.Logistician = employeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(Entity.Logistician == null) {
 				MessageDialogHelper.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
 				FailInitialize = true;
 				return;
@@ -147,7 +147,7 @@ namespace Vodovoz
 
 			referenceLogistican.Sensitive = false;
 			referenceLogistican.RepresentationModel = new EmployeesVM();
-			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistican, w => w.Subject).InitializeFromSource();
+			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistician, w => w.Subject).InitializeFromSource();
 
 			speccomboShift.ItemsList = Repository.Logistics.DeliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();

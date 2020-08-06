@@ -1499,6 +1499,14 @@
     <Compile Include="JournalNodes\ReturnTareReasonsJournalNode.cs" />
     <Compile Include="ReportsParameters\Store\ProductionRequestReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.ProductionRequestReport.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListAnalysisViewModel.cs" />
+    <Compile Include="Views\Logistic\RouteListAnalysisView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListAnalysisView.cs" />
+    <Compile Include="Views\Logistic\LateArrivalReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.LateArrivalReasonView.cs" />
+    <Compile Include="ViewModels\Logistic\LateArrivalReasonViewModel.cs" />
+    <Compile Include="JournalViewModels\LateArrivalReasonsJournalViewModel.cs" />
+    <Compile Include="JournalNodes\LateArrivalReasonsJournalNode.cs" />
     <Compile Include="ReportsParameters\Logistic\ScheduleOnLinePerShiftReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ScheduleOnLinePerShiftReport.cs" />
   </ItemGroup>

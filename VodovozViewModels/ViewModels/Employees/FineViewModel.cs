@@ -15,6 +15,7 @@ using QS.Project.Journal.EntitySelector;
 using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
 using QS.DomainModel.UoW;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Employees
 {
@@ -94,6 +95,11 @@ namespace Vodovoz.ViewModels.Employees
 				Entity.RouteList = value;
 				UpdateEmployeeList();
 			}
+		}
+		
+		public virtual UndeliveredOrder UndeliveredOrder {
+			get => Entity.UndeliveredOrder;
+			set => Entity.UndeliveredOrder = value;
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate;

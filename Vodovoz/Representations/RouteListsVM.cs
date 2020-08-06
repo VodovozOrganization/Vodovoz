@@ -29,6 +29,8 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.FuelDocuments;
+using Vodovoz.ViewModels.Logistic;
+using QS.Project.Domain;
 
 namespace Vodovoz.ViewModel
 {
@@ -141,6 +143,7 @@ namespace Vodovoz.ViewModel
 					   .Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
 					   .Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 					   .Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
+					   //.Select(() => routeListAlias.LogisticiansComment).WithAlias(() => resultAlias.LogisticiansComment)
 					   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
 					   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
 					   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)
@@ -167,8 +170,14 @@ namespace Vodovoz.ViewModel
 				.AddTextRenderer(node => node.DriverAndCar)
 			.AddColumn("Сдается в кассу")
 				.AddTextRenderer(node => node.ClosingSubdivision)
+			.AddColumn("Комментарий ЛО")
+				.AddTextRenderer(node => node.LogisticiansComment)
+				.WrapWidth(300)
+				.WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Комментарий по закрытию")
 				.AddTextRenderer(node => node.ClosinComments)
+				.WrapWidth(300)
+				.WrapMode(Pango.WrapMode.WordChar)
 			.RowCells()
 				.AddSetter<CellRendererText>((c, n) => c.Foreground = n.NotFullyLoaded ? "Orange" : "Black")
 			.Finish();
@@ -220,6 +229,12 @@ namespace Vodovoz.ViewModel
 		};
 
 		private List<RouteListStatus> ClosingDlgStatuses = new List<RouteListStatus> {
+			RouteListStatus.OnClosing,
+			RouteListStatus.MileageCheck,
+			RouteListStatus.Closed
+		};
+
+		private List<RouteListStatus> AnalysisViewModelStatuses = new List<RouteListStatus> {
 			RouteListStatus.OnClosing,
 			RouteListStatus.MileageCheck,
 			RouteListStatus.Closed
@@ -360,6 +375,22 @@ namespace Vodovoz.ViewModel
 					(selectedItems) => selectedItems.Any(x => ClosingDlgStatuses.Contains((x as RouteListsVMNode).StatusEnum))
 				));
 
+				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Открыть диалог разбора",
+					(selectedItems) => {
+						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
+						var selectedNode = selectedNodes.FirstOrDefault();
+						if(selectedNode != null && AnalysisViewModelStatuses.Contains(selectedNode.StatusEnum))
+							MainClass.MainWin.TdiMain.AddTab(
+								new RouteListAnalysisViewModel(
+									EntityUoWBuilder.ForOpen(selectedNode.Id),
+									UnitOfWorkFactory.GetDefaultFactory,
+									ServicesConfig.CommonServices
+								)
+							);
+					},
+					(selectedItems) => selectedItems.Any(x => AnalysisViewModelStatuses.Contains((x as RouteListsVMNode).StatusEnum))
+				));
+
 				result.Add(JournalPopupItemFactory.CreateNewAlwaysVisible("Открыть диалог проверки километража",
 					(selectedItems) => {
 						var selectedNodes = selectedItems.Cast<RouteListsVMNode>();
@@ -435,6 +466,7 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		public string DriverAndCar => string.Format("{0} - {1} ({2})", Driver, CarModel, CarNumber);
+		public string LogisticiansComment { get; set; }
 		public string ClosinComments { get; set; }
 		public string ClosingSubdivision { get; set; }
 		public bool NotFullyLoaded { get; set; }
