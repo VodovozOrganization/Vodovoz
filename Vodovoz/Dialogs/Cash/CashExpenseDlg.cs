@@ -11,6 +11,9 @@ using Vodovoz.Repositories.HumanResources;
 using QS.Services;
 using Vodovoz.EntityRepositories;
 using System.Linq;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.PermissionExtensions;
 
 namespace Vodovoz
 {
@@ -19,6 +22,8 @@ namespace Vodovoz
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private decimal currentEmployeeWage = default(decimal);
 		private bool canEdit = true;
+		private readonly bool canCreate;
+		private readonly bool canEditRectroactively;
 
 		public CashExpenseDlg (IPermissionService permissionService)
 		{
@@ -33,6 +38,7 @@ namespace Vodovoz
 			}
 
 			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			canCreate = userPermission.CanCreate;
 			if(!userPermission.CanCreate) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
 				FailInitialize = true;
@@ -70,10 +76,19 @@ namespace Vodovoz
 			}
 			canEdit = userPermission.CanUpdate;
 
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
+			canEditRectroactively = permmissionValidator.Validate(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+
 			ConfigureDlg ();
 		}
 
 		public CashExpenseDlg (Expense sub, IPermissionService permissionService) : this (sub.Id, permissionService) {}
+
+		private bool CanEdit => (UoW.IsNew && canCreate) ||
+		                        (canEdit && Entity.Date.Date == DateTime.Now.Date) ||
+		                        (canEditRectroactively &&
+		                         (Entity.Date.Date == DateTime.Now.Date ||
+		                          Entity.Date.Date.AddDays(1) == DateTime.Now.Date));
 
 		void ConfigureDlg()
 		{
@@ -113,7 +128,7 @@ namespace Vodovoz
 			UpdateEmployeeBalaceInfo();
 			UpdateSubdivision();
 
-			if(!canEdit) {
+			if(!CanEdit) {
 				table1.Sensitive = false;
 				accessfilteredsubdivisionselectorwidget.Sensitive = false;
 				buttonSave.Sensitive = false;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QSProjectsLib;
 using QS.Validation;
@@ -13,6 +14,7 @@ using QS.Services;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories;
 using QS.DomainModel.NotifyChange;
+using Vodovoz.PermissionExtensions;
 
 namespace Vodovoz
 {
@@ -26,6 +28,8 @@ namespace Vodovoz
 
 		List<RecivedAdvance> advanceList;
 		private bool canEdit = true;
+		private readonly bool canCreate;
+		private readonly bool canEditRectroactively;
 
 		protected decimal Debt {
 			get {
@@ -77,6 +81,7 @@ namespace Vodovoz
 			}
 
 			var userPermission = permissionService.ValidateUserPermission(typeof(AdvanceReport), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			canCreate = userPermission.CanCreate;
 			if(!userPermission.CanCreate) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
 				FailInitialize = true;
@@ -114,6 +119,9 @@ namespace Vodovoz
 			}
 			canEdit = userPermission.CanUpdate;
 
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
+			canEditRectroactively = permmissionValidator.Validate(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+
 			//Отключаем отображение ненужных элементов.
 			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = labelCreating.Visible = false;
 
@@ -124,6 +132,12 @@ namespace Vodovoz
 
 		public AdvanceReportDlg(AdvanceReport sub, IPermissionService permissionService) : this(sub.Id, permissionService) { }
 
+		private bool CanEdit => (UoW.IsNew && canCreate) ||
+		                        (canEdit && Entity.Date.Date == DateTime.Now.Date) ||
+		                        (canEditRectroactively &&
+		                         (Entity.Date.Date == DateTime.Now.Date ||
+		                          Entity.Date.Date.AddDays(1) == DateTime.Now.Date));
+		
 		void ConfigureDlg()
 		{
 			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
@@ -162,7 +176,7 @@ namespace Vodovoz
 				.Finish();
 			UpdateSubdivision();
 
-			if(!canEdit) {
+			if(!CanEdit) {
 				table1.Sensitive = false;
 				accessfilteredsubdivisionselectorwidget.Sensitive = false;
 				buttonSave.Sensitive = false;

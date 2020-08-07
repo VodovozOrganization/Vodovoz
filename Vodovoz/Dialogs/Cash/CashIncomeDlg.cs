@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
@@ -18,6 +19,7 @@ using QS.EntityRepositories;
 using QS.Services;
 using Vodovoz.EntityRepositories;
 using QS.Project.Services;
+using Vodovoz.PermissionExtensions;
 
 namespace Vodovoz
 {
@@ -26,6 +28,8 @@ namespace Vodovoz
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
 		private bool canEdit = true;
+		private readonly bool canCreate;
+		private readonly bool canEditRectroactively;
 
 		List<Selectable<Expense>> selectableAdvances;
 
@@ -42,6 +46,7 @@ namespace Vodovoz
 			}
 
 			var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			canCreate = userPermission.CanCreate;
 			if(!userPermission.CanCreate) 
 			{
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
@@ -79,6 +84,9 @@ namespace Vodovoz
 			}
 			canEdit = userPermission.CanUpdate;
 
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
+			canEditRectroactively = permmissionValidator.Validate(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			
 			ConfigureDlg ();
 		}
 
@@ -99,6 +107,12 @@ namespace Vodovoz
 
 		public CashIncomeDlg (Income sub, IPermissionService permissionService) : this (sub.Id, permissionService) {}
 
+		private bool CanEdit => (UoW.IsNew && canCreate) ||
+		                        (canEdit && Entity.Date.Date == DateTime.Now.Date) ||
+		                        (canEditRectroactively &&
+		                         (Entity.Date.Date == DateTime.Now.Date ||
+		                          Entity.Date.Date.AddDays(1) == DateTime.Now.Date));
+		
 		void ConfigureDlg()
 		{
 			accessfilteredsubdivisionselectorwidget.OnSelected += Accessfilteredsubdivisionselectorwidget_OnSelected;
@@ -158,11 +172,14 @@ namespace Vodovoz
 				.Finish ();
 			UpdateSubdivision();
 
-			table1.Sensitive = canEdit;
-			ytreeviewDebts.Sensitive = canEdit;
-			ytextviewDescription.Sensitive = canEdit;
-			buttonSave.Sensitive = canEdit;
-			accessfilteredsubdivisionselectorwidget.Sensitive &= canEdit;
+			if (!CanEdit)
+			{
+				table1.Sensitive = false;
+				ytreeviewDebts.Sensitive = false;
+				ytextviewDescription.Sensitive = false;
+				buttonSave.Sensitive = false;
+				accessfilteredsubdivisionselectorwidget.Sensitive = false;
+			}
 		}
 
 		public void FillForRoutelist(int routelistId)
