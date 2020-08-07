@@ -9,6 +9,7 @@ using QS.Project.Dialogs.GtkUI.JournalActions;
 using QS.Tdi;
 using QSOrmProject;
 using QSWidgetLib;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Core.Journal
 {
@@ -23,6 +24,7 @@ namespace Vodovoz.Core.Journal
 		public MultipleEntityJournal(string title, IMultipleEntityRepresentationModel model, IMultipleEntityPermissionModel permissionModel)
 		{
 			this.Build();
+			wraplabelSum.LineWrapMode = WrapMode.WordChar;
 			this.RepresentationModel = model;
 			UoW = model.UoW;
 			this.permissionModel = permissionModel;
@@ -175,7 +177,19 @@ namespace Vodovoz.Core.Journal
 
 		protected void UpdateSum()
 		{
-			labelSum.LabelProp = representationModel.GetSummaryInfo();
+			Application.Invoke((e, args) => {
+				var text = representationModel.GetSummaryInfo();
+				if(text.Length > 180) {
+					labelSum.Hide();
+					wraplabelSum.Show();
+					wraplabelSum.Text = text;
+				}
+				else {
+					wraplabelSum.Hide();
+					labelSum.Show();
+					labelSum.Text = text;
+				}
+			});
 		}
 
 		#region ITdiJournal implementation
