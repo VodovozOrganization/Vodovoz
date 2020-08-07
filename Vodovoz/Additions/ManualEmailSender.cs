@@ -12,6 +12,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using System.Collections.Generic;
 using System.Linq;
+using fyiReporting.RdlGtkViewer;
 using RdlEngine;
 
 namespace Vodovoz.Additions

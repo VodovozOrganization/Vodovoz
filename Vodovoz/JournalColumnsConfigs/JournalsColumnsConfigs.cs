@@ -16,6 +16,8 @@ using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.Representations;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.Cash;
+using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -602,6 +604,28 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
+			);
+			
+			//FuelDocumentsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<FuelDocumentsJournalViewModel>(
+				() => FluentColumnsConfig<FuelDocumentJournalNode>.Create()
+				.AddColumn("№").AddTextRenderer(node => node.Id.ToString())
+				.AddColumn("Тип").AddTextRenderer(node => node.Title)
+				.AddColumn("Дата").AddTextRenderer(node => node.CreationDate.ToShortDateString())
+				.AddColumn("Автор").AddTextRenderer(node => node.Author)
+				.AddColumn("Сотрудник").AddTextRenderer(node => node.Employee)
+				.AddColumn("Статус").AddTextRenderer(node => node.Status)
+				.AddColumn("Литры").AddTextRenderer(node => node.Liters.ToString("0"))
+				.AddColumn("Статья расх.").AddTextRenderer(node => node.ExpenseCategory)
+	
+				.AddColumn("Отправлено из").AddTextRenderer(node => node.SubdivisionFrom)
+				.AddColumn("Время отпр.").AddTextRenderer(node => node.SendTime.HasValue ? node.SendTime.Value.ToShortDateString() : "")
+	
+				.AddColumn("Отправлено в").AddTextRenderer(node => node.SubdivisionTo)
+				.AddColumn("Время принятия").AddTextRenderer(node => node.ReceiveTime.HasValue ? node.ReceiveTime.Value.ToShortDateString() : "")
+	
+				.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
+				.Finish()
 			);
 		}
 	}

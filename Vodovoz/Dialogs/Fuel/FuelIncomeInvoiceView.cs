@@ -2,6 +2,7 @@
 using Gtk;
 using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -48,7 +49,7 @@ namespace Vodovoz.Dialogs.Fuel
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryCounterparty.RepresentationModel = ViewModel.CounterpartyVM;
+			entryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartySelectorFactory);
 			entryCounterparty.Binding.AddBinding(ViewModel.Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
 			entryCounterparty.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 

@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{EF73674E-B8D5-461B-A072-AC73231C82B2}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Vodovoz</RootNamespace>
+    <RootNamespace>Vodovoz.ViewModels</RootNamespace>
     <AssemblyName>VodovozViewModels</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
@@ -94,12 +94,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
+    <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Logistic\DistrictsSetJournalFilterViewModel.cs" />
     <Compile Include="Journals\JournalNodes\DistrictsSetJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Logistic\DistrictsSetJournalViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TempAdapters\ICarJournalFactory.cs" />
+    <Compile Include="TempAdapters\ICounterpartyJournalFactory.cs" />
+    <Compile Include="TempAdapters\IEmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\IEntityDeleteWorker.cs" />
     <Compile Include="ViewModels\Complaints\ComplaintViewModel.cs" />
     <Compile Include="ViewModels\Employees\FineViewModel.cs" />
@@ -205,6 +213,8 @@
     <Compile Include="Journals\FilterViewModels\Organization\SubdivisionFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Suppliers\RequestsToSuppliersFilterViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\EmptyClass.cs" />
+    <Compile Include="Journals\Cash\FuelDocumentsJournalViewModel.cs" />
+    <Compile Include="Journals\Nodes\Cash\FuelDocumentJournalNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewModels\" />
@@ -231,6 +241,9 @@
     <Folder Include="Journals\JournalViewModels\" />
     <Folder Include="Journals\JournalNodes\" />
     <Folder Include="Journals\FilterViewModels\" />
+    <Folder Include="Journals\Cash\" />
+    <Folder Include="Journals\Nodes\" />
+    <Folder Include="Journals\Nodes\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
