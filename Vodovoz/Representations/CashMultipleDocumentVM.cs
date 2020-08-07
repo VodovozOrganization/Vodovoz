@@ -86,10 +86,12 @@ namespace Vodovoz.Representations
 			}
 			string total = $"Денег в кассе: {CurrencyWorks.GetShortCurrencyString(totalCash)}. ";
 			string separatedCash = Filter.SelectedSubdivisions.Any() ? $"Из них { allCashString}. " : "";
+			if(Filter.SelectedSubdivisions.Count() > 2)
+				separatedCash += '\n';
 			return total + separatedCash;
 		}
 
-		public override string GetSummaryInfo() => $"{GetAllCashSummaryInfo()} Сумма выбранных документов: {GetTotalSumInfo()}. {base.GetSummaryInfo()}";
+		public override string GetSummaryInfo() => $"{GetAllCashSummaryInfo()}Сумма выбранных документов: {GetTotalSumInfo()}. {base.GetSummaryInfo()}";
 
 		private void RegisterIncome()
 		{
