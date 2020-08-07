@@ -12,6 +12,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Domain.Orders;
 using QS.Commands;
+using QS.Dialog;
 using QS.Project.Journal;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Infrastructure.Services;
@@ -55,6 +56,12 @@ namespace Vodovoz.ViewModels.Logistic
 			undeliveryViewOpener = new UndeliveriesViewOpener();
 			employeeService = VodovozGtkServicesConfig.EmployeeService;
 			CurrentEmployee = employeeService.GetEmployeeForUser(UoW, CurrentUser.Id);
+			
+			if(CurrentEmployee == null) {
+				AbortOpening("Ваш пользователь не привязан к действующему сотруднику, вы не можете открыть " +
+				             "диалог разбора МЛ, так как некого указывать в качестве логиста.", "Невозможно открыть разбор МЛ");
+			}
+			
 			employeeSelectorFactory = new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(commonServices);
 			
 			LogisticanSelectorFactory =
@@ -268,5 +275,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private UndeliveredOrder GetUndeliveredOrder() => 
 			UndeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, SelectedItem.Order.Id).SingleOrDefault();
+
+		public void SetLogisticianCommentAuthor()
+		{
+			if(!string.IsNullOrEmpty(Entity.LogisticiansComment))
+				Entity.LogisticiansCommentAuthor = CurrentEmployee;
+		}
 	}
 }

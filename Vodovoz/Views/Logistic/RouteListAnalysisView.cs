@@ -58,7 +58,7 @@ namespace Vodovoz.Views.Logistic
 			datePickerDate.Binding.AddBinding(ViewModel.Entity, e => e.Date, w => w.Date).InitializeFromSource();
 			
 			ytextviewLogisticianComment.Binding.AddBinding(ViewModel.Entity, e => e.LogisticiansComment, w => w.Buffer.Text).InitializeFromSource();
-			
+
 			ConfigureTreeViewAddresses();
 			
 			//Заполняем телефоны
@@ -232,7 +232,9 @@ namespace Vodovoz.Views.Logistic
 			
 			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return;
-			
+
+			ViewModel.SetLogisticianCommentAuthor();
+
 			ViewModel.UoW.Save();
 			ViewModel.Close(false, CloseSource.Save);
 		}
