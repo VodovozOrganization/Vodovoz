@@ -340,7 +340,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Iif({closing_date} = "Сдается", {closing_date}, Format(Convert.ToDateTime(Fields!closing_date.Value), "dd.MM.yyyy"))</Value>
+                      <Value>=Iif(Fields!closing_date.IsMissing, {status}, Format(Fields!closing_date.Value, "dd.MM.yyyy"))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -658,14 +658,24 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     rl.id,
     rl.date,
-    IFNULL(rl.closing_date, "Сдается") as closing_date,
+    rl.closing_date as closing_date, 
+    (    
+        CASE rl.status
+            WHEN 'New' THEN 'Новый'
+            WHEN 'Confirmed' THEN 'Подтвержден'
+            WHEN 'InLoading' THEN 'На погрузке'
+            WHEN 'EnRoute' THEN 'В пути'
+            WHEN 'OnClosing' THEN 'Сдаётся'
+            WHEN 'MileageCheck' THEN 'Проверка километража'
+            WHEN 'Closed' THEN 'Закрыт'
+        END) as status,
     IF(
-        rl.closing_date is null, 
+        rl.status != 'Closed',
         TO_DAYS(@end_date) - TO_DAYS(DATE_ADD(rl.date, INTERVAL @delay DAY)),
         TO_DAYS(rl.closing_date) - TO_DAYS(DATE_ADD(rl.date, INTERVAL @delay DAY))) as count,
     CONCAT(
@@ -688,11 +698,13 @@ LEFT JOIN
     cars ON cars.id = rl.car_id
 WHERE
     (rl.status != 'Closed'
-    AND DATE_ADD(rl.date, INTERVAL @delay DAY) &lt; @end_date)
+    AND DATE_ADD(rl.date, INTERVAL @delay DAY) &lt; date(@end_date))
     OR (rl.closing_date BETWEEN @start_date AND @end_date
+        AND rl.status = 'Closed'
         AND date(rl.closing_date) &gt; DATE_ADD(rl.date, INTERVAL @delay DAY))
     AND !drivers.visiting_master
     AND cars.type_of_use != 'CompanyTruck'
+GROUP BY rl.id
 ORDER BY rl.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -709,7 +721,7 @@ ORDER BY rl.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -720,7 +732,7 @@ ORDER BY rl.id;</CommandText>
         </Field>
         <Field Name="closing_date">
           <DataField>closing_date</DataField>
-          <TypeName>System.String</TypeName>
+          <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="driver">
           <DataField>driver</DataField>
@@ -740,6 +752,10 @@ ORDER BY rl.id;</CommandText>
         </Field>
         <Field Name="logisticians_comment">
           <DataField>logisticians_comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="status">
+          <DataField>status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
