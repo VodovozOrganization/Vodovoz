@@ -96,6 +96,7 @@ using Vodovoz.Views.Orders.OrdersWithoutShipment;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.ViewModels.Cash;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 using Vodovoz.Views.Cash;
 using Vodovoz.Views.Orders;
 

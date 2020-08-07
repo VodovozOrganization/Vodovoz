@@ -15,6 +15,7 @@ using QS.Commands;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using fyiReporting.RdlGtkViewer;
 using QS.Dialog;
 using QS.Project.Services;
 using QS.Services;

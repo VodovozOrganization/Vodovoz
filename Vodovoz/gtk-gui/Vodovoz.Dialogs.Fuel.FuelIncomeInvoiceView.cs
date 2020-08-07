@@ -24,7 +24,7 @@ namespace Vodovoz.Dialogs.Fuel
 
 		private global::Gtk.Table tableFields;
 
-		private global::QS.Widgets.GtkUI.RepresentationEntry entryCounterparty;
+		private global::QS.Widgets.GtkUI.EntityViewModelEntry entryCounterparty;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -167,9 +167,10 @@ namespace Vodovoz.Dialogs.Fuel
 			this.tableFields.RowSpacing = ((uint)(6));
 			this.tableFields.ColumnSpacing = ((uint)(6));
 			// Container child tableFields.Gtk.Table+TableChild
-			this.entryCounterparty = new global::QS.Widgets.GtkUI.RepresentationEntry();
+			this.entryCounterparty = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
 			this.entryCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.entryCounterparty.Name = "entryCounterparty";
+			this.entryCounterparty.CanEditReference = false;
 			this.tableFields.Add(this.entryCounterparty);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableFields[this.entryCounterparty]));
 			w11.TopAttach = ((uint)(2));

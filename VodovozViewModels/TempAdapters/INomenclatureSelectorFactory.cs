@@ -8,5 +8,6 @@ namespace Vodovoz.TempAdapters
 	public interface INomenclatureSelectorFactory
 	{
 		IEntitySelector CreateNomenclatureSelectorForWarehouse(Warehouse warehouse, IEnumerable<int> excludedNomenclatures);
+		IEntitySelector CreateNomenclatureSelectorForFuelSelect();
 	}
 }
