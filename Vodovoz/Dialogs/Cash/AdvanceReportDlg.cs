@@ -120,7 +120,7 @@ namespace Vodovoz
 			canEdit = userPermission.CanUpdate;
 
 			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
-			canEditRectroactively = permmissionValidator.Validate(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			canEditRectroactively = permmissionValidator.Validate(typeof(AdvanceReport), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 
 			//Отключаем отображение ненужных элементов.
 			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = labelCreating.Visible = false;

@@ -109,7 +109,7 @@ namespace Vodovoz.Dialogs.Cash
 			canEdit = userPermission.CanUpdate;
 			
 			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
-			canEditRectroactively = permmissionValidator.Validate(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+			canEditRectroactively = permmissionValidator.Validate(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
 
 			ConfigureDlg();
 		}

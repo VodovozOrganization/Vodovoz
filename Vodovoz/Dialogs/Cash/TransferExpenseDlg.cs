@@ -22,13 +22,15 @@ namespace Vodovoz.Dialogs.Cash
 		public TransferExpenseDlg(int id, IPermissionService permissionService)
 		{
 			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense>(id);
+			
 			var userPermission = permissionService.ValidateUserPermission(typeof(Expense), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
 			if(!userPermission.CanRead) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на просмотр приходного ордера");
 				FailInitialize = true;
 				return;
 			}
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Expense>(id);
+			
 			if(Entity.TypeDocument != ExpenseInvoiceDocumentType.ExpenseTransferDocument) {
 				throw new InvalidOperationException($"Диалог доступен только для документа типа {nameof(ExpenseInvoiceDocumentType.ExpenseTransferDocument)}");
 			}
