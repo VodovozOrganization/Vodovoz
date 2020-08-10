@@ -492,6 +492,9 @@
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
+    <Compile Include="TempAdapters\CarJournalFactory.cs" />
+    <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
+    <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
     <Compile Include="TempAdapters\EquipmentRepositoryForViews.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
@@ -1107,7 +1110,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.TariffZoneDebts.cs" />
     <Compile Include="ReportsParameters\Store\StockMovementsAdvancedReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.StockMovementsAdvancedReport.cs" />
-    <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Representations\CallTasksVM.cs" />
     <Compile Include="Core\ViewModelWidgetResolver.cs" />
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
@@ -1119,17 +1121,14 @@
     <Compile Include="Filters\RepresentationFilterViewModelBase.cs" />
     <Compile Include="Infrastructure\Converters\DecimalToStringConverter.cs" />
     <Compile Include="VodovozGtkServicesConfig.cs" />
-    <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelIncomeInvoiceView.cs" />
     <Compile Include="Infrastructure\Services\IRepresentationEntityPicker.cs" />
     <Compile Include="Infrastructure\Services\RepresentationEntityPickerGtk.cs" />
     <Compile Include="Infrastructure\Journal\IRepresentationJournalFactory.cs" />
     <Compile Include="Infrastructure\Journal\PermissionControlledRepresentationJournalFactory.cs" />
-    <Compile Include="Representations\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelBalanceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelBalanceView.cs" />
-    <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
     <Compile Include="SidePanel\InfoViews\CallTaskPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CallTaskPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICallTaskProvider.cs" />
@@ -1181,8 +1180,6 @@
     <Compile Include="Filters\ViewModels\ResidueFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\ResidueFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ResidueFilterView.cs" />
-    <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
-    <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTypeView.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentView.cs" />

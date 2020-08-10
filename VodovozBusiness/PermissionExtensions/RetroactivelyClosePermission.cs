@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.PermissionExtensions
@@ -16,7 +17,11 @@ namespace Vodovoz.PermissionExtensions
 		{
 			if(typeOfEntity == null)
 				return false;
-			return typeOfEntity.IsSubclassOf(typeof(Document));
+			return typeOfEntity.IsSubclassOf(typeof(Document))
+			       || typeOfEntity == typeof(Income)
+			       || typeOfEntity == typeof(Expense)
+			       || typeOfEntity == typeof(AdvanceReport);
+
 		}
 	}
 }

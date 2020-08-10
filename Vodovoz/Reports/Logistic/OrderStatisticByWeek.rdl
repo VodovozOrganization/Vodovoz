@@ -98,10 +98,10 @@
             <Width>48.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.7pt</Width>
+            <Width>52.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.9pt</Width>
+            <Width>46.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1176,7 +1176,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>22.4pt</Left>
+        <Left>8.8pt</Left>
         <Top>20.2pt</Top>
         <Footer>
           <TableRows>
@@ -2212,7 +2212,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     T.week_begin,
@@ -2317,7 +2317,7 @@ ORDER BY week_begin
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="week_begin">
           <DataField>week_begin</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -2385,7 +2385,7 @@ ORDER BY week_begin
       </Fields>
     </DataSet>
     <DataSet Name="k_nedovozam">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     count(*) as nedovozi
@@ -2415,7 +2415,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nedovozi">
           <DataField>nedovozi</DataField>
           <TypeName>System.Int64</TypeName>

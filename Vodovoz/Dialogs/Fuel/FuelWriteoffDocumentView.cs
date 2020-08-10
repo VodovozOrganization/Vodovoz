@@ -6,13 +6,9 @@ using QS.Project.Journal.EntitySelector;
 using QS.Views.GtkUI;
 using Vodovoz.Dialogs.Cash;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
-using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure.Converters;
-using Vodovoz.Infrastructure.Services;
-using Vodovoz.Journals.JournalViewModels;
-using Vodovoz.ViewModel;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -58,8 +54,8 @@ namespace Vodovoz.Dialogs.Fuel
 			entryExpenseCategory.SetEntityAutocompleteSelectorFactory(expenseCategorySelectorFactory);
 			entryExpenseCategory.Binding.AddBinding(ViewModel.Entity, e => e.ExpenseCategory, w => w.Subject).InitializeFromSource();
 			entryExpenseCategory.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
-
-			entryEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeSelectorFactory);
+			
+			entryEmployee.SetEntityAutocompleteSelectorFactory(ViewModel.EmployeeAutocompleteSelectorFactory);
 			entryEmployee.Binding.AddBinding(ViewModel.Entity, e => e.Employee, w => w.Subject).InitializeFromSource();
 			entryEmployee.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 

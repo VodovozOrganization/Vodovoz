@@ -26,8 +26,6 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckRaskat;
 
-		private global::Gtk.CheckButton chkDetailed;
-
 		private global::Gtk.Button buttonCreateReport;
 
 		protected virtual void Build()
@@ -140,28 +138,16 @@ namespace Vodovoz.ReportsParameters.Logistic
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.chkDetailed = new global::Gtk.CheckButton();
-			this.chkDetailed.CanFocus = true;
-			this.chkDetailed.Name = "chkDetailed";
-			this.chkDetailed.Label = global::Mono.Unix.Catalog.GetString("Подробный отчёт");
-			this.chkDetailed.DrawIndicator = true;
-			this.chkDetailed.UseUnderline = true;
-			this.vbox1.Add(this.chkDetailed);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.chkDetailed]));
-			w11.Position = 3;
-			w11.Expand = false;
-			w11.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w12.Position = 5;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w11.Position = 5;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

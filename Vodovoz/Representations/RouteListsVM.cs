@@ -143,7 +143,7 @@ namespace Vodovoz.ViewModel
 					   .Select(() => driverAlias.LastName).WithAlias(() => resultAlias.DriverSurname)
 					   .Select(() => driverAlias.Name).WithAlias(() => resultAlias.DriverName)
 					   .Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.DriverPatronymic)
-					   //.Select(() => routeListAlias.LogisticiansComment).WithAlias(() => resultAlias.LogisticiansComment)
+					   .Select(() => routeListAlias.LogisticiansComment).WithAlias(() => resultAlias.LogisticiansComment)
 					   .Select(() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
 					   .Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.ClosingSubdivision)
 					   .Select(() => routeListAlias.NotFullyLoaded).WithAlias(() => resultAlias.NotFullyLoaded)

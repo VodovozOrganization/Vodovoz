@@ -47,6 +47,8 @@ using Vodovoz.JournalViewModels;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.ViewModels.Journals.Cash;
+using Vodovoz.ViewWidgets;
 
 public partial class MainWindow : Window
 {
@@ -550,23 +552,26 @@ public partial class MainWindow : Window
 
 	void ActionFuelTransferDocuments_Activated(object sender, System.EventArgs e)
 	{
-		tdiMain.OpenTab(
-			RepresentationJournalDialog.GenerateHashName<FuelDocumentsJournalViewModel>(),
-			() => {
-				SubdivisionRepository subdivisionRepository = new SubdivisionRepository();
-				FuelRepository fuelRepository = new FuelRepository();
-				var vm = new FuelDocumentsJournalViewModel(
-					VodovozGtkServicesConfig.EmployeeService,
-					UnitOfWorkFactory.GetDefaultFactory,
-					ServicesConfig.CommonServices,
-					subdivisionRepository,
-					fuelRepository,
-					VodovozGtkServicesConfig.RepresentationEntityPicker,
-					new DefaultEntityAutocompleteSelectorFactory<Employee, EmployeesJournalViewModel, EmployeeFilterViewModel>(ServicesConfig.CommonServices)
-				);
-				return new MultipleEntityJournal("Журнал учета топлива", vm, vm);
-			}
+		ISubdivisionRepository subdivisionRepository = new SubdivisionRepository();
+		IFuelRepository fuelRepository = new FuelRepository();
+		ICounterpartyJournalFactory counterpartyJournalFactory = new CounterpartyJournalFactory();
+		INomenclatureSelectorFactory nomenclatureSelectorFactory = new NomenclatureSelectorFactory();
+		IEmployeeJournalFactory employeeJournalFactory = new EmployeeJournalFactory();
+		ICarJournalFactory carJournalFactory = new CarJournalFactory();
+		
+		var fuelDocumentsJournalViewModel = new FuelDocumentsJournalViewModel(
+			UnitOfWorkFactory.GetDefaultFactory,
+			ServicesConfig.CommonServices,
+			VodovozGtkServicesConfig.EmployeeService,
+			subdivisionRepository,
+			fuelRepository,
+			counterpartyJournalFactory,
+			nomenclatureSelectorFactory,
+			employeeJournalFactory,
+			carJournalFactory,
+			new GtkReportViewOpener()
 		);
+		tdiMain.AddTab(fuelDocumentsJournalViewModel);
 	}
 
 	void ActionFinesJournal_Activated(object sender, System.EventArgs e)
