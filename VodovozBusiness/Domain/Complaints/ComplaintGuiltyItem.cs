@@ -9,17 +9,17 @@ using Vodovoz.Domain.Employees;
 namespace Vodovoz.Domain.Complaints
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "виновные в жалобе",
-		Nominative = "виновный в жалобе",
-		Prepositional = "виновном в жалобе",
-		PrepositionalPlural = "виновных в жалобе")]
+		NominativePlural = "виновные в рекламации",
+		Nominative = "виновный в рекламации",
+		Prepositional = "виновном в рекламации",
+		PrepositionalPlural = "виновных в рекламации")]
 	[HistoryTrace]
 	public class ComplaintGuiltyItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
 		private Complaint complaint;
-		[Display(Name = "Жалоба")]
+		[Display(Name = "Рекламация")]
 		public virtual Complaint Complaint {
 			get => complaint;
 			set => SetField(ref complaint, value, () => Complaint);
@@ -52,7 +52,7 @@ namespace Vodovoz.Domain.Complaints
 		public virtual string Title {
 			get {
 				if(!GuiltyType.HasValue)
-					return string.Format("Виновный №{0} в жалобе №{1}", Id, Complaint?.Id);
+					return string.Format("Виновный №{0} в рекламации №{1}", Id, Complaint?.Id);
 				switch(GuiltyType.Value) {
 					case ComplaintGuiltyTypes.None:
 					case ComplaintGuiltyTypes.Client:
@@ -62,7 +62,7 @@ namespace Vodovoz.Domain.Complaints
 					case ComplaintGuiltyTypes.Employee:
 						return $"Виновный сотрудник {Employee?.ShortName}";
 					default:
-						return string.Format("Виновный №{0} в жалобе №{1}", Id, Complaint?.Id);
+						return string.Format("Виновный №{0} в рекламации №{1}", Id, Complaint?.Id);
 				}
 			}
 		}
