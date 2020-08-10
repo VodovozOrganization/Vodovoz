@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.Checking);
 			ConfigureEntityPropertyChanges();
-			TabName = "Новая клиентская жалоба";
+			TabName = "Новая клиентская рекламация";
 		}
 
 		private Employee currentEmployee;
@@ -49,7 +49,7 @@ namespace Vodovoz.ViewModels.Complaints
 			}
 		}
 
-		//так как диалог только для создания жалобы
+		//так как диалог только для создания рекламации
 		public bool CanEdit => PermissionResult.CanCreate;
 
 		public bool CanSelectDeliveryPoint => Entity.Counterparty != null;

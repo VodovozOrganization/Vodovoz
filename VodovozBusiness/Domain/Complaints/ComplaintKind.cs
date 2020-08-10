@@ -8,10 +8,10 @@ using QS.HistoryLog;
 namespace Vodovoz.Domain.Complaints
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "вид жалобы",
-		Nominative = "вид жалобы",
-		Prepositional = "виде жалобы",
-		PrepositionalPlural = "видах жалобы"
+		NominativePlural = "вид рекламации",
+		Nominative = "вид рекламации",
+		Prepositional = "виде рекламации",
+		PrepositionalPlural = "видах рекламаций"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
@@ -35,13 +35,13 @@ namespace Vodovoz.Domain.Complaints
 
 		public virtual string GetFullName => !IsArchive ? Name : string.Format("(Архив) {0}", Name);
 
-		public virtual string Title => string.Format("Вид жалобы №{0} ({1})", Id, Name);
+		public virtual string Title => string.Format("Вид рекламации №{0} ({1})", Id, Name);
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(Name))
 				yield return new ValidationResult(
-					"Укажите название вида жалобы",
+					"Укажите название вида рекламации",
 					new[] { this.GetPropertyName(o => o.Name) }
 				);
 		}

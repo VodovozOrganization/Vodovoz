@@ -11,8 +11,8 @@ using Vodovoz.Domain.Employees;
 namespace Vodovoz.Domain.Complaints
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
-		NominativePlural = "комментарии к обсуждению жалобы",
-		Nominative = "комментарий к обсуждению жалобы"
+		NominativePlural = "комментарии к обсуждению рекламации",
+		Nominative = "комментарий к обсуждению рекламации"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
@@ -35,7 +35,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		private ComplaintDiscussion complaintDiscussion;
-		[Display(Name = "Обсуждение жалобы")]
+		[Display(Name = "Обсуждение рекламации")]
 		public virtual ComplaintDiscussion ComplaintDiscussion {
 			get => complaintDiscussion;
 			set => SetField(ref complaintDiscussion, value, () => ComplaintDiscussion);

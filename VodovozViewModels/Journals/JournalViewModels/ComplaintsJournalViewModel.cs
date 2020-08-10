@@ -84,7 +84,7 @@ namespace Vodovoz.Journals.JournalViewModels
 			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			this.gtkDlgOpener = gtkDialogsOpener ?? throw new ArgumentNullException(nameof(gtkDialogsOpener));
 
-			TabName = "Журнал жалоб";
+			TabName = "Журнал рекламаций";
 
 			RegisterComplaints();
 
@@ -386,7 +386,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
-					"Клиентская жалоба",
+					"Клиентская рекламация",
 					new JournalParametersForDocument() { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
 				)
 				.AddDocumentConfiguration(
@@ -415,7 +415,7 @@ namespace Vodovoz.Journals.JournalViewModels
 					(ComplaintJournalNode node) => {
 						return node.EntityType == typeof(Complaint);
 					},
-					"Внутренняя жалоба",
+					"Внутренняя рекламация",
 					new JournalParametersForDocument() { HideJournalForCreateDialog = false, HideJournalForOpenDialog = true }
 				);
 
@@ -506,7 +506,7 @@ namespace Vodovoz.Journals.JournalViewModels
 
 			PopupActionsList.Add(
 				new JournalAction(
-					"Закрыть жалобу",
+					"Закрыть рекламацию",
 					n => n.OfType<ComplaintJournalNode>().FirstOrDefault()?.Status != ComplaintStatuses.Closed,
 					n => EntityConfigs[typeof(Complaint)].PermissionResult.CanUpdate,
 					n => {

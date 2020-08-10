@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Complaints
 		public virtual int Id { get; set; }
 
 		private Complaint complaint;
-		[Display(Name = "Жалоба")]
+		[Display(Name = "Рекламация")]
 		public virtual Complaint Complaint {
 			get => complaint;
 			set => SetField(ref complaint, value, () => Complaint);

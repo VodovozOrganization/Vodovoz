@@ -8,8 +8,8 @@ using QS.HistoryLog;
 namespace Vodovoz.Domain.Complaints
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "источники жалобы",
-		Nominative = "источник жалобы"
+		NominativePlural = "источники рекламаций",
+		Nominative = "источник рекламации"
 	)]
 	[HistoryTrace]
 	[EntityPermission]

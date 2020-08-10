@@ -37,7 +37,7 @@ namespace Vodovoz.EntityRepositories.Complaints
 											  Projections.SqlFunction(
 												  new SQLFunctionTemplate(
 													  NHibernateUtil.String,
-													  "GROUP_CONCAT(CASE ?1 WHEN 'Employee' THEN IFNULL(CONCAT('Сотр: ', GET_PERSON_NAME_WITH_INITIALS(?3,?4,?5)), 'Отдел ВВ') WHEN 'Subdivision' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') WHEN 'Client' THEN 'Клиент' WHEN 'None' THEN 'Нет (не жалоба)' ELSE ?1 END ORDER BY ?1 ASC SEPARATOR '\n')"
+													  "GROUP_CONCAT(CASE ?1 WHEN 'Employee' THEN IFNULL(CONCAT('Сотр: ', GET_PERSON_NAME_WITH_INITIALS(?3,?4,?5)), 'Отдел ВВ') WHEN 'Subdivision' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') WHEN 'Client' THEN 'Клиент' WHEN 'None' THEN 'Нет (не рекламация)' ELSE ?1 END ORDER BY ?1 ASC SEPARATOR '\n')"
 													 ),
 												  NHibernateUtil.String,
 												  Projections.Property(() => guiltyItemAlias.GuiltyType),

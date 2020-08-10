@@ -5,8 +5,8 @@ using QS.HistoryLog;
 namespace Vodovoz.Domain.Complaints
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
-		NominativePlural = "приложения к жалобе",
-		Nominative = "приложение к жалобе"
+		NominativePlural = "приложения к рекламации",
+		Nominative = "приложение к рекламации"
 	)]
 	[HistoryTrace]
 	public class ComplaintFile : PropertyChangedBase, IDomainObject
@@ -21,14 +21,14 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		private Complaint complaint;
-		[Display(Name = "Жалоба")]
+		[Display(Name = "Рекламация")]
 		public virtual Complaint Complaint {
 			get => complaint;
 			set => SetField(ref complaint, value, () => Complaint);
 		}
 
 		private ComplaintDiscussionComment complaintDiscussionComment;
-		[Display(Name = "Комментарий к обсуждению жалобы")]
+		[Display(Name = "Комментарий к обсуждению рекламации")]
 		public virtual ComplaintDiscussionComment ComplaintDiscussionComment {
 			get => complaintDiscussionComment;
 			set => SetField(ref complaintDiscussionComment, value, () => ComplaintDiscussionComment);
