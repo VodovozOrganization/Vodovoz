@@ -160,15 +160,19 @@ namespace Vodovoz.Representations
 						.Add(() => !orderFromAnotherDPAlias.SelfDelivery && orderAlias.SelfDelivery)
 				);
 
-			var ordersCountProjection =
-					Projections.SubQuery(QueryOver.Of(() => orderCountAlias)
-						.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
-						.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
-						.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
-						.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
-						.Select(Projections.CountDistinct(() => orderCountAlias.Id))
-					)
-				;
+			OrderStatus[] statusOptions = {OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled};
+			
+			var subQuerryOrdersCount = QueryOver.Of(() => orderCountAlias)
+				.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
+				.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
+				.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
+				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+				.Where(
+					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), statusOptions)))
+				.Select(Projections.GroupProperty(
+					Projections.Property<Order>(o => o.Client.Id))
+				)
+				.Where(Restrictions.Gt(Projections.CountDistinct(() => orderCountAlias.Id), 1));
 
 			#endregion LastOrder
 
@@ -197,7 +201,9 @@ namespace Vodovoz.Representations
 					ordersQuery = ordersQuery.WithSubquery.WhereNotExists(orderFromAnotherDP);
 
 				if(FilterViewModel.HideWithOneOrder) {
-					ordersQuery.Where(Restrictions.Not(Restrictions.Eq(ordersCountProjection, 1)));
+					ordersQuery.WithSubquery
+						.WhereProperty(() => counterpartyAlias.Id)
+						.In(subQuerryOrdersCount);
 				}
 
 				if(FilterViewModel.LastOrderNomenclature != null)
@@ -271,16 +277,20 @@ namespace Vodovoz.Representations
 					Projections.Sum(() => bottlesMovementAlias.Returned),
 					Projections.Sum(() => bottlesMovementAlias.Delivered)}
 				));
-			
-			var ordersCountProjection =
-					Projections.SubQuery(QueryOver.Of(() => orderCountAlias)
-						.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
-						.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
-						.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
-						.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
-						.Select(Projections.CountDistinct(() => orderCountAlias.Id))
-					)
-				;
+
+			OrderStatus[] statusOptions = {OrderStatus.Canceled, OrderStatus.NotDelivered, OrderStatus.DeliveryCanceled};
+
+			var subQuerryOrdersCount = QueryOver.Of(() => orderCountAlias)
+				.Left.JoinAlias(() => orderCountAlias.OrderItems, () => orderItemsSubQueryAlias)
+				.Left.JoinAlias(() => orderItemsSubQueryAlias.Nomenclature, () => nomenclatureSubQueryAlias)
+				.Where(() => nomenclatureSubQueryAlias.Category == NomenclatureCategory.water)
+				.Where(() => orderCountAlias.Client.Id == counterpartyAlias.Id)
+				.Where(
+					Restrictions.Not(Restrictions.In(Projections.Property<Order>(x => x.OrderStatus), statusOptions)))
+				.Select(Projections.GroupProperty(
+					Projections.Property<Order>(o => o.Client.Id))
+				)
+				.Where(Restrictions.Gt(Projections.CountDistinct(() => orderCountAlias.Id), 1));
 
 			#region LastOrder
 
@@ -349,7 +359,10 @@ namespace Vodovoz.Representations
 				if(FilterViewModel.DebtBottlesTo != null)
 					ordersQuery = ordersQuery.WithSubquery.WhereValue(FilterViewModel.DebtBottlesTo.Value).Ge(bottleDebtByAddressQuery);
 				if(FilterViewModel.HideWithOneOrder) 
-					ordersQuery.Where(Restrictions.Not(Restrictions.Eq(ordersCountProjection, 1)));
+					ordersQuery.WithSubquery
+						.WhereProperty(() => counterpartyAlias.Id)
+						.In(subQuerryOrdersCount);
+
 			}
 			
 
