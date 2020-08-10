@@ -135,7 +135,7 @@ namespace Vodovoz
 			referenceForwarder.Changed += ReferenceForwarder_Changed;
 
 			referenceLogistican.RepresentationModel = new EmployeesVM();
-			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
+			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistician, widget => widget.Subject).InitializeFromSource();
 			referenceLogistican.Sensitive = logisticanEditing;
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);

@@ -581,6 +581,28 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
 			);
+
+			//LateArrivalReasonsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<LateArrivalReasonsJournalViewModel>(
+				() => FluentColumnsConfig<LateArrivalReasonsJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+						.XAlign(0.5f)
+					.AddColumn("Причина")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Name)
+						.XAlign(0.5f)
+					.AddColumn("В архиве?")
+						.HeaderAlignment(0.5f)
+						.AddToggleRenderer(n => n.IsArchive)
+						.Editing(false)
+						.XAlign(0.5f)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+					.Finish()
+			);
 		}
 	}
 }

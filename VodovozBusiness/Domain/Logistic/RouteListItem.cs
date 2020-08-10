@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -295,6 +296,56 @@ namespace Vodovoz.Domain.Logistic
 		public virtual WageDistrictLevelRate DriverWageCalculationMethodic {
 			get => driverWageCalulationMethodic;
 			set => SetField(ref driverWageCalulationMethodic, value);
+		}
+		
+		LateArrivalReason lateArrivalReason;
+		[Display(Name = "Причина опоздания водителя")]
+		public virtual LateArrivalReason LateArrivalReason {
+			get => lateArrivalReason;
+			set => SetField(ref lateArrivalReason, value);
+		}
+		
+		Employee lateArrivalReasonAuthor;
+		[Display(Name = "Автор причины опоздания водителя")]
+		public virtual Employee LateArrivalReasonAuthor {
+			get => lateArrivalReasonAuthor;
+			set => SetField(ref lateArrivalReasonAuthor, value);
+		}
+		
+		string commentForFine;
+		[Display(Name = "Комментарий по штрафу")]
+		public virtual string CommentForFine {
+			get => commentForFine;
+			set => SetField(ref commentForFine, value);
+		}
+		
+		Employee commentForFineAuthor;
+		[Display(Name = "Последний редактор комментария по штрафу")]
+		public virtual Employee CommentForFineAuthor {
+			get => commentForFineAuthor;
+			set
+			{
+				if(commentForFineAuthor != value)
+					SetField(ref commentForFineAuthor, value);
+			}
+		}
+		
+		IList<Fine> fines = new List<Fine>();
+		[Display(Name = "Штрафы")]
+		public virtual IList<Fine> Fines {
+			get => fines;
+			set => SetField(ref fines, value);
+		}
+
+		GenericObservableList<Fine> observableFines;
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Fine> ObservableFines {
+			get {
+				if(observableFines == null) {
+					observableFines = new GenericObservableList<Fine>(Fines);
+				}
+				return observableFines;
+			}
 		}
 
 		#endregion
@@ -625,6 +676,32 @@ namespace Vodovoz.Domain.Logistic
 			return null;
 		}
 
+		public virtual void AddFine(Fine fine)
+		{
+			if(!ObservableFines.Contains(fine))
+				ObservableFines.Add(fine);
+		}
+		
+		public virtual void RemoveAllFines()
+		{
+			if(ObservableFines.Any())
+				ObservableFines.Clear();
+		}
+		
+		public virtual void RemoveFine(Fine fine)
+		{
+			if(ObservableFines.Any() && ObservableFines.Contains(fine))
+				ObservableFines.Remove(fine);
+		}
+
+		public virtual string GetAllFines()
+		{
+			return ObservableFines.Any() ? 
+				string.Join("\n", ObservableFines.SelectMany(x => x.ObservableItems)
+					.Select(x => x.Title)) 
+				: String.Empty;
+		}
+
 		#endregion
 
 		#region Для расчетов в логистике
@@ -654,6 +731,19 @@ namespace Vodovoz.Domain.Logistic
 			return time.TimeOfDay;
 		}
 
+		public virtual TimeSpan? CalculateTimeLateArrival()
+		{
+			if (StatusLastUpdate.HasValue)
+			{
+				var late = StatusLastUpdate.Value.TimeOfDay - Order.DeliverySchedule.To;
+
+				if (late.TotalSeconds > 0)
+					return late;
+			}
+
+			return null;
+		}
+		
 		#endregion
 
 		#region Зарплата

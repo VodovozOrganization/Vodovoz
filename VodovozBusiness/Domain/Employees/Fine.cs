@@ -132,6 +132,23 @@ namespace Vodovoz.Domain.Employees
 			set => SetField(ref nomenclatures, value, () => Nomenclatures);
 		}
 
+		IList<RouteListItem> routeListItems;
+		[Display(Name = "Адрес МЛ")]
+		public virtual IList<RouteListItem> RouteListItems {
+			get => routeListItems;
+			set => SetField(ref routeListItems, value);
+		}
+		
+		GenericObservableList<RouteListItem> observableRouteListItems;
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<RouteListItem> ObservableRouteListItems {
+			get {
+				if(observableRouteListItems == null)
+					observableRouteListItems = new GenericObservableList<RouteListItem>(RouteListItems);
+				return observableRouteListItems;
+			}
+		}
+
 		public virtual void UpdateFuelOperations(IUnitOfWork uow)
 		{
 			if(FineType == FineTypes.FuelOverspending && ObservableItems.Any()) {
@@ -216,7 +233,13 @@ namespace Vodovoz.Domain.Employees
 			if(ObservableItems.Contains(item))
 				ObservableItems.Remove(item);
 		}
-
+		
+		public virtual void AddAddress(RouteListItem address)
+		{
+			if(!ObservableRouteListItems.Contains(address))
+				ObservableRouteListItems.Add(address);
+		}
+		
 		public virtual void AddNomenclature(Dictionary<Nomenclature, decimal> nomenclatureAmounts)
 		{
 			foreach(var nom in nomenclatureAmounts) {

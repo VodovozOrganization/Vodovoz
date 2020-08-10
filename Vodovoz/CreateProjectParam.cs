@@ -9,7 +9,6 @@ using NHibernate.Cfg;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Dialog.Gtk;
-using QS.DomainModel.NotifyChange;
 using QS.HistoryLog;
 using QS.Permissions;
 using QS.Print;
@@ -109,15 +108,15 @@ namespace Vodovoz
 			UserDialog.RequestWidth = 900;
 			UserDialog.RequestHeight = 700;
 
-			UserDialog.UserPermissionViewsCreator = () => {
-				return new List<IUserPermissionTab> {
-					new SubdivisionForUserEntityPermissionWidget(),
-					new PresetPermissionsView()
-				};
+			UserDialog.UserPermissionViewsCreator = () => new List<IUserPermissionTab> {
+				new SubdivisionForUserEntityPermissionWidget(),
+				new PresetPermissionsView()
 			};
 
-			UserDialog.PermissionViewsCreator = () => {
-				return new List<IPermissionsView> { new PermissionMatrixView(new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access") };
+			UserDialog.PermissionViewsCreator = () => new List<IPermissionsView>
+			{
+				new PermissionMatrixView(
+					new PermissionMatrix<WarehousePermissions, Warehouse>(), "Доступ к складам", "warehouse_access")
 			};
 
 			WarehousePermissionService.WarehousePermissionValidatorFactory = new WarehousePermissionValidatorFactory();
@@ -170,6 +169,8 @@ namespace Vodovoz
 				.RegisterWidgetForTabViewModel<ReturnTareReasonCategoryViewModel, ReturnTareReasonCategoryView>()
 				.RegisterWidgetForTabViewModel<ReturnTareReasonViewModel, ReturnTareReasonView>()
 				.RegisterWidgetForTabViewModel<PaymentByCardViewModel, PaymentByCardView>()
+				.RegisterWidgetForTabViewModel<RouteListAnalysisViewModel, RouteListAnalysisView>()
+				.RegisterWidgetForTabViewModel<LateArrivalReasonViewModel, LateArrivalReasonView>()
 				;
 
 			//Регистрация виджетов

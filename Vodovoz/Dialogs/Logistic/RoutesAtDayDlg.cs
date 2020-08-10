@@ -41,6 +41,7 @@ using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz
 {
+	[Obsolete ("Этот класс подлежит удалению, используйте RouteListOnDay") ]
 	public partial class RoutesAtDayDlg : SingleUowDialogBase
 	{
 		#region Поля
@@ -739,7 +740,7 @@ namespace Vodovoz
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", ydateForRoutes.Date);
-			DriversAtDay = new AtWorkRepository().GetDriversAtDay(UoW, ydateForRoutes.Date);
+			DriversAtDay = new AtWorkRepository().GetDriversAtDay(UoW, ydateForRoutes.Date, AtWorkDriver.DriverStatus.IsWorking);
 
 			MainClass.progressBarWin.ProgressAdd();
 			logger.Info("Загружаем экспедиторов на {0:d}...", ydateForRoutes.Date);
@@ -1342,7 +1343,7 @@ namespace Vodovoz
 					rl.Driver = propose.Trip.Driver;
 					rl.Shift = propose.Trip.Shift;
 					rl.Date = CurDate;
-					rl.Logistican = logistican;
+					rl.Logistician = logistican;
 
 					if(propose.Trip.OldRoute == null) {
 						rl.GeographicGroups.Clear();

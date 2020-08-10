@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using FluentNHibernate.Data;
 using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using Gdk;
+using Google.OrTools.ConstraintSolver;
+using Gtk;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -37,6 +42,11 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Приоритет")
 					.AddNumericRenderer(x => x.PriorityAtDay)
 					.Editing(new Gtk.Adjustment(6, 1, 10, 1, 1, 1))
+				.AddColumn("Статус")
+					.AddTextRenderer(x => x.Status.GetEnumTitle())
+				.AddColumn("Причина")
+					.AddTextRenderer(x => x.Reason)
+						.AddSetter((cell, driver) => cell.Editable = driver.Status == AtWorkDriver.DriverStatus.NotWorking)
 				.AddColumn("Водитель")
 					.AddTextRenderer(x => x.Employee.ShortName)
 				.AddColumn("Скор.")
@@ -71,6 +81,14 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Районы доставки")
 					.AddTextRenderer(x => string.Join(", ", x.DistrictsPriorities.Select(d => d.District.DistrictName)))
 				.AddColumn("")
+				.AddColumn("Комментарий")
+					.AddTextRenderer(x => x.Comment)
+						.AddSetter((c, d) =>
+						{
+							d.PropertyChanged += (sender, args) => driversWithCommentChanged.Add(d);
+						})
+						.Editable(true)
+				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Status == AtWorkDriver.DriverStatus.NotWorking? "gray": "black")
 				.Finish();
 			ytreeviewAtWorkDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 
@@ -83,6 +101,7 @@ namespace Vodovoz.Dialogs.Logistic
 			ytreeviewOnDayForwarders.Selection.Mode = Gtk.SelectionMode.Multiple;
 
 			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
+			
 
 			ydateAtWorks.Date = DateTime.Today;
 		}
@@ -93,6 +112,7 @@ namespace Vodovoz.Dialogs.Logistic
 		
 		private IList<AtWorkDriver> driversAtDay;
 		private IList<AtWorkForwarder> forwardersAtDay;
+		private HashSet<AtWorkDriver> driversWithCommentChanged = new HashSet<AtWorkDriver>();
 		private GenericObservableList<AtWorkDriver> observableDriversAtDay;
 		private GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
 		
@@ -194,7 +214,21 @@ namespace Vodovoz.Dialogs.Logistic
 
 		public bool Save()
 		{
-			DriversAtDay.ToList().ForEach(x => UoW.Save(x));
+			// В случае, если вкладка сохраняется, а в списке есть Снятые водители, сделать проверку, что у каждого из них заполнена причина.
+			foreach (var atWorkDriver in DriversAtDay.ToList().Where(driver => driver.Status == AtWorkDriver.DriverStatus.NotWorking))
+			{
+				if (!String.IsNullOrEmpty(atWorkDriver.Reason)) continue;
+				MessageDialogHelper.RunWarningDialog("Не у всех снятых водителей указаны причины!");
+				return false;
+			}
+			
+			// Сохранение изменившихся за этот раз авторов и дат комментариев
+			foreach (var atWorkDriver in driversWithCommentChanged)
+			{
+				atWorkDriver.CommentLastEditedAuthor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+				atWorkDriver.CommentLastEditedDate = DateTime.Now;
+			}
+
 			ForwardersAtDay.ToList().ForEach(x => UoW.Save(x));
 			UoW.Commit();
 			FillDialogAtDay();
@@ -305,14 +339,20 @@ namespace Vodovoz.Dialogs.Logistic
 			logger.Info("Ок");
 			MainClass.progressBarWin.ProgressClose();
 		}
-
+		
 		protected void OnButtonRemoveDriverClicked(object sender, EventArgs e)
 		{
 			var toDel = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
-			foreach(var driver in toDel) {
-				if(driver.Id > 0)
-					UoW.Delete(driver);
-				observableDriversAtDay.Remove(driver);
+			
+			foreach(var driver in toDel)
+			{
+				if (driver.Id > 0)
+				{
+					driver.Status = AtWorkDriver.DriverStatus.NotWorking;
+					driver.AuthorRemovedDriver = EmployeeSingletonRepository.GetInstance().GetEmployeeForCurrentUser(UoW);
+					driver.RemovedDate = DateTime.Now;
+				}
+				observableDriversAtDay.OnPropertyChanged(nameof(driver.Status));
 			}
 		}
 

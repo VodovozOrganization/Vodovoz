@@ -11,6 +11,14 @@ namespace Vodovoz.Domain.Logistic
 	public class AtWorkDriver : AtWorkBase
 	{
 		private Car car;
+		
+		public enum DriverStatus
+		{
+			[Display(Name = "Работает")]
+			IsWorking,
+			[Display(Name = "Снят")]
+			NotWorking
+		}
 
 		[Display(Name = "Автомобиль")]
 		public virtual Car Car {
@@ -62,6 +70,56 @@ namespace Vodovoz.Domain.Logistic
 			get => withForwarder;
 			set => SetField(ref withForwarder, value, () => WithForwarder);
 		}
+
+		private DriverStatus driverStatus;
+		[Display(Name = "Статус")]
+		public virtual DriverStatus Status {
+			get => driverStatus;
+			set => SetField(ref driverStatus, value);
+		}
+
+		private string reason;
+		[Display(Name = "Причина")]
+		public virtual string Reason {
+			get => reason;
+			set => SetField(ref reason, value);
+		}
+		
+		private string comment;
+		[Display(Name = "Комментарий")]
+		public virtual string Comment {
+			get => comment;
+			set => SetField(ref comment, value);
+		}
+		
+		private DateTime removedDate;
+		[Display(Name = "Время снятия")]
+		public virtual DateTime RemovedDate {
+			get => removedDate;
+			set => SetField(ref removedDate, value);
+		}
+		
+		private DateTime commentLastEditedDate;
+		[Display(Name = "Дата последнего изменения комментария")]
+		public virtual DateTime CommentLastEditedDate {
+			get => commentLastEditedDate;
+			set => SetField(ref commentLastEditedDate, value);
+		}
+		
+		private Employee authorRemovedDriver;
+		[Display(Name = "Автор снявший водителя")]
+		public virtual Employee AuthorRemovedDriver {
+			get => authorRemovedDriver;
+			set => SetField(ref authorRemovedDriver, value, () => Employee);
+		}
+		
+		private Employee commentLastEditedAuthor;
+		[Display(Name = "Автор последнего изменения комментария")]
+		public virtual Employee CommentLastEditedAuthor {
+			get => commentLastEditedAuthor;
+			set => SetField(ref commentLastEditedAuthor, value, () => Employee);
+		}
+		
 
 		GeographicGroup geographicGroup;
 		[Display(Name = "База")]
