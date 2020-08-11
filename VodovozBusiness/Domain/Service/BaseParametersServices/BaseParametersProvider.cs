@@ -26,7 +26,8 @@ namespace Vodovoz.Core.DataService
 		IPotentialFreePromosetsReportDefaultsProvider,
 		IOrganisationParametersProvider,
 		ISmsPaymentServiceParametersProvider,
-		IMailjetParametersProvider
+		IMailjetParametersProvider,
+		IVpbxSettings
 	{
 		public string GetDefaultBaseForErrorSend()
 		{
@@ -447,6 +448,22 @@ namespace Vodovoz.Core.DataService
 				}
 				return ParametersProvider.Instance.GetParameterValue("MailjetSecretKey");
 			}
+		}
+
+		public int GetVpbxApiKey()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("VpbxApiKey")) {
+				throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
+			}
+			return int.Parse(ParametersProvider.Instance.GetParameterValue("VpbxApiKey"));
+		}
+
+		public int GetVpbxApiSalt()
+		{
+			if(!ParametersProvider.Instance.ContainsParameter("VpbxApiSalt")) {
+				throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
+			}
+			return int.Parse(ParametersProvider.Instance.GetParameterValue("VpbxApiSalt"));
 		}
 	}
 }
