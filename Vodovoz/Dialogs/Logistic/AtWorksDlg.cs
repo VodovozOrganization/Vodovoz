@@ -215,12 +215,20 @@ namespace Vodovoz.Dialogs.Logistic
 		public bool Save()
 		{
 			// В случае, если вкладка сохраняется, а в списке есть Снятые водители, сделать проверку, что у каждого из них заполнена причина.
-			foreach (var atWorkDriver in DriversAtDay.ToList().Where(driver => driver.Status == AtWorkDriver.DriverStatus.NotWorking))
-			{
-				if (!String.IsNullOrEmpty(atWorkDriver.Reason)) continue;
-				MessageDialogHelper.RunWarningDialog("Не у всех снятых водителей указаны причины!");
-				return false;
-			}
+			var NotWorkingDrivers = DriversAtDay.ToList()
+				.Where(driver => driver.Status == AtWorkDriver.DriverStatus.NotWorking);
+			
+			if (NotWorkingDrivers.Count() != 0)
+				foreach (var atWorkDriver in NotWorkingDrivers)
+				{
+					if (!String.IsNullOrEmpty(atWorkDriver.Reason)) continue;
+					MessageDialogHelper.RunWarningDialog("Не у всех снятых водителей указаны причины!");
+					return false;
+				}
+			
+			else
+				DriversAtDay.ToList().ForEach(x => UoW.Save(x));
+			
 			
 			// Сохранение изменившихся за этот раз авторов и дат комментариев
 			foreach (var atWorkDriver in driversWithCommentChanged)
