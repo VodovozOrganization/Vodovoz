@@ -6,6 +6,8 @@ using QS.DomainModel.Entity;
 using Vodovoz.Domain.Client;
 using QS.Banks.Domain;
 using System.Linq;
+using QS.DomainModel.Entity.EntityPermissions;
+using QS.HistoryLog;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 
@@ -17,6 +19,8 @@ namespace Vodovoz.Domain.Payments
 		Prepositional = "платеже",
 		PrepositionalPlural = "платежах")]
 
+	[HistoryTrace]
+	[EntityPermission]
 	public class Payment : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
