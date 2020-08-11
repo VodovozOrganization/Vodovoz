@@ -3,9 +3,11 @@ using QS.DomainModel.Entity;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Operations;
 using System;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Payments
 {
+	[HistoryTrace]
 	public class PaymentItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

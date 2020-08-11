@@ -1,11 +1,13 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Operations
 {
 	[Appellative(Gender = GrammaticalGender.Neuter,
 		NominativePlural = "передвижения безнала",
 		Nominative = "передвижение безнала")]
+	[HistoryTrace]
 	public class CashlessMovementOperation : OperationBase
 	{
 		decimal income;
