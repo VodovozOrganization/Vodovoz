@@ -118,9 +118,7 @@ namespace Vodovoz.Dialogs.Cash
 
 		private bool CanEdit => (UoW.IsNew && canCreate) ||
 		                        (canEdit && Entity.Date.Date == DateTime.Now.Date) ||
-		                        (canEditRectroactively &&
-		                         (Entity.Date.Date == DateTime.Now.Date ||
-		                          Entity.Date.Date.AddDays(1) == DateTime.Now.Date));
+		                        canEditRectroactively;
 
 		void ConfigureDlg()
 		{
