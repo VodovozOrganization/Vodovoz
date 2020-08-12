@@ -450,9 +450,10 @@ namespace Vodovoz.ViewModels
 			return resultQuery;
 		}
 
-		private void GetCounterpatyDebt()
+		public void GetCounterpatyDebt()
 		{
-			CounterpartyDebt = OrderSingletonRepository.GetInstance().GetCounterpartyDebt(UoW, Entity.Counterparty.Id);
+			if(Entity.Counterparty != null)
+				CounterpartyDebt = OrderSingletonRepository.GetInstance().GetCounterpartyDebt(UoW, Entity.Counterparty.Id);
 		}
 
 		private string TryGetOrganizationType(string name)
