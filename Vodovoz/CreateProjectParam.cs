@@ -221,22 +221,29 @@ namespace Vodovoz
 			QSMain.ConnectionString += ";ConnectionTimeout=120";
 
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
-											.Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
-						 					.ConnectionString(QSMain.ConnectionString)
-											.AdoNetBatchSize(100)
-											.ShowSql()
-											.FormatSql();
-
+				.Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
+				.ConnectionString(QSMain.ConnectionString)
+				.AdoNetBatchSize(100)
+				.Driver<LoggedMySqlClientDriver>();
+			
 			// Настройка ORM
-			OrmConfig.ConfigureOrm(db_config, new System.Reflection.Assembly[] {
-				System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
-				System.Reflection.Assembly.GetAssembly (typeof(HibernateMapping.OrganizationMap)),
-				System.Reflection.Assembly.GetAssembly (typeof(Bank)),
-				System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
-			},
-								  (cnf) => cnf.DataBaseIntegration(
-									  dbi => { dbi.BatchSize = 100; dbi.Batcher<MySqlClientBatchingBatcherFactory>(); }
-									 ));
+			OrmConfig.ConfigureOrm(
+				db_config, 
+				new System.Reflection.Assembly[] {
+					System.Reflection.Assembly.GetAssembly (typeof(QS.Project.HibernateMapping.UserBaseMap)),
+					System.Reflection.Assembly.GetAssembly (typeof(HibernateMapping.OrganizationMap)),
+					System.Reflection.Assembly.GetAssembly (typeof(Bank)),
+					System.Reflection.Assembly.GetAssembly (typeof(HistoryMain)),
+				},
+			(cnf) => {
+					cnf.DataBaseIntegration(
+						dbi => {
+							dbi.BatchSize = 100;
+							dbi.Batcher<MySqlClientBatchingBatcherFactory>();
+						}
+					);
+				}
+			);
 			#region Dialogs mapping
 
 			OrmMain.ClassMappingList = new List<IOrmObjectMapping> {
