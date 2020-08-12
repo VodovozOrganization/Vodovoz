@@ -65,15 +65,11 @@ namespace Vodovoz.Domain.Documents
 			set { SetField(ref source, value, () => Source); }
 		}
 
-		public virtual string Title {
-			get {
-				return String.Format("[{2}] {0} - {1}",
-					MovementOperation.Nomenclature.Name,
-				    MovementOperation.Nomenclature.Unit.MakeAmountShortStr(MovementOperation.Amount),
-					document.Title);
-			}
-		}
-
+		public virtual string Title =>
+			String.Format("[{2}] {0} - {1}",
+				MovementOperation.Nomenclature.Name,
+				MovementOperation.Nomenclature.Unit.MakeAmountShortStr(MovementOperation.Amount),
+				document.Title);
 	}
 
 	public enum ReciveTypes

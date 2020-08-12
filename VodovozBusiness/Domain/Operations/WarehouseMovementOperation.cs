@@ -12,48 +12,42 @@ namespace Vodovoz.Domain.Operations
 	{
 		#region Свойства
 
-		Warehouse writeoffWarehouse;
-
+		private Warehouse writeoffWarehouse;
 		public virtual Warehouse WriteoffWarehouse {
-			get { return writeoffWarehouse; }
+			get => writeoffWarehouse;
 			set { SetField (ref writeoffWarehouse, value, () => WriteoffWarehouse); }
 		}
 
-		Warehouse incomingWarehouse;
-
+		private Warehouse incomingWarehouse;
 		public virtual Warehouse IncomingWarehouse {
-			get { return incomingWarehouse; }
+			get => incomingWarehouse;
 			set { SetField (ref incomingWarehouse, value, () => IncomingWarehouse); }
 		}
 
-		Nomenclature nomenclature;
-
+		private Nomenclature nomenclature;
 		[Required (ErrorMessage = "Номенклатура должна быть заполнена.")]
 		[Display (Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
+			get => nomenclature;
 			set { SetField (ref nomenclature, value, () => Nomenclature); }
 		}
 
-		Equipment equipment;
-
+		private Equipment equipment;
 		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
-			get { return equipment; }
+			get => equipment;
 			set { SetField (ref equipment, value, () => Equipment); }
 		}
 
-		decimal primeCost;
-
+		private decimal primeCost;
 		public virtual decimal PrimeCost {
-			get { return primeCost; }
+			get => primeCost;
 			set { SetField(ref primeCost, value, () => PrimeCost); }
 		}
 
-		decimal amount;
-
+		private decimal amount;
 		public virtual decimal Amount {
-			get { return amount; }
+			get => amount;
 			set { SetField (ref amount, value, () => Amount); }
 		}
 
@@ -61,16 +55,15 @@ namespace Vodovoz.Domain.Operations
 
 		#region Вычисляемые
 
-		public virtual string Title{
-			get{
+		public virtual string Title {
+			get {
 				if (IncomingWarehouse != null && WriteoffWarehouse != null)
-					return string.Format("Перемещение из {0} в {1}, {2} - {3}", WriteoffWarehouse.Name, IncomingWarehouse.Name, Nomenclature.Name, Nomenclature.Unit.MakeAmountShortStr(Amount));
-				else if (IncomingWarehouse != null)
-					return string.Format("Поступление в {0}, {1} - {2}", IncomingWarehouse.Name, Nomenclature.Name, Nomenclature.Unit.MakeAmountShortStr(Amount));
-				else if (WriteoffWarehouse != null)
-					return string.Format("Выбытие из {0}, {1} - {2}", WriteoffWarehouse.Name, Nomenclature.Name, Nomenclature.Unit.MakeAmountShortStr(Amount));
-				else
-					return null;
+					return $"Перемещение из {WriteoffWarehouse.Name} в {IncomingWarehouse.Name}, {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
+				if (IncomingWarehouse != null)
+					return $"Поступление в {IncomingWarehouse.Name}, {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
+				if (WriteoffWarehouse != null)
+					return $"Выбытие из {WriteoffWarehouse.Name}, {Nomenclature.Name} - {Nomenclature.Unit.MakeAmountShortStr(Amount)}";
+				return null;
 			}
 		}
 

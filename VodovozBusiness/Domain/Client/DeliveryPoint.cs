@@ -143,8 +143,7 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		string shortAddress;
-
+		private string shortAddress;
 		[Display(Name = "Сокращенный адрес")]
 		public virtual string ShortAddress {
 			get {
@@ -166,7 +165,6 @@ namespace Vodovoz.Domain.Client
 
 				return address.TrimEnd(',', ' ');
 			}
-			set { }
 		}
 
 		string city;
