@@ -141,7 +141,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.ybuttonMyComplaint.CanFocus = true;
 			this.ybuttonMyComplaint.Name = "ybuttonMyComplaint";
 			this.ybuttonMyComplaint.UseUnderline = true;
-			this.ybuttonMyComplaint.Label = global::Mono.Unix.Catalog.GetString("Мои жалобы");
+			this.ybuttonMyComplaint.Label = global::Mono.Unix.Catalog.GetString("Мои рекламации");
 			this.hbox5.Add(this.ybuttonMyComplaint);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.ybuttonMyComplaint]));
 			w6.Position = 0;
@@ -159,7 +159,7 @@ namespace Vodovoz.Filters.GtkViews
 			// Container child table4.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Автор жалобы");
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Автор рекламации");
 			this.table4.Add(this.label3);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table4[this.label3]));
 			w8.TopAttach = ((uint)(1));
@@ -262,7 +262,7 @@ namespace Vodovoz.Filters.GtkViews
 			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Статус жалобы:");
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Статус рекламации:");
 			this.table1.Add(this.label2);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1[this.label2]));
 			w19.TopAttach = ((uint)(1));

@@ -49,7 +49,7 @@ namespace Vodovoz.ReportsParameters
 		private ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Identifier = "Orders.OrderStatisticByWeek",
+				Identifier = "Logistic.OrderStatisticByWeek",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "start_date", dateperiodpicker.StartDate },

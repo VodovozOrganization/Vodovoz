@@ -15,6 +15,7 @@ using QS.Commands;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using fyiReporting.RdlGtkViewer;
 using QS.Dialog;
 using QS.Project.Services;
 using QS.Services;
@@ -145,13 +146,17 @@ namespace Vodovoz.Dialogs.Email
 
 		public void Update(IDocument document, string email)
 		{
+			Document = document;
+			
 			EmailString = email;
 
-			Document = document;
-			UpdateEmails();
+			if(!string.IsNullOrEmpty(EmailString))
+				UpdateEmails();
+			else
+				BtnSendEmailSensitive = false;
 		}
 
-		private void UpdateEmails()
+		public void UpdateEmails()
 		{
 			StoredEmails.Clear();
 

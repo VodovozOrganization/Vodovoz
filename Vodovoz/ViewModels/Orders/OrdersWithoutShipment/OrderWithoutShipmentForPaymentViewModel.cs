@@ -6,6 +6,7 @@ using QS.ViewModels;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Orders;
 using System.Data.Bindings.Collections.Generic;
+using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -14,6 +15,8 @@ using QS.Commands;
 using QS.Navigation;
 using QS.Project.Journal;
 using QS.Tdi;
+using QSOrmProject;
+using QSReport;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -36,12 +39,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			get => endDate;
 			set => SetField(ref endDate, value);
 		}
-		
-		#region Commands
-		
-		public DelegateCommand CancelCommand { get; private set; }
-		
-		#endregion
 		
 		public OrderWithoutShipmentForPaymentNode SelectedNode { get; set; }
 		public SendDocumentByEmailViewModel SendDocViewModel { get; set; }
@@ -84,22 +81,36 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(),UoW);
 			
 			ObservableNodes = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
-
-			CreateCommands();
 		}
 
-		private void CreateCommands()
-		{
-			CreateCancelCommand();
-		}
+		#region Commands
 
-		private void CreateCancelCommand()
-		{
-			CancelCommand = new DelegateCommand(
+		private DelegateCommand cancelCommand;
+		public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
 			() =>Close(false, CloseSource.Cancel),
 			() => true
-			);
-		}
+		));
+		
+		private DelegateCommand openBillCommand;
+		public DelegateCommand OpenBillCommand => openBillCommand ?? (openBillCommand = new DelegateCommand(
+			() =>
+			{
+				string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
+				
+				if (UoWGeneric.HasChanges &&
+				    CommonDialogs.SaveBeforePrint(typeof(OrderWithoutShipmentForPayment), whatToPrint))
+				{
+					if (Save(false))
+						TabParent.AddTab(DocumentPrinter.GetPreviewTab(Entity), this, false);
+				}
+				
+				if(!UoWGeneric.HasChanges && Entity.Id > 0)
+					TabParent.AddTab(DocumentPrinter.GetPreviewTab(Entity), this, false);
+			},
+			() => true
+		));
+		
+		#endregion
 
 		public void UpdateNodes(object sender, EventArgs e)
 		{
@@ -176,9 +187,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			if(email != null)
 				SendDocViewModel.Update(Entity, email.Address);
-			else 
-				if(!string.IsNullOrEmpty(SendDocViewModel.EmailString))
-					SendDocViewModel.EmailString = string.Empty;
+			else
+				SendDocViewModel.Update(Entity, string.Empty);
 			
 			UpdateNodes(this, EventArgs.Empty);
 		}

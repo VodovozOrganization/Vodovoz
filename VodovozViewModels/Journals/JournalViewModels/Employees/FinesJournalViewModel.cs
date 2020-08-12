@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -73,6 +74,12 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			if(FilterViewModel.RouteListDateEnd.HasValue) {
 				query.Where(() => routeListAlias.Date <= FilterViewModel.RouteListDateEnd.Value);
 			}
+
+			if (FilterViewModel.ExcludedIds != null && FilterViewModel.ExcludedIds.Any())
+				query.WhereRestrictionOn(() => fineAlias.Id).Not.IsIn(FilterViewModel.ExcludedIds);
+			
+			if (FilterViewModel.FindFinesWithIds != null && FilterViewModel.FindFinesWithIds.Any())
+				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(FilterViewModel.FindFinesWithIds);
 
 			query.Where(GetSearchCriterion(
 				() => fineAlias.Id,

@@ -544,7 +544,7 @@ namespace Vodovoz.Views.Complaints
 			this.lblComplaintKind = new global::Gamma.GtkWidgets.yLabel();
 			this.lblComplaintKind.Name = "lblComplaintKind";
 			this.lblComplaintKind.Xalign = 0F;
-			this.lblComplaintKind.LabelProp = global::Mono.Unix.Catalog.GetString("Вид жалобы:  ");
+			this.lblComplaintKind.LabelProp = global::Mono.Unix.Catalog.GetString("Вид рекламации:  ");
 			this.hbxComplaintKind.Add(this.lblComplaintKind);
 			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.hbxComplaintKind[this.lblComplaintKind]));
 			w43.Position = 0;

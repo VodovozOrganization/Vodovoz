@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QS.Validation;
@@ -19,6 +20,7 @@ using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Core.DataService;
 using QS.Project.Services;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.Tools;
 
 namespace Vodovoz.Dialogs.Cash
@@ -28,6 +30,8 @@ namespace Vodovoz.Dialogs.Cash
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private bool canEdit = true;
+		private readonly bool canCreate;
+		private readonly bool canEditRectroactively;
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -59,6 +63,7 @@ namespace Vodovoz.Dialogs.Cash
 			}
 
 			var userPermission = permissionService.ValidateUserPermission(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id);
+			canCreate = userPermission.CanCreate;
 			if(!userPermission.CanCreate) {
 				MessageDialogHelper.RunErrorDialog("Отсутствуют права на создание приходного ордера");
 				FailInitialize = true;
@@ -103,11 +108,20 @@ namespace Vodovoz.Dialogs.Cash
 			}
 			canEdit = userPermission.CanUpdate;
 
+			var permmissionValidator = new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance());
+			canEditRectroactively = permmissionValidator.Validate(typeof(Income), UserSingletonRepository.GetInstance().GetCurrentUser(UoW).Id, nameof(RetroactivelyClosePermission));
+
 			ConfigureDlg();
 		}
 
 		public CashIncomeSelfDeliveryDlg(Income sub, IPermissionService permissionService) : this(sub.Id, permissionService) { }
 
+		private bool CanEdit => (UoW.IsNew && canCreate) ||
+		                        (canEdit && Entity.Date.Date == DateTime.Now.Date) ||
+		                        (canEditRectroactively &&
+		                         (Entity.Date.Date == DateTime.Now.Date ||
+		                          Entity.Date.Date.AddDays(1) == DateTime.Now.Date));
+		
 		void ConfigureDlg()
 		{
 			TabName = "Приходный кассовый ордер самовывоза";
@@ -154,7 +168,7 @@ namespace Vodovoz.Dialogs.Cash
 
 			ytextviewDescription.Binding.AddBinding(Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource();
 
-			if(!canEdit) {
+			if(!CanEdit) {
 				table1.Sensitive = false;
 				ytextviewDescription.Editable = false;
 				buttonSave.Sensitive = false;

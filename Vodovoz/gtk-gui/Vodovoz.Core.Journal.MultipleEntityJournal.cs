@@ -42,7 +42,9 @@ namespace Vodovoz.Core.Journal
 
 		private global::QS.Widgets.GtkUI.RepresentationTreeView tableview;
 
-		private global::Gtk.Label labelSum;
+		private global::Vodovoz.WrapLabel wraplabelSum;
+
+		private global::Gamma.GtkWidgets.yLabel labelSum;
 
 		protected virtual void Build()
 		{
@@ -232,17 +234,25 @@ namespace Vodovoz.Core.Journal
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
 			w21.Position = 3;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.labelSum = new global::Gtk.Label();
-			this.labelSum.Name = "labelSum";
-			this.labelSum.Xpad = 6;
-			this.labelSum.Xalign = 1F;
-			this.labelSum.LabelProp = global::Mono.Unix.Catalog.GetString("label2");
-			this.labelSum.SingleLineMode = true;
-			this.vbox1.Add(this.labelSum);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelSum]));
+			this.wraplabelSum = new global::Vodovoz.WrapLabel();
+			this.wraplabelSum.Name = "wraplabelSum";
+			this.wraplabelSum.LabelProp = global::Mono.Unix.Catalog.GetString("wraplabel1");
+			this.wraplabelSum.Wrap = true;
+			this.vbox1.Add(this.wraplabelSum);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.wraplabelSum]));
 			w22.Position = 4;
 			w22.Expand = false;
 			w22.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.labelSum = new global::Gamma.GtkWidgets.yLabel();
+			this.labelSum.Name = "labelSum";
+			this.labelSum.Xalign = 1F;
+			this.labelSum.SingleLineMode = true;
+			this.vbox1.Add(this.labelSum);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.labelSum]));
+			w23.Position = 5;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

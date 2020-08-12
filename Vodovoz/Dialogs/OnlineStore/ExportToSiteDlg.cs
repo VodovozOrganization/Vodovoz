@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using QS.Project.Services;
 using QSProjectsLib;
 using QSSupportLib;
-using Vodovoz.Tools.CommerceML;
-using QS.Project.Repositories;
 using Vodovoz.Parameters;
-using QS.Project.Services;
+using Vodovoz.Tools.CommerceML;
 
 namespace Vodovoz.Dialogs.OnlineStore
 {
@@ -24,12 +23,15 @@ namespace Vodovoz.Dialogs.OnlineStore
 
 			this.Build();
 			TabName = "Экспорт интернет магазин";
+			comboExportMode.ItemsEnum = typeof(ExportMode);
 			if(ParametersProvider.Instance.ContainsParameter(Export.OnlineStoreUrlParameterName))
 				entrySitePath.Text = ParametersProvider.Instance.GetParameterValue(Export.OnlineStoreUrlParameterName);
 			if(ParametersProvider.Instance.ContainsParameter(Export.OnlineStoreLoginParameterName))
 				entryUser.Text = ParametersProvider.Instance.GetParameterValue(Export.OnlineStoreLoginParameterName);
 			if(ParametersProvider.Instance.ContainsParameter(Export.OnlineStorePasswordParameterName))
 				entryPassword.Text = ParametersProvider.Instance.GetParameterValue(Export.OnlineStorePasswordParameterName);
+			if(ParametersProvider.Instance.ContainsParameter(Export.OnlineStoreExportMode))
+				comboExportMode.SelectedItem = Enum.Parse(typeof(ExportMode), ParametersProvider.Instance.GetParameterValue(Export.OnlineStoreExportMode));
 		}
 
 		protected void OnButtonRunToFileClicked(object sender, EventArgs e)
@@ -81,6 +83,11 @@ namespace Vodovoz.Dialogs.OnlineStore
 			MainSupport.BaseParameters.UpdateParameter(QSMain.ConnectionDB, Export.OnlineStorePasswordParameterName, entryPassword.Text);
 		}
 
+		protected void OnComboExportModeChangedByUser(object sender, EventArgs e)
+		{
+			MainSupport.BaseParameters.UpdateParameter(QSMain.ConnectionDB, Export.OnlineStoreExportMode, comboExportMode.SelectedItem.ToString());
+		}
+
 		protected void OnButtonExportToSiteClicked(object sender, EventArgs e)
 		{
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot()) {
@@ -97,7 +104,6 @@ namespace Vodovoz.Dialogs.OnlineStore
 				progressbarTotal.Adjustment.Value = progressbarTotal.Adjustment.Upper;
 			}
 		}
-
 
 		void Export_ProgressUpdated(object sender, EventArgs e)
 		{
@@ -141,5 +147,6 @@ namespace Vodovoz.Dialogs.OnlineStore
             tempBuffer.InsertWithTags(ref iter, String.Join("\n", results), tagResult);
             textviewErrors.Buffer = tempBuffer;
         }
-    }
+
+	}
 }

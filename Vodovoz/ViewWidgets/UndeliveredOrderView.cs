@@ -14,6 +14,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Repositories.Orders;
 using Vodovoz.Repository;
@@ -415,17 +416,26 @@ namespace Vodovoz.ViewWidgets
 				} else
 					return;
 			}
+			
 			FineDlg fineDlg;
 			using(IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot()) {
 				fineDlg = new FineDlg(uow.GetById<UndeliveredOrder>(undelivery.Id));
 			}
+			
 			MyTab.TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<Fine>(undelivery.Id),
 				() => fineDlg
 			);
+
+			var address = new RouteListItemRepository().GetRouteListItemForOrder(UoW, undelivery.OldOrder);
+
+			if (address != null)
+				fineDlg.Entity.AddAddress(address);
+			
 			fineDlg.EntitySaved += (object sender2, QS.Tdi.EntitySavedEventArgs args) => { 
-					undelivery.Fines.Add(args.Entity as Fine); 
-					GetFines(); 
+				undelivery.Fines.Add(args.Entity as Fine);
+
+				GetFines(); 
 			};
 		}
 	}

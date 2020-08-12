@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using EmailService;
 using fyiReporting.RDL;
+using fyiReporting.RdlGtkViewer;
 using Gamma.GtkWidgets;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;

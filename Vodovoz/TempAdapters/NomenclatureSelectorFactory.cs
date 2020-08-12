@@ -3,6 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.FilterViewModels.Goods;
@@ -21,6 +22,23 @@ namespace Vodovoz.TempAdapters
 
 			NomenclatureStockBalanceJournalViewModel vm = new NomenclatureStockBalanceJournalViewModel(
 				nomenclatureStockFilter,
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			);
+
+			vm.SelectionMode = JournalSelectionMode.Multiple;
+
+			return vm;
+		}
+
+		public IEntitySelector CreateNomenclatureSelectorForFuelSelect()
+		{
+			NomenclatureFilterViewModel nomenclatureFilter = new NomenclatureFilterViewModel();
+			nomenclatureFilter.RestrictCategory = NomenclatureCategory.fuel;
+			nomenclatureFilter.RestrictArchive = false;
+
+			NomenclaturesJournalViewModel vm = new NomenclaturesJournalViewModel(
+				nomenclatureFilter,
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			);

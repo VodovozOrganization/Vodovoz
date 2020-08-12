@@ -32,7 +32,11 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxViewTypes;
 
+		private global::Gamma.Widgets.yEnumComboBox yenumСmbboxOrderPaymentStatus;
+
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
+
+		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
 		private global::Gtk.HBox hbox4;
 
@@ -43,8 +47,6 @@ namespace Vodovoz.Filters.GtkViews
 		private global::Gamma.GtkWidgets.yCheckButton ycheckOnlyServices;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckHideServices;
-
-		private global::Gamma.GtkWidgets.yCheckButton ycheckOnlyWithoutCoordinates;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckLessThreeHours;
 
@@ -71,8 +73,6 @@ namespace Vodovoz.Filters.GtkViews
 			this.dateperiodOrders.EndDate = new global::System.DateTime(0);
 			this.table1.Add(this.dateperiodOrders);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.dateperiodOrders]));
-			w1.TopAttach = ((uint)(1));
-			w1.BottomAttach = ((uint)(2));
 			w1.LeftAttach = ((uint)(5));
 			w1.RightAttach = ((uint)(6));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -162,8 +162,6 @@ namespace Vodovoz.Filters.GtkViews
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
 			this.table1.Add(this.label4);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.label4]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
 			w8.LeftAttach = ((uint)(4));
 			w8.RightAttach = ((uint)(5));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -204,8 +202,8 @@ namespace Vodovoz.Filters.GtkViews
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcomboboxPaymentOrder]));
 			w11.TopAttach = ((uint)(1));
 			w11.BottomAttach = ((uint)(2));
-			w11.LeftAttach = ((uint)(6));
-			w11.RightAttach = ((uint)(7));
+			w11.LeftAttach = ((uint)(5));
+			w11.RightAttach = ((uint)(6));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -222,18 +220,42 @@ namespace Vodovoz.Filters.GtkViews
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.yenumСmbboxOrderPaymentStatus = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumСmbboxOrderPaymentStatus.Name = "yenumСmbboxOrderPaymentStatus";
+			this.yenumСmbboxOrderPaymentStatus.ShowSpecialStateAll = true;
+			this.yenumСmbboxOrderPaymentStatus.ShowSpecialStateNot = false;
+			this.yenumСmbboxOrderPaymentStatus.UseShortTitle = false;
+			this.yenumСmbboxOrderPaymentStatus.DefaultFirst = false;
+			this.table1.Add(this.yenumСmbboxOrderPaymentStatus);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumСmbboxOrderPaymentStatus]));
+			w13.LeftAttach = ((uint)(3));
+			w13.RightAttach = ((uint)(4));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel1.Name = "ylabel1";
 			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Отображать:");
 			this.table1.Add(this.ylabel1);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel1]));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel1]));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabel2.Name = "ylabel2";
+			this.ylabel2.Xalign = 1F;
+			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Статус оплаты: ");
+			this.table1.Add(this.ylabel2);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel2]));
+			w15.LeftAttach = ((uint)(2));
+			w15.RightAttach = ((uint)(3));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add(this.table1);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table1]));
-			w14.Position = 0;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.table1]));
+			w16.Position = 0;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
@@ -246,10 +268,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckOnlySelfdelivery.DrawIndicator = true;
 			this.ycheckOnlySelfdelivery.UseUnderline = true;
 			this.hbox4.Add(this.ycheckOnlySelfdelivery);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckOnlySelfdelivery]));
-			w15.Position = 0;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckOnlySelfdelivery]));
+			w17.Position = 0;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.ycheckWithoutSelfdelivery = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckWithoutSelfdelivery.CanFocus = true;
@@ -258,10 +280,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckWithoutSelfdelivery.DrawIndicator = true;
 			this.ycheckWithoutSelfdelivery.UseUnderline = true;
 			this.hbox4.Add(this.ycheckWithoutSelfdelivery);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckWithoutSelfdelivery]));
-			w16.Position = 1;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckWithoutSelfdelivery]));
+			w18.Position = 1;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.ycheckOnlyServices = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckOnlyServices.CanFocus = true;
@@ -270,10 +292,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckOnlyServices.DrawIndicator = true;
 			this.ycheckOnlyServices.UseUnderline = true;
 			this.hbox4.Add(this.ycheckOnlyServices);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckOnlyServices]));
-			w17.Position = 2;
-			w17.Expand = false;
-			w17.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckOnlyServices]));
+			w19.Position = 2;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.ycheckHideServices = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckHideServices.CanFocus = true;
@@ -282,22 +304,10 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckHideServices.DrawIndicator = true;
 			this.ycheckHideServices.UseUnderline = true;
 			this.hbox4.Add(this.ycheckHideServices);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckHideServices]));
-			w18.Position = 3;
-			w18.Expand = false;
-			w18.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.ycheckOnlyWithoutCoordinates = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckOnlyWithoutCoordinates.CanFocus = true;
-			this.ycheckOnlyWithoutCoordinates.Name = "ycheckOnlyWithoutCoordinates";
-			this.ycheckOnlyWithoutCoordinates.Label = global::Mono.Unix.Catalog.GetString("Только без координат");
-			this.ycheckOnlyWithoutCoordinates.DrawIndicator = true;
-			this.ycheckOnlyWithoutCoordinates.UseUnderline = true;
-			this.hbox4.Add(this.ycheckOnlyWithoutCoordinates);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckOnlyWithoutCoordinates]));
-			w19.Position = 4;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckHideServices]));
+			w20.Position = 3;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.ycheckLessThreeHours = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckLessThreeHours.CanFocus = true;
@@ -306,15 +316,15 @@ namespace Vodovoz.Filters.GtkViews
 			this.ycheckLessThreeHours.DrawIndicator = true;
 			this.ycheckLessThreeHours.UseUnderline = true;
 			this.hbox4.Add(this.ycheckLessThreeHours);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckLessThreeHours]));
-			w20.Position = 5;
-			w20.Expand = false;
-			w20.Fill = false;
-			this.vbox2.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox4]));
-			w21.Position = 1;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ycheckLessThreeHours]));
+			w21.Position = 4;
 			w21.Expand = false;
 			w21.Fill = false;
+			this.vbox2.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox4]));
+			w22.Position = 1;
+			w22.Expand = false;
+			w22.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

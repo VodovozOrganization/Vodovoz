@@ -492,6 +492,9 @@
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
+    <Compile Include="TempAdapters\CarJournalFactory.cs" />
+    <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
+    <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
     <Compile Include="TempAdapters\EntityDeleteWorker.cs" />
     <Compile Include="TempAdapters\EquipmentRepositoryForViews.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
@@ -1107,7 +1110,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.TariffZoneDebts.cs" />
     <Compile Include="ReportsParameters\Store\StockMovementsAdvancedReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.StockMovementsAdvancedReport.cs" />
-    <Compile Include="Dialogs\Fuel\FuelTransferDocumentViewModel.cs" />
     <Compile Include="Representations\CallTasksVM.cs" />
     <Compile Include="Core\ViewModelWidgetResolver.cs" />
     <Compile Include="Dialogs\OrderWidgets\OrderDlg.cs" />
@@ -1119,17 +1121,14 @@
     <Compile Include="Filters\RepresentationFilterViewModelBase.cs" />
     <Compile Include="Infrastructure\Converters\DecimalToStringConverter.cs" />
     <Compile Include="VodovozGtkServicesConfig.cs" />
-    <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelIncomeInvoiceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelIncomeInvoiceView.cs" />
     <Compile Include="Infrastructure\Services\IRepresentationEntityPicker.cs" />
     <Compile Include="Infrastructure\Services\RepresentationEntityPickerGtk.cs" />
     <Compile Include="Infrastructure\Journal\IRepresentationJournalFactory.cs" />
     <Compile Include="Infrastructure\Journal\PermissionControlledRepresentationJournalFactory.cs" />
-    <Compile Include="Representations\FuelDocumentsJournalViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelBalanceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelBalanceView.cs" />
-    <Compile Include="Dialogs\Fuel\FuelBalanceViewModel.cs" />
     <Compile Include="SidePanel\InfoViews\CallTaskPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.CallTaskPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICallTaskProvider.cs" />
@@ -1181,8 +1180,6 @@
     <Compile Include="Filters\ViewModels\ResidueFilterViewModel.cs" />
     <Compile Include="Filters\GtkViews\ResidueFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.ResidueFilterView.cs" />
-    <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentViewModel.cs" />
-    <Compile Include="Dialogs\Fuel\FuelTypeViewModel.cs" />
     <Compile Include="Dialogs\Fuel\FuelTypeView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Fuel.FuelTypeView.cs" />
     <Compile Include="Dialogs\Fuel\FuelWriteoffDocumentView.cs" />
@@ -1499,6 +1496,18 @@
     <Compile Include="JournalNodes\ReturnTareReasonsJournalNode.cs" />
     <Compile Include="ReportsParameters\Store\ProductionRequestReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Store.ProductionRequestReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\NonClosedRLByPeriodReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.NonClosedRLByPeriodReport.cs" />
+    <Compile Include="ViewModels\Logistic\RouteListAnalysisViewModel.cs" />
+    <Compile Include="Views\Logistic\RouteListAnalysisView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.RouteListAnalysisView.cs" />
+    <Compile Include="Views\Logistic\LateArrivalReasonView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Logistic.LateArrivalReasonView.cs" />
+    <Compile Include="ViewModels\Logistic\LateArrivalReasonViewModel.cs" />
+    <Compile Include="JournalViewModels\LateArrivalReasonsJournalViewModel.cs" />
+    <Compile Include="JournalNodes\LateArrivalReasonsJournalNode.cs" />
+    <Compile Include="ReportsParameters\Logistic\ScheduleOnLinePerShiftReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ScheduleOnLinePerShiftReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1831,6 +1840,9 @@
     <None Include="Reports\Cash\CashFlowDetailIncomeReturn.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Logistic\OrderStatisticByWeek.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Reports\Store\CarLoadDoc.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -2077,9 +2089,6 @@
     <None Include="Reports\Employees\Premiums.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Orders\OrderStatisticByWeek.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Reports\Client\SummaryBottlesAndDepositsKungolovo.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -2258,6 +2267,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\BillWithoutShipmentForAdvancePayment.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\NonClosedRLByPeriodReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Reports\Logistic\ScheduleOnLinePerShiftReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

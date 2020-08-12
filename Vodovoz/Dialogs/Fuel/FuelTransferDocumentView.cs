@@ -2,6 +2,7 @@
 using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 
 namespace Vodovoz.Dialogs.Fuel
 {
@@ -33,11 +34,11 @@ namespace Vodovoz.Dialogs.Fuel
 			ytextviewComment.Binding.AddBinding(ViewModel.Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			ytextviewComment.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryDriver.RepresentationModel = ViewModel.DriversVM;
+			entryDriver.SetEntityAutocompleteSelectorFactory(ViewModel.DriverSelectorFactory);
 			entryDriver.Binding.AddBinding(ViewModel.Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 			entryDriver.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 
-			entryCar.RepresentationModel = ViewModel.CarsVM;
+			entryCar.SetEntityAutocompleteSelectorFactory(ViewModel.CarSelectorFactory);
 			entryCar.Binding.AddBinding(ViewModel.Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			entryCar.Binding.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive).InitializeFromSource();
 

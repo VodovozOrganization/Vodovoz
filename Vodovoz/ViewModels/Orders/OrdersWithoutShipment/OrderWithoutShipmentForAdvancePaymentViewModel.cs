@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Gamma.Utilities;
 using QS.Commands;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
@@ -11,6 +12,8 @@ using QS.Project.Services;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using QSOrmProject;
+using QSReport;
 using Vodovoz.Dialogs.Email;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -36,14 +39,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		
 		public Action<string> OpenCounterpartyJournal;
 		public IEntityUoWBuilder EntityUoWBuilder { get; }
-
-		#region Commands
-
-		public DelegateCommand AddForSaleCommand { get; private set; }
-		public DelegateCommand CancelCommand { get; private set; }
-		public DelegateCommand DeleteItemCommand { get; private set; }
-
-		#endregion Commands
 
 		public OrderWithoutShipmentForAdvancePaymentViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -75,76 +70,84 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			EntityUoWBuilder = uowBuilder;
 			
 			SendDocViewModel = new SendDocumentByEmailViewModel(new EmailRepository(), EmployeeSingletonRepository.GetInstance(), UoW);
-
-			CreateCommands();
 		}
 
-		private void CreateCommands()
-		{
-			CreateAddForSaleCommand();
-			CreateCancelCommand();
-			CreateDeleteItemCommand();
-		}
+		#region Commands
 
-		private void CreateCancelCommand()
-		{
-			CancelCommand = new DelegateCommand(
-				() =>Close(false, CloseSource.Cancel),
-				() => true
-			);
-		}
-		
-		private void CreateAddForSaleCommand()
-		{
-			AddForSaleCommand = new DelegateCommand(
-				() => {
+		private DelegateCommand addForSaleCommand;
+		public DelegateCommand AddForSaleCommand => addForSaleCommand ?? (addForSaleCommand = new DelegateCommand(
+			() => {
 
-					if(!CanAddNomenclaturesToOrder())
+				if(!CanAddNomenclaturesToOrder())
+					return;
+
+				var defaultCategory = NomenclatureCategory.water;
+				if(CurrentUserSettings.Settings.DefaultSaleCategory.HasValue)
+					defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;
+
+				var nomenclatureFilter = new NomenclatureFilterViewModel();
+				nomenclatureFilter.SetAndRefilterAtOnce(
+					x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
+					x => x.SelectCategory = defaultCategory,
+					x => x.SelectSaleCategory = SaleCategory.forSale,
+					x => x.RestrictArchive = false
+				);
+
+				NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
+					nomenclatureFilter,
+					UnitOfWorkFactory,
+					ServicesConfig.CommonServices
+				) {
+					SelectionMode = JournalSelectionMode.Single,
+				};
+				journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
+				journalViewModel.TabName = "Номенклатура на продажу";
+				journalViewModel.OnEntitySelectedResult += (s, ea) => {
+					var selectedNode = ea.SelectedNodes.FirstOrDefault();
+					if(selectedNode == null)
 						return;
+					TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
+				};
+				TabParent.AddSlaveTab(this, journalViewModel);
+			},
+			() => true
+		));
 
-					var defaultCategory = NomenclatureCategory.water;
-					if(CurrentUserSettings.Settings.DefaultSaleCategory.HasValue)
-						defaultCategory = CurrentUserSettings.Settings.DefaultSaleCategory.Value;
+		private DelegateCommand cancelCommand;
+		public DelegateCommand CancelCommand => cancelCommand ?? (cancelCommand = new DelegateCommand(
+			() =>Close(false, CloseSource.Cancel),
+			() => true
+		));
 
-					var nomenclatureFilter = new NomenclatureFilterViewModel();
-					nomenclatureFilter.SetAndRefilterAtOnce(
-						x => x.AvailableCategories = Nomenclature.GetCategoriesForSaleToOrder(),
-						x => x.SelectCategory = defaultCategory,
-						x => x.SelectSaleCategory = SaleCategory.forSale,
-						x => x.RestrictArchive = false
-					);
+		private DelegateCommand deleteItemCommand;
+		public DelegateCommand DeleteItemCommand => deleteItemCommand ?? (deleteItemCommand = new DelegateCommand(
+			() => {
+				var item = SelectedItem as OrderWithoutShipmentForAdvancePaymentItem;
+				Entity.RemoveItem(item);
+			},
+			() => SelectedItem != null
+		));
 
-					NomenclaturesJournalViewModel journalViewModel = new NomenclaturesJournalViewModel(
-						nomenclatureFilter,
-						UnitOfWorkFactory,
-						ServicesConfig.CommonServices
-					) {
-						SelectionMode = JournalSelectionMode.Single,
-					};
-					journalViewModel.AdditionalJournalRestriction = new NomenclaturesForOrderJournalRestriction(ServicesConfig.CommonServices);
-					journalViewModel.TabName = "Номенклатура на продажу";
-					journalViewModel.OnEntitySelectedResult += (s, ea) => {
-						var selectedNode = ea.SelectedNodes.FirstOrDefault();
-						if(selectedNode == null)
-							return;
-						TryAddNomenclature(UoWGeneric.Session.Get<Nomenclature>(selectedNode.Id));
-					};
-					TabParent.AddSlaveTab(this, journalViewModel);
-				},
-				() => true
-			);
-		}
+		private DelegateCommand openBillCommand;
+		public DelegateCommand OpenBillCommand => openBillCommand ?? (openBillCommand = new DelegateCommand(
+			() =>
+			{
+				string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
+				
+				if (UoWGeneric.HasChanges &&
+				    CommonDialogs.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
+				{
+					if (Save(false))
+						TabParent.AddTab(DocumentPrinter.GetPreviewTab(Entity), this, false);
+				}
 
-		private void CreateDeleteItemCommand()
-		{
-			DeleteItemCommand = new DelegateCommand(
-				() => {
-					var item = SelectedItem as OrderWithoutShipmentForAdvancePaymentItem;
-					Entity.RemoveItem(item);
-				},
-				() => SelectedItem != null
-			);
-		}
+				if(!UoWGeneric.HasChanges && Entity.Id > 0)
+					TabParent.AddTab(DocumentPrinter.GetPreviewTab(Entity), this, false);
+			},
+			() => true
+		));
+		
+		#endregion Commands
 
 		public void OnTabAdded()
 		{
@@ -180,8 +183,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			if (email != null)
 				SendDocViewModel.Update(Entity, email.Address);
-			else if (!string.IsNullOrEmpty(SendDocViewModel.EmailString))
-				SendDocViewModel.EmailString = string.Empty;
+			else
+				SendDocViewModel.Update(Entity, string.Empty);
 		}
 	}
 }

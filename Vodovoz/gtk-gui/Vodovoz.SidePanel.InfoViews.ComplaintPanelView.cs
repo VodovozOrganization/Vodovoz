@@ -70,7 +70,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.lblResults = new global::Gtk.Label();
 			this.lblResults.Name = "lblResults";
-			this.lblResults.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Итог работы (по закрытым жалобам)</b>");
+			this.lblResults.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Итог работы (по закрытым рекламациям)</b>");
 			this.lblResults.UseMarkup = true;
 			this.lblResults.Justify = ((global::Gtk.Justification)(2));
 			this.vbox1.Add(this.lblResults);

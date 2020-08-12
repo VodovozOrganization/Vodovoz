@@ -7,7 +7,6 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels;
@@ -17,8 +16,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.TempAdapters;
 
-namespace Vodovoz.Dialogs.Fuel
+namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
 	public class FuelWriteoffDocumentViewModel : EntityTabViewModelBase<FuelWriteoffDocument>
 	{
@@ -27,8 +27,8 @@ namespace Vodovoz.Dialogs.Fuel
 		private readonly IFuelRepository fuelRepository;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly ICommonServices commonServices;
-
-		public IEntityAutocompleteSelectorFactory EmployeeSelectorFactory { get; }
+		private readonly IEmployeeJournalFactory employeeJournalFactory;
+		private readonly IReportViewOpener reportViewOpener;
 
 		public FuelWriteoffDocumentViewModel(
 			IEntityUoWBuilder uoWBuilder, 
@@ -37,16 +37,18 @@ namespace Vodovoz.Dialogs.Fuel
 			IFuelRepository fuelRepository,
 			ISubdivisionRepository subdivisionRepository,
 			ICommonServices commonServices,
-			IEntityAutocompleteSelectorFactory employeeSelectorFactory
+			IEmployeeJournalFactory employeeJournalFactory,
+			IReportViewOpener reportViewOpener
 		) 
 		: base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
-			EmployeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 
 			CreateCommands();
 			UpdateCashSubdivisions();
@@ -62,6 +64,7 @@ namespace Vodovoz.Dialogs.Fuel
 			}
 
 			ValidationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+			ConfigureEntries();
 		}
 
 		private Employee currentEmployee;
@@ -83,6 +86,17 @@ namespace Vodovoz.Dialogs.Fuel
 				return fuelBalanceViewModel;
 			}
 		}
+
+		#region Entries
+
+		private void ConfigureEntries()
+		{
+			EmployeeAutocompleteSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+		}
+		
+		public IEntityAutocompleteSelectorFactory EmployeeAutocompleteSelectorFactory { get; private set; }
+
+		#endregion Entries
 
 		protected override void BeforeSave()
 		{
@@ -185,8 +199,7 @@ namespace Vodovoz.Dialogs.Fuel
 						Parameters = new Dictionary<string, object> { { "document_id", Entity.Id } }
 					};
 
-					var report = new QSReport.ReportViewDlg(reportInfo);
-					TabParent.AddTab(report, this, false);
+					reportViewOpener.OpenReport(this, reportInfo);
 				},
 				() => Entity.Id != 0
 			);

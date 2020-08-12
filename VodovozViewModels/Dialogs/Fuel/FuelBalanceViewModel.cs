@@ -1,6 +1,5 @@
 ﻿using System;
 using QS.ViewModels;
-using Vodovoz.Infrastructure.Services;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
 using Vodovoz.Domain.Logistic;
@@ -10,9 +9,8 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using QS.DomainModel.NotifyChange;
 using Vodovoz.Domain.Fuel;
 using System.Linq;
-using QS.Services;
 
-namespace Vodovoz.Dialogs.Fuel
+namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
 	public class FuelBalanceViewModel : UoWWidgetViewModelBase
 	{

@@ -266,7 +266,7 @@ namespace Vodovoz
 				.AddDeleteDependence<AdvanceReport>(item => item.Accountable)
 				.AddDeleteDependence<RouteList>(x => x.Driver)
 				.AddDeleteDependence<RouteList>(x => x.Forwarder)
-				.AddDeleteDependence<RouteList>(x => x.Logistican)
+				.AddDeleteDependence<RouteList>(x => x.Logistician)
 				.AddDeleteDependence<PremiumItem>(x => x.Employee)
 				.AddDeleteDependence<FineItem>(x => x.Employee)
 				.AddDeleteDependence<EmployeeWorkChart>(item => item.Employee)
@@ -1121,7 +1121,7 @@ namespace Vodovoz
 
 			#endregion
 
-			#region Жалобы
+			#region Рекламации
 
 			DeleteConfig.AddHibernateDeleteInfo<Complaint>()
 						.AddDeleteDependence<ComplaintDiscussion>(item => item.Complaint)
@@ -1143,7 +1143,7 @@ namespace Vodovoz
 						.AddDeleteDependence<ComplaintFile>(item => item.ComplaintDiscussionComment)
 						;
 
-			#endregion Жалобы
+			#endregion Рекламации
 
 			#region stuff
 

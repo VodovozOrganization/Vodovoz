@@ -438,7 +438,7 @@ namespace Vodovoz.ViewModels
 				   	.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 				   	.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 				    .Select(() => orderAlias.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
-				   	.Select(() => orderAlias.BillDate).WithAlias(() => resultAlias.OrderDate)
+				   	.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OrderDate)
 					.SelectSubQuery(totalSum).WithAlias(() => resultAlias.ActualOrderSum)
 					.SelectSubQuery(lastPayment).WithAlias(() => resultAlias.LastPayments)
 				)

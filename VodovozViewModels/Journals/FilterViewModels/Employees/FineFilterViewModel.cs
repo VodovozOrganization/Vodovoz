@@ -59,5 +59,11 @@ namespace Vodovoz.FilterViewModels.Employees
 			get => excludedIds;
 			set => UpdateFilterField(ref excludedIds, value, () => ExcludedIds);
 		}
+		
+		private int[] findFinesWithIds;
+		public virtual int[] FindFinesWithIds {
+			get => findFinesWithIds;
+			set => UpdateFilterField(ref findFinesWithIds, value);
+		}
 	}
 }

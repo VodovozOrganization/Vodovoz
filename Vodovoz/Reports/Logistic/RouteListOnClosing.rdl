@@ -18,6 +18,7 @@
         <CommandText>SELECT
 	route_lists.id AS routeListId,
 	route_lists.date AS routeListDate,
+	route_lists.logisticians_comment as logisticians_comment,
 	route_lists.driver_id,
 	CONCAT_WS(' ',
 			employees.last_name,
@@ -141,6 +142,10 @@ ORDER BY routeListDate, routeListId
           <DataField>closing_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="logisticians_comment">
+          <DataField>logisticians_comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -180,7 +185,7 @@ ORDER BY routeListDate, routeListId
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>34.5pt</Width>
+            <Width>23.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.1pt</Width>
@@ -189,25 +194,28 @@ ORDER BY routeListDate, routeListId
             <Width>43.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>140.7pt</Width>
+            <Width>105.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>61.4pt</Width>
+            <Width>47.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>54.8pt</Width>
+            <Width>43.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.7pt</Width>
+            <Width>35.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>146.7pt</Width>
+            <Width>126.0pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>134.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>102.8pt</Width>
+            <Width>84.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -371,6 +379,23 @@ ORDER BY routeListDate, routeListId
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>Комментарий логиста</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -551,6 +576,24 @@ ORDER BY routeListDate, routeListId
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>={logisticians_comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
@@ -681,6 +724,23 @@ ORDER BY routeListDate, routeListId
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
@@ -794,6 +854,23 @@ ORDER BY routeListDate, routeListId
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">

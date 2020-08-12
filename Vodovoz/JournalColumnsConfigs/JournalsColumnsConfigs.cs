@@ -16,6 +16,8 @@ using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.Representations;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.ViewModels.Journals.Cash;
+using Vodovoz.ViewModels.Journals.Nodes.Cash;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
@@ -65,11 +67,15 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Автор").AddTextRenderer(node => node.Author)
 					.AddColumn("Время").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
 					.AddColumn("Статус").AddTextRenderer(node => node.StatusEnum.GetEnumTitle())
+					.AddColumn("Тип").AddTextRenderer(node => node.ViewType)
+						.WrapMode(WrapMode.WordChar)
+						.WrapWidth(100)
 					.AddColumn("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
 					.AddColumn("Кол-во с/о").AddTextRenderer(node => node.SanitisationAmount.ToString())
 					.AddColumn("Клиент").AddTextRenderer(node => node.Counterparty)
 					.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
-					.AddColumn("Коор.").AddTextRenderer(x => x.Coordinates)
+					.AddColumn("Статус оплаты").AddTextRenderer(x =>
+						x.OrderPaymentStatus != null ? x.OrderPaymentStatus.GetEnumTitle() : "")
 					.AddColumn("Район доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DistrictName)
 					.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 					.AddColumn("Изменил").AddTextRenderer(node => node.LastEditor)
@@ -183,7 +189,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("№ п/п").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.SequenceNumber.ToString())
 						.XAlign(0.5f)
-					.AddColumn("№ жалобы").HeaderAlignment(0.5f)
+					.AddColumn("№ рекламации").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.Id.ToString())
 						.XAlign(0.5f)
 					.AddColumn("Тип").HeaderAlignment(0.5f)
@@ -212,7 +218,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						.AddTextRenderer(node => node.ComplaintText)
 						.WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 						.XAlign(0f)
-					.AddColumn("Вид жалобы").HeaderAlignment(0.5f)
+					.AddColumn("Вид рекламации").HeaderAlignment(0.5f)
 						.AddTextRenderer(node => node.ComplaintKindString)
 						.XAlign(0.5f)
 					.AddColumn("Автор").HeaderAlignment(0.5f)
@@ -576,6 +582,50 @@ namespace Vodovoz.JournalColumnsConfigs
 					.RowCells()
 						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
 					.Finish()
+			);
+
+			//LateArrivalReasonsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<LateArrivalReasonsJournalViewModel>(
+				() => FluentColumnsConfig<LateArrivalReasonsJournalNode>.Create()
+					.AddColumn("Код")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Id.ToString())
+						.XAlign(0.5f)
+					.AddColumn("Причина")
+						.HeaderAlignment(0.5f)
+						.AddTextRenderer(n => n.Name)
+						.XAlign(0.5f)
+					.AddColumn("В архиве?")
+						.HeaderAlignment(0.5f)
+						.AddToggleRenderer(n => n.IsArchive)
+						.Editing(false)
+						.XAlign(0.5f)
+					.AddColumn("")
+					.RowCells()
+						.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? colorDarkGrey : colorBlack)
+					.Finish()
+			);
+			
+			//FuelDocumentsJournalViewModel
+			TreeViewColumnsConfigFactory.Register<FuelDocumentsJournalViewModel>(
+				() => FluentColumnsConfig<FuelDocumentJournalNode>.Create()
+				.AddColumn("№").AddTextRenderer(node => node.Id.ToString())
+				.AddColumn("Тип").AddTextRenderer(node => node.Title)
+				.AddColumn("Дата").AddTextRenderer(node => node.CreationDate.ToShortDateString())
+				.AddColumn("Автор").AddTextRenderer(node => node.Author)
+				.AddColumn("Сотрудник").AddTextRenderer(node => node.Employee)
+				.AddColumn("Статус").AddTextRenderer(node => node.Status)
+				.AddColumn("Литры").AddTextRenderer(node => node.Liters.ToString("0"))
+				.AddColumn("Статья расх.").AddTextRenderer(node => node.ExpenseCategory)
+	
+				.AddColumn("Отправлено из").AddTextRenderer(node => node.SubdivisionFrom)
+				.AddColumn("Время отпр.").AddTextRenderer(node => node.SendTime.HasValue ? node.SendTime.Value.ToShortDateString() : "")
+	
+				.AddColumn("Отправлено в").AddTextRenderer(node => node.SubdivisionTo)
+				.AddColumn("Время принятия").AddTextRenderer(node => node.ReceiveTime.HasValue ? node.ReceiveTime.Value.ToShortDateString() : "")
+	
+				.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
+				.Finish()
 			);
 		}
 	}

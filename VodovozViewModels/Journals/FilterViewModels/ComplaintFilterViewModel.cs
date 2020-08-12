@@ -156,7 +156,7 @@ namespace Vodovoz.FilterViewModels
 		public ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Title = "Жалобы",
+				Title = "Рекламации",
 				Identifier = "Complaints",
 				Parameters = new Dictionary<string, object>
 				{

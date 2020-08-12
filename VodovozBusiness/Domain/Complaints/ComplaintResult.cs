@@ -8,8 +8,8 @@ using QS.HistoryLog;
 namespace Vodovoz.Domain.Complaints
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "результаты рассмотрения жалобы",
-		Nominative = "результат рассмотрения жалобы"
+		NominativePlural = "результаты рассмотрения рекламации",
+		Nominative = "результат рассмотрения рекламации"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
@@ -24,7 +24,7 @@ namespace Vodovoz.Domain.Complaints
 			set => SetField(ref name, value, () => Name);
 		}
 
-		public virtual string Title => string.Format("Результат рассмотрения жалобы №{0}", Id);
+		public virtual string Title => string.Format("Результат рассмотрения рекламации №{0}", Id);
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

@@ -473,7 +473,7 @@ WHERE
         @HideWithOneOrder = '' 
         OR          
             (
-                1 = (
+                1 &lt;&gt; (
                     SELECT 
                         COUNT(DISTINCT o2.id) 
                     FROM 
@@ -552,7 +552,7 @@ GROUP BY
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="discount_reason_id">
       <DataType>Integer</DataType>
       <DefaultValue>

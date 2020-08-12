@@ -5,10 +5,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
 using QS.ViewModels;
 using QS.Commands;
-using Vodovoz.ViewModel;
-using Vodovoz.Filters.ViewModels;
-using QS.RepresentationModel.GtkUI;
-using NHibernate.Criterion;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -18,14 +14,20 @@ using Vodovoz.EntityRepositories.Fuel;
 using QS.Project.Domain;
 using QS.Services;
 using QS.DomainModel.UoW;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
+using Vodovoz.TempAdapters;
 
-namespace Vodovoz.Dialogs.Fuel
+namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
 	public class FuelTransferDocumentViewModel : EntityTabViewModelBase<FuelTransferDocument>
 	{
 		private readonly IEmployeeService employeeService;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IFuelRepository fuelRepository;
+		private readonly IEmployeeJournalFactory employeeJournalFactory;
+		private readonly ICarJournalFactory carJournalFactory;
+		private readonly IReportViewOpener reportViewOpener;
 
 		public FuelTransferDocumentViewModel(
 			IEntityUoWBuilder uoWBuilder,
@@ -33,11 +35,18 @@ namespace Vodovoz.Dialogs.Fuel
 			IEmployeeService employeeService,
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository,
-			ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			IEmployeeJournalFactory employeeJournalFactory,
+			ICarJournalFactory carJournalFactory,
+			IReportViewOpener reportViewOpener
+			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			this.employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
+			this.carJournalFactory = carJournalFactory ?? throw new ArgumentNullException(nameof(carJournalFactory));
+			this.reportViewOpener = reportViewOpener ?? throw new ArgumentNullException(nameof(reportViewOpener));
 			TabName = "Документ перемещения топлива";
 
 			if(CurrentEmployee == null) {
@@ -56,6 +65,8 @@ namespace Vodovoz.Dialogs.Fuel
 				Entity.CreationTime = DateTime.Now;
 				Entity.Author = CurrentEmployee;
 			}
+
+			ConfigureEntries();
 		}
 
 		private void ConfigureEntityPropertyChanges()
@@ -123,38 +134,18 @@ namespace Vodovoz.Dialogs.Fuel
 
 		#endregion Properties
 
-		#region Representation models
+		#region Entries
 
-		private IRepresentationModel driversVM;
-		public IRepresentationModel DriversVM {
-			get {
-				if(driversVM == null) {
-					var filterDriver = new EmployeeFilterViewModel();
-					filterDriver.SetAndRefilterAtOnce(
-						x => x.Status = EmployeeStatus.IsWorking
-					);
-					driversVM = new EmployeesVM(filterDriver);
-				}
-
-				return driversVM;
-			}
+		private void ConfigureEntries()
+		{
+			DriverSelectorFactory = employeeJournalFactory.CreateEmployeeAutocompleteSelectorFactory();
+			CarSelectorFactory = carJournalFactory.CreateCarAutocompleteSelectorFactory();
 		}
+		
+		public IEntityAutocompleteSelectorFactory DriverSelectorFactory;
+		public IEntityAutocompleteSelectorFactory CarSelectorFactory;
 
-		private IRepresentationModel carsVM;
-		public IRepresentationModel CarsVM {
-			get {
-				if(carsVM == null) {
-					carsVM = new EntityCommonRepresentationModelConstructor<Car>(UoW)
-						.AddColumn("Название", x => x.Title).AddSearch(x => x.Title)
-						.AddColumn("Номер", x => x.RegistrationNumber).AddSearch(x => x.RegistrationNumber)
-						.SetFixedRestriction(Restrictions.Where<Car>(x => !x.IsArchive))
-						.Finish();
-				}
-				return carsVM;
-			}
-		}
-
-		#endregion Representation models
+		#endregion Entries
 
 		#region Commands
 
@@ -236,8 +227,7 @@ namespace Vodovoz.Dialogs.Fuel
 						Parameters = new Dictionary<string, object> { { "transfer_document_id", Entity.Id } }
 					};
 
-					var report = new QSReport.ReportViewDlg(reportInfo);
-					TabParent.AddTab(report, this, false);
+					reportViewOpener.OpenReport(this, reportInfo);
 				},
 				() => true
 			);

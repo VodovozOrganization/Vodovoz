@@ -140,17 +140,6 @@ namespace Vodovoz.Filters.ViewModels
 		}
 		public bool CanChangeEndDate { get; private set; } = true;
 
-		private bool restrictOnlyWithoutCoodinates;
-		public virtual bool RestrictOnlyWithoutCoodinates {
-			get => restrictOnlyWithoutCoodinates;
-			set {
-				if(SetField(ref restrictOnlyWithoutCoodinates, value, () => RestrictOnlyWithoutCoodinates))
-					Update();
-				CanChangeWithoutCoodinates = false;
-			}
-		}
-		public bool CanChangeWithoutCoodinates { get; private set; } = true;
-
 		private bool? restrictLessThreeHours;
 		public virtual bool? RestrictLessThreeHours {
 			get => restrictLessThreeHours;
@@ -163,13 +152,22 @@ namespace Vodovoz.Filters.ViewModels
 		}
 		public bool CanChangeLessThreeHours { get; private set; } = true;
 
-		private ViewTypes viewTypes = ViewTypes.Order;
+		private ViewTypes viewTypes;
 		public virtual ViewTypes ViewTypes {
 			get => viewTypes;
 			set {
 				if(SetField(ref viewTypes, value)) {
 					Update();
 				}
+			}
+		}
+
+		private OrderPaymentStatus? orderPaymentStatus;
+		public OrderPaymentStatus? OrderPaymentStatus {
+			get => orderPaymentStatus;
+			set {
+				SetField(ref orderPaymentStatus, value);
+				Update();
 			}
 		}
 
@@ -278,6 +276,8 @@ namespace Vodovoz.Filters.ViewModels
 
 	public enum ViewTypes
 	{
+		[Display(Name = "Все")]
+		All,
 		[Display(Name = "Заказы")]
 		Order,
 		[Display(Name = "Счета без отгрузки на долг")]

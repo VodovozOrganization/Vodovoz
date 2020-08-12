@@ -7,7 +7,8 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Project.Domain;
-using QS.RepresentationModel.GtkUI;
+using QS.Project.Journal;
+using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
 using Vodovoz.Domain.Employees;
@@ -17,40 +18,42 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Infrastructure.Services;
-using Vodovoz.Representations;
-using Vodovoz.ViewModel;
+using Vodovoz.TempAdapters;
 
-namespace Vodovoz.Dialogs.Fuel
+namespace Vodovoz.ViewModels.Dialogs.Fuel
 {
 	public class FuelIncomeInvoiceViewModel : EntityTabViewModelBase<FuelIncomeInvoice>
 	{
 		private readonly IEmployeeService employeeService;
-		private readonly IRepresentationEntityPicker entityPicker;
+		private readonly INomenclatureSelectorFactory nomenclatureSelectorFactory;
 		private readonly ISubdivisionRepository subdivisionRepository;
 		private readonly IFuelRepository fuelRepository;
+		private readonly ICounterpartyJournalFactory counterpartyJournalFactory;
 
 		public FuelIncomeInvoiceViewModel
 		(
-			IEntityUoWBuilder uoWBuilder, 
+			IEntityUoWBuilder uowBuilder, 
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
-			IRepresentationEntityPicker entityPicker,
+			INomenclatureSelectorFactory nomenclatureSelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
 			IFuelRepository fuelRepository,
+			ICounterpartyJournalFactory counterpartyJournalFactory,
 			ICommonServices commonServices
-		) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+		) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeService = employeeService;
-			this.entityPicker = entityPicker ?? throw new ArgumentNullException(nameof(entityPicker));
+			this.nomenclatureSelectorFactory = nomenclatureSelectorFactory ?? throw new ArgumentNullException(nameof(nomenclatureSelectorFactory));
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			this.fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			this.counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			TabName = "Входящая накладная по топливу";
 
 			if(CurrentEmployee == null) {
 				AbortOpening("К вашему пользователю не привязан сотрудник, невозможно открыть документ");
 			}
 
-			if(uoWBuilder.IsNewEntity) {
+			if(uowBuilder.IsNewEntity) {
 				Entity.СreationTime = DateTime.Now;
 				Entity.Author = CurrentEmployee;
 			}
@@ -63,6 +66,8 @@ namespace Vodovoz.Dialogs.Fuel
 			UpdateCashSubdivisions();
 			UpdateBalanceCache();
 			ValidationContext.ServiceContainer.AddService(typeof(IFuelRepository), fuelRepository);
+
+			ConfigureEntries();
 		}
 
 		private void ConfigEntityUpdateSubscribes()
@@ -122,26 +127,21 @@ namespace Vodovoz.Dialogs.Fuel
 		private void CreateCommands()
 		{
 			AddItemCommand = new DelegateCommand(
-				() => {
+				() =>
+				{
+					var selector = nomenclatureSelectorFactory.CreateNomenclatureSelectorForFuelSelect();
+					selector.OnEntitySelectedResult += (sender, args) =>
+					{
+						if(args.SelectedNodes == null || !args.SelectedNodes.Any()){
+							return;
+						}
 
-					IRepresentationModel model = new EntityCommonRepresentationModelConstructor<Nomenclature>()
-						.AddColumn("Название", x => x.OfficialName).AddSearch(x => x.OfficialName)
-						.AddColumn("Тип топлива", x => x.FuelType.Name)
-						.SetFixedRestriction(Restrictions.Where<Nomenclature>(x => x.Category == NomenclatureCategory.fuel && !x.IsArchive))
-						.Finish();
-
-					entityPicker.OpenMultipleSelectionJournal<Nomenclature>(
-						model,
-						(nomenclatures) => {
-							if(!nomenclatures.Any()) {
-								return;
-							}
-							foreach(var nomenclature in nomenclatures) {
-								Entity.AddItem(nomenclature);
-							}
-						},
-						(journalTab) => { TabParent.AddTab(journalTab, this); }
-					);
+						var nomenclatures = UoW.GetById<Nomenclature>(args.SelectedNodes.Select(x => x.Id).ToArray());
+						foreach(var nomenclature in nomenclatures) {
+							Entity.AddItem(nomenclature);
+						}
+					};
+					TabParent.AddTab(selector, this);
 				},
 				() => { return CanAddItems; }
 			);
@@ -154,29 +154,16 @@ namespace Vodovoz.Dialogs.Fuel
 
 		#endregion Commands
 
-		#region Representation models
+		#region Entries
 
-		public IRepresentationModel counterpartyVM;
-		public IRepresentationModel CounterpartyVM {
-			get {
-				if(counterpartyVM == null) {
-					counterpartyVM = new CounterpartyVM();
-				}
-				return counterpartyVM;
-			}
+		private void ConfigureEntries()
+		{
+			CounterpartySelectorFactory = counterpartyJournalFactory.CreateCounterpartyAutocompleteSelectorFactory();
 		}
+		
+		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; private set; }
 
-		public IRepresentationModel subdivisionVM;
-		public IRepresentationModel SubdivisionVM {
-			get {
-				if(subdivisionVM == null) {
-					subdivisionVM = new SubdivisionsVM();
-				}
-				return subdivisionVM;
-			}
-		}
-
-		#endregion Representation models
+		#endregion Entries
 
 		#region Настройка списков доступных подразделений кассы
 

@@ -1061,7 +1061,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		);
 	}
 
-	protected void OnAction49Activated(object sender, EventArgs e)
+	protected void OnActionOrderStatisticByWeekReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<OrderStatisticByWeekReport>(),
@@ -1575,7 +1575,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			() => new QSReport.ReportViewDlg(new ReturnedTareReport())
 		);
 	}
-	
+
 	protected void OnActionReturnTareReasonsActivated(object sender, EventArgs e)
 	{
 		tdiMain.AddTab(
@@ -1585,7 +1585,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 			)
 		);
 	}
-	
+
 	protected void OnActionProductionRequestReportActivated(object sender, EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -1601,6 +1601,32 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 				UnitOfWorkFactory.GetDefaultFactory,
 				ServicesConfig.CommonServices
 			)
+		);
+	}
+
+	protected void OnActionLateArrivalReasonsActivated(object sender, EventArgs e)
+	{
+		tdiMain.AddTab(
+			new LateArrivalReasonsJournalViewModel(
+				UnitOfWorkFactory.GetDefaultFactory,
+				ServicesConfig.CommonServices
+			)
+		);
+	}
+	
+	protected void OnActionScheduleOnLinePerShiftReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<FuelConsumptionReport>(),
+			() => new QSReport.ReportViewDlg(new ScheduleOnLinePerShiftReport())
+		);
+	}
+	
+	protected void OnActionNonClosedRLByPeriodReportActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName<NonClosedRLByPeriodReport>(),
+			() => new QSReport.ReportViewDlg(new NonClosedRLByPeriodReport())
 		);
 	}
 }

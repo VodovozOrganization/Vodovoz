@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Vodovoz.Domain.Logistic;
-using System.Linq;
+﻿using System.Linq;
 using Gtk;
+using Vodovoz.ViewModels.Dialogs.Fuel;
+
 namespace Vodovoz.Dialogs.Fuel
 {
 	[System.ComponentModel.ToolboxItem(true)]

@@ -1,5 +1,6 @@
 ﻿using System;
 using QS.Views.GtkUI;
+using Vodovoz.ViewModels.Dialogs.Fuel;
 
 namespace Vodovoz.Dialogs.Fuel
 {
