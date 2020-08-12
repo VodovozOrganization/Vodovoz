@@ -456,6 +456,7 @@
   <ItemGroup>
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
+    <Compile Include="LoggedMySqlClientDriver.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringValuableConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
