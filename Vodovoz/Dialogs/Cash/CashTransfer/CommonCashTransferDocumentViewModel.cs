@@ -18,7 +18,7 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 	public class CommonCashTransferDocumentViewModel : ViewModel<CommonCashTransferDocument>
 	{
 		private IEnumerable<Subdivision> cashSubdivisions;
-		private IEnumerable<Subdivision> availableSubdivisionsForUser;
+		private IList<Subdivision> availableSubdivisionsForUser;
 
 		public CommonCashTransferDocumentViewModel(IEntityUoWBuilder entityUoWBuilder, IUnitOfWorkFactory factory) : base(entityUoWBuilder, factory)
 		{
@@ -253,8 +253,11 @@ namespace Vodovoz.Dialogs.Cash.CashTransfer
 
 		private void UpdateCashSubdivisions()
 		{
-			Type[] cashDocumentTypes = new Type[] { typeof(Income), typeof(Expense), typeof(AdvanceReport) };
-			availableSubdivisionsForUser = SubdivisionsRepository.GetAvailableSubdivionsForUser(UoW, cashDocumentTypes);
+			Type[] cashDocumentTypes = { typeof(Income), typeof(Expense), typeof(AdvanceReport) };
+			availableSubdivisionsForUser = SubdivisionsRepository.GetAvailableSubdivionsForUser(UoW, cashDocumentTypes).ToList();
+			if(Entity.Id != 0 && !CanEdit && Entity.CashSubdivisionFrom != null && !availableSubdivisionsForUser.Contains(Entity.CashSubdivisionFrom)) {
+				availableSubdivisionsForUser.Add(Entity.CashSubdivisionFrom);
+			}
 			cashSubdivisions = SubdivisionsRepository.GetSubdivisionsForDocumentTypes(UoW, cashDocumentTypes).Distinct();
 			SubdivisionsFrom = availableSubdivisionsForUser;
 			SubdivisionsTo = cashSubdivisions;
