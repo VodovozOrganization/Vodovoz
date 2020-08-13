@@ -83,8 +83,9 @@ namespace Vodovoz.Dialogs.Cash
 			ConfigureDlg();
 		}
 
-		public CashExpenseSelfDeliveryDlg(Order order, IPermissionService permissionService) : this(order.Id, permissionService)
+		public CashExpenseSelfDeliveryDlg(Order order, IPermissionService permissionService) : this(permissionService)
 		{
+			Entity.Order = UoW.GetById<Order>(order.Id);
 		}
 
 		public CashExpenseSelfDeliveryDlg(int id, IPermissionService permissionService)
