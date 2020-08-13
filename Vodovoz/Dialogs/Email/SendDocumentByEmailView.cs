@@ -20,7 +20,11 @@ namespace Vodovoz.Dialogs.Email
 		private void Configure()
 		{
 			buttonSendEmail.Clicked += (sender, e) => ViewModel.SendEmailCommand.Execute();
+			ViewModel.SendEmailCommand.CanExecuteChanged += (sender, args) =>
+				buttonSendEmail.Sensitive = ViewModel.SendEmailCommand.CanExecute();
 			buttonRefreshEmailList.Clicked += (sender, e) => ViewModel.RefreshEmailListCommand.Execute();
+			ViewModel.RefreshEmailListCommand.CanExecuteChanged += (sender, args) =>
+				buttonRefreshEmailList.Sensitive = ViewModel.RefreshEmailListCommand.CanExecute();
 
 			buttonSendEmail.Binding.AddBinding(ViewModel, vm => vm.BtnSendEmailSensitive, w => w.Sensitive).InitializeFromSource();
 			
