@@ -32,7 +32,6 @@ namespace Vodovoz.JournalViewModels
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigationManager
-			//IEntityAutocompleteSelectorFactory employeeSelectorFactory
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал платежей из банк-клиента";
@@ -43,12 +42,12 @@ namespace Vodovoz.JournalViewModels
 			RegisterPayments();
 
 			var threadLoader = DataLoader as ThreadDataLoader<PaymentJournalNode>;
-			//threadLoader.MergeInOrderBy(x => x.Id, false);
 
 			FinishJournalConfiguration();
 
 			UpdateOnChanges(
 				typeof(Payment),
+				typeof(PaymentItem),
 				typeof(VodOrder)
 			);
 		}
@@ -139,7 +138,6 @@ namespace Vodovoz.JournalViewModels
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
 					() => new PaymentLoaderVM(
-						//EntityUoWBuilder.ForCreate(),
 						unitOfWorkFactory,
 						commonServices,
 						navigationManager
@@ -164,13 +162,6 @@ namespace Vodovoz.JournalViewModels
 
 		void CompleteAllocation()
 		{
-			var undistributedPayments = PaymentsRepository.GetAllUndistributedPayments(UoW, new BaseParametersProvider());
-
-			if(undistributedPayments.Any()) {
-				ShowWarningMessage("Имеются нераспределенные платежи, завершение невозможно");
-				return;
-			}
-			
 			var distributedPayments = PaymentsRepository.GetAllDistributedPayments(UoW);
 
 			if(distributedPayments.Any()) {
