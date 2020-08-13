@@ -307,6 +307,16 @@ namespace Vodovoz.ViewModels
 
 					AllocateOrders();
 					CreateOperations();
+
+					foreach (var item in Entity.PaymentItems)
+					{
+						item.Order.OrderPaymentStatus = item.Order.ActualTotalSum > item.Sum
+							? OrderPaymentStatus.PartiallyPaid
+							: OrderPaymentStatus.Paid;
+						
+						UoW.Save(item.Order);
+					}
+					
 					Entity.Status = PaymentState.completed;
 
 					if(Save()) { 
@@ -353,7 +363,6 @@ namespace Vodovoz.ViewModels
 			UoW.Save(Entity.CashlessMovementOperation);
 
 			foreach(PaymentItem item in Entity.ObservableItems) {
-
 				item.CreateExpenseOperation();
 				UoW.Save(item.CashlessMovementOperation);
 			}
@@ -368,13 +377,6 @@ namespace Vodovoz.ViewModels
 				var order = UoW.GetById<VodOrder>(node.Id);
 				var sum = node.CurrentPayment + node.LastPayments;
 				Entity.AddPaymentItem(order, node.CurrentPayment);
-
-				if(order.ActualTotalSum > sum)
-					order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
-				else
-					order.OrderPaymentStatus = OrderPaymentStatus.Paid;
-
-				UoW.Save(order);
 			}
 		}
 
