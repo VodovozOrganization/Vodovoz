@@ -10,6 +10,8 @@ namespace Vodovoz.ReportsParameters.Bottles
 
 		private global::Gtk.Label label1;
 
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxDateType;
+
 		private global::QS.Widgets.GtkUI.DateRangePicker daterangepicker;
 
 		private global::Gamma.GtkWidgets.yButton btnCreateReport;
@@ -38,19 +40,31 @@ namespace Vodovoz.ReportsParameters.Bottles
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
+			this.yenumcomboboxDateType = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboboxDateType.Name = "yenumcomboboxDateType";
+			this.yenumcomboboxDateType.ShowSpecialStateAll = false;
+			this.yenumcomboboxDateType.ShowSpecialStateNot = false;
+			this.yenumcomboboxDateType.UseShortTitle = false;
+			this.yenumcomboboxDateType.DefaultFirst = false;
+			this.hbox1.Add(this.yenumcomboboxDateType);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.yenumcomboboxDateType]));
+			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.daterangepicker = new global::QS.Widgets.GtkUI.DateRangePicker();
 			this.daterangepicker.Events = ((global::Gdk.EventMask)(256));
 			this.daterangepicker.Name = "daterangepicker";
 			this.daterangepicker.StartDate = new global::System.DateTime(0);
 			this.daterangepicker.EndDate = new global::System.DateTime(0);
 			this.hbox1.Add(this.daterangepicker);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.daterangepicker]));
-			w2.Position = 1;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.daterangepicker]));
+			w3.Position = 2;
 			this.vbox2.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
-			w3.Position = 1;
-			w3.Expand = false;
-			w3.Fill = false;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.btnCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.btnCreateReport.CanFocus = true;
@@ -58,10 +72,10 @@ namespace Vodovoz.ReportsParameters.Bottles
 			this.btnCreateReport.UseUnderline = true;
 			this.btnCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox2.Add(this.btnCreateReport);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnCreateReport]));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.btnCreateReport]));
+			w5.Position = 2;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

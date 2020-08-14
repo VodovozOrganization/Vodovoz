@@ -81,34 +81,40 @@
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.8pt</Width>
+            <Width>36.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>101.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.3pt</Width>
+            <Width>69.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>90.7pt</Width>
+            <Width>73.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>83.5pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>56.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>49.1pt</Width>
+          </TableColumn>
+          <TableColumn>
             <Width>88.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.5pt</Width>
+            <Width>43.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.1pt</Width>
-          </TableColumn>
-          <TableColumn >
-            <Width>66.9pt</Width>
+            <Width>40.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>110.2pt</Width>
+            <Width>57.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>100.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -220,6 +226,40 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>Сумма последнего заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Value>Кол-во заказов по клиенту</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox14">
                       <Value>Автор заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -271,7 +311,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox44">
                       <Value>Статус заказа</Value>
@@ -427,6 +467,40 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Value>={lastsum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Value>={order_count}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox15">
                       <Value>={author}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -481,7 +555,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox45">
                       <Value>={status}</Value>
@@ -636,6 +710,42 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox28">
                       <Style>
                         <BorderStyle>
@@ -687,7 +797,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>
@@ -980,67 +1090,106 @@
     orders.id as order_id,
     orders.bottles_return,
     (
-    	CASE 
-	       	WHEN orders.order_status = 'NewOrder' THEN 'Новый'
-	    	WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
-			WHEN orders.order_status = 'Accepted' THEN 'Принят'
-			WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
-			WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'
-			WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
-			WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
-			WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
-			WHEN orders.order_status = 'Closed' THEN 'Закрыт'
-			WHEN orders.order_status = 'Canceled' THEN 'Отменён'
-			WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
-			WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'
-			ElSE ''
-		END) as status,
-	IF(orders.order_status = 'Closed', sum(rla.bottles_returned), 0) as bottles_returned,
-	counterparty.full_name as client,
-	rtr.name as reason_name,
-	rtrc.name as category_name,
-	orders.comment_manager as comment,
+        CASE
+            WHEN orders.order_status = 'NewOrder' THEN 'Новый'
+            WHEN orders.order_status = 'WaitForPayment' THEN 'Ожидание оплаты'
+            WHEN orders.order_status = 'Accepted' THEN 'Принят'
+            WHEN orders.order_status = 'InTravelList' THEN 'В маршрутном листе'
+            WHEN orders.order_status = 'OnLoading' THEN 'На погрузке'
+            WHEN orders.order_status = 'OnTheWay' THEN 'В пути'
+            WHEN orders.order_status = 'Shipped' THEN 'Доставлен'
+            WHEN orders.order_status = 'UnloadingOnStock' THEN 'Выгрузка на складе'
+            WHEN orders.order_status = 'Closed' THEN 'Закрыт'
+            WHEN orders.order_status = 'Canceled' THEN 'Отменён'
+            WHEN orders.order_status = 'NotDelivered' THEN 'Недовоз'
+            WHEN orders.order_status = 'DeliveryCanceled' THEN 'Доставка отменена'
+            ElSE ''
+            END) as status,
+    IF(orders.order_status = 'Closed', sum(rla.bottles_returned), 0) as bottles_returned,
+    c.full_name as client,
+    rtr.name as reason_name,
+    rtrc.name as category_name,
+    orders.comment_manager as comment,
     GROUP_CONCAT(
-		CONCAT(
-			'+7 ',
-			dp_phones.number,
-			IF(
-				dp_phones.name IS NULL,
-				'',
-				CONCAT(' ', dp_phones.name)
-			)
-		)
-		SEPARATOR '\n') AS delivery_point_contact,
-	GROUP_CONCAT(
-		CONCAT(
-			'+7 ',
-			client_phones.number,
-			IF(
-				client_phones.name IS NULL,
-				'',
-				CONCAT(' ', client_phones.name)
-			)
-		)
-		SEPARATOR '\n') AS client_contact,
-	CONCAT(employees.last_name, ' ', LEFT(employees.name, 1), '.', LEFT(employees.patronymic, 1), '.') AS author
+            CONCAT(
+                    '+7 ',
+                    dp_phones.number,
+                    IF(
+                            dp_phones.name IS NULL,
+                            '',
+                            CONCAT(' ', dp_phones.name)
+                        )
+                )
+            SEPARATOR '\n') AS delivery_point_contact,
+    GROUP_CONCAT(
+            CONCAT(
+                    '+7 ',
+                    client_phones.number,
+                    IF(
+                            client_phones.name IS NULL,
+                            '',
+                            CONCAT(' ', client_phones.name)
+                        )
+                )
+            SEPARATOR '\n') AS client_contact,
+    CONCAT(employees.last_name, ' ', LEFT(employees.name, 1), '.', LEFT(employees.patronymic, 1), '.') AS author,
+    (
+            SELECT
+                SUM(order_items.price * IFNULL(order_items.actual_count, order_items.count) - order_items.discount_money)
+            FROM
+                orders
+                    LEFT JOIN order_items ON order_items.order_id = orders.id
+            WHERE
+                    orders.client_id = c.id
+              AND orders.order_status = 'Closed'
+              AND EXISTS
+                (
+                    SELECT
+                        *
+                    FROM
+                        order_items
+                            JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
+                    WHERE
+                      nomenclature.category = 'water'
+                      AND nomenclature.tare_volume = 'Vol19L'
+                      AND orders.id = order_items.order_id
+                      AND order_items.actual_count &gt; 0
+                )
+            GROUP BY
+                orders.id, orders.delivery_date 
+            ORDER BY
+                orders.delivery_date DESC
+            LIMIT 1
+        ) as lastsum,
+       
+#       КОЛ ВО ЗАКАЗОВ
+t.order_count as order_count
+
 FROM orders
-LEFT JOIN counterparty ON counterparty.id = orders.client_id
-LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-LEFT JOIN phones as dp_phones ON delivery_points.id = dp_phones.delivery_point_id
-LEFT JOIN phones as client_phones ON counterparty.id = client_phones.counterparty_id
-LEFT JOIN employees ON orders.author_employee_id = employees.id
-LEFT JOIN route_list_addresses rla ON orders.id = rla.order_id
-LEFT JOIN return_tare_reasons rtr ON orders.return_tare_reason_id = rtr.id
-LEFT JOIN return_tare_reason_categories rtrc ON orders.return_tare_reason_category_id = rtrc.id
+         LEFT JOIN counterparty c ON c.id = orders.client_id
+         LEFT JOIN delivery_points dp ON dp.id = orders.delivery_point_id
+         LEFT JOIN phones as dp_phones ON dp.id = dp_phones.delivery_point_id
+         LEFT JOIN phones as client_phones ON c.id = client_phones.counterparty_id
+         LEFT JOIN employees ON orders.author_employee_id = employees.id
+         LEFT JOIN route_list_addresses rla ON orders.id = rla.order_id
+         LEFT JOIN return_tare_reasons rtr ON orders.return_tare_reason_id = rtr.id
+         LEFT JOIN return_tare_reason_categories rtrc ON orders.return_tare_reason_category_id = rtrc.id
+         LEFT JOIN ( SELECT COUNT(*) as order_count, dp2.id 
+                     FROM orders o2
+                     LEFT JOIN delivery_points dp2 ON o2.delivery_point_id = dp2.id
+                     WHERE o2.order_status != 'DeliveryCanceled' AND o2.order_status != 'Canceled'
+                     GROUP BY dp2.id
+                    ) as t ON t.id = orders.delivery_point_id 
+         
 WHERE
-	orders.bottles_return &gt; 0
-	AND NOT EXISTS (
-		SELECT oi2.id 
-		FROM order_items oi2 
-		LEFT JOIN nomenclature n2 ON oi2.nomenclature_id = n2.id 
-		WHERE oi2.order_id = orders.id AND n2.category = 'water' AND n2.tare_volume = 'Vol19l'
-	)
-	AND orders.delivery_date BETWEEN @start_date AND @end_date
+        orders.bottles_return &gt; 0
+  AND NOT EXISTS (
+        SELECT oi2.id
+        FROM order_items oi2
+                 LEFT JOIN nomenclature n2 ON oi2.nomenclature_id = n2.id
+        WHERE oi2.order_id = orders.id AND n2.category = 'water' AND n2.tare_volume = 'Vol19l'
+    )
+  AND (IF(@date_type, orders.delivery_date BETWEEN @start_date AND @end_date, orders.create_date BETWEEN @start_date AND @end_date))
 GROUP BY orders.id
 ORDER BY orders.id DESC;</CommandText>
         <QueryParameters>
@@ -1052,6 +1201,9 @@ ORDER BY orders.id DESC;</CommandText>
           </QueryParameter>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
+          </QueryParameter>
+          <QueryParameter Name="date_type">
+            <Value>=Parameters!date_type</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1099,6 +1251,14 @@ ORDER BY orders.id DESC;</CommandText>
         <Field Name="status">
           <DataField>status</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="lastsum">
+          <DataField>lastsum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="order_count">
+          <DataField>order_count</DataField>
+          <TypeName>System.Int64</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1216,6 +1376,14 @@ GROUP BY rtrc.name</CommandText>
     </ReportParameter>
     <ReportParameter Name="date">
       <DataType>DateTime</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="date_type">
+      <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

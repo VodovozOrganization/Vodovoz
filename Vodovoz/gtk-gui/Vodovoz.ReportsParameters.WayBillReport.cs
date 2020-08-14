@@ -32,6 +32,8 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gamma.GtkWidgets.yLabel ylabel3;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckneedDate;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonCreateReport;
 
 		protected virtual void Build()
@@ -192,16 +194,29 @@ namespace Vodovoz.ReportsParameters
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
+			this.ycheckneedDate = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckneedDate.CanFocus = true;
+			this.ycheckneedDate.Name = "ycheckneedDate";
+			this.ycheckneedDate.Label = global::Mono.Unix.Catalog.GetString("С датой:");
+			this.ycheckneedDate.Active = true;
+			this.ycheckneedDate.DrawIndicator = true;
+			this.ycheckneedDate.UseUnderline = true;
+			this.vbox3.Add(this.ycheckneedDate);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.ycheckneedDate]));
+			w14.Position = 1;
+			w14.Expand = false;
+			w14.Fill = false;
+			// Container child vbox3.Gtk.Box+BoxChild
 			this.ybuttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonCreateReport.CanFocus = true;
 			this.ybuttonCreateReport.Name = "ybuttonCreateReport";
 			this.ybuttonCreateReport.UseUnderline = true;
 			this.ybuttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox3.Add(this.ybuttonCreateReport);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.ybuttonCreateReport]));
-			w14.Position = 2;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.ybuttonCreateReport]));
+			w15.Position = 3;
+			w15.Expand = false;
+			w15.Fill = false;
 			this.Add(this.vbox3);
 			if ((this.Child != null))
 			{
