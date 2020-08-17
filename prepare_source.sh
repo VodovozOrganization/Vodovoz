@@ -11,11 +11,8 @@ case $case in
 rm -v -f -R ./packages/*
 rm -v -f -R ../QSProjects/packages/*
 rm -v -f -R ../My-FyiReporting/packages/*
-rm -v -f -R ../VodovozService/packages/*
 ;;&
     *1*)
-git pull --autostash
-cd ../VodovozService
 git pull --autostash
 cd ../QSProjects
 git pull --autostash
@@ -31,7 +28,6 @@ cd ../Vodovoz
 nuget restore Vodovoz.sln;
 nuget restore ../QSProjects/QSProjectsLib.sln;
 nuget restore ../My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln
-nuget restore ../VodovozService/VodovozService.sln
 ;;&
 esac
 

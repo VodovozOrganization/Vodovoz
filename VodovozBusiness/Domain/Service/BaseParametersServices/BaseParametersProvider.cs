@@ -450,20 +450,22 @@ namespace Vodovoz.Core.DataService
 			}
 		}
 
-		public int GetVpbxApiKey()
-		{
-			if(!ParametersProvider.Instance.ContainsParameter("VpbxApiKey")) {
-				throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
+		public string VpbxApiKey { 
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("VpbxApiKey")) {
+					throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
+				}
+				return ParametersProvider.Instance.GetParameterValue("VpbxApiKey");
 			}
-			return int.Parse(ParametersProvider.Instance.GetParameterValue("VpbxApiKey"));
 		}
 
-		public int GetVpbxApiSalt()
-		{
-			if(!ParametersProvider.Instance.ContainsParameter("VpbxApiSalt")) {
-				throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
+		public string VpbxApiSalt {
+			get {
+				if(!ParametersProvider.Instance.ContainsParameter("VpbxApiSalt")) {
+					throw new InvalidProgramException("В параметрах базы не настроено кол-во строк для лога сообщения об ошибке(row_count_for_error_log).");
+				}
+				return ParametersProvider.Instance.GetParameterValue("VpbxApiSalt");
 			}
-			return int.Parse(ParametersProvider.Instance.GetParameterValue("VpbxApiSalt"));
 		}
 	}
 }
