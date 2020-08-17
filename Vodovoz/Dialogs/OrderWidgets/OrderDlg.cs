@@ -593,6 +593,20 @@ namespace Vodovoz
 				.AddColumn("Без подписей и печати").AddToggleRenderer(x => x is ISignableDocument && (x as ISignableDocument).HideSignature)
 				.Editing().ChangeSetProperty(PropertyUtil.GetPropertyInfo<ISignableDocument>(x => x.HideSignature))
 				.AddSetter((c, n) => c.Visible = n is ISignableDocument)
+				.AddSetter((toggle, document) =>
+				{
+					if (document.Type == OrderDocumentType.UPD)
+					{
+						toggle.Activatable =
+							ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+								"can_edit_seal_and_signature");
+					}
+					else
+					{
+						toggle.Activatable = true;  // по умолчанию Activatable false
+					}
+					
+				} ) // Сделать только для  ISignableDocument и UDP
 				.AddColumn("")
 				.RowCells().AddSetter<CellRenderer>((c, n) => {
 					c.CellBackgroundGdk = colorWhite;
