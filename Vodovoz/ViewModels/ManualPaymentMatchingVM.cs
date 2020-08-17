@@ -296,7 +296,7 @@ namespace Vodovoz.ViewModels
 						return;
 					}
 
-					if(SumToAllocate == 0)
+					if(SumToAllocate == 0 || Entity.Status == PaymentState.completed)
 						return;
 
 					if(CurrentBalance > 0) {
@@ -373,9 +373,7 @@ namespace Vodovoz.ViewModels
 			var list = listNodes.Where(x => x.CurrentPayment > 0);
 
 			foreach(var node in list) {
-
 				var order = UoW.GetById<VodOrder>(node.Id);
-				var sum = node.CurrentPayment + node.LastPayments;
 				Entity.AddPaymentItem(order, node.CurrentPayment);
 			}
 		}
@@ -404,7 +402,7 @@ namespace Vodovoz.ViewModels
 				incomePaymentQuery.Where(x => x.Client == Entity.Counterparty);
 
 			if(StartDate.HasValue && EndDate.HasValue)
-				incomePaymentQuery.Where(x => x.BillDate >= StartDate && x.BillDate <= EndDate);
+				incomePaymentQuery.Where(x => x.DeliveryDate >= StartDate && x.DeliveryDate <= EndDate);
 
 			if(OrderStatusVM != null)
 				incomePaymentQuery.Where(x => x.OrderStatus == OrderStatusVM);
