@@ -96,7 +96,7 @@
             <Width>83.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>56.3pt</Width>
+            <Width>62.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>49.1pt</Width>
@@ -227,7 +227,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
-                      <Value>Сумма последнего заказа</Value>
+                      <Value>Сумма последнего закрытого заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1084,7 +1084,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id as order_id,
@@ -1207,7 +1207,7 @@ ORDER BY orders.id DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
