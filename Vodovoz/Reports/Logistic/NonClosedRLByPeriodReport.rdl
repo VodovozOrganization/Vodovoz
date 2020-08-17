@@ -166,7 +166,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>Дата доставки</Value>
+                      <Value>Дата создания</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -267,7 +267,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>21.6pt</Height>
+              <Height>33.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -298,6 +298,8 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <PaddingTop >5pt</PaddingTop>
+                        <PaddingBottom >5pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -382,8 +384,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -400,8 +402,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <PaddingTop>5pt</PaddingTop>
-                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingTop>10pt</PaddingTop>
+                        <PaddingBottom>10pt</PaddingBottom>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
@@ -697,11 +699,11 @@ LEFT JOIN
 LEFT JOIN
     cars ON cars.id = rl.car_id
 WHERE
-    (rl.status != 'Closed'
+    ((rl.status != 'Closed'
     AND DATE_ADD(rl.date, INTERVAL @delay DAY) &lt; date(@end_date))
     OR (rl.closing_date BETWEEN @start_date AND @end_date
         AND rl.status = 'Closed'
-        AND date(rl.closing_date) &gt; DATE_ADD(rl.date, INTERVAL @delay DAY))
+        AND date(rl.closing_date) &gt; DATE_ADD(rl.date, INTERVAL @delay DAY)))
     AND !drivers.visiting_master
     AND cars.type_of_use != 'CompanyTruck'
 GROUP BY rl.id

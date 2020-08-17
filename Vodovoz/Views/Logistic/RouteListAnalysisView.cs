@@ -166,7 +166,7 @@ namespace Vodovoz.Views.Logistic
 		
 		private void OnCommentForFineEdited(object o, EditedArgs args)
 		{
-			if(!string.IsNullOrEmpty(ViewModel.SelectedItem.CommentForFine))
+			if(!string.IsNullOrEmpty(args.NewText))
 				ViewModel.SelectedItem.CommentForFineAuthor = ViewModel.CurrentEmployee;
 		}
 
