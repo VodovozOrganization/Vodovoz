@@ -642,5 +642,14 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return total - totalPayPartiallyPaidOrders;
 		}
+
+		public IList<PaymentItem> GetPaymentItemsForOrder(IUnitOfWork uow, int orderId)
+		{
+			var paymentItems = uow.Session.QueryOver<PaymentItem>()
+				.Where(x => x.Order.Id == orderId)
+				.List();
+
+			return paymentItems;
+		}
 	}
 }
