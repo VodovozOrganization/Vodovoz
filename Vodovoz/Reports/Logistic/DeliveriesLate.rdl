@@ -190,19 +190,19 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
             <Width>128.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>149.4pt</Width>
+            <Width>133.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>88.5pt</Width>
+            <Width>78.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>67.4pt</Width>
+            <Width>83.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>67.4pt</Width>
+            <Width>82.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>76.7pt</Width>
@@ -211,7 +211,7 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
             <Width>102.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>89.2pt</Width>
+            <Width>87.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -306,14 +306,13 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
-                      <Value>
-                      </Value>
+                      <Value>Итого опозданий:</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -323,14 +322,13 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox43">
-                      <Value>
-                      </Value>
+                      <Value>=Count(Fields!delivered_time.Value)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Left</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -1083,10 +1081,10 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
@@ -1105,10 +1103,10 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
@@ -1128,10 +1126,10 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
@@ -1151,10 +1149,10 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Center</TextAlign>
