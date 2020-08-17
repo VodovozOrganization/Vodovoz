@@ -22,6 +22,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
@@ -2990,15 +2991,17 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderStatus.InTravelList:
 				case OrderStatus.OnTheWay:
-				case OrderStatus.DeliveryCanceled:
 				case OrderStatus.Shipped:
 				case OrderStatus.UnloadingOnStock:
-				case OrderStatus.NotDelivered:
 					break;
 				case OrderStatus.Closed:
 					OnChangeStatusToClosed();
 					break;
+				case OrderStatus.DeliveryCanceled:
+				case OrderStatus.NotDelivered:
 				case OrderStatus.Canceled:
+					ChangeOrderPaymentStatus();
+					break;
 				default:
 					break;
 			}
@@ -3022,6 +3025,39 @@ namespace Vodovoz.Domain.Orders
 					u.AddCommentToTheField(UoW, CommentedFields.Reason, text);
 				}
 			}
+		}
+
+		public virtual void ChangeOrderPaymentStatus()
+		{
+			var paymentItems = orderRepository.GetPaymentItemsForOrder(UoW, Id);
+
+			if (!paymentItems.Any()) 
+				return;
+			
+			var paymentSum = paymentItems.Select(x => x.CashlessMovementOperation).Sum(x => x.Expense);
+
+			if (paymentSum == 0)
+				return;
+			
+			if (OrderPaymentStatus != OrderPaymentStatus.UnPaid)
+			{
+				ReturnPaymentToTheClientBalance(paymentSum, paymentItems);
+				OrderPaymentStatus = OrderPaymentStatus.UnPaid;
+			}
+		}
+
+		private void ReturnPaymentToTheClientBalance(decimal paymentSum, IList<PaymentItem> paymentItems)
+		{
+			var payment = paymentItems.Select(x => x.Payment).FirstOrDefault();
+
+			if (payment == null)
+				return;
+			
+			var newPayment = payment.CreatePaymentForReturnMoneyToClientBalance(paymentSum, this.Id);
+			newPayment.CreateIncomeOperation();
+			
+			UoW.Save(newPayment.CashlessMovementOperation);
+			UoW.Save(newPayment);
 		}
 
 		/// <summary>

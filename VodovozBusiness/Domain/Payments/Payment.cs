@@ -232,13 +232,30 @@ namespace Vodovoz.Domain.Payments
 
 		public virtual void CreateIncomeOperation()
 		{
-			var incomeOperation = new CashlessMovementOperation 
-			{ 
-				Income = Total, 
-				OperationTime = DateTime.Now 
+			if (CashlessMovementOperation == null)
+			{
+				CashlessMovementOperation = new CashlessMovementOperation
+				{
+					Income = Total,
+					OperationTime = DateTime.Now
+				};
+			}
+		}
+		
+		public virtual Payment CreatePaymentForReturnMoneyToClientBalance(decimal paymentSum, int orderId)
+		{
+			return new Payment
+			{
+				PaymentNum = this.PaymentNum,
+				Date = DateTime.Now,
+				Total = paymentSum,
+				ProfitCategory = this.ProfitCategory,
+				PaymentPurpose = $"Возврат суммы оплаты заказа №{orderId} на баланс клиента",
+				Organization = this.Organization,
+				Counterparty = this.Counterparty,
+				CounterpartyName = this.counterpartyName,
+				Status = PaymentState.completed
 			};
-
-			cashlessMovementOperation = incomeOperation;
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
