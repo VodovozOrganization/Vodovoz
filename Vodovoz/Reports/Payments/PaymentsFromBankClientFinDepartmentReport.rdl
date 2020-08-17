@@ -31,7 +31,7 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox23" >
+      <Textbox Name="Textbox23">
         <Height>36.72pt</Height>
         <Width>801.63pt</Width>
         <Value>В отчет попадают завершенные платежи, которые:
@@ -48,7 +48,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>69.5pt</Height>
+    <Height>89.5pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>payments</DataSetName>
@@ -92,7 +92,7 @@
             <Width>43.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>112.3pt</Width>
+            <Width>119.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -298,7 +298,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>13.6pt</Height>
+              <Height>36.8pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -314,6 +314,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -332,6 +333,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <TextAlign>Center</TextAlign>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -423,6 +425,7 @@
                         <FontSize>8pt</FontSize>
                         <Format>#,##0.00</Format>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -481,6 +484,7 @@
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>#,##0.00</Format>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -497,7 +501,10 @@
                         <FontSize>8pt</FontSize>
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>17pt</PaddingTop>
+                        <PaddingBottom>17pt</PaddingBottom>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>

@@ -5,7 +5,9 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Repositories.Orders;
 
@@ -109,6 +111,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		SmsPaymentStatus? GetOrderPaymentStatus(IUnitOfWork uow, int orderId);
 
 		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId);
+
+		IList<PaymentItem> GetPaymentItemsForOrder(IUnitOfWork uow, int orderId);
 	}
 
 	public class ClientEquipmentNode
