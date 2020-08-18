@@ -433,21 +433,6 @@ namespace Vodovoz
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			//this.dataentryInnerPhone = new global::Gamma.GtkWidgets.yEntry();
-			//this.dataentryInnerPhone.CanFocus = true;
-			//this.dataentryInnerPhone.Name = "dataentryInnerPhone";
-			//this.dataentryInnerPhone.IsEditable = true;
-			//this.dataentryInnerPhone.MaxLength = 3;
-			//this.dataentryInnerPhone.InvisibleChar = '●';
-			//this.datatableMain.Add(this.dataentryInnerPhone);
-			//global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.dataentryInnerPhone]));
-			//w17.TopAttach = ((uint)(9));
-			//w17.BottomAttach = ((uint)(10));
-			//w17.LeftAttach = ((uint)(1));
-			//w17.RightAttach = ((uint)(2));
-			//w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			//w17.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatableMain.Gtk.Table+TableChild
 			this.dataentryLastName = new global::Gamma.GtkWidgets.yEntry();
 			this.dataentryLastName.CanFocus = true;
 			this.dataentryLastName.Name = "dataentryLastName";
