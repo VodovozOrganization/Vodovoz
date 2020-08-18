@@ -91,7 +91,7 @@ namespace Vodovoz
 		private readonly List<EmployeeCategory> hiddenCategory = new List<EmployeeCategory>();
 		private readonly EmployeeDocumentType[] hiddenForRussianDocument = { EmployeeDocumentType.RefugeeId, EmployeeDocumentType.RefugeeCertificate, EmployeeDocumentType.Residence, EmployeeDocumentType.ForeignCitizenPassport };
 		private readonly EmployeeDocumentType[] hiddenForForeignCitizen = { EmployeeDocumentType.MilitaryID, EmployeeDocumentType.NavyPassport, EmployeeDocumentType.OfficerCertificate };
-		
+
 		private void ConfigureDlg()
 		{
 			canManageDriversAndForwarders = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_manage_drivers_and_forwarders");
@@ -403,6 +403,23 @@ namespace Vodovoz
 						}
 					} else
 						return false;
+				}
+			}
+			if(Entity.InnerPhone != null) {
+				var associatedEmployees = UoW.Session.Query<Employee>().Where(e => e.InnerPhone == Entity.InnerPhone);
+				if(associatedEmployees.Any(e => e.Id != Entity.Id && e.InnerPhone == Entity.InnerPhone)) {
+					string mes = String.Format("Внутренний номер {0} уже связан с сотрудником {1}, при привязке этого телефона к данному сотруднику , старая связь будет удалена. Продолжить?",
+						Entity.InnerPhone,
+						String.Join(", ", associatedEmployees.Select(e => e.Name))
+						);
+					if(MessageDialogHelper.RunQuestionDialog(mes)) {
+						foreach(var ae in associatedEmployees.Where(e => e.InnerPhone == Entity.InnerPhone)) {
+							ae.InnerPhone = null;
+							UoW.Save(ae);
+						}
+					} else {
+						return false;
+					}
 				}
 			}
 			Entity.CreateDefaultWageParameter(WageSingletonRepository.GetInstance(), new BaseParametersProvider(), ServicesConfig.InteractiveService);
