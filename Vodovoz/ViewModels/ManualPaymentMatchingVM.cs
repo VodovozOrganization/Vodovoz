@@ -79,16 +79,17 @@ namespace Vodovoz.ViewModels
 		public IJournalSearch Search { get; set; }
 
 		private IList<ManualPaymentMatchingVMNode> listNodes { get; set; } = new List<ManualPaymentMatchingVMNode>();
-
-		readonly ICommonServices commonServices;
-		readonly SearchHelper searchHelper;
+		
+		private readonly SearchHelper searchHelper;
+		private readonly IOrderRepository orderRepository;
 
 		public ManualPaymentMatchingVM(
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
-			ICommonServices commonServices) : base(uowBuilder, uowFactory, commonServices)
+			ICommonServices commonServices,
+			IOrderRepository orderRepository) : base(uowBuilder, uowFactory, commonServices)
 		{
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 
 			if(uowBuilder.IsNewEntity) {
 				AbortOpening("Невозможно создать новую загрузку выписки из текущего диалога, необходимо использовать диалоги создания");
@@ -307,10 +308,16 @@ namespace Vodovoz.ViewModels
 
 					AllocateOrders();
 					CreateOperations();
+					UoW.Commit();
 
-					foreach (var item in Entity.PaymentItems)
-					{
-						item.Order.OrderPaymentStatus = item.Order.ActualTotalSum > item.Sum
+					foreach (var item in Entity.PaymentItems) {
+						if(item.Order.OrderPaymentStatus == OrderPaymentStatus.Paid)
+							continue;
+						
+						var totalSum = orderRepository.GetPaymentItemsForOrder(UoW, item.Order.Id)
+						                              .Sum(x => x.Sum);
+						
+						item.Order.OrderPaymentStatus = item.Order.ActualTotalSum > totalSum
 							? OrderPaymentStatus.PartiallyPaid
 							: OrderPaymentStatus.Paid;
 						
@@ -318,11 +325,7 @@ namespace Vodovoz.ViewModels
 					}
 					
 					Entity.Status = PaymentState.completed;
-
-					if(Save()) { 
-						UoW.Commit();
-						Close(false, QS.Navigation.CloseSource.Self);
-					}
+					SaveAndClose();
 				},
 				() => true
 			);
