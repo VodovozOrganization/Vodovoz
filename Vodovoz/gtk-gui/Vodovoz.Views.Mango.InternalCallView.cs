@@ -221,7 +221,7 @@ namespace Vodovoz.Views.Mango
 			this.RetentionButton.CanFocus = true;
 			this.RetentionButton.Name = "RetentionButton";
 			this.RetentionButton.UseUnderline = true;
-			this.RetentionButton.Label = global::Mono.Unix.Catalog.GetString("|| Удержание");
+			this.RetentionButton.Label = global::Mono.Unix.Catalog.GetString("|| Удержание ");
 			this.table4.Add(this.RetentionButton);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table4[this.RetentionButton]));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -242,6 +242,8 @@ namespace Vodovoz.Views.Mango
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.NewClientButton.Clicked += new global::System.EventHandler(this.OnNewClientButtonClicked);
+			this.ExistingClientButton.Clicked += new global::System.EventHandler(this.OnExistingClientButtonClicked);
 			this.ComplaintButton.Clicked += new global::System.EventHandler(this.OnComplaintButtonClicked);
 		}
 	}

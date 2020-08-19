@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
@@ -36,6 +37,33 @@ namespace Vodovoz.ViewModels.Mango
 			tdiCompatibilityNavigation.OpenTdiTabNamedArgs<CreateComplaintViewModel>(null, parameters);
 		}
 
+		public void SelectNewConterparty()
+		{
+			var page = tdiCompatibilityNavigation.OpenTdiTab<CounterpartyDlg>(null);
+			var tab = page.TdiTab as CounterpartyDlg;
+			tab.Entity.Phones.First().Number = "+7-000-000-00-00"; //FIXME
+			page.PageClosed += NewCounerpatry_PageClosed;
+		}
+
+		void NewCounerpatry_PageClosed(object sender, PageClosedEventArgs e)
+		{
+			if(e.CloseSource == CloseSource.Save) 
+				{ }//FIXME Открыть другой диалог.
+		}
+
+		public void SelectExistConterparty()
+		{
+			var page = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
+			page.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+			page.ViewModel.OnSelectResult += CounterpartyJournal_OnSelectResult;
+		}
+
+		void CounterpartyJournal_OnSelectResult(object sender, QS.Project.Journal.JournalSelectedEventArgs e)
+		{
+			//FIXME получить контрагента и перейти на другой диалог
+		}
+
 		#endregion
+
 	}
 }

@@ -15,5 +15,15 @@ namespace Vodovoz.Views.Mango
 		{
 			ViewModel.CreateComplaint();
 		}
+
+		protected void OnNewClientButtonClicked(object sender, EventArgs e)
+		{
+			ViewModel.SelectNewConterparty();
+		}
+
+		protected void OnExistingClientButtonClicked(object sender, EventArgs e)
+		{
+			ViewModel.SelectExistConterparty();
+		}
 	}
 }

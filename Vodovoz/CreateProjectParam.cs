@@ -25,6 +25,7 @@ using QS.Project.Repositories;
 using QS.Project.Services;
 using QS.Project.Services.GtkUI;
 using QS.Services;
+using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Resolve;
 using QS.Views.Resolve;
@@ -581,9 +582,9 @@ namespace Vodovoz
 			#endregion
 
 			#region Старые диалоги
-			//builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(IncomeDocDlg)))
-			//.Where(t => t.IsAssignableTo<ITdiTab>() && t.Name.EndsWith("Dlg"))
-			//.AsSelf();
+			builder.RegisterAssemblyTypes(System.Reflection.Assembly.GetAssembly(typeof(CounterpartyDlg)))
+				.Where(t => t.IsAssignableTo<ITdiTab>() && t.Name.EndsWith("Dlg"))
+				.AsSelf();
 			#endregion
 
 			#region Старые общие диалоги
