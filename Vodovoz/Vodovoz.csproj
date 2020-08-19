@@ -1508,6 +1508,10 @@
     <Compile Include="JournalNodes\LateArrivalReasonsJournalNode.cs" />
     <Compile Include="ReportsParameters\Logistic\ScheduleOnLinePerShiftReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ScheduleOnLinePerShiftReport.cs" />
+    <Compile Include="ViewModels\Mango\InternalCallViewModel.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.InternalCall.cs" />
+    <Compile Include="Views\Mango\InternalCallView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.InternalCallView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1775,6 +1779,8 @@
     <Folder Include="ViewModels\Orders\OrdersWithoutShipment\" />
     <Folder Include="Dialogs\Email\" />
     <Folder Include="Views\Cash\" />
+    <Folder Include="Views\Mango\" />
+    <Folder Include="ViewModels\Mango\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
