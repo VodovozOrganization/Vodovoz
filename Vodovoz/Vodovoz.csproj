@@ -1518,6 +1518,12 @@
     <Compile Include="ViewModels\Mango\InternalCallViewModel.cs" />
     <Compile Include="Views\Mango\InternalCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.InternalCallView.cs" />
+    <Compile Include="Views\Mango\FullInternalCallView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.FullInternalCallView.cs" />
+    <Compile Include="ViewModels\Mango\FullInternalCallViewModel.cs" />
+    <Compile Include="Views\Mango\EmptyClass.cs" />
+    <Compile Include="Views\Mango\CounterpartyOrdersWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.CounterpartyOrdersWidget.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -72,6 +72,15 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="count">Требуемое количество последних заказов.</param>
 		IList<Domain.Orders.Order> GetLatestOrdersForDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, int? count = null);
 
+		/// <summary>
+		/// Список последних заказов для контрагента .
+		/// </summary>
+		/// <returns>Список последних заказов для контрагента.</returns>
+		/// <param name="UoW">IUnitOfWork</param>
+		/// <param name="client">Контрагент.</param>
+		/// <param name="count">Требуемое количество последних заказов.</param>
+		IList<Domain.Orders.Order> GetLatestOrdersForCounterparty(IUnitOfWork UoW, Counterparty client, int? count = null);
+
 		OrderStatus[] GetOnClosingOrderStatuses();
 
 		Domain.Orders.Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
