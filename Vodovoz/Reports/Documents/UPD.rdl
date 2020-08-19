@@ -1074,9 +1074,9 @@ FROM stored_resource
             </Style>
           </CustomReportItem>
           <Image Name="Image3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>60.21pt</Height>
-            <Width>80.53pt</Width>
-            <Left>495.7pt</Left>
+            <Height>40.21pt</Height>
+            <Width>52.53pt</Width>
+            <Left>510.7pt</Left>
             <Top>280.6pt</Top>
             <Style>
               <BorderStyle />
@@ -1092,10 +1092,10 @@ FROM stored_resource
             </Visibility>
           </Image>
           <Image Name="Image2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>60.21pt</Height>
-            <Width>80.53pt</Width>
+            <Height>40.21pt</Height>
+            <Width>52.53pt</Width>
             <Left>185.4pt</Left>
-            <Top>284.9pt</Top>
+            <Top>275.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1108,25 +1108,6 @@ FROM stored_resource
             <Visibility>
               <Hidden>={?hide_signature}</Hidden>
             </Visibility>
-          </Image>
-          <Image Name="Image4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>102.39pt</Height>
-            <Width>112.93pt</Width>
-            <Left>478.2pt</Left>
-            <Top>250.8pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <Source>Database</Source>
-            <Value>=First( {IM11} , "Image" )</Value>
-            <Sizing>Fit</Sizing>
-            <MIMEType>image/jpeg</MIMEType>
-            <Visibility>
-              <Hidden>={?hide_signature}</Hidden>
-            </Visibility>
-            <ZIndex >20</ZIndex>
           </Image>
         </ReportItems>
         <Style>
@@ -3739,11 +3720,29 @@ FROM stored_resource
               <TextAlign>Right</TextAlign>
             </Style>
           </Textbox>
-          <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>60.21pt</Height>
-            <Width>80.53pt</Width>
-            <Left>532.5pt</Left>
-            <Top>155.1pt</Top>
+          <Image Name="Image4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>40.46pt</Height>
+            <Width>50.78pt</Width>
+            <Left>135.1pt</Left>
+            <Top>155.9pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {IM12} , "Image" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/jpeg</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+          </Image>
+          <Image Name="Image6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>40.46pt</Height>
+            <Width>50.78pt</Width>
+            <Left>126.5pt</Left>
+            <Top>93.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -3856,6 +3855,25 @@ FROM stored_resource
         <Left>88.60pt</Left>
         <Top>5.60pt</Top>
       </Line>
+      <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>102.39pt</Height>
+        <Width>112.93pt</Width>
+        <Left>269.0pt</Left>
+        <Top>379.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <Source>Database</Source>
+        <Value>=First( {IM11} , "Image" )</Value>
+        <Sizing>Fit</Sizing>
+        <MIMEType>image/jpeg</MIMEType>
+        <Visibility>
+          <Hidden>={?hide_signature}</Hidden>
+        </Visibility>
+        <ZIndex>20</ZIndex>
+      </Image>
     </ReportItems>
   </Body>
   <PageFooter>
