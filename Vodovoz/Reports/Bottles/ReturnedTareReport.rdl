@@ -84,7 +84,7 @@
             <Width>36.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>91.6pt</Width>
+            <Width>70.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>97.5pt</Width>
@@ -99,22 +99,22 @@
             <Width>88.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>31.8pt</Width>
+            <Width>48.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>31.3pt</Width>
+            <Width>48.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>57.6pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>65.6pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>45.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>100.0pt</Width>
+            <Width>94.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -187,8 +187,8 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >false</CanGrow>
-                      <CanShrink >false</CanShrink>
+                      <CanGrow>false</CanGrow>
+                      <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -276,7 +276,7 @@
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -297,7 +297,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
                       <Value>Сумма последнего закрытого заказа</Value>
@@ -314,7 +314,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
                       <Value>Кол-во заказов по клиенту</Value>
@@ -429,7 +429,7 @@
                         <PaddingTop>7pt</PaddingTop>
                         <PaddingBottom>7pt</PaddingBottom>
                       </Style>
-                      <CanShrink >false</CanShrink>
+                      <CanShrink>false</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -542,7 +542,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
                       <Value>={lastsum}</Value>
@@ -559,7 +559,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
                       <Value>={order_count}</Value>
@@ -783,7 +783,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
                       <Value>
@@ -801,7 +801,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
                       <Value>
