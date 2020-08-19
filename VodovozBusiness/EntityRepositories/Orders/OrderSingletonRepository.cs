@@ -275,6 +275,25 @@ namespace Vodovoz.EntityRepositories.Orders
 		}
 
 		/// <summary>
+		/// Список последних заказов для контрагента .
+		/// </summary>
+		/// <returns>Список последних заказов для контрагента.</returns>
+		/// <param name="UoW">IUnitOfWork</param>
+		/// <param name="client">Контрагент.</param>
+		/// <param name="count">Требуемое количество последних заказов.</param>
+		public IList<Domain.Orders.Order> GetLatestOrdersForCounterparty(IUnitOfWork UoW, Counterparty client, int? count = null)
+		{
+			VodovozOrder orderAlias = null;
+			var queryResult = UoW.Session.QueryOver(() => orderAlias)
+				.Where(() => orderAlias.Client == client)
+				.OrderBy(() => orderAlias.DeliveryDate).Desc;
+			if(count != null)
+				return queryResult.Take(count.Value).List();
+			else
+				return queryResult.List();
+		}
+
+		/// <summary>
 		/// Список МЛ для заказа, отсортированный в порядке владения этим заказом, в случае переносов
 		/// </summary>
 		/// <returns>Список МЛ</returns>
