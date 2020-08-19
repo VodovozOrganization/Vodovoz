@@ -487,17 +487,14 @@ public partial class MainWindow : Window
 
 	void ActionPaymentFromBank_Activated(object sender, System.EventArgs e)
 	{
-		/*tdiMain.OpenTab(
-			"PaymentFromBank",
-			() => new PaymentLoaderVM(ServicesConfig.CommonServices, NavigationManagerProvider.NavigationManager)
-		);*/
 		var filter = new PaymentsJournalFilterViewModel();
 
 		var paymentsJournalViewModel = new PaymentsJournalViewModel(
 			filter,
 			UnitOfWorkFactory.GetDefaultFactory,
 			ServicesConfig.CommonServices,
-			NavigationManagerProvider.NavigationManager
+			NavigationManagerProvider.NavigationManager,
+			OrderSingletonRepository.GetInstance()
 		);
 
 		tdiMain.AddTab(paymentsJournalViewModel);
