@@ -180,6 +180,13 @@
     <Reference Include="Zstandard.Net">
       <HintPath>..\packages\MySql.Data.8.0.20\lib\net452\Zstandard.Net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac">
+      <HintPath>..\packages\Autofac.5.2.0\lib\net461\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -1509,7 +1516,6 @@
     <Compile Include="ReportsParameters\Logistic\ScheduleOnLinePerShiftReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ScheduleOnLinePerShiftReport.cs" />
     <Compile Include="ViewModels\Mango\InternalCallViewModel.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Mango.InternalCall.cs" />
     <Compile Include="Views\Mango\InternalCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.InternalCallView.cs" />
   </ItemGroup>

@@ -20,14 +20,15 @@ namespace Vodovoz.ViewModels.Complaints
 		readonly IEntityAutocompleteSelectorFactory employeeSelectorFactory;
 
 		public CreateComplaintViewModel(
-			IEntityUoWBuilder uoWBuilder, 
+			IEntityUoWBuilder uowBuilder, 
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
 			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
 			ISubdivisionRepository subdivisionRepository,
-			ICommonServices commonServices
-			) : base(uoWBuilder, unitOfWorkFactory, commonServices)
+			ICommonServices commonServices,
+			string phone = null
+			) : base(uowBuilder, unitOfWorkFactory, commonServices)
 		{
 			this.employeeSelectorFactory = employeeSelectorFactory ?? throw new ArgumentNullException(nameof(employeeSelectorFactory));
 			this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -36,6 +37,7 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.ComplaintType = ComplaintType.Client;
 			Entity.SetStatus(ComplaintStatuses.Checking);
 			ConfigureEntityPropertyChanges();
+			Entity.Phone = phone;
 			TabName = "Новая клиентская рекламация";
 		}
 
