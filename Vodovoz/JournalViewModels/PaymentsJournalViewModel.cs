@@ -18,6 +18,7 @@ using QS.Project.Journal.DataLoader;
 using Vodovoz.Repositories.Payments;
 using System.Linq;
 using Vodovoz.Core.DataService;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -26,17 +27,20 @@ namespace Vodovoz.JournalViewModels
 		private readonly IUnitOfWorkFactory unitOfWorkFactory;
 		private readonly INavigationManager navigationManager;
 		private readonly ICommonServices commonServices;
+		private readonly IOrderRepository orderRepository;
 
 		public PaymentsJournalViewModel(
 			PaymentsJournalFilterViewModel filterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigationManager
+			INavigationManager navigationManager,
+			IOrderRepository orderRepository
 		) : base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
 			TabName = "Журнал платежей из банк-клиента";
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			this.navigationManager = navigationManager;
 
 			RegisterPayments();
@@ -146,7 +150,8 @@ namespace Vodovoz.JournalViewModels
 					(PaymentJournalNode node) => new ManualPaymentMatchingVM(
 						EntityUoWBuilder.ForOpen(node.Id),
 						unitOfWorkFactory,
-						commonServices
+						commonServices,
+						orderRepository
 					),
 					//функция идентификации документа 
 					(PaymentJournalNode node) => {
