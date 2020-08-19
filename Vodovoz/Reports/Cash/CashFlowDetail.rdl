@@ -14,7 +14,7 @@
   <DataSets>
   </DataSets>
   <PageHeader>
-    <Height>25.2pt</Height>
+    <Height>78.6pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -33,6 +33,49 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>16.52pt</Height>
+        <Width>558.58pt</Width>
+        <Value>="Выбранные фильтры:"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>1.7pt</Left>
+        <Top>28.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <VerticalAlign>Middle</VerticalAlign>
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.29pt</Height>
+        <Width>548.87pt</Width>
+        <Value>= {?cash_subdivisions_name}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.8pt</Left>
+        <Top>45.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.99pt</Height>
+        <Width>555.56pt</Width>
+        <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.4pt</Left>
+        <Top>60.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
@@ -42,8 +85,8 @@
         <Width>560.18pt</Width>
         <Value>Приход (наличка)</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>6pt</Top>
+        <Left>0.0pt</Left>
+        <Top>4.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -96,20 +139,32 @@
         <NoRows>За период нет прихода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate">
+          <Parameter Name="StartDate" >
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate">
+          <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="IncomeCategory">
+          <Parameter Name="IncomeCategory" >
             <Value>=Parameters!IncomeCategory</Value>
           </Parameter>
-          <Parameter Name="Casher">
+          <Parameter Name="Casher" >
             <Value>=Parameters!Casher</Value>
           </Parameter>
-          <Parameter Name="Employee">
+          <Parameter Name="Employee" >
             <Value>=Parameters!Employee</Value>
+          </Parameter>
+          <Parameter Name="CasherName" >
+            <Value>=Parameters!CasherName</Value>
+          </Parameter>
+          <Parameter Name="EmployeeName" >
+            <Value>=Parameters!EmployeeName</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions" >
+            <Value>=Parameters!cash_subdivisions</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions_name" >
+            <Value>=Parameters!cash_subdivisions_name</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -126,24 +181,36 @@
         <ReportName>CashFlowDetailExpense</ReportName>
         <NoRows>За период нет расхода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters>
+        <Parameters >
+          <Parameter Name="Casher">
+            <Value>=Parameters!Casher</Value>
+          </Parameter>
           <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
-          </Parameter>
-          <Parameter Name="EndDate">
-            <Value>=Parameters!EndDate</Value>
           </Parameter>
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed">
-            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          <Parameter Name="cash_subdivisions_name">
+            <Value>=Parameters!cash_subdivisions_name</Value>
           </Parameter>
-          <Parameter Name="Casher">
-            <Value>=Parameters!Casher</Value>
+          <Parameter Name="CasherName">
+            <Value>=Parameters!CasherName</Value>
           </Parameter>
           <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
+          </Parameter>
+          <Parameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </Parameter>
+          <Parameter Name="EmployeeName">
+            <Value>=Parameters!EmployeeName</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -160,24 +227,36 @@
         <ReportName>CashFlowDetailAdvance</ReportName>
         <NoRows>За период нет авансов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters>
+        <Parameters >
+          <Parameter Name="Casher">
+            <Value>=Parameters!Casher</Value>
+          </Parameter>
           <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
-          </Parameter>
-          <Parameter Name="EndDate">
-            <Value>=Parameters!EndDate</Value>
           </Parameter>
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed">
-            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          <Parameter Name="cash_subdivisions_name">
+            <Value>=Parameters!cash_subdivisions_name</Value>
           </Parameter>
-          <Parameter Name="Casher">
-            <Value>=Parameters!Casher</Value>
+          <Parameter Name="CasherName">
+            <Value>=Parameters!CasherName</Value>
           </Parameter>
           <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
+          </Parameter>
+          <Parameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </Parameter>
+          <Parameter Name="EmployeeName">
+            <Value>=Parameters!EmployeeName</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -209,24 +288,36 @@
         <ReportName>CashFlowDetailAdvanceReport</ReportName>
         <NoRows>За период нет авансовых отчетов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters>
+        <Parameters >
+          <Parameter Name="Casher">
+            <Value>=Parameters!Casher</Value>
+          </Parameter>
           <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
-          </Parameter>
-          <Parameter Name="EndDate">
-            <Value>=Parameters!EndDate</Value>
           </Parameter>
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed">
-            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          <Parameter Name="cash_subdivisions_name">
+            <Value>=Parameters!cash_subdivisions_name</Value>
           </Parameter>
-          <Parameter Name="Casher">
-            <Value>=Parameters!Casher</Value>
+          <Parameter Name="CasherName">
+            <Value>=Parameters!CasherName</Value>
           </Parameter>
           <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
+          </Parameter>
+          <Parameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </Parameter>
+          <Parameter Name="EmployeeName">
+            <Value>=Parameters!EmployeeName</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -258,24 +349,36 @@
         <ReportName>CashFlowDetailIncomeReturn</ReportName>
         <NoRows>За период нет возвратов денег.</NoRows>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters>
+        <Parameters >
+          <Parameter Name="Casher">
+            <Value>=Parameters!Casher</Value>
+          </Parameter>
           <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
-          </Parameter>
-          <Parameter Name="EndDate">
-            <Value>=Parameters!EndDate</Value>
           </Parameter>
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed">
-            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          <Parameter Name="cash_subdivisions_name">
+            <Value>=Parameters!cash_subdivisions_name</Value>
           </Parameter>
-          <Parameter Name="Casher">
-            <Value>=Parameters!Casher</Value>
+          <Parameter Name="CasherName">
+            <Value>=Parameters!CasherName</Value>
           </Parameter>
           <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
+          </Parameter>
+          <Parameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </Parameter>
+          <Parameter Name="EmployeeName">
+            <Value>=Parameters!EmployeeName</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -292,24 +395,36 @@
         <ReportName>CashFlowDetailUnclosedAdvance</ReportName>
         <NoRows>Все авансы закрыты.</NoRows>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters>
+        <Parameters >
+          <Parameter Name="Casher">
+            <Value>=Parameters!Casher</Value>
+          </Parameter>
           <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
-          </Parameter>
-          <Parameter Name="EndDate">
-            <Value>=Parameters!EndDate</Value>
           </Parameter>
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed">
-            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          <Parameter Name="cash_subdivisions_name">
+            <Value>=Parameters!cash_subdivisions_name</Value>
           </Parameter>
-          <Parameter Name="Casher">
-            <Value>=Parameters!Casher</Value>
+          <Parameter Name="CasherName">
+            <Value>=Parameters!CasherName</Value>
           </Parameter>
           <Parameter Name="Employee">
             <Value>=Parameters!Employee</Value>
+          </Parameter>
+          <Parameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+          <Parameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </Parameter>
+          <Parameter Name="EmployeeName">
+            <Value>=Parameters!EmployeeName</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -364,7 +479,7 @@
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -430,6 +545,35 @@
     </ReportParameter>
     <ReportParameter Name="Employee">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CasherName">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="EmployeeName">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="cash_subdivisions">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="cash_subdivisions_name">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

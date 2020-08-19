@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataIncome">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_income_category.name AS Category,
@@ -35,6 +35,7 @@ WHERE
 	cash_income.date &gt;= @startDate AND cash_income.date &lt; @endDate
 	AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 	AND (@Employee = -1 OR cash_income.employee_id = @Employee)
+	AND cash_income.related_to_subdivision_id in (@cash_subdivisions)
 GROUP BY cash_income.cash_income_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -50,9 +51,12 @@ ORDER BY Category;</CommandText>
           <QueryParameter Name="Employee">
             <Value>={?Employee}</Value>
           </QueryParameter>
+          <QueryParameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -64,7 +68,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataExpense">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name as Category,
@@ -77,6 +81,7 @@ WHERE cash_expense.type_operation &lt;&gt; 'Advance' AND
 	cash_expense.date BETWEEN @startDate AND @endDate
 AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_expense.employee_id = @Employee)
+AND cash_expense.related_to_subdivision_id in (@cash_subdivisions)
 GROUP BY cash_expense.cash_expense_category_id
 ORDER BY Category
 ;</CommandText>
@@ -93,9 +98,12 @@ ORDER BY Category
           <QueryParameter Name="Employee">
             <Value>={?Employee}</Value>
           </QueryParameter>
+          <QueryParameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -107,7 +115,7 @@ ORDER BY Category
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name as Category,
@@ -120,6 +128,7 @@ WHERE cash_expense.type_operation = 'Advance' AND
 	cash_expense.date BETWEEN @startDate AND @endDate
 	AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
 	AND (@Employee = -1 OR cash_expense.employee_id = @Employee)
+	AND cash_expense.related_to_subdivision_id in (@cash_subdivisions)
 GROUP BY cash_expense.cash_expense_category_id
 ORDER BY Category
 ;</CommandText>
@@ -136,9 +145,12 @@ ORDER BY Category
           <QueryParameter Name="Employee">
             <Value>={?Employee}</Value>
           </QueryParameter>
+          <QueryParameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -150,7 +162,7 @@ ORDER BY Category
       </Fields>
     </DataSet>
     <DataSet Name="IncomeReturn">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name AS Category,
@@ -164,6 +176,7 @@ WHERE
     AND cash_income.date BETWEEN @startDate AND @endDate
 	AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 	AND (@Employee = -1 OR cash_income.employee_id = @Employee)
+	AND cash_income.related_to_subdivision_id in (@cash_subdivisions)
 GROUP BY cash_income.cash_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -179,9 +192,12 @@ ORDER BY Category;</CommandText>
           <QueryParameter Name="Employee">
             <Value>={?Employee}</Value>
           </QueryParameter>
+          <QueryParameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Category">
           <DataField>Category</DataField>
           <TypeName>System.String</TypeName>
@@ -193,7 +209,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="AdvanceReport">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name AS Category,
@@ -206,6 +222,7 @@ WHERE
 	cash_advance_report.date BETWEEN @startDate AND @endDate
 	AND (@Casher = -1 OR cash_advance_report.casher_employee_id = @Casher)
 	AND (@Employee = -1 OR cash_advance_report.employee_id = @Employee)
+	AND cash_advance_report.related_to_subdivision_id in (@cash_subdivisions)
 GROUP BY cash_advance_report.cash_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -221,9 +238,12 @@ ORDER BY Category;</CommandText>
           <QueryParameter Name="Employee">
             <Value>={?Employee}</Value>
           </QueryParameter>
+          <QueryParameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Category">
           <DataField>Category</DataField>
           <TypeName>System.String</TypeName>
@@ -234,8 +254,8 @@ ORDER BY Category;</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="StartBalance" >
-      <Query>
+    <DataSet Name="StartBalance">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT (income.money - expense.money) as balance, 
        subdivisions.name
@@ -264,7 +284,7 @@ LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</C
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -275,7 +295,7 @@ LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</C
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="EndBalance" >
+    <DataSet Name="EndBalance">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT (income.money - expense.money) as balance, 
@@ -337,7 +357,7 @@ LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</C
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox38" >
+      <Textbox Name="Textbox38">
         <Height>16.52pt</Height>
         <Width>558.58pt</Width>
         <Value>="Выбранные фильтры:"</Value>
@@ -352,7 +372,7 @@ LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</C
           <FontSize>9pt</FontSize>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox39" >
+      <Textbox Name="Textbox39">
         <Height>14.99pt</Height>
         <Width>555.56pt</Width>
         <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
@@ -366,7 +386,7 @@ LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</C
           <FontSize>9pt</FontSize>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox41" >
+      <Textbox Name="Textbox41">
         <Height>14.29pt</Height>
         <Width>548.87pt</Width>
         <Value>= {?cash_subdivisions_name}</Value>
@@ -1210,8 +1230,8 @@ LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</C
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontWeight >Bold</FontWeight>
-          <FontSize >11pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <FontSize>11pt</FontSize>
         </Style>
       </Textbox>
       <Textbox Name="Textbox37" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1225,11 +1245,11 @@ LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</C
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontWeight >Bold</FontWeight>
-          <FontSize >11pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <FontSize>11pt</FontSize>
         </Style>
       </Textbox>
-      <Table Name="Table6" >
+      <Table Name="Table6">
         <DataSetName>StartBalance</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1338,7 +1358,7 @@ LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</C
         <Left>16.4pt</Left>
         <Top>364.5pt</Top>
       </Table>
-      <Table Name="Table7" >
+      <Table Name="Table7">
         <DataSetName>EndBalance</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1474,7 +1494,7 @@ LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</C
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
