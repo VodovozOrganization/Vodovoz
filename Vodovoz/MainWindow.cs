@@ -156,8 +156,8 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		}
 
 		NavigationManager = AutofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-
-		NavigationManager.OpenViewModel<InternalCallViewModel>(null);
+		//Point!
+		NavigationManager.OpenViewModel<FullInternalCallViewModel>(null);
 
 		BanksUpdater.CheckBanksUpdate(false);
 	}
