@@ -12,6 +12,7 @@ bin/
 obj/
 packages/*
 .vs/
+.vscode/
 mono_crash.*.json
 
 #Workbench Backup Files
