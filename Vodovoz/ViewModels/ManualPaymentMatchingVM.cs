@@ -112,7 +112,7 @@ namespace Vodovoz.ViewModels
 			GetCounterpatyDebt();
 		}
 
-		private void GetLastBalance()
+		public void GetLastBalance()
 		{
 			if(Entity.Counterparty != null)
 				LastBalance = PaymentsRepository.GetCounterpartyLastBalance(UoW, Entity.Counterparty.Id);
