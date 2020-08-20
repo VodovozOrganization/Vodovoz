@@ -64,6 +64,7 @@ namespace Vodovoz.Views
 			entryCounterparty.ChangedByUser += (sender, e) =>
 			{
 				UpdateNodes(this, EventArgs.Empty);
+				ViewModel.GetLastBalance();
 				ViewModel.GetCounterpatyDebt();
 			};
 
