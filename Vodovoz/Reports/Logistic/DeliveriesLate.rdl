@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_lists.id,
@@ -47,7 +47,7 @@
                  '',
                  CONCAT(LEFT(lo_comment_author.patronymic, 1), '.'))) AS lo_comment_author_name,
 
-    GROUP_CONCAT(fine.fine_reason_string SEPARATOR ', ') as fines
+     IFNULL(fine.total_money + ' р.','')  as fines
 FROM
     route_lists
         LEFT JOIN employees ON employees.id = route_lists.driver_id
@@ -61,7 +61,7 @@ FROM
         LEFT OUTER JOIN fines_to_route_list_addresses fine_route_list_adrs on route_list_addresses.id = fine_route_list_adrs.route_list_address_id
         LEFT OUTER JOIN fines fine on fine_route_list_adrs.fine_id = fine.id
 WHERE
-    route_lists.`date` BETWEEN @start_date AND @end_date
+    route_lists.`date` BETWEEN '2020-06-02T00:00:00.0000000' AND '2020-08-21T03:00:00.0000000'
   AND route_list_addresses.status = 'Completed'
   AND employees.visiting_master = 0
 GROUP BY route_list_addresses.id
@@ -75,7 +75,7 @@ HAVING delay &gt; 0;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -811,6 +811,8 @@ WHERE o.order_status != 'NotDelivered' and o.order_status != 'Canceled'
                         <BorderWidth />
                         <Format>hh':'mm':'ss</Format>
                         <TextAlign>Center</TextAlign>
+                        <PaddingTop >3pt</PaddingTop>
+                        <PaddingBottom >3pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
