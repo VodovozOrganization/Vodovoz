@@ -13,9 +13,13 @@
     <PackageReference Include="Grpc.Core" Version="2.31.0" />
     <PackageReference Include="Grpc.Tools" Version="2.31.0" />
     <PackageReference Include="Google.Protobuf" Version="3.13.0" />
+    <PackageReference Include="NLog" Version="4.7.2" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Protobuf\NotificationService.proto" />
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Protobuf Include="Protobuf\NotificationService.proto" />
