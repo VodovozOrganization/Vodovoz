@@ -11,10 +11,26 @@ namespace Vodovoz.Views.Mango
 		public FullInternalCallView(FullInternalCallViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
+			Configure();
 		}
 
+		void Configure()
+		{
+			foreach(var item in ViewModel.GetWidgetPages()) {
+				var label = new Gtk.Label(item.Key);
+				WidgetPlace.AppendPage(item.Value, label);
+				WidgetPlace.ShowAll();
+			}
+			WidgetPlace.ChangeCurrentPage += ChangeCurrentPage_WidgetPlace;
+		}
 		public void Refresh()
 		{
 		}
+		#region Events
+		private void ChangeCurrentPage_WidgetPlace(object sender,EventArgs e)
+		{
+			//WidgetPlace.Page
+		}
+		#endregion
 	}
 }
