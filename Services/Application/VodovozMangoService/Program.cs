@@ -15,7 +15,7 @@ namespace VodovozMangoService
 			Server server = new Server
 			{
 				Services = { NotificationService.BindService(service) },
-				Ports = { new ServerPort("localhost", Port, ServerCredentials.Insecure) }
+				Ports = { new ServerPort("0.0.0.0", Port, ServerCredentials.Insecure) }
 			};
 			server.Start();
 			
