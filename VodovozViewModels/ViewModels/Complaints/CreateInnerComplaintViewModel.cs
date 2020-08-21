@@ -33,10 +33,10 @@ namespace Vodovoz.ViewModels.Complaints
 			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			Entity.ComplaintType = ComplaintType.Inner;
 			Entity.SetStatus(ComplaintStatuses.Checking);
-			TabName = "Новая внутреняя жалоба";
+			TabName = "Новая внутреняя рекламация";
 		}
 
-		//так как диалог только для создания жалобы
+		//так как диалог только для создания рекламации
 		public bool CanEdit => PermissionResult.CanCreate;
 
 		private Employee currentEmployee;

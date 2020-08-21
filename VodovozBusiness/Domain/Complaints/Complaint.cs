@@ -14,10 +14,10 @@ using Vodovoz.Domain.Orders;
 namespace Vodovoz.Domain.Complaints
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
-		NominativePlural = "жалобы",
-		Nominative = "жалоба",
-		Prepositional = "жалобе",
-		PrepositionalPlural = "жалобах"
+		NominativePlural = "рекламации",
+		Nominative = "рекламация",
+		Prepositional = "рекламации",
+		PrepositionalPlural = "рекламацях"
 	)]
 	[HistoryTrace]
 	[EntityPermission]
@@ -63,7 +63,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		private ComplaintType complaintType;
-		[Display(Name = "Тип жалобы")]
+		[Display(Name = "Тип рекламации")]
 		public virtual ComplaintType ComplaintType {
 			get => complaintType;
 			set => SetField(ref complaintType, value, () => ComplaintType);
@@ -84,14 +84,14 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		private string complainantName;
-		[Display(Name = "Имя заявителя жалобы")]
+		[Display(Name = "Имя заявителя рекламации")]
 		public virtual string ComplainantName {
 			get => complainantName;
 			set => SetField(ref complainantName, value, () => ComplainantName);
 		}
 
 		private string complaintText;
-		[Display(Name = "Текст жалобы")]
+		[Display(Name = "Текст рекламации")]
 		public virtual string ComplaintText {
 			get => complaintText;
 			set => SetField(ref complaintText, value, () => ComplaintText);
@@ -154,7 +154,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		ComplaintKind complaintKind;
-		[Display(Name = "Вид жалобы")]
+		[Display(Name = "Вид рекламации")]
 		public virtual ComplaintKind ComplaintKind {
 			get => complaintKind;
 			set => SetField(ref complaintKind, value);
@@ -202,7 +202,7 @@ namespace Vodovoz.Domain.Complaints
 		}
 
 		IList<ComplaintGuiltyItem> guilties = new List<ComplaintGuiltyItem>();
-		[Display(Name = "Виновные в жалобе")]
+		[Display(Name = "Виновные в рекламации")]
 		public virtual IList<ComplaintGuiltyItem> Guilties {
 			get => guilties;
 			set => SetField(ref guilties, value, () => Guilties);
@@ -309,11 +309,11 @@ namespace Vodovoz.Domain.Complaints
 			return result;
 		}
 
-		public virtual string Title => string.Format("Жалоба №{0}", Id);
+		public virtual string Title => string.Format("Рекламация №{0}", Id);
 
 		public virtual string GetFineReason()
 		{
-			string result = $"Жалоба №{Id} от {CreationDate.ToShortDateString()}";
+			string result = $"Рекламация №{Id} от {CreationDate.ToShortDateString()}";
 			if(Counterparty == null && Order == null) {
 				return result;
 			}
@@ -338,7 +338,7 @@ namespace Vodovoz.Domain.Complaints
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrWhiteSpace(ComplaintText)) {
-				yield return new ValidationResult("Необходимо ввести текст жалобы");
+				yield return new ValidationResult("Необходимо ввести текст рекламации");
 			}
 
 			if(ComplaintType == ComplaintType.Client) {

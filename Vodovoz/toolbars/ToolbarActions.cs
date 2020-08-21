@@ -505,7 +505,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName<Vodovoz.Reports.CashFlow>(),
-			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashFlow())
+			() => new QSReport.ReportViewDlg(new Vodovoz.Reports.CashFlow(new SubdivisionRepository(), ServicesConfig.CommonServices))
 		);
 	}
 

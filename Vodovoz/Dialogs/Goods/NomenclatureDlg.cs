@@ -107,8 +107,11 @@ namespace Vodovoz
 			spinVolume.Binding.AddBinding(Entity, e => e.Volume, w => w.Value).InitializeFromSource();
 			spinPercentForMaster.Binding.AddBinding(Entity, e => e.PercentForMaster, w => w.Value).InitializeFromSource();
 			checkSerial.Binding.AddBinding(Entity, e => e.IsSerial, w => w.Active).InitializeFromSource();
+			
 			ycheckNewBottle.Binding.AddBinding(Entity, e => e.IsNewBottle, w => w.Active).InitializeFromSource();
 			ycheckDefectiveBottle.Binding.AddBinding(Entity, e => e.IsDefectiveBottle, w => w.Active).InitializeFromSource();
+			ycheckShabbyBottle.Binding.AddBinding(Entity, e => e.IsShabbyBottle, w => w.Active).InitializeFromSource();
+			
 			chkIsDiler.Binding.AddBinding(Entity, e => e.IsDiler, w => w.Active).InitializeFromSource();
 			spinMinStockCount.Binding.AddBinding(Entity, e => e.MinStockCount, w => w.ValueAsDecimal).InitializeFromSource();
 
@@ -284,7 +287,7 @@ namespace Vodovoz
 			labelCanPrintPrice.Visible = checkcanPrintPrice.Visible = Entity.Category == NomenclatureCategory.water && !Entity.IsDisposableTare;
 
 			labelTypeTare.Visible = hboxTare.Visible = selected == NomenclatureCategory.water;
-			labelBottle.Sensitive = ycheckNewBottle.Sensitive = ycheckDefectiveBottle.Sensitive = selected == NomenclatureCategory.bottle;
+			hboxTareChecks.Sensitive = selected == NomenclatureCategory.bottle;
 			lblFuelType.Visible = ycomboFuelTypes.Visible = selected == NomenclatureCategory.fuel;
 			//FIXME запуск оборудования - временный фикс
 			//if (Entity.Category == NomenclatureCategory.equipment)

@@ -7,25 +7,35 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Report;
+using QS.Services;
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Repository.Cash;
 using Vodovoz.ViewModel;
+using System.Linq;
 
 namespace Vodovoz.Reports
 {
 	public partial class CashFlow : SingleUoWWidgetBase, IParametersWidget
 	{
+		private readonly ISubdivisionRepository subdivisionRepository;
+		private readonly ICommonServices commonServices;
+
+		private List<Subdivision> UserSubdivisions { get; }
+
 		ExpenseCategory allItem = new ExpenseCategory{
 			Name = "Все"
 		};
 
-		public CashFlow ()
+		public CashFlow (ISubdivisionRepository subdivisionRepository, ICommonServices commonServices)
 		{
 			this.Build ();
+			this.subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			comboPart.ItemsEnum = typeof(ReportParts);
 			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (UoW);
@@ -49,6 +59,17 @@ namespace Vodovoz.Reports
 			comboExpenseCategory.PackStart(new CellRendererText(), true);
 			comboExpenseCategory.SetCellDataFunc(comboExpenseCategory.Cells[0], HandleCellLayoutDataFunc);
 			comboExpenseCategory.SetActiveIter(model.IterFromNode(allItem));
+
+			specialListCmbCashSubdivisions.SetRenderTextFunc<Subdivision>(s => s.Name);
+			UserSubdivisions = GetSubdivisionsForUser();
+			specialListCmbCashSubdivisions.ItemsList = UserSubdivisions;
+		}
+
+		private List<Subdivision> GetSubdivisionsForUser()
+		{
+			var availableSubdivisionsForUser = subdivisionRepository.GetCashSubdivisionsAvailableForUser(UoW, commonServices.UserService.GetCurrentUser(UoW));
+
+			return new List<Subdivision>(availableSubdivisionsForUser);
 		}
 
 		void HandleCellLayoutDataFunc (Gtk.CellLayout cell_layout, CellRenderer cell, Gtk.TreeModel tree_model, Gtk.TreeIter iter)
@@ -121,8 +142,30 @@ namespace Vodovoz.Reports
 				ids.Add(0); //Add fake value
 
 			int casherId = yentryrefCasher.Subject == null ? -1 : (yentryrefCasher.Subject as Employee).Id;
+			var casherName = yentryrefCasher.Subject == null ? "" : (yentryrefCasher.Subject as Employee).ShortName;
 			int employeeId = yentryrefEmployee.Subject == null ? -1 : (yentryrefEmployee.Subject as Employee).Id;
+			var employeeName = yentryrefEmployee.Subject == null ? "" : (yentryrefEmployee.Subject as Employee).ShortName;
+
+			IEnumerable<int> cashSubdivisions;
 			
+			if (specialListCmbCashSubdivisions.SelectedItem == null) {
+				if (UserSubdivisions.Any())
+					cashSubdivisions = UserSubdivisions.Select(x => x.Id);
+				else {
+					cashSubdivisions = new[] {-1};
+				}
+			}
+			else {
+				cashSubdivisions = UserSubdivisions.Where(x => x.Id == (specialListCmbCashSubdivisions.SelectedItem as Subdivision).Id)
+				                                   .Select(x => x.Id);
+			}
+			
+			var cashSubdivisionsName = specialListCmbCashSubdivisions.SelectedItem == null ?
+				string.Join(", ", UserSubdivisions.Select(x => x.Name)) 
+				: UserSubdivisions.Where(x => x.Id == (specialListCmbCashSubdivisions.SelectedItem as Subdivision).Id)
+				                  .Select(x => x.Name)
+				                  .SingleOrDefault();
+
 			return new ReportInfo {
 				Identifier = ReportName,
 				Parameters = new Dictionary<string, object> {
@@ -132,7 +175,11 @@ namespace Vodovoz.Reports
 					{ "ExpenseCategory", ids },
 					{ "ExpenseCategoryUsed", exCategorySelected ? 1 : 0 },
 					{ "Casher", casherId },
-					{ "Employee", employeeId }
+					{ "Employee", employeeId },
+					{ "CasherName", casherName },
+					{ "EmployeeName", employeeName },
+					{ "cash_subdivisions", cashSubdivisions },
+					{ "cash_subdivisions_name", cashSubdivisionsName }
 				}
 			};
 		}

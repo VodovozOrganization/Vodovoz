@@ -57,17 +57,17 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.ObservableFines.ListContentChanged += ObservableFines_ListContentChanged;
 
 			if(uowBuilder.IsNewEntity) {
-				AbortOpening("Невозможно создать новую жалобу из текущего диалога, необходимо использовать диалоги создания");
+				AbortOpening("Невозможно создать новую рекламацию из текущего диалога, необходимо использовать диалоги создания");
 			}
 
 			if(CurrentEmployee == null) {
-				AbortOpening("Невозможно открыть жалобу так как к вашему пользователю не привязан сотрудник");
+				AbortOpening("Невозможно открыть рекламацию так как к вашему пользователю не привязан сотрудник");
 			}
 
 			ConfigureEntityChangingRelations();
 
 			CreateCommands();
-			TabName = $"Жалоба №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
+			TabName = $"Рекламация №{Entity.Id} от {Entity.CreationDate.ToShortDateString()}";
 		}
 
 		protected void ConfigureEntityChangingRelations()

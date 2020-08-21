@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataAdvance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_advance_report.id AS report_id,
@@ -67,6 +67,7 @@ WHERE
 		AND IF(@expenseCategoryUsed, cash_advance_report.cash_expense_category_id IN (@expenseCategory), 1)
 AND (@Casher = -1 OR cash_advance_report.casher_employee_id = @Casher)
 AND (@Employee = -1 OR cash_advance_report.employee_id = @Employee)
+AND cash_advance_report.related_to_subdivision_id in (@cash_subdivisions)
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -87,9 +88,12 @@ ORDER BY Category;</CommandText>
           <QueryParameter Name="Employee">
             <Value>={?Employee}</Value>
           </QueryParameter>
+          <QueryParameter Name="cash_subdivisions">
+            <Value>=Parameters!cash_subdivisions</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="report_id">
           <DataField>report_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -134,7 +138,7 @@ ORDER BY Category;</CommandText>
     </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>25.2pt</Height>
+    <Height>75.3pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -151,6 +155,49 @@ ORDER BY Category;</CommandText>
           <BorderWidth />
           <FontSize>16pt</FontSize>
           <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>16.52pt</Height>
+        <Width>558.58pt</Width>
+        <Value>="Выбранные фильтры:"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.4pt</Left>
+        <Top>24.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <VerticalAlign>Middle</VerticalAlign>
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox24" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.29pt</Height>
+        <Width>548.87pt</Width>
+        <Value>= {?cash_subdivisions_name}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.4pt</Left>
+        <Top>41.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.99pt</Height>
+        <Width>555.56pt</Width>
+        <Value>= Iif({?Casher} = -1, "", "Кассир: " + {?CasherName} + "; ") + Iif({?Employee} = -1, "", "Сотрудник: " + {?EmployeeName})</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.4pt</Left>
+        <Top>57.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>9pt</FontSize>
         </Style>
       </Textbox>
     </ReportItems>
@@ -691,7 +738,7 @@ ORDER BY Category;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -759,6 +806,34 @@ ORDER BY Category;</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="CasherName">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="EmployeeName">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="cash_subdivisions">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="cash_subdivisions_name">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

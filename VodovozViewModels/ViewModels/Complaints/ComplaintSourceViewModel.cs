@@ -10,7 +10,7 @@ namespace Vodovoz.ViewModels.Complaints
 	{
 		public ComplaintSourceViewModel(IEntityUoWBuilder uoWBuilder, IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices) : base(uoWBuilder, unitOfWorkFactory, commonServices)
 		{
-			TabName = "Источники жалоб";
+			TabName = "Источники рекламаций";
 		}
 	}
 }

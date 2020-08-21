@@ -5,7 +5,7 @@ using QS.Report;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class UPDDocument:OrderDocument, IPrintableRDLDocument
+	public class UPDDocument:OrderDocument, IPrintableRDLDocument, ISignableDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override OrderDocumentType Type => OrderDocumentType.UPD;
@@ -19,7 +19,8 @@ namespace Vodovoz.Domain.Orders.Documents
 				Identifier = "Documents.UPD",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
-					{ "special", false }
+					{ "special", false },
+					{ "hide_signature", HideSignature}
 				}
 			};
 		}
@@ -33,6 +34,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override PrinterType PrintType => PrinterType.RDL;
 
 		public override DocumentOrientation Orientation => DocumentOrientation.Landscape;
+
+		public virtual bool HideSignature { get; set; } = true;
 	}
 }
 

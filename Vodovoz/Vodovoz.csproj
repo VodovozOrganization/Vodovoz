@@ -454,8 +454,10 @@
     <EmbeddedResource Include="icons\buttons\NullableCheckBox\close-button.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Additions\SmsPaymentSender.cs" />
     <Compile Include="Additions\SmsSender.cs" />
     <Compile Include="Crutches\WrapLabel.cs" />
+    <Compile Include="LoggedMySqlClientDriver.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringValuableConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
@@ -492,6 +494,7 @@
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
+    <Compile Include="SidePanel\InfoProviders\ISmsSendProvider.cs" />
     <Compile Include="TempAdapters\CarJournalFactory.cs" />
     <Compile Include="TempAdapters\CounterpartyJournalFactory.cs" />
     <Compile Include="TempAdapters\EmployeeJournalFactory.cs" />
@@ -1508,6 +1511,8 @@
     <Compile Include="JournalNodes\LateArrivalReasonsJournalNode.cs" />
     <Compile Include="ReportsParameters\Logistic\ScheduleOnLinePerShiftReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ScheduleOnLinePerShiftReport.cs" />
+    <Compile Include="SidePanel\InfoViews\SmsSendPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SidePanel.InfoViews.SmsSendPanelView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1578,6 +1583,14 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QSDocTemplates\QSDocTemplates.csproj">
       <Project>{55CD5E7C-3164-4A5D-9DA8-F29F5E9D170C}</Project>
       <Name>QSDocTemplates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Application\VodovozSmsPaymentService\VodovozSmsPaymentService.csproj">
+      <Project>{3e59815c-13c7-4bd2-83ee-f15750ba572c}</Project>
+      <Name>VodovozSmsPaymentService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
+      <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
+      <Name>SmsPaymentService</Name>
     </ProjectReference>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>

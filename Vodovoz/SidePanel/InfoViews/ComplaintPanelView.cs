@@ -134,9 +134,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 		private void DrawRefreshed(ComplaintFilterViewModel filter, int totalCount, int overduedCount, ILevelConfig[] levels, IList<object[]> complaintResults)
 		{
-			lblCaption.Markup = string.Format("<u><b>Сводка по жалобам\nСписок виновных:</b></u>");
+			lblCaption.Markup = string.Format("<u><b>Сводка по рекламациям\nСписок виновных:</b></u>");
 			lblUnclosedCount.Markup = string.Format(
-				"<b>Не закрыто <span foreground='{2}'>{0}</span> жалоб,\nиз них просрочено <span foreground='{2}'>{1}</span> шт.</b>",
+				"<b>Не закрыто <span foreground='{2}'>{0}</span> рекламаций,\nиз них просрочено <span foreground='{2}'>{1}</span> шт.</b>",
 				totalCount,
 				overduedCount,
 				totalCount >= 0 ? "red" : "black"
@@ -238,7 +238,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			 .Select(
 			  Projections.SqlFunction(
 				  new SQLFunctionTemplate(
-					  NHibernateUtil.String, "GROUP_CONCAT(CASE ?1 WHEN 'Employee' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') WHEN 'Subdivision' THEN IFNULL(CONCAT('Отд: ', ?3), 'Отдел ВВ') WHEN 'Client' THEN 'Клиент' WHEN 'None' THEN 'Нет (не жалоба)' ELSE ?1 END ORDER BY ?1 ASC SEPARATOR '\n')"
+					  NHibernateUtil.String, "GROUP_CONCAT(CASE ?1 WHEN 'Employee' THEN IFNULL(CONCAT('Отд: ', ?2), 'Отдел ВВ') WHEN 'Subdivision' THEN IFNULL(CONCAT('Отд: ', ?3), 'Отдел ВВ') WHEN 'Client' THEN 'Клиент' WHEN 'None' THEN 'Нет (не рекламация)' ELSE ?1 END ORDER BY ?1 ASC SEPARATOR '\n')"
 					 ),
 				  NHibernateUtil.String,
 				  Projections.Property(() => guiltyItemAlias.GuiltyType),
