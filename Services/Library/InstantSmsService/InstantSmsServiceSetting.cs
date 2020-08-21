@@ -13,8 +13,10 @@ namespace InstantSmsService
 			if(!SendingAllowed) {
 				return null;
 			}
-			return new ChannelFactory<IInstantSmsService>(new BasicHttpBinding { SendTimeout = new System.TimeSpan(0, 0, 10)}, string.Format("http://{0}/InstantSmsService", settingInstance.serviceUrl))
-				.CreateChannel();
+			return new ChannelFactory<IInstantSmsService>(
+					new BasicHttpBinding { SendTimeout = new System.TimeSpan(0, 0, 10)},
+					string.Format("http://{0}/InstantSmsService", settingInstance.serviceUrl)
+					).CreateChannel();
 		}
 
 		public static void Init(string serviceUrl)

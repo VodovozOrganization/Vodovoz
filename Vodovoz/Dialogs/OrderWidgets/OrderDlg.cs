@@ -84,7 +84,8 @@ namespace Vodovoz
 		ITdiTabAddedNotifier,
 		IEmailsInfoProvider,
 		ICallTaskProvider,
-		ITDICloseControlTab
+		ITDICloseControlTab,
+		ISmsSendProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -108,7 +109,8 @@ namespace Vodovoz
 					PanelViewType.DeliveryPricePanelView,
 					PanelViewType.DeliveryPointView,
 					PanelViewType.EmailsPanelView,
-					PanelViewType.CallTaskPanelView
+					PanelViewType.CallTaskPanelView,
+					PanelViewType.SmsSendPanelView
 				};
 			}
 		}

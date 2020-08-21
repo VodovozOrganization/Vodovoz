@@ -111,7 +111,7 @@ namespace SmsPaymentService
             if (String.IsNullOrWhiteSpace(phoneNumber)
                 || phoneNumber.Length == 0
                 || phoneNumber.First() != '9'
-                || phoneNumber.Length != 10) 
+                || phoneNumber.Length != 10)
             {
                 resultMessage.ErrorDescription = "Неверный формат номера телефона";
                 logger.Error("Запрос на отправку платежа пришёл с неверным форматом номера телефона");

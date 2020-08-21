@@ -9,6 +9,7 @@
 		UndeliveredOrdersPanelView,
 		EmailsPanelView,
 		CallTaskPanelView,
-		ComplaintPanelView
+		ComplaintPanelView,
+		SmsSendPanelView
 	}
 }
