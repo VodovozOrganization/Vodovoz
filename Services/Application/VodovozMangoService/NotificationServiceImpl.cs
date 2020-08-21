@@ -3,11 +3,14 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Grpc.Core;
+using NLog;
 
 namespace VodovozMangoService
 {
 	public class NotificationServiceImpl : NotificationService.NotificationServiceBase
 	{
+		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		
 		public readonly Dictionary<uint, BlockingCollection<NotificationMessage>> Subscribers =
 			new Dictionary<uint, BlockingCollection<NotificationMessage>>();
 		public NotificationServiceImpl()
@@ -21,18 +24,36 @@ namespace VodovozMangoService
 			{
 				Subscribers[request.Extension] = queue;
 			}
+			logger.Debug($"Добавочный {request.Extension} зарегистрировался.");
 
-			while (!context.CancellationToken.IsCancellationRequested)
+			try
 			{
-				var message = queue.Take(context.CancellationToken);
-				if(message != null)
-					await responseStream.WriteAsync(message);
+				while (!context.CancellationToken.IsCancellationRequested)
+				{
+					var message = queue.Take(context.CancellationToken);
+					if (message != null)
+						await responseStream.WriteAsync(message).ContinueWith(task =>
+						{
+							if (task.IsFaulted)
+								Console.WriteLine("FAIL");
+						});
+				}
 			}
-
-			lock (Subscribers)
+			catch (Exception e)
 			{
-				if (Subscribers.ContainsValue(queue))
-					Subscribers.Remove(request.Extension);
+				logger.Debug(e);
+				throw;
+			}
+			finally
+			{
+				lock (Subscribers)
+				{
+					if (Subscribers.ContainsValue(queue))
+					{
+						Subscribers.Remove(request.Extension);
+						logger.Debug($"Добавочный {request.Extension} отвалился.");
+					}
+				}	
 			}
 		}
 	}
