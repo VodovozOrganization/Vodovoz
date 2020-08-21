@@ -10,13 +10,15 @@ namespace ClientMangoService
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		
-		// public static string ServiceAddress = "mango.vod.qsolution.ru";
-		public static string ServiceAddress = "localhost";
+		public static string ServiceAddress = "mango.vod.qsolution.ru";
+		//public static string ServiceAddress = "localhost";
 		public uint ServicePort = 7087;
 		private NotificationService.NotificationServiceClient client;
 		private Channel channel;
 		private readonly uint extension;
 		private readonly CancellationToken token;
+
+		private DateTime? FailSince;
 
 		public MangoNotificationClient(uint extension, CancellationToken token)
 		{
@@ -36,7 +38,9 @@ namespace ClientMangoService
 
 			var responseReaderTask = Task.Run(async () =>
 				{
-					while(await response.ResponseStream.MoveNext(token)) {
+					while(await response.ResponseStream.MoveNext(token))
+					{
+						FailSince = null;
 						var message = response.ResponseStream.Current;
 						Console.WriteLine($"extension:{extension} Received:{message.Number}");
 						OnIncomeCall(message);
@@ -49,6 +53,15 @@ namespace ClientMangoService
 					}
 					else if (task.IsFaulted)
 					{
+						if (FailSince == null) 
+							FailSince = DateTime.Now;
+						var failedTime = (DateTime.Now - FailSince).Value;
+						if(failedTime.Seconds < 10)
+							Thread.Sleep(1000);
+						else if(failedTime.Minutes < 10)
+							Thread.Sleep(4000);
+						else
+							Thread.Sleep(30000);
 						logger.Error(task.Exception);
 						logger.Info($"Соединение с NotificationService[{extension}] разорвано... Пробуем соединиться.");
 						Connect();
