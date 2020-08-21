@@ -8,7 +8,6 @@ using QS.Helpers;
 using QS.Project.Dialogs;
 using QS.BusinessCommon.Domain;
 using QSOrmProject;
-using QS.Project.Repositories;
 using QS.Validation;
 using QSWidgetLib;
 using Vodovoz.Additions.Store;
@@ -22,12 +21,12 @@ using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModel;
 using Vodovoz.Domain.Logistic;
 using QS.Project.Journal.EntitySelector;
-using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Domain.Client;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.EntityRepositories;
 using System.Collections.Generic;
 using QS.Project.Services;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 
 namespace Vodovoz
@@ -75,6 +74,9 @@ namespace Vodovoz
 			enumTareVolume.ItemsEnum = typeof(TareVolume);
 			enumTareVolume.Binding.AddBinding(Entity, e => e.TareVolume, w => w.SelectedItemOrNull).InitializeFromSource();
 			ycheckDisposableTare.Binding.AddBinding(Entity, e => e.IsDisposableTare, w => w.Active).InitializeFromSource();
+
+			yСolorBtnBottleCapColor.Binding.AddBinding(Entity, e => e.BottleCapColor, w => w.Color, new ColorTextToGdkColorConverter()).InitializeFromSource();
+			yСolorBtnBottleCapColor.ColorSet += YСolorBtnBottleCapColorOnColorSet;
 
 			enumSaleCategory.Visible = Entity.Category == NomenclatureCategory.equipment;
 			enumSaleCategory.ItemsEnum = typeof(SaleCategory);
@@ -152,7 +154,6 @@ namespace Vodovoz
 
 			#region Вкладка "Склады отгрузки"
 
-			//repTreeViewWarehouses.RepresentationModel = new WarehousesVM(UoW);
 			repTreeViewWarehouses.ColumnsConfig = ColumnsConfigFactory.Create<Warehouse>()
 				.AddColumn("Название").AddTextRenderer(node => node.Name)
 				.AddColumn("Код").AddTextRenderer(node => node.Id.ToString())
@@ -178,7 +179,7 @@ namespace Vodovoz
 			dependsOnNomenclature.RepresentationModel = new NomenclatureDependsFromVM(Entity);
 			dependsOnNomenclature.Binding.AddBinding(Entity, e => e.DependsOnNomenclature, w => w.Subject).InitializeFromSource();
 
-			ConfigureInputs(Entity.Category);
+			ConfigureInputs(Entity.Category, Entity.TareVolume);
 
 			pricesView.UoWGeneric = UoWGeneric;
 			pricesView.Sensitive = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
@@ -197,6 +198,16 @@ namespace Vodovoz
 			menuActions.Sensitive = !UoWGeneric.IsNew;
 		}
 
+		private void YСolorBtnBottleCapColorOnColorSet(object sender, EventArgs e) {
+			var color = (sender as yColorButton).Color;
+			
+			var colorRed = $"{color.Red:x4}".Remove(2);
+			var colorBlue = $"{color.Blue:x4}".Remove(2);
+			var colorGreen = $"{color.Green:x4}".Remove(2);
+
+			Entity.BottleCapColor = $"#{colorRed}{colorGreen}{colorBlue}";
+		}
+
 		void UpdateVisibilityForEshopParam()
 		{
 			bool isEshopNomenclature = Entity?.ProductGroup?.ExportToOnlineStore ?? false;
@@ -207,8 +218,6 @@ namespace Vodovoz
 			labelStorageCell.Visible = isEshopNomenclature;
 			yspinbuttonPurchasePrice.Visible = isEshopNomenclature;
 			labelPurchasePrice.Visible = isEshopNomenclature;
-
-
 		}
 
 		void Entity_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -216,7 +225,6 @@ namespace Vodovoz
 			if(e.PropertyName == nameof(Entity.ProductGroup))
 				nomenclaturecharacteristicsview1.RefreshWidgets();
 		}
-
 
 		void MenuItem_ReplaceLinks_Activated(object sender, EventArgs e)
 		{
@@ -261,14 +269,14 @@ namespace Vodovoz
 
 		protected void OnEnumTypeChanged(object sender, EventArgs e)
 		{
-			ConfigureInputs(Entity.Category);
+			ConfigureInputs(Entity.Category, Entity.TareVolume);
 
 			if(Entity.Category != NomenclatureCategory.deposit) {
 				Entity.TypeOfDepositCategory = null;
 			}
 		}
 
-		protected void ConfigureInputs(NomenclatureCategory selected)
+		protected void ConfigureInputs(NomenclatureCategory selected, TareVolume? tareVolume)
 		{
 			radioEquipment.Sensitive = selected == NomenclatureCategory.equipment;
 			enumSaleCategory.Visible = lblSaleCategory.Visible = Nomenclature.GetCategoriesWithSaleCategory().Contains(selected);
@@ -287,6 +295,7 @@ namespace Vodovoz
 			labelCanPrintPrice.Visible = checkcanPrintPrice.Visible = Entity.Category == NomenclatureCategory.water && !Entity.IsDisposableTare;
 
 			labelTypeTare.Visible = hboxTare.Visible = selected == NomenclatureCategory.water;
+			hboxBottleCapColor.Visible = tareVolume == TareVolume.Vol19L;
 			hboxTareChecks.Sensitive = selected == NomenclatureCategory.bottle;
 			lblFuelType.Visible = ycomboFuelTypes.Visible = selected == NomenclatureCategory.fuel;
 			//FIXME запуск оборудования - временный фикс
@@ -449,6 +458,11 @@ namespace Vodovoz
 		protected void OnYentryProductGroupChangedByUser(object sender, EventArgs e)
 		{
 			UpdateVisibilityForEshopParam();
+		}
+
+		protected void OnEnumTareVolumeChanged(object sender, EventArgs e)
+		{
+			hboxBottleCapColor.Visible = Entity.TareVolume == TareVolume.Vol19L;
 		}
 	}
 }

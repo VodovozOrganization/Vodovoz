@@ -44,6 +44,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.MinStockCount).Column("min_stock_count");
 			Map(x => x.MobileCatalog).Column("mobile_catalog").CustomType<MobileCatalogStringType>();
 			Map(x => x.Description).Column("description");
+			Map(x => x.BottleCapColor).Column("bottle_cap_color");
 
 			//Характеристики товара
 			Map(x => x.Color).Column("color");

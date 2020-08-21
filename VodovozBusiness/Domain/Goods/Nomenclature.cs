@@ -410,6 +410,13 @@ namespace Vodovoz.Domain.Goods
 			get => description;
 			set => SetField(ref description, value);
 		}
+		
+		private string bottleCapColor;
+		[Display(Name = "Цвет пробки 19л бутыли")]
+		public virtual string BottleCapColor {
+			get => bottleCapColor;
+			set => SetField(ref bottleCapColor, value);
+		}
 
 		IList<Warehouse> warehouses = new List<Warehouse>();
 
