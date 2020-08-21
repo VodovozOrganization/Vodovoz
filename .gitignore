@@ -22,3 +22,4 @@ Base/Factory.mwb.bak
 WinInstall/*
 !*.nsi
 !*.sh
+*.sln.DotSettings.user
