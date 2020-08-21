@@ -1,0 +1,15 @@
+﻿syntax = "proto3";
+
+service NotificationService {
+    rpc Subscribe(NotificationSubscribeRequest) returns (stream NotificationMessage);
+}
+
+message NotificationSubscribeRequest {
+  uint32 extension = 1;
+}
+
+message NotificationMessage {
+  uint32 extension = 1;
+  string number = 2;
+  
+}
