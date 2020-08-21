@@ -599,7 +599,7 @@ namespace Vodovoz
 					{
 						toggle.Activatable =
 							ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-								"can_edit_seal_and_signature");
+								"can_edit_seal_and_signature_UPD");
 					}
 					else
 					{
