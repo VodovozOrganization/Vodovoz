@@ -110,11 +110,13 @@ namespace Vodovoz
 			OrderEquipment orderEquipmentAlias = null;
 			Warehouse warehouseAlias = null;
 			RouteListItem routeListItemAlias = null;
+			RouteListItem routeListItemToAlias = null;
 
 			var returnableItems = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
-			.Where(r => r.RouteList.Id == RouteList.Id)
+				.Where(r => r.RouteList.Id == RouteList.Id)
 				.JoinAlias(rli => rli.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
+				.JoinAlias(() => routeListItemAlias.TransferedTo, () => routeListItemToAlias)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
 				.JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
 				.Left.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
@@ -128,9 +130,10 @@ namespace Vodovoz
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
 					.Select(Projections.SqlFunction(
-					   new SQLFunctionTemplate(NHibernateUtil.Int32, "SUM(IF(?1 = 'Canceled' OR ?1 = 'Overdue', ?2, 0))"),
+					   new SQLFunctionTemplate(NHibernateUtil.Int32, "SUM(IF(?1 = 'Canceled' OR ?1 = 'Overdue' OR (?1 = 'Transfered' AND ?2 = 1), ?3, 0))"),
 					   NHibernateUtil.Int32,
 					   Projections.Property(() => routeListItemAlias.Status),
+					   Projections.Property(() => routeListItemToAlias.NeedToReload),
 					   Projections.Property(() => orderItemsAlias.Count))
 				   ).WithAlias(() => resultAlias.ExpectedAmount)
 				)

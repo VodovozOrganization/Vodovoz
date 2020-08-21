@@ -687,11 +687,19 @@ namespace Vodovoz.Domain.Logistic
 										 .ToList();
 
 			foreach(var orderItem in orderClosingItems) {
-				var discrepancy = new Discrepancy {
-					Nomenclature = orderItem.Nomenclature,
-					ClientRejected = orderItem.ReturnedCount,
-					Name = orderItem.Nomenclature.Name
-				};
+				var address = Addresses.SingleOrDefault(x => x.Order.Id == orderItem.Order.Id);
+				var discrepancy = new Discrepancy();
+				
+				if (address?.TransferedTo != null && address.TransferedTo.NeedToReload) {
+					discrepancy.ClientRejected = orderItem.Count;
+				}
+				else {
+					discrepancy.ClientRejected = orderItem.ReturnedCount;
+				}
+
+				discrepancy.Nomenclature = orderItem.Nomenclature;
+				discrepancy.Name = orderItem.Nomenclature.Name;
+				
 				AddDiscrepancy(result, discrepancy);
 			}
 
