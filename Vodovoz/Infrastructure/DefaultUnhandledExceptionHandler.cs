@@ -113,6 +113,8 @@ namespace Vodovoz.Infrastructure
 		}
 		private void OnGtkException(GLib.UnhandledExceptionArgs a)
 		{
+			if(((Exception)a.ExceptionObject).FineExceptionTypeInInner<AccessViolationException>() != null)
+				a.ExitApplication = false;
 			logger.Fatal((Exception)a.ExceptionObject, "Поймано необработаное исключение в GTK.");
 			ErrorMessage((Exception)a.ExceptionObject);
 		}
