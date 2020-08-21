@@ -32,11 +32,7 @@ namespace VodovozMangoService
 				{
 					var message = queue.Take(context.CancellationToken);
 					if (message != null)
-						await responseStream.WriteAsync(message).ContinueWith(task =>
-						{
-							if (task.IsFaulted)
-								Console.WriteLine("FAIL");
-						});
+						await responseStream.WriteAsync(message);
 				}
 			}
 			catch (Exception e)
