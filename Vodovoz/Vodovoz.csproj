@@ -1584,10 +1584,6 @@
       <Project>{55CD5E7C-3164-4A5D-9DA8-F29F5E9D170C}</Project>
       <Name>QSDocTemplates</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Services\Application\VodovozSmsPaymentService\VodovozSmsPaymentService.csproj">
-      <Project>{3e59815c-13c7-4bd2-83ee-f15750ba572c}</Project>
-      <Name>VodovozSmsPaymentService</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Services\Library\SmsPaymentService\SmsPaymentService.csproj">
       <Project>{efe73102-83bc-4036-8642-d3a4121e8351}</Project>
       <Name>SmsPaymentService</Name>
