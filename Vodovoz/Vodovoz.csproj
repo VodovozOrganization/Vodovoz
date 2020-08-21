@@ -459,6 +459,11 @@
     <EmbeddedResource Include="icons\buttons\NullableCheckBox\blank-square.png" />
     <EmbeddedResource Include="icons\buttons\NullableCheckBox\check-symbol.png" />
     <EmbeddedResource Include="icons\buttons\NullableCheckBox\close-button.png" />
+    <EmbeddedResource Include="icons\phone\phone-talk.png" />
+    <EmbeddedResource Include="icons\phone\phone-ring.png" />
+    <EmbeddedResource Include="icons\phone\phone-disconnected.png" />
+    <EmbeddedResource Include="icons\phone\phone-disable.png" />
+    <EmbeddedResource Include="icons\phone\phone-connected.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\SmsSender.cs" />
@@ -1520,7 +1525,7 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.InternalCallView.cs" />
     <Compile Include="Views\Mango\FullInternalCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.FullInternalCallView.cs" />
-    <Compile Include="ViewModels\Mango\FullInternalCallViewModel.cs" />
+    <Compile Include="Infrastructure\Mango\MangoManager.cs" />
     <Compile Include="Views\Mango\CounterpartyOrdersWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.CounterpartyOrdersWidget.cs" />
     <Compile Include="Views\Mango\CounterpartyOrderView.cs" />

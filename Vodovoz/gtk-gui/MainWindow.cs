@@ -413,6 +413,8 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionOrderStatisticByWeekReport;
 
+	private global::Gtk.Action MangoAction;
+
 	private global::Gtk.HBox hbox1;
 
 	private global::Gtk.VBox vbox1;
@@ -1077,6 +1079,9 @@ public partial class MainWindow
 		this.ActionOrderStatisticByWeekReport = new global::Gtk.Action("ActionOrderStatisticByWeekReport", global::Mono.Unix.Catalog.GetString("Статистика по дням недели"), null, null);
 		this.ActionOrderStatisticByWeekReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Статистика по дням недели");
 		w1.Add(this.ActionOrderStatisticByWeekReport, null);
+		this.MangoAction = new global::Gtk.Action("MangoAction", global::Mono.Unix.Catalog.GetString("Mango"), null, "Phone");
+		this.MangoAction.ShortLabel = global::Mono.Unix.Catalog.GetString("Mango");
+		w1.Add(this.MangoAction, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -1273,7 +1278,8 @@ public partial class MainWindow
 		w3.Position = 0;
 		// Container child hbox2.Gtk.Box+BoxChild
 		this.UIManager.AddUiFromString("<ui><toolbar name=\'tlbComplaints\'><toolitem name=\'ActionComplaints\' action=\'Actio" +
-				"nComplaints\'/></toolbar></ui>");
+				"nComplaints\'/><toolitem name=\'MangoAction\' action=\'MangoAction\'/></toolbar></ui>" +
+				"");
 		this.tlbComplaints = ((global::Gtk.Toolbar)(this.UIManager.GetWidget("/tlbComplaints")));
 		this.tlbComplaints.Name = "tlbComplaints";
 		this.tlbComplaints.ShowArrow = false;

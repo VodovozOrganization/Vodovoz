@@ -73,6 +73,7 @@ using Vodovoz.FilterViewModels.Organization;
 using Vodovoz.FilterViewModels.Suppliers;
 using Vodovoz.Footers.ViewModels;
 using Vodovoz.Footers.Views;
+using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalColumnsConfigs;
@@ -547,7 +548,7 @@ namespace Vodovoz
 			//builder.Register(x => DeleteConfig.Main).AsSelf();
 			#endregion
 			builder.Register(c => ServicesConfig.CommonServices).As<ICommonServices>();
-			//builder.RegisterType<UserService>().As<IUserService>();
+			builder.RegisterType<UserService>().As<IUserService>();
 			//builder.RegisterType<ObjectValidator>().As<IValidator>();
 			//FIXME Реализовать везде возможность отсутствия сервиса прав, чтобы не приходилось создавать то что не используется
 			//builder.RegisterType<DefaultAllowedPermissionService>().As<IPermissionService>();
@@ -561,9 +562,13 @@ namespace Vodovoz
 			#region Services
 			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
 			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
+			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
 			#endregion
 			#region Интерфейсы репозиториев
 			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();
+			#endregion
+			#region Mango
+			builder.RegisterType<MangoManager>().AsSelf();
 			#endregion
 			#endregion
 
