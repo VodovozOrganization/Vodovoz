@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -1597,6 +1597,10 @@
       <Project>{55CD5E7C-3164-4A5D-9DA8-F29F5E9D170C}</Project>
       <Name>QSDocTemplates</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Services\Library\ClientMangoService\ClientMangoService.csproj">
+      <Project>{892519ba-d891-43b6-971c-6415ea4d14e5}</Project>
+      <Name>ClientMangoService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
@@ -1739,7 +1743,6 @@
     <Folder Include="Dialogs\Fuel\" />
     <Folder Include="Dialogs\OrderWidgets\" />
     <Folder Include="Infrastructure\" />
-    <Folder Include="Infrastructure\ViewModels\" />
     <Folder Include="Filters\" />
     <Folder Include="Filters\GtkViews\" />
     <Folder Include="Filters\ViewModels\" />
@@ -1795,6 +1798,7 @@
     <Folder Include="Views\Cash\" />
     <Folder Include="Views\Mango\" />
     <Folder Include="ViewModels\Mango\" />
+    <Folder Include="Infrastructure\Mango\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
