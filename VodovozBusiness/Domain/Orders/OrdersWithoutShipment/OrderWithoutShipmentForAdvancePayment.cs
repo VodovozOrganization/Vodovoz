@@ -12,6 +12,7 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
+using QS.HistoryLog;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 {
@@ -21,6 +22,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		Prepositional = "счете без отгрузки на предоплату",
 		PrepositionalPlural = "счетах без отгрузки на предоплату")]
 	[EntityPermission]
+	[HistoryTrace]
 	public class OrderWithoutShipmentForAdvancePayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IDocument, IValidatableObject
 	{
 		public virtual int Id { get; set; }
