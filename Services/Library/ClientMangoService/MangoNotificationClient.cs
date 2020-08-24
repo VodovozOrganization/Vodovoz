@@ -20,6 +20,10 @@ namespace ClientMangoService
 
 		private DateTime? FailSince;
 
+		public bool IsNotificationActive => channel.State == ChannelState.Ready;
+
+		public event EventHandler<ConnectionStateEventArgs> ChanalStateChanged;
+
 		public MangoNotificationClient(uint extension, CancellationToken token)
 		{
 			this.token = token;
@@ -34,7 +38,7 @@ namespace ClientMangoService
 
 			var request = new NotificationSubscribeRequest { Extension =  extension};
 			var response = client.Subscribe(request);
-			Console.WriteLine($"Channel State: {channel.State}");
+			var watcher = new NotificationConnectionWatcher(channel, OnChanalStateChanged);
 
 			var responseReaderTask = Task.Run(async () =>
 				{
@@ -80,10 +84,25 @@ namespace ClientMangoService
 		{
 			channel.ShutdownAsync();
 		}
+
+		protected virtual void OnChanalStateChanged(ChannelState state)
+		{
+			ChanalStateChanged?.Invoke(this, new ConnectionStateEventArgs(state));
+		}
 	}
 	
 	public class IncomeCallEventArgs : EventArgs
 	{
 		public NotificationMessage Message { get; set; }
+	}
+
+	public class ConnectionStateEventArgs : EventArgs
+	{
+		public ConnectionStateEventArgs(ChannelState channelState)
+		{
+			ChannelState = channelState;
+		}
+
+		public ChannelState ChannelState { get; }
 	}
 }

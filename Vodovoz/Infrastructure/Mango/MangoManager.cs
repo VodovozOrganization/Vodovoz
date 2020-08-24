@@ -40,6 +40,8 @@ namespace Vodovoz.Infrastructure.Mango
 			this.userService = userService ?? throw new ArgumentNullException(nameof(userService));
 		}
 
+		#region Методы
+
 		public void Connect()
 		{
 			using(var uow = unitOfWorkFactory.CreateWithoutRoot("MangoManager Connect")) {
@@ -52,8 +54,21 @@ namespace Vodovoz.Infrastructure.Mango
 				extension = employee.InnerPhone.Value;
 				ConnectionState = ConnectionState.Disconnected;
 				NotificationClient = new MangoNotificationClient(extension, NotifacationCancellation.Token);
+				NotificationClient.ChanalStateChanged+= NotificationClient_ChanalStateChanged;
+				ConnectionState = NotificationClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;
 			}
 		}
+
+		#endregion
+		#region Обработка событий
+
+		void NotificationClient_ChanalStateChanged(object sender, ConnectionStateEventArgs e)
+		{
+			Gtk.Application.Invoke(delegate {
+				ConnectionState = NotificationClient.IsNotificationActive ? ConnectionState.Connected : ConnectionState.Disconnected;
+			});
+		}
+		#endregion
 	}
 
 	public enum ConnectionState
