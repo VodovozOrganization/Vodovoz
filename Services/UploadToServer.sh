@@ -10,6 +10,7 @@ echo "6) ModulKassa (SalesReceipts)"
 echo "7) InstantSms"
 echo "8) DeliveryRules"
 echo "9) SmsPayment"
+echo "m) Mango"
 echo "0) Old server DriverMobileGroup"
 echo "Можно вызывать вместе, например Driver+Email=12"
 read service;
@@ -46,6 +47,9 @@ deliveryRulesServiceName="vodovoz-delivery-rules.service"
 smsPaymentServiceFolder="VodovozSmsPaymentService"
 smsPaymentServiceName="vodovoz-sms-payment.service"
 
+mangoServiceFolder="VodovozMangoService"
+mangoServiceName="vodovoz-mango.service"
+
 serverAddress="root@srv2.vod.qsolution.ru"
 serverPort="2203"
 
@@ -71,6 +75,14 @@ function DeleteHttpDll {
 
 function CopyFiles {
 	rsync -vizaP --delete -e "ssh -p $serverPort" ./Application/$1/bin/$buildFolderName/ $serverAddress:/opt/$1
+}
+
+function CopyFilesPublished {
+	rsync -vizaP --delete -e "ssh -p $serverPort" ./Application/$1/bin/$buildFolderName/$2/publish/ $serverAddress:/opt/$1
+}
+
+function PublishProject {
+    dotnet publish Application/$1
 }
 
 function UpdateDriverService {
@@ -199,6 +211,22 @@ function UpdateSmsPaymentService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $smsPaymentServiceName
 }
 
+function UpdateMangoService {
+	printf "\nОбновление службы работы с Mango\n"
+
+  PublishProject $mangoServiceFolder
+
+	echo "-- Stoping $mangoServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl stop $mangoServiceName
+
+	echo "-- Copying $mangoServiceName files"
+	
+	CopyFilesPublished $mangoServiceFolder "netcoreapp2.2"
+
+	echo "-- Starting $mangoServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl start $mangoServiceName
+}
+
 case $service in
 	*1*)
 		UpdateDriverService
@@ -226,6 +254,9 @@ case $service in
 	;;&
 	*9*)
 		UpdateSmsPaymentService
+	;;&
+	*m*)
+		UpdateMangoService
 	;;
 esac
 

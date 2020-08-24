@@ -48,6 +48,7 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.FilterViewModels.Goods;
+using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.JournalViewers;
@@ -156,8 +157,9 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		}
 
 		NavigationManager = AutofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
-		//Point!
-		NavigationManager.OpenViewModel<FullInternalCallViewModel>(null);
+
+		var mangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
+		mangoManager.Connect();
 
 		BanksUpdater.CheckBanksUpdate(false);
 	}
