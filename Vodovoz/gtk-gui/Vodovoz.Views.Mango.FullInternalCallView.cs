@@ -42,7 +42,7 @@ namespace Vodovoz.Views.Mango
 
 		private global::Gtk.Button CostAndDeliveryIntervalButton;
 
-		private global::Gtk.Button StockBalnceButton;
+		private global::Gtk.Button StockBalanceButton;
 
 		private global::Gtk.Table table4;
 
@@ -129,7 +129,7 @@ namespace Vodovoz.Views.Mango
 			this.NewClientButton.CanFocus = true;
 			this.NewClientButton.Name = "NewClientButton";
 			this.NewClientButton.UseUnderline = true;
-			this.NewClientButton.Label = global::Mono.Unix.Catalog.GetString("Новый клиент");
+			this.NewClientButton.Label = global::Mono.Unix.Catalog.GetString("Новый контрагент");
 			this.hbox3.Add(this.NewClientButton);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.NewClientButton]));
 			w7.Position = 0;
@@ -138,7 +138,7 @@ namespace Vodovoz.Views.Mango
 			this.ExistingClientButton.CanFocus = true;
 			this.ExistingClientButton.Name = "ExistingClientButton";
 			this.ExistingClientButton.UseUnderline = true;
-			this.ExistingClientButton.Label = "Существующий клиент";
+			this.ExistingClientButton.Label = "Существующий контрагент";
 			this.hbox3.Add(this.ExistingClientButton);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ExistingClientButton]));
 			w8.Position = 1;
@@ -224,13 +224,13 @@ namespace Vodovoz.Views.Mango
 			w16.RightAttach = ((uint)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
-			this.StockBalnceButton = new global::Gtk.Button();
-			this.StockBalnceButton.CanFocus = true;
-			this.StockBalnceButton.Name = "StockBalnceButton";
-			this.StockBalnceButton.UseUnderline = true;
-			this.StockBalnceButton.Label = global::Mono.Unix.Catalog.GetString("Складские остатки");
-			this.table5.Add(this.StockBalnceButton);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table5[this.StockBalnceButton]));
+			this.StockBalanceButton = new global::Gtk.Button();
+			this.StockBalanceButton.CanFocus = true;
+			this.StockBalanceButton.Name = "StockBalanceButton";
+			this.StockBalanceButton.UseUnderline = true;
+			this.StockBalanceButton.Label = global::Mono.Unix.Catalog.GetString("Складские остатки");
+			this.table5.Add(this.StockBalanceButton);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table5[this.StockBalanceButton]));
 			w17.LeftAttach = ((uint)(2));
 			w17.RightAttach = ((uint)(3));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));

@@ -6,7 +6,7 @@ namespace Vodovoz.Views.Mango
 	{
 		private global::Gtk.VBox MainVbox;
 
-		private global::Gtk.Table table7;
+		private global::Gtk.HBox hbox2;
 
 		private global::Gamma.GtkWidgets.yButton RollUpButton;
 
@@ -54,23 +54,22 @@ namespace Vodovoz.Views.Mango
 			this.MainVbox.Spacing = 6;
 			this.MainVbox.BorderWidth = ((uint)(9));
 			// Container child MainVbox.Gtk.Box+BoxChild
-			this.table7 = new global::Gtk.Table(((uint)(1)), ((uint)(7)), false);
-			this.table7.Name = "table7";
-			this.table7.RowSpacing = ((uint)(6));
-			this.table7.ColumnSpacing = ((uint)(6));
-			// Container child table7.Gtk.Table+TableChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.RollUpButton = new global::Gamma.GtkWidgets.yButton();
 			this.RollUpButton.CanFocus = true;
 			this.RollUpButton.Name = "RollUpButton";
 			this.RollUpButton.UseUnderline = true;
 			this.RollUpButton.Label = global::Mono.Unix.Catalog.GetString("-");
-			this.table7.Add(this.RollUpButton);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table7[this.RollUpButton]));
-			w1.LeftAttach = ((uint)(6));
-			w1.RightAttach = ((uint)(7));
-			w1.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.MainVbox.Add(this.table7);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.MainVbox[this.table7]));
+			this.hbox2.Add(this.RollUpButton);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.RollUpButton]));
+			w1.Position = 2;
+			w1.Expand = false;
+			w1.Fill = false;
+			this.MainVbox.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.MainVbox[this.hbox2]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
@@ -221,7 +220,7 @@ namespace Vodovoz.Views.Mango
 			this.RetentionButton.CanFocus = true;
 			this.RetentionButton.Name = "RetentionButton";
 			this.RetentionButton.UseUnderline = true;
-			this.RetentionButton.Label = global::Mono.Unix.Catalog.GetString("|| Удержание ");
+			this.RetentionButton.Label = global::Mono.Unix.Catalog.GetString("|| Удержание");
 			this.table4.Add(this.RetentionButton);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table4[this.RetentionButton]));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -242,9 +241,11 @@ namespace Vodovoz.Views.Mango
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.NewClientButton.Clicked += new global::System.EventHandler(this.OnNewClientButtonClicked);
-			this.ExistingClientButton.Clicked += new global::System.EventHandler(this.OnExistingClientButtonClicked);
-			this.ComplaintButton.Clicked += new global::System.EventHandler(this.OnComplaintButtonClicked);
+			this.NewClientButton.Clicked += new global::System.EventHandler(this.Clicked_NewClientButton);
+			this.ExistingClientButton.Clicked += new global::System.EventHandler(this.Clicked_ExistingClientButton);
+			this.StockBalnce.Clicked += new global::System.EventHandler(this.Clicked_StockBalnce);
+			this.CostAndDeliveryIntervalButton.Clicked += new global::System.EventHandler(this.Clicked_CostAndDeliveryIntervalButton);
+			this.ComplaintButton.Clicked += new global::System.EventHandler(this.Clicked_ComplaintButton);
 		}
 	}
 }

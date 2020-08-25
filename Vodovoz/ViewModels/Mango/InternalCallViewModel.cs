@@ -1,27 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using QS.Dialog;
+using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Filters.ViewModels;
+using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class InternalCallViewModel : DialogViewModelBase
+	public class InternalCallViewModel : UowDialogViewModelBase
 	{
 		private readonly ITdiCompatibilityNavigation tdiCompatibilityNavigation;
-
-		public InternalCallViewModel(ITdiCompatibilityNavigation navigation) : base(navigation)
+		private readonly IInteractiveQuestion interactive;
+		private Phone phone;
+		public Phone Phone 
+		{
+			get => phone;
+			private set { }
+		}
+		public InternalCallViewModel(Phone phone, IUnitOfWorkFactory unitOfWorkFactory, ITdiCompatibilityNavigation navigation, IInteractiveQuestion interactive) : base(unitOfWorkFactory,navigation)
 		{
 			this.tdiCompatibilityNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
+			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			Title = "Входящий новый номер";
+
+			this.phone = phone;
 		}
 
 		#region Действия View
@@ -48,19 +61,28 @@ namespace Vodovoz.ViewModels.Mango
 		void NewCounerpatry_PageClosed(object sender, PageClosedEventArgs e)
 		{
 			if(e.CloseSource == CloseSource.Save) 
-				{ }//FIXME Открыть другой диалог.
+				{ }
 		}
 
 		public void SelectExistConterparty()
 		{
 			var page = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
 			page.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
-			page.ViewModel.OnSelectResult += CounterpartyJournal_OnSelectResult;
+			page.ViewModel.OnEntitySelectedResult += ExistingCounterparty_PageClosed;
 		}
 
-		void CounterpartyJournal_OnSelectResult(object sender, QS.Project.Journal.JournalSelectedEventArgs e)
+		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
 		{
-			//FIXME получить контрагента и перейти на другой диалог
+			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
+			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
+			Counterparty firstClient = clients.First();
+			if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?","Телефон контрагента")) 
+			{
+				firstClient.Phones.Add(phone);
+				UoW.Save<Counterparty>(firstClient);
+				NavigationManager.OpenViewModel<FullInternalCallViewModel, IEnumerable<Counterparty>,Phone>(null, clients,phone);
+				this.Close(false, CloseSource.Self);
+			}
 		}
 
 		#endregion

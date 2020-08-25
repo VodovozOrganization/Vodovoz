@@ -13,6 +13,7 @@ using QS.Deletion.Views;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Navigation;
@@ -35,6 +36,7 @@ using QSDocTemplates;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
+using QSReport;
 using Vodovoz.Core;
 using Vodovoz.Core.Permissions;
 using Vodovoz.Dialogs;
@@ -63,6 +65,9 @@ using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.StoredResources;
+using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
@@ -75,12 +80,15 @@ using Vodovoz.Footers.ViewModels;
 using Vodovoz.Footers.Views;
 using Vodovoz.Infrastructure.Mango;
 using Vodovoz.Infrastructure.Permissions;
+using Vodovoz.Infrastructure.Print;
 using Vodovoz.Infrastructure.Services;
 using Vodovoz.JournalColumnsConfigs;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.JournalViewers;
+using Vodovoz.PermissionExtensions;
 using Vodovoz.ReportsParameters;
 using Vodovoz.Repositories;
+using Vodovoz.Repositories.HumanResources;
 using Vodovoz.Services.Permissions;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels;
@@ -562,10 +570,19 @@ namespace Vodovoz
 			#region Services
 			builder.Register(c => VodovozGtkServicesConfig.EmployeeService).As<IEmployeeService>();
 			builder.RegisterType<GtkFilePicker>().As<IFilePickerService>();
+			builder.Register(c => new EntityExtendedPermissionValidator(PermissionExtensionSingletonStore.GetInstance(), EmployeeSingletonRepository.GetInstance())).As<IEntityExtendedPermissionValidator>();
 			builder.RegisterType<EmployeeService>().As<IEmployeeService>();
+			#endregion
+			#region Selectors
+			builder.RegisterType<NomenclatureSelectorFactory>().As<INomenclatureSelectorFactory>();
+			builder.RegisterType<OrderSelectorFactory>().As<IOrderSelectorFactory>();
+			builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 			#endregion
 			#region Интерфейсы репозиториев
 			builder.RegisterType<SubdivisionRepository>().As<ISubdivisionRepository>();
+			builder.Register(c => EmployeeSingletonRepository.GetInstance()).As<IEmployeeRepository>();
+			builder.RegisterType<WarehouseRepository>().As<IWarehouseRepository>();
+			builder.Register(c => UserSingletonRepository.GetInstance()).As<IUserRepository>();
 			#endregion
 			#region Mango
 			builder.RegisterType<MangoManager>().AsSelf();
@@ -595,6 +612,7 @@ namespace Vodovoz
 			#region Старые общие диалоги
 			//builder.RegisterType<OrmReference>().AsSelf();
 			//builder.RegisterType<ReferenceRepresentation>().AsSelf();
+			builder.RegisterType<ReportViewDlg>().AsSelf();
 			#endregion
 
 			#region Журналы

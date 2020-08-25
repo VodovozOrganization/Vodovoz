@@ -6,6 +6,7 @@ using QS.Project.Domain;
 using QS.Project.Journal.EntitySelector;
 using QS.Services;
 using QS.ViewModels;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Subdivisions;
@@ -39,6 +40,19 @@ namespace Vodovoz.ViewModels.Complaints
 			ConfigureEntityPropertyChanges();
 			Entity.Phone = phone;
 			TabName = "Новая клиентская рекламация";
+		}
+
+		public CreateComplaintViewModel(Counterparty client,
+			IEntityUoWBuilder uowBuilder,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IEmployeeService employeeService,
+			IEntityAutocompleteSelectorFactory employeeSelectorFactory,
+			IEntityAutocompleteSelectorFactory counterpartySelectorFactory,
+			ISubdivisionRepository subdivisionRepository,
+			ICommonServices commonServices,
+			string phone = null) : this(uowBuilder,unitOfWorkFactory,employeeService,employeeSelectorFactory,counterpartySelectorFactory,subdivisionRepository,commonServices,phone)
+		{
+			Entity.Counterparty = client;
 		}
 
 		private Employee currentEmployee;

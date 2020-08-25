@@ -169,6 +169,10 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		public OrderDlg(Counterparty client) :this()
+		{
+			Entity.Client = UoW.GetById<Counterparty>(client.Id);
+		}
 		public OrderDlg(int id)
 		{
 			this.Build();
