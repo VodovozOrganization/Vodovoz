@@ -1538,6 +1538,12 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.AdditionalCallView.cs" />
     <Compile Include="Views\Mango\AdditionalCallView.cs" />
     <Compile Include="ViewModels\Mango\AdditionalCallViewModel.cs" />
+    <Compile Include="ViewModels\Mango\IncomingCallViewModel.cs" />
+    <Compile Include="ViewModels\Mango\FullIncomingCallViewModel.cs" />
+    <Compile Include="Views\Mango\IncomingCallView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.IncomingCallView.cs" />
+    <Compile Include="Views\Mango\FullIncomingCallView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.FullIncomingCallView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -4,9 +4,9 @@ using Vodovoz.ViewModels.Mango;
 
 namespace Vodovoz.Views.Mango
 {
-	public partial class InternalCallView : DialogViewBase<InternalCallViewModel>
+	public partial class IncomingCallView : DialogViewBase<IncomingCallViewModel>
 	{
-		public InternalCallView(InternalCallViewModel viewModel) : base(viewModel)
+		public IncomingCallView(IncomingCallViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
 			Configure();

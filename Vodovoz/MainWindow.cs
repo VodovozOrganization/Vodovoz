@@ -159,7 +159,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 		NavigationManager = AutofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
 		//Point!
-		NavigationManager.OpenViewModel<InternalCallViewModel,Phone>(null,new Phone() {Number = "+7-000-000-00-00" });
+		NavigationManager.OpenViewModel<IncomingCallViewModel,Phone>(null,new Phone() {Number = "+7-000-000-00-00" });
 		//NavigationManager.OpenViewModel<FullInternalCallViewModel,IEnumerable>(null,null);
 
 		var mangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
