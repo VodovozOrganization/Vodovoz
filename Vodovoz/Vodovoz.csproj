@@ -1531,8 +1531,6 @@
     <Compile Include="Views\Mango\FullInternalCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.FullInternalCallView.cs" />
     <Compile Include="Infrastructure\Mango\MangoManager.cs" />
-    <Compile Include="Views\Mango\CounterpartyOrdersWidget.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Views.Mango.CounterpartyOrdersWidget.cs" />
     <Compile Include="ViewModels\Mango\FullInternalCallViewModel.cs" />
     <Compile Include="Views\Mango\CounterpartyOrderView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.CounterpartyOrderView.cs" />
