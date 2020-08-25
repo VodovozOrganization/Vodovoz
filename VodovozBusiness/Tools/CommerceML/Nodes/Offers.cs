@@ -48,7 +48,7 @@ namespace Vodovoz.Tools.CommerceML.Nodes
 				                                      new XElement("Единица", good.Unit?.Name),
 				                                      new XElement("Коэффициент", 1)
 				                                     )));
-				goodxml.Add(new XElement("Количество", XmlConvert.ToString(100)));
+				goodxml.Add(new XElement("Количество", XmlConvert.ToString(amounts[good.Id])));
 				xml.Add(goodxml);
 			}
 			return xml;
