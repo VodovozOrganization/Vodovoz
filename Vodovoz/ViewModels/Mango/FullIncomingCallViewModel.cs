@@ -27,46 +27,65 @@ using Vodovoz.EntityRepositories.Store;
 using QS.Project.Journal;
 using QSReport;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Dialogs.Sale;
+using Vodovoz.JournalNodes;
+using QS.Dialog;
 
 namespace Vodovoz.ViewModels.Mango
 {
 	public partial class FullIncomingCallViewModel : UowDialogViewModelBase
 	{
 		private ITdiCompatibilityNavigation tdiNavigation;
+		private readonly IInteractiveQuestion interactive;
 
-		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
+		private List<CounterpartyOrderViewModel> counterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
+		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels {
+			get => counterpartyOrdersModels;
+			private set {
+				counterpartyOrdersModels = value;
+			}
+		}
+
 
 		private Counterparty currentCounterparty { get; set; }
 		private Phone phone;
 
+		//public delegate void GotTheNewCounterpartyOrderViewModel(object sender, EventArgs e);
+		public event System.Action CounterpartyOrdersModelsUpdateEvent = () => { };
+
 		public Phone Phone {
 			get => phone;
-			private set { }
+			private set { phone = value; }
 		}
 
-
-
-		public FullIncomingCallViewModel(IEnumerable<Counterparty> clients, Phone phone, INavigationManager navigation, ITdiCompatibilityNavigation tdinavigation, IUnitOfWorkFactory unitOfWorkFactory) : base(unitOfWorkFactory, navigation)
+		public FullIncomingCallViewModel(IEnumerable<Counterparty> clients,
+			Phone phone,
+			INavigationManager navigation,
+			ITdiCompatibilityNavigation tdinavigation,
+			IInteractiveQuestion interactive,
+			IUnitOfWorkFactory unitOfWorkFactory) : base(unitOfWorkFactory, navigation)
 		{
 			this.NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
+			this.interactive = interactive;
 			Title = "Входящий звонок существующего контрагента";
 
 			this.phone = phone ?? throw new ArgumentNullException(nameof(phone));
-			Counterparty test_client = UoW.Session.Query<Counterparty>().Where(c => c.Id == 9).First();
-			CounterpartyOrderViewModel test_model = new CounterpartyOrderViewModel(test_client, unitOfWorkFactory, navigation, tdiNavigation);
-			CounterpartyOrdersModels.Add(test_model);
-
-			//FIXME Удалить тестовую логику (вышеуказанную) и раскомментрировать рабочую логики (нижеуказанную)
-
-			if(clients != null) {
-				foreach(Counterparty client in clients) {
+			if(clients != null) 
+			{
+				foreach(Counterparty client in clients) 
+				{
 					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, navigation, tdinavigation);
 					CounterpartyOrdersModels.Add(model);
 				}
 				currentCounterparty = CounterpartyOrdersModels.First().Client;
 			} else
 				throw new ArgumentNullException(nameof(clients));
+
+		}
+
+		void Configure()
+		{
 
 		}
 
@@ -84,10 +103,64 @@ namespace Vodovoz.ViewModels.Mango
 		#endregion
 
 		#region Действия View
+
 		public void UpadateCurrentCounterparty(Counterparty counterparty)
 		{
 			currentCounterparty = counterparty;
 
+		}
+		public void NewClientCommand()
+		{
+			var page = tdiNavigation.OpenTdiTab<CounterpartyDlg>(this,OpenPageOptions.AsSlave);
+			var tab = page.TdiTab as CounterpartyDlg;
+			page.PageClosed += NewCounerpatry_PageClosed;
+		}
+
+		public void ExistingClientCommand()
+		{
+			var page = NavigationManager.OpenViewModel<CounterpartyJournalViewModel>(null);
+			page.ViewModel.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+			page.ViewModel.OnEntitySelectedResult += ExistingCounterparty_PageClosed;
+		}
+
+		void NewCounerpatry_PageClosed(object sender, PageClosedEventArgs e)
+		{
+			if(e.CloseSource == CloseSource.Save) {
+				List<Counterparty> clients = new List<Counterparty>();
+				Counterparty client = ((sender as TdiTabPage).TdiTab as CounterpartyDlg).Counterparty;
+				client.Phones.Add(phone);
+				clients.Add(client);
+				UoW.Save<Counterparty>(client);
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory, NavigationManager, tdiNavigation);
+				counterpartyOrdersModels.Add(model);
+				currentCounterparty = client;
+				CounterpartyOrdersModelsUpdateEvent();
+			}
+			(sender as IPage).PageClosed -= NewCounerpatry_PageClosed;
+		}
+
+		void ExistingCounterparty_PageClosed(object sender, QS.Project.Journal.JournalSelectedNodesEventArgs e)
+		{
+			var counterpartyNode = e.SelectedNodes.First() as CounterpartyJournalNode;
+			IEnumerable<Counterparty> clients = UoW.Session.Query<Counterparty>().Where(c => c.Id == counterpartyNode.Id);
+			Counterparty firstClient = clients.First();
+			if(interactive.Question($"Доабать телефон к контагенту {firstClient.Name} ?", "Телефон контрагента")) {
+				firstClient.Phones.Add(phone);
+				UoW.Save<Counterparty>(firstClient);
+				UoW.Commit();
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory, NavigationManager, tdiNavigation);
+				counterpartyOrdersModels.Add(model);
+				currentCounterparty = firstClient;
+				CounterpartyOrdersModelsUpdateEvent();
+
+			}
+			(sender as CounterpartyJournalViewModel).OnEntitySelectedResult -= ExistingCounterparty_PageClosed;
+		}
+
+		public void NewOrderCommand()
+		{
+
+			tdiNavigation.OpenTdiTab<OrderDlg, Counterparty>(null, currentCounterparty);
 		}
 
 
@@ -100,14 +173,8 @@ namespace Vodovoz.ViewModels.Mango
 				{"counterpartySelectorFactory", new DefaultEntityAutocompleteSelectorFactory<Counterparty, CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(ServicesConfig.CommonServices)},
 				{"phone", "не реализовано"}//FIXME
 			};
-			tdiNavigation.OpenTdiTabNamedArgs<CreateComplaintViewModel>(null, parameters);
+			tdiNavigation.OpenTdiTabNamedArgs<CreateComplaintViewModel>(null,parameters);
 		}
-		public void NewOrderCommand()
-		{
-
-			tdiNavigation.OpenTdiTab<OrderDlg, Counterparty>(null, currentCounterparty);
-		}
-
 
 		public void BottleActCommand()
 		{
@@ -127,21 +194,26 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void CostAndDeliveryIntervalCommand()
 		{
-			//NavigationManager.OpenViewModel<>
+			tdiNavigation.OpenTdiTab<DeliveryPriceDlg>(null);
 		}
 
-		public void NewClientCommand()
+		#region CallEvents
+		public void FinishCallCommand()
 		{
-			//NavigationManager.OpenViewModel<>
+			//FIXME
 		}
 
-		public void ExistingClientCommand()
+		public void ForwardCallCommand()
 		{
-			//var page = tdiNavigation.OpenTdiTab<CounterpartyDlg>(null);
-			//var tab = page.TdiTab as CounterpartyDlg;
-			//tab.Entity.Phones.First().Number = "+7-000-000-00-00"; //FIXME
-			//page.PageClosed += NewCounerpatry_PageClosed;
+			//FIXME
 		}
+
+		public void ForwardToConsultationCommand()
+		{
+			//FIXME
+		}
+		#endregion
+
 		#endregion
 	}
 }

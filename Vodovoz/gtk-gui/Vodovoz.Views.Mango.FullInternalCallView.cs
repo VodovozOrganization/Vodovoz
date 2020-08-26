@@ -295,6 +295,8 @@ namespace Vodovoz.Views.Mango
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.NewClientButton.Clicked += new global::System.EventHandler(this.Clicked_NewClientButton);
+			this.ExistingClientButton.Clicked += new global::System.EventHandler(this.Clicked_ExistingClientButton);
 		}
 	}
 }

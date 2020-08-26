@@ -8,7 +8,11 @@ namespace Vodovoz.ViewModels.Mango
 {
 	public class AdditionalCallViewModel : DialogTabViewModelBase
 	{
-		public AdditionalCallViewModel(IUnitOfWorkFactory unitOfWorkFactory, IInteractiveService interactiveService, INavigationManager navigation) : base(unitOfWorkFactory, interactiveService, navigation)
+		public AdditionalCallViewModel(
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			IInteractiveService interactiveService, 
+			INavigationManager navigation)
+			 : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 
 		}

@@ -46,6 +46,16 @@ namespace Vodovoz.Views.Mango
 			ViewModel.UpadateCurrentCounterparty(counterparty);
 		}
 
+		private void Clicked_ExistingClientButton(object sender, EventArgs e)
+		{
+			ViewModel.ExistingClientCommand();
+		}
+
+		protected void Clicked_NewClientButton(object sender, EventArgs e)
+		{
+			ViewModel.NewClientCommand();
+		}
+
 		private void Clicked_ComplaintButton(object sender, EventArgs e)
 		{
 			ViewModel.AddComplainCommand();
@@ -72,15 +82,7 @@ namespace Vodovoz.Views.Mango
 			ViewModel.NewOrderCommand();
 		}
 
-		private void Clicked_ExistingClientButton(object sender, EventArgs e)
-		{
-			ViewModel.ExistingClientCommand();
-		}
 
-		protected void Clicked_NewClientButton(object sender, EventArgs e)
-		{
-			ViewModel.NewClientCommand();
-		}
 		#endregion
 	}
 }

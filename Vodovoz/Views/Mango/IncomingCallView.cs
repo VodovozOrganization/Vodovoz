@@ -1,4 +1,5 @@
 ﻿using System;
+using QS.Navigation;
 using QS.Views.Dialog;
 using Vodovoz.ViewModels.Mango;
 
@@ -14,12 +15,13 @@ namespace Vodovoz.Views.Mango
 
 		private void Configure()
 		{
-			CallNumberLabel.Text = ViewModel.Phone.Number;
+			//(this as IPage).PageClosed += ViewModel.SaveAndClose
+			CallNumberLabel.Text = ViewModel.Phone.LongText;
 		}
-
-		protected void Clicked_ComplaintButton(object sender, EventArgs e)
+		#region Events
+		protected void Cliked_RollUpButton(object sender, EventArgs e)
 		{
-			ViewModel.CreateComplaint();
+			//FIXME
 		}
 
 		protected void Clicked_NewClientButton(object sender, EventArgs e)
@@ -32,28 +34,39 @@ namespace Vodovoz.Views.Mango
 			ViewModel.SelectExistConterparty();
 		}
 
+		protected void Clicked_ComplaintButton(object sender, EventArgs e)
+		{
+			ViewModel.CreateComplaintCommand();
+		}
+
 		protected void Clicked_StockBalnce(object sender, EventArgs e)
 		{
+			ViewModel.StockBalanceCommand();
 		}
 
 		protected void Clicked_CostAndDeliveryIntervalButton(object sender, EventArgs e)
 		{
+			ViewModel.CostAndDeliveryIntervalCommand();
+		}
+		#region MangoEvents
+		protected void Clicked_ForwardingButton(object sender, EventArgs e)
+		{
+			ViewModel.ForwardCallCommand();
+		}
+
+		protected void Clicked_ForwardingToConsultationButton(object sender, EventArgs e)
+		{
+			ViewModel.ForwardToConsultationCommand();
 		}
 
 		protected void Clicked_FinishButton(object sender, EventArgs e)
 		{
+			ViewModel.FinishCallCommand();
 		}
 
-		protected void Clicked_ForwardingButton(object sender, EventArgs e)
-		{
-		}
+		#endregion
 
-		protected void Clicked_ForwardingToCoconsultationButton(object sender, EventArgs e)
-		{
-		}
-
-		protected void Cliked_RollUpButton(object sender, EventArgs e)
-		{
-		}
+		//private void Close_View
+		#endregion
 	}
 }

@@ -40,6 +40,8 @@ namespace Vodovoz.Views.Mango
 		{
 		}
 
+		#region MangoEvents
+
 		protected void Clicked_FinishButton(object sender, EventArgs e)
 		{
 		}
@@ -55,5 +57,7 @@ namespace Vodovoz.Views.Mango
 		protected void Cliked_RollUpButton(object sender, EventArgs e)
 		{
 		}
+
+		#endregion
 	}
 }

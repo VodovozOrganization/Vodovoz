@@ -159,7 +159,13 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 
 		NavigationManager = AutofacScope.Resolve<TdiNavigationManager>(new TypedParameter(typeof(TdiNotebook), tdiMain));
 		//Point!
-		NavigationManager.OpenViewModel<IncomingCallViewModel,Phone>(null,new Phone() {Number = "+7-000-000-00-00" });
+		Random random = new Random();
+		int f3 = random.Next(950, 999);
+		int s3 = random.Next(100, 999);
+		int f2 = random.Next(10, 99);
+		int s2 = random.Next(10, 99);
+		string number = f3 + "-" + s3 + "-" + f2 + "-" + s2;
+		NavigationManager.OpenViewModel<IncomingCallViewModel,Phone>(null,new Phone() {Number = number});
 		//NavigationManager.OpenViewModel<FullInternalCallViewModel,IEnumerable>(null,null);
 
 		var mangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));

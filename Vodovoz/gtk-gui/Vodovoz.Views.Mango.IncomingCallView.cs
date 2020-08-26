@@ -40,7 +40,7 @@ namespace Vodovoz.Views.Mango
 
 		private global::Gamma.GtkWidgets.yButton ForwardingButton;
 
-		private global::Gamma.GtkWidgets.yButton RetentionButton;
+		private global::Gamma.GtkWidgets.yButton ForwardingToConsultationButton;
 
 		protected virtual void Build()
 		{
@@ -65,9 +65,9 @@ namespace Vodovoz.Views.Mango
 			this.RollUpButton.Label = global::Mono.Unix.Catalog.GetString("-");
 			this.hbox2.Add(this.RollUpButton);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.RollUpButton]));
+			w1.PackType = ((global::Gtk.PackType)(1));
 			w1.Position = 2;
 			w1.Expand = false;
-			w1.Fill = false;
 			this.MainVbox.Add(this.hbox2);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.MainVbox[this.hbox2]));
 			w2.Position = 0;
@@ -167,7 +167,7 @@ namespace Vodovoz.Views.Mango
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table5[this.CostAndDeliveryIntervalButton]));
 			w11.LeftAttach = ((uint)(4));
 			w11.RightAttach = ((uint)(5));
-			w11.XOptions = ((global::Gtk.AttachOptions)(1));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
 			this.StockBalnce = new global::Gtk.Button();
@@ -208,21 +208,21 @@ namespace Vodovoz.Views.Mango
 			this.ForwardingButton.CanFocus = true;
 			this.ForwardingButton.Name = "ForwardingButton";
 			this.ForwardingButton.UseUnderline = true;
-			this.ForwardingButton.Label = global::Mono.Unix.Catalog.GetString("Переадресация");
+			this.ForwardingButton.Label = global::Mono.Unix.Catalog.GetString("|| Переадресация");
 			this.table4.Add(this.ForwardingButton);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table4[this.ForwardingButton]));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
-			this.RetentionButton = new global::Gamma.GtkWidgets.yButton();
-			this.RetentionButton.CanFocus = true;
-			this.RetentionButton.Name = "RetentionButton";
-			this.RetentionButton.UseUnderline = true;
-			this.RetentionButton.Label = global::Mono.Unix.Catalog.GetString("|| Удержание");
-			this.table4.Add(this.RetentionButton);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table4[this.RetentionButton]));
+			this.ForwardingToConsultationButton = new global::Gamma.GtkWidgets.yButton();
+			this.ForwardingToConsultationButton.CanFocus = true;
+			this.ForwardingToConsultationButton.Name = "ForwardingToConsultationButton";
+			this.ForwardingToConsultationButton.UseUnderline = true;
+			this.ForwardingToConsultationButton.Label = global::Mono.Unix.Catalog.GetString("Переадресация с консультацией");
+			this.table4.Add(this.ForwardingToConsultationButton);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table4[this.ForwardingToConsultationButton]));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox6.Add(this.table4);
@@ -246,6 +246,9 @@ namespace Vodovoz.Views.Mango
 			this.StockBalnce.Clicked += new global::System.EventHandler(this.Clicked_StockBalnce);
 			this.CostAndDeliveryIntervalButton.Clicked += new global::System.EventHandler(this.Clicked_CostAndDeliveryIntervalButton);
 			this.ComplaintButton.Clicked += new global::System.EventHandler(this.Clicked_ComplaintButton);
+			this.ForwardingToConsultationButton.Clicked += new global::System.EventHandler(this.Clicked_ForwardingToConsultationButton);
+			this.ForwardingButton.Clicked += new global::System.EventHandler(this.Clicked_ForwardingButton);
+			this.FinishButton.Clicked += new global::System.EventHandler(this.Clicked_FinishButton);
 		}
 	}
 }

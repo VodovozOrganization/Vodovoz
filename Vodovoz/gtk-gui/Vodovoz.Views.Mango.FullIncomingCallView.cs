@@ -48,9 +48,9 @@ namespace Vodovoz.Views.Mango
 
 		private global::Gamma.GtkWidgets.yButton FinishButton;
 
-		private global::Gamma.GtkWidgets.yButton ForwardingToConsultationButton;
+		private global::Gamma.GtkWidgets.yButton ForwardingButton;
 
-		private global::Gamma.GtkWidgets.yButton ForwaringButton;
+		private global::Gamma.GtkWidgets.yButton ForwardingToConsultationButton;
 
 		protected virtual void Build()
 		{
@@ -217,7 +217,7 @@ namespace Vodovoz.Views.Mango
 			this.CostAndDeliveryIntervalButton.CanFocus = true;
 			this.CostAndDeliveryIntervalButton.Name = "CostAndDeliveryIntervalButton";
 			this.CostAndDeliveryIntervalButton.UseUnderline = true;
-			this.CostAndDeliveryIntervalButton.Label = global::Mono.Unix.Catalog.GetString("\tСтоимость и \n интервалы доставки");
+			this.CostAndDeliveryIntervalButton.Label = global::Mono.Unix.Catalog.GetString("  Стоимость и \n интервалы доставки");
 			this.table5.Add(this.CostAndDeliveryIntervalButton);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table5[this.CostAndDeliveryIntervalButton]));
 			w16.LeftAttach = ((uint)(3));
@@ -258,25 +258,25 @@ namespace Vodovoz.Views.Mango
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table4.Gtk.Table+TableChild
+			this.ForwardingButton = new global::Gamma.GtkWidgets.yButton();
+			this.ForwardingButton.CanFocus = true;
+			this.ForwardingButton.Name = "ForwardingButton";
+			this.ForwardingButton.UseUnderline = true;
+			this.ForwardingButton.Label = global::Mono.Unix.Catalog.GetString("|| Переадресация");
+			this.table4.Add(this.ForwardingButton);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table4[this.ForwardingButton]));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table4.Gtk.Table+TableChild
 			this.ForwardingToConsultationButton = new global::Gamma.GtkWidgets.yButton();
 			this.ForwardingToConsultationButton.CanFocus = true;
 			this.ForwardingToConsultationButton.Name = "ForwardingToConsultationButton";
 			this.ForwardingToConsultationButton.UseUnderline = true;
 			this.ForwardingToConsultationButton.Label = global::Mono.Unix.Catalog.GetString("Переадресация с консультацией");
 			this.table4.Add(this.ForwardingToConsultationButton);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table4[this.ForwardingToConsultationButton]));
-			w20.LeftAttach = ((uint)(1));
-			w20.RightAttach = ((uint)(2));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table4.Gtk.Table+TableChild
-			this.ForwaringButton = new global::Gamma.GtkWidgets.yButton();
-			this.ForwaringButton.CanFocus = true;
-			this.ForwaringButton.Name = "ForwaringButton";
-			this.ForwaringButton.UseUnderline = true;
-			this.ForwaringButton.Label = global::Mono.Unix.Catalog.GetString("|| Переадресация");
-			this.table4.Add(this.ForwaringButton);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table4[this.ForwaringButton]));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table4[this.ForwardingToConsultationButton]));
+			w21.LeftAttach = ((uint)(1));
+			w21.RightAttach = ((uint)(2));
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox6.Add(this.table4);
@@ -295,6 +295,11 @@ namespace Vodovoz.Views.Mango
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.NewClientButton.Clicked += new global::System.EventHandler(this.Clicked_NewClientButton);
+			this.ExistingClientButton.Clicked += new global::System.EventHandler(this.Clicked_ExistingClientButton);
+			this.ForwardingToConsultationButton.Clicked += new global::System.EventHandler(this.Clicked_ForwardingToConsultationButton);
+			this.ForwardingButton.Clicked += new global::System.EventHandler(this.Clicked_ForwardingButton);
+			this.FinishButton.Clicked += new global::System.EventHandler(this.Clicked_FinishButton);
 		}
 	}
 }
