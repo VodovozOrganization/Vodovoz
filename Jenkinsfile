@@ -1,11 +1,13 @@
 node {
-   stage('Vodovoz') { 
-      checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/QualitySolution/Vodovoz.git']]])
+   stage('Vodovoz') {
+      checkout([
+         $class: 'GitSCM',
+         branches: scm.branches,
+         doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+         extensions: scm.extensions + [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Workwear']],
+         userRemoteConfigs: scm.userRemoteConfigs
+      ])
       sh 'nuget restore Vodovoz/Vodovoz.sln'
-   }
-   stage('VodovozService') {
-      checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'VodovozService']], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/QualitySolution/VodovozService.git']]])
-      sh 'nuget restore VodovozService/VodovozService.sln'
    }
    stage('QSProjects') {
       checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'QSProjects']], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/QualitySolution/QSProjects.git']]])
@@ -25,6 +27,9 @@ node {
       sh 'nuget restore My-FyiReporting/MajorsilenceReporting-Linux-GtkViewer.sln'
    }
    stage('Build') {
-        sh 'msbuild /p:Configuration=Debug-short /p:Platform=x86 Vodovoz/Vodovoz.sln'
+        sh 'msbuild /p:Configuration=DebugWin /p:Platform=x86 Vodovoz/Vodovoz.sln'
+        fileOperations([fileDeleteOperation(excludes: '', includes: 'Vodovoz.zip')])
+        zip zipFile: 'Vodovoz.zip', archive: false, dir: 'Vodovoz/Vodovoz/bin/DebugWin'
+        archiveArtifacts artifacts: 'Vodovoz.zip', onlyIfSuccessful: true
    }
 }
