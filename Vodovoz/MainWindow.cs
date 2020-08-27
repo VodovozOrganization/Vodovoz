@@ -165,8 +165,7 @@ public partial class MainWindow : Gtk.Window, IProgressBarDisplayable
 		int f2 = random.Next(10, 99);
 		int s2 = random.Next(10, 99);
 		string number = f3 + "-" + s3 + "-" + f2 + "-" + s2;
-		NavigationManager.OpenViewModel<IncomingCallViewModel,Phone>(null,new Phone() {Number = number});
-		//NavigationManager.OpenViewModel<FullInternalCallViewModel,IEnumerable>(null,null);
+		NavigationManager.OpenViewModel<UnknowTalkViewModel,Phone>(null,new Phone() {Number = number});
 
 		var mangoManager = AutofacScope.Resolve<MangoManager>(new TypedParameter(typeof(Gtk.Action), MangoAction));
 		mangoManager.Connect();
