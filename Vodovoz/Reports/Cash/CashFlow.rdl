@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataIncome">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_income_category.name AS Category,
@@ -56,7 +56,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -68,7 +68,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataExpense">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name as Category,
@@ -103,7 +103,7 @@ ORDER BY Category
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -115,7 +115,7 @@ ORDER BY Category
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name as Category,
@@ -150,7 +150,7 @@ ORDER BY Category
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -162,7 +162,7 @@ ORDER BY Category
       </Fields>
     </DataSet>
     <DataSet Name="IncomeReturn">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name AS Category,
@@ -197,7 +197,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <TypeName>System.String</TypeName>
@@ -209,7 +209,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="AdvanceReport">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	cash_expense_category.name AS Category,
@@ -243,7 +243,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <TypeName>System.String</TypeName>
@@ -257,24 +257,25 @@ ORDER BY Category;</CommandText>
     <DataSet Name="StartBalance">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT (income.money - expense.money) as balance, 
-       subdivisions.name
-FROM
-    (
-        SELECT IFNULL(SUM(money),0) as money, related_to_subdivision_id
-        FROM cash_income ci
-        WHERE
-            `date` &lt; @StartDate
-            AND related_to_subdivision_id in (@cash_subdivisions)
-        GROUP BY related_to_subdivision_id) as income
- LEFT JOIN 
-    (
-        SELECT IFNULL(SUM(money),0) as money, related_to_subdivision_id 
-        FROM cash_expense ce
-        WHERE
-            `date` &lt; @StartDate
-        GROUP BY related_to_subdivision_id) as expense ON income.related_to_subdivision_id = expense.related_to_subdivision_id 
-LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</CommandText>
+        <CommandText>Select
+       s.id,
+       s.name,
+        (
+            Select IFNULL(sum(ci.money), 0)as money
+            From cash_income ci
+            Where ci.related_to_subdivision_id = s.id
+            AND ci.date &lt; @StartDate
+        ) 
+        -
+        (
+            Select IFNULL(sum(ce.money), 0) as money
+            From cash_expense ce
+            Where ce.related_to_subdivision_id = s.id
+            AND ce.date &lt; @StartDate
+        ) as balance
+From subdivisions s
+WHERE s.id IN (@cash_subdivisions)
+GROUP BY s.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
@@ -296,26 +297,27 @@ LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</C
       </Fields>
     </DataSet>
     <DataSet Name="EndBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT (income.money - expense.money) as balance, 
-       subdivisions.name
-FROM
-    (
-        SELECT IFNULL(SUM(money),0) as money, related_to_subdivision_id
-        FROM cash_income ci
-        WHERE
-            `date` &lt; @EndDate
-            AND related_to_subdivision_id in (@cash_subdivisions)
-        GROUP BY related_to_subdivision_id) as income
- LEFT JOIN 
-    (
-        SELECT IFNULL(SUM(money),0) as money, related_to_subdivision_id 
-        FROM cash_expense ce
-        WHERE
-            `date` &lt; @EndDate
-        GROUP BY related_to_subdivision_id) as expense ON income.related_to_subdivision_id = expense.related_to_subdivision_id 
-LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</CommandText>
+        <CommandText>Select
+       s.id,
+       s.name,
+        (
+            Select IFNULL(sum(ci.money), 0)as money
+            From cash_income ci
+            Where ci.related_to_subdivision_id = s.id
+            AND ci.date &lt; @EndDate
+        ) 
+        -
+        (
+            Select IFNULL(sum(ce.money), 0) as money
+            From cash_expense ce
+            Where ce.related_to_subdivision_id = s.id
+            AND ce.date &lt; @EndDate
+        ) as balance
+From subdivisions s
+WHERE s.id IN (@cash_subdivisions)
+GROUP BY s.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
@@ -325,7 +327,7 @@ LEFT JOIN subdivisions On income.related_to_subdivision_id = subdivisions.id;</C
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name">
           <DataField>name</DataField>
           <TypeName>System.String</TypeName>
