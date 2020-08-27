@@ -116,10 +116,10 @@ namespace Vodovoz
 				.Where(r => r.RouteList.Id == RouteList.Id)
 				.JoinAlias(rli => rli.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
-				.JoinAlias(() => routeListItemAlias.TransferedTo, () => routeListItemToAlias)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
 				.JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
 				.Left.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => routeListItemToAlias)
 				.Where(Restrictions.Or(
 					Restrictions.On(() => warehouseAlias.Id).IsNull,
 					Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
