@@ -28,7 +28,6 @@ namespace Vodovoz.Views.Mango
 			this.Name = "Vodovoz.Views.Mango.AdditionalCallView";
 			// Container child Vodovoz.Views.Mango.AdditionalCallView.Gtk.Container+ContainerChild
 			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(8)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild

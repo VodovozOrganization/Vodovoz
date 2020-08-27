@@ -33,10 +33,12 @@ using QS.Dialog;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public partial class CounterpartyTalkViewModel : UowDialogViewModelBase
+	public partial class CounterpartyTalkViewModel : ModalDialogViewModelBase
 	{
 		private ITdiCompatibilityNavigation tdiNavigation;
 		private readonly IInteractiveQuestion interactive;
+
+		private IUnitOfWork UoW;
 
 		private List<CounterpartyOrderViewModel> counterpartyOrdersModels = new List<CounterpartyOrderViewModel>();
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersModels {
@@ -63,11 +65,12 @@ namespace Vodovoz.ViewModels.Mango
 			INavigationManager navigation,
 			ITdiCompatibilityNavigation tdinavigation,
 			IInteractiveQuestion interactive,
-			IUnitOfWorkFactory unitOfWorkFactory) : base(unitOfWorkFactory, navigation)
+			IUnitOfWorkFactory unitOfWorkFactory) : base(navigation)
 		{
 			this.NavigationManager = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.tdiNavigation = tdinavigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive;
+			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			Title = "Входящий звонок существующего контрагента";
 
 			this.phone = phone ?? throw new ArgumentNullException(nameof(phone));

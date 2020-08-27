@@ -3,16 +3,17 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Dialog;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class AdditionalCallViewModel : DialogTabViewModelBase
+	public class AdditionalCallViewModel : ModalDialogViewModelBase
 	{
+		private IUnitOfWork UoW;
 		public AdditionalCallViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
-			IInteractiveService interactiveService, 
 			INavigationManager navigation)
-			 : base(unitOfWorkFactory, interactiveService, navigation)
+			 : base(navigation)
 		{
 
 		}

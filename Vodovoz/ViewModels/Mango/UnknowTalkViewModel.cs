@@ -21,19 +21,24 @@ using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class UnknowTalkViewModel : UowDialogViewModelBase
+	public class UnknowTalkViewModel : ModalDialogViewModelBase
 	{
 		private readonly ITdiCompatibilityNavigation tdiNavigation;
 		private readonly IInteractiveQuestion interactive;
+		private IUnitOfWork UoW;
 		private Phone phone;
 		public Phone Phone {
 			get => phone;
 			private set { phone = value; }
 		}
-		public UnknowTalkViewModel(Phone phone, IUnitOfWorkFactory unitOfWorkFactory, ITdiCompatibilityNavigation navigation, IInteractiveQuestion interactive) : base(unitOfWorkFactory, navigation)
+		public UnknowTalkViewModel(Phone phone, 
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ITdiCompatibilityNavigation navigation, 
+			IInteractiveQuestion interactive) : base(navigation)
 		{
 			this.tdiNavigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
+			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			Title = "Входящий новый номер";
 
 			this.phone = phone;

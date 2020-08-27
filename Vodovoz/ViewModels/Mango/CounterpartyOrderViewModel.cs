@@ -18,7 +18,7 @@ namespace Vodovoz.ViewModels.Mango
 	{
 
 	}
-	public class CounterpartyOrderViewModel : UowDialogViewModelBase
+	public class CounterpartyOrderViewModel : ModalDialogViewModelBase
 	{
 		private Counterparty client;
 		public Counterparty Client {
@@ -26,14 +26,20 @@ namespace Vodovoz.ViewModels.Mango
 			private set { client = value; }
 		}
 		private ITdiCompatibilityNavigation tdiNavigation;
+		private IUnitOfWork UoW;
 
 		public List<Order> LatestOrder {get;private set;}
 
-		public CounterpartyOrderViewModel(Counterparty client,IUnitOfWorkFactory unitOfWorkFactory, INavigationManager navigation, ITdiCompatibilityNavigation tdinavigation, int count = 5) 
-		: base(unitOfWorkFactory, navigation)
+		public CounterpartyOrderViewModel(Counterparty client,
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			INavigationManager navigation, 
+			ITdiCompatibilityNavigation tdinavigation, 
+			int count = 5) 
+		: base(navigation)
 		{
 			this.client = client;
 			this.tdiNavigation = tdinavigation;
+			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			OrderSingletonRepository orderRepos = OrderSingletonRepository.GetInstance();
 			LatestOrder = orderRepos.GetLatestOrdersForCounterparty(UoW,client,count).ToList();
 		}
