@@ -10,8 +10,8 @@ namespace ClientMangoService
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		
-		public static string ServiceAddress = "mango.vod.qsolution.ru";
-		//public static string ServiceAddress = "localhost";
+		//public static string ServiceAddress = "mango.vod.qsolution.ru";
+		public static string ServiceAddress = "localhost";
 		public uint ServicePort = 7087;
 		private NotificationService.NotificationServiceClient client;
 		private Channel channel;
@@ -46,7 +46,7 @@ namespace ClientMangoService
 					{
 						FailSince = null;
 						var message = response.ResponseStream.Current;
-						Console.WriteLine($"extension:{extension} Received:{message.Number}");
+						Console.WriteLine($"extension:{extension} Received:{message}");
 						OnIncomeCall(message);
 					}
 					logger.Warn($"Соединение с NotificationService[{extension}] завершено.");
