@@ -134,7 +134,7 @@ namespace Vodovoz.ViewModels.Mango
 				client.Phones.Add(phone);
 				clients.Add(client);
 				UoW.Save<Counterparty>(client);
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory, NavigationManager, tdiNavigation);
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, NavigationManager, tdiNavigation);
 				counterpartyOrdersModels.Add(model);
 				currentCounterparty = client;
 				CounterpartyOrdersModelsUpdateEvent();
@@ -151,7 +151,7 @@ namespace Vodovoz.ViewModels.Mango
 				firstClient.Phones.Add(phone);
 				UoW.Save<Counterparty>(firstClient);
 				UoW.Commit();
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory, NavigationManager, tdiNavigation);
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory, NavigationManager, tdiNavigation);
 				counterpartyOrdersModels.Add(model);
 				currentCounterparty = firstClient;
 				CounterpartyOrdersModelsUpdateEvent();
