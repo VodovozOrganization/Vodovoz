@@ -41,6 +41,10 @@ namespace Vodovoz.Dialogs.Goods
 			checklistCharacteristics.EnumType = typeof(NomenclatureProperties);
 			checklistCharacteristics.Binding.AddBinding(
 				Entity, e => e.Characteristics, w => w.SelectedValuesList, new EnumsListConverter<NomenclatureProperties>()).InitializeFromSource();
+
+			ylblOnlineStore.Text = Entity.OnlineStore?.Name;
+			ylblOnlineStore.Visible = !String.IsNullOrWhiteSpace(Entity.OnlineStore?.Name);
+			ylblOnlineStoreStr.Visible = !String.IsNullOrWhiteSpace(Entity.OnlineStore?.Name);
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
