@@ -469,6 +469,7 @@
     <EmbeddedResource Include="icons\phone\phone-disconnected.png" />
     <EmbeddedResource Include="icons\phone\phone-disable.png" />
     <EmbeddedResource Include="icons\phone\phone-connected.png" />
+    <EmbeddedResource Include="icons\phone\decline-call.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Additions\SmsSender.cs" />
@@ -1538,6 +1539,9 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.AdditionalCallView.cs" />
     <Compile Include="Views\Mango\AdditionalCallView.cs" />
     <Compile Include="ViewModels\Mango\AdditionalCallViewModel.cs" />
+    <Compile Include="ViewModels\Mango\IncomingCallViewModel.cs" />
+    <Compile Include="Views\Mango\IncomingCallView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Mango.IncomingCallView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
