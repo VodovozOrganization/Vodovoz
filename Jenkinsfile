@@ -4,7 +4,7 @@ node {
          $class: 'GitSCM',
          branches: scm.branches,
          doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-         extensions: scm.extensions + [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Workwear']],
+         extensions: scm.extensions + [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']],
          userRemoteConfigs: scm.userRemoteConfigs
       ])
       sh 'nuget restore Vodovoz/Vodovoz.sln'
