@@ -122,6 +122,8 @@ namespace Vodovoz
 			ycomboFuelTypes.Binding.AddBinding(Entity, e => e.FuelType, w => w.SelectedItem).InitializeFromSource();
 			ycomboFuelTypes.Visible = Entity.Category == NomenclatureCategory.fuel;
 
+			ylblOnlineStore.Text = Entity.OnlineStore?.Name;
+
 			yentryFolder1c.SubjectType = typeof(Folder1c);
 			yentryFolder1c.Binding.AddBinding(Entity, e => e.Folder1C, w => w.Subject).InitializeFromSource();
 			yentryProductGroup.SubjectType = typeof(ProductGroup);
@@ -281,6 +283,7 @@ namespace Vodovoz
 			radioEquipment.Sensitive = selected == NomenclatureCategory.equipment;
 			enumSaleCategory.Visible = lblSaleCategory.Visible = Nomenclature.GetCategoriesWithSaleCategory().Contains(selected);
 			enumDepositType.Visible = lblSubType.Visible = selected == NomenclatureCategory.deposit;
+			ylblOnlineStore.Visible = ylblOnlineStoreStr.Visible = selected == NomenclatureCategory.additional;
 
 			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.deposit);
 			spinVolume.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.deposit);

@@ -18,6 +18,7 @@ namespace Vodovoz.HibernateMapping.Goods
 			Map(x => x.CharacteristicsText).Column("characteristics");
 
 			References(x => x.MappedParent).Column("parent_id");
+			References(x => x.OnlineStore).Column("online_store_id");
 			HasMany(x => x.Childs).Inverse().Cascade.All().LazyLoad().KeyColumn("parent_id");
 		}
 	}

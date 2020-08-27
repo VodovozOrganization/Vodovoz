@@ -80,6 +80,7 @@ namespace Vodovoz.HibernateMapping
 			References(x => x.Folder1C).Column("folder_1c_id");
 			References(x => x.ProductGroup).Column("group_id");
 			References(x => x.FuelType).Column("fuel_type_id");
+			References(x => x.OnlineStore).Column("online_store_id");
 
 			HasMany(x => x.NomenclaturePrice).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.Images).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
