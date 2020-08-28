@@ -13,10 +13,11 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id,
+	IFNULL(orders.e_shop_order, "") AS e_shop_order,
 	orders.delivery_date AS order_date,
 	delivery_points.organization as organization,
 	orders.order_status AS order_status,
@@ -117,7 +118,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -237,6 +238,10 @@ WHERE
         <Field Name="organization">
           <DataField>organization</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="e_shop_order">
+          <DataField>e_shop_order</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -669,7 +674,7 @@ GROUP BY name</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Image">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>/*
 SET @id1 = 3; #VodovozLogo
@@ -833,7 +838,7 @@ WHERE stored_resource.id = @id1</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="IM1">
           <DataField>IM1</DataField>
           <TypeName>System.String</TypeName>
@@ -1848,7 +1853,7 @@ WHERE stored_resource.id = @id1</CommandText>
       <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>19.50pt</Height>
         <Width>345.87pt</Width>
-        <Value>='Товарный чек № ' + Max({order_id}, "Order") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy") + " " + First({pay_type}, "Order")</Value>
+        <Value>='Товарный чек № ' + Max({order_id}, "Order") + iif(First({e_shop_order}, "Order") != "", "/" + First({e_shop_order}, "Order"), "") + ' от ' + Format(Max({order_date}, "Order"), "dd.MM.yy") + " " + First({pay_type}, "Order")</Value>
         <ZIndex>1</ZIndex>
         <Left>111.10pt</Left>
         <Top>35.80pt</Top>
@@ -4014,7 +4019,7 @@ WHERE stored_resource.id = @id1</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <DefaultValue>
