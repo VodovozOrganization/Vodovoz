@@ -217,7 +217,8 @@ GROUP BY oe.own_type, n.id
         <CommandText>SELECT
 	n.official_name,
 	SUM(eq.count) AS count,
-	eq.order_id AS order_id
+	eq.order_id AS order_id,
+	o.e_shop_order
 FROM(
 	SELECT
 		nomenclature_id,
@@ -240,6 +241,7 @@ FROM(
 ) AS eq
 LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
+LEFT JOIN orders o on eq.order_id = o.id
 WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
 AND IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE)
 GROUP BY eq.nomenclature_id, order_id
@@ -263,6 +265,10 @@ GROUP BY eq.nomenclature_id, order_id
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="e_shop_order">
+          <DataField>e_shop_order</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -2617,7 +2623,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                             <BorderColor />
                             <BorderWidth />
                           </Style>
-                          <Value>={order_id}</Value>
+                          <Value>={e_shop_order}</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -2704,7 +2710,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                             <BorderColor />
                             <BorderWidth />
                           </Style>
-                          <Value>={order_id}</Value>
+                          <Value>={e_shop_order}</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -2904,7 +2910,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
                             <BorderColor />
                             <BorderWidth />
                           </Style>
-                          <Value>={order_id}</Value>
+                          <Value>={e_shop_order}</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
