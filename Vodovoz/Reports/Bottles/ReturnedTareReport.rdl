@@ -1088,7 +1088,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id as order_id,
@@ -1193,7 +1193,7 @@ WHERE
                  LEFT JOIN nomenclature n2 ON oi2.nomenclature_id = n2.id
         WHERE oi2.order_id = orders.id AND n2.category = 'water' AND n2.tare_volume = 'Vol19l'
     )
-  AND (IF(@date_type, orders.delivery_date BETWEEN @start_date AND @end_date, orders.create_date BETWEEN @start_date AND @end_date))
+  AND (IF(@date_type, orders.create_date BETWEEN @start_date AND @end_date, orders.delivery_date BETWEEN @start_date AND @end_date))
 GROUP BY orders.id
 ORDER BY orders.id DESC;</CommandText>
         <QueryParameters>
@@ -1211,7 +1211,7 @@ ORDER BY orders.id DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
