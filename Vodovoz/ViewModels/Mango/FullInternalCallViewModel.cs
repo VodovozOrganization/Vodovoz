@@ -55,14 +55,14 @@ namespace Vodovoz.ViewModels.Mango
 
 			this.phone = phone ?? throw new ArgumentNullException(nameof(phone));
 			Counterparty test_client = UoW.Session.Query<Counterparty>().Where(c => c.Id == 9).First();
-			CounterpartyOrderViewModel test_model = new CounterpartyOrderViewModel(test_client, unitOfWorkFactory,navigation,tdiNavigation);
+			CounterpartyOrderViewModel test_model = new CounterpartyOrderViewModel(test_client, unitOfWorkFactory,tdiNavigation);
 			CounterpartyOrdersModels.Add(test_model);
 
 			//FIXME Удалить тестовую логику (вышеуказанную) и раскомментрировать рабочую логики (нижеуказанную)
 
 			if(clients != null) {
 				foreach(Counterparty client in clients) {
-					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, navigation, tdinavigation);
+					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, tdinavigation);
 					CounterpartyOrdersModels.Add(model);
 				}
 				currentCounterparty = CounterpartyOrdersModels.First().Client;

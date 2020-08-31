@@ -1,14 +1,13 @@
 ﻿using System;
-using Vodovoz.ViewModel;
-using QS.Views.Dialog;
-using Vodovoz.ViewModels.Mango;
 using Gamma.GtkWidgets;
+using QS.Views;
 using Vodovoz.Domain.Orders;
+using Vodovoz.ViewModels.Mango;
 
 namespace Vodovoz.Views.Mango
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class CounterpartyOrderView : DialogViewBase<CounterpartyOrderViewModel>
+	public partial class CounterpartyOrderView : ViewBase<CounterpartyOrderViewModel>
 	{
 		public CounterpartyOrderView(CounterpartyOrderViewModel viewModel) : base(viewModel)
 		{

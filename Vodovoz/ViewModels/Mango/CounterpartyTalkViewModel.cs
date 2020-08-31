@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.Dialog;
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.Mango
 			{
 				foreach(Counterparty client in clients) 
 				{
-					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, navigation, tdinavigation);
+					CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, unitOfWorkFactory, tdiNavigation);
 					CounterpartyOrdersModels.Add(model);
 				}
 				currentCounterparty = CounterpartyOrdersModels.First().Client;
@@ -124,7 +124,7 @@ namespace Vodovoz.ViewModels.Mango
 				client.Phones.Add(phone);
 				clients.Add(client);
 				UoW.Save<Counterparty>(client);
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, NavigationManager, tdiNavigation);
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(client, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation);
 				counterpartyOrdersModels.Add(model);
 				currentCounterparty = client;
 				CounterpartyOrdersModelsUpdateEvent();
@@ -141,7 +141,7 @@ namespace Vodovoz.ViewModels.Mango
 				firstClient.Phones.Add(phone);
 				UoW.Save<Counterparty>(firstClient);
 				UoW.Commit();
-				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory, NavigationManager, tdiNavigation);
+				CounterpartyOrderViewModel model = new CounterpartyOrderViewModel(firstClient, UnitOfWorkFactory.GetDefaultFactory, tdiNavigation);
 				counterpartyOrdersModels.Add(model);
 				currentCounterparty = firstClient;
 				CounterpartyOrdersModelsUpdateEvent();
