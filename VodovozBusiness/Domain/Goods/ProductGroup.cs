@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Utilities;
+using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -83,6 +84,48 @@ namespace Vodovoz.Domain.Goods
 				}
 			}
 		}
+		
+		private bool isArchive;
+		/// <summary>
+		/// Для Nhibernate используйте <see cref="MappedIsArchive"/>
+		/// </summary>
+		[Display(Name = "Группа архивирована")]
+		public virtual bool IsArchive {
+			get => isArchive;
+			set {
+				MappedIsArchive = value;
+				if(Childs != null) {
+					SetChildren(this, value);
+				}
+			}
+		}
+
+		public virtual void SetArchive(bool _isArchive)
+		{
+			isArchive = _isArchive;
+			OnPropertyChanged(nameof(IsArchive));
+		}
+
+		void SetChildren(ProductGroup productGroup, bool _isArchive)
+		{
+			productGroup.SetArchive(_isArchive);
+			if (productGroup.Childs != null)
+			{
+				foreach(var n in productGroup.Childs) {
+					SetChildren(n, _isArchive);
+				}
+			}
+		}
+		 
+		
+		/// <summary>
+		/// Нужен для NHibernate.
+		/// </summary>
+		public virtual bool MappedIsArchive {
+			get { return isArchive; }
+			set { SetField(ref isArchive, value, () => MappedIsArchive); }
+		}
+		
 
 		/// <summary>
 		/// Нужен для NHibernate.
