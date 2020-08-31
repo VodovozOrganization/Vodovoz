@@ -62,6 +62,8 @@ namespace Vodovoz.ViewModels.Mango
 			this.interactive = interactive;
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			Title = "Входящий звонок существующего контрагента";
+			IsModal = false;
+			WindowPosition = WindowGravity.RightBottom;
 
 			this.phone = phone ?? throw new ArgumentNullException(nameof(phone));
 			if(clients != null) 
