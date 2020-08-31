@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace VodovozDeliveryRulesService
 {
 	[DataContract]
-	public class DeliveryRulesResponse
+	public class DeliveryRulesDTO
 	{
 		private DeliveryRulesResponseStatus statusEnum;
 		public DeliveryRulesResponseStatus StatusEnum {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using System.ServiceModel.Web;
 
 namespace VodovozDeliveryRulesService
@@ -9,7 +8,11 @@ namespace VodovozDeliveryRulesService
 	{
 		[WebGet(ResponseFormat = WebMessageFormat.Json)]
 		[OperationContract]
-		DeliveryRulesResponse GetRulesByDistrict(decimal latitude, decimal longitude);
+		DeliveryRulesDTO GetRulesByDistrict(decimal latitude, decimal longitude);
+		
+		[WebGet(ResponseFormat = WebMessageFormat.Json)]
+		[OperationContract]
+		DeliveryInfoDTO GetDeliveryInfo(decimal latitude, decimal longitude);
 
 		[OperationContract]
 		[WebGet(ResponseFormat = WebMessageFormat.Json)]

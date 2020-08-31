@@ -49,14 +49,15 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeliveryRulesInstanceProvider.cs" />
+    <Compile Include="DTO\DeliveryInfoDTO.cs" />
+    <Compile Include="DTO\DeliveryRulesDTO.cs" />
+    <Compile Include="DTO\DeliveryRulesResponseStatus.cs" />
+    <Compile Include="DTO\WeekDayDeliveryRuleDTO.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DeliveryRulesService.cs" />
     <Compile Include="IDeliveryRulesService.cs" />
-    <Compile Include="WeekDayDeliveryRuleDTO.cs" />
-    <Compile Include="DeliveryRulesResponse.cs" />
-    <Compile Include="DeliveryRulesResponseStatus.cs" />
-    <Compile Include="DeliveryRulesInstanceProvider.cs" />
     <Compile Include="DeliveryRulesServiceBehavior.cs" />
     <Compile Include="DeliveryRulesServiceHost.cs" />
   </ItemGroup>
