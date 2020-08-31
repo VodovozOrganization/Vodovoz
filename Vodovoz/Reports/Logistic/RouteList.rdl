@@ -1582,7 +1582,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
-                      <Value>8(981)701-57-32</Value>
+                      <Value>8(931)009-46-79</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -1608,7 +1608,7 @@ Iif(Fields!on_load_start.IsMissing OR Fields!on_load_end.IsMissing, "",
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value>По окончании доставки отзвон в офис 8(981)701-57-32 ОБЯЗАТЕЛЬНО!</Value>
+                      <Value>По окончании доставки отзвон в офис 8(931)009-46-79 ОБЯЗАТЕЛЬНО!</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
