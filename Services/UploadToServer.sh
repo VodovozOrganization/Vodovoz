@@ -10,8 +10,9 @@ echo "6) ModulKassa (SalesReceipts)"
 echo "7) InstantSms"
 echo "8) DeliveryRules"
 echo "9) SmsPayment"
-echo "0) Old server DriverMobileGroup"
-echo "Можно вызывать вместе, например Driver+Email=12"
+echo "10) OnlineStoreImport"
+
+echo "Можно вызывать вместе, перечислив номера через запятую, например Driver+Email=1,2"
 read service;
 
 echo "Какую сборку использовать?"
@@ -45,6 +46,9 @@ deliveryRulesServiceName="vodovoz-delivery-rules.service"
 
 smsPaymentServiceFolder="VodovozSmsPaymentService"
 smsPaymentServiceName="vodovoz-sms-payment.service"
+
+onlineStoreImportServiceFolder="VodovozOnlineStoreImportService"
+onlineStoreImportServiceName="vodovoz-online-store-import.service"
 
 serverAddress="root@srv2.vod.qsolution.ru"
 serverPort="2203"
@@ -199,34 +203,52 @@ function UpdateSmsPaymentService {
 	ssh $serverAddress -p$serverPort sudo systemctl start $smsPaymentServiceName
 }
 
-case $service in
-	*1*)
+function UpdateOnlineStoreImportService {
+	printf "\nОбновление службы импорта из интернет магазина\n"
+
+	echo "-- Stoping $onlineStoreImportServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl stop $onlineStoreImportServiceName
+
+	echo "-- Copying $onlineStoreImportServiceName files"
+	DeleteHttpDll $onlineStoreImportServiceFolder
+	CopyFiles $onlineStoreImportServiceFolder
+
+	echo "-- Starting $onlineStoreImportServiceName"
+	ssh $serverAddress -p$serverPort sudo systemctl start $onlineStoreImportServiceName
+}
+
+service2="$service,"
+case $service2 in
+	*1,*)
 		UpdateDriverService
 	;;&
-	*2*)
+	*2,*)
 		UpdateEmailService
 	;;&
-	*3*)
+	*3,*)
 		UpdateMobileService
 	;;&
-	*4*)
+	*4,*)
 		UpdateOSMService
 	;;&
-	*5*)
+	*5,*)
 		UpdateSMSInformerService
 	;;&
-	*6*)
+	*6,*)
 		UpdateSalesReceiptsService
 	;;&
-	*7*)
+	*7,*)
 		UpdateInstantSmsService
 	;;&
-	*8*)
+	*8,*)
 		UpdateDeliveryRulesService
 	;;&
-	*9*)
+	*9,*)
 		UpdateSmsPaymentService
-	;;
+	;;&
+    *10,*)
+        UpdateOnlineStoreImportService
+    ;;
 esac
 
 read -p "Press enter to exit"
