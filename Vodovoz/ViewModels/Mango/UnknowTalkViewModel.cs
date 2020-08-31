@@ -21,7 +21,7 @@ using Vodovoz.ViewModels.Complaints;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class UnknowTalkViewModel : ModalDialogViewModelBase
+	public class UnknowTalkViewModel : WindowDialogViewModelBase
 	{
 		private readonly ITdiCompatibilityNavigation tdiNavigation;
 		private readonly IInteractiveQuestion interactive;
@@ -40,6 +40,8 @@ namespace Vodovoz.ViewModels.Mango
 			this.interactive = interactive ?? throw new ArgumentNullException(nameof(interactive));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 			Title = "Входящий новый номер";
+			IsModal = false;
+			WindowPosition = WindowGravity.RightBottom;
 
 			this.phone = phone;
 		}

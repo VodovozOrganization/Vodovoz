@@ -1,11 +1,12 @@
 ﻿using System;
+using QS.Dialog;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Infrastructure.Mango;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class IncomingCallViewModel : ModalDialogViewModelBase
+	public class IncomingCallViewModel : WindowDialogViewModelBase
 	{
 		public readonly MangoManager MangoManager;
 
@@ -14,6 +15,8 @@ namespace Vodovoz.ViewModels.Mango
 			this.MangoManager = manager ?? throw new ArgumentNullException(nameof(manager));
 			manager.PropertyChanged += Manager_PropertyChanged;
 			SetTitle();
+			IsModal = false;
+			WindowPosition = WindowGravity.RightBottom;
 		}
 
 		#region Действия View

@@ -1,13 +1,10 @@
-﻿using System;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using QS.Navigation;
-using QS.Services;
-using QS.ViewModels;
 using QS.ViewModels.Dialog;
 
 namespace Vodovoz.ViewModels.Mango
 {
-	public class AdditionalCallViewModel : ModalDialogViewModelBase
+	public class AdditionalCallViewModel : WindowDialogViewModelBase
 	{
 		private IUnitOfWork UoW;
 		public AdditionalCallViewModel(
@@ -15,7 +12,8 @@ namespace Vodovoz.ViewModels.Mango
 			INavigationManager navigation)
 			 : base(navigation)
 		{
-
+			WindowPosition = QS.Dialog.WindowGravity.RightBottom;
+			IsModal = false;
 		}
 	}
 }
