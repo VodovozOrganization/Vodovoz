@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
@@ -28,6 +29,12 @@ namespace Vodovoz.Domain.Permissions
 
 		public override EntityPermission Validate(Type entityType, int userId)
 		{
+			var attribute = entityType.GetCustomAttribute<EntityPermissionAttribute>();
+			if (attribute == null)
+			{
+				return EntityPermission.AllAllowed;
+			}
+			
 			var permission = base.Validate(entityType, userId);
 			if(!permission.IsEmpty) {
 				return permission;
