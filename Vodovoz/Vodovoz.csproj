@@ -409,14 +409,11 @@
     <Compile Include="PricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.PricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementsView.cs" />
-    <Compile Include="Dialogs\FreeRentPackageDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FreeRentPackageDlg.cs" />
     <Compile Include="Dialogs\PaidRentPackageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentPackageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointView.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FreeRentPackagesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
     <Compile Include="Dialogs\DeliveryScheduleDlg.cs" />
@@ -449,7 +446,6 @@
     <Compile Include="ViewWidgets\AdditionalAgreementsView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointView.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
-    <Compile Include="ViewWidgets\FreeRentPackagesView.cs" />
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
     <Compile Include="ViewWidgets\ContactsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderDlg.cs" />
@@ -619,9 +615,7 @@
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
     <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
-    <Compile Include="Dialogs\Client\FreeRentAgreementDlg.cs" />
     <Compile Include="Dialogs\Client\NonFreeRentAgreementDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FreeRentAgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.NonFreeRentAgreementDlg.cs" />
     <Compile Include="Dialogs\Client\WaterAgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WaterAgreementDlg.cs" />

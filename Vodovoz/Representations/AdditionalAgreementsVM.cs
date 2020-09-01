@@ -68,7 +68,6 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		public AdditionalAgreementsVM (IUnitOfWorkGeneric<CounterpartyContract> uow) : base (
-				typeof(FreeRentAgreement), 
 				typeof(NonfreeRentAgreement),
 				typeof(WaterSalesAgreement))
 		{

@@ -1679,7 +1679,6 @@ namespace Vodovoz
 		private void RemoveOrderItem(OrderItem item)
 		{
 			var types = new AgreementType[] {
-					AgreementType.FreeRent,
 					AgreementType.NonfreeRent
 				};
 			if(item.AdditionalAgreement != null && types.Contains(item.AdditionalAgreement.Type)) {
@@ -1725,9 +1724,6 @@ namespace Vodovoz
 					case AgreementType.NonfreeRent:
 						agreementType = typeof(NonfreeRentAgreement);
 						break;
-					case AgreementType.FreeRent:
-						agreementType = typeof(FreeRentAgreement);
-						break;
 					default:
 						return;
 				}
@@ -1751,7 +1747,7 @@ namespace Vodovoz
 						deletionObjects.Remove(delObject);
 					}
 				}
-				var autoDeletionTypes = new Type[] { typeof(PaidRentEquipment), typeof(FreeRentEquipment), typeof(SalesEquipment) };
+				var autoDeletionTypes = new Type[] { typeof(PaidRentEquipment), typeof(SalesEquipment) };
 				if(deletionObjects.Any(x => !autoDeletionTypes.Contains(x.Type))) {
 					MessageDialogHelper.RunErrorDialog("Невозможно удалить дополнительное соглашение из-за связанных документов не относящихся к текущему заказу.");
 					return;
@@ -1847,16 +1843,6 @@ namespace Vodovoz
 					};
 					refWin.ObjectSelected += (sender, e) => {
 						dlg = new NonFreeRentAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate, (e.Subject as PaidRentPackage));
-						RunAgreementDialog(dlg);
-					};
-					TabParent.AddTab(refWin, this);
-					break;
-				case OrderAgreementType.FreeRent:
-					refWin = new OrmReference(typeof(FreeRentPackage)) {
-						Mode = OrmReferenceMode.Select
-					};
-					refWin.ObjectSelected += (sender, e) => {
-						dlg = new FreeRentAgreementDlg(contract, Entity.DeliveryPoint, Entity.DeliveryDate, (e.Subject as FreeRentPackage));
 						RunAgreementDialog(dlg);
 					};
 					TabParent.AddTab(refWin, this);
@@ -2607,7 +2593,6 @@ namespace Vodovoz
 
 			var deleteTypes = new AgreementType[] {
 				AgreementType.WaterSales,
-				AgreementType.FreeRent,
 				AgreementType.NonfreeRent
 			};
 			btnDeleteOrderItem.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null
@@ -2717,19 +2702,6 @@ namespace Vodovoz
 								(x => x.Nomenclature.Category == NomenclatureCategory.deposit
 								 && x.AdditionalAgreement == orderItem.AdditionalAgreement
 								 && x.PaidRentEquipment == orderItem.PaidRentEquipment);
-				if(depositItem != null) {
-					depositItem.Count = newCount;
-				}
-			}
-			if(orderItem.FreeRentEquipment != null) {
-				if(orderItem.FreeRentEquipment.Count != newCount) {
-					orderItem.FreeRentEquipment.Count = newCount;
-					OrderItemEquipmentCountHasChanges = true;
-				}
-				depositItem = Entity.OrderItems.FirstOrDefault
-								(x => x.Nomenclature.Category == NomenclatureCategory.deposit
-								 && x.AdditionalAgreement == orderItem.AdditionalAgreement
-								 && x.FreeRentEquipment == orderItem.FreeRentEquipment);
 				if(depositItem != null) {
 					depositItem.Count = newCount;
 				}

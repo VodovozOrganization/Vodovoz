@@ -233,13 +233,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation);
 		}
 
-		FreeRentEquipment freeRentEquipment;
-
-		public virtual FreeRentEquipment FreeRentEquipment {
-			get => freeRentEquipment;
-			set => SetField(ref freeRentEquipment, value, () => FreeRentEquipment);
-		}
-
 		PaidRentEquipment paidRentEquipment;
 
 		public virtual PaidRentEquipment PaidRentEquipment {
@@ -265,9 +258,6 @@ namespace Vodovoz.Domain.Orders
 			get {
 				if(AdditionalAgreement?.Type == AgreementType.NonfreeRent && PaidRentEquipment != null)
 					return PaidRentEquipment.Count;
-
-				if(AdditionalAgreement?.Type == AgreementType.FreeRent && FreeRentEquipment != null)
-					return FreeRentEquipment.Count;
 
 				return 0;
 			}
@@ -448,8 +438,6 @@ namespace Vodovoz.Domain.Orders
 			get {
 				if(AdditionalAgreement != null) {
 					string result = string.Format("{0} №{1}", AdditionalAgreement.AgreementTypeTitle, AdditionalAgreement.FullNumberText);
-					if(AdditionalAgreement.Self is FreeRentAgreement && FreeRentEquipment != null)
-						result += string.Format(" Пакет №{0}", FreeRentEquipment.FreeRentPackage.Id);
 					return result;
 				}
 				return string.Empty;
@@ -557,17 +545,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			uow.Delete(this.AdditionalAgreement);
 			this.AdditionalAgreement = null;
-			uow.Save();
-		}
-
-		public virtual void DeleteFreeRentEquipment(IUnitOfWork uow)
-		{
-			if(this.AdditionalAgreement is FreeRentAgreement) {
-				((FreeRentAgreement)this.AdditionalAgreement).RemoveEquipment(this.FreeRentEquipment);
-			}
-
-			uow.Delete(this.FreeRentEquipment);
-			this.FreeRentEquipment = null;
 			uow.Save();
 		}
 

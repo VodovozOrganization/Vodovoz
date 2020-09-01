@@ -76,12 +76,10 @@ namespace Vodovoz
 						.AddClearDependence<PaidRentPackage>(x => x.RentServiceDaily)
 						.AddClearDependence<PaidRentPackage>(x => x.RentServiceMonthly)
 						.AddClearDependence<PaidRentPackage>(x => x.DepositService)
-						.AddClearDependence<FreeRentPackage>(x => x.DepositService)
 						.AddClearDependence<DeliveryPoint>(x => x.DefaultWaterNomenclature)
 						.AddClearDependence<Nomenclature>(x => x.DependsOnNomenclature)
 						.AddDeleteDependence<SalesEquipment>(x => x.Nomenclature)
 						.AddDeleteDependence<ShiftChangeWarehouseDocumentItem>(x => x.Nomenclature)
-						.AddDeleteDependence<FreeRentEquipment>(x => x.Nomenclature)
 						.AddDeleteDependence<NomenclaturePrice>(x => x.Nomenclature)
 						.AddDeleteDependence<OrderDepositItem>(x => x.EquipmentNomenclature)
 						.AddDeleteDependence<PaidRentEquipment>(x => x.Nomenclature)
@@ -107,7 +105,6 @@ namespace Vodovoz
 					SqlSelect = "SELECT id, name FROM @tablename ",
 					DisplayString = "{1}",
 					DeleteItems = new List<DeleteDependenceInfo> {
-						DeleteDependenceInfo.Create<FreeRentPackage> (item => item.EquipmentType),
 						DeleteDependenceInfo.Create<Nomenclature> (item => item.Type),
 						DeleteDependenceInfo.Create<PaidRentPackage> (item => item.EquipmentType)
 					}
@@ -115,7 +112,6 @@ namespace Vodovoz
 			);
 
 			DeleteConfig.AddHibernateDeleteInfo<Equipment>()
-				.AddDeleteDependence<FreeRentEquipment>(item => item.Equipment)
 				.AddDeleteDependence<IncomingInvoiceItem>(item => item.Equipment)
 				.AddDeleteDependence<OrderEquipment>(item => item.Equipment)
 				.AddDeleteDependence<OrderItem>(item => item.Equipment)
@@ -191,9 +187,6 @@ namespace Vodovoz
 				.AddDeleteDependence<DocTemplate>(x => x.Organization)
 				.AddDeleteDependence<EmployeeContract>(x => x.Organization)
 				;
-
-			DeleteConfig.AddHibernateDeleteInfo<FreeRentPackage>()
-				.AddClearDependence<FreeRentEquipment>(x => x.FreeRentPackage);
 
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentPackage>()
 				.AddClearDependence<PaidRentEquipment>(x => x.PaidRentPackage);
@@ -470,11 +463,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<NonfreeRentAgreement>()
 				.AddDeleteDependenceFromCollection(x => x.PaidRentEquipments);
-
-			DeleteConfig.AddHibernateDeleteInfo<FreeRentAgreement>()
-				.AddDeleteDependenceFromCollection(x => x.Equipment);
-
-			DeleteConfig.AddHibernateDeleteInfo<FreeRentEquipment>();
 
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentEquipment>();
 

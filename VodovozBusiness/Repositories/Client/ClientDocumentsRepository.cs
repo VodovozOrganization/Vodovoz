@@ -88,42 +88,5 @@ namespace Vodovoz.Repositories.Client
 			}
 			return result;
 		}
-
-		/// <summary>
-		/// Создает дополнительное соглашение для бесплатной аренды оборудования
-		/// </summary>
-		public static FreeRentAgreement CreateDefaultFreeRentAgreement(IUnitOfWork UoW,
-																			 DeliveryPoint deliveryPoint,
-																			 DateTime? deliveryDate,
-																			 CounterpartyContract contract,
-																			 List<FreeRentEquipment> equipments)
-		{
-			if(equipments.Count == 0) {
-				throw new ArgumentException("При автоматическом создании дополнительного соглашения " +
-											"аренды оборудования, список должен иметь оборудование для аренды");
-			}
-			FreeRentAgreement result = null;
-			using(var uow = FreeRentAgreement.Create(contract)) {
-				uow.Root.DeliveryPoint = deliveryPoint;
-				if(deliveryDate.HasValue) {
-					uow.Root.IssueDate = deliveryDate.Value;
-					uow.Root.StartDate = deliveryDate.Value;
-				}
-				foreach(var item in equipments) {
-					uow.Root.ObservableEquipment.Add(new FreeRentEquipment() {
-						Count = item.Count,
-						Deposit = item.Deposit,
-						Equipment = item.Equipment,
-						IsNew = item.IsNew,
-						Nomenclature = item.Nomenclature,
-						FreeRentPackage = item.FreeRentPackage,
-						WaterAmount = item.WaterAmount
-					});
-				}
-				uow.Save();
-				result = UoW.GetById<FreeRentAgreement>(uow.Root.Id);
-			}
-			return result;
-		}
 	}
 }

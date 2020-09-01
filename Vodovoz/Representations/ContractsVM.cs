@@ -111,7 +111,6 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		public ContractsVM (IUnitOfWorkGeneric<Counterparty> uow) : base(
-			typeof(FreeRentAgreement), 
 			typeof(NonfreeRentAgreement),
 			typeof(WaterSalesAgreement))
 		{
@@ -119,7 +118,6 @@ namespace Vodovoz.ViewModel
 		}
 
 		public ContractsVM (IUnitOfWork uow, Counterparty counterparty) : base(
-			typeof(FreeRentAgreement), 
 			typeof(NonfreeRentAgreement),
 			typeof(WaterSalesAgreement))
 		{

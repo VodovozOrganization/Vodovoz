@@ -49,8 +49,6 @@ public partial class MainWindow
 
 	private global::Gtk.Action ActionCounterpartyPost;
 
-	private global::Gtk.Action ActionFreeRentPackage;
-
 	private global::Gtk.Action ActionEquipment;
 
 	private global::Gtk.Action ActionCar;
@@ -527,9 +525,6 @@ public partial class MainWindow
 		this.ActionCounterpartyPost = new global::Gtk.Action("ActionCounterpartyPost", global::Mono.Unix.Catalog.GetString("Должности сотрудников контрагента"), null, null);
 		this.ActionCounterpartyPost.ShortLabel = global::Mono.Unix.Catalog.GetString("Должности сотрудников контрагента");
 		w1.Add(this.ActionCounterpartyPost, null);
-		this.ActionFreeRentPackage = new global::Gtk.Action("ActionFreeRentPackage", global::Mono.Unix.Catalog.GetString("Пакеты бесплатной аренды"), null, null);
-		this.ActionFreeRentPackage.ShortLabel = global::Mono.Unix.Catalog.GetString("Пакеты бесплатной аренды");
-		w1.Add(this.ActionFreeRentPackage, null);
 		this.ActionEquipment = new global::Gtk.Action("ActionEquipment", global::Mono.Unix.Catalog.GetString("Оборудование"), null, null);
 		this.ActionEquipment.Sensitive = false;
 		this.ActionEquipment.ShortLabel = global::Mono.Unix.Catalog.GetString("Оборудование");
@@ -1155,8 +1150,7 @@ public partial class MainWindow
 				"\'ActionCertificates\' action=\'ActionCertificates\'/><menuitem name=\'ActionRegrandi" +
 				"ngOfGoodsTempalte\' action=\'ActionRegrandingOfGoodsTempalte\'/><menuitem name=\'Act" +
 				"ionCullingCategory\' action=\'ActionCullingCategory\'/><menuitem name=\'ActionTransp" +
-				"ortationWagon\' action=\'ActionTransportationWagon\'/><separator/><menuitem name=\'A" +
-				"ctionFreeRentPackage\' action=\'ActionFreeRentPackage\'/><menuitem name=\'ActionPaid" +
+				"ortationWagon\' action=\'ActionTransportationWagon\'/><separator/><menuitem name=\'ActionPaid" +
 				"RentPackage\' action=\'ActionPaidRentPackage\'/><menuitem name=\'ActionDiscountReaso" +
 				"ns\' action=\'ActionDiscountReasons\'/><menuitem name=\'ActionNonReturnReasons\' acti" +
 				"on=\'ActionNonReturnReasons\'/><menuitem name=\'ActionReturnTareReasons\' action=\'Ac" +
@@ -1394,7 +1388,6 @@ public partial class MainWindow
 		this.ActionNationality.Activated += new global::System.EventHandler(this.OnActionNationalityActivated);
 		this.ActionEMailTypes.Activated += new global::System.EventHandler(this.OnActionEMailTypesActivated);
 		this.ActionCounterpartyPost.Activated += new global::System.EventHandler(this.OnActionCounterpartyPostActivated);
-		this.ActionFreeRentPackage.Activated += new global::System.EventHandler(this.OnActionFreeRentPackageActivated);
 		this.ActionEquipment.Activated += new global::System.EventHandler(this.OnActionEquipmentActivated);
 		this.ActionCar.Activated += new global::System.EventHandler(this.OnActionCarsActivated);
 		this.ActionColors.Activated += new global::System.EventHandler(this.OnActionColorsActivated);

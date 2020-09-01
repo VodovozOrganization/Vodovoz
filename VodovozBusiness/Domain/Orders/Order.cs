@@ -1001,7 +1001,6 @@ namespace Vodovoz.Domain.Orders
 				}
 
 				if(item.AdditionalAgreement.Self is NonfreeRentAgreement
-				  || item.AdditionalAgreement.Self is FreeRentAgreement
 				  ) {
 					item.AdditionalAgreement.Self.Contract = Contract;
 					if(changedClient && item.AdditionalAgreement.Self.DeliveryPoint != null) {
@@ -1279,9 +1278,6 @@ namespace Vodovoz.Domain.Orders
 				switch(agr.Type) {
 					case AgreementType.NonfreeRent:
 						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
-						break;
-					case AgreementType.FreeRent:
-						AgreementTransfer<FreeRentAgreement>(out uowAggr, agr.Id, actualContract);
 						break;
 				}
 				try {
@@ -1939,7 +1935,6 @@ namespace Vodovoz.Domain.Orders
 						DiscountMoney = discMoney,
 						Discount = disc,
 						DiscountReason = orderItem.DiscountReason ?? orderItem.OriginalDiscountReason,
-						FreeRentEquipment = orderItem.FreeRentEquipment,
 						PaidRentEquipment = orderItem.PaidRentEquipment
 					}
 				);
@@ -2461,37 +2456,6 @@ namespace Vodovoz.Domain.Orders
 					OnPropertyChanged(nameof(TotalSum));
 					OnPropertyChanged(nameof(OrderCashSum));
 				}
-			} else if(a.Type == AgreementType.FreeRent) {
-				FreeRentAgreement agreement = a.Self as FreeRentAgreement;
-				foreach(FreeRentEquipment equipment in agreement.Equipment) {
-					int itemId;
-					//Добавляем номенклатуру залога.
-					itemId = ObservableOrderItems.AddWithReturn(
-						new OrderItem {
-							Order = this,
-							AdditionalAgreement = agreement,
-							Count = equipment.Count,
-							Equipment = null,
-							Nomenclature = equipment.FreeRentPackage.DepositService,
-							Price = equipment.Deposit,
-							FreeRentEquipment = equipment
-						}
-					);
-					//Добавляем оборудование.
-					ObservableOrderEquipments.Add(
-						new OrderEquipment {
-							Order = this,
-							Direction = Direction.Deliver,
-							Count = equipment.Count,
-							Equipment = equipment.Equipment,
-							Nomenclature = equipment.Nomenclature,
-							Reason = Reason.Rent,
-							DirectionReason = DirectionReason.Rent,
-							OrderItem = ObservableOrderItems[itemId],
-							OwnType = OwnTypes.Rent
-						}
-					);
-				}
 			}
 			UpdateDocuments();
 		}
@@ -2529,17 +2493,6 @@ namespace Vodovoz.Domain.Orders
 
 		private void RemoveRentItems(OrderItem item)
 		{
-			if(item.FreeRentEquipment != null) // Для бесплатной аренды.
-			{
-				foreach(OrderItem orderItem in ObservableOrderItems.ToList()) {
-					if(orderItem.FreeRentEquipment == item.FreeRentEquipment && orderItem != item) {
-						ObservableOrderItems.Remove(orderItem);
-						DeleteOrderEquipmentOnOrderItem(orderItem);
-						DeleteOrderAgreementDocumentOnOrderItem(orderItem);
-					}
-				}
-			}
-
 			if(item.PaidRentEquipment != null) // Для помесячной и посуточной аренды.
 			{
 				foreach(OrderItem orderItem in ObservableOrderItems.ToList()) {
