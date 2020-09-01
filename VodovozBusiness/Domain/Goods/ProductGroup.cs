@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Utilities;
-using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
@@ -44,20 +42,16 @@ namespace Vodovoz.Domain.Goods
 		public override ProductGroup Parent {
 			get => parent;
 			set {
-				if(parent != null)
-					parent.Childs.Remove(this);
-
+				parent?.Childs.Remove(this);
 				MappedParent = value;
-
-				if(parent != null)
-					parent.Childs.Add(this);
+				parent?.Childs.Add(this);
 			}
 		}
 
 		private Guid? onlineStoreGuid;
 		[Display(Name = "Guid интернет магазина")]
 		public virtual Guid? OnlineStoreGuid {
-			get { return onlineStoreGuid; }
+			get => onlineStoreGuid;
 			set { SetField(ref onlineStoreGuid, value, () => OnlineStoreGuid); }
 		}
 		
@@ -71,7 +65,7 @@ namespace Vodovoz.Domain.Goods
 		private bool exportToOnlineStore;
 		[Display(Name = "Выгружать товары в онлайн магазин?")]
 		public virtual bool ExportToOnlineStore {
-			get { return exportToOnlineStore; }
+			get => exportToOnlineStore;
 			set { SetField(ref exportToOnlineStore, value, () => ExportToOnlineStore); }
 		}
 
@@ -102,43 +96,26 @@ namespace Vodovoz.Domain.Goods
 			set {
 				MappedIsArchive = value;
 				if(Childs != null) {
-					SetChildren(this, value);
+					foreach(var item in Childs) {
+						item.IsArchive = value;
+					}
 				}
 			}
 		}
 
-		public virtual void SetArchive(bool _isArchive)
-		{
-			isArchive = _isArchive;
-			OnPropertyChanged(nameof(IsArchive));
-		}
-
-		void SetChildren(ProductGroup productGroup, bool _isArchive)
-		{
-			productGroup.SetArchive(_isArchive);
-			if (productGroup.Childs != null)
-			{
-				foreach(var n in productGroup.Childs) {
-					SetChildren(n, _isArchive);
-				}
-			}
-		}
-		 
-		
 		/// <summary>
 		/// Нужен для NHibernate.
 		/// </summary>
 		public virtual bool MappedIsArchive {
-			get { return isArchive; }
+			get => isArchive;
 			set { SetField(ref isArchive, value, () => MappedIsArchive); }
 		}
 		
-
 		/// <summary>
 		/// Нужен для NHibernate.
 		/// </summary>
 		public virtual bool MappedIsOnlineStore {
-			get { return isOnlineStore; }
+			get => isOnlineStore;
 			set { SetField(ref isOnlineStore, value, () => MappedIsOnlineStore); }
 		}
 		
@@ -151,7 +128,7 @@ namespace Vodovoz.Domain.Goods
 
 		[Display(Name = "Характеристики товаров")]
 		public virtual string CharacteristicsText {
-			get { return String.Join(",", characteristics); }
+			get => String.Join(",", characteristics);
 			set {
 				characteristics.Clear();
 				if(string.IsNullOrWhiteSpace(value)) {
@@ -171,8 +148,8 @@ namespace Vodovoz.Domain.Goods
 		private List<NomenclatureProperties> characteristics = new List<NomenclatureProperties>();
 		[Display(Name = "Характеристики товаров")]
 		public virtual List<NomenclatureProperties> Characteristics {
-			get { return characteristics; }
-			set { SetField(ref characteristics, value); }
+			get => characteristics;
+			set => SetField(ref characteristics, value);
 		}
 
 		#endregion
@@ -204,10 +181,8 @@ namespace Vodovoz.Domain.Goods
 			if(!IsValidParent(parent))
 				yield return new ValidationResult(
 					"\"Родитель не назначен, так как возникает зацикливание\"",
-					new[] { this.GetPropertyName(o => o.Parent) }
+					new[] { nameof(Parent) }
 				);
 		}
-
-		public ProductGroup() { }
 	}
 }
