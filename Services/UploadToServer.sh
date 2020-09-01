@@ -78,11 +78,12 @@ function CopyFiles {
 }
 
 function CopyFilesPublished {
-	rsync -vizaP --delete -e "ssh -p $serverPort" ./Application/$1/bin/$buildFolderName/$2/publish/ $serverAddress:/opt/$1
+	rsync -vizaP --delete -e "ssh -p $serverPort" Application/$1/bin/$buildFolderName/$2/publish/ $serverAddress:/opt/$1
 }
 
 function PublishProject {
-    dotnet publish Application/$1
+    dotnet build "Application/$1" --configuration $buildFolderName
+    dotnet publish "Application/$1" --configuration $buildFolderName
 }
 
 function UpdateDriverService {
@@ -221,7 +222,7 @@ function UpdateMangoService {
 
 	echo "-- Copying $mangoServiceName files"
 	
-	CopyFilesPublished $mangoServiceFolder "netcoreapp2.2"
+	CopyFilesPublished $mangoServiceFolder "netcoreapp3.1"
 
 	echo "-- Starting $mangoServiceName"
 	ssh $serverAddress -p$serverPort sudo systemctl start $mangoServiceName
