@@ -4070,25 +4070,15 @@ namespace Vodovoz.Domain.Orders
 
 			if(PaymentType == PaymentType.ByCard && OnlineOrder == null)
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
-												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
-
+					new[] { this.GetPropertyName(o => o.OnlineOrder) });
 			
-			IList<ProductGroup> productGroups = new List<ProductGroup>();
-			foreach (var item in OrderItems.Select(x => x.Nomenclature.ProductGroup).Where(x => x != null)) {
-				productGroups.Add(GetParent(item));
-			}
-			ProductGroup GetParent(ProductGroup group)
-			{
-				if(group.Parent != null)
-					return GetParent(group.Parent);
-				return group;
-			}
-			
-			var groupId = new NomenclatureParametersProvider().RootProductGroupForOnlineStoreNomenclatures;
-			if(productGroups.Any(x => x.Id == groupId) && !EShopOrder.HasValue)
+			if(!EShopOrder.HasValue
+			   && OrderItems
+				   .Where(x => x.Nomenclature.ProductGroup != null)
+				   .Select(x => DomainTreeNodeBase<ProductGroup>.GetRootParent(x.Nomenclature.ProductGroup))
+				   .Any(x => x.Id == new NomenclatureParametersProvider().RootProductGroupForOnlineStoreNomenclatures))
 				yield return new ValidationResult(
-					$"При добавлении в заказ номенклатур категории \"{NomenclatureCategory.additional.GetEnumTitle()}\" " +
-						"необходимо указать номер заказа интернет-магазина.",
+					"При добавлении в заказ номенклатур с группой товаров интернет-магазиа необходимо указать номер заказа интернет-магазина.",
 					new[] { nameof(EShopOrder) });
 
 			if(PaymentType == PaymentType.ByCard && PaymentByCardFrom == null)
