@@ -6,6 +6,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -89,6 +90,13 @@ namespace Vodovoz.Domain.Goods
 		public virtual bool MappedIsOnlineStore {
 			get { return isOnlineStore; }
 			set { SetField(ref isOnlineStore, value, () => MappedIsOnlineStore); }
+		}
+		
+		private OnlineStore onlineStore;
+		[Display(Name = "Интернет-магазин")]
+		public virtual OnlineStore OnlineStore {
+			get => onlineStore;
+			set => SetField(ref onlineStore, value);
 		}
 
 		[Display(Name = "Характеристики товаров")]

@@ -215,36 +215,31 @@ GROUP BY oe.own_type, n.id
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-	n.official_name,
-	SUM(eq.count) AS count,
-	eq.order_id AS order_id
+    o.e_shop_order
 FROM(
-	SELECT
-		nomenclature_id,
-		e.order_id,
-		count
-	FROM order_equipment e
-	LEFT JOIN route_list_addresses a ON e.order_id = a.order_id
-	WHERE a.route_list_id = @id
-		AND direction = 'Deliver'
-		AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
-	UNION ALL
-	SELECT
-		nomenclature_id,
-		i.order_id,
-		count
-	FROM order_items i
-	LEFT JOIN route_list_addresses a ON i.order_id = a.order_id
-	WHERE a.route_list_id = @id
-	AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
-) AS eq
+        SELECT
+            nomenclature_id,
+            e.order_id
+        FROM order_equipment e
+        LEFT JOIN route_list_addresses a ON e.order_id = a.order_id
+        WHERE a.route_list_id = @id
+          AND direction = 'Deliver'
+          AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
+        UNION ALL
+        SELECT
+            nomenclature_id,
+            i.order_id
+        FROM order_items i
+        LEFT JOIN route_list_addresses a ON i.order_id = a.order_id
+        WHERE a.route_list_id = @id
+          AND (a.was_transfered = true AND a.need_to_reload = true OR a.was_transfered = false)
+    ) AS eq
 LEFT JOIN nomenclature n ON eq.nomenclature_id = n.id
 LEFT JOIN nomenclature_groups ng ON ng.id = n.group_id
+LEFT JOIN orders o on eq.order_id = o.id
 WHERE n.category IN ('equipment', 'additional', 'spare_parts', 'material', 'fuel', 'bottle')
-AND IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE)
-GROUP BY eq.nomenclature_id, order_id
-;
-</CommandText>
+  AND IF(n.group_id IS NOT NULL, ng.is_online_store, FALSE)
+GROUP BY order_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
             <Value>={?route_list_id}</Value>
@@ -252,17 +247,9 @@ GROUP BY eq.nomenclature_id, order_id
         </QueryParameters>
       </Query>
       <Fields >
-        <Field Name="official_name">
-          <DataField>official_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="count">
-          <DataField>count</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="order_id">
-          <DataField>order_id</DataField>
-          <TypeName>System.UInt32</TypeName>
+        <Field Name="e_shop_order">
+          <DataField>e_shop_order</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -984,13 +971,13 @@ GROUP BY eq.nomenclature_id, order_id
           </TableRows>
         </Details>
         <Left>311.0pt</Left>
-        <Top>60.3pt</Top>
+        <Top>57.1pt</Top>
         <ZIndex>2</ZIndex>
         <NoRows>Нет отгрузки со склада воды</NoRows>
       </Table>
       <Line Name="Line2">
-        <Height>-114.91pt</Height>
-        <Width>0.01pt</Width>
+        <Height>-134.46pt</Height>
+        <Width>0.02pt</Width>
         <Style>
           <BorderStyle>
             <Default>Dashed</Default>
@@ -998,8 +985,8 @@ GROUP BY eq.nomenclature_id, order_id
           <BorderColor />
           <BorderWidth />
         </Style>
-        <Left>300.00pt</Left>
-        <Top>114.91pt</Top>
+        <Left>299.99pt</Left>
+        <Top>134.46pt</Top>
       </Line>
       <Table Name="Table5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Data</DataSetName>
@@ -1283,7 +1270,7 @@ GROUP BY eq.nomenclature_id, order_id
           </TableRows>
         </Details>
         <Left>38.0pt</Left>
-        <Top>161.9pt</Top>
+        <Top>172.3pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1701,7 +1688,7 @@ GROUP BY eq.nomenclature_id, order_id
           </TableRows>
         </Details>
         <Left>39.0pt</Left>
-        <Top>247.4pt</Top>
+        <Top>257.8pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -1842,7 +1829,7 @@ GROUP BY eq.nomenclature_id, order_id
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>41.3pt</Left>
-        <Top>298.7pt</Top>
+        <Top>309.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1856,7 +1843,7 @@ GROUP BY eq.nomenclature_id, order_id
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
         <Left>309.7pt</Left>
-        <Top>297.7pt</Top>
+        <Top>308.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1877,7 +1864,7 @@ GROUP BY eq.nomenclature_id, order_id
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>322.3pt</Top>
+        <Top>332.7pt</Top>
       </Line>
       <Textbox Name="Textbox82" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.24pt</Height>
@@ -1885,7 +1872,7 @@ GROUP BY eq.nomenclature_id, order_id
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>42.5pt</Left>
-        <Top>408.9pt</Top>
+        <Top>419.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1898,8 +1885,8 @@ GROUP BY eq.nomenclature_id, order_id
         <Width>142.70pt</Width>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
-        <Left>310.1pt</Left>
-        <Top>408.7pt</Top>
+        <Left>284.5pt</Left>
+        <Top>419.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1979,7 +1966,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>332.6pt</Top>
+        <Top>343.0pt</Top>
       </Table>
       <Table Name="Table8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -2053,7 +2040,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>217.8pt</Top>
+        <Top>228.2pt</Top>
       </Table>
       <Line Name="Line3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>0.07pt</Height>
@@ -2068,7 +2055,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>213.5pt</Top>
+        <Top>223.9pt</Top>
       </Line>
       <Table Name="Table9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -2142,7 +2129,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>133.4pt</Top>
+        <Top>143.8pt</Top>
       </Table>
       <Table Name="Table11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -2305,7 +2292,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>130.3pt</Top>
+        <Top>140.7pt</Top>
       </Line>
       <Table Name="Table13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Equipment</DataSetName>
@@ -2421,7 +2408,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>22.4pt</Left>
-        <Top>367.5pt</Top>
+        <Top>377.9pt</Top>
         <ZIndex>2</ZIndex>
       </Table>
       <Line Name="Line4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2437,7 +2424,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>426.9pt</Top>
+        <Top>437.3pt</Top>
       </Line>
       <Table Name="Table14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Doc</DataSetName>
@@ -2511,15 +2498,15 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>436.8pt</Top>
+        <Top>447.2pt</Top>
       </Table>
       <Textbox Name="Textbox93" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.99pt</Height>
         <Width>142.70pt</Width>
         <Value>= "Водитель_____________"</Value>
         <ZIndex>1</ZIndex>
-        <Left>310.2pt</Left>
-        <Top>515.7pt</Top>
+        <Left>286.2pt</Left>
+        <Top>526.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2533,7 +2520,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
         <Value>Кладовщик_____________</Value>
         <ZIndex>1</ZIndex>
         <Left>42.6pt</Left>
-        <Top>515.9pt</Top>
+        <Top>526.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2541,180 +2528,6 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
-      <Table Name="Table6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <DataSetName>EquipmentOnlineStore</DataSetName>
-        <NoRows>Нет отгрузки товаров ИМ</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>None</Default>
-            <Left>None</Left>
-            <Right>None</Right>
-            <Top>None</Top>
-            <Bottom>None</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-          <PaddingTop>0pt</PaddingTop>
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>144.8pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Header>
-          <TableRows>
-            <TableRow>
-              <Height>13.6pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox78">
-                      <Value>Заказы Интернет-магазина</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                      </Style>
-                      <ZIndex>0</ZIndex>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-          <RepeatOnNewPage>true</RepeatOnNewPage>
-        </Header>
-        <Left>400.0pt</Left>
-        <Top>367.2pt</Top>
-        <ZIndex>2</ZIndex>
-        <TableGroups>
-          <TableGroup>
-            <Grouping Name="online_grp">
-              <PageBreakAtStart>false</PageBreakAtStart>
-              <PageBreakAtEnd>false</PageBreakAtEnd>
-              <GroupExpressions>
-                <GroupExpression>={order_id}</GroupExpression>
-              </GroupExpressions>
-            </Grouping>
-            <Header>
-              <RepeatOnNewPage>false</RepeatOnNewPage>
-              <TableRows>
-                <TableRow>
-                  <Height>.2in</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox26">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                          </Style>
-                          <Value>={order_id}</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Header>
-          </TableGroup>
-        </TableGroups>
-      </Table>
-      <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <DataSetName>EquipmentOnlineStore</DataSetName>
-        <NoRows>Нет отгрузки товаров ИМ</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>None</Default>
-            <Left>None</Left>
-            <Right>None</Right>
-            <Top>None</Top>
-            <Bottom>None</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-          <PaddingTop>0pt</PaddingTop>
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>144.8pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Header>
-          <TableRows>
-            <TableRow>
-              <Height>13.6pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Value>Заказы Интернет-магазина</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontSize>10pt</FontSize>
-                      </Style>
-                      <ZIndex>0</ZIndex>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-          <RepeatOnNewPage>true</RepeatOnNewPage>
-        </Header>
-        <Left>399.8pt</Left>
-        <Top>473.2pt</Top>
-        <ZIndex>2</ZIndex>
-        <TableGroups>
-          <TableGroup>
-            <Grouping Name="TableGroupGroup1">
-              <PageBreakAtStart>false</PageBreakAtStart>
-              <PageBreakAtEnd>false</PageBreakAtEnd>
-              <GroupExpressions>
-                <GroupExpression>={order_id}</GroupExpression>
-              </GroupExpressions>
-            </Grouping>
-            <Header>
-              <RepeatOnNewPage>false</RepeatOnNewPage>
-              <TableRows>
-                <TableRow>
-                  <Height>.2in</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox67">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                          </Style>
-                          <Value>={order_id}</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Header>
-          </TableGroup>
-        </TableGroups>
-      </Table>
       <Table Name="Table7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>Equipment</DataSetName>
         <NoRows>Нет отгрузки оборудования</NoRows>
@@ -2829,7 +2642,7 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           </TableRows>
         </Details>
         <Left>22.8pt</Left>
-        <Top>473.3pt</Top>
+        <Top>483.7pt</Top>
         <ZIndex>2</ZIndex>
       </Table>
       <Table Name="Table15">
@@ -2878,45 +2691,253 @@ Format({route_list_date}, "dd.MM.yyyy")</Value>
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>310.9pt</Left>
-        <Top>98.6pt</Top>
-        <TableGroups>
-          <TableGroup>
-            <Grouping Name="online_grp2">
-              <PageBreakAtStart>false</PageBreakAtStart>
-              <PageBreakAtEnd>false</PageBreakAtEnd>
-              <GroupExpressions>
-                <GroupExpression>={order_id}</GroupExpression>
-              </GroupExpressions>
-            </Grouping>
-            <Header>
-              <RepeatOnNewPage>false</RepeatOnNewPage>
-              <TableRows>
-                <TableRow>
-                  <Height>.2in</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox101">
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                          </Style>
-                          <Value>={order_id}</Value>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Header>
-          </TableGroup>
-        </TableGroups>
+        <Top>93.8pt</Top>
+        <Details >
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                      </Style>
+                      <Value>={e_shop_order}</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Footer >
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox100">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>2pt</PaddingLeft>
+                      </Style>
+                      <Value>='Количество заказов: ' + Count({e_shop_order})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Table Name="Table16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>EquipmentOnlineStore</DataSetName>
+        <NoRows>Нет отгрузки товаров ИМ</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>147.5pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox99">
+                      <Value>Заказы Интернет-магазина</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>414.7pt</Left>
+        <Top>378.2pt</Top>
+        <Details >
+          <TableRows>
+            <TableRow>
+              <Height>13.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox101">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                      </Style>
+                      <Value>={e_shop_order}</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Footer >
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox102">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>2pt</PaddingLeft>
+                      </Style>
+                      <Value>='Количество заказов: ' + Count({e_shop_order})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>EquipmentOnlineStore</DataSetName>
+        <NoRows>Нет отгрузки товаров ИМ</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>146.5pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>Заказы Интернет-магазина</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>415.2pt</Left>
+        <Top>482.7pt</Top>
+        <Details >
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                      </Style>
+                      <Value>={e_shop_order}</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Footer >
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <PaddingLeft>2pt</PaddingLeft>
+                      </Style>
+                      <Value>='Количество заказов: ' + Count({e_shop_order})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
     </ReportItems>
-    <Height>531.7pt</Height>
+    <Height>554.5pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>

@@ -57,6 +57,7 @@
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
     <Compile Include="Domain\Logistic\DistrictsSet.cs" />
     <Compile Include="Domain\Operations\EmployeeNomenclatureMovementOperation.cs" />
+    <Compile Include="Domain\Orders\OnlineStore.cs" />
     <Compile Include="Domain\Orders\ReturnTareReason.cs" />
     <Compile Include="Domain\Orders\ReturnTareReasonCategory.cs" />
     <Compile Include="Domain\Sale\DeliveryScheduleRestriction.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="HibernateMapping\Logistic\DistrictRuleItemBaseMap.cs" />
     <Compile Include="HibernateMapping\Logistic\LateArrivalReasonMap.cs" />
     <Compile Include="HibernateMapping\Operations\EmployeeNomenclatureMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Order\OnlineStoreMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForAdvancePaymentMap.cs" />
     <Compile Include="HibernateMapping\Logistic\DistrictsSetMap.cs" />

@@ -12,6 +12,7 @@ using QS.HistoryLog;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Repositories;
@@ -417,9 +418,15 @@ namespace Vodovoz.Domain.Goods
 			get => bottleCapColor;
 			set => SetField(ref bottleCapColor, value);
 		}
+		
+		private OnlineStore onlineStore;
+		[Display(Name = "Интернет-магазин")]
+		public virtual OnlineStore OnlineStore {
+			get => onlineStore;
+			set => SetField(ref onlineStore, value);
+		}
 
 		IList<Warehouse> warehouses = new List<Warehouse>();
-
 		[Display(Name = "Склады для отгрузки")]
 		public virtual IList<Warehouse> Warehouses {
 			get => warehouses;

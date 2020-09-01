@@ -83,13 +83,10 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("")
 				.AddColumn("Комментарий")
 					.AddTextRenderer(x => x.Comment)
-						.AddSetter((c, d) =>
-						{
-							d.PropertyChanged += (sender, args) => driversWithCommentChanged.Add(d);
-						})
 						.Editable(true)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Status == AtWorkDriver.DriverStatus.NotWorking? "gray": "black")
 				.Finish();
+
 			ytreeviewAtWorkDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 
 			ytreeviewAtWorkDrivers.Selection.Changed += YtreeviewDrivers_Selection_Changed;
@@ -102,7 +99,6 @@ namespace Vodovoz.Dialogs.Logistic
 
 			ytreeviewOnDayForwarders.Selection.Changed += YtreeviewForwarders_Selection_Changed;
 			
-
 			ydateAtWorks.Date = DateTime.Today;
 		}
 		
@@ -127,6 +123,7 @@ namespace Vodovoz.Dialogs.Logistic
 				driversAtDay = value;
 				observableDriversAtDay = new GenericObservableList<AtWorkDriver>(driversAtDay);
 				ytreeviewAtWorkDrivers.SetItemsSource(observableDriversAtDay);
+				observableDriversAtDay.PropertyOfElementChanged += (sender, args) => driversWithCommentChanged.Add(sender as AtWorkDriver);
 			}
 			get => driversAtDay;
 		}
@@ -236,7 +233,7 @@ namespace Vodovoz.Dialogs.Logistic
 				atWorkDriver.CommentLastEditedAuthor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 				atWorkDriver.CommentLastEditedDate = DateTime.Now;
 			}
-
+			driversWithCommentChanged.Clear();
 			ForwardersAtDay.ToList().ForEach(x => UoW.Save(x));
 			UoW.Commit();
 			FillDialogAtDay();

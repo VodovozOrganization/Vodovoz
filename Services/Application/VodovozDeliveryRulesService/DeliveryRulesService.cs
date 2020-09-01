@@ -18,7 +18,7 @@ namespace VodovozDeliveryRulesService
 			this.deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 		}
 
-		public DeliveryRulesResponse GetRulesByDistrict(decimal latitude, decimal longitude)
+		public DeliveryRulesDTO GetRulesByDistrict(decimal latitude, decimal longitude)
 		{
 			using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение правил доставки ")) {
 				try {
@@ -26,7 +26,7 @@ namespace VodovozDeliveryRulesService
 					if(district != null) {
 						logger.Debug($"Район получен {district.DistrictName}");
 
-						var response = new DeliveryRulesResponse {
+						var response = new DeliveryRulesDTO {
 							WeekDayDeliveryRules = new List<WeekDayDeliveryRuleDTO>(),
 						};
 						foreach (WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName))) {
@@ -55,7 +55,7 @@ namespace VodovozDeliveryRulesService
 					
 					string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден район";
 					logger.Debug(message);
-					return new DeliveryRulesResponse {
+					return new DeliveryRulesDTO {
 						StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
 						WeekDayDeliveryRules = null,
 						Message = message
@@ -63,9 +63,66 @@ namespace VodovozDeliveryRulesService
 				}
 				catch (Exception ex) {
 					logger.Error(ex);
-					return new DeliveryRulesResponse {
+					return new DeliveryRulesDTO {
 						StatusEnum = DeliveryRulesResponseStatus.Error,
 						WeekDayDeliveryRules = null,
+						Message = "Возникла внутренняя ошибка при получении правила доставки"
+					};
+				}
+			}
+		}
+		
+		public DeliveryInfoDTO GetDeliveryInfo(decimal latitude, decimal longitude)
+		{
+			using (var uow = UnitOfWorkFactory.CreateWithoutRoot("Получение правил доставки ")) {
+				try {
+					var district = deliveryRepository.GetDistrict(uow, latitude, longitude);
+					if(district != null) {
+						logger.Debug($"Район получен {district.DistrictName}");
+
+						var info = new DeliveryInfoDTO {
+							WeekDayDeliveryRules = new List<WeekDayDeliveryRuleDTO>(),
+						};
+						foreach (WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName))) {
+							//Берём все правила дня недели
+							var rulesToAdd = district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay).Select(x => x.Title).ToList();
+							//Если правил дня недели нет берем общие правила района
+							if(!rulesToAdd.Any())
+								rulesToAdd = district.ObservableCommonDistrictRuleItems.Select(x => x.Title).ToList();
+							var item = new WeekDayDeliveryRuleDTO {
+								WeekDayEnum = weekDay,
+								DeliveryRules = rulesToAdd,
+								ScheduleRestrictions = district.GetScheduleRestrictionCollectionByWeekDayName(weekDay)
+									.Select(x => x.DeliverySchedule)
+									.OrderBy(x => x.From)
+									.ThenBy(x => x.To)
+									.Select(x => x.Name)
+									.ToList()
+							};
+							info.WeekDayDeliveryRules.Add(item);
+						}
+
+						info.GeoGroup = district.GeographicGroup.Name;
+						info.StatusEnum = DeliveryRulesResponseStatus.Ok;
+						info.Message = "";
+						return info;
+					}
+					
+					string message = $"Невозможно получить информацию о правилах доставки так как по координатам {latitude}, {longitude} не был найден район";
+					logger.Debug(message);
+					return new DeliveryInfoDTO {
+						StatusEnum = DeliveryRulesResponseStatus.RuleNotFound,
+						WeekDayDeliveryRules = null,
+						GeoGroup = null,
+						Message = message
+					};
+				}
+				catch (Exception ex) {
+					logger.Error(ex);
+					return new DeliveryInfoDTO {
+						StatusEnum = DeliveryRulesResponseStatus.Error,
+						WeekDayDeliveryRules = null,
+						GeoGroup = null,
 						Message = "Возникла внутренняя ошибка при получении правила доставки"
 					};
 				}
@@ -74,7 +131,7 @@ namespace VodovozDeliveryRulesService
 
 		public bool ServiceStatus()
 		{
-			var response = GetRulesByDistrict(59.886134m, 30.394007m);
+			var response = GetDeliveryInfo(59.886134m, 30.394007m);
 			if(response.StatusEnum == DeliveryRulesResponseStatus.Error)
 				return false;
 			return true;

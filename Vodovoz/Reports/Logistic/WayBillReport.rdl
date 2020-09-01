@@ -841,7 +841,7 @@ Month(CDate({?date})) = 12, 'декабря'
       <Textbox Name="Textbox60">
         <Height>13.25pt</Height>
         <Width>82.07pt</Width>
-        <Value>=' ' + Format(CDate({?date}), "dd.MM.yy") + ', ' + {?time}</Value>
+        <Value>=  Iif({?need_date}, ' ' + Format(CDate({?date}), "dd.MM.yy") + ', ' + {?time}, ' ')</Value>
         <ZIndex>1</ZIndex>
         <Left>127.5pt</Left>
         <Top>273.1pt</Top>
@@ -8404,7 +8404,7 @@ LIMIT 1;</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="driver_id">
       <DataType>String</DataType>
       <DefaultValue>
