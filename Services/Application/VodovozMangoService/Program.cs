@@ -1,35 +1,68 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace VodovozMangoService
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
-			const int Port = 7087;
-			var service = new NotificationServiceImpl();
-			Server server = new Server
-			{
-				Services = { NotificationService.BindService(service) },
-				Ports = { new ServerPort("0.0.0.0", Port, ServerCredentials.Insecure) }
-			};
-			server.Start();
-			
-			RandomNotifyTest(service);
-			
-			Console.WriteLine("NotificationService server listening on port " + Port);
-			Console.WriteLine("Press any key to stop the server...");
-			Console.ReadKey();
+    public class Program
+    {
+        public static void Main(string[] args)
+        {	
+	        InitNotifacationService();
+	        CreateHostBuilder(args).Build().Run();
+        }
 
-			server.ShutdownAsync().Wait();
-		}
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder
+                        .UseKestrel(k =>
+                        {
+                            var appServices = k.ApplicationServices;
+                            k.Listen(
+                                IPAddress.Any, 7088,
+                                o => o.UseHttps(h =>
+                                {
+                                    h.UseLettuceEncrypt(appServices);
+                                }));
+                            k.Listen(IPAddress.Any, 7086);
+                        })
+                        .UseStartup<Startup>();
+                });
 
-		private static void RandomNotifyTest(NotificationServiceImpl service)
+        private static void InitNotifacationService()
+        {
+            const int port = 7087;
+            var service = new NotificationServiceImpl();
+            Server server = new Server
+            {
+                Services = { NotificationService.BindService(service) },
+                Ports = { new ServerPort("0.0.0.0", port, ServerCredentials.Insecure) }
+            };
+            server.Start();
+			
+			#if DEBUG
+	        Task.Run(() => RandomNotifyTest(service));
+			#endif
+        }
+        
+        private static void RandomNotifyTest(NotificationServiceImpl service)
 		{
 			var random = new Random();
 			while (true)
@@ -96,5 +129,5 @@ namespace VodovozMangoService
 				queue.Add(message);
 			}
 		}
-	}
+    }
 }
