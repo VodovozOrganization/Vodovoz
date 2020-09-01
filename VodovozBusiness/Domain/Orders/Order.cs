@@ -4072,7 +4072,20 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult("Если в заказе выбран тип оплаты по карте, необходимо заполнить номер онлайн заказа.",
 												  new[] { this.GetPropertyName(o => o.OnlineOrder) });
 
-			if(OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.additional) && !EShopOrder.HasValue)
+			
+			IList<ProductGroup> productGroups = new List<ProductGroup>();
+			foreach (var item in OrderItems.Select(x => x.Nomenclature.ProductGroup).Where(x => x != null)) {
+				productGroups.Add(GetParent(item));
+			}
+			ProductGroup GetParent(ProductGroup group)
+			{
+				if(group.Parent != null)
+					return GetParent(group.Parent);
+				return group;
+			}
+			
+			var groupId = new NomenclatureParametersProvider().RootProductGroupForOnlineStoreNomenclatures;
+			if(productGroups.Any(x => x.Id == groupId) && !EShopOrder.HasValue)
 				yield return new ValidationResult(
 					$"При добавлении в заказ номенклатур категории \"{NomenclatureCategory.additional.GetEnumTitle()}\" " +
 						"необходимо указать номер заказа интернет-магазина.",
