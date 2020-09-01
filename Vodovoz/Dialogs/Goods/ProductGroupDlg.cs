@@ -33,8 +33,12 @@ namespace Vodovoz.Dialogs.Goods
 				Entity, e => e.OnlineStoreGuid, w => w.Text, new GuidToStringConverter()).InitializeFromSource();
 
 			ycheckExportToOnlineStore.Binding.AddBinding(Entity, e => e.ExportToOnlineStore, w => w.Active).InitializeFromSource();
-			ycheckbuttonOnlineStore.Binding.AddBinding(Entity, e => e.IsOnlineStore, w => w.Active).InitializeFromSource();
-			ycheckArchived.Binding.AddBinding(Entity,e => e.IsArchive, w => w.Active).InitializeFromSource();
+			
+			ycheckbuttonOnlineStore.Active = Entity.IsOnlineStore;
+			ycheckbuttonOnlineStore.Binding.AddBinding(Entity, e => e.IsOnlineStore, w => w.Active);
+
+			ycheckArchived.Active = Entity.IsArchive;
+			ycheckArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active);
 			
 			yentryParent.SubjectType = typeof(ProductGroup);
 			yentryParent.Binding.AddBinding(Entity, e => e.Parent, w => w.Subject).InitializeFromSource();

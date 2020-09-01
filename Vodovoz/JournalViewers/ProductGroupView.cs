@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Linq;
-using Gtk;
 using QS.Deletion;
 using QS.Dialog.Gtk;
-using QS.DomainModel.UoW;
-using Vodovoz.Core.DataService;
 using Vodovoz.Dialogs.Goods;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Filters.GtkViews;
 using Vodovoz.Filters.ViewModels;
@@ -15,7 +11,7 @@ using Vodovoz.Representations;
 namespace Vodovoz.JournalViewers
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ProductGroupView : QS.Dialog.Gtk.TdiTabBase
+	public partial class ProductGroupView : TdiTabBase
 	{
 		public ProductGroupView()
 		{
@@ -23,10 +19,11 @@ namespace Vodovoz.JournalViewers
 			this.TabName = "Группы товаров";
 			ConfigureWidget();
 		}
-		ProductGroupFilterView productGroupFilterView;
-		ProductGroupVM vm;
 
-		void ConfigureWidget()
+		private ProductGroupFilterView productGroupFilterView;
+		private ProductGroupVM vm;
+
+		private void ConfigureWidget()
 		{
 			vm = new ProductGroupVM();
 			tableProductGroup.ColumnsConfig = vm.ColumnsConfig;
@@ -39,6 +36,7 @@ namespace Vodovoz.JournalViewers
 			tableProductGroup.YTreeModel = vm.TreeModel;
 			
 			#region SignalsConnect
+			
 			btnAdd.Clicked += OnButtonAddClicked;
 			buttonDelete.Clicked += OnButtonDeleteClicked;
 			buttonRefresh.Clicked += (sender, args) => { vm.UpdateNodes(); tableProductGroup.YTreeModel = vm.TreeModel; };
@@ -54,23 +52,24 @@ namespace Vodovoz.JournalViewers
 			#endregion
 		}
 
-		void OnButtonAddClicked(object sender, EventArgs e)
+		private void OnButtonAddClicked(object sender, EventArgs e)
 		{
-			
 			TabParent.OpenTab(
 				DialogHelper.GenerateDialogHashName<ProductGroup>(0),
 				() =>
 				{
 					var productGroupDlg = new ProductGroupDlg();
-					productGroupDlg.EntitySaved += (o, args) => {vm.UpdateNodes(); tableProductGroup.YTreeModel = vm.TreeModel;};
+					productGroupDlg.EntitySaved += (o, args) => {
+						vm.UpdateNodes();
+						tableProductGroup.YTreeModel = vm.TreeModel;
+					};
 					return productGroupDlg;
 				}, 
 				this
 			);
-			
 		}
-		
-		protected void OnButtonDeleteClicked(object sender, EventArgs e)
+
+		private void OnButtonDeleteClicked(object sender, EventArgs e)
         {
         	var selected = tableProductGroup.GetSelectedObjects().OfType<ProductGroupVMNode>();
         	foreach(var item in selected)
@@ -80,29 +79,31 @@ namespace Vodovoz.JournalViewers
             tableProductGroup.YTreeModel = vm.TreeModel;
 		}
 
-		void OnButtonFilterClicked(object sender, EventArgs e)
+		private void OnButtonFilterClicked(object sender, EventArgs e)
 		{
 			productGroupFilterView.Visible = !productGroupFilterView.Visible;
 		}
-		
-		void OnButtonEditClicked(object sender, EventArgs e)
+
+		private void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			if(tableProductGroup.GetSelectedObjects().GetLength(0) > 0) {
-				int? id = (tableProductGroup.GetSelectedObjects()[0] as ProductGroupVMNode)?.Id;
-				if(id.HasValue)
-					TabParent.OpenTab(
-						DialogHelper.GenerateDialogHashName<ProductGroup>(id.Value),
-						() => {
-							var dlg = new ProductGroupDlg(id.Value);
-							dlg.EntitySaved += (s, ea) => ConfigureWidget();
-							return dlg;
-						},
-						this
-					);
+			var selectedNode = tableProductGroup.GetSelectedObjects().OfType<ProductGroupVMNode>().FirstOrDefault();
+			if(selectedNode != null) {
+				TabParent.OpenTab(
+					DialogHelper.GenerateDialogHashName<ProductGroup>(selectedNode.Id),
+					() => {
+						var dlg = new ProductGroupDlg(selectedNode.Id);
+						dlg.EntitySaved += (s, ea) => {
+							vm.UpdateNodes();
+							tableProductGroup.YTreeModel = vm.TreeModel;
+						};
+						return dlg;
+					},
+					this
+				);
 			}
 		}
 
-		void OnSearchEntryTextChanged(object sender, EventArgs e)
+		private void OnSearchEntryTextChanged(object sender, EventArgs e)
 		{
 			tableProductGroup.SearchHighlightText = searchentity.Text;
 			tableProductGroup.RepresentationModel.SearchString = searchentity.Text;
@@ -112,18 +113,17 @@ namespace Vodovoz.JournalViewers
 				tableProductGroup.YTreeModel = vm.TreeModel;		
 			}
 		}
-		
-		void CreateProductGroupFilterView(object filter, EventArgs e)
+
+		private void CreateProductGroupFilterView(object filter, EventArgs e)
 		{
-			if(productGroupFilterView != null)
-				productGroupFilterView.Destroy();
+			productGroupFilterView?.Destroy();
 
 			productGroupFilterView = new ProductGroupFilterView(vm.Filter);
 			hboxFilter.Add(productGroupFilterView);
 			hboxFilter.Show();
 		}
-		
-		void OnSelectionChanged(object sender, EventArgs e)
+
+		private void OnSelectionChanged(object sender, EventArgs e)
 		{
 			bool isSensitive = tableProductGroup.Selection.CountSelectedRows() > 0;
 
