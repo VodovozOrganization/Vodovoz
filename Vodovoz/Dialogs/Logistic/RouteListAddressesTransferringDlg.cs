@@ -273,6 +273,9 @@ namespace Vodovoz
 				//Пересчёт зарплаты после изменения МЛ
 				routeListFrom.CalculateWages(wageParameterService);
 				routeListTo.CalculateWages(wageParameterService);
+				
+				item.RecalculateTotalCash();
+				newItem.RecalculateTotalCash();
 
 				if(routeListTo.ClosingFilled)
 					newItem.FirstFillClosing(UoW, wageParameterService);
@@ -349,6 +352,11 @@ namespace Vodovoz
 				UoW.Save(address.RouteList);
 			}
 
+			foreach (var routeListItem in toRevert)
+			{
+				routeListItem.RecalculateTotalCash();
+			}
+			
 			UoW.Commit();
 			UpdateNodes();
 		}
