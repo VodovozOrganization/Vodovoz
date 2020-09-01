@@ -30,7 +30,6 @@ namespace Vodovoz.HibernateMapping
 			References (x => x.Equipment)					 .Column ("equipment_id");
 			References (x => x.Nomenclature)				 .Column ("nomenclature_id");
 			References (x => x.Order)						 .Column ("order_id");
-			References (x => x.PaidRentEquipment)			 .Column ("paid_rent_equipment_id").Cascade.All();
 			References (x => x.DiscountReason)			 	 .Column ("discount_reason_id");
 			References (x => x.OriginalDiscountReason)		 .Column ("original_discount_reason_id");
 			References (x => x.PromoSet)					 .Column ("promotional_set_id");

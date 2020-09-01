@@ -45,7 +45,6 @@ namespace Vodovoz
 		{
 			this.Build ();
 			buttonAdd.ItemsEnum = typeof(AgreementType);
-			buttonAdd.SetSensitive (AgreementType.NonfreeRent, false);
 			treeAdditionalAgreements.Selection.Changed += OnSelectionChanged;
 		}
 
@@ -67,9 +66,6 @@ namespace Vodovoz
 
 			ITdiDialog dlg;
 			switch (type) {
-			case AgreementType.NonfreeRent:
-				dlg = new NonFreeRentAgreementDlg (AgreementUoW.Root);
-				break;
 			case AgreementType.WaterSales:
 				dlg = new WaterAgreementDlg (AgreementUoW.Root);
 				break;

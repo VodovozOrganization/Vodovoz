@@ -999,14 +999,6 @@ namespace Vodovoz.Domain.Orders
 					}
 					item.AdditionalAgreement = waterAgreement;
 				}
-
-				if(item.AdditionalAgreement.Self is NonfreeRentAgreement
-				  ) {
-					item.AdditionalAgreement.Self.Contract = Contract;
-					if(changedClient && item.AdditionalAgreement.Self.DeliveryPoint != null) {
-						item.AdditionalAgreement.Self.DeliveryPoint = DeliveryPoint;
-					}
-				}
 			}
 			UpdateDocuments();
 		}
@@ -1175,7 +1167,6 @@ namespace Vodovoz.Domain.Orders
 			if(actualContract != oldContract) {
 				Contract = actualContract;
 				ChangeWaterAgreementContractChanged(actualContract, oldContract);
-				ChangeOrderBasedAgreements(actualContract);
 			}
 
 			UpdateDocuments();
@@ -1257,50 +1248,6 @@ namespace Vodovoz.Domain.Orders
 				//Обновляем цены на воду в заказе по доп соглашению.
 				UpdatePrices(actualWaterAgreement);
 			}
-		}
-
-		/// <summary>
-		/// При смене договора перепривязывает доп соглашения созданные для 
-		/// заказа на неизмененный договор.
-		/// ВНИМАНИЕ! Использовать только при смене контракта
-		/// </summary>
-		private void ChangeOrderBasedAgreements(CounterpartyContract actualContract)
-		{
-			var agreementTypes = AdditionalAgreement.GetOrderBasedAgreementTypes();
-			var agreementsForChange = OrderItems.Where(x => x.AdditionalAgreement != null)
-												.Select(x => x.AdditionalAgreement.Self)
-												.Where(x => agreementTypes.Contains(x.Type))
-												.Distinct()
-												.OrderBy(x => x.AgreementNumber)
-												.ToList();
-			foreach(var agr in agreementsForChange) {
-				IUnitOfWork uowAggr = null;
-				switch(agr.Type) {
-					case AgreementType.NonfreeRent:
-						AgreementTransfer<NonfreeRentAgreement>(out uowAggr, agr.Id, actualContract);
-						break;
-				}
-				try {
-					uowAggr.Save();
-				} finally {
-					uowAggr.Dispose();
-				}
-			}
-
-			var agreements = UoW.Session.QueryOver<AdditionalAgreement>()
-								 .Where(x => x.Contract.Id == actualContract.Id)
-								 .List<AdditionalAgreement>().ToList();
-			actualContract.AdditionalAgreements.Clear();
-			agreements.ForEach(x => actualContract.AdditionalAgreements.Add(x));
-		}
-
-		private void AgreementTransfer<TAgreement>(out IUnitOfWork blankUoW, int agreementId, CounterpartyContract toContract)
-			where TAgreement : AdditionalAgreement, new()
-		{
-			var uow = UnitOfWorkFactory.CreateForRoot<TAgreement>(agreementId, $"Перенос доп. соглашения");
-			uow.Root.AgreementNumber = AdditionalAgreement.GetNumberWithTypeFromDB<TAgreement>(toContract);
-			uow.Root.Contract = toContract;
-			blankUoW = uow;
 		}
 
 		public virtual void UpdatePrices()
@@ -1934,8 +1881,7 @@ namespace Vodovoz.Domain.Orders
 						IsDiscountInMoney = orderItem.IsDiscountInMoney,
 						DiscountMoney = discMoney,
 						Discount = disc,
-						DiscountReason = orderItem.DiscountReason ?? orderItem.OriginalDiscountReason,
-						PaidRentEquipment = orderItem.PaidRentEquipment
+						DiscountReason = orderItem.DiscountReason ?? orderItem.OriginalDiscountReason
 					}
 				);
 			}
@@ -2375,91 +2321,6 @@ namespace Vodovoz.Domain.Orders
 			return waterItemsCount - BottlesReturn ?? 0;
 		}
 
-		public virtual void FillItemsFromAgreement(AdditionalAgreement a, int count = -1, decimal discount = -1, bool discountInMoney = false, DiscountReason reason = null, PromotionalSet proSet = null)
-		{
-			if(a.Type == AgreementType.NonfreeRent) {
-				IList<PaidRentEquipment> paidRentEquipmentList;
-				bool isDaily = false;
-				int rentCount = 0;
-				paidRentEquipmentList = (a.Self as NonfreeRentAgreement).PaidRentEquipments;
-				rentCount = (a.Self as NonfreeRentAgreement).RentMonths ?? 0;
-
-				foreach(PaidRentEquipment paidRentEquipment in paidRentEquipmentList) {
-					int itemId;
-					//Добавляем номенклатуру залога
-					OrderItem orderItem = null;
-					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
-							item => item.AdditionalAgreement?.Id == a.Self.Id &&
-							item.Nomenclature.Id == paidRentEquipment.PaidRentPackage.DepositService.Id)) != null) {
-						orderItem.Count = paidRentEquipment.Count;
-						orderItem.Price = paidRentEquipment.Deposit;
-					} else {
-						ObservableOrderItems.Add(
-							new OrderItem {
-								Order = this,
-								AdditionalAgreement = a.Self,
-								Count = paidRentEquipment.Count,
-								Equipment = null,
-								Nomenclature = paidRentEquipment.PaidRentPackage.DepositService,
-								Price = paidRentEquipment.Deposit,
-								PaidRentEquipment = paidRentEquipment
-							}
-						);
-					}
-					//Добавляем услугу аренды
-					orderItem = null;
-					if((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
-							item => item.AdditionalAgreement?.Id == a.Self.Id &&
-						item.Nomenclature.Id == (isDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily.Id : paidRentEquipment.PaidRentPackage.RentServiceMonthly.Id)
-							)) != null) {
-						orderItem.Count = paidRentEquipment.Count * rentCount;
-						orderItem.Price = paidRentEquipment.Price;
-						itemId = ObservableOrderItems.IndexOf(orderItem);
-					} else {
-						Nomenclature nomenclature = isDaily ? paidRentEquipment.PaidRentPackage.RentServiceDaily : paidRentEquipment.PaidRentPackage.RentServiceMonthly;
-						itemId = ObservableOrderItems.AddWithReturn(
-							new OrderItem {
-								Order = this,
-								AdditionalAgreement = a.Self,
-								Count = paidRentEquipment.Count * rentCount,
-								Equipment = null,
-								Nomenclature = nomenclature,
-								Price = paidRentEquipment.Price,
-								PaidRentEquipment = paidRentEquipment
-							}
-						);
-					}
-					//Добавляем оборудование
-					OrderEquipment orderEquip = ObservableOrderEquipments.FirstOrDefault(
-						x => x.Equipment == paidRentEquipment.Equipment
-						&& x.OrderItem != null
-						&& x.OrderItem == orderItem
-					);
-					if(orderEquip != null) {
-						orderEquip.Count = paidRentEquipment.Count;
-					} else {
-						ObservableOrderEquipments.Add(
-							new OrderEquipment {
-								Order = this,
-								Direction = Direction.Deliver,
-								Count = paidRentEquipment.Count,
-								Equipment = paidRentEquipment.Equipment,
-								Nomenclature = paidRentEquipment.Nomenclature,
-								Reason = Reason.Rent,
-								DirectionReason = DirectionReason.Rent,
-								OrderItem = ObservableOrderItems[itemId],
-								OwnType = OwnTypes.Rent
-							}
-						);
-					}
-
-					OnPropertyChanged(nameof(TotalSum));
-					OnPropertyChanged(nameof(OrderCashSum));
-				}
-			}
-			UpdateDocuments();
-		}
-
 		public virtual void RemoveAloneItem(OrderItem item)
 		{
 			if(item.Count == 0
@@ -2489,27 +2350,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			ObservableOrderEquipments.Remove(item);
 			UpdateDocuments();
-		}
-
-		private void RemoveRentItems(OrderItem item)
-		{
-			if(item.PaidRentEquipment != null) // Для помесячной и посуточной аренды.
-			{
-				foreach(OrderItem orderItem in ObservableOrderItems.ToList()) {
-					if(orderItem.PaidRentEquipment == item.PaidRentEquipment && orderItem != item) {
-						ObservableOrderItems.Remove(orderItem);
-						DeleteOrderEquipmentOnOrderItem(orderItem);
-						DeleteOrderAgreementDocumentOnOrderItem(orderItem);
-					}
-				}
-			}
-
-			foreach(OrderItem orderItem in ObservableOrderItems.ToList()) {
-				if(orderItem.AdditionalAgreement == item.AdditionalAgreement && orderItem != item) {
-					DeleteOrderEquipmentOnOrderItem(orderItem);
-					DeleteOrderAgreementDocumentOnOrderItem(orderItem);
-				}
-			}
 		}
 
 		/// <summary>

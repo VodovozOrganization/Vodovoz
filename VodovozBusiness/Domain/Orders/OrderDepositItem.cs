@@ -49,14 +49,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref depositOperation, value, () => DepositOperation);
 		}
 
-		PaidRentEquipment paidRentItem;
-
-		[Display(Name = "Залог за оплачиваемое оборудование")]
-		public virtual PaidRentEquipment PaidRentItem {
-			get => paidRentItem;
-			set => SetField(ref paidRentItem, value, () => PaidRentItem);
-		}
-
 		Nomenclature equipmentNomenclature;
 
 		[Display(Name = "Номенклатура оборудования")]

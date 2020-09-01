@@ -111,14 +111,12 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		public ContractsVM (IUnitOfWorkGeneric<Counterparty> uow) : base(
-			typeof(NonfreeRentAgreement),
 			typeof(WaterSalesAgreement))
 		{
 			this.UoW = uow;
 		}
 
 		public ContractsVM (IUnitOfWork uow, Counterparty counterparty) : base(
-			typeof(NonfreeRentAgreement),
 			typeof(WaterSalesAgreement))
 		{
 			UoW = uow;

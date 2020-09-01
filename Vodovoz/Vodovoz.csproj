@@ -418,7 +418,6 @@
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
     <Compile Include="Dialogs\DeliveryScheduleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryScheduleDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.PaidRentPackagesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
@@ -458,7 +457,6 @@
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationMaterialsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
-    <Compile Include="ViewWidgets\PaidRentPackagesView.cs" />
     <Compile Include="Dialogs\CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CommentTemplateDlg.cs" />
     <Compile Include="Representations\AdditionalAgreementsVM.cs" />
@@ -615,8 +613,6 @@
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
     <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
-    <Compile Include="Dialogs\Client\NonFreeRentAgreementDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.NonFreeRentAgreementDlg.cs" />
     <Compile Include="Dialogs\Client\WaterAgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WaterAgreementDlg.cs" />
     <Compile Include="Representations\ClientDeliveryPointsVM.cs" />

@@ -119,22 +119,5 @@ namespace Vodovoz.Domain.Goods
 
 		#endregion
 	}
-
-	public static class EquipmentWorks
-	{
-		public static ICriterion FilterUsedEquipment (ISession session)
-		{
-			var nAgreements = session.CreateCriteria<NonfreeRentAgreement> ().List<NonfreeRentAgreement> ();
-			var IDs = new List<int> ();
-			foreach (NonfreeRentAgreement nfr in nAgreements)
-				foreach (PaidRentEquipment eq in nfr.PaidRentEquipments)
-					if (eq.Equipment != null)
-						IDs.Add (eq.Equipment.Id);
-			int[] arr = new int[IDs.Count];
-			IDs.CopyTo (arr, 0);
-
-			return Restrictions.Not (Restrictions.In ("Id", arr)); 
-		}
-	}
 }
 

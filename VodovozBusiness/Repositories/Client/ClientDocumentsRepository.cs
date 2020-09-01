@@ -49,44 +49,5 @@ namespace Vodovoz.Repositories.Client
 			}
 			return result;
 		}
-
-		/// <summary>
-		/// Создает дополнительное соглашение для долгосрочной аренды оборудования
-		/// </summary>
-		public static NonfreeRentAgreement CreateDefaultNonfreeRentAgreement(IUnitOfWork UoW,
-																			 DeliveryPoint deliveryPoint,
-																			 DateTime? deliveryDate,
-																			 CounterpartyContract contract,
-																			 List<PaidRentEquipment> equipments,
-																			 int rentMonths)
-		{
-			if(equipments.Count == 0) {
-				throw new ArgumentException("При автоматическом создании дополнительного соглашения " +
-											"аренды оборудования, список должен иметь оборудование для аренды");
-			}
-			NonfreeRentAgreement result = null;
-			using(var uow = NonfreeRentAgreement.Create(contract)) {
-				uow.Root.DeliveryPoint = deliveryPoint;
-				if(deliveryDate.HasValue) {
-					uow.Root.IssueDate = deliveryDate.Value;
-					uow.Root.StartDate = deliveryDate.Value;
-				}
-				uow.Root.RentMonths = rentMonths;
-				foreach(var item in equipments) {
-					uow.Root.ObservableEquipment.Add(new PaidRentEquipment() {
-						Count = item.Count,
-						Deposit = item.Deposit,
-						Price = item.Price,
-						Equipment = item.Equipment,
-						IsNew = item.IsNew,
-						Nomenclature = item.Nomenclature,
-						PaidRentPackage = item.PaidRentPackage
-					});
-				}
-				uow.Save();
-				result = UoW.GetById<NonfreeRentAgreement>(uow.Root.Id);
-			}
-			return result;
-		}
 	}
 }
