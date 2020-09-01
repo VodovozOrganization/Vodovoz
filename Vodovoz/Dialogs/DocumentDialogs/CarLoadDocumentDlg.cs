@@ -5,19 +5,16 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.UoW;
 using QS.EntityRepositories;
-using QS.Project.Repositories;
 using QSOrmProject;
 using Vodovoz.Additions.Store;
 using Vodovoz.Infrastructure.Permissions;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Permissions;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.PermissionExtensions;
-using Vodovoz.Repositories.HumanResources;
 using QS.Project.Services;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
@@ -31,8 +28,8 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private IEmployeeRepository EmployeeRepository { get { return EmployeeSingletonRepository.GetInstance(); } }
-		private IUserPermissionRepository UserPermissionRepository { get { return UserPermissionSingletonRepository.GetInstance(); } }
+		private IEmployeeRepository EmployeeRepository => EmployeeSingletonRepository.GetInstance();
+		private IUserPermissionRepository UserPermissionRepository => UserPermissionSingletonRepository.GetInstance();
 
 		private CallTaskWorker callTaskWorker;
 		public virtual CallTaskWorker CallTaskWorker {
@@ -172,7 +169,7 @@ namespace Vodovoz
 					Entity.ClearItemsFromZero();
 			}
 
-			Entity.UpdateOperations(UoW);
+			Entity.UpdateOperations(UoW, new BaseParametersProvider().GetNomenclatureIdForTerminal);
 
 			logger.Info("Сохраняем погрузочный талон...");
 			UoWGeneric.Save();

@@ -935,8 +935,9 @@ namespace Vodovoz.Domain.Goods
 		[Display(Name = "Выезд мастера")]
 		master,
 		[Display(Name = "Топливо")]
-		fuel
-
+		fuel,
+		[Display(Name = "Кассовое оборудование")]
+		CashEquipment
 	}
 
 	public enum TareVolume

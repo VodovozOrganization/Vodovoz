@@ -51,7 +51,7 @@ namespace Vodovoz
 			this.frameReturns.Add(this.GtkAlignment1);
 			this.GtkLabel2 = new global::Gtk.Label();
 			this.GtkLabel2.Name = "GtkLabel2";
-			this.GtkLabel2.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Возврат недовоза</b>");
+			this.GtkLabel2.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Возврат</b>");
 			this.GtkLabel2.UseMarkup = true;
 			this.frameReturns.LabelWidget = this.GtkLabel2;
 			this.vbox1.Add(this.frameReturns);

@@ -39,9 +39,12 @@ using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.EntityRepositories.CallTasks;
+using Vodovoz.EntityRepositories.Goods;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Tools;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Services;
 
 namespace Vodovoz
 {
@@ -57,6 +60,8 @@ namespace Vodovoz
 		private bool canCloseRoutelist = false;
 		private Employee previousForwarder = null;
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private EmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository = new EmployeeNomenclatureMovementRepository();
+		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 
 		List<ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
@@ -412,12 +417,16 @@ namespace Vodovoz
 					break;
 				case RouteListActions.TransferReceptionToAnotherRL:
 					this.TabParent.AddSlaveTab(
-						this, new TransferGoodsBetweenRLDlg(Entity, TransferGoodsBetweenRLDlg.OpenParameter.Sender)
+						this, new TransferGoodsBetweenRLDlg(Entity, 
+							TransferGoodsBetweenRLDlg.OpenParameter.Sender,
+							employeeNomenclatureMovementRepository)
 					);
 					break;
 				case RouteListActions.TransferReceptionToThisRL:
 					this.TabParent.AddSlaveTab(
-						this, new TransferGoodsBetweenRLDlg(Entity, TransferGoodsBetweenRLDlg.OpenParameter.Receiver)
+						this, new TransferGoodsBetweenRLDlg(Entity, 
+							TransferGoodsBetweenRLDlg.OpenParameter.Receiver,
+							employeeNomenclatureMovementRepository)
 					);
 					break;
 				case RouteListActions.TransferAddressesToThisRL:
@@ -428,7 +437,13 @@ namespace Vodovoz
 							return;
 					}
 					this.TabParent.AddSlaveTab(
-						this, new RouteListAddressesTransferringDlg(Entity, RouteListAddressesTransferringDlg.OpenParameter.Receiver)
+						this, 
+						new RouteListAddressesTransferringDlg(
+							Entity.Id, 
+							RouteListAddressesTransferringDlg.OpenParameter.Receiver,
+							employeeNomenclatureMovementRepository,
+							terminalNomenclatureProvider
+						)
 					);
 					break;
 				case RouteListActions.TransferAddressesToAnotherRL:
@@ -439,7 +454,13 @@ namespace Vodovoz
 							return;
 					}
 					this.TabParent.AddSlaveTab(
-						this, new RouteListAddressesTransferringDlg(Entity, RouteListAddressesTransferringDlg.OpenParameter.Sender)
+						this, 
+						new RouteListAddressesTransferringDlg(
+							Entity.Id, 
+							RouteListAddressesTransferringDlg.OpenParameter.Sender,
+							employeeNomenclatureMovementRepository,
+							terminalNomenclatureProvider
+						)
 					);
 					break;
 				default:

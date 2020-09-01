@@ -68,8 +68,7 @@ namespace Vodovoz
 			});
 		}
 
-		public void FindDiscrepancies(IList<RouteListItem> items, List<EntityRepositories.Logistic.ReturnsNode> allReturnsToWarehouse)
-		{
+		public void FindDiscrepancies(IList<RouteListItem> items, List<EntityRepositories.Logistic.ReturnsNode> allReturnsToWarehouse) {
 			Items = RouteList.GetDiscrepancies(ItemsLoaded, allReturnsToWarehouse);
 		}
 	}

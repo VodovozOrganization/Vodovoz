@@ -31,6 +31,12 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref movementOperation, value, () => MovementOperation); }
 		}
 
+		EmployeeNomenclatureMovementOperation employeeNomenclatureMovementOperation;
+		public virtual EmployeeNomenclatureMovementOperation EmployeeNomenclatureMovementOperation { 
+			get => employeeNomenclatureMovementOperation;
+			set => SetField (ref employeeNomenclatureMovementOperation, value);
+		}
+		
 		Nomenclature nomenclature;
 
 		[Display (Name = "Номенклатура")]
@@ -127,9 +133,19 @@ namespace Vodovoz.Domain.Documents
 			MovementOperation.Amount = Amount;
 			MovementOperation.Equipment = Equipment;
 		}
+		
+		public virtual void CreateEmployeeNomenclatureIncomeOperation(DateTime time)
+		{
+			EmployeeNomenclatureMovementOperation = new EmployeeNomenclatureMovementOperation
+			{
+				Amount = (int)Amount,
+				OperationTime = time,
+				Employee = Document.RouteList.Driver,
+				Nomenclature = Nomenclature
+			};
+		}
 
 		#endregion
-
 	}
 }
 

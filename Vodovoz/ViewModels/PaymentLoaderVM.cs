@@ -9,11 +9,8 @@ using Vodovoz.Core.DataService;
 using Vodovoz.Services;
 using Vodovoz.Domain.Payments;
 using NLog;
-using System.Collections.Generic;
 using Vodovoz.Repositories.Payments;
 using QS.Commands;
-using System.Threading.Tasks;
-using System.Threading;
 using Vodovoz.Repositories;
 
 namespace Vodovoz.ViewModels
@@ -24,7 +21,6 @@ namespace Vodovoz.ViewModels
 
 		public GenericObservableList<Payment> ObservablePayments { get; set; }
 
-		readonly ICommonServices commonServices;
 		private Logger logger = LogManager.GetCurrentClassLogger();
 		double progress;
 
@@ -34,21 +30,14 @@ namespace Vodovoz.ViewModels
 			set => SetField(ref isNotAutoMatchingMode, value);
 		}
 
-		public Task Task { get; set; }
-
-		//public CancellationTokenSource Source { get; set; }
-
 		public event Action<string, double> UpdateProgress;
 
 		public PaymentLoaderVM(IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices, INavigationManager navigationManager) 
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
-			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			UoW = unitOfWorkFactory.CreateWithoutRoot();
 
 			ObservablePayments = new GenericObservableList<Payment>();
-
-			//Source = new CancellationTokenSource();
 
 			CreateCommands();
 		}

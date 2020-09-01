@@ -1,5 +1,4 @@
-﻿using System;
-using Gtk;
+﻿using Gtk;
 using Vodovoz.ViewModels;
 using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
@@ -16,8 +15,7 @@ namespace Vodovoz.Views
 		static Gdk.Color colorPink = new Gdk.Color(0xff, 0xc0, 0xc0);
 		static Gdk.Color colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 		static Gdk.Color colorLightGreen = new Gdk.Color(0xc0, 0xff, 0xc0);
-
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+	
 		IUnitOfWork UoW => ViewModel.UoW;
 
 		public PaymentLoaderView(PaymentLoaderVM paymentLoaderVM) : base(paymentLoaderVM)

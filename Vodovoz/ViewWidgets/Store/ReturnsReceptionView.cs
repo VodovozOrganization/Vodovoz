@@ -12,13 +12,16 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
+using Vodovoz.Services;
 
 namespace Vodovoz
 {
@@ -26,6 +29,7 @@ namespace Vodovoz
 	public partial class ReturnsReceptionView : QS.Dialog.Gtk.WidgetOnDialogBase
 	{
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
+		private ITerminalNomenclatureProvider terminalNomenclatureProvider = new BaseParametersProvider();
 
 		public IList<ReceptionItemNode> Items => ReceptionReturnsList;
 
@@ -71,7 +75,7 @@ namespace Vodovoz
 			get => warehouse;
 			set {
 				warehouse = value;
-				FillListReturnsFromRoute();
+				FillListReturnsFromRoute(terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
 			}
 		}
 
@@ -83,11 +87,10 @@ namespace Vodovoz
 					return;
 				routeList = value;
 				if(routeList != null) {
-					FillListReturnsFromRoute();
+					FillListReturnsFromRoute(terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
 				} else {
 					ReceptionReturnsList.Clear();
 				}
-
 			}
 		}
 
@@ -97,7 +100,7 @@ namespace Vodovoz
 
 		public IList<Equipment> AlreadyUnloadedEquipment;
 
-		void FillListReturnsFromRoute()
+		void FillListReturnsFromRoute(int terminalId)
 		{
 			if(Warehouse == null || RouteList == null)
 				return;
@@ -111,14 +114,15 @@ namespace Vodovoz
 			Warehouse warehouseAlias = null;
 			RouteListItem routeListItemAlias = null;
 			RouteListItem routeListItemToAlias = null;
+			Employee employeeAlias = null;
 
 			var returnableItems = UoW.Session.QueryOver<RouteListItem>(() => routeListItemAlias)
 				.Where(r => r.RouteList.Id == RouteList.Id)
 				.JoinAlias(rli => rli.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderItems, () => orderItemsAlias)
-				.JoinAlias(() => routeListItemAlias.TransferedTo, () => routeListItemToAlias)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
 				.JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
+				.Left.JoinAlias(() => routeListItemAlias.TransferedTo, () => routeListItemToAlias)
 				.Left.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.Where(Restrictions.Or(
 					Restrictions.On(() => warehouseAlias.Id).IsNull,
@@ -144,22 +148,38 @@ namespace Vodovoz
 				.JoinAlias(rli => rli.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.JoinAlias(() => orderEquipmentAlias.Equipment, () => equipmentAlias)
-				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => orderEquipmentAlias.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
-				.JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
-				.Where(Restrictions.Or(
-					Restrictions.On(() => warehouseAlias.Id).IsNull,
-					Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
-				))
-				.Where(() => nomenclatureAlias.Category != NomenclatureCategory.deposit)
-				.SelectList(list => list
-				   .Select(() => equipmentAlias.Id).WithAlias(() => resultAlias.EquipmentId)
-				   .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-				   .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-				   .Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-				)
-				.TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
-				.List<ReceptionItemNode>();
+		        .JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
+		        .Where(() => orderEquipmentAlias.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
+		        .JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
+		        .Where(Restrictions.Or(
+		            Restrictions.On(() => warehouseAlias.Id).IsNull,
+		            Restrictions.Eq(Projections.Property(() => warehouseAlias.Id), Warehouse.Id)
+		        ))
+		        .Where(() => nomenclatureAlias.Category != NomenclatureCategory.deposit)
+		        .SelectList(list => list
+	                .Select(() => equipmentAlias.Id).WithAlias(() => resultAlias.EquipmentId)
+	                .Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+	                .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+		        )
+		        .TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
+		        .List<ReceptionItemNode>();
+
+			var needTerminal = RouteList.Addresses.Any(x => x.Order.NeedTerminal);
+			
+			var returnableTerminal = uow.Session.QueryOver<EmployeeNomenclatureMovementOperation>()
+			                            .Left.JoinAlias(x => x.Nomenclature, () => nomenclatureAlias)
+			                            .Left.JoinAlias(x => x.Employee, () => employeeAlias)
+			                            .JoinAlias(() => nomenclatureAlias.Warehouses, () => warehouseAlias)
+			                            .Where(() => employeeAlias.Id == RouteList.Driver.Id)
+			                            .And(() => nomenclatureAlias.Id == terminalId)
+			                            .And(() => warehouseAlias.Id == Warehouse.Id)
+			                            .SelectList(list => list
+			                                                .SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+			                                                .Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+			                                                .SelectSum(x => x.Amount).WithAlias(() => resultAlias.ExpectedAmount))
+			                            .TransformUsing(Transformers.AliasToBean<ReceptionItemNode>())
+			                            .SingleOrDefault<ReceptionItemNode>();
 
 			foreach(var item in returnableItems) {
 				if(!ReceptionReturnsList.Any(i => i.NomenclatureId == item.NomenclatureId))
@@ -169,6 +189,11 @@ namespace Vodovoz
 			foreach(var equipment in returnableEquipment) {
 				if(!AlreadyUnloadedEquipment.Any(eq => eq.Id == equipment.EquipmentId))
 					ReceptionReturnsList.Add(equipment);
+			}
+
+			if (returnableTerminal != null && needTerminal) {
+				if (ReceptionReturnsList.All(i => i.NomenclatureId != returnableTerminal.NomenclatureId))
+					ReceptionReturnsList.Add(returnableTerminal);
 			}
 		}
 

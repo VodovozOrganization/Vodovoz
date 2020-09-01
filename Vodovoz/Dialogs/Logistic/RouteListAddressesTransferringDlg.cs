@@ -1,23 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
+using QS.Commands;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using QS.Project.Repositories;
 using QS.Project.Services;
 using Vodovoz.Core.DataService;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.WageCalculation;
+using Vodovoz.Services;
 using Vodovoz.ViewModel;
+using GC = System.GC;
 
 namespace Vodovoz
 {
@@ -26,6 +31,11 @@ namespace Vodovoz
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		WageParameterService wageParameterService = new WageParameterService(WageSingletonRepository.GetInstance(), new BaseParametersProvider());
+		private readonly IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository;
+		private readonly ITerminalNomenclatureProvider terminalNomenclatureProvider;
+
+		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceFrom { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
+		private GenericObservableList<EmployeeBalanceNode> ObservableDriverBalanceTo { get; set; } = new GenericObservableList<EmployeeBalanceNode>();
 
 		#region IOrmDialog implementation
 
@@ -36,16 +46,25 @@ namespace Vodovoz
 
 		#region Конструкторы
 
-		public RouteListAddressesTransferringDlg()
+		public RouteListAddressesTransferringDlg(IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository, 
+		                                         ITerminalNomenclatureProvider terminalNomenclatureProvider)
 		{
 			this.Build();
+			this.employeeNomenclatureMovementRepository = employeeNomenclatureMovementRepository ??
+			                                              throw new ArgumentNullException(nameof(employeeNomenclatureMovementRepository));
+			this.terminalNomenclatureProvider = terminalNomenclatureProvider ??
+			                              throw new ArgumentNullException(nameof(terminalNomenclatureProvider));
 			TabName = "Перенос адресов маршрутных листов";
 			ConfigureDlg();
 		}
 
-		public RouteListAddressesTransferringDlg(RouteList routeList, OpenParameter param) : this()
+		public RouteListAddressesTransferringDlg(
+			int routeListId,
+			OpenParameter param,
+			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
+			ITerminalNomenclatureProvider terminalNomenclatureProvider) : this(employeeNomenclatureMovementRepository, terminalNomenclatureProvider)
 		{
-			var rl = UoW.GetById<RouteList>(routeList.Id);
+			var rl = UoW.GetById<RouteList>(routeListId);
 			switch(param) {
 				case OpenParameter.Sender:
 					yentryreferenceRLFrom.Subject = rl;
@@ -106,6 +125,11 @@ namespace Vodovoz
 
 			ytreeviewRLFrom.Selection.Changed += YtreeviewRLFrom_OnSelectionChanged;
 			ytreeviewRLTo.Selection.Changed += YtreeviewRLTo_OnSelectionChanged;
+
+			ConfigureTreeViewsDriverBalance();
+
+			ybtnTransferTerminal.Clicked += (sender, e) => TransferTerminal.Execute();
+			ybtnRevertTerminal.Clicked += (sender, e) => RevertTerminal.Execute();
 		}
 
 		void YtreeviewRLFrom_OnSelectionChanged(object sender, EventArgs e)
@@ -147,9 +171,28 @@ namespace Vodovoz
 					  .AddTextRenderer(x => "Нет")
 					  .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered);
 
-			return config.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
-				.RowCells().AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.WasTransfered ? colorGreen : colorWhite)
+			return config.AddColumn("Нужен терминал").AddToggleRenderer(x => x.NeedTerminal).Editing(false)
+			             .AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
+			             .RowCells().AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.WasTransfered ? colorGreen : colorWhite)
+			             .Finish();
+		}
+
+		private void ConfigureTreeViewsDriverBalance()
+		{
+			yTreeViewDriverBalanceFrom.ColumnsConfig = FluentColumnsConfig<EmployeeBalanceNode>.Create()
+				.AddColumn("Код").AddTextRenderer(n => n.NomenclatureId.ToString())
+				.AddColumn("Номенклатура").AddTextRenderer(n => n.NomenclatureName)
+				.AddColumn("Количество").AddTextRenderer(n => n.Amount.ToString())
 				.Finish();
+
+			yTreeViewDriverBalanceTo.ColumnsConfig = FluentColumnsConfig<EmployeeBalanceNode>.Create()
+				.AddColumn("Код").AddTextRenderer(n => n.NomenclatureId.ToString())
+				.AddColumn("Номенклатура").AddTextRenderer(n => n.NomenclatureName)
+				.AddColumn("Количество").AddTextRenderer(n => n.Amount.ToString())
+				.Finish();
+
+			yTreeViewDriverBalanceFrom.ItemsDataSource = ObservableDriverBalanceFrom;
+			yTreeViewDriverBalanceTo.ItemsDataSource = ObservableDriverBalanceTo;
 		}
 
 		void YentryreferenceRLFrom_Changed(object sender, EventArgs e)
@@ -186,6 +229,8 @@ namespace Vodovoz
 			foreach(var item in routeListFrom.Addresses)
 				items.Add(new RouteListItemNode { RouteListItem = item });
 			ytreeviewRLFrom.ItemsDataSource = items;
+
+			FillObservableDriverBalance(ObservableDriverBalanceFrom, routeListFrom);
 		}
 
 		void YentryreferenceRLTo_Changed(object sender, EventArgs e)
@@ -223,12 +268,25 @@ namespace Vodovoz
 			foreach(var item in routeListTo.Addresses)
 				items.Add(new RouteListItemNode { RouteListItem = item });
 			ytreeviewRLTo.ItemsDataSource = items;
+
+			FillObservableDriverBalance(ObservableDriverBalanceTo, routeListTo);
 		}
 
 		private void UpdateNodes()
 		{
 			YentryreferenceRLFrom_Changed(null, null);
 			YentryreferenceRLTo_Changed(null, null);
+		}
+
+		private void FillObservableDriverBalance(GenericObservableList<EmployeeBalanceNode> observableDriverBalance, RouteList routeList) {
+			observableDriverBalance.Clear();
+
+			var driverTerminalBalance = employeeNomenclatureMovementRepository.GetTerminalFromDriverBalance(UoW,
+				routeList.Driver.Id, terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
+
+			if (driverTerminalBalance != null) {
+				observableDriverBalance.Add(driverTerminalBalance);
+			}
 		}
 
 		protected void OnButtonTransferClicked(object sender, EventArgs e)
@@ -360,6 +418,103 @@ namespace Vodovoz
 		}
 
 		#endregion
+
+		#region Команды
+
+		private DelegateCommand transferTerminal = null;
+		public DelegateCommand TransferTerminal => transferTerminal ?? (transferTerminal = new DelegateCommand(
+			() => {
+				var selectedNode = (yTreeViewDriverBalanceFrom.GetSelectedObject() as EmployeeBalanceNode);
+
+				if (selectedNode != null) {
+					if (selectedNode.Amount == 0) {
+						MessageDialogHelper.RunErrorDialog("Вы не можете передавать терминал, т.к. его нет на балансе у водителя.", "Ошибка");
+						return;
+					}
+					
+					if (ObservableDriverBalanceTo.Any(x => 
+						x.NomenclatureId == terminalNomenclatureProvider.GetNomenclatureIdForTerminal && x.Amount > 0)) {
+						MessageDialogHelper.RunErrorDialog("У водителя уже есть терминал для оплаты.", "Ошибка");
+						return;
+					}
+					
+					var terminal = UoW.GetById<Nomenclature>(selectedNode.NomenclatureId);
+					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
+					
+					var operationFrom = new EmployeeNomenclatureMovementOperation {
+						Employee = routeListFrom.Driver,
+						Nomenclature = terminal,
+						Amount = -1,
+						OperationTime = DateTime.Now
+					};
+					
+					var operationTo = new EmployeeNomenclatureMovementOperation {
+						Employee = routeListTo.Driver,
+						Nomenclature = terminal,
+						Amount = 1,
+						OperationTime = DateTime.Now
+					};
+					
+					UoW.Save(operationFrom);
+					UoW.Save(operationTo);
+					UoW.Commit();
+
+					FillObservableDriverBalance(ObservableDriverBalanceFrom, routeListFrom);
+					FillObservableDriverBalance(ObservableDriverBalanceTo, routeListTo);
+				}
+			},
+			() => yentryreferenceRLFrom.Subject != null && yentryreferenceRLTo.Subject != null
+		));
+		
+		private DelegateCommand revertTerminal = null;
+		public DelegateCommand RevertTerminal => revertTerminal ?? (revertTerminal = new DelegateCommand(
+			() => {
+				var selectedNode = (yTreeViewDriverBalanceTo.GetSelectedObject() as EmployeeBalanceNode);
+
+				if (selectedNode != null) {
+					if (selectedNode.Amount == 0) {
+						MessageDialogHelper.RunErrorDialog(
+							"Вы не можете передавать терминал, т.к. его нет на балансе у водителя.", "Ошибка");
+						return;
+					}
+					
+					if (ObservableDriverBalanceFrom.Any(x => 
+						x.NomenclatureId == terminalNomenclatureProvider.GetNomenclatureIdForTerminal && x.Amount > 0)) {
+						MessageDialogHelper.RunErrorDialog("У водителя уже есть терминал для оплаты.", "Ошибка");
+						return;
+					}
+
+					var terminal = UoW.GetById<Nomenclature>(selectedNode.NomenclatureId);
+					var routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+					var routeListTo = yentryreferenceRLTo.Subject as RouteList;
+
+					var operationTo = new EmployeeNomenclatureMovementOperation {
+						Employee = routeListTo.Driver,
+						Nomenclature = terminal,
+						Amount = -1,
+						OperationTime = DateTime.Now
+					};
+					
+					var operationFrom = new EmployeeNomenclatureMovementOperation {
+						Employee = routeListFrom.Driver,
+						Nomenclature = terminal,
+						Amount = 1,
+						OperationTime = DateTime.Now
+					};
+
+					UoW.Save(operationTo);
+					UoW.Save(operationFrom);
+					UoW.Commit();
+
+					FillObservableDriverBalance(ObservableDriverBalanceTo, routeListTo);
+					FillObservableDriverBalance(ObservableDriverBalanceFrom, routeListFrom);
+				}
+			},
+			() => yentryreferenceRLFrom.Subject != null && yentryreferenceRLTo.Subject != null
+		));
+
+		#endregion
 	}
 
 	public class RouteListItemNode
@@ -410,11 +565,11 @@ namespace Vodovoz
 					.Sum(bot => bot.Count)
 					.ToString();
 			}
-
 		}
 
 		public RouteListItem RouteListItem { get; set; }
 		public string DalyNumber => RouteListItem.Order.DailyNumber.ToString();
+		public bool NeedTerminal => RouteListItem.Order.NeedTerminal;
 	}
 }
 

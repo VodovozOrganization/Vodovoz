@@ -68,7 +68,6 @@ namespace Vodovoz.Domain.Operations
 		}
 
 		#endregion
-
 	}
 }
 
