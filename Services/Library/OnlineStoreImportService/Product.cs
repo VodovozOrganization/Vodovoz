@@ -15,7 +15,7 @@ namespace OnlineStoreImportService
         public string GroupId { get; set; }
         
         [JsonProperty(PropertyName = "PRICE")]
-        public decimal Price { get; set; }
+        public string Price { get; set; }
         
         [JsonProperty(PropertyName = "QUANTITY")]
         public string Quantity { get; set; }

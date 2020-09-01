@@ -113,21 +113,27 @@ namespace OnlineStoreImportService
             SetPrice(nomenclature, product.Price);
         }
 
-        private void SetPrice(Nomenclature nomenclature, decimal price)
+        private void SetPrice(Nomenclature nomenclature, string price)
         {
+            bool havePrice = decimal.TryParse(price, out decimal priceValue);
+            
             NomenclaturePrice nomenclaturePrice = nomenclature.NomenclaturePrice.FirstOrDefault();
             if (nomenclaturePrice == null) {
+                if(!havePrice) {
+                    return;
+                }
                 nomenclaturePrice = new NomenclaturePrice();
-                nomenclaturePrice.Price = price;
+                nomenclaturePrice.Price = priceValue;
                 nomenclaturePrice.MinCount = 1;
                 nomenclaturePrice.Nomenclature = nomenclature;
                 nomenclature.NomenclaturePrice.Add(nomenclaturePrice);
             }
             else {
-                nomenclaturePrice.Price = price;
+                nomenclaturePrice.Price = havePrice ? priceValue : 0;
                 nomenclaturePrice.MinCount = 1;
                 nomenclaturePrice.Nomenclature = nomenclature;   
             }
+            uow.Save(nomenclaturePrice);
         }
     }
 }
