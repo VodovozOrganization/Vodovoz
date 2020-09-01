@@ -285,6 +285,8 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Доступно")
 						.AddTextRenderer(node => node.AvailableText)
 						.AddSetter((cell, node) => cell.ForegroundGdk = node.Available > 0 ? colorBlack : colorRed)
+					.AddColumn("Код в ИМ")
+						.AddTextRenderer(node => node.OnlineStoreExternalId)
 					.Finish()
 			);
 

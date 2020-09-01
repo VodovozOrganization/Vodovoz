@@ -34,7 +34,8 @@ namespace Vodovoz.Dialogs.Goods
 
 			ycheckExportToOnlineStore.Binding.AddBinding(Entity, e => e.ExportToOnlineStore, w => w.Active).InitializeFromSource();
 			ycheckbuttonOnlineStore.Binding.AddBinding(Entity, e => e.IsOnlineStore, w => w.Active).InitializeFromSource();
-
+			ycheckArchived.Binding.AddBinding(Entity,e => e.IsArchive, w => w.Active).InitializeFromSource();
+			
 			yentryParent.SubjectType = typeof(ProductGroup);
 			yentryParent.Binding.AddBinding(Entity, e => e.Parent, w => w.Subject).InitializeFromSource();
 

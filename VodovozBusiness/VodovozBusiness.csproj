@@ -85,6 +85,7 @@
     <Compile Include="HibernateMapping\Order\OrdersWithoutShipment\OrderWithoutShipmentForPaymentMap.cs" />
     <Compile Include="HibernateMapping\SmsPaymentMap.cs" />
     <Compile Include="HibernateMapping\WageCalculation\WageParameterItemMap.cs" />
+    <Compile Include="Parameters\NomenclatureParametersProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\Accounting\AccountExpense.cs" />
     <Compile Include="Domain\Accounting\AccountIncome.cs" />
@@ -345,6 +346,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="HibernateMapping\Documents\TransferOperationDocumentMap.cs" />
+    <Compile Include="Services\INomenclatureParametersProvider.cs" />
     <Compile Include="Services\IOrganisationParametersProvider.cs" />
     <Compile Include="Services\ISmsPaymentServiceParametersProvider.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
@@ -874,6 +876,10 @@
     <Folder Include="Domain\Orders\OrdersWithoutShipment\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
+      <Project>{190cea0d-ea23-4c91-8030-203a5afed7b7}</Project>
+      <Name>GammaBinding</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj">
       <Project>{f22749b2-e35b-455d-bd8d-081373b16fc7}</Project>
       <Name>QS.BusinessCommon</Name>

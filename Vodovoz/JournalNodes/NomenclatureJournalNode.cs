@@ -16,7 +16,10 @@ namespace Vodovoz.JournalNodes
 		public decimal Removed { get; set; }
 		public string UnitName { get; set; }
 		public short UnitDigits { get; set; }
+		
 		public bool IsEquipmentWithSerial { get; set; }
+		public string OnlineStoreExternalId { get; set; }
+
 		public bool CalculateQtyOnStock { get; set; } = true;
 		public string InStockText => UsedStock ? Format(InStock) : string.Empty;
 		public string ReservedText => UsedStock && Reserved.HasValue ? Format(Reserved.Value) : string.Empty;
