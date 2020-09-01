@@ -100,7 +100,8 @@ namespace Vodovoz.JournalViewModels
 			itemsQuery.Where(
 				GetSearchCriterion(
 					() => nomenclatureAlias.Name,
-					() => nomenclatureAlias.Id
+					() => nomenclatureAlias.Id,
+					() => nomenclatureAlias.OnlineStoreExternalId
 				)
 			);
 
@@ -128,6 +129,7 @@ namespace Vodovoz.JournalViewModels
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.Category)
 						.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 						.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
+						.Select(() => nomenclatureAlias.OnlineStoreExternalId).WithAlias(() => resultAlias.OnlineStoreExternalId)
 						.SelectSubQuery(subqueryAdded).WithAlias(() => resultAlias.Added)
 						.SelectSubQuery(subqueryRemoved).WithAlias(() => resultAlias.Removed)
 						.SelectSubQuery(subqueryReserved).WithAlias(() => resultAlias.Reserved)
@@ -141,6 +143,7 @@ namespace Vodovoz.JournalViewModels
 						.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
 						.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.Category)
+						.Select(() => nomenclatureAlias.OnlineStoreExternalId).WithAlias(() => resultAlias.OnlineStoreExternalId)
 						.Select(() => false).WithAlias(() => resultAlias.CalculateQtyOnStock)
 					)
 					.OrderBy(x => x.Name).Asc

@@ -60,6 +60,13 @@ namespace Vodovoz.Domain.Goods
 			get { return onlineStoreGuid; }
 			set { SetField(ref onlineStoreGuid, value, () => OnlineStoreGuid); }
 		}
+		
+		private string onlineStoreExternalId;
+		[Display(Name = "Id в интернет магазине")]
+		public virtual string OnlineStoreExternalId {
+			get => onlineStoreExternalId;
+			set => SetField(ref onlineStoreExternalId, value);
+		}
 
 		private bool exportToOnlineStore;
 		[Display(Name = "Выгружать товары в онлайн магазин?")]
