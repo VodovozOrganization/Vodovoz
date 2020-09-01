@@ -10,6 +10,10 @@ namespace Vodovoz.Views.Mango
 
 		private global::Gamma.GtkWidgets.yLabel labelNumber;
 
+		private global::Gtk.HBox hbox2;
+
+		private global::Gtk.Notebook WidgetPlace;
+
 		private global::Gtk.HBox hbox1;
 
 		private global::Gamma.GtkWidgets.yButton buttonDisconnect;
@@ -44,6 +48,21 @@ namespace Vodovoz.Views.Mango
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.WidgetPlace = new global::Gtk.Notebook();
+			this.WidgetPlace.CanFocus = true;
+			this.WidgetPlace.Name = "WidgetPlace";
+			this.WidgetPlace.CurrentPage = 0;
+			this.hbox2.Add(this.WidgetPlace);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.WidgetPlace]));
+			w3.Position = 0;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w4.Position = 2;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
@@ -53,20 +72,20 @@ namespace Vodovoz.Views.Mango
 			this.buttonDisconnect.Name = "buttonDisconnect";
 			this.buttonDisconnect.UseUnderline = true;
 			this.buttonDisconnect.Label = global::Mono.Unix.Catalog.GetString("Завершить");
-			global::Gtk.Image w3 = new global::Gtk.Image();
-			w3.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.decline-call.png");
-			this.buttonDisconnect.Image = w3;
+			global::Gtk.Image w5 = new global::Gtk.Image();
+			w5.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.phone.decline-call.png");
+			this.buttonDisconnect.Image = w5;
 			this.hbox1.Add(this.buttonDisconnect);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonDisconnect]));
-			w4.PackType = ((global::Gtk.PackType)(1));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonDisconnect]));
+			w6.PackType = ((global::Gtk.PackType)(1));
+			w6.Position = 0;
+			w6.Expand = false;
+			w6.Fill = false;
 			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w5.Position = 2;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w7.Position = 3;
+			w7.Expand = false;
+			w7.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using ClientMangoService;
 using Gtk;
@@ -7,7 +8,11 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.Utilities;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Infrastructure.Services;
+using Vodovoz.Repositories.Client;
 using Vodovoz.ViewModels.Mango;
 
 namespace Vodovoz.Infrastructure.Mango
@@ -27,7 +32,11 @@ namespace Vodovoz.Infrastructure.Mango
 		private IPage CurrentPage;
 		private uint timer;
 
-		public MangoManager(Gtk.Action toolbarIcon, IUnitOfWorkFactory unitOfWorkFactory, IEmployeeService employeeService, IUserService userService, INavigationManager navigation)
+		public MangoManager(Gtk.Action toolbarIcon, 
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			IEmployeeService employeeService, 
+			IUserService userService, 
+			INavigationManager navigation)
 		{
 			this.toolbarIcon = toolbarIcon;
 			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -57,7 +66,9 @@ namespace Vodovoz.Infrastructure.Mango
 		public TimeSpan? StageDuration => DateTime.Now - StageBegin;
 
 		public string CallerName => LastMessage?.CallFrom.Name;
+		//List<object> FoundByPhoneItems;
 		public string CallerNumber => LastMessage?.CallFrom.Number;
+
 
 		#endregion
 
@@ -112,6 +123,26 @@ namespace Vodovoz.Infrastructure.Mango
 		#endregion
 		#region Private
 
+		List<Counterparty> clients = null;
+		public List<Counterparty> Clients { get => clients; private set => clients = value; }
+		Employee employee = null;
+		public Employee Employee { get => employee; private set => employee = value; }
+		List<DeliveryPoint> deliveryPoints = null;
+		public List<DeliveryPoint> DeliveryPoints { get => deliveryPoints;private set => deliveryPoints = value; }
+
+		private void FoundByPhoneItemsConfigure()
+		{
+			var _list= PhoneRepository.GetObjectByPhone(CallerNumber, unitOfWorkFactory.CreateWithoutRoot()) as List<object>;
+			foreach(var item in _list) {
+				if(item.GetType() == typeof(Counterparty))
+					clients.Add(item as Counterparty);
+				else if(item.GetType() == typeof(Employee) && employee != null)
+					employee = item as Employee;
+				else if(item.GetType() == typeof(DeliveryPoint))
+					deliveryPoints.Add(item as DeliveryPoint);
+			}
+		}
+
 		bool HandleTimeoutHandler()
 		{
 			if(LastMessage != null)
@@ -121,6 +152,7 @@ namespace Vodovoz.Infrastructure.Mango
 
 		private void HandleMessage(NotificationMessage message)
 		{
+			FoundByPhoneItemsConfigure();
 			if(CurrentPage != null) {
 				navigation.ForceClosePage(CurrentPage);
 			}
@@ -130,13 +162,17 @@ namespace Vodovoz.Infrastructure.Mango
 			}
 
 			if(message.State == CallState.Connected) {
-				if(message.CallFrom.Type == CallerType.Internal) { }
-				//CurrentPage = navigation.OpenViewModel<InternalCallViewModel, MangoManager>(null, this);
+				if(message.CallFrom.Type == CallerType.Internal) {
+					CurrentPage = navigation.OpenViewModel<InternalCallViewModel, MangoManager>(null,this);
+				 }
 				else
 				{
-					//CurrentPage = navigation.OpenViewModel<FullInternalCallViewModel, MangoManager>(null, this);
+					if(clients != null)
+						CurrentPage = navigation.OpenViewModel<CounterpartyTalkViewModel, MangoManager, IEnumerable<Counterparty>>(null, this, clients);
+					else
+						CurrentPage = navigation.OpenViewModel<UnknowTalkViewModel, Phone>(null, new Phone() { Number = CallerNumber });
 				}
- 			}
+			}
 
 			if(CurrentPage != null)
 				CurrentPage.PageClosed += CurrentPage_PageClosed;
