@@ -104,6 +104,8 @@ namespace Vodovoz
 		{
 			if(Warehouse == null || RouteList == null)
 				return;
+			
+			ReceptionReturnsList.Clear();
 
 			ReceptionItemNode resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
