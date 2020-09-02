@@ -113,7 +113,6 @@ namespace OnlineStoreImportService
                 ProductImporter productImporter = new ProductImporter(uow, onlineStoreNomenclatureFactory, resultGroups, unknownProductGroup);
                 var products = (JArray) productsData["product"];
                 productImporter.LoadProducts(products, onlineStoreId);
-                uow.Commit();
             } 
         }
         
