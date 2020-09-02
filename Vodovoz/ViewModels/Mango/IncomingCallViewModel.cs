@@ -7,6 +7,7 @@ using Vodovoz.Domain.Client;
 using QS.ViewModels.Dialog;
 using Vodovoz.Infrastructure.Mango;
 using QS.DomainModel.UoW;
+using ClientMangoService.Commands;
 
 namespace Vodovoz.ViewModels.Mango
 {
@@ -23,7 +24,8 @@ namespace Vodovoz.ViewModels.Mango
 		}
 		private Counterparty currentCounterparty { get; set; }
 
-		public IncomingCallViewModel(IUnitOfWorkFactory UoWFactory, 
+		public IncomingCallViewModel(
+			IUnitOfWorkFactory UoWFactory, 
 			INavigationManager navigation,
 			ITdiCompatibilityNavigation tdinavigation,
 			MangoManager manager) : base(navigation)
@@ -48,7 +50,9 @@ namespace Vodovoz.ViewModels.Mango
 
 		public void DeclineCall()
 		{
-			//FIXME Реализовать команду
+			MangoController controller = new MangoController();
+			controller.HangUp();
+			NavigationManager.AskClosePage(NavigationManager.CurrentPage);
 		}
 
 		#endregion

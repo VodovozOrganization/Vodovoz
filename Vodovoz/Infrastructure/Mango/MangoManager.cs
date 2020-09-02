@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using ClientMangoService;
@@ -132,14 +133,23 @@ namespace Vodovoz.Infrastructure.Mango
 
 		private void FoundByPhoneItemsConfigure()
 		{
-			var _list= PhoneRepository.GetObjectByPhone(CallerNumber, unitOfWorkFactory.CreateWithoutRoot()) as List<object>;
+			var _list= PhoneRepository.GetObjectByPhone(CallerNumber, unitOfWorkFactory.CreateWithoutRoot()) as ArrayList;
+			if(_list != null)
 			foreach(var item in _list) {
-				if(item.GetType() == typeof(Counterparty))
-					clients.Add(item as Counterparty);
-				else if(item.GetType() == typeof(Employee) && employee != null)
-					employee = item as Employee;
-				else if(item.GetType() == typeof(DeliveryPoint))
-					deliveryPoints.Add(item as DeliveryPoint);
+				if(item.GetType() == typeof(Counterparty)) {
+						if(clients == null)
+							clients = new List<Counterparty>();
+						clients.Add(item as Counterparty);
+
+					}
+				else if(item.GetType() == typeof(Employee) && employee != null) {
+						employee = item as Employee;
+					}
+				else if(item.GetType() == typeof(DeliveryPoint)) {
+						if(deliveryPoints == null)
+							deliveryPoints = new List<DeliveryPoint>();
+						deliveryPoints.Add(item as DeliveryPoint);
+					}
 			}
 		}
 
@@ -152,12 +162,12 @@ namespace Vodovoz.Infrastructure.Mango
 
 		private void HandleMessage(NotificationMessage message)
 		{
-			FoundByPhoneItemsConfigure();
 			if(CurrentPage != null) {
 				navigation.ForceClosePage(CurrentPage);
 			}
 
 			if(message.State == CallState.Appeared) {
+				//FoundByPhoneItemsConfigure();
 				CurrentPage = navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
 			}
 

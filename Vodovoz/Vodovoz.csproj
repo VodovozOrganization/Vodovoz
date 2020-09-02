@@ -198,6 +198,9 @@
     <Reference Include="Grpc.Core">
       <HintPath>..\packages\Grpc.Core.2.31.0\lib\net45\Grpc.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Dapper">
+      <HintPath>..\packages\Dapper.2.0.35\lib\net461\Dapper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
