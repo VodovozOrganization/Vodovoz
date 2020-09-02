@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NLog.Web;
 
 namespace VodovozMangoService
 {
@@ -24,11 +25,11 @@ namespace VodovozMangoService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureLogging(logging =>
-                {
-                    logging.ClearProviders();
-                    logging.AddConsole();
-                })
+	            .ConfigureLogging(logging =>
+	            {
+		            logging.ClearProviders();
+		            logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+	            })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
@@ -44,7 +45,8 @@ namespace VodovozMangoService
                             k.Listen(IPAddress.Any, 7086);
                         })
                         .UseStartup<Startup>();
-                });
+                })
+	            .UseNLog();
 
         private static void InitNotifacationService()
         {
