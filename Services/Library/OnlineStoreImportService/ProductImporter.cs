@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -56,47 +57,46 @@ namespace OnlineStoreImportService
 
         private void AddOrUpdateNomenclature(Product product)
         {
-            if (nomenclatures.TryGetValue(product.Id, out Nomenclature nomenclature)) {
-                UpdateNomenclature(nomenclature, product);
+            logger.Info($"Обработка товара: ExternalId: {product.Id}, Name: {product.Name}, Price: {product.Price}");
+
+            try {
+                if (nomenclatures.TryGetValue(product.Id, out Nomenclature nomenclature)) {
+                    UpdateNomenclature(nomenclature, product);
+                }
+                else {
+                    AddNewNomenclature(product);
+                }
+                uow.Commit();
+                
+                if (nomenclatures.TryGetValue(product.Id, out Nomenclature nom)) {
+                    var price = nom.NomenclaturePrice.FirstOrDefault();
+                    logger.Info($"Сохранена номенклатура: Id: {nom.Id}, ExternalId: {nom.OnlineStoreExternalId}, Name: {nom.Name}, Price: {price?.Price}");
+                }
+                else {
+                    logger.Info($"Номенклатура не была создана по ExternalId: {product.Id}");
+                }
             }
-            else {
-                AddNewNomenclature(product);
+            catch (Exception ex) {
+                logger.Error(ex, "Не удалось загрузить номенклатуру");
             }
-            uow.Commit();
         }
 
         private void UpdateNomenclature(Nomenclature nomenclature, Product product)
         {
-            if (nomenclature.OnlineStoreExternalId != product.Id) {
+            if(nomenclature.OnlineStoreExternalId != product.Id) {
                 return;
             }
-
-            try
-            {
-                FillNomenclatureFromProduct(nomenclature, product);
-                
-                uow.Save(nomenclature);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "Не удалось обновить номенклатуру");
-            }
+            FillNomenclatureFromProduct(nomenclature, product);
+            uow.Save(nomenclature);
         }
 
         private void AddNewNomenclature(Product product)
         {
-            try
-            {
-                var nomenclature = onlineStoreNomenclatureFactory.CreateNewNomenclature(uow);
-                nomenclature.OnlineStore = onlineStore;
-                FillNomenclatureFromProduct(nomenclature, product);
-                nomenclatures.Add(product.Id, nomenclature);
-                uow.Save(nomenclature);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "Не удалось добавить новую номенклатуру");
-            }
+            var nomenclature = onlineStoreNomenclatureFactory.CreateNewNomenclature(uow);
+            nomenclature.OnlineStore = onlineStore;
+            FillNomenclatureFromProduct(nomenclature, product);
+            nomenclatures.Add(product.Id, nomenclature);
+            uow.Save(nomenclature);
         }
 
         private void FillNomenclatureFromProduct(Nomenclature nomenclature, Product product)
@@ -115,7 +115,14 @@ namespace OnlineStoreImportService
 
         private void SetPrice(Nomenclature nomenclature, string price)
         {
-            bool havePrice = decimal.TryParse(price, out decimal priceValue);
+            bool havePrice = false;
+            decimal priceValue = 0;
+            if(!string.IsNullOrWhiteSpace(price)) {
+                price = price.Replace(",", ".");
+                var culture = CultureInfo.CreateSpecificCulture("ru-RU");
+                culture.NumberFormat.NumberDecimalSeparator = ".";
+                havePrice = decimal.TryParse(price, NumberStyles.AllowDecimalPoint, culture, out priceValue);
+            }
             
             NomenclaturePrice nomenclaturePrice = nomenclature.NomenclaturePrice.FirstOrDefault();
             if (nomenclaturePrice == null) {
@@ -123,17 +130,15 @@ namespace OnlineStoreImportService
                     return;
                 }
                 nomenclaturePrice = new NomenclaturePrice();
+                nomenclaturePrice.Nomenclature = nomenclature;
                 nomenclaturePrice.Price = priceValue;
                 nomenclaturePrice.MinCount = 1;
-                nomenclaturePrice.Nomenclature = nomenclature;
                 nomenclature.NomenclaturePrice.Add(nomenclaturePrice);
             }
             else {
                 nomenclaturePrice.Price = havePrice ? priceValue : 0;
                 nomenclaturePrice.MinCount = 1;
-                nomenclaturePrice.Nomenclature = nomenclature;   
             }
-            uow.Save(nomenclaturePrice);
         }
     }
 }
