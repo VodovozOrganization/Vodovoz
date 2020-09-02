@@ -29,8 +29,6 @@ namespace VodovozMangoService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // services.AddAuthentication(AzureADDefaults.BearerAuthenticationScheme)
-            //     .AddAzureADBearer(options => Configuration.Bind("AzureAd", options));
             services.AddControllers();
 
             services.AddLettuceEncrypt(options =>
@@ -53,9 +51,6 @@ namespace VodovozMangoService
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            // app.UseAuthentication();
-            // app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
