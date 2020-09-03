@@ -233,7 +233,8 @@ namespace Vodovoz
 			}
 
 			routelistdiscrepancyview.RouteList = Entity;
-			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures();
+			routelistdiscrepancyview.ItemsLoaded = Entity.NotLoadedNomenclatures(false,
+				terminalNomenclatureProvider.GetNomenclatureIdForTerminal);
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 

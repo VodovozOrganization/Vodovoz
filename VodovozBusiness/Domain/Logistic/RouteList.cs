@@ -795,7 +795,7 @@ namespace Vodovoz.Domain.Logistic
 				returnedBottlesNom)
 			.Sum(item => item.Amount);
 
-			var notloadedNomenclatures = NotLoadedNomenclatures();
+			var notloadedNomenclatures = NotLoadedNomenclatures(true);
 			var allReturnsToWarehouse = new RouteListRepository().GetReturnsToWarehouse(UoW, Id, Nomenclature.GetCategoriesForShipment());
 			var discrepancies = GetDiscrepancies(notloadedNomenclatures, allReturnsToWarehouse);
 
@@ -1620,7 +1620,7 @@ namespace Vodovoz.Domain.Logistic
 		/// <summary>
 		/// Нода с номенклатурами и различными количествами после погрузки МЛ на складе
 		/// </summary>
-		public virtual List<RouteListControlNotLoadedNode> NotLoadedNomenclatures()
+		public virtual List<RouteListControlNotLoadedNode> NotLoadedNomenclatures(bool needTerminalAccounting, int? terminalId = null)
 		{
 			List<RouteListControlNotLoadedNode> notLoadedNomenclatures = new List<RouteListControlNotLoadedNode>();
 			if(Id > 0) {
@@ -1628,6 +1628,10 @@ namespace Vodovoz.Domain.Logistic
 				var nomenclaturesToLoad = new RouteListRepository().GetGoodsAndEquipsInRL(UoW, this);
 				
 				foreach(var n in nomenclaturesToLoad) {
+					
+					if(!needTerminalAccounting && n.NomenclatureId == terminalId)
+						continue;
+					
 					var loaded = loadedNomenclatures.FirstOrDefault(x => x.NomenclatureId == n.NomenclatureId);
 					decimal loadedAmount = 0;
 					if(loaded != null)
