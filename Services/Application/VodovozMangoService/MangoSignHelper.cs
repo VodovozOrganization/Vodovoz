@@ -6,7 +6,7 @@ namespace Mango
 {
     public static class MangoSignHelper
     {
-        private static string GetSign(string vpbx_api_key, string json, string vpbx_api_salt)
+        public static string GetSign(string vpbx_api_key, string json, string vpbx_api_salt)
         {
             if (String.IsNullOrEmpty(vpbx_api_key))
                 throw new ArgumentException($"{nameof(vpbx_api_key)} was empty");

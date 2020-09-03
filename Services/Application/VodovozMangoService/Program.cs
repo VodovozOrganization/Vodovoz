@@ -30,6 +30,10 @@ namespace VodovozMangoService
 	    private static string mysqlUser;
 	    private static string mysqlPassword;
 	    private static string mysqlDatabase;
+	    
+	    //Mango
+	    public static string VpbxApiKey;
+	    public static string VpbxApiSalt; 
 	    public static void Main(string[] args)
         {
 	        #region Читаем конфигурацию
@@ -37,10 +41,10 @@ namespace VodovozMangoService
 		        IniConfigSource confFile = new IniConfigSource(configFile);
 		        confFile.Reload();
 
-		        IConfig smsConfig = confFile.Configs["MangoService"];
-		        notficationServicePort = smsConfig.GetInt("grps_client_port");
-		        mangoServiceHTTPPort = smsConfig.GetInt("http_port");
-		        mangoServiceHTTPSPort = smsConfig.GetInt("https_port");
+		        IConfig serviceConfig = confFile.Configs["MangoService"];
+		        notficationServicePort = serviceConfig.GetInt("grps_client_port");
+		        mangoServiceHTTPPort = serviceConfig.GetInt("http_port");
+		        mangoServiceHTTPSPort = serviceConfig.GetInt("https_port");
 		        
 		        IConfig mysqlConfig = confFile.Configs["Mysql"];
 				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
@@ -48,6 +52,10 @@ namespace VodovozMangoService
 				mysqlUser = mysqlConfig.GetString("mysql_user");
 				mysqlPassword = mysqlConfig.GetString("mysql_password");
 				mysqlDatabase = mysqlConfig.GetString("mysql_database");
+				
+				IConfig mangoConfig = confFile.Configs["Mango"];
+				VpbxApiKey = mangoConfig.GetString("vpbx_api_key");
+				VpbxApiSalt = mangoConfig.GetString("vpbx_api_salt");
 	        }
 	        catch(Exception ex) {
 		        logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");

@@ -19,6 +19,11 @@ namespace VodovozMangoService.Controllers
             String message = $"vpbx_api_key={eventRequest.Vpbx_Api_Key}\nsign={eventRequest.Sign}\njson={eventRequest.Json}";
             logger.Debug(message);
 #endif
+            if (!eventRequest.ValidateSign())
+            {
+                logger.Warn("Запрос с некорретной подписью пропускаем...");
+                return null;
+            }
             return String.Empty;
         }
     }
