@@ -160,6 +160,9 @@
     <Reference Include="System.Text.Encoding.CodePages">
       <HintPath>..\packages\System.Text.Encoding.CodePages.4.7.1\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
     </Reference>
+    <Reference Include="Dapper">
+      <HintPath>..\packages\Dapper.2.0.35\lib\net461\Dapper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\Logistic\AcceptBefore.cs" />
@@ -895,6 +898,7 @@
     <Compile Include="Domain\Orders\OrdersWithoutShipment\OrderWithoutShipmentForPaymentItem.cs" />
     <Compile Include="Domain\Logistic\LateArrivalReason.cs" />
     <Compile Include="Services\IVpbxSettings.cs" />
+    <Compile Include="Repositories\Client\PhoneRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

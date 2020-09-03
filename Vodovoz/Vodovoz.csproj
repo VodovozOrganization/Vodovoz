@@ -192,6 +192,15 @@
       <HintPath>..\packages\Autofac.5.2.0\lib\net461\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="Grpc.Core.Api">
+      <HintPath>..\packages\Grpc.Core.Api.2.31.0\lib\net45\Grpc.Core.Api.dll</HintPath>
+    </Reference>
+    <Reference Include="Grpc.Core">
+      <HintPath>..\packages\Grpc.Core.2.31.0\lib\net45\Grpc.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper">
+      <HintPath>..\packages\Dapper.2.0.35\lib\net461\Dapper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -1542,12 +1551,12 @@
     <Compile Include="ViewModels\Mango\IncomingCallViewModel.cs" />
     <Compile Include="Views\Mango\IncomingCallView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.IncomingCallView.cs" />
-    <Compile Include="ViewModels\Mango\UnknowTalkViewModel.cs" />
-    <Compile Include="ViewModels\Mango\CounterpartyTalkViewModel.cs" />
-    <Compile Include="Views\Mango\UnknowTalkView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.UnknowTalkView.cs" />
-    <Compile Include="Views\Mango\CounterpartyTalkView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Mango.FullInternalCallView.cs" />
+    <Compile Include="ViewModels\Mango\Talks\CounterpartyTalkViewModel.cs" />
+    <Compile Include="ViewModels\Mango\Talks\UnknowTalkViewModel.cs" />
+    <Compile Include="Views\Mango\Talks\CounterpartyTalkView.cs" />
+    <Compile Include="Views\Mango\Talks\UnknowTalkView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1821,6 +1830,8 @@
     <Folder Include="Views\Mango\" />
     <Folder Include="ViewModels\Mango\" />
     <Folder Include="Infrastructure\Mango\" />
+    <Folder Include="ViewModels\Mango\Talks\" />
+    <Folder Include="Views\Mango\Talks\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -2334,4 +2345,5 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <Import Project="..\packages\Grpc.Core.2.31.0\build\net45\Grpc.Core.targets" Condition="Exists('..\packages\Grpc.Core.2.31.0\build\net45\Grpc.Core.targets')" />
 </Project>

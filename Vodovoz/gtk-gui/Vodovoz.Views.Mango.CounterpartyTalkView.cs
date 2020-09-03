@@ -55,10 +55,10 @@ namespace Vodovoz.Views.Mango
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
-			// Widget Vodovoz.Views.Mango.FullIncomingCallView
+			// Widget Vodovoz.Views.Mango.CounterpartyTalkView
 			global::Stetic.BinContainer.Attach(this);
-			this.Name = "Vodovoz.Views.Mango.FullIncomingCallView";
-			// Container child Vodovoz.Views.Mango.FullIncomingCallView.Gtk.Container+ContainerChild
+			this.Name = "Vodovoz.Views.Mango.CounterpartyTalkView";
+			// Container child Vodovoz.Views.Mango.CounterpartyTalkView.Gtk.Container+ContainerChild
 			this.MainVbox = new global::Gtk.VBox();
 			this.MainVbox.Name = "MainVbox";
 			this.MainVbox.Spacing = 6;

@@ -70,12 +70,14 @@
     <Compile Include="MangoNotificationClient.cs" />
     <Compile Include="NotificationConnectionWatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Commands\MangoController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ProtoBuf\" />
+    <Folder Include="Commands\" />
   </ItemGroup>
   <ItemGroup>
     <Protobuf Include="..\..\Application\VodovozMangoService\Protobuf\NotificationService.proto">
