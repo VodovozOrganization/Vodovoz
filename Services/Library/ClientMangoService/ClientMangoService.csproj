@@ -67,6 +67,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Application\VodovozMangoService\MangoSignHelper.cs">
+      <Link>MangoSignHelper.cs</Link>
+    </Compile>
     <Compile Include="MangoNotificationClient.cs" />
     <Compile Include="NotificationConnectionWatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
