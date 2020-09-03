@@ -24,6 +24,8 @@ namespace VodovozMangoService.Controllers
                 logger.Warn("Запрос с некорретной подписью пропускаем...");
                 return null;
             }
+            logger.Info($"{eventRequest.CallEvent.from.number}=>{eventRequest.CallEvent.to.extension}");
+            
             return String.Empty;
         }
     }

@@ -1,15 +1,27 @@
 using System;
+using System.Text.Json;
 
 namespace VodovozMangoService.DTO
 {
     public class EventRequest
     {
         private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private CallEvent callEvent;
         public string Vpbx_Api_Key { get; set; }
 
         public string Sign{ get; set; }
 
         public string Json { get; set; }
+
+        public CallEvent CallEvent
+        {
+            get
+            {
+                if(callEvent == null && !String.IsNullOrWhiteSpace(Json))
+                    callEvent = JsonSerializer.Deserialize<CallEvent>(Json);
+                return callEvent;
+            }
+        }
 
         public bool ValidateSign()
         {
