@@ -68,6 +68,8 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox9;
 
+		private global::Gtk.Button buttonAcceptFine;
+
 		private global::Gtk.Button buttonAccept;
 
 		protected virtual void Build()
@@ -413,29 +415,43 @@ namespace Vodovoz
 			this.hbox9.Name = "hbox9";
 			this.hbox9.Spacing = 6;
 			// Container child hbox9.Gtk.Box+BoxChild
+			this.buttonAcceptFine = new global::Gtk.Button();
+			this.buttonAcceptFine.CanFocus = true;
+			this.buttonAcceptFine.Name = "buttonAcceptFine";
+			this.buttonAcceptFine.UseUnderline = true;
+			this.buttonAcceptFine.Label = global::Mono.Unix.Catalog.GetString("Выписать штраф");
+			global::Gtk.Image w32 = new global::Gtk.Image();
+			w32.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
+			this.buttonAcceptFine.Image = w32;
+			this.hbox9.Add(this.buttonAcceptFine);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.buttonAcceptFine]));
+			w33.Position = 1;
+			w33.Expand = false;
+			w33.Fill = false;
+			// Container child hbox9.Gtk.Box+BoxChild
 			this.buttonAccept = new global::Gtk.Button();
 			this.buttonAccept.CanFocus = true;
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;
 			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString("Подтвердить километраж");
-			global::Gtk.Image w32 = new global::Gtk.Image();
-			w32.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
-			this.buttonAccept.Image = w32;
+			global::Gtk.Image w34 = new global::Gtk.Image();
+			w34.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w34;
 			this.hbox9.Add(this.buttonAccept);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.buttonAccept]));
-			w33.PackType = ((global::Gtk.PackType)(1));
-			w33.Position = 2;
-			w33.Expand = false;
-			w33.Fill = false;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox9[this.buttonAccept]));
+			w35.PackType = ((global::Gtk.PackType)(1));
+			w35.Position = 2;
+			w35.Expand = false;
+			w35.Fill = false;
 			this.vboxRouteList.Add(this.hbox9);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vboxRouteList[this.hbox9]));
-			w34.PackType = ((global::Gtk.PackType)(1));
-			w34.Position = 1;
-			w34.Expand = false;
-			w34.Fill = false;
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vboxRouteList[this.hbox9]));
+			w36.PackType = ((global::Gtk.PackType)(1));
+			w36.Position = 1;
+			w36.Expand = false;
+			w36.Fill = false;
 			this.vbxMain.Add(this.vboxRouteList);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.vboxRouteList]));
-			w35.Position = 3;
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vbxMain[this.vboxRouteList]));
+			w37.Position = 3;
 			this.Add(this.vbxMain);
 			if ((this.Child != null))
 			{
