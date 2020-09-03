@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -8,17 +7,54 @@ using System.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Nini.Config;
 using NLog.Web;
 
 namespace VodovozMangoService
 {
     public class Program
     {
-        public static void Main(string[] args)
-        {	
+	    private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+	    private static readonly string configFile = "/etc/vodovoz-mango-service.conf";
+	    
+	    //MangoService
+	    private static int notficationServicePort;
+	    private static int mangoServiceHTTPPort; 
+	    private static int mangoServiceHTTPSPort; 
+	    
+	    //Mysql
+	    private static string mysqlServerHostName;
+	    private static string mysqlServerPort;
+	    private static string mysqlUser;
+	    private static string mysqlPassword;
+	    private static string mysqlDatabase;
+	    public static void Main(string[] args)
+        {
+	        #region Читаем конфигурацию
+	        try {
+		        IniConfigSource confFile = new IniConfigSource(configFile);
+		        confFile.Reload();
+
+		        IConfig smsConfig = confFile.Configs["MangoService"];
+		        notficationServicePort = smsConfig.GetInt("grps_client_port");
+		        mangoServiceHTTPPort = smsConfig.GetInt("http_port");
+		        mangoServiceHTTPSPort = smsConfig.GetInt("https_port");
+		        
+		        IConfig mysqlConfig = confFile.Configs["Mysql"];
+				mysqlServerHostName = mysqlConfig.GetString("mysql_server_host_name");
+				mysqlServerPort = mysqlConfig.GetString("mysql_server_port", "3306");
+				mysqlUser = mysqlConfig.GetString("mysql_user");
+				mysqlPassword = mysqlConfig.GetString("mysql_password");
+				mysqlDatabase = mysqlConfig.GetString("mysql_database");
+	        }
+	        catch(Exception ex) {
+		        logger.Fatal(ex, "Ошибка чтения конфигурационного файла.");
+		        return;
+	        }
+	        #endregion
+	        
 	        InitNotifacationService();
 	        CreateHostBuilder(args).Build().Run();
         }
@@ -37,12 +73,12 @@ namespace VodovozMangoService
                         {
                             var appServices = k.ApplicationServices;
                             k.Listen(
-                                IPAddress.Any, 7088,
+                                IPAddress.Any, mangoServiceHTTPSPort,
                                 o => o.UseHttps(h =>
                                 {
                                     h.UseLettuceEncrypt(appServices);
                                 }));
-                            k.Listen(IPAddress.Any, 7086);
+                            k.Listen(IPAddress.Any, mangoServiceHTTPPort);
                         })
                         .UseStartup<Startup>();
                 })
@@ -50,12 +86,11 @@ namespace VodovozMangoService
 
         private static void InitNotifacationService()
         {
-            const int port = 7087;
-            var service = new NotificationServiceImpl();
+	        var service = new NotificationServiceImpl();
             Server server = new Server
             {
                 Services = { NotificationService.BindService(service) },
-                Ports = { new ServerPort("0.0.0.0", port, ServerCredentials.Insecure) }
+                Ports = { new ServerPort("0.0.0.0", notficationServicePort, ServerCredentials.Insecure) }
             };
             server.Start();
 			
